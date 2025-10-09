@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin — Applications</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <h1>Applications</h1>
+  <button id="logout">Logout</button>
+  <div id="status">Loading…</div>
+  <ul id="list"></ul>
+
+    <script>
+    const human = {
+      RECEIVED: 'New',
+      REVIEWING: 'Reviewed',
+      SHORTLISTED: 'Shortlisted',
+      REJECTED: 'Rejected',
+      HIRED: 'Hired'
+    };
+
+    async function fetchJSON(url, opts={}) {
+      const res = await fetch(url, { credentials: 'include', ...opts });
+      if (!res.ok) throw new Error((await res.json().catch(()=>({}))).error || res.statusText);
+      return res.json();
+    }
+
+    async function loadApps() {
+      const s = document.getElementById('status');
+      const ul = document.getElementById('list');
+      s.textContent = 'Loading…';
+      try {
+        const items = await fetchJSON('/api/v1/applications');
+        s.textContent = '';
+        ul.innerHTML = '';
+        for (const it of items) {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <strong>${it.firstName} ${it.lastName}</strong> — ${it.email}
+            — <em>${human[it.status] ?? it.status}</em>
+            <button class="open" data-id="${it.id}">Open CV</button>
+            <span style="margin-left:8px"></span>
+            <button class="set" data-id="${it.id}" data-status="REVIEWING">Mark Reviewed</button>
+            <button class="set" data-id="${it.id}" data-status="SHORTLISTED">Shortlist</button>
+            <button class="set" data-id="${it.id}" data-status="REJECTED">Reject</button>
+            <button class="set" data-id="${it.id}" data-status="HIRED">Hire</button>
+          `;
+          ul.appendChild(li);
+        }
+      } catch (e) {
+        s.textContent = 'Not authorized or failed to load.';
+        setTimeout(()=>location.href='/login.html', 1000);
+      }
+    }
+
+    document.getElementById('logout')?.addEventListener('click', async () => {
+      await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'include' });
+      location.href = '/login.html';
+    });
+
+    document.getElementById('list')?.addEventListener('click', async (e) => {
+      const btnOpen = e.target.closest('.open');
+      const btnSet  = e.target.closest('.set');
+      try {
+        if (btnOpen) {
+          const id = btnOpen.dataset.id;
+          const { url } = await fetchJSON(`/api/v1/applications/${id}/cv`);
+          window.open(url, '_blank');
+        }
+        if (btnSet) {
+          const id = btnSet.dataset.id;
+          const status = btnSet.dataset.status;
+          await fetchJSON(`/api/v1/applications/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
+          });
+          await loadApps(); // refresh list
+        }
+      } catch (err) {
+        alert(err.message || 'Action failed');
+      }
+    });
+
+    window.addEventListener('load', loadApps);
+    </script>
+
+</body>
+</html>
