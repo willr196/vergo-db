@@ -1,0 +1,10 @@
+{
+  "Rules": [
+    {
+      "ID": "ExpireNonCurrentAfter90Days",
+      "Status": "Enabled",
+      "Filter": {},
+      "NoncurrentVersionExpiration": { "NoncurrentDays": 90 }
+    }
+  ]
+}

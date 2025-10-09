@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Apply — VERGO</title>
+</head>
+<body>
+  <h1>Apply to VERGO</h1>
+  <form id="f">
+    <input name="firstName" placeholder="First name" required />
+    <input name="lastName" placeholder="Last name" required />
+    <input type="email" name="email" placeholder="Email" required />
+    <input name="phone" placeholder="Phone" />
+    <label><input type="checkbox" name="roles" value="Chef" /> Chef</label>
+    <label><input type="checkbox" name="roles" value="Bartender" /> Bartender</label>
+    <label><input type="checkbox" name="roles" value="Runner" /> Runner</label>
+    <label>CV (PDF/DOC)</label>
+    <input type="file" id="cv" accept=".pdf,.doc,.docx" required />
+    <button>Submit</button>
+  </form>
+  <script src="/js/apply.js"></script>
+</body>
+</html>
