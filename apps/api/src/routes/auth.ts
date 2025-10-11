@@ -1,44 +1,32 @@
-import { Router } from "express";
-import rateLimit from "express-rate-limit";
-import bcrypt from "bcrypt";
-import { prisma } from "../prisma";
+import { Router, Request, Response } from 'express';
+import bcrypt from 'bcrypt';
 
-const r = Router();
+const router = Router();
 
-// Rate limiter stays
-const loginLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  skipSuccessfulRequests: true,
-  message: { error: "Too many login attempts. Try again in 10 minutes." },
-});
+async function handleLogin(req: Request, res: Response) {
+  const { password } = req.body || {};
+  if (!password) return res.status(400).json({ error: 'Password required' });
 
-// POST /api/v1/auth/login
-r.post("/login", loginLimiter, async (req, res) => {
-  const { username, password } = req.body || {};
+  const adminHash = process.env.ADMIN_HASH;
+  if (!adminHash) return res.status(500).json({ error: 'Server misconfigured' });
 
-  if (!username || !password) {
-    return res.status(400).json({ error: "Missing username or password" });
-  }
-
-  const user = await prisma.adminUser.findUnique({ where: { username } });
-  if (!user) return res.status(401).json({ error: "Invalid credentials" });
-
-  const ok = await bcrypt.compare(password, user.password);
-  if (!ok) return res.status(401).json({ error: "Invalid credentials" });
+  const ok = await bcrypt.compare(password, adminHash);
+  if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
 
   req.session.isAdmin = true;
-  req.session.username = username;
   res.json({ ok: true });
-});
+}
 
-r.post("/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.clearCookie("vergo.sid");
+// Support old and new URLs
+router.post('/login', handleLogin);
+router.post('/admin/login', handleLogin);
+
+router.post('/admin/logout', (req: Request, res: Response) => {
+  req.session.destroy((err) => {
+    if (err) return res.status(500).json({ error: 'Could not log out' });
+    res.clearCookie('vergo.sid');
     res.json({ ok: true });
   });
 });
 
-export default r;
+export default router;

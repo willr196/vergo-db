@@ -1,0 +1,26 @@
+HTTP/2 200 
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+origin-agent-cluster: ?1
+referrer-policy: no-referrer
+strict-transport-security: max-age=15552000; includeSubDomains
+x-content-type-options: nosniff
+x-dns-prefetch-control: off
+x-download-options: noopen
+x-frame-options: SAMEORIGIN
+x-permitted-cross-domain-policies: none
+x-xss-protection: 0
+vary: Origin
+access-control-allow-credentials: true
+x-ratelimit-limit: 50
+x-ratelimit-remaining: 47
+date: Thu, 09 Oct 2025 19:06:10 GMT
+x-ratelimit-reset: 1760037483
+content-type: application/json; charset=utf-8
+content-length: 11
+etag: W/"b-Ai2R8hgEarLmHKwesT1qcY913ys"
+set-cookie: vergo.sid=s%3A9-cCL05w4YHoySlONxbYkeiFmPHIWW92.95WdxEjRhm7jEhUpZyRnxOqD3phZ%2B5tQPT2QorocFUI; Path=/; Expires=Thu, 09 Oct 2025 21:06:10 GMT; HttpOnly; Secure; SameSite=Lax
+server: Fly/6f91d33b9d (2025-10-08)
+via: 2 fly.io
+fly-request-id: 01K755VM6ZCRESSV0WFPER0Q5T-lhr
+
