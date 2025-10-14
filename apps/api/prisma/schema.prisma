@@ -65,14 +65,12 @@ enum ApplicationStatus {
 model AdminUser {
   id             String    @id @default(cuid())
   username       String    @unique
-  password       String    // bcrypt hash
+  password       String
   createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  
+  // Security fields
   failedAttempts Int       @default(0)
   lockedUntil    DateTime?
-  
-
-
   
   @@index([username])
 }
