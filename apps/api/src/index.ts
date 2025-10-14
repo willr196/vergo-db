@@ -36,14 +36,12 @@ app.use(express.json({ limit: '5mb' }));
 app.use(rateLimit({ windowMs: 60_000, max: 120 }));
 
 // Session configuration
-const SESSION_SECRET =
-  process.env.SESSION_SECRET ||
-  (process.env.NODE_ENV !== 'production' ? 'dev-only-secret' : '');
-
-if (!SESSION_SECRET) {
-  throw new Error('SESSION_SECRET must be set in production');
+// Better validation
+if (env.nodeEnv === 'production' && !process.env.SESSION_SECRET) {
+  throw new Error('SESSION_SECRET required in production');
 }
 
+const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-only-secret-change-in-production';
 app.use(session({
   name: 'vergo.sid',
   secret: SESSION_SECRET,
@@ -52,7 +50,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production', // only secure in prod
-    sameSite: 'lax',
+    sameSite: 'strict',
     maxAge: 1000 * 60 * 60 * 2 // 2 hours
   }
 }));
