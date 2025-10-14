@@ -6,7 +6,8 @@
     "build": "tsc -p .",
     "start": "node dist/src/index.js",
     "prisma": "prisma",
-    "prisma:deploy": "prisma migrate deploy"
+    "prisma:deploy": "prisma migrate deploy",
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.654.0",
