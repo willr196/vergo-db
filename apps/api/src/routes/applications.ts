@@ -4,7 +4,7 @@ import { presignUpload, presignDownload } from '../services/s3';
 import { prisma } from '../prisma';
 import { randomUUID } from 'crypto';
 import { adminAuth } from '../middleware/adminAuth';
-import { fileTypeFromBuffer } from 'file-type';
+import { fromBuffer } from 'file-type';
 import { S3Client, GetObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
 import rateLimit from 'express-rate-limit';
@@ -158,8 +158,8 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
     const buffer = await streamToBuffer(response.Body as Readable, 4096);
     
     // 5. Check actual file type from buffer
-    const type = await fileTypeFromBuffer(buffer);
-    
+    const type = await fromBuffer(buffer);
+      
     const allowedMimeTypes = [
       'application/pdf',
       'application/msword', // .doc
