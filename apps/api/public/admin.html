@@ -2,19 +2,219 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Admin — Applications</title>
+  <title>Admin – VERGO Applications</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      margin: 0;
+      color: #333;
+    }
+    
+    #logout {
+      padding: 8px 16px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    #logout:hover {
+      background: #c82333;
+    }
+    
+    #status {
+      padding: 12px;
+      background: #fff3cd;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #856404;
+    }
+    
+    #list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .app-card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .app-name {
+      font-size: 1.2em;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .app-status {
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+    
+    .status-RECEIVED { background: #d1ecf1; color: #0c5460; }
+    .status-REVIEWING { background: #fff3cd; color: #856404; }
+    .status-SHORTLISTED { background: #d4edda; color: #155724; }
+    .status-REJECTED { background: #f8d7da; color: #721c24; }
+    .status-HIRED { background: #d1e7dd; color: #0f5132; }
+    
+    .app-info {
+      margin: 8px 0;
+      color: #666;
+      font-size: 0.95em;
+    }
+    
+    .app-roles {
+      margin: 8px 0;
+      color: #333;
+    }
+    
+    .app-meta {
+      margin: 8px 0;
+      font-size: 0.85em;
+      color: #999;
+    }
+    
+    .app-actions {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+    
+    button {
+      padding: 8px 14px;
+      margin-right: 8px;
+      margin-bottom: 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-open {
+      background: #007bff;
+      color: white;
+    }
+    
+    .btn-open:hover:not(:disabled) {
+      background: #0056b3;
+    }
+    
+    .btn-reviewing {
+      background: #ffc107;
+      color: #000;
+    }
+    
+    .btn-reviewing:hover:not(:disabled) {
+      background: #e0a800;
+    }
+    
+    .btn-shortlist {
+      background: #28a745;
+      color: white;
+    }
+    
+    .btn-shortlist:hover:not(:disabled) {
+      background: #218838;
+    }
+    
+    .btn-reject {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .btn-reject:hover:not(:disabled) {
+      background: #c82333;
+    }
+    
+    .btn-hire {
+      background: #20c997;
+      color: white;
+    }
+    
+    .btn-hire:hover:not(:disabled) {
+      background: #1aa179;
+    }
+    
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      
+      .header {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      
+      button {
+        width: 100%;
+        margin-right: 0;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Applications</h1>
-  <button id="logout">Logout</button>
-  <div id="status">Loading…</div>
+  <div class="header">
+    <h1>📋 Applications</h1>
+    <button id="logout">Logout</button>
+  </div>
+  
+  <div id="status">Loading applications...</div>
   <ul id="list"></ul>
 
-    <script>
+  <script>
     const human = {
       RECEIVED: 'New',
-      REVIEWING: 'Reviewed',
+      REVIEWING: 'Reviewing',
       SHORTLISTED: 'Shortlisted',
       REJECTED: 'Rejected',
       HIRED: 'Hired'
@@ -29,28 +229,60 @@
     async function loadApps() {
       const s = document.getElementById('status');
       const ul = document.getElementById('list');
-      s.textContent = 'Loading…';
+      s.textContent = 'Loading applications...';
+      
       try {
         const items = await fetchJSON('/api/v1/applications');
-        s.textContent = '';
+        s.textContent = `Showing ${items.length} application${items.length !== 1 ? 's' : ''}`;
         ul.innerHTML = '';
+        
+        if (items.length === 0) {
+          ul.innerHTML = '<li style="text-align:center; padding:40px; color:#999;">No applications yet</li>';
+          return;
+        }
+        
         for (const it of items) {
           const li = document.createElement('li');
+          
+          const dateStr = new Date(it.createdAt).toLocaleDateString('en-GB', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          
+          const rolesStr = it.roles.join(', ') || 'No roles';
+          
           li.innerHTML = `
-            <strong>${it.firstName} ${it.lastName}</strong> — ${it.email}
-            — <em>${human[it.status] ?? it.status}</em>
-            <button class="open" data-id="${it.id}">Open CV</button>
-            <span style="margin-left:8px"></span>
-            <button class="set" data-id="${it.id}" data-status="REVIEWING">Mark Reviewed</button>
-            <button class="set" data-id="${it.id}" data-status="SHORTLISTED">Shortlist</button>
-            <button class="set" data-id="${it.id}" data-status="REJECTED">Reject</button>
-            <button class="set" data-id="${it.id}" data-status="HIRED">Hire</button>
+            <div class="app-card">
+              <div class="app-header">
+                <div class="app-name">${it.firstName} ${it.lastName}</div>
+                <div class="app-status status-${it.status}">${human[it.status] || it.status}</div>
+              </div>
+              <div class="app-info">
+                📧 ${it.email} ${it.phone ? '| 📞 ' + it.phone : ''}
+              </div>
+              <div class="app-roles">
+                <strong>Roles:</strong> ${rolesStr}
+              </div>
+              <div class="app-meta">
+                Applied: ${dateStr}${it.source ? ' | Source: ' + it.source : ''}${it.cvOriginalName ? ' | CV: ' + it.cvOriginalName : ''}
+              </div>
+              <div class="app-actions">
+                <button class="open btn-open" data-id="${it.id}">📄 Open CV</button>
+                <button class="set btn-reviewing" data-id="${it.id}" data-status="REVIEWING">✓ Reviewing</button>
+                <button class="set btn-shortlist" data-id="${it.id}" data-status="SHORTLISTED">⭐ Shortlist</button>
+                <button class="set btn-reject" data-id="${it.id}" data-status="REJECTED">✕ Reject</button>
+                <button class="set btn-hire" data-id="${it.id}" data-status="HIRED">🎉 Hire</button>
+              </div>
+            </div>
           `;
           ul.appendChild(li);
         }
       } catch (e) {
         s.textContent = 'Not authorized or failed to load.';
-        setTimeout(()=>location.href='/login.html', 1000);
+        setTimeout(() => location.href='/login.html', 1000);
       }
     }
 
@@ -61,30 +293,59 @@
 
     document.getElementById('list')?.addEventListener('click', async (e) => {
       const btnOpen = e.target.closest('.open');
-      const btnSet  = e.target.closest('.set');
+      const btnSet = e.target.closest('.set');
+      
       try {
         if (btnOpen) {
+          btnOpen.disabled = true;
+          const originalText = btnOpen.textContent;
+          btnOpen.textContent = 'Loading...';
+          
           const id = btnOpen.dataset.id;
           const { url } = await fetchJSON(`/api/v1/applications/${id}/cv`);
           window.open(url, '_blank');
+          
+          btnOpen.disabled = false;
+          btnOpen.textContent = originalText;
         }
+        
         if (btnSet) {
-          const id = btnSet.dataset.id;
           const status = btnSet.dataset.status;
+          
+          // Confirm destructive actions
+          if (status === 'REJECTED') {
+            if (!confirm('Are you sure you want to reject this applicant?')) return;
+          }
+          if (status === 'HIRED') {
+            if (!confirm('Are you sure you want to mark this applicant as hired?')) return;
+          }
+          
+          btnSet.disabled = true;
+          const originalText = btnSet.textContent;
+          btnSet.textContent = 'Updating...';
+          
+          const id = btnSet.dataset.id;
           await fetchJSON(`/api/v1/applications/${id}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status })
           });
+          
           await loadApps(); // refresh list
         }
       } catch (err) {
         alert(err.message || 'Action failed');
+        if (btnOpen) {
+          btnOpen.disabled = false;
+          btnOpen.textContent = '📄 Open CV';
+        }
+        if (btnSet) {
+          btnSet.disabled = false;
+        }
       }
     });
 
     window.addEventListener('load', loadApps);
-    </script>
-
+  </script>
 </body>
 </html>

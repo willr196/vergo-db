@@ -3,22 +3,218 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Apply — VERGO</title>
+  <title>Apply – VERGO Events</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+      background: #f5f5f5;
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 0.95em;
+    }
+    
+    form {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    label {
+      display: block;
+      margin: 20px 0 8px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="file"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    input[type="file"]:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+    
+    .roles-group {
+      margin: 20px 0;
+    }
+    
+    .roles-group label {
+      display: inline-flex;
+      align-items: center;
+      margin: 8px 12px 8px 0;
+      font-weight: normal;
+    }
+    
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+      cursor: pointer;
+    }
+    
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background 0.3s;
+    }
+    
+    button:hover:not(:disabled) {
+      background: #0056b3;
+    }
+    
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .info-box {
+      background: #e7f3ff;
+      border-left: 4px solid #007bff;
+      padding: 12px;
+      margin: 20px 0;
+      border-radius: 4px;
+      font-size: 0.9em;
+      color: #004085;
+    }
+    
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      
+      form {
+        padding: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Apply to VERGO</h1>
+  <h1>Apply to VERGO Events</h1>
+  <p class="subtitle">Join our team of event professionals</p>
+  
   <form id="f">
-    <input name="firstName" placeholder="First name" required />
-    <input name="lastName" placeholder="Last name" required />
-    <input type="email" name="email" placeholder="Email" required />
-    <input name="phone" placeholder="Phone" />
-    <label><input type="checkbox" name="roles" value="Chef" /> Chef</label>
-    <label><input type="checkbox" name="roles" value="Bartender" /> Bartender</label>
-    <label><input type="checkbox" name="roles" value="Runner" /> Runner</label>
-    <label>CV (PDF/DOC)</label>
-    <input type="file" id="cv" accept=".pdf,.doc,.docx" required />
-    <button>Submit</button>
+    <label for="firstName">First Name *</label>
+    <input 
+      type="text"
+      id="firstName"
+      name="firstName" 
+      required 
+      minlength="2"
+      maxlength="100"
+    />
+    
+    <label for="lastName">Last Name *</label>
+    <input 
+      type="text"
+      id="lastName"
+      name="lastName" 
+      required 
+      minlength="2"
+      maxlength="100"
+    />
+    
+    <label for="email">Email *</label>
+    <input 
+      type="email"
+      id="email"
+      name="email" 
+      required 
+      maxlength="255"
+    />
+    
+    <label for="phone">Phone</label>
+    <input 
+      type="tel"
+      id="phone"
+      name="phone" 
+      maxlength="20"
+      placeholder="Optional"
+    />
+    
+    <label>Roles you're applying for: *</label>
+    <div class="roles-group">
+      <label>
+        <input type="checkbox" name="roles" value="Chef" />
+        Chef
+      </label>
+      <label>
+        <input type="checkbox" name="roles" value="Bartender" />
+        Bartender
+      </label>
+      <label>
+        <input type="checkbox" name="roles" value="Runner" />
+        Runner
+      </label>
+      <label>
+        <input type="checkbox" name="roles" value="Kitchen Porter" />
+        Kitchen Porter
+      </label>
+      <label>
+        <input type="checkbox" name="roles" value="Front of House" />
+        Front of House
+      </label>
+      <label>
+        <input type="checkbox" name="roles" value="Security" />
+        Security
+      </label>
+      <label>
+        <input type="checkbox" name="roles" value="Stage Hand" />
+        Stage Hand
+      </label>
+    </div>
+    
+    <label for="cv">CV (PDF or Word) *</label>
+    <input 
+      type="file" 
+      id="cv" 
+      accept=".pdf,.doc,.docx" 
+      required 
+    />
+    
+    <div class="info-box">
+      💡 Maximum file size: 10MB. We review all applications within 48 hours.
+    </div>
+    
+    <button type="submit">Submit Application</button>
   </form>
+
   <script src="/js/apply.js"></script>
 </body>
 </html>
