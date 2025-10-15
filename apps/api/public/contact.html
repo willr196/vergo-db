@@ -200,6 +200,69 @@
       transform: translateY(0);
     }
     
+    /* Roles Section Styling */
+    .roles-section {
+      margin: 25px 0;
+      padding: 20px;
+      background: #f8f9f8;
+      border-radius: 12px;
+    }
+    
+    .role-category {
+      margin-bottom: 25px;
+    }
+    
+    .role-category:last-child {
+      margin-bottom: 0;
+    }
+    
+    .category-header {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #F2C88E;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #F2C88E;
+    }
+    
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    
+    .role-checkbox-label {
+      display: flex;
+      align-items: center;
+      font-weight: normal;
+      font-size: 0.95rem;
+      padding: 10px 12px;
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .role-checkbox-label:hover {
+      background: #fff9f0;
+      border-color: #F2C88E;
+    }
+    
+    .role-checkbox-label input[type="checkbox"] {
+      width: auto;
+      margin-right: 8px;
+      cursor: pointer;
+      accent-color: #F2C88E;
+    }
+    
+    .role-checkbox-label input[type="checkbox"]:checked + span {
+      font-weight: 600;
+      color: #F2C88E;
+    }
+    
     /* Contact Info Section */
     .contact-info {
       background: white;
@@ -305,6 +368,10 @@
       }
       
       .info-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .roles-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -431,36 +498,124 @@
           </div>
           
           <div class="form-group">
-            <label>Roles Required * (check all that apply)</label>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 10px;">
-              <label style="display: flex; align-items: center; font-weight: normal;">
-                <input type="checkbox" name="roles" value="Chef" style="width: auto; margin-right: 8px;">
-                👨‍🍳 Chef
-              </label>
-              <label style="display: flex; align-items: center; font-weight: normal;">
-                <input type="checkbox" name="roles" value="Bartender" style="width: auto; margin-right: 8px;">
-                🍸 Bartender
-              </label>
-              <label style="display: flex; align-items: center; font-weight: normal;">
-                <input type="checkbox" name="roles" value="Runner" style="width: auto; margin-right: 8px;">
-                🏃 Runner
-              </label>
-              <label style="display: flex; align-items: center; font-weight: normal;">
-                <input type="checkbox" name="roles" value="Kitchen Porter" style="width: auto; margin-right: 8px;">
-                🧹 Kitchen Porter
-              </label>
-              <label style="display: flex; align-items: center; font-weight: normal;">
-                <input type="checkbox" name="roles" value="Front of House" style="width: auto; margin-right: 8px;">
-                🎩 Front of House
-              </label>
-              <label style="display: flex; align-items: center; font-weight: normal;">
-                <input type="checkbox" name="roles" value="Security" style="width: auto; margin-right: 8px;">
-                🛡️ Security
-              </label>
-              <label style="display: flex; align-items: center; font-weight: normal;">
-                <input type="checkbox" name="roles" value="Stage Hand" style="width: auto; margin-right: 8px;">
-                🎬 Stage Hand
-              </label>
+            <label>Roles Required * (select all that apply)</label>
+            <div class="roles-section">
+              <!-- Hospitality Roles -->
+              <div class="role-category">
+                <div class="category-header">🍽️ Hospitality</div>
+                <div class="roles-grid">
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Barista">
+                    <span>☕ Barista</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Bartender">
+                    <span>🍸 Bartender</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Mixologist">
+                    <span>🍹 Mixologist</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Waiting Staff">
+                    <span>🍽️ Waiting Staff</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Front of House (FOH)">
+                    <span>🎩 FOH</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Host/Hostess">
+                    <span>👔 Host/Hostess</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Chef">
+                    <span>👨‍🍳 Chef</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Sous Chef">
+                    <span>👨‍🍳 Sous Chef</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Chef de Partie">
+                    <span>🔪 Chef de Partie</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Kitchen Porter (KP)">
+                    <span>🧹 Kitchen Porter</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Runner">
+                    <span>🏃 Runner</span>
+                  </label>
+                </div>
+              </div>
+              
+              <!-- Events & Production Roles -->
+              <div class="role-category">
+                <div class="category-header">🎪 Events & Production</div>
+                <div class="roles-grid">
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Event Manager">
+                    <span>📋 Event Manager</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Event Supervisor">
+                    <span>👷 Event Supervisor</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Stagehand">
+                    <span>🎬 Stagehand</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Site Crew">
+                    <span>🏗️ Site Crew</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Rigger">
+                    <span>⚙️ Rigger</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Loader">
+                    <span>📦 Loader</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="AV Technician">
+                    <span>🎥 AV Technician</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Lighting Tech">
+                    <span>💡 Lighting Tech</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Sound Tech">
+                    <span>🔊 Sound Tech</span>
+                  </label>
+                </div>
+              </div>
+              
+              <!-- Venue & Operations Roles -->
+              <div class="role-category">
+                <div class="category-header">🏢 Venue & Operations</div>
+                <div class="roles-grid">
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Steward">
+                    <span>🎫 Steward</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Security (SIA)">
+                    <span>🛡️ Security (SIA)</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Cleaner">
+                    <span>🧼 Cleaner</span>
+                  </label>
+                  <label class="role-checkbox-label">
+                    <input type="checkbox" name="roles" value="Driver">
+                    <span>🚗 Driver</span>
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
           
