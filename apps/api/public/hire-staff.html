@@ -73,11 +73,30 @@
       padding-bottom: 10px;
     }
     
+    .category-section {
+      margin-bottom: 50px;
+    }
+    
+    .category-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .category-title {
+      font-size: 1.8rem;
+      color: #2c3e2f;
+      margin-bottom: 25px;
+      padding-left: 15px;
+      border-left: 5px solid #F2C88E;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
     .staff-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 25px;
-      margin: 40px 0;
+      margin-bottom: 20px;
     }
     
     .staff-card {
@@ -284,52 +303,170 @@
     
     <div class="content-section">
       <h2>Available Roles</h2>
-      <p style="font-size: 1.15rem; line-height: 1.8; margin-bottom: 30px;">
+      <p style="font-size: 1.15rem; line-height: 1.8; margin-bottom: 40px;">
         Our team of experienced professionals are ready to make your event run smoothly. 
         All staff are fully trained, background-checked, and committed to excellence.
       </p>
       
-      <div class="staff-grid">
-        <div class="staff-card">
-          <span class="staff-icon">👨‍🍳</span>
-          <h3>Chefs</h3>
-          <p>Experienced culinary professionals specializing in event catering, live cooking stations, and menu execution</p>
+      <!-- Hospitality Roles -->
+      <div class="category-section">
+        <h3 class="category-title"><span>🍽️</span> Hospitality</h3>
+        <div class="staff-grid">
+          <div class="staff-card">
+            <span class="staff-icon">☕</span>
+            <h3>Barista</h3>
+            <p>Expert coffee preparation, latte art, and specialty beverage service for your events</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">🍸</span>
+            <h3>Bartender</h3>
+            <p>Professional bar service with extensive knowledge of cocktails, wines, and spirits</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">🍹</span>
+            <h3>Mixologist</h3>
+            <p>Craft cocktail specialists creating bespoke drinks and memorable bar experiences</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">🍽️</span>
+            <h3>Waiting Staff</h3>
+            <p>Attentive table service professionals ensuring excellent guest experiences</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">🎩</span>
+            <h3>Front of House (FOH)</h3>
+            <p>Professional hosts and greeters creating excellent first impressions</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">👔</span>
+            <h3>Host/Hostess</h3>
+            <p>Welcoming guests and managing seating arrangements with grace and efficiency</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">👨‍🍳</span>
+            <h3>Chef</h3>
+            <p>Experienced culinary professionals leading kitchen operations and menu execution</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">👨‍🍳</span>
+            <h3>Sous Chef</h3>
+            <p>Second-in-command chefs managing kitchen operations and staff coordination</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">🔪</span>
+            <h3>Chef de Partie</h3>
+            <p>Station chefs specializing in specific areas of kitchen production</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">🧹</span>
+            <h3>Kitchen Porter (KP)</h3>
+            <p>Hardworking support staff maintaining cleanliness and organization in kitchens</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">🏃</span>
+            <h3>Runner</h3>
+            <p>Efficient food and beverage runners ensuring seamless service flow</p>
+          </div>
         </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🍸</span>
-          <h3>Bartenders</h3>
-          <p>Skilled mixologists and bar staff trained in cocktail service, wine service, and high-volume events</p>
+      </div>
+      
+      <!-- Events & Production Roles -->
+      <div class="category-section">
+        <h3 class="category-title"><span>🎪</span> Events & Production</h3>
+        <div class="staff-grid">
+          <div class="staff-card">
+            <span class="staff-icon">📋</span>
+            <h3>Event Manager</h3>
+            <p>Experienced event coordinators overseeing all aspects of event execution</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">👷</span>
+            <h3>Event Supervisor</h3>
+            <p>On-site supervisors managing staff teams and ensuring smooth operations</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">🎬</span>
+            <h3>Stagehand</h3>
+            <p>Technical crew for setup, breakdown, and running live events and productions</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">🏗️</span>
+            <h3>Site Crew</h3>
+            <p>Experienced crew for large-scale event builds, installations, and strikes</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">⚙️</span>
+            <h3>Rigger</h3>
+            <p>Certified rigging specialists for aerial equipment and stage installations</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">📦</span>
+            <h3>Loader</h3>
+            <p>Strong, reliable staff for loading, unloading, and moving equipment</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">🎥</span>
+            <h3>AV Technician</h3>
+            <p>Audio-visual experts managing sound, video, and presentation systems</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">💡</span>
+            <h3>Lighting Tech</h3>
+            <p>Lighting specialists creating atmosphere and managing illumination systems</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">🔊</span>
+            <h3>Sound Tech</h3>
+            <p>Sound engineers ensuring crystal-clear audio for performances and speeches</p>
+          </div>
         </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🏃</span>
-          <h3>Runners</h3>
-          <p>Efficient food and beverage runners ensuring seamless service flow throughout your event</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🧹</span>
-          <h3>Kitchen Porters</h3>
-          <p>Hardworking support staff maintaining cleanliness and organization in kitchen areas</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🎩</span>
-          <h3>Front of House</h3>
-          <p>Professional hosts, greeters, and service staff creating excellent first impressions</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🛡️</span>
-          <h3>Security</h3>
-          <p>Licensed security personnel ensuring safety and managing access control at your venue</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🎬</span>
-          <h3>Stage Hands</h3>
-          <p>Technical crew for setup, breakdown, and running live events and productions</p>
+      </div>
+      
+      <!-- Venue & Operations Roles -->
+      <div class="category-section">
+        <h3 class="category-title"><span>🏢</span> Venue & Operations</h3>
+        <div class="staff-grid">
+          <div class="staff-card">
+            <span class="staff-icon">🎫</span>
+            <h3>Steward</h3>
+            <p>Venue stewards managing crowd flow, seating, and general guest assistance</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">🛡️</span>
+            <h3>Security (SIA)</h3>
+            <p>Licensed security personnel ensuring safety and managing access control</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">🧼</span>
+            <h3>Cleaner</h3>
+            <p>Professional cleaning staff maintaining venue hygiene and presentation</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon">🚗</span>
+            <h3>Driver</h3>
+            <p>Professional drivers for guest transportation and equipment delivery</p>
+          </div>
         </div>
       </div>
     </div>
