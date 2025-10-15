@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us - VERGO Events</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #CBB7E0 0%, #b8a3cc 100%);
+      color: #2c3e2f;
+      line-height: 1.7;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-bottom: 30px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 12px 25px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50px;
+      transition: all 0.3s ease;
+    }
+    
+    .back-link:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateX(-5px);
+    }
+    
+    header {
+      text-align: center;
+      padding: 60px 20px;
+      color: white;
+    }
+    
+    h1 {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+      animation: fadeInDown 0.8s ease;
+    }
+    
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .subtitle {
+      font-size: 1.5rem;
+      opacity: 0.95;
+      font-weight: 300;
+      animation: fadeIn 1s ease 0.3s both;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    
+    .content-section {
+      background: white;
+      padding: 60px 50px;
+      margin-bottom: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      animation: slideUp 0.8s ease;
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 25px;
+      color: #CBB7E0;
+      border-bottom: 4px solid #CBB7E0;
+      padding-bottom: 15px;
+      display: inline-block;
+    }
+    
+    .intro-text {
+      font-size: 1.3rem;
+      line-height: 1.9;
+      color: #3d4a3e;
+      margin-bottom: 30px;
+    }
+    
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      margin: 50px 0;
+    }
+    
+    .value-card {
+      background: linear-gradient(135deg, #f8f4fc 0%, #ffffff 100%);
+      padding: 40px 30px;
+      border-radius: 15px;
+      border-top: 5px solid #CBB7E0;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    
+    .value-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 40px rgba(203,183,224,0.3);
+    }
+    
+    .value-icon {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      display: block;
+    }
+    
+    .value-card h3 {
+      font-size: 1.6rem;
+      margin-bottom: 15px;
+      color: #2c3e2f;
+    }
+    
+    .value-card p {
+      color: #5a6b5a;
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+    
+    .stats-section {
+      background: linear-gradient(135deg, #CBB7E0 0%, #b8a3cc 100%);
+      padding: 60px 50px;
+      border-radius: 20px;
+      margin: 40px 0;
+      text-align: center;
+      color: white;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      margin-top: 40px;
+    }
+    
+    .stat {
+      padding: 20px;
+    }
+    
+    .stat-number {
+      font-size: 4rem;
+      font-weight: 700;
+      display: block;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .stat-label {
+      font-size: 1.2rem;
+      opacity: 0.95;
+      font-weight: 300;
+    }
+    
+    .team-section {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    
+    .team-intro {
+      font-size: 1.2rem;
+      color: #5a6b5a;
+      margin-bottom: 40px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .cta-section {
+      text-align: center;
+      padding: 60px 40px;
+      background: linear-gradient(135deg, #A8BCA1 0%, #9aad93 100%);
+      border-radius: 20px;
+      color: white;
+      margin: 50px 0;
+    }
+    
+    .cta-section h2 {
+      color: white;
+      border-bottom: 4px solid white;
+      margin-bottom: 25px;
+    }
+    
+    .cta-button {
+      display: inline-block;
+      padding: 18px 50px;
+      background: white;
+      color: #2c3e2f;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.2rem;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: 20px;
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    
+    footer {
+      background: #2c3e2f;
+      color: #EADAC5;
+      text-align: center;
+      padding: 30px 20px;
+      margin-top: 60px;
+      border-radius: 15px 15px 0 0;
+    }
+    
+    footer a {
+      color: #EADAC5;
+      text-decoration: none;
+      margin: 0 15px;
+      transition: color 0.3s ease;
+    }
+    
+    footer a:hover {
+      color: #F2C88E;
+    }
+    
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+      
+      .content-section {
+        padding: 40px 25px;
+      }
+      
+      .stats-section {
+        padding: 40px 25px;
+      }
+      
+      .stat-number {
+        font-size: 3rem;
+      }
+      
+      .values-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← Back to Home</a>
+    
+    <header>
+      <h1>✨ About VERGO Events</h1>
+      <p class="subtitle">Professional Events & Staffing Since 2014</p>
+    </header>
+    
+    <div class="content-section">
+      <h2>Our Story</h2>
+      <p class="intro-text">
+        Founded in London over a decade ago, VERGO Events has grown from a passionate startup 
+        into one of the city's most trusted event management and staffing companies. We believe 
+        that every event—whether it's an intimate gathering or a large-scale production—deserves 
+        the same level of care, creativity, and professionalism.
+      </p>
+      <p class="intro-text">
+        What started as a small team with big dreams has evolved into a full-service event company 
+        with a roster of over 200 trained professionals. We've produced everything from intimate 
+        weddings to major festivals, corporate conferences to cultural celebrations, always with 
+        the same commitment to excellence that defined our very first event.
+      </p>
+    </div>
+    
+    <div class="stats-section">
+      <h2 style="color: white; border-color: white;">Our Impact</h2>
+      <div class="stats-grid">
+        <div class="stat">
+          <span class="stat-number">10+</span>
+          <span class="stat-label">Years of Excellence</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">1000+</span>
+          <span class="stat-label">Events Delivered</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">200+</span>
+          <span class="stat-label">Vetted Professionals</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">98%</span>
+          <span class="stat-label">Client Satisfaction</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="content-section">
+      <h2>Our Values</h2>
+      <div class="values-grid">
+        <div class="value-card">
+          <span class="value-icon">🎯</span>
+          <h3>Excellence</h3>
+          <p>We pursue perfection in every detail, from initial planning to final execution, ensuring your event exceeds expectations.</p>
+        </div>
+        
+        <div class="value-card">
+          <span class="value-icon">🤝</span>
+          <h3>Integrity</h3>
+          <p>Transparent pricing, honest communication, and reliable delivery. We do what we say we'll do, every single time.</p>
+        </div>
+        
+        <div class="value-card">
+          <span class="value-icon">💡</span>
+          <h3>Innovation</h3>
+          <p>We stay ahead of trends, embrace new technologies, and constantly evolve to bring fresh ideas to your events.</p>
+        </div>
+        
+        <div class="value-card">
+          <span class="value-icon">🌱</span>
+          <h3>Sustainability</h3>
+          <p>Committed to eco-conscious practices, waste reduction, and supporting local suppliers wherever possible.</p>
+        </div>
+        
+        <div class="value-card">
+          <span class="value-icon">❤️</span>
+          <h3>Passion</h3>
+          <p>We genuinely love what we do. Every event is an opportunity to create something special and memorable.</p>
+        </div>
+        
+        <div class="value-card">
+          <span class="value-icon">⭐</span>
+          <h3>People First</h3>
+          <p>Whether it's our team, our clients, or event guests—people are at the heart of everything we do.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="content-section">
+      <h2>What We Do</h2>
+      <p class="intro-text">
+        VERGO Events offers comprehensive event management and professional staffing solutions 
+        across London and beyond. Our services span:
+      </p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px;">
+        <div style="padding: 20px; background: #f8f4fc; border-radius: 10px; border-left: 4px solid #CBB7E0;">
+          <strong style="font-size: 1.2rem; color: #2c3e2f;">🎉 Full Event Production</strong>
+          <p style="margin-top: 10px; color: #5a6b5a;">End-to-end management from concept to celebration</p>
+        </div>
+        <div style="padding: 20px; background: #f8f4fc; border-radius: 10px; border-left: 4px solid #CBB7E0;">
+          <strong style="font-size: 1.2rem; color: #2c3e2f;">👥 Professional Staffing</strong>
+          <p style="margin-top: 10px; color: #5a6b5a;">Vetted event professionals for any role</p>
+        </div>
+        <div style="padding: 20px; background: #f8f4fc; border-radius: 10px; border-left: 4px solid #CBB7E0;">
+          <strong style="font-size: 1.2rem; color: #2c3e2f;">🍽️ Catering Services</strong>
+          <p style="margin-top: 10px; color: #5a6b5a;">Bespoke menus and beverage experiences</p>
+        </div>
+        <div style="padding: 20px; background: #f8f4fc; border-radius: 10px; border-left: 4px solid #CBB7E0;">
+          <strong style="font-size: 1.2rem; color: #2c3e2f;">🎨 Creative Direction</strong>
+          <p style="margin-top: 10px; color: #5a6b5a;">Innovative concepts and stunning design</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="content-section team-section">
+      <h2>Our Team</h2>
+      <p class="team-intro">
+        Behind every successful VERGO event is a dedicated team of professionals who bring 
+        passion, expertise, and creativity to their work. From our experienced project managers 
+        to our skilled frontline staff, we're proud to work with some of the best in the business.
+      </p>
+      <p class="team-intro" style="margin-bottom: 0;">
+        Interested in joining our team? We're always looking for talented individuals who share 
+        our commitment to excellence.
+      </p>
+    </div>
+    
+    <div class="cta-section">
+      <h2>Let's Work Together</h2>
+      <p style="font-size: 1.2rem; margin: 20px 0;">
+        Ready to create something amazing? We'd love to hear about your event.
+      </p>
+      <a href="contact.html" class="cta-button">Get in Touch</a>
+    </div>
+  </div>
+  
+  <footer>
+    <p>
+      <a href="index.html">Home</a>
+      <a href="contact.html">Contact</a>
+      <a href="hire-us.html">Hire Us</a>
+      <a href="hire-staff.html">Hire Staff</a>
+      <a href="apply.html">Join Our Team</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </p>
+    <p style="margin-top: 15px;">&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
+  </footer>
+</body>
+</html>

@@ -3,44 +3,93 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Apply – VERGO Events</title>
+  <title>Join Our Team – VERGO Events</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #CBB7E0 0%, #b8a3cc 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
       line-height: 1.6;
-      background: #f5f5f5;
     }
     
-    h1 {
-      color: #333;
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50px;
+      transition: all 0.3s ease;
+    }
+    
+    .back-link:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateX(-5px);
+    }
+    
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 40px;
+    }
+    
+    .logo {
+      font-size: 2.5em;
+      font-weight: 700;
+      letter-spacing: 2px;
       margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
     
-    .subtitle {
+    .tagline {
+      font-size: 1.1em;
+      opacity: 0.95;
+      font-weight: 500;
+    }
+    
+    .form-card {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    h2 {
+      color: #1a1a1a;
+      margin-bottom: 10px;
+      font-size: 1.8em;
+    }
+    
+    .form-intro {
       color: #666;
       margin-bottom: 30px;
       font-size: 0.95em;
     }
     
-    form {
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
     label {
       display: block;
-      margin: 20px 0 8px;
-      font-weight: 500;
+      margin: 24px 0 8px;
+      font-weight: 600;
       color: #333;
+      font-size: 0.95em;
     }
     
     input[type="text"],
@@ -48,11 +97,12 @@
     input[type="tel"],
     input[type="file"] {
       width: 100%;
-      padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 4px;
+      padding: 14px 16px;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
       font-size: 16px;
-      transition: border-color 0.3s;
+      transition: all 0.3s;
+      font-family: inherit;
     }
     
     input[type="text"]:focus,
@@ -60,160 +110,407 @@
     input[type="tel"]:focus,
     input[type="file"]:focus {
       outline: none;
-      border-color: #007bff;
+      border-color: #CBB7E0;
+      box-shadow: 0 0 0 3px rgba(203,183,224,0.1);
     }
     
-    .roles-group {
-      margin: 20px 0;
+    .roles-section {
+      margin: 24px 0;
     }
     
-    .roles-group label {
-      display: inline-flex;
+    .roles-category {
+      margin-bottom: 20px;
+    }
+    
+    .category-title {
+      font-weight: 600;
+      color: #CBB7E0;
+      font-size: 0.85em;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      display: flex;
       align-items: center;
-      margin: 8px 12px 8px 0;
-      font-weight: normal;
     }
     
-    input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
+    .category-title::before {
+      content: '';
+      width: 4px;
+      height: 16px;
+      background: #CBB7E0;
+      margin-right: 8px;
+      border-radius: 2px;
+    }
+    
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    
+    .role-checkbox {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      background: #f8f9fa;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    
+    .role-checkbox:hover {
+      background: #f8f4fc;
+      border-color: #CBB7E0;
+    }
+    
+    .role-checkbox input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
       margin-right: 8px;
       cursor: pointer;
+      accent-color: #CBB7E0;
     }
     
-    button {
-      width: 100%;
-      padding: 14px;
-      background: #007bff;
+    .role-checkbox input[type="checkbox"]:checked ~ label {
+      font-weight: 600;
+      color: #CBB7E0;
+    }
+    
+    .role-checkbox label {
+      margin: 0;
+      font-weight: 400;
+      font-size: 0.9em;
+      cursor: pointer;
+      flex: 1;
+    }
+    
+    .file-input-wrapper {
+      position: relative;
+      margin-top: 8px;
+    }
+    
+    input[type="file"] {
+      cursor: pointer;
+    }
+    
+    input[type="file"]::file-selector-button {
+      padding: 10px 20px;
+      background: #CBB7E0;
       color: white;
       border: none;
-      border-radius: 4px;
-      font-size: 16px;
-      font-weight: 600;
+      border-radius: 6px;
       cursor: pointer;
-      margin-top: 20px;
+      font-weight: 600;
+      margin-right: 12px;
       transition: background 0.3s;
     }
     
-    button:hover:not(:disabled) {
-      background: #0056b3;
+    input[type="file"]::file-selector-button:hover {
+      background: #b8a3cc;
     }
     
-    button:disabled {
+    .consent {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-top: 16px;
+      font-size: 0.9em;
+      color: #555;
+    }
+    
+    .consent input[type="checkbox"] {
+      margin-top: 2px;
+      accent-color: #CBB7E0;
+    }
+    
+    .consent a {
+      color: #CBB7E0;
+      text-decoration: underline;
+    }
+    
+    .consent a:hover {
+      color: #b8a3cc;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #CBB7E0 0%, #b8a3cc 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 30px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 5px 20px rgba(203,183,224,0.3);
+    }
+    
+    button[type="submit"]:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(203,183,224,0.4);
+    }
+    
+    button[type="submit"]:disabled {
       background: #ccc;
       cursor: not-allowed;
+      transform: none;
     }
     
     .info-box {
-      background: #e7f3ff;
-      border-left: 4px solid #007bff;
-      padding: 12px;
-      margin: 20px 0;
-      border-radius: 4px;
+      background: rgba(203,183,224,0.15);
+      border-left: 4px solid #CBB7E0;
+      padding: 16px;
+      margin: 24px 0;
+      border-radius: 8px;
       font-size: 0.9em;
-      color: #004085;
+      color: #2c3e2f;
+    }
+    
+    .info-box strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #CBB7E0;
     }
     
     @media (max-width: 600px) {
       body {
-        padding: 10px;
+        padding: 20px 10px;
       }
       
-      form {
-        padding: 20px;
+      .form-card {
+        padding: 24px 20px;
+      }
+      
+      .logo {
+        font-size: 2em;
+      }
+      
+      .roles-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
-  <h1>Apply to VERGO Events</h1>
-  <p class="subtitle">Join our team of event professionals</p>
+  <div class="container">
+    <a href="index.html" class="back-link">← Back to Home</a>
+    
+    <div class="header">
+      <div class="logo">VERGO</div>
+      <div class="tagline">Professional Event Staffing</div>
+    </div>
+    
+    <div class="form-card">
+      <h2>Join Our Team</h2>
+      <p class="form-intro">
+        We're always looking for talented individuals to join our roster. Fill out the form below and we'll be in touch.
+      </p>
+      
+      <form id="f">
+        <label for="firstName">First Name *</label>
+        <input 
+          type="text"
+          id="firstName"
+          name="firstName" 
+          required 
+          minlength="2"
+          maxlength="100"
+          placeholder="John"
+        />
+        
+        <label for="lastName">Last Name *</label>
+        <input 
+          type="text"
+          id="lastName"
+          name="lastName" 
+          required 
+          minlength="2"
+          maxlength="100"
+          placeholder="Smith"
+        />
+        
+        <label for="email">Email Address *</label>
+        <input 
+          type="email"
+          id="email"
+          name="email" 
+          required 
+          maxlength="255"
+          placeholder="john.smith@example.com"
+        />
+        
+        <label for="phone">Phone Number</label>
+        <input 
+          type="tel"
+          id="phone"
+          name="phone" 
+          maxlength="20"
+          placeholder="07123 456789 (optional)"
+        />
+        
+        <div class="roles-section">
+          <label>What roles are you applying for? *</label>
+          
+          <div class="roles-category">
+            <div class="category-title">🍽️ Hospitality</div>
+            <div class="roles-grid">
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-barista" name="roles" value="Barista" />
+                <label for="role-barista">Barista</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-bartender" name="roles" value="Bartender" />
+                <label for="role-bartender">Bartender</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-mixologist" name="roles" value="Mixologist" />
+                <label for="role-mixologist">Mixologist</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-waiting" name="roles" value="Waiting Staff" />
+                <label for="role-waiting">Waiting Staff</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-foh" name="roles" value="Front of House (FOH)" />
+                <label for="role-foh">FOH</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-host" name="roles" value="Host/Hostess" />
+                <label for="role-host">Host/Hostess</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-chef" name="roles" value="Chef" />
+                <label for="role-chef">Chef</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-sous" name="roles" value="Sous Chef" />
+                <label for="role-sous">Sous Chef</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-cdp" name="roles" value="Chef de Partie" />
+                <label for="role-cdp">Chef de Partie</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-kp" name="roles" value="Kitchen Porter (KP)" />
+                <label for="role-kp">Kitchen Porter</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-runner" name="roles" value="Runner" />
+                <label for="role-runner">Runner</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="roles-category">
+            <div class="category-title">🎪 Events & Production</div>
+            <div class="roles-grid">
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-event-mgr" name="roles" value="Event Manager" />
+                <label for="role-event-mgr">Event Manager</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-supervisor" name="roles" value="Event Supervisor" />
+                <label for="role-supervisor">Event Supervisor</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-stagehand" name="roles" value="Stagehand" />
+                <label for="role-stagehand">Stagehand</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-site-crew" name="roles" value="Site Crew" />
+                <label for="role-site-crew">Site Crew</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-rigger" name="roles" value="Rigger" />
+                <label for="role-rigger">Rigger</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-loader" name="roles" value="Loader" />
+                <label for="role-loader">Loader</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-av" name="roles" value="AV Technician" />
+                <label for="role-av">AV Technician</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-lighting" name="roles" value="Lighting Tech" />
+                <label for="role-lighting">Lighting Tech</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-sound" name="roles" value="Sound Tech" />
+                <label for="role-sound">Sound Tech</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="roles-category">
+            <div class="category-title">🏢 Venue & Operations</div>
+            <div class="roles-grid">
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-steward" name="roles" value="Steward" />
+                <label for="role-steward">Steward</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-security" name="roles" value="Security (SIA)" />
+                <label for="role-security">Security (SIA)</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-cleaner" name="roles" value="Cleaner" />
+                <label for="role-cleaner">Cleaner</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-driver" name="roles" value="Driver" />
+                <label for="role-driver">Driver</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <label for="cv">Your CV (PDF or Word) *</label>
+        <div class="file-input-wrapper">
+          <input 
+            type="file" 
+            id="cv" 
+            accept=".pdf,.doc,.docx" 
+            required 
+          />
+        </div>
+        
+        <div class="info-box">
+          <strong>📋 What happens next?</strong>
+          We review all applications within 48 hours. Maximum file size: 10MB.
+        </div>
+        
+        <label class="consent">
+          <input type="checkbox" id="consent" required />
+          <span>
+            I agree to VERGO processing my personal data for the purpose of handling my
+            application, in line with the
+            <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.
+          </span>
+        </label>
+        
+        <button type="submit">Submit Application</button>
+      </form>
+    </div>
+  </div>
   
-  <form id="f">
-    <label for="firstName">First Name *</label>
-    <input 
-      type="text"
-      id="firstName"
-      name="firstName" 
-      required 
-      minlength="2"
-      maxlength="100"
-    />
-    
-    <label for="lastName">Last Name *</label>
-    <input 
-      type="text"
-      id="lastName"
-      name="lastName" 
-      required 
-      minlength="2"
-      maxlength="100"
-    />
-    
-    <label for="email">Email *</label>
-    <input 
-      type="email"
-      id="email"
-      name="email" 
-      required 
-      maxlength="255"
-    />
-    
-    <label for="phone">Phone</label>
-    <input 
-      type="tel"
-      id="phone"
-      name="phone" 
-      maxlength="20"
-      placeholder="Optional"
-    />
-    
-    <label>Roles you're applying for: *</label>
-    <div class="roles-group">
-      <label>
-        <input type="checkbox" name="roles" value="Chef" />
-        Chef
-      </label>
-      <label>
-        <input type="checkbox" name="roles" value="Bartender" />
-        Bartender
-      </label>
-      <label>
-        <input type="checkbox" name="roles" value="Runner" />
-        Runner
-      </label>
-      <label>
-        <input type="checkbox" name="roles" value="Kitchen Porter" />
-        Kitchen Porter
-      </label>
-      <label>
-        <input type="checkbox" name="roles" value="Front of House" />
-        Front of House
-      </label>
-      <label>
-        <input type="checkbox" name="roles" value="Security" />
-        Security
-      </label>
-      <label>
-        <input type="checkbox" name="roles" value="Stage Hand" />
-        Stage Hand
-      </label>
-    </div>
-    
-    <label for="cv">CV (PDF or Word) *</label>
-    <input 
-      type="file" 
-      id="cv" 
-      accept=".pdf,.doc,.docx" 
-      required 
-    />
-    
-    <div class="info-box">
-      💡 Maximum file size: 10MB. We review all applications within 48 hours.
-    </div>
-    
-    <button type="submit">Submit Application</button>
-  </form>
+  <script>
+    const form = document.getElementById('f');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const consent = document.getElementById('consent');
+
+    function toggleSubmit() { submitBtn.disabled = !consent.checked; }
+    toggleSubmit();
+    consent.addEventListener('change', toggleSubmit);
+  </script>
 
   <script src="/js/apply.js"></script>
 </body>

@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - VERGO Events</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #EADAC5 0%, #d9c9b4 100%);
+      color: #2c3e2f;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-bottom: 30px;
+      color: #2c3e2f;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 12px 25px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 50px;
+      transition: all 0.3s ease;
+    }
+    
+    .back-link:hover {
+      background: rgba(255,255,255,0.7);
+      transform: translateX(-5px);
+    }
+    
+    header {
+      text-align: center;
+      padding: 60px 20px 40px;
+      color: #2c3e2f;
+    }
+    
+    h1 {
+      font-size: 4rem;
+      margin-bottom: 15px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .subtitle {
+      font-size: 1.3rem;
+      color: #5a6b5a;
+      margin-bottom: 40px;
+    }
+    
+    /* Tab Navigation */
+    .tab-container {
+      background: white;
+      border-radius: 20px 20px 0 0;
+      overflow: hidden;
+      box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+    }
+    
+    .tabs {
+      display: flex;
+      background: #f8f8f8;
+      border-bottom: 3px solid #e0e0e0;
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 25px 20px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #5a6b5a;
+      border-bottom: 4px solid transparent;
+      position: relative;
+    }
+    
+    .tab:hover {
+      background: rgba(168,188,161,0.1);
+    }
+    
+    .tab.active {
+      color: #2c3e2f;
+      background: white;
+      border-bottom: 4px solid #A8BCA1;
+    }
+    
+    .tab-icon {
+      font-size: 1.8rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+    
+    /* Tab Content */
+    .tab-content {
+      display: none;
+      padding: 50px 40px;
+      background: white;
+      border-radius: 0 0 20px 20px;
+    }
+    
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .form-intro {
+      text-align: center;
+      margin-bottom: 40px;
+      color: #5a6b5a;
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
+    
+    .form-group {
+      margin-bottom: 25px;
+    }
+    
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #2c3e2f;
+      font-size: 1.1rem;
+    }
+    
+    input, textarea, select {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #A8BCA1;
+      box-shadow: 0 0 0 3px rgba(168,188,161,0.1);
+    }
+    
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #A8BCA1 0%, #9aad93 100%);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 20px rgba(168,188,161,0.3);
+      margin-top: 20px;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(168,188,161,0.4);
+    }
+    
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+    
+    /* Contact Info Section */
+    .contact-info {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      margin-top: 40px;
+      box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+    }
+    
+    .contact-info h2 {
+      color: #A8BCA1;
+      margin-bottom: 25px;
+      font-size: 2rem;
+      text-align: center;
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      margin-top: 30px;
+    }
+    
+    .info-card {
+      text-align: center;
+      padding: 25px;
+      background: linear-gradient(135deg, #f8f9f8 0%, #ffffff 100%);
+      border-radius: 12px;
+      border-left: 4px solid #A8BCA1;
+    }
+    
+    .info-icon {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      display: block;
+    }
+    
+    .info-card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #2c3e2f;
+    }
+    
+    .info-card p {
+      color: #5a6b5a;
+      font-size: 1rem;
+    }
+    
+    .info-card a {
+      color: #A8BCA1;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    .info-card a:hover {
+      text-decoration: underline;
+    }
+    
+    footer {
+      background: #2c3e2f;
+      color: #EADAC5;
+      text-align: center;
+      padding: 30px 20px;
+      margin-top: 60px;
+      border-radius: 15px 15px 0 0;
+    }
+    
+    footer a {
+      color: #EADAC5;
+      text-decoration: none;
+      margin: 0 15px;
+      transition: color 0.3s ease;
+    }
+    
+    footer a:hover {
+      color: #F2C88E;
+    }
+    
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+      
+      .tabs {
+        flex-direction: column;
+      }
+      
+      .tab {
+        border-bottom: 2px solid #e0e0e0;
+      }
+      
+      .tab.active {
+        border-bottom: 2px solid #A8BCA1;
+        border-left: 4px solid #A8BCA1;
+      }
+      
+      .tab-content {
+        padding: 30px 20px;
+      }
+      
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← Back to Home</a>
+    
+    <header>
+      <h1>📬 Get in Touch</h1>
+      <p class="subtitle">We'd love to hear from you</p>
+    </header>
+    
+    <div class="tab-container">
+      <!-- Tab Navigation -->
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('events')">
+          <span class="tab-icon">🎉</span>
+          Hire Us for Events
+        </div>
+        <div class="tab" onclick="switchTab('staff')">
+          <span class="tab-icon">👥</span>
+          Request Staff
+        </div>
+        <div class="tab" onclick="switchTab('general')">
+          <span class="tab-icon">💬</span>
+          General Enquiry
+        </div>
+      </div>
+      
+      <!-- Events Form -->
+      <div id="eventsTab" class="tab-content active">
+        <div class="form-intro">
+          <h2 style="color: #A8BCA1; margin-bottom: 15px;">Book VERGO for Your Event</h2>
+          <p>Tell us about your vision and we'll make it happen</p>
+        </div>
+        
+        <form id="eventsForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="event-name">Your Name *</label>
+              <input type="text" id="event-name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="event-email">Email *</label>
+              <input type="email" id="event-email" name="email" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="event-phone">Phone</label>
+              <input type="tel" id="event-phone" name="phone">
+            </div>
+            
+            <div class="form-group">
+              <label for="event-type">Event Type *</label>
+              <select id="event-type" name="eventType" required>
+                <option value="">Select...</option>
+                <option value="corporate">Corporate Event</option>
+                <option value="wedding">Wedding</option>
+                <option value="private">Private Party</option>
+                <option value="music">Music Event</option>
+                <option value="charity">Charity Event</option>
+                <option value="festival">Festival</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="event-date">Preferred Date</label>
+              <input type="date" id="event-date" name="date">
+            </div>
+            
+            <div class="form-group">
+              <label for="event-guests">Expected Guest Count</label>
+              <input type="number" id="event-guests" name="guests" min="1">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="event-message">Tell Us About Your Event *</label>
+            <textarea id="event-message" name="message" required placeholder="Please share your vision, requirements, budget range, venue details..."></textarea>
+          </div>
+          
+          <button type="submit" class="submit-btn">Send Event Enquiry</button>
+        </form>
+      </div>
+      
+      <!-- Staff Request Form -->
+      <div id="staffTab" class="tab-content">
+        <div class="form-intro">
+          <h2 style="color: #F2C88E; margin-bottom: 15px;">Request Event Staff</h2>
+          <p>Let us know what roles you need and when</p>
+        </div>
+        
+        <form id="staffForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="staff-name">Your Name *</label>
+              <input type="text" id="staff-name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="staff-email">Email *</label>
+              <input type="email" id="staff-email" name="email" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="staff-phone">Phone</label>
+              <input type="tel" id="staff-phone" name="phone">
+            </div>
+            
+            <div class="form-group">
+              <label for="staff-company">Company/Event Name *</label>
+              <input type="text" id="staff-company" name="company" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Roles Required * (check all that apply)</label>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 10px;">
+              <label style="display: flex; align-items: center; font-weight: normal;">
+                <input type="checkbox" name="roles" value="Chef" style="width: auto; margin-right: 8px;">
+                👨‍🍳 Chef
+              </label>
+              <label style="display: flex; align-items: center; font-weight: normal;">
+                <input type="checkbox" name="roles" value="Bartender" style="width: auto; margin-right: 8px;">
+                🍸 Bartender
+              </label>
+              <label style="display: flex; align-items: center; font-weight: normal;">
+                <input type="checkbox" name="roles" value="Runner" style="width: auto; margin-right: 8px;">
+                🏃 Runner
+              </label>
+              <label style="display: flex; align-items: center; font-weight: normal;">
+                <input type="checkbox" name="roles" value="Kitchen Porter" style="width: auto; margin-right: 8px;">
+                🧹 Kitchen Porter
+              </label>
+              <label style="display: flex; align-items: center; font-weight: normal;">
+                <input type="checkbox" name="roles" value="Front of House" style="width: auto; margin-right: 8px;">
+                🎩 Front of House
+              </label>
+              <label style="display: flex; align-items: center; font-weight: normal;">
+                <input type="checkbox" name="roles" value="Security" style="width: auto; margin-right: 8px;">
+                🛡️ Security
+              </label>
+              <label style="display: flex; align-items: center; font-weight: normal;">
+                <input type="checkbox" name="roles" value="Stage Hand" style="width: auto; margin-right: 8px;">
+                🎬 Stage Hand
+              </label>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="staff-date">Event Date *</label>
+              <input type="date" id="staff-date" name="date" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="staff-count">Number of Staff Needed *</label>
+              <input type="number" id="staff-count" name="staffCount" min="1" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="staff-message">Additional Details *</label>
+            <textarea id="staff-message" name="message" required placeholder="Event type, venue location, shift times, specific requirements..."></textarea>
+          </div>
+          
+          <button type="submit" class="submit-btn" style="background: linear-gradient(135deg, #F2C88E 0%, #eebb7d 100%);">Send Staff Request</button>
+        </form>
+      </div>
+      
+      <!-- General Enquiry Form -->
+      <div id="generalTab" class="tab-content">
+        <div class="form-intro">
+          <h2 style="color: #CBB7E0; margin-bottom: 15px;">General Enquiry</h2>
+          <p>Questions, feedback, or just want to say hello?</p>
+        </div>
+        
+        <form id="generalForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="general-name">Your Name *</label>
+              <input type="text" id="general-name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="general-email">Email *</label>
+              <input type="email" id="general-email" name="email" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="general-subject">Subject *</label>
+            <input type="text" id="general-subject" name="subject" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="general-message">Message *</label>
+            <textarea id="general-message" name="message" required placeholder="How can we help you?"></textarea>
+          </div>
+          
+          <button type="submit" class="submit-btn" style="background: linear-gradient(135deg, #CBB7E0 0%, #b8a3cc 100%);">Send Message</button>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Contact Info -->
+    <div class="contact-info">
+      <h2>Other Ways to Reach Us</h2>
+      <div class="info-grid">
+        <div class="info-card">
+          <span class="info-icon">📧</span>
+          <h3>Email</h3>
+          <p><a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a></p>
+        </div>
+        
+        <div class="info-card">
+          <span class="info-icon">📍</span>
+          <h3>Location</h3>
+          <p>London, United Kingdom</p>
+        </div>
+        
+        <div class="info-card">
+          <span class="info-icon">⏰</span>
+          <h3>Response Time</h3>
+          <p>Within 24 hours<br>(usually much faster!)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <p>
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="hire-us.html">Hire Us</a>
+      <a href="hire-staff.html">Hire Staff</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </p>
+    <p style="margin-top: 15px;">&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
+  </footer>
+  
+<script>
+  function switchTab(tabName) {
+    // Remove active class from all tabs and content
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    // Add active class to clicked tab and corresponding content
+    event.target.closest('.tab').classList.add('active');
+    document.getElementById(tabName + 'Tab').classList.add('active');
+  }
+  
+  // Form submissions
+  document.getElementById('eventsForm').addEventListener('submit', handleSubmit);
+  document.getElementById('staffForm').addEventListener('submit', handleSubmit);
+  document.getElementById('generalForm').addEventListener('submit', handleSubmit);
+  
+  async function handleSubmit(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    
+    // Handle checkboxes for staff form
+    if (form.id === 'staffForm') {
+      data.roles = [...formData.getAll('roles')];
+    }
+    
+    // Determine endpoint
+    let endpoint = '';
+    if (form.id === 'eventsForm') {
+      endpoint = '/api/v1/contact/event-enquiry';
+    } else if (form.id === 'staffForm') {
+      endpoint = '/api/v1/contact/staff-request';
+    } else {
+      endpoint = '/api/v1/contact/general';
+    }
+    
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+      
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok) {
+        alert('✅ ' + result.message);
+        form.reset();
+      } else {
+        alert('❌ ' + (result.error || 'Something went wrong. Please try again.'));
+      }
+      
+    } catch (error) {
+      console.error('Form submission error:', error);
+      alert('❌ Connection error. Please check your internet and try again.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+  }
+</script>
+</body>
+</html>
