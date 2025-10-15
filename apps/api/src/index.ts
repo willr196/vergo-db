@@ -8,6 +8,7 @@ import { env } from './env';
 import applications from './routes/applications';
 import { adminAuth } from './middleware/adminAuth';
 import auth from './routes/auth';
+import contact from './routes/contact'; // NEW: Contact routes
 
 const app = express();
 app.disable('x-powered-by');
@@ -36,7 +37,6 @@ app.use(express.json({ limit: '5mb' }));
 app.use(rateLimit({ windowMs: 60_000, max: 120 }));
 
 // Session configuration
-// Better validation
 if (env.nodeEnv === 'production' && !process.env.SESSION_SECRET) {
   throw new Error('SESSION_SECRET required in production');
 }
@@ -49,7 +49,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // only secure in prod
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     maxAge: 1000 * 60 * 60 * 2 // 2 hours
   }
@@ -61,6 +61,9 @@ app.get('/health', (_, res) => res.json({ ok: true }));
 // Auth endpoints
 app.use('/api/v1/auth', auth);
 
+// Contact form endpoints (NEW!)
+app.use('/api/v1/contact', contact);
+
 // Protect admin.html BEFORE static middleware
 app.get('/admin.html', adminAuth, (req, res) => {
   const pub = path.join(process.cwd(), 'public');
@@ -70,8 +73,8 @@ app.get('/admin.html', adminAuth, (req, res) => {
 // Applications API
 app.use('/api/v1/applications', applications);
 
-// Redirect root to the apply page
-app.get('/', (_, res) => res.redirect('/apply.html'));
+// Redirect root to the home page
+app.get('/', (_, res) => res.redirect('/index.html'));
 
 // Static frontend (last)
 const pub = path.join(process.cwd(), 'public');
