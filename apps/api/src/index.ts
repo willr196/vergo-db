@@ -4,11 +4,11 @@ import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import path from 'node:path';
 import session from 'express-session';
-import { env } from './env';
-import applications from './routes/applications';
-import { adminAuth } from './middleware/adminAuth';
-import auth from './routes/auth';
-import contact from './routes/contact'; // NEW: Contact routes
+import { env } from './'env';
+import applications from './'routes/applications';
+import { adminAuth } from './'middleware/adminAuth';
+import auth from './'routes/auth';
+import contact from './'routes/contact'; // NEW: Contact routes
 
 const app = express();
 app.disable('x-powered-by');
@@ -27,7 +27,7 @@ app.use(cors({
     env.webOrigin,
     `http://localhost:${env.port}`,
     'http://localhost:8080',
-    'https://vergo-app.fly.dev'
+    'https://vergo-app.fly.dev''
   ],
   credentials: true
 }));

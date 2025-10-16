@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
+import { sendEventEnquiryEmail, sendStaffRequestEmail, sendGeneralEnquiryEmail } from '../services/email';
 
 const r = Router();
 
@@ -10,6 +11,24 @@ const contactLimiter = rateLimit({
   max: 3, // 3 submissions per 15 min per IP
   message: { error: 'Too many submissions. Please try again in 15 minutes.' }
 });
+
+// ============================================
+// SPAM PROTECTION - Honeypot field
+// ============================================
+// All schemas include optional honeypot field
+// If this field is filled, it's likely a bot
+
+const honeypotCheck = (data: any) => {
+  // Check for honeypot field (should be empty)
+  if (data.website || data.url || data.phone_number) {
+    console.warn('[SPAM] Honeypot triggered:', { 
+      ip: 'unknown', 
+      fields: Object.keys(data).filter(k => ['website', 'url', 'phone_number'].includes(k))
+    });
+    return true;
+  }
+  return false;
+};
 
 // ============================================
 // VALIDATION SCHEMAS
@@ -22,7 +41,10 @@ const eventEnquirySchema = z.object({
   eventType: z.enum(['corporate', 'wedding', 'private', 'music', 'charity', 'festival', 'other']),
   date: z.string().optional(),
   guests: z.number().min(1).optional(),
-  message: z.string().min(10).max(2000).trim()
+  message: z.string().min(10).max(2000).trim(),
+  // Honeypot fields (should remain empty)
+  website: z.string().optional(),
+  url: z.string().optional()
 });
 
 const staffRequestSchema = z.object({
@@ -33,14 +55,20 @@ const staffRequestSchema = z.object({
   roles: z.array(z.string()).min(1).max(10),
   date: z.string().min(1),
   staffCount: z.number().min(1).max(100),
-  message: z.string().min(10).max(2000).trim()
+  message: z.string().min(10).max(2000).trim(),
+  // Honeypot fields
+  website: z.string().optional(),
+  url: z.string().optional()
 });
 
 const generalEnquirySchema = z.object({
   name: z.string().min(2).max(100).trim(),
   email: z.string().email().max(255).toLowerCase(),
   subject: z.string().min(3).max(200).trim(),
-  message: z.string().min(10).max(2000).trim()
+  message: z.string().min(10).max(2000).trim(),
+  // Honeypot fields
+  website: z.string().optional(),
+  url: z.string().optional()
 });
 
 // ============================================
@@ -50,8 +78,17 @@ r.post('/event-enquiry', contactLimiter, async (req, res, next) => {
   try {
     const data = eventEnquirySchema.parse(req.body);
     
-    // TODO: Send email notification to wrobb@vergoltd.com
-    // TODO: Optionally save to database for tracking
+    // Check honeypot
+    if (honeypotCheck(data)) {
+      // Return success to bot but don't send email
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Event enquiry received.' 
+      });
+    }
+    
+    // Send email notification
+    await sendEventEnquiryEmail(data);
     
     console.log('[EVENT ENQUIRY]', {
       from: data.email,
@@ -60,9 +97,6 @@ r.post('/event-enquiry', contactLimiter, async (req, res, next) => {
       date: data.date,
       guests: data.guests
     });
-    
-    // For now, just log and return success
-    // You can add email service later (Resend, SendGrid, etc.)
     
     res.status(200).json({ 
       success: true, 
@@ -76,7 +110,13 @@ r.post('/event-enquiry', contactLimiter, async (req, res, next) => {
         details: error.errors 
       });
     }
-    next(error);
+    
+    console.error('[ERROR] Event enquiry failed:', error);
+    
+    // Don't expose internal errors to client
+    res.status(500).json({ 
+      error: 'Unable to process your enquiry. Please try again or email us directly at wrobb@vergoltd.com' 
+    });
   }
 });
 
@@ -86,6 +126,17 @@ r.post('/event-enquiry', contactLimiter, async (req, res, next) => {
 r.post('/staff-request', contactLimiter, async (req, res, next) => {
   try {
     const data = staffRequestSchema.parse(req.body);
+    
+    // Check honeypot
+    if (honeypotCheck(data)) {
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Staff request received.' 
+      });
+    }
+    
+    // Send email notification
+    await sendStaffRequestEmail(data);
     
     console.log('[STAFF REQUEST]', {
       from: data.email,
@@ -108,7 +159,12 @@ r.post('/staff-request', contactLimiter, async (req, res, next) => {
         details: error.errors 
       });
     }
-    next(error);
+    
+    console.error('[ERROR] Staff request failed:', error);
+    
+    res.status(500).json({ 
+      error: 'Unable to process your request. Please try again or email us directly at wrobb@vergoltd.com' 
+    });
   }
 });
 
@@ -118,6 +174,17 @@ r.post('/staff-request', contactLimiter, async (req, res, next) => {
 r.post('/general', contactLimiter, async (req, res, next) => {
   try {
     const data = generalEnquirySchema.parse(req.body);
+    
+    // Check honeypot
+    if (honeypotCheck(data)) {
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Message received.' 
+      });
+    }
+    
+    // Send email notification
+    await sendGeneralEnquiryEmail(data);
     
     console.log('[GENERAL ENQUIRY]', {
       from: data.email,
@@ -137,7 +204,12 @@ r.post('/general', contactLimiter, async (req, res, next) => {
         details: error.errors 
       });
     }
-    next(error);
+    
+    console.error('[ERROR] General enquiry failed:', error);
+    
+    res.status(500).json({ 
+      error: 'Unable to send your message. Please try again or email us directly at wrobb@vergoltd.com' 
+    });
   }
 });
 
