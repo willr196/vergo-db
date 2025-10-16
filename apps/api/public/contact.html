@@ -200,6 +200,16 @@
       transform: translateY(0);
     }
     
+    /* Honeypot - MUST BE HIDDEN */
+    .honeypot {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    
     /* Roles Section Styling */
     .roles-section {
       margin: 25px 0;
@@ -370,14 +380,6 @@
       .info-grid {
         grid-template-columns: 1fr;
       }
-      .honeypot {
-        position: absolute;
-        left: -9999px;
-        width: 1px;
-        height: 1px;
-        opacity: 0;
-        pointer-events: none;
-        }
       
       .roles-grid {
         grid-template-columns: 1fr;
@@ -467,6 +469,12 @@
           <div class="form-group">
             <label for="event-message">Tell Us About Your Event *</label>
             <textarea id="event-message" name="message" required placeholder="Please share your vision, requirements, budget range, venue details..."></textarea>
+          </div>
+          
+          <!-- HONEYPOT FIELD -->
+          <div class="honeypot">
+            <label for="event-website">Website</label>
+            <input type="text" id="event-website" name="website" tabindex="-1" autocomplete="off">
           </div>
           
           <button type="submit" class="submit-btn">Send Event Enquiry</button>
@@ -644,6 +652,12 @@
             <textarea id="staff-message" name="message" required placeholder="Event type, venue location, shift times, specific requirements..."></textarea>
           </div>
           
+          <!-- HONEYPOT FIELD -->
+          <div class="honeypot">
+            <label for="staff-website">Website</label>
+            <input type="text" id="staff-website" name="website" tabindex="-1" autocomplete="off">
+          </div>
+          
           <button type="submit" class="submit-btn" style="background: linear-gradient(135deg, #F2C88E 0%, #eebb7d 100%);">Send Staff Request</button>
         </form>
       </div>
@@ -676,6 +690,12 @@
           <div class="form-group">
             <label for="general-message">Message *</label>
             <textarea id="general-message" name="message" required placeholder="How can we help you?"></textarea>
+          </div>
+          
+          <!-- HONEYPOT FIELD -->
+          <div class="honeypot">
+            <label for="general-website">Website</label>
+            <input type="text" id="general-website" name="website" tabindex="-1" autocomplete="off">
           </div>
           
           <button type="submit" class="submit-btn" style="background: linear-gradient(135deg, #CBB7E0 0%, #b8a3cc 100%);">Send Message</button>

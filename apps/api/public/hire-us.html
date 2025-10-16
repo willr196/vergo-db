@@ -12,606 +12,653 @@
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #A8BCA1 0%, #8fa888 100%);
-      color: #2c3e2f;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-    
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-    
-    .back-link {
-      display: inline-block;
-      margin-bottom: 30px;
-      color: white;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1.1rem;
-      padding: 12px 25px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 50px;
-      transition: all 0.3s ease;
-    }
-    
-    .back-link:hover {
-      background: rgba(255,255,255,0.3);
-      transform: translateX(-5px);
-    }
-    
-    header {
-      text-align: center;
-      padding: 60px 20px 40px;
-      color: white;
-    }
-    
-    h1 {
-      font-size: 4rem;
-      margin-bottom: 15px;
-      text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
-    }
-    
-    .subtitle {
-      font-size: 1.4rem;
-      opacity: 0.95;
-      margin-bottom: 20px;
-    }
-    
-    .section-title {
-      text-align: center;
-      font-size: 2.5rem;
-      color: white;
-      margin: 60px 0 40px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    }
-    
-    /* Bubble container */
-    .bubbles-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-      align-items: center;
-      padding: 40px 20px;
-      min-height: 700px;
-    }
-    
-    /* Individual bubble */
-    .bubble {
-      width: 180px;
-      height: 180px;
-      background: rgba(255,255,255,0.95);
-      border-radius: 50%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .bubble::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
-      opacity: 0;
-      transition: opacity 0.4s ease;
-    }
-    
-    .bubble:hover::before {
-      opacity: 1;
-    }
-    
-    .bubble:hover {
-      transform: scale(1.15);
-      box-shadow: 0 15px 40px rgba(0,0,0,0.25);
-      z-index: 10;
-    }
-    
-    .bubble.expanded {
-      width: 100%;
-      max-width: 600px;
-      height: auto;
-      min-height: 300px;
-      border-radius: 20px;
-      padding: 40px;
-      transform: scale(1);
-      z-index: 100;
-    }
-    
-    .bubble-icon {
-      font-size: 3rem;
-      margin-bottom: 10px;
-      transition: all 0.3s ease;
-    }
-    
-    .bubble:hover .bubble-icon {
-      transform: scale(1.2) rotate(5deg);
-    }
-    
-    .bubble-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      text-align: center;
-      color: #2c3e2f;
-      transition: all 0.3s ease;
-    }
-    
-    .bubble-content {
-      display: none;
-      margin-top: 20px;
-      color: #3d4a3e;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
       line-height: 1.7;
     }
     
-    .bubble.expanded .bubble-content {
-      display: block;
-    }
-    
-    .bubble.expanded .bubble-icon {
-      font-size: 4rem;
-    }
-    
-    .bubble.expanded .bubble-title {
-      font-size: 2rem;
-      margin-bottom: 20px;
-    }
-    
-    .close-bubble {
-      display: none;
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      font-size: 2rem;
-      color: #A8BCA1;
-      cursor: pointer;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(168,188,161,0.1);
+    /* Navigation */
+    nav {
+      background: #1a1a1a;
+      padding: 20px 40px;
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
     
-    .bubble.expanded .close-bubble {
-      display: flex;
-    }
-    
-    .close-bubble:hover {
-      background: rgba(168,188,161,0.2);
-      transform: rotate(90deg);
-    }
-    
-    /* Contact CTA Section */
-    .contact-cta {
-      text-align: center;
-      padding: 80px 20px;
-      margin: 60px 0;
-    }
-    
-    .contact-cta h2 {
-      font-size: 3rem;
-      color: white;
-      margin-bottom: 20px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    }
-    
-    .contact-cta p {
-      font-size: 1.3rem;
-      color: white;
-      opacity: 0.95;
-      margin-bottom: 40px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    
-    .contact-btn {
-      display: inline-block;
-      padding: 20px 60px;
-      background: white;
-      color: #A8BCA1;
-      text-decoration: none;
-      font-size: 1.3rem;
+    .logo {
+      font-size: 1.8rem;
       font-weight: 700;
-      border-radius: 50px;
-      transition: all 0.3s ease;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-    
-    .contact-btn:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-      background: #2c3e2f;
-      color: white;
-    }
-    
-    footer {
-      background: #2c3e2f;
-      color: #EADAC5;
-      text-align: center;
-      padding: 30px 20px;
-      margin-top: 60px;
-      border-radius: 15px 15px 0 0;
-    }
-    
-    footer a {
-      color: #EADAC5;
+      color: #D4AF37;
+      letter-spacing: 3px;
       text-decoration: none;
-      margin: 0 15px;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 40px;
+      list-style: none;
+    }
+    
+    .nav-links a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 500;
       transition: color 0.3s ease;
     }
     
-    footer a:hover {
-      color: #F2C88E;
+    .nav-links a:hover {
+      color: #D4AF37;
+    }
+    
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+      padding: 100px 40px 80px;
+      text-align: center;
+      border-bottom: 2px solid #D4AF37;
+    }
+    
+    .hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      color: #D4AF37;
+      font-weight: 700;
+    }
+    
+    .hero p {
+      font-size: 1.3rem;
+      color: #bbb;
+      max-width: 700px;
+      margin: 0 auto 40px;
+    }
+    
+    .hero-cta {
+      display: inline-block;
+      padding: 18px 50px;
+      background: #D4AF37;
+      color: #1a1a1a;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+    
+    .hero-cta:hover {
+      background: #fff;
+      transform: scale(1.05);
+    }
+    
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 80px 40px;
+    }
+    
+    .intro-section {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+    
+    .intro-section h2 {
+      font-size: 2.5rem;
+      color: #D4AF37;
+      margin-bottom: 25px;
+    }
+    
+    .intro-section p {
+      font-size: 1.2rem;
+      color: #bbb;
+      max-width: 900px;
+      margin: 0 auto;
+      line-height: 1.9;
+    }
+    
+    /* Service Categories */
+    .category-section {
+      margin-bottom: 80px;
+    }
+    
+    .category-header {
+      font-size: 2.2rem;
+      color: #D4AF37;
+      margin-bottom: 40px;
+      padding-bottom: 15px;
+      border-bottom: 3px solid #D4AF37;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+    }
+    
+    .service-card {
+      background: #1a1a1a;
+      padding: 35px 30px;
+      border-radius: 8px;
+      border: 2px solid #2a2a2a;
+      border-left: 4px solid #D4AF37;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .service-card:hover {
+      transform: translateY(-5px);
+      border-color: #D4AF37;
+      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+      background: #222;
+    }
+    
+    .service-card h3 {
+      font-size: 1.6rem;
+      margin-bottom: 15px;
+      color: #D4AF37;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .service-card p {
+      color: #bbb;
+      line-height: 1.7;
+      font-size: 1.05rem;
+    }
+    
+    /* Expandable Details */
+    .service-details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    
+    .service-card.expanded .service-details {
+      max-height: 500px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #333;
+    }
+    
+    .service-details ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    
+    .service-details li {
+      padding: 8px 0 8px 25px;
+      position: relative;
+      color: #999;
+    }
+    
+    .service-details li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #D4AF37;
+      font-size: 1.5rem;
+    }
+    
+    /* CTA Section */
+    .cta-section {
+      text-align: center;
+      padding: 80px 40px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+      border-radius: 12px;
+      margin: 80px 0;
+      border: 2px solid #D4AF37;
+    }
+    
+    .cta-section h2 {
+      font-size: 2.8rem;
+      color: #D4AF37;
+      margin-bottom: 20px;
+    }
+    
+    .cta-section p {
+      font-size: 1.2rem;
+      color: #bbb;
+      margin-bottom: 35px;
+    }
+    
+    .cta-button {
+      display: inline-block;
+      padding: 18px 50px;
+      background: #D4AF37;
+      color: #1a1a1a;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+    
+    .cta-button:hover {
+      background: #fff;
+      transform: scale(1.05);
+    }
+    
+    /* Footer */
+    footer {
+      background: #0a0a0a;
+      color: #D4AF37;
+      padding: 50px 40px 30px;
+      border-top: 2px solid #1a1a1a;
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-bottom: 30px;
+    }
+    
+    .footer-section h3 {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      color: #D4AF37;
+    }
+    
+    .footer-section ul {
+      list-style: none;
+    }
+    
+    .footer-section ul li {
+      margin-bottom: 10px;
+    }
+    
+    .footer-section a {
+      color: #999;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    
+    .footer-section a:hover {
+      color: #D4AF37;
+    }
+    
+    .footer-bottom {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid #333;
+      color: #666;
     }
     
     @media (max-width: 768px) {
-      h1 {
-        font-size: 2.5rem;
+      nav {
+        padding: 15px 20px;
       }
       
-      .bubble {
-        width: 150px;
-        height: 150px;
+      .logo {
+        font-size: 1.5rem;
       }
       
-      .bubble-icon {
-        font-size: 2.5rem;
+      .nav-links {
+        display: none;
       }
       
-      .bubble.expanded {
-        padding: 30px 20px;
+      .hero {
+        padding: 60px 20px 40px;
       }
       
-      .contact-cta h2 {
-        font-size: 2rem;
+      .hero h1 {
+        font-size: 2.2rem;
       }
       
-      .contact-cta p {
-        font-size: 1.1rem;
+      .container {
+        padding: 50px 20px;
       }
       
-      .contact-btn {
-        padding: 15px 40px;
-        font-size: 1.1rem;
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .category-header {
+        font-size: 1.8rem;
       }
     }
   </style>
 </head>
 <body>
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html" class="logo">VERGO</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+  
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Hire Us for Your Event</h1>
+    <p>Professional event management and production services across London</p>
+    <a href="contact.html" class="hero-cta">Get a Quote</a>
+  </div>
+  
+  <!-- Content -->
   <div class="container">
-    <a href="index.html" class="back-link">← Back to Home</a>
+    <div class="intro-section">
+      <h2>Full-Service Event Solutions</h2>
+      <p>
+        From intimate gatherings to large-scale productions, VERGO Events delivers exceptional 
+        experiences tailored to your vision. Our comprehensive services cover every aspect of 
+        event planning, coordination, and execution.
+      </p>
+    </div>
     
-    <header>
-      <h1>🎉 Hire Us for Your Event</h1>
-      <p class="subtitle">Click any bubble to explore what we can create for you</p>
-    </header>
-    
-    <div class="bubbles-container" id="bubblesContainer">
-      <!-- Corporate Events -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">💼</span>
-        <p class="bubble-title">Corporate Events</p>
-        <div class="bubble-content">
-          <p><strong>Transform your business gatherings into memorable experiences:</strong></p>
-          <ul>
-            <li>• Conference & seminars</li>
-            <li>• Product launches</li>
-            <li>• Team building events</li>
-            <li>• Awards ceremonies</li>
-            <li>• Networking events</li>
-            <li>• AGMs & board meetings</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Weddings -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">💍</span>
-        <p class="bubble-title">Weddings</p>
-        <div class="bubble-content">
-          <p><strong>Your dream wedding, perfectly executed:</strong></p>
-          <ul>
-            <li>• Full wedding coordination</li>
-            <li>• Venue styling & decoration</li>
-            <li>• Catering & bar services</li>
-            <li>• Entertainment booking</li>
-            <li>• Timeline management</li>
-            <li>• Supplier coordination</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Private Parties -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">🎊</span>
-        <p class="bubble-title">Private Parties</p>
-        <div class="bubble-content">
-          <p><strong>Celebrate in style with bespoke parties:</strong></p>
-          <ul>
-            <li>• Birthday celebrations</li>
-            <li>• Anniversary parties</li>
-            <li>• Engagement parties</li>
-            <li>• Holiday celebrations</li>
-            <li>• Intimate gatherings</li>
-            <li>• Themed parties</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Music Events -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">🎵</span>
-        <p class="bubble-title">Music Events</p>
-        <div class="bubble-content">
-          <p><strong>Live music and entertainment production:</strong></p>
-          <ul>
-            <li>• Concert production</li>
-            <li>• Festival management</li>
-            <li>• DJ events</li>
-            <li>• Live band coordination</li>
-            <li>• Sound & lighting</li>
-            <li>• Stage management</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Charity Events -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">❤️</span>
-        <p class="bubble-title">Charity Events</p>
-        <div class="bubble-content">
-          <p><strong>Make a difference with impactful fundraising:</strong></p>
-          <ul>
-            <li>• Gala dinners</li>
-            <li>• Charity auctions</li>
-            <li>• Fundraising campaigns</li>
-            <li>• Awareness events</li>
-            <li>• Volunteer coordination</li>
-            <li>• Donor relations</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Pop-ups & Markets -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">🏪</span>
-        <p class="bubble-title">Pop-ups & Markets</p>
-        <div class="bubble-content">
-          <p><strong>Temporary experiences that leave lasting impressions:</strong></p>
-          <ul>
-            <li>• Pop-up shops & restaurants</li>
-            <li>• Food markets</li>
-            <li>• Craft fairs</li>
-            <li>• Brand activations</li>
-            <li>• Vendor coordination</li>
-            <li>• Site management</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Sports Events -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">⚽</span>
-        <p class="bubble-title">Sports Events</p>
-        <div class="bubble-content">
-          <p><strong>Athletic events with professional execution:</strong></p>
-          <ul>
-            <li>• Tournament organization</li>
-            <li>• Sporting galas</li>
-            <li>• Fan experiences</li>
-            <li>• Hospitality packages</li>
-            <li>• Award ceremonies</li>
-            <li>• Team events</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Fashion Shows -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">👗</span>
-        <p class="bubble-title">Fashion Shows</p>
-        <div class="bubble-content">
-          <p><strong>Runway events with style and sophistication:</strong></p>
-          <ul>
-            <li>• Catwalk production</li>
-            <li>• Model coordination</li>
-            <li>• VIP guest management</li>
-            <li>• Backstage operations</li>
-            <li>• Media & PR coordination</li>
-            <li>• After-parties</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Cultural Events -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">🎭</span>
-        <p class="bubble-title">Cultural Events</p>
-        <div class="bubble-content">
-          <p><strong>Celebrate heritage and creativity:</strong></p>
-          <ul>
-            <li>• Art exhibitions</li>
-            <li>• Gallery openings</li>
-            <li>• Theatre productions</li>
-            <li>• Cultural festivals</li>
-            <li>• Community events</li>
-            <li>• Heritage celebrations</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Festival Production -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">🎪</span>
-        <p class="bubble-title">Festival Production</p>
-        <div class="bubble-content">
-          <p><strong>Large-scale festival management:</strong></p>
-          <ul>
-            <li>• Site design & layout</li>
-            <li>• Multiple stage coordination</li>
-            <li>• Vendor management</li>
-            <li>• Security & safety</li>
-            <li>• Ticketing systems</li>
-            <li>• Crowd control</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Catering & Food -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">🍽️</span>
-        <p class="bubble-title">Catering & Food</p>
-        <div class="bubble-content">
-          <p><strong>Delicious food experiences for every occasion:</strong></p>
-          <ul>
-            <li>• Bespoke menu design</li>
-            <li>• Buffet & plated service</li>
-            <li>• Canapés & finger food</li>
-            <li>• Dietary accommodations</li>
-            <li>• Live cooking stations</li>
-            <li>• Professional chefs</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Coffee Services -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">☕</span>
-        <p class="bubble-title">Coffee Bars</p>
-        <div class="bubble-content">
-          <p><strong>Barista-quality coffee for your guests:</strong></p>
-          <ul>
-            <li>• Mobile coffee stations</li>
-            <li>• Professional baristas</li>
-            <li>• Specialty coffee blends</li>
-            <li>• Latte art & customization</li>
-            <li>• Tea & hot chocolate</li>
-            <li>• Branded cups available</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Smoothie & Juice Bars -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">🥤</span>
-        <p class="bubble-title">Smoothie & Juice Bars</p>
-        <div class="bubble-content">
-          <p><strong>Fresh, healthy refreshments:</strong></p>
-          <ul>
-            <li>• Fresh fruit smoothies</li>
-            <li>• Cold-pressed juices</li>
-            <li>• Protein shakes</li>
-            <li>• Wellness shots</li>
-            <li>• Custom blends</li>
-            <li>• Organic options</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Bar Services -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">🍸</span>
-        <p class="bubble-title">Bar Services</p>
-        <div class="bubble-content">
-          <p><strong>Premium drinks service:</strong></p>
-          <ul>
-            <li>• Cocktail bars</li>
-            <li>• Wine & champagne service</li>
-            <li>• Craft beer selection</li>
-            <li>• Mocktails & soft drinks</li>
-            <li>• Professional mixologists</li>
-            <li>• Branded drinks menus</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Equipment Hire -->
-      <div class="bubble" onclick="toggleBubble(this)">
-        <div class="close-bubble" onclick="event.stopPropagation(); closeBubble(this.parentElement)">×</div>
-        <span class="bubble-icon">🎤</span>
-        <p class="bubble-title">Equipment Hire</p>
-        <div class="bubble-content">
-          <p><strong>Professional AV and event equipment:</strong></p>
-          <ul>
-            <li>• Sound systems & PA</li>
-            <li>• Lighting & effects</li>
-            <li>• Staging & rigging</li>
-            <li>• Tables & chairs</li>
-            <li>• Marquees & tents</li>
-            <li>• Generators & power</li>
-          </ul>
+    <!-- Corporate & Business Events -->
+    <div class="category-section">
+      <h2 class="category-header"><span>💼</span> Corporate & Business Events</h2>
+      <div class="services-grid">
+        <div class="service-card" onclick="this.classList.toggle('expanded')">
+          <h3>Corporate Events</h3>
+          <p>Professional conferences, product launches, team building, and corporate celebrations.</p>
+          <div class="service-details">
+            <ul>
+              <li>Conference & seminars</li>
+              <li>Product launches</li>
+              <li>Team building events</li>
+              <li>Awards ceremonies</li>
+              <li>Networking events</li>
+              <li>AGMs & board meetings</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
     
-    <!-- Contact CTA replacing the form -->
-    <div class="contact-cta">
+    <!-- Social & Private Events -->
+    <div class="category-section">
+      <h2 class="category-header"><span>🎊</span> Social & Private Events</h2>
+      <div class="services-grid">
+        <div class="service-card" onclick="this.classList.toggle('expanded')">
+          <h3>Weddings</h3>
+          <p>Your dream wedding, perfectly executed from start to finish.</p>
+          <div class="service-details">
+            <ul>
+              <li>Full wedding coordination</li>
+              <li>Venue styling & decoration</li>
+              <li>Catering & bar services</li>
+              <li>Entertainment booking</li>
+              <li>Timeline management</li>
+              <li>Supplier coordination</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="service-card" onclick="this.classList.toggle('expanded')">
+          <h3>Private Parties</h3>
+          <p>Celebrate in style with bespoke party planning and production.</p>
+          <div class="service-details">
+            <ul>
+              <li>Birthday celebrations</li>
+              <li>Anniversary parties</li>
+              <li>Engagement parties</li>
+              <li>Holiday celebrations</li>
+              <li>Intimate gatherings</li>
+              <li>Themed parties</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Entertainment & Cultural -->
+    <div class="category-section">
+      <h2 class="category-header"><span>🎵</span> Entertainment & Cultural Events</h2>
+      <div class="services-grid">
+        <div class="service-card" onclick="this.classList.toggle('expanded')">
+          <h3>Music Events</h3>
+          <p>Live music and entertainment production from concerts to festivals.</p>
+          <div class="service-details">
+            <ul>
+              <li>Concert production</li>
+              <li>Festival management</li>
+              <li>DJ events</li>
+              <li>Live band coordination</li>
+              <li>Sound & lighting</li>
+              <li>Stage management</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="service-card" onclick="this.classList.toggle('expanded')">
+          <h3>Cultural Events</h3>
+          <p>Celebrate heritage and creativity with expertly managed cultural experiences.</p>
+          <div class="service-details">
+            <ul>
+              <li>Art exhibitions</li>
+              <li>Gallery openings</li>
+              <li>Theatre productions</li>
+              <li>Cultural festivals</li>
+              <li>Community events</li>
+              <li>Heritage celebrations</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="service-card" onclick="this.classList.toggle('expanded')">
+          <h3>Fashion Shows</h3>
+          <p>Runway events with style and sophistication.</p>
+          <div class="service-details">
+            <ul>
+              <li>Catwalk production</li>
+              <li>Model coordination</li>
+              <li>VIP guest management</li>
+              <li>Backstage operations</li>
+              <li>Media & PR coordination</li>
+              <li>After-parties</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Community & Charity -->
+    <div class="category-section">
+      <h2 class="category-header"><span>❤️</span> Community & Charity Events</h2>
+      <div class="services-grid">
+        <div class="service-card" onclick="this.classList.toggle('expanded')">
+          <h3>Charity Events</h3>
+          <p>Make a difference with impactful fundraising events.</p>
+          <div class="service-details">
+            <ul>
+              <li>Gala dinners</li>
+              <li>Charity auctions</li>
+              <li>Fundraising campaigns</li>
+              <li>Awareness events</li>
+              <li>Volunteer coordination</li>
+              <li>Donor relations</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="service-card" onclick="this.classList.toggle('expanded')">
+          <h3>Sports Events</h3>
+          <p>Athletic events with professional execution and hospitality.</p>
+          <div class="service-details">
+            <ul>
+              <li>Tournament organization</li>
+              <li>Sporting galas</li>
+              <li>Fan experiences</li>
+              <li>Hospitality packages</li>
+              <li>Award ceremonies</li>
+              <li>Team events</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Large Scale Production -->
+    <div class="category-section">
+      <h2 class="category-header"><span>🎪</span> Large Scale Production</h2>
+      <div class="services-grid">
+        <div class="service-card" onclick="this.classList.toggle('expanded')">
+          <h3>Festival Production</h3>
+          <p>Complete festival management from planning to execution.</p>
+          <div class="service-details">
+            <ul>
+              <li>Site design & layout</li>
+              <li>Multiple stage coordination</li>
+              <li>Vendor management</li>
+              <li>Security & safety</li>
+              <li>Ticketing systems</li>
+              <li>Crowd control</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="service-card" onclick="this.classList.toggle('expanded')">
+          <h3>Pop-ups & Markets</h3>
+          <p>Temporary experiences that leave lasting impressions.</p>
+          <div class="service-details">
+            <ul>
+              <li>Pop-up shops & restaurants</li>
+              <li>Food markets</li>
+              <li>Craft fairs</li>
+              <li>Brand activations</li>
+              <li>Vendor coordination</li>
+              <li>Site management</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Hospitality Services -->
+    <div class="category-section">
+      <h2 class="category-header"><span>🍽️</span> Hospitality & Catering</h2>
+      <div class="services-grid">
+        <div class="service-card" onclick="this.classList.toggle('expanded')">
+          <h3>Catering & Food</h3>
+          <p>Delicious food experiences for every occasion.</p>
+          <div class="service-details">
+            <ul>
+              <li>Bespoke menu design</li>
+              <li>Buffet & plated service</li>
+              <li>Canapés & finger food</li>
+              <li>Dietary accommodations</li>
+              <li>Live cooking stations</li>
+              <li>Professional chefs</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="service-card" onclick="this.classList.toggle('expanded')">
+          <h3>Bar Services</h3>
+          <p>Premium drinks service with professional mixologists.</p>
+          <div class="service-details">
+            <ul>
+              <li>Cocktail bars</li>
+              <li>Wine & champagne service</li>
+              <li>Craft beer selection</li>
+              <li>Mocktails & soft drinks</li>
+              <li>Professional mixologists</li>
+              <li>Branded drinks menus</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="service-card" onclick="this.classList.toggle('expanded')">
+          <h3>Coffee & Beverages</h3>
+          <p>Barista-quality coffee and fresh beverages for your guests.</p>
+          <div class="service-details">
+            <ul>
+              <li>Mobile coffee stations</li>
+              <li>Professional baristas</li>
+              <li>Specialty coffee blends</li>
+              <li>Fresh juice & smoothies</li>
+              <li>Tea & hot chocolate</li>
+              <li>Branded service options</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Technical Services -->
+    <div class="category-section">
+      <h2 class="category-header"><span>🎤</span> Technical & Equipment</h2>
+      <div class="services-grid">
+        <div class="service-card" onclick="this.classList.toggle('expanded')">
+          <h3>Equipment Hire</h3>
+          <p>Professional AV and event equipment with technical support.</p>
+          <div class="service-details">
+            <ul>
+              <li>Sound systems & PA</li>
+              <li>Lighting & effects</li>
+              <li>Staging & rigging</li>
+              <li>Tables & chairs</li>
+              <li>Marquees & tents</li>
+              <li>Generators & power</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- CTA -->
+    <div class="cta-section">
       <h2>Ready to Plan Your Event?</h2>
-      <p>Let's bring your vision to life. Get in touch with us to discuss your event requirements and receive a personalized quote.</p>
-      <a href="contact.html" class="contact-btn">Contact Us</a>
+      <p>Let's bring your vision to life. Get in touch to discuss your requirements and receive a personalized quote.</p>
+      <a href="contact.html" class="cta-button">Contact Us</a>
     </div>
   </div>
   
+  <!-- Footer -->
   <footer>
-    <p>
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
-      <a href="privacy.html">Privacy</a>
-      <a href="terms.html">Terms</a>
-    </p>
-    <p style="margin-top: 15px;">&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
-  </footer>
-  
-  <script>
-    function toggleBubble(bubble) {
-      const isExpanded = bubble.classList.contains('expanded');
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>VERGO Events</h3>
+        <p style="color: #666; line-height: 1.8;">Professional event management and staffing solutions across London.</p>
+      </div>
       
-      // Close all bubbles
-      document.querySelectorAll('.bubble').forEach(b => {
-        b.classList.remove('expanded');
-      });
+      <div class="footer-section">
+        <h3>Services</h3>
+        <ul>
+          <li><a href="hire-us.html">Event Management</a></li>
+          <li><a href="hire-staff.html">Staff Hire</a></li>
+          <li><a href="apply.html">Careers</a></li>
+        </ul>
+      </div>
       
-      // If it wasn't expanded, expand it
-      if (!isExpanded) {
-        bubble.classList.add('expanded');
-      }
-    }
+      <div class="footer-section">
+        <h3>Company</h3>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms & Conditions</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h3>Get in Touch</h3>
+        <ul>
+          <li><a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a></li>
+          <li style="color: #666;">London, United Kingdom</li>
+        </ul>
+      </div>
+    </div>
     
-    function closeBubble(bubble) {
-      bubble.classList.remove('expanded');
-    }
-  </script>
+    <div class="footer-bottom">
+      <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
+    </div>
+  </footer>
 </body>
 </html>

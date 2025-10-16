@@ -1,5 +1,6 @@
 {
   "name": "vergo-api",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "tsx watch src/index.ts",
@@ -20,12 +21,12 @@
     "express": "^4.19.2",
     "express-rate-limit": "^7.4.0",
     "express-session": "^1.18.2",
-    "file-type": "^18.7.0",
+    "file-type": "^16.5.4",
     "flyctl": "^1.2.4",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "pino": "^9.3.2",
-    "resend": "^4.0.1",
+    "resend": "^4.8.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

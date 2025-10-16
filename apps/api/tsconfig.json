@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "commonjs",
+    "module": "ESNext",
     "moduleResolution": "node",
     "lib": ["ES2020"],
     "rootDir": ".",
@@ -12,7 +12,7 @@
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "strictNullChecks": true,
-    "typeRoots": ["./types", "./node_modules/@types"]   // 👈 add this
+    "typeRoots": ["./types", "./node_modules/@types"]
   },
   "include": ["src", "prisma/**/*.ts", "types/**/*.d.ts"],
   "exclude": ["node_modules", "dist"]

@@ -1,4 +1,4 @@
-import 'dotenv/config'
+import 'dotenv/config''
 
 const requireEnv = (k: string) => {
   const v = process.env[k]
@@ -15,5 +15,6 @@ export const env = {
   s3Bucket: requireEnv('S3_BUCKET'),
   awsKey: requireEnv('AWS_ACCESS_KEY_ID'),
   awsSecret: requireEnv('AWS_SECRET_ACCESS_KEY'),
-  webOrigin: process.env.WEB_ORIGIN ?? 'http://localhost:8080'
+  webOrigin: process.env.WEB_ORIGIN ?? 'http://localhost:8080',
+  resendApiKey: requireEnv('RESEND_API_KEY') // ADD THIS LINE
 }
