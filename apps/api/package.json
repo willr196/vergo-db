@@ -25,6 +25,7 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "pino": "^9.3.2",
+    "resend": "^4.0.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
