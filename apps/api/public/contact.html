@@ -13,88 +13,145 @@
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #EADAC5 0%, #d9c9b4 100%);
-      color: #2c3e2f;
-      line-height: 1.6;
+      background: #0a0a0a;
+      color: #ffffff;
+      line-height: 1.7;
     }
     
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-    
-    .back-link {
-      display: inline-block;
-      margin-bottom: 30px;
-      color: #2c3e2f;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1.1rem;
-      padding: 12px 25px;
-      background: rgba(255,255,255,0.5);
-      border-radius: 50px;
-      transition: all 0.3s ease;
-    }
-    
-    .back-link:hover {
-      background: rgba(255,255,255,0.7);
-      transform: translateX(-5px);
-    }
-    
+    /* Header Navigation */
     header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #D4AF37;
+      letter-spacing: 2px;
+      text-decoration: none;
+    }
+    
+    nav ul {
+      display: flex;
+      gap: 35px;
+      list-style: none;
+    }
+    
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+    
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #D4AF37;
+      transition: width 0.3s ease;
+    }
+    
+    nav a:hover {
+      color: #D4AF37;
+    }
+    
+    nav a:hover::after {
+      width: 100%;
+    }
+    
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+    }
+    
+    .menu-toggle span {
+      width: 25px;
+      height: 2px;
+      background: #D4AF37;
+    }
+    
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 120px 40px 60px;
+    }
+    
+    /* Page Hero */
+    .page-hero {
       text-align: center;
-      padding: 60px 20px 40px;
-      color: #2c3e2f;
+      padding: 80px 20px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      margin-bottom: 80px;
     }
     
-    h1 {
+    .page-hero h1 {
       font-size: 4rem;
-      margin-bottom: 15px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      color: #D4AF37;
+      font-weight: 700;
     }
     
-    .subtitle {
+    .page-hero p {
       font-size: 1.3rem;
-      color: #5a6b5a;
-      margin-bottom: 40px;
+      color: #999;
     }
     
     /* Tab Navigation */
     .tab-container {
-      background: white;
-      border-radius: 20px 20px 0 0;
+      background: #1a1a1a;
+      border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+      border: 1px solid rgba(212, 175, 55, 0.2);
     }
     
     .tabs {
       display: flex;
-      background: #f8f8f8;
-      border-bottom: 3px solid #e0e0e0;
+      background: #0a0a0a;
+      border-bottom: 2px solid rgba(212, 175, 55, 0.2);
     }
     
     .tab {
       flex: 1;
       padding: 25px 20px;
       text-align: center;
-      font-weight: 700;
-      font-size: 1.2rem;
+      font-weight: 600;
+      font-size: 1rem;
       cursor: pointer;
       transition: all 0.3s ease;
-      color: #5a6b5a;
-      border-bottom: 4px solid transparent;
-      position: relative;
+      color: #999;
+      border-bottom: 3px solid transparent;
+      user-select: none;
     }
     
     .tab:hover {
-      background: rgba(168,188,161,0.1);
+      background: rgba(212, 175, 55, 0.05);
+      color: #D4AF37;
     }
     
     .tab.active {
-      color: #2c3e2f;
-      background: white;
-      border-bottom: 4px solid #A8BCA1;
+      color: #D4AF37;
+      background: #1a1a1a;
+      border-bottom: 3px solid #D4AF37;
     }
     
     .tab-icon {
@@ -107,8 +164,6 @@
     .tab-content {
       display: none;
       padding: 50px 40px;
-      background: white;
-      border-radius: 0 0 20px 20px;
     }
     
     .tab-content.active {
@@ -130,9 +185,17 @@
     .form-intro {
       text-align: center;
       margin-bottom: 40px;
-      color: #5a6b5a;
+    }
+    
+    .form-intro h2 {
+      font-size: 2rem;
+      color: #D4AF37;
+      margin-bottom: 15px;
+    }
+    
+    .form-intro p {
+      color: #999;
       font-size: 1.1rem;
-      line-height: 1.8;
     }
     
     .form-group {
@@ -143,29 +206,40 @@
       display: block;
       font-weight: 600;
       margin-bottom: 8px;
-      color: #2c3e2f;
-      font-size: 1.1rem;
+      color: #D4AF37;
+      font-size: 1rem;
     }
     
     input, textarea, select {
       width: 100%;
       padding: 15px;
-      border: 2px solid #e0e0e0;
-      border-radius: 10px;
+      border: 2px solid rgba(212, 175, 55, 0.2);
+      border-radius: 8px;
       font-size: 1rem;
       font-family: inherit;
       transition: all 0.3s ease;
+      background: #0a0a0a;
+      color: #ffffff;
     }
     
     input:focus, textarea:focus, select:focus {
       outline: none;
-      border-color: #A8BCA1;
-      box-shadow: 0 0 0 3px rgba(168,188,161,0.1);
+      border-color: #D4AF37;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
     }
     
     textarea {
       min-height: 150px;
       resize: vertical;
+    }
+    
+    select {
+      cursor: pointer;
+    }
+    
+    option {
+      background: #1a1a1a;
+      color: #ffffff;
     }
     
     .form-row {
@@ -177,23 +251,22 @@
     .submit-btn {
       width: 100%;
       padding: 18px;
-      background: linear-gradient(135deg, #A8BCA1 0%, #9aad93 100%);
-      color: white;
+      background: #D4AF37;
+      color: #1a1a1a;
       border: none;
-      border-radius: 50px;
-      font-size: 1.2rem;
+      border-radius: 8px;
+      font-size: 1.1rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1.5px;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 5px 20px rgba(168,188,161,0.3);
       margin-top: 20px;
     }
     
     .submit-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 30px rgba(168,188,161,0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
     }
     
     .submit-btn:active {
@@ -214,8 +287,9 @@
     .roles-section {
       margin: 25px 0;
       padding: 20px;
-      background: #f8f9f8;
-      border-radius: 12px;
+      background: #0a0a0a;
+      border-radius: 8px;
+      border: 1px solid rgba(212, 175, 55, 0.2);
     }
     
     .role-category {
@@ -229,12 +303,12 @@
     .category-header {
       font-weight: 700;
       font-size: 1rem;
-      color: #F2C88E;
+      color: #D4AF37;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 12px;
       padding-bottom: 8px;
-      border-bottom: 2px solid #F2C88E;
+      border-bottom: 2px solid #D4AF37;
     }
     
     .roles-grid {
@@ -249,43 +323,49 @@
       font-weight: normal;
       font-size: 0.95rem;
       padding: 10px 12px;
-      background: white;
-      border: 2px solid #e0e0e0;
+      background: #1a1a1a;
+      border: 2px solid rgba(212, 175, 55, 0.2);
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s ease;
+      color: #cccccc;
     }
     
     .role-checkbox-label:hover {
-      background: #fff9f0;
-      border-color: #F2C88E;
+      background: rgba(212, 175, 55, 0.05);
+      border-color: #D4AF37;
     }
     
     .role-checkbox-label input[type="checkbox"] {
       width: auto;
       margin-right: 8px;
       cursor: pointer;
-      accent-color: #F2C88E;
+      accent-color: #D4AF37;
     }
     
-    .role-checkbox-label input[type="checkbox"]:checked + span {
+    .role-checkbox-label:has(input[type="checkbox"]:checked) {
+      border-color: #D4AF37;
+      background: rgba(212, 175, 55, 0.1);
+    }
+    
+    .role-checkbox-label:has(input[type="checkbox"]:checked) span {
       font-weight: 600;
-      color: #F2C88E;
+      color: #D4AF37;
     }
     
     /* Contact Info Section */
     .contact-info {
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
-      margin-top: 40px;
-      box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+      background: #1a1a1a;
+      padding: 60px 40px;
+      border-radius: 8px;
+      margin-top: 60px;
+      border: 1px solid rgba(212, 175, 55, 0.2);
     }
     
     .contact-info h2 {
-      color: #A8BCA1;
-      margin-bottom: 25px;
-      font-size: 2rem;
+      color: #D4AF37;
+      margin-bottom: 40px;
+      font-size: 2.5rem;
       text-align: center;
     }
     
@@ -293,15 +373,19 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 30px;
-      margin-top: 30px;
     }
     
     .info-card {
       text-align: center;
-      padding: 25px;
-      background: linear-gradient(135deg, #f8f9f8 0%, #ffffff 100%);
-      border-radius: 12px;
-      border-left: 4px solid #A8BCA1;
+      padding: 30px;
+      background: #0a0a0a;
+      border-radius: 8px;
+      border-top: 3px solid #D4AF37;
+      transition: transform 0.3s ease;
+    }
+    
+    .info-card:hover {
+      transform: translateY(-5px);
     }
     
     .info-icon {
@@ -311,18 +395,18 @@
     }
     
     .info-card h3 {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       margin-bottom: 10px;
-      color: #2c3e2f;
+      color: #D4AF37;
     }
     
     .info-card p {
-      color: #5a6b5a;
+      color: #999;
       font-size: 1rem;
     }
     
     .info-card a {
-      color: #A8BCA1;
+      color: #D4AF37;
       text-decoration: none;
       font-weight: 600;
     }
@@ -331,29 +415,85 @@
       text-decoration: underline;
     }
     
+    /* Footer */
     footer {
-      background: #2c3e2f;
-      color: #EADAC5;
-      text-align: center;
-      padding: 30px 20px;
-      margin-top: 60px;
-      border-radius: 15px 15px 0 0;
+      background: #0a0a0a;
+      color: #D4AF37;
+      padding: 40px 30px 25px;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+      margin-top: 80px;
     }
     
-    footer a {
-      color: #EADAC5;
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    .footer-links {
+      margin-bottom: 20px;
+    }
+    
+    .footer-links a {
+      color: #999;
       text-decoration: none;
-      margin: 0 15px;
+      margin: 0 20px;
+      font-size: 0.9rem;
       transition: color 0.3s ease;
     }
     
-    footer a:hover {
-      color: #F2C88E;
+    .footer-links a:hover {
+      color: #D4AF37;
+    }
+    
+    .footer-bottom {
+      color: #666;
+      font-size: 0.85rem;
+      margin-top: 15px;
+    }
+    
+    @media (max-width: 1024px) {
+      nav ul {
+        position: fixed;
+        top: 80px;
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 10, 0.98);
+        flex-direction: column;
+        padding: 30px;
+        gap: 20px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      nav ul.active {
+        transform: translateX(0);
+      }
+      
+      .menu-toggle {
+        display: flex;
+      }
     }
     
     @media (max-width: 768px) {
-      h1 {
+      header {
+        padding: 15px 20px;
+      }
+      
+      .logo {
+        font-size: 1.5rem;
+      }
+      
+      .container {
+        padding: 100px 20px 40px;
+      }
+      
+      .page-hero h1 {
         font-size: 2.5rem;
+      }
+      
+      .page-hero p {
+        font-size: 1.1rem;
       }
       
       .tabs {
@@ -361,12 +501,12 @@
       }
       
       .tab {
-        border-bottom: 2px solid #e0e0e0;
+        border-bottom: 2px solid rgba(212, 175, 55, 0.2);
       }
       
       .tab.active {
-        border-bottom: 2px solid #A8BCA1;
-        border-left: 4px solid #A8BCA1;
+        border-bottom: 2px solid #D4AF37;
+        border-left: 4px solid #D4AF37;
       }
       
       .tab-content {
@@ -384,30 +524,57 @@
       .roles-grid {
         grid-template-columns: 1fr;
       }
+      
+      .footer-links a {
+        display: block;
+        margin: 12px 0;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Header Navigation -->
+  <header>
+    <a href="index.html" class="logo">VERGO</a>
+    
+    <div class="menu-toggle" onclick="toggleMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    
+    <nav>
+      <ul id="nav-menu">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="hire-us.html">Event Management</a></li>
+        <li><a href="hire-staff.html">Hire Staff</a></li>
+        <li><a href="apply.html">Apply</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <!-- Page Hero -->
+  <div class="page-hero">
+    <h1>Get in Touch</h1>
+    <p>We'd love to hear from you</p>
+  </div>
+  
+  <!-- Content -->
   <div class="container">
-    <a href="index.html" class="back-link">← Back to Home</a>
-    
-    <header>
-      <h1>📬 Get in Touch</h1>
-      <p class="subtitle">We'd love to hear from you</p>
-    </header>
-    
     <div class="tab-container">
       <!-- Tab Navigation -->
       <div class="tabs">
-        <div class="tab active" onclick="switchTab('events')">
+        <div class="tab active" data-tab="events">
           <span class="tab-icon">🎉</span>
           Hire Us for Events
         </div>
-        <div class="tab" onclick="switchTab('staff')">
+        <div class="tab" data-tab="staff">
           <span class="tab-icon">👥</span>
           Request Staff
         </div>
-        <div class="tab" onclick="switchTab('general')">
+        <div class="tab" data-tab="general">
           <span class="tab-icon">💬</span>
           General Enquiry
         </div>
@@ -416,7 +583,7 @@
       <!-- Events Form -->
       <div id="eventsTab" class="tab-content active">
         <div class="form-intro">
-          <h2 style="color: #A8BCA1; margin-bottom: 15px;">Book VERGO for Your Event</h2>
+          <h2>Book VERGO for Your Event</h2>
           <p>Tell us about your vision and we'll make it happen</p>
         </div>
         
@@ -484,7 +651,7 @@
       <!-- Staff Request Form -->
       <div id="staffTab" class="tab-content">
         <div class="form-intro">
-          <h2 style="color: #F2C88E; margin-bottom: 15px;">Request Event Staff</h2>
+          <h2>Request Event Staff</h2>
           <p>Let us know what roles you need and when</p>
         </div>
         
@@ -658,14 +825,14 @@
             <input type="text" id="staff-website" name="website" tabindex="-1" autocomplete="off">
           </div>
           
-          <button type="submit" class="submit-btn" style="background: linear-gradient(135deg, #F2C88E 0%, #eebb7d 100%);">Send Staff Request</button>
+          <button type="submit" class="submit-btn">Send Staff Request</button>
         </form>
       </div>
       
       <!-- General Enquiry Form -->
       <div id="generalTab" class="tab-content">
         <div class="form-intro">
-          <h2 style="color: #CBB7E0; margin-bottom: 15px;">General Enquiry</h2>
+          <h2>General Enquiry</h2>
           <p>Questions, feedback, or just want to say hello?</p>
         </div>
         
@@ -698,7 +865,7 @@
             <input type="text" id="general-website" name="website" tabindex="-1" autocomplete="off">
           </div>
           
-          <button type="submit" class="submit-btn" style="background: linear-gradient(135deg, #CBB7E0 0%, #b8a3cc 100%);">Send Message</button>
+          <button type="submit" class="submit-btn">Send Message</button>
         </form>
       </div>
     </div>
@@ -728,86 +895,109 @@
     </div>
   </div>
   
+  <!-- Footer -->
   <footer>
-    <p>
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="hire-us.html">Hire Us</a>
-      <a href="hire-staff.html">Hire Staff</a>
-      <a href="privacy.html">Privacy</a>
-      <a href="terms.html">Terms</a>
-    </p>
-    <p style="margin-top: 15px;">&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
+      </div>
+    </div>
   </footer>
   
-<script>
-  function switchTab(tabName) {
-    // Remove active class from all tabs and content
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    
-    // Add active class to clicked tab and corresponding content
-    event.target.closest('.tab').classList.add('active');
-    document.getElementById(tabName + 'Tab').classList.add('active');
-  }
-  
-  // Form submissions
-  document.getElementById('eventsForm').addEventListener('submit', handleSubmit);
-  document.getElementById('staffForm').addEventListener('submit', handleSubmit);
-  document.getElementById('generalForm').addEventListener('submit', handleSubmit);
-  
-  async function handleSubmit(e) {
-    e.preventDefault();
-    
-    const form = e.target;
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-    
-    // Handle checkboxes for staff form
-    if (form.id === 'staffForm') {
-      data.roles = [...formData.getAll('roles')];
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById('nav-menu');
+      menu.classList.toggle('active');
     }
     
-    // Determine endpoint
-    let endpoint = '';
-    if (form.id === 'eventsForm') {
-      endpoint = '/api/v1/contact/event-enquiry';
-    } else if (form.id === 'staffForm') {
-      endpoint = '/api/v1/contact/staff-request';
-    } else {
-      endpoint = '/api/v1/contact/general';
-    }
+    document.addEventListener('click', function(event) {
+      const menu = document.getElementById('nav-menu');
+      const header = document.querySelector('header');
+      if (!header.contains(event.target)) {
+        menu.classList.remove('active');
+      }
+    });
     
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    
-    try {
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Sending...';
-      
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+    // Tab switching functionality
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        const tabName = this.getAttribute('data-tab');
+        
+        // Remove active class from all tabs and content
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        // Add active class to clicked tab and corresponding content
+        this.classList.add('active');
+        document.getElementById(tabName + 'Tab').classList.add('active');
       });
+    });
+    
+    // Form submissions
+    document.getElementById('eventsForm').addEventListener('submit', handleSubmit);
+    document.getElementById('staffForm').addEventListener('submit', handleSubmit);
+    document.getElementById('generalForm').addEventListener('submit', handleSubmit);
+    
+    async function handleSubmit(e) {
+      e.preventDefault();
       
-      const result = await response.json();
+      const form = e.target;
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
       
-      if (response.ok) {
-        alert('✅ ' + result.message);
-        form.reset();
-      } else {
-        alert('❌ ' + (result.error || 'Something went wrong. Please try again.'));
+      // Handle checkboxes for staff form
+      if (form.id === 'staffForm') {
+        data.roles = [...formData.getAll('roles')];
       }
       
-    } catch (error) {
-      console.error('Form submission error:', error);
-      alert('❌ Connection error. Please check your internet and try again.');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalText;
+      // Determine endpoint
+      let endpoint = '';
+      if (form.id === 'eventsForm') {
+        endpoint = '/api/v1/contact/event-enquiry';
+      } else if (form.id === 'staffForm') {
+        endpoint = '/api/v1/contact/staff-request';
+      } else {
+        endpoint = '/api/v1/contact/general';
+      }
+      
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      
+      try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          alert('✅ ' + result.message);
+          form.reset();
+        } else {
+          alert('❌ ' + (result.error || 'Something went wrong. Please try again.'));
+        }
+        
+      } catch (error) {
+        console.error('Form submission error:', error);
+        alert('❌ Connection error. Please check your internet and try again.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
     }
-  }
-</script>
+  </script>
 </body>
 </html>
