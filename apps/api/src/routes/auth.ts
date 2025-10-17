@@ -166,7 +166,7 @@ r.post("/logout", (req, res) => {
       path: '/',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict''
+      sameSite: 'strict'
     });
     
     if (username) {

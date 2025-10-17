@@ -1,6 +1,6 @@
 {
   "name": "vergo-api",
-  "type": "module",
+  "type": "commonjs",
   "private": true,
   "scripts": {
     "dev": "tsx watch src/index.ts",

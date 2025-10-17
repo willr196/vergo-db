@@ -4,11 +4,11 @@ import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import path from 'node:path';
 import session from 'express-session';
-import { env } from './'env';
-import applications from './'routes/applications';
-import { adminAuth } from './'middleware/adminAuth';
-import auth from './'routes/auth';
-import contact from './'routes/contact'; // NEW: Contact routes
+import { env } from './env';
+import applications from './routes/applications';
+import { adminAuth } from './middleware/adminAuth';
+import auth from './routes/auth';
+import contact from './routes/contact';
 
 const app = express();
 app.disable('x-powered-by');
@@ -27,7 +27,7 @@ app.use(cors({
     env.webOrigin,
     `http://localhost:${env.port}`,
     'http://localhost:8080',
-    'https://vergo-app.fly.dev''
+    'https://vergo-app.fly.dev'
   ],
   credentials: true
 }));
@@ -61,7 +61,7 @@ app.get('/health', (_, res) => res.json({ ok: true }));
 // Auth endpoints
 app.use('/api/v1/auth', auth);
 
-// Contact form endpoints (NEW!)
+// Contact form endpoints
 app.use('/api/v1/contact', contact);
 
 // Protect admin.html BEFORE static middleware

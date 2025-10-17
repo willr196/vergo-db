@@ -1,9 +1,9 @@
 import { Resend } from 'resend';
+import { env } from '../env';
 
-// You'll need to add RESEND_API_KEY to your env.ts
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(env.resendApiKey);
 
-const FROM_EMAIL = 'VERGO Events wrobb@vergoltd.com'; 
+const FROM_EMAIL = 'VERGO Events <wrobb@vergoltd.com>'; 
 const TO_EMAIL = 'wrobb@vergoltd.com';
 
 export async function sendEventEnquiryEmail(data: {
