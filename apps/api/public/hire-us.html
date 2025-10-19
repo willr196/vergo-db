@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hire Us for Events - VERGO Events</title>
+  <title>Event Management - VERGO Events</title>
   <style>
     * {
       margin: 0;
@@ -12,117 +12,135 @@
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
       background: #0a0a0a;
-      color: #e0e0e0;
+      color: #ffffff;
       line-height: 1.7;
     }
     
-    /* Navigation */
-    nav {
-      background: #1a1a1a;
+    /* Header Navigation */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
       padding: 20px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      z-index: 1000;
     }
     
     .logo {
       font-size: 1.8rem;
       font-weight: 700;
       color: #D4AF37;
-      letter-spacing: 3px;
+      letter-spacing: 2px;
       text-decoration: none;
     }
     
-    .nav-links {
+    nav ul {
       display: flex;
-      gap: 40px;
+      gap: 35px;
       list-style: none;
     }
     
-    .nav-links a {
+    nav a {
       color: #ffffff;
       text-decoration: none;
+      font-size: 0.95rem;
       font-weight: 500;
       transition: color 0.3s ease;
+      position: relative;
     }
     
-    .nav-links a:hover {
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #D4AF37;
+      transition: width 0.3s ease;
+    }
+    
+    nav a:hover {
       color: #D4AF37;
     }
     
-    /* Hero */
-    .hero {
-      background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
-      padding: 100px 40px 80px;
-      text-align: center;
-      border-bottom: 2px solid #D4AF37;
+    nav a:hover::after {
+      width: 100%;
     }
     
-    .hero h1 {
-      font-size: 3.5rem;
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+    }
+    
+    .menu-toggle span {
+      width: 25px;
+      height: 2px;
+      background: #D4AF37;
+    }
+    
+    /* Page Hero */
+    .page-hero {
+      text-align: center;
+      padding: 180px 20px 80px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      margin-bottom: 80px;
+    }
+    
+    .page-hero h1 {
+      font-size: 4rem;
       margin-bottom: 20px;
       color: #D4AF37;
       font-weight: 700;
     }
     
-    .hero p {
+    .page-hero p {
       font-size: 1.3rem;
-      color: #bbb;
-      max-width: 700px;
-      margin: 0 auto 40px;
-    }
-    
-    .hero-cta {
-      display: inline-block;
-      padding: 18px 50px;
-      background: #D4AF37;
-      color: #1a1a1a;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 1.1rem;
-      border-radius: 4px;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-    }
-    
-    .hero-cta:hover {
-      background: #fff;
-      transform: scale(1.05);
+      color: #999;
     }
     
     /* Container */
     .container {
-      max-width: 1400px;
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 80px 40px;
+      padding: 0 40px 60px;
     }
     
+    /* Intro Section */
     .intro-section {
-      text-align: center;
-      margin-bottom: 80px;
+      background: #1a1a1a;
+      padding: 60px 50px;
+      margin-bottom: 60px;
+      border-radius: 8px;
+      border-left: 4px solid #D4AF37;
     }
     
     .intro-section h2 {
       font-size: 2.5rem;
+      margin-bottom: 30px;
       color: #D4AF37;
-      margin-bottom: 25px;
     }
     
     .intro-section p {
-      font-size: 1.2rem;
-      color: #bbb;
-      max-width: 900px;
-      margin: 0 auto;
-      line-height: 1.9;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: #cccccc;
+      margin-bottom: 20px;
     }
     
-    /* Service Categories */
+    /* Category Section */
     .category-section {
-      margin-bottom: 80px;
+      margin-bottom: 60px;
     }
     
     .category-header {
@@ -130,7 +148,7 @@
       color: #D4AF37;
       margin-bottom: 40px;
       padding-bottom: 15px;
-      border-bottom: 3px solid #D4AF37;
+      border-bottom: 2px solid #D4AF37;
       display: flex;
       align-items: center;
       gap: 15px;
@@ -138,166 +156,139 @@
     
     .services-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 30px;
     }
     
     .service-card {
       background: #1a1a1a;
-      padding: 35px 30px;
+      padding: 40px 30px;
       border-radius: 8px;
-      border: 2px solid #2a2a2a;
-      border-left: 4px solid #D4AF37;
-      transition: all 0.3s ease;
-      cursor: pointer;
+      border-top: 3px solid #D4AF37;
+      transition: transform 0.3s ease;
     }
     
     .service-card:hover {
       transform: translateY(-5px);
-      border-color: #D4AF37;
-      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
-      background: #222;
     }
     
     .service-card h3 {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       margin-bottom: 15px;
       color: #D4AF37;
-      display: flex;
-      align-items: center;
-      gap: 10px;
     }
     
     .service-card p {
-      color: #bbb;
-      line-height: 1.7;
-      font-size: 1.05rem;
-    }
-    
-    /* Expandable Details */
-    .service-details {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-    }
-    
-    .service-card.expanded .service-details {
-      max-height: 500px;
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid #333;
-    }
-    
-    .service-details ul {
-      list-style: none;
-      padding-left: 0;
-    }
-    
-    .service-details li {
-      padding: 8px 0 8px 25px;
-      position: relative;
       color: #999;
-    }
-    
-    .service-details li::before {
-      content: "•";
-      position: absolute;
-      left: 0;
-      color: #D4AF37;
-      font-size: 1.5rem;
+      line-height: 1.7;
+      font-size: 1rem;
     }
     
     /* CTA Section */
     .cta-section {
       text-align: center;
       padding: 80px 40px;
-      background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
-      border-radius: 12px;
-      margin: 80px 0;
-      border: 2px solid #D4AF37;
+      background: #1a1a1a;
+      border-radius: 8px;
+      margin: 60px 0;
+      border: 1px solid rgba(212, 175, 55, 0.2);
     }
     
     .cta-section h2 {
-      font-size: 2.8rem;
-      color: #D4AF37;
+      font-size: 2.5rem;
       margin-bottom: 20px;
+      color: #D4AF37;
     }
     
     .cta-section p {
       font-size: 1.2rem;
-      color: #bbb;
-      margin-bottom: 35px;
+      margin-bottom: 30px;
+      color: #999;
     }
     
     .cta-button {
       display: inline-block;
-      padding: 18px 50px;
+      padding: 16px 45px;
       background: #D4AF37;
       color: #1a1a1a;
       text-decoration: none;
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1rem;
       border-radius: 4px;
       transition: all 0.3s ease;
       text-transform: uppercase;
       letter-spacing: 1.5px;
+      border: 2px solid #D4AF37;
     }
     
     .cta-button:hover {
-      background: #fff;
-      transform: scale(1.05);
+      background: transparent;
+      color: #D4AF37;
+      transform: translateY(-2px);
     }
     
     /* Footer */
     footer {
       background: #0a0a0a;
       color: #D4AF37;
-      padding: 50px 40px 30px;
-      border-top: 2px solid #1a1a1a;
+      padding: 40px 30px 25px;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+      margin-top: 80px;
     }
     
     .footer-content {
       max-width: 1200px;
       margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 40px;
-      margin-bottom: 30px;
+      text-align: center;
     }
     
-    .footer-section h3 {
-      font-size: 1.3rem;
+    .footer-links {
       margin-bottom: 20px;
-      color: #D4AF37;
     }
     
-    .footer-section ul {
-      list-style: none;
-    }
-    
-    .footer-section ul li {
-      margin-bottom: 10px;
-    }
-    
-    .footer-section a {
+    .footer-links a {
       color: #999;
       text-decoration: none;
+      margin: 0 20px;
+      font-size: 0.9rem;
       transition: color 0.3s ease;
     }
     
-    .footer-section a:hover {
+    .footer-links a:hover {
       color: #D4AF37;
     }
     
     .footer-bottom {
-      text-align: center;
-      padding-top: 20px;
-      border-top: 1px solid #333;
       color: #666;
+      font-size: 0.85rem;
+      margin-top: 15px;
+    }
+    
+    @media (max-width: 1024px) {
+      nav ul {
+        position: fixed;
+        top: 80px;
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 10, 0.98);
+        flex-direction: column;
+        padding: 30px;
+        gap: 20px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      nav ul.active {
+        transform: translateX(0);
+      }
+      
+      .menu-toggle {
+        display: flex;
+      }
     }
     
     @media (max-width: 768px) {
-      nav {
+      header {
         padding: 15px 20px;
       }
       
@@ -305,34 +296,43 @@
         font-size: 1.5rem;
       }
       
-      .nav-links {
-        display: none;
-      }
-      
-      .hero {
-        padding: 60px 20px 40px;
-      }
-      
-      .hero h1 {
-        font-size: 2.2rem;
-      }
-      
       .container {
-        padding: 50px 20px;
+        padding: 0 20px 40px;
+      }
+      
+      .page-hero {
+        padding: 120px 20px 60px;
+      }
+      
+      .page-hero h1 {
+        font-size: 2.5rem;
+      }
+      
+      .page-hero p {
+        font-size: 1.1rem;
+      }
+      
+      .intro-section {
+        padding: 40px 30px;
+      }
+      
+      .category-header {
+        font-size: 1.8rem;
       }
       
       .services-grid {
         grid-template-columns: 1fr;
       }
       
-      .category-header {
-        font-size: 1.8rem;
+      .footer-links a {
+        display: block;
+        margin: 12px 0;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Navigation -->
+  <!-- Header Navigation -->
   <header>
     <a href="index.html" class="logo">VERGO</a>
     
@@ -354,11 +354,10 @@
     </nav>
   </header>
   
-  <!-- Hero -->
-  <div class="hero">
-    <h1>Hire Us for Your Event</h1>
-    <p>Professional event management and production services across London</p>
-    <a href="contact.html" class="hero-cta">Get a Quote</a>
+  <!-- Page Hero -->
+  <div class="page-hero">
+    <h1>Event Management</h1>
+    <p>Professional Events & Staffing Solutions</p>
   </div>
   
   <!-- Content -->
@@ -370,307 +369,125 @@
         experiences tailored to your vision. Our comprehensive services cover every aspect of 
         event planning, coordination, and execution.
       </p>
+      <p>
+        Our team brings together experienced event professionals who are passionate about creating 
+        memorable moments with precision and care.
+      </p>
     </div>
     
-    <!-- Corporate & Business Events -->
+    <!-- Corporate Events -->
     <div class="category-section">
-      <h2 class="category-header"><span>💼</span> Corporate & Business Events</h2>
+      <h2 class="category-header"><span>💼</span> Corporate Events</h2>
       <div class="services-grid">
-        <div class="service-card" onclick="this.classList.toggle('expanded')">
-          <h3>Corporate Events</h3>
-          <p>Professional conferences, product launches, team building, and corporate celebrations.</p>
-          <div class="service-details">
-            <ul>
-              <li>Conference & seminars</li>
-              <li>Product launches</li>
-              <li>Team building events</li>
-              <li>Awards ceremonies</li>
-              <li>Networking events</li>
-              <li>AGMs & board meetings</li>
-            </ul>
-          </div>
+        <div class="service-card">
+          <h3>Conferences & Seminars</h3>
+          <p>Professional conference management, speaker coordination, and attendee experience.</p>
+        </div>
+        <div class="service-card">
+          <h3>Product Launches</h3>
+          <p>Make an impact with memorable product launch events that generate buzz.</p>
+        </div>
+        <div class="service-card">
+          <h3>Team Building</h3>
+          <p>Engaging team activities and corporate retreats that strengthen relationships.</p>
         </div>
       </div>
     </div>
     
-    <!-- Social & Private Events -->
+    <!-- Social Events -->
     <div class="category-section">
-      <h2 class="category-header"><span>🎊</span> Social & Private Events</h2>
+      <h2 class="category-header"><span>🎊</span> Social Events</h2>
       <div class="services-grid">
-        <div class="service-card" onclick="this.classList.toggle('expanded')">
+        <div class="service-card">
           <h3>Weddings</h3>
           <p>Your dream wedding, perfectly executed from start to finish.</p>
-          <div class="service-details">
-            <ul>
-              <li>Full wedding coordination</li>
-              <li>Venue styling & decoration</li>
-              <li>Catering & bar services</li>
-              <li>Entertainment booking</li>
-              <li>Timeline management</li>
-              <li>Supplier coordination</li>
-            </ul>
-          </div>
         </div>
-        
-        <div class="service-card" onclick="this.classList.toggle('expanded')">
+        <div class="service-card">
           <h3>Private Parties</h3>
           <p>Celebrate in style with bespoke party planning and production.</p>
-          <div class="service-details">
-            <ul>
-              <li>Birthday celebrations</li>
-              <li>Anniversary parties</li>
-              <li>Engagement parties</li>
-              <li>Holiday celebrations</li>
-              <li>Intimate gatherings</li>
-              <li>Themed parties</li>
-            </ul>
-          </div>
+        </div>
+        <div class="service-card">
+          <h3>Celebrations</h3>
+          <p>Birthdays, anniversaries, and milestone events made memorable.</p>
         </div>
       </div>
     </div>
     
-    <!-- Entertainment & Cultural -->
+    <!-- Entertainment -->
     <div class="category-section">
-      <h2 class="category-header"><span>🎵</span> Entertainment & Cultural Events</h2>
+      <h2 class="category-header"><span>🎵</span> Entertainment Events</h2>
       <div class="services-grid">
-        <div class="service-card" onclick="this.classList.toggle('expanded')">
+        <div class="service-card">
           <h3>Music Events</h3>
-          <p>Live music and entertainment production from concerts to festivals.</p>
-          <div class="service-details">
-            <ul>
-              <li>Concert production</li>
-              <li>Festival management</li>
-              <li>DJ events</li>
-              <li>Live band coordination</li>
-              <li>Sound & lighting</li>
-              <li>Stage management</li>
-            </ul>
-          </div>
+          <p>Live music production from concerts to intimate performances.</p>
         </div>
-        
-        <div class="service-card" onclick="this.classList.toggle('expanded')">
+        <div class="service-card">
           <h3>Cultural Events</h3>
-          <p>Celebrate heritage and creativity with expertly managed cultural experiences.</p>
-          <div class="service-details">
-            <ul>
-              <li>Art exhibitions</li>
-              <li>Gallery openings</li>
-              <li>Theatre productions</li>
-              <li>Cultural festivals</li>
-              <li>Community events</li>
-              <li>Heritage celebrations</li>
-            </ul>
-          </div>
+          <p>Celebrate heritage and creativity with expertly managed experiences.</p>
         </div>
-        
-        <div class="service-card" onclick="this.classList.toggle('expanded')">
-          <h3>Fashion Shows</h3>
-          <p>Runway events with style and sophistication.</p>
-          <div class="service-details">
-            <ul>
-              <li>Catwalk production</li>
-              <li>Model coordination</li>
-              <li>VIP guest management</li>
-              <li>Backstage operations</li>
-              <li>Media & PR coordination</li>
-              <li>After-parties</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Community & Charity -->
-    <div class="category-section">
-      <h2 class="category-header"><span>❤️</span> Community & Charity Events</h2>
-      <div class="services-grid">
-        <div class="service-card" onclick="this.classList.toggle('expanded')">
-          <h3>Charity Events</h3>
-          <p>Make a difference with impactful fundraising events.</p>
-          <div class="service-details">
-            <ul>
-              <li>Gala dinners</li>
-              <li>Charity auctions</li>
-              <li>Fundraising campaigns</li>
-              <li>Awareness events</li>
-              <li>Volunteer coordination</li>
-              <li>Donor relations</li>
-            </ul>
-          </div>
-        </div>
-        
-        <div class="service-card" onclick="this.classList.toggle('expanded')">
-          <h3>Sports Events</h3>
-          <p>Athletic events with professional execution and hospitality.</p>
-          <div class="service-details">
-            <ul>
-              <li>Tournament organization</li>
-              <li>Sporting galas</li>
-              <li>Fan experiences</li>
-              <li>Hospitality packages</li>
-              <li>Award ceremonies</li>
-              <li>Team events</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Large Scale Production -->
-    <div class="category-section">
-      <h2 class="category-header"><span>🎪</span> Large Scale Production</h2>
-      <div class="services-grid">
-        <div class="service-card" onclick="this.classList.toggle('expanded')">
-          <h3>Festival Production</h3>
+        <div class="service-card">
+          <h3>Festivals</h3>
           <p>Complete festival management from planning to execution.</p>
-          <div class="service-details">
-            <ul>
-              <li>Site design & layout</li>
-              <li>Multiple stage coordination</li>
-              <li>Vendor management</li>
-              <li>Security & safety</li>
-              <li>Ticketing systems</li>
-              <li>Crowd control</li>
-            </ul>
-          </div>
-        </div>
-        
-        <div class="service-card" onclick="this.classList.toggle('expanded')">
-          <h3>Pop-ups & Markets</h3>
-          <p>Temporary experiences that leave lasting impressions.</p>
-          <div class="service-details">
-            <ul>
-              <li>Pop-up shops & restaurants</li>
-              <li>Food markets</li>
-              <li>Craft fairs</li>
-              <li>Brand activations</li>
-              <li>Vendor coordination</li>
-              <li>Site management</li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>
     
-    <!-- Hospitality Services -->
+    <!-- Hospitality -->
     <div class="category-section">
-      <h2 class="category-header"><span>🍽️</span> Hospitality & Catering</h2>
+      <h2 class="category-header"><span>🍽️</span> Hospitality Services</h2>
       <div class="services-grid">
-        <div class="service-card" onclick="this.classList.toggle('expanded')">
-          <h3>Catering & Food</h3>
-          <p>Delicious food experiences for every occasion.</p>
-          <div class="service-details">
-            <ul>
-              <li>Bespoke menu design</li>
-              <li>Buffet & plated service</li>
-              <li>Canapés & finger food</li>
-              <li>Dietary accommodations</li>
-              <li>Live cooking stations</li>
-              <li>Professional chefs</li>
-            </ul>
-          </div>
+        <div class="service-card">
+          <h3>Catering</h3>
+          <p>Bespoke menus and professional food service for every occasion.</p>
         </div>
-        
-        <div class="service-card" onclick="this.classList.toggle('expanded')">
+        <div class="service-card">
           <h3>Bar Services</h3>
           <p>Premium drinks service with professional mixologists.</p>
-          <div class="service-details">
-            <ul>
-              <li>Cocktail bars</li>
-              <li>Wine & champagne service</li>
-              <li>Craft beer selection</li>
-              <li>Mocktails & soft drinks</li>
-              <li>Professional mixologists</li>
-              <li>Branded drinks menus</li>
-            </ul>
-          </div>
         </div>
-        
-        <div class="service-card" onclick="this.classList.toggle('expanded')">
-          <h3>Coffee & Beverages</h3>
-          <p>Barista-quality coffee and fresh beverages for your guests.</p>
-          <div class="service-details">
-            <ul>
-              <li>Mobile coffee stations</li>
-              <li>Professional baristas</li>
-              <li>Specialty coffee blends</li>
-              <li>Fresh juice & smoothies</li>
-              <li>Tea & hot chocolate</li>
-              <li>Branded service options</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Technical Services -->
-    <div class="category-section">
-      <h2 class="category-header"><span>🎤</span> Technical & Equipment</h2>
-      <div class="services-grid">
-        <div class="service-card" onclick="this.classList.toggle('expanded')">
+        <div class="service-card">
           <h3>Equipment Hire</h3>
-          <p>Professional AV and event equipment with technical support.</p>
-          <div class="service-details">
-            <ul>
-              <li>Sound systems & PA</li>
-              <li>Lighting & effects</li>
-              <li>Staging & rigging</li>
-              <li>Tables & chairs</li>
-              <li>Marquees & tents</li>
-              <li>Generators & power</li>
-            </ul>
-          </div>
+          <p>Professional event equipment with technical support.</p>
         </div>
       </div>
     </div>
     
-    <!-- CTA -->
     <div class="cta-section">
-      <h2>Ready to Plan Your Event?</h2>
-      <p>Let's bring your vision to life. Get in touch to discuss your requirements and receive a personalized quote.</p>
-      <a href="contact.html" class="cta-button">Contact Us</a>
+      <h2>Ready to Get Started?</h2>
+      <p>Let's discuss your event and bring your vision to life.</p>
+      <a href="contact.html" class="cta-button">Get a Quote</a>
     </div>
   </div>
   
   <!-- Footer -->
   <footer>
     <div class="footer-content">
-      <div class="footer-section">
-        <h3>VERGO Events</h3>
-        <p style="color: #666; line-height: 1.8;">Professional event management and staffing solutions across London.</p>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
       </div>
       
-      <div class="footer-section">
-        <h3>Services</h3>
-        <ul>
-          <li><a href="hire-us.html">Event Management</a></li>
-          <li><a href="hire-staff.html">Staff Hire</a></li>
-          <li><a href="apply.html">Careers</a></li>
-        </ul>
+      <div class="footer-bottom">
+        <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
       </div>
-      
-      <div class="footer-section">
-        <h3>Company</h3>
-        <ul>
-          <li><a href="about.html">About Us</a></li>
-          <li><a href="contact.html">Contact</a></li>
-          <li><a href="privacy.html">Privacy Policy</a></li>
-          <li><a href="terms.html">Terms & Conditions</a></li>
-        </ul>
-      </div>
-      
-      <div class="footer-section">
-        <h3>Get in Touch</h3>
-        <ul>
-          <li><a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a></li>
-          <li style="color: #666;">London, United Kingdom</li>
-        </ul>
-      </div>
-    </div>
-    
-    <div class="footer-bottom">
-      <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
     </div>
   </footer>
+  
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById('nav-menu');
+      menu.classList.toggle('active');
+    }
+    
+    document.addEventListener('click', function(event) {
+      const menu = document.getElementById('nav-menu');
+      const header = document.querySelector('header');
+      if (header && !header.contains(event.target)) {
+        menu.classList.remove('active');
+      }
+    });
+  </script>
 </body>
 </html>

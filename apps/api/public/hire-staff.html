@@ -18,45 +18,81 @@
       line-height: 1.7;
     }
     
-    /* Navigation */
-    nav {
-      background: #1a1a1a;
+    /* Header Navigation */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
       padding: 20px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      z-index: 1000;
     }
     
     .logo {
       font-size: 1.8rem;
       font-weight: 700;
       color: #D4AF37;
-      letter-spacing: 3px;
+      letter-spacing: 2px;
       text-decoration: none;
     }
     
-    .nav-links {
+    nav ul {
       display: flex;
-      gap: 40px;
+      gap: 35px;
       list-style: none;
     }
     
-    .nav-links a {
+    nav a {
       color: #ffffff;
       text-decoration: none;
+      font-size: 0.95rem;
       font-weight: 500;
       transition: color 0.3s ease;
+      position: relative;
     }
     
-    .nav-links a:hover {
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #D4AF37;
+      transition: width 0.3s ease;
+    }
+    
+    nav a:hover {
       color: #D4AF37;
+    }
+    
+    nav a:hover::after {
+      width: 100%;
+    }
+    
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+    }
+    
+    .menu-toggle span {
+      width: 25px;
+      height: 2px;
+      background: #D4AF37;
     }
     
     /* Hero */
     .hero {
       background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
-      padding: 100px 40px 80px;
+      padding: 180px 40px 80px;
       text-align: center;
       border-bottom: 2px solid #D4AF37;
     }
@@ -174,60 +210,6 @@
       color: #bbb;
       line-height: 1.7;
       font-size: 1rem;
-    }
-    
-    /* How It Works */
-    .process-section {
-      background: #1a1a1a;
-      padding: 80px 40px;
-      margin: 80px 0;
-      border-radius: 12px;
-      border: 2px solid #2a2a2a;
-    }
-    
-    .process-section h2 {
-      text-align: center;
-      font-size: 2.5rem;
-      color: #D4AF37;
-      margin-bottom: 60px;
-    }
-    
-    .process-steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 40px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    
-    .step {
-      text-align: center;
-      padding: 30px 20px;
-    }
-    
-    .step-number {
-      width: 70px;
-      height: 70px;
-      background: #D4AF37;
-      color: #1a1a1a;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      font-weight: bold;
-      margin: 0 auto 25px;
-    }
-    
-    .step h3 {
-      font-size: 1.4rem;
-      margin-bottom: 15px;
-      color: #D4AF37;
-    }
-    
-    .step p {
-      color: #bbb;
-      line-height: 1.7;
     }
     
     /* Why Choose Us */
@@ -364,8 +346,31 @@
       color: #666;
     }
     
+    @media (max-width: 1024px) {
+      nav ul {
+        position: fixed;
+        top: 80px;
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 10, 0.98);
+        flex-direction: column;
+        padding: 30px;
+        gap: 20px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      nav ul.active {
+        transform: translateX(0);
+      }
+      
+      .menu-toggle {
+        display: flex;
+      }
+    }
+    
     @media (max-width: 768px) {
-      nav {
+      header {
         padding: 15px 20px;
       }
       
@@ -373,12 +378,8 @@
         font-size: 1.5rem;
       }
       
-      .nav-links {
-        display: none;
-      }
-      
       .hero {
-        padding: 60px 20px 40px;
+        padding: 120px 20px 40px;
       }
       
       .hero h1 {
@@ -396,15 +397,11 @@
       .category-header {
         font-size: 1.8rem;
       }
-      
-      .process-steps {
-        grid-template-columns: 1fr;
-      }
     }
   </style>
 </head>
 <body>
-  <!-- Navigation -->
+  <!-- Header Navigation -->
   <header>
     <a href="index.html" class="logo">VERGO</a>
     
@@ -417,7 +414,7 @@
     <nav>
       <ul id="nav-menu">
         <li><a href="index.html">Home</a></li>
-        <li><a href="hire-us.html">Event Management</a></li>
+        <li><a href="hire-us.html">Hire for Events</a></li>
         <li><a href="hire-staff.html">Hire Staff</a></li>
         <li><a href="apply.html">Apply</a></li>
         <li><a href="about.html">About</a></li>
@@ -425,7 +422,6 @@
       </ul>
     </nav>
   </header>
-  </nav>
   
   <!-- Hero -->
   <div class="hero">
@@ -606,36 +602,6 @@
       </div>
     </div>
     
-    <!-- How It Works -->
-    <div class="process-section">
-      <h2>How It Works</h2>
-      <div class="process-steps">
-        <div class="step">
-          <div class="step-number">1</div>
-          <h3>Tell Us Your Needs</h3>
-          <p>Contact us with your event details, required roles, and dates</p>
-        </div>
-        
-        <div class="step">
-          <div class="step-number">2</div>
-          <h3>Get a Quote</h3>
-          <p>Receive transparent pricing tailored to your specific requirements</p>
-        </div>
-        
-        <div class="step">
-          <div class="step-number">3</div>
-          <h3>Staff Assignment</h3>
-          <p>We match you with qualified professionals from our trusted team</p>
-        </div>
-        
-        <div class="step">
-          <div class="step-number">4</div>
-          <h3>Flawless Execution</h3>
-          <p>Our staff arrive prepared, uniformed, and ready to deliver excellence</p>
-        </div>
-      </div>
-    </div>
-    
     <!-- Benefits -->
     <div class="benefits-section">
       <h2>Why VERGO Staff?</h2>
@@ -701,5 +667,20 @@
       <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
     </div>
   </footer>
+
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById('nav-menu');
+      menu.classList.toggle('active');
+    }
+    
+    document.addEventListener('click', function(event) {
+      const menu = document.getElementById('nav-menu');
+      const header = document.querySelector('header');
+      if (header && !header.contains(event.target)) {
+        menu.classList.remove('active');
+      }
+    });
+  </script>
 </body>
 </html>
