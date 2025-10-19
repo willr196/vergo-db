@@ -1,7 +1,7 @@
 const API = '/api/v1'
 const form = document.getElementById('f')
 const cv = document.getElementById('cv')
-const submitBtn = form.querySelector('button')
+const submitBtn = form.querySelector('button[type="submit"]')
 
 // Validate file before upload
 function validateFile(file) {
@@ -128,7 +128,7 @@ form.addEventListener('submit', async (e) => {
     console.error('Application error:', err)
     alert('❌ Error: ' + err.message + '\n\nPlease try again or contact us if the problem persists.')
     submitBtn.disabled = false
-    submitBtn.textContent = 'Submit'
+    submitBtn.textContent = 'Submit Application'
   }
 })
 

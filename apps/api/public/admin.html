@@ -55,6 +55,16 @@
       color: #856404;
     }
     
+    #status.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    #status.success {
+      background: #d4edda;
+      color: #155724;
+    }
+    
     #list {
       list-style: none;
       padding: 0;
@@ -179,6 +189,22 @@
       background: #1aa179;
     }
     
+    #debug {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+    }
+    
+    #debug.show {
+      display: block;
+    }
+    
     @media (max-width: 600px) {
       body {
         padding: 10px;
@@ -210,6 +236,7 @@
   
   <div id="status">Loading applications...</div>
   <ul id="list"></ul>
+  <div id="debug"></div>
 
   <script>
     const human = {
@@ -219,21 +246,67 @@
       REJECTED: 'Rejected',
       HIRED: 'Hired'
     };
+    
+    const debugLog = [];
+    
+    function log(message, data) {
+      console.log(message, data);
+      debugLog.push(`${new Date().toISOString()}: ${message}`);
+      if (data) debugLog.push(JSON.stringify(data, null, 2));
+      updateDebugPanel();
+    }
+    
+    function updateDebugPanel() {
+      const debug = document.getElementById('debug');
+      debug.textContent = debugLog.join('\n');
+      if (debugLog.length > 0) {
+        debug.classList.add('show');
+      }
+    }
 
     async function fetchJSON(url, opts={}) {
+      log(`Fetching: ${url}`);
       const res = await fetch(url, { credentials: 'include', ...opts });
-      if (!res.ok) throw new Error((await res.json().catch(()=>({}))).error || res.statusText);
-      return res.json();
+      log(`Response status: ${res.status}`);
+      
+      if (!res.ok) {
+        const text = await res.text();
+        log(`Error response: ${text}`);
+        throw new Error((await res.json().catch(()=>({}))).error || res.statusText);
+      }
+      
+      const data = await res.json();
+      log(`Response data:`, data);
+      return data;
     }
 
     async function loadApps() {
       const s = document.getElementById('status');
       const ul = document.getElementById('list');
       s.textContent = 'Loading applications...';
+      s.className = '';
       
       try {
+        log('Checking session...');
+        const session = await fetchJSON('/api/v1/auth/session');
+        
+        if (!session.authenticated) {
+          log('Not authenticated!');
+          s.textContent = 'Not logged in. Redirecting...';
+          s.className = 'error';
+          setTimeout(() => location.href='/login.html', 1000);
+          return;
+        }
+        
+        log('Authenticated as: ' + session.username);
+        
+        log('Fetching applications...');
         const items = await fetchJSON('/api/v1/applications');
+        
+        log(`Loaded ${items.length} applications`);
+        
         s.textContent = `Showing ${items.length} application${items.length !== 1 ? 's' : ''}`;
+        s.className = 'success';
         ul.innerHTML = '';
         
         if (items.length === 0) {
@@ -281,8 +354,13 @@
           ul.appendChild(li);
         }
       } catch (e) {
-        s.textContent = 'Not authorized or failed to load.';
-        setTimeout(() => location.href='/login.html', 1000);
+        log('ERROR:', e);
+        s.textContent = 'Failed to load: ' + e.message;
+        s.className = 'error';
+        
+        if (e.message.includes('Unauthorized')) {
+          setTimeout(() => location.href='/login.html', 2000);
+        }
       }
     }
 
@@ -302,6 +380,7 @@
           btnOpen.textContent = 'Loading...';
           
           const id = btnOpen.dataset.id;
+          log(`Opening CV for application: ${id}`);
           const { url } = await fetchJSON(`/api/v1/applications/${id}/cv`);
           window.open(url, '_blank');
           
@@ -325,6 +404,7 @@
           btnSet.textContent = 'Updating...';
           
           const id = btnSet.dataset.id;
+          log(`Updating status for ${id} to ${status}`);
           await fetchJSON(`/api/v1/applications/${id}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -334,6 +414,7 @@
           await loadApps(); // refresh list
         }
       } catch (err) {
+        log('Action ERROR:', err);
         alert(err.message || 'Action failed');
         if (btnOpen) {
           btnOpen.disabled = false;

@@ -189,7 +189,7 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
   }
 });
 
-// ---- Create application
+// ---- Create application (BACK TO ORIGINAL - NO EMAIL)
 const createBody = z.object({
   applicantId: z.string().uuid(),
   firstName: z.string().min(1).max(100).trim(),
@@ -230,7 +230,6 @@ r.post('/', async (req, res, next) => {
         cvKey: d.cvKey,
         cvOriginalName: d.cvOriginalName ?? null,
         source: d.source ?? 'website',
-        // NEW: Create roles for THIS application
         roles: {
           create: d.roles.map(roleName => ({
             role: {
