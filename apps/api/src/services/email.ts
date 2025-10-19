@@ -1,12 +1,50 @@
-import { Resend } from 'resend';
 import { env } from '../env';
 
-const resend = new Resend(env.resendApiKey);
+type EmailMode = 'resend' | 'log' | 's3';
+const MODE = (env.emailMode as EmailMode) ?? 'resend';
 
-// IMPORTANT: Change this after verifying your domain in Resend
-// For now, use Resend's onboarding email or verify vergoltd.com domain
-const FROM_EMAIL = 'onboarding@resend.dev'; // TEMPORARY - Change after domain verification
-const TO_EMAIL = 'wrobb@vergoltd.com';
+async function deliver(kind: string, subject: string, html: string, text: string) {
+  if (MODE === 'log') {
+    const fs = await import('node:fs/promises');
+    const line = JSON.stringify({ ts: new Date().toISOString(), kind, subject, html, text }) + '\n';
+    await fs.appendFile('/tmp/contact-queue.jsonl', line).catch(() => {});
+    return { ok: true, mode: 'log' as const };
+  }
+
+  if (MODE === 's3') {
+    const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3');
+    const s3 = new S3Client({ region: env.s3Region });
+    const key = `contact/${new Date().toISOString()}-${kind}.json`;
+    await s3.send(new PutObjectCommand({
+      Bucket: env.s3Bucket,
+      Key: key,
+      Body: Buffer.from(JSON.stringify({ subject, html, text }, null, 2)),
+      ContentType: 'application/json',
+    }));
+    return { ok: true, mode: 's3' as const, key };
+  }
+
+  if (!env.resendApiKey) {
+    const fs = await import('node:fs/promises');
+    const line = JSON.stringify({ ts: new Date().toISOString(), kind, subject, html, text, warn: 'RESEND_API_KEY missing' }) + '\n';
+    await fs.appendFile('/tmp/contact-queue.jsonl', line).catch(() => {});
+    return { ok: true, mode: 'log' as const, warn: 'RESEND_API_KEY missing' };
+  }
+
+  const { Resend } = await import('resend');
+  const resend = new Resend(env.resendApiKey);
+  const FROM_EMAIL = 'onboarding@resend.dev';
+  const TO_EMAIL = 'wrobb@vergoltd.com';
+
+  const result = await resend.emails.send({
+    from: FROM_EMAIL,
+    to: [TO_EMAIL],
+    subject,
+    html,
+    text,
+  });
+  return { ok: true, mode: 'resend' as const, result };
+}
 
 export async function sendEventEnquiryEmail(data: {
   name: string;
@@ -14,34 +52,26 @@ export async function sendEventEnquiryEmail(data: {
   phone?: string;
   eventType: string;
   date?: string;
-  guests?: number;
-  message: string;
+  attendees?: string;
+  budget?: string;
+  message?: string;
 }) {
-  try {
-    const result = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: TO_EMAIL,
-      replyTo: data.email,
-      subject: `🎉 New Event Enquiry - ${data.eventType}`,
-      html: `
-        <h2>New Event Enquiry</h2>
-        <p><strong>From:</strong> ${data.name} (${data.email})</p>
-        ${data.phone ? `<p><strong>Phone:</strong> ${data.phone}</p>` : ''}
-        <p><strong>Event Type:</strong> ${data.eventType}</p>
-        ${data.date ? `<p><strong>Date:</strong> ${data.date}</p>` : ''}
-        ${data.guests ? `<p><strong>Guests:</strong> ${data.guests}</p>` : ''}
-        <hr>
-        <p><strong>Message:</strong></p>
-        <p>${data.message.replace(/\n/g, '<br>')}</p>
-      `
-    });
-    
-    console.log('[EMAIL] Event enquiry sent:', result);
-    return result;
-  } catch (error) {
-    console.error('[EMAIL ERROR] Event enquiry failed:', error);
-    throw error;
-  }
+  const subject = `Event Enquiry – ${data.name} (${data.email})`;
+  const text = `
+Event enquiry
+-------------
+Name: ${data.name}
+Email: ${data.email}
+Phone: ${data.phone ?? '-'}
+Event Type: ${data.eventType}
+Date: ${data.date ?? '-'}
+Attendees: ${data.attendees ?? '-'}
+Budget: ${data.budget ?? '-'}
+Message:
+${data.message ?? '-'}
+`.trim();
+  const html = text.replace(/\n/g, '<br/>');
+  return deliver('event-enquiry', subject, html, text);
 }
 
 export async function sendStaffRequestEmail(data: {
@@ -50,105 +80,48 @@ export async function sendStaffRequestEmail(data: {
   phone?: string;
   company: string;
   roles: string[];
-  date: string;
-  staffCount: number;
-  message: string;
+  startDate?: string;
+  endDate?: string;
+  location?: string;
+  message?: string;
 }) {
-  try {
-    const result = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: TO_EMAIL,
-      replyTo: data.email,
-      subject: `👥 New Staff Request - ${data.company}`,
-      html: `
-        <h2>New Staff Request</h2>
-        <p><strong>From:</strong> ${data.name} (${data.email})</p>
-        ${data.phone ? `<p><strong>Phone:</strong> ${data.phone}</p>` : ''}
-        <p><strong>Company:</strong> ${data.company}</p>
-        <p><strong>Event Date:</strong> ${data.date}</p>
-        <p><strong>Staff Needed:</strong> ${data.staffCount}</p>
-        <p><strong>Roles Required:</strong></p>
-        <ul>
-          ${data.roles.map(role => `<li>${role}</li>`).join('')}
-        </ul>
-        <hr>
-        <p><strong>Additional Details:</strong></p>
-        <p>${data.message.replace(/\n/g, '<br>')}</p>
-      `
-    });
-    
-    console.log('[EMAIL] Staff request sent:', result);
-    return result;
-  } catch (error) {
-    console.error('[EMAIL ERROR] Staff request failed:', error);
-    throw error;
-  }
+  const subject = `Staff Request – ${data.company} (${data.name})`;
+  const text = `
+Staff request
+-------------
+Name: ${data.name}
+Company: ${data.company}
+Email: ${data.email}
+Phone: ${data.phone ?? '-'}
+Roles: ${data.roles.join(', ')}
+Start: ${data.startDate ?? '-'}
+End: ${data.endDate ?? '-'}
+Location: ${data.location ?? '-'}
+Message:
+${data.message ?? '-'}
+`.trim();
+  const html = text.replace(/\n/g, '<br/>');
+  return deliver('staff-request', subject, html, text);
 }
 
 export async function sendGeneralEnquiryEmail(data: {
   name: string;
   email: string;
-  subject: string;
+  phone?: string;
+  subject?: string;
   message: string;
 }) {
-  try {
-    const result = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: TO_EMAIL,
-      replyTo: data.email,
-      subject: `💬 ${data.subject}`,
-      html: `
-        <h2>New General Enquiry</h2>
-        <p><strong>From:</strong> ${data.name} (${data.email})</p>
-        <p><strong>Subject:</strong> ${data.subject}</p>
-        <hr>
-        <p><strong>Message:</strong></p>
-        <p>${data.message.replace(/\n/g, '<br>')}</p>
-      `
-    });
-    
-    console.log('[EMAIL] General enquiry sent:', result);
-    return result;
-  } catch (error) {
-    console.error('[EMAIL ERROR] General enquiry failed:', error);
-    throw error;
-  }
-}
-
-// Send notification when application is submitted
-export async function sendApplicationNotificationEmail(data: {
-  applicantName: string;
-  email: string;
-  phone?: string;
-  roles: string[];
-  cvOriginalName?: string;
-  applicationId: string;
-}) {
-  try {
-    const result = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: TO_EMAIL,
-      subject: `📋 New Job Application - ${data.applicantName}`,
-      html: `
-        <h2>New Job Application Received</h2>
-        <p><strong>Applicant:</strong> ${data.applicantName}</p>
-        <p><strong>Email:</strong> ${data.email}</p>
-        ${data.phone ? `<p><strong>Phone:</strong> ${data.phone}</p>` : ''}
-        <p><strong>Roles Applied For:</strong></p>
-        <ul>
-          ${data.roles.map(role => `<li>${role}</li>`).join('')}
-        </ul>
-        ${data.cvOriginalName ? `<p><strong>CV:</strong> ${data.cvOriginalName}</p>` : ''}
-        <hr>
-        <p><strong>Application ID:</strong> ${data.applicationId}</p>
-        <p><a href="${env.webOrigin}/admin.html" style="display:inline-block;padding:12px 24px;background:#667eea;color:white;text-decoration:none;border-radius:4px;margin-top:10px;">View in Admin Panel</a></p>
-      `
-    });
-    
-    console.log('[EMAIL] Application notification sent:', result);
-    return result;
-  } catch (error) {
-    console.error('[EMAIL ERROR] Application notification failed:', error);
-    throw error;
-  }
+  const subject = `General Enquiry – ${data.subject ?? 'No subject'} (${data.name})`;
+  const text = `
+General enquiry
+---------------
+Name: ${data.name}
+Email: ${data.email}
+Phone: ${data.phone ?? '-'}
+Subject: ${data.subject ?? '-'}
+Message:
+${data.message}
+`.trim();
+  const html = text.replace(/\n/g, '<br/>');
+  return deliver('general', subject, html, text);
 }
