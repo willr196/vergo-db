@@ -273,6 +273,12 @@
       transform: translateY(0);
     }
     
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
     /* Honeypot - MUST BE HIDDEN */
     .honeypot {
       position: absolute;
@@ -573,7 +579,7 @@
         <div class="tab" data-tab="staff">
           <span class="tab-icon">👥</span>
           Request Staff
-        </div>
+        div>
         <div class="tab" data-tab="general">
           <span class="tab-icon">💬</span>
           General Enquiry
@@ -899,9 +905,6 @@
   <footer>
     <div class="footer-content">
       <div class="footer-links">
-        <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
         <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
       </div>
@@ -921,7 +924,7 @@
     document.addEventListener('click', function(event) {
       const menu = document.getElementById('nav-menu');
       const header = document.querySelector('header');
-      if (!header.contains(event.target)) {
+      if (header && !header.contains(event.target)) {
         menu.classList.remove('active');
       }
     });
@@ -941,7 +944,7 @@
       });
     });
     
-    // Form submissions
+    // Form submissions - FIXED VERSION
     document.getElementById('eventsForm').addEventListener('submit', handleSubmit);
     document.getElementById('staffForm').addEventListener('submit', handleSubmit);
     document.getElementById('generalForm').addEventListener('submit', handleSubmit);
@@ -951,11 +954,41 @@
       
       const form = e.target;
       const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
       
-      // Handle checkboxes for staff form
+      // Convert FormData to object
+      const data = {};
+      
+      // Handle regular fields
+      for (const [key, value] of formData.entries()) {
+        if (key !== 'roles') {
+          data[key] = value;
+        }
+      }
+      
+      // Handle checkboxes for staff form (collect all checked values)
       if (form.id === 'staffForm') {
-        data.roles = [...formData.getAll('roles')];
+        const roles = [];
+        const roleCheckboxes = form.querySelectorAll('input[name="roles"]:checked');
+        roleCheckboxes.forEach(checkbox => {
+          roles.push(checkbox.value);
+        });
+        data.roles = roles;
+        
+        // Validate at least one role is selected
+        if (roles.length === 0) {
+          alert('❌ Please select at least one role');
+          return;
+        }
+        
+        // Convert staffCount to number
+        if (data.staffCount) {
+          data.staffCount = parseInt(data.staffCount, 10);
+        }
+      }
+      
+      // Convert guests to number for events form
+      if (form.id === 'eventsForm' && data.guests) {
+        data.guests = parseInt(data.guests, 10);
       }
       
       // Determine endpoint
@@ -975,6 +1008,9 @@
         submitBtn.disabled = true;
         submitBtn.textContent = 'Sending...';
         
+        console.log('Submitting to:', endpoint);
+        console.log('Data:', data);
+        
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -987,7 +1023,15 @@
           alert('✅ ' + result.message);
           form.reset();
         } else {
-          alert('❌ ' + (result.error || 'Something went wrong. Please try again.'));
+          // Better error handling
+          console.error('Form error:', result);
+          if (result.details) {
+            // Zod validation errors
+            const errors = result.details.map(err => `${err.path.join('.')}: ${err.message}`).join('\n');
+            alert('❌ Form validation failed:\n\n' + errors);
+          } else {
+            alert('❌ ' + (result.error || 'Something went wrong. Please try again.'));
+          }
         }
         
       } catch (error) {
@@ -1000,4 +1044,7 @@
     }
   </script>
 </body>
-</html>
+</html>index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="
