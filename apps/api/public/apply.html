@@ -644,12 +644,13 @@
         </div>
         
         <label for="cv">Your CV (PDF or Word) *</label>
-        <input 
-          type="file" 
-          id="cv" 
-          accept=".pdf,.doc,.docx" 
-          required 
-        />
+          <input 
+            type="file" 
+            id="cv" 
+            name="cv"  <!-- ✅ ADD THIS LINE -->
+            accept=".pdf,.doc,.docx" 
+            required 
+          />
         
         <div class="info-box">
           <strong>📋 What happens next?</strong>
@@ -711,41 +712,12 @@
     </div>
   </footer>
   
-  <script>
-    function toggleMenu() {
-      const menu = document.getElementById('nav-menu');
-      menu.classList.toggle('active');
-    }
-    
-    document.addEventListener('click', function(event) {
-      const menu = document.getElementById('nav-menu');
-      const header = document.querySelector('header');
-      if (header && !header.contains(event.target)) {
-        menu.classList.remove('active');
-      }
-    });
-    
-    const form = document.getElementById('f');
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const consent = document.getElementById('consent');
+  // Replace the ENTIRE <script> section in apply.html (from line 632 to </script>)
 
-    function toggleSubmit() { submitBtn.disabled = !consent.checked; }
-    toggleSubmit();
-    consent.addEventListener('change', toggleSubmit);
-  </script>
-
-  <script src="/js/apply.js"></script>
 <script>
 (function () {
   const form = document.getElementById('f');
   if (!form) return;
-
-  function q(name) { return form.querySelector(`[name="${name}"]`); }
-  function val(name) { const el = q(name); return el ? el.value.trim() : ''; }
-  function bool(name) { const el = q(name); return el && el.type === 'checkbox' ? el.checked : undefined; }
-  function getRoles() {
-    return Array.from(form.querySelectorAll('input[name="roles"]:checked')).map(x => x.value);
-  }
 
   async function presign(file) {
     const body = { fileName: file.name, fileType: file.type || 'application/octet-stream' };
@@ -755,52 +727,100 @@
       body: JSON.stringify(body)
     });
     if (!res.ok) throw new Error('Failed to presign CV upload');
-    return res.json(); // { url, key, applicantId }
+    return res.json(); // Returns { url, key, applicantId }
   }
 
-  async function upload(putUrl, file) {
-    const up = await fetch(putUrl, {
+  async function uploadToS3(url, file) {
+    const up = await fetch(url, {
       method: 'PUT',
       headers: { 'Content-Type': file.type || 'application/octet-stream' },
       body: file
     });
-    if (!up.ok) throw new Error('CV upload failed');
+    if (!up.ok) throw new Error('S3 upload failed');
   }
 
-  async function verify(key) {
+  async function verifyUpload(key) {
     const res = await fetch('/api/v1/applications/verify-upload', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key })
     });
-    if (!res.ok) throw new Error('Failed to verify CV upload');
+    if (!res.ok) throw new Error('Failed to verify upload');
     return res.json();
+  }
+
+  function getRoles() {
+    return Array.from(document.querySelectorAll('input[name="roles"]:checked')).map(x => x.value);
+  }
+
+  function bool(name) {
+    const el = form.querySelector(`[name="${name}"]`);
+    if (!el) return undefined;
+    if (el.type === 'checkbox') return el.checked;
+    return undefined;
+  }
+
+  function val(name) {
+    const el = form.querySelector(`[name="${name}"]`);
+    return el ? el.value.trim() : '';
   }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const btn = form.querySelector('[type="submit"]'); if (btn) btn.disabled = true;
+
+    const btn = form.querySelector('[type="submit"]');
+    if (btn) btn.disabled = true;
 
     try {
-      const fileInput = form.querySelector('input[type="file"][name="cv"]');
+      // 0) Grab CV file
+      const fileInput = form.querySelector('input[type="file"]');
       const file = fileInput && fileInput.files && fileInput.files[0];
-      if (!file) throw new Error('Please attach your CV (.pdf, .doc, .docx)');
+      if (!file) throw new Error('Please attach your CV');
 
-      const { url, key } = await presign(file);
-      await upload(url, file);
-      await verify(key);
+      // Validate file size
+      const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+      if (file.size > MAX_SIZE) {
+        throw new Error('CV file is too large. Maximum size is 10MB.');
+      }
 
+      // Validate roles selected
+      const roles = getRoles();
+      if (roles.length === 0) {
+        throw new Error('Please select at least one role');
+      }
+
+      // 1) Presign - Get URL, key, AND applicantId
+      console.log('Step 1: Getting presigned URL...');
+      const presignResponse = await presign(file);
+      const { url, key, applicantId } = presignResponse;
+      console.log('Got presigned URL and applicantId:', applicantId);
+
+      // 2) Upload to S3
+      console.log('Step 2: Uploading to S3...');
+      await uploadToS3(url, file);
+      console.log('Upload complete');
+
+      // 3) Verify upload
+      console.log('Step 3: Verifying upload...');
+      await verifyUpload(key);
+      console.log('Verification complete');
+
+      // 4) Submit application - MUST include applicantId!
+      console.log('Step 4: Submitting application...');
       const payload = {
+        applicantId: applicantId,  // ✅ CRITICAL: Include this!
         firstName: val('firstName'),
         lastName: val('lastName'),
         email: val('email'),
         phone: val('phone') || undefined,
         rightToWorkUk: bool('rightToWorkUk'),
-        roles: getRoles(),
+        roles: roles,
         cvKey: key,
         cvOriginalName: file.name,
-        source: val('source') || undefined
+        source: 'website'
       };
+
+      console.log('Payload:', payload);
 
       const res = await fetch('/api/v1/applications', {
         method: 'POST',
@@ -813,11 +833,13 @@
         throw new Error(err?.error || 'Application submission failed');
       }
 
-      alert('Thanks! Your application has been received.');
+      console.log('Application submitted successfully!');
+      alert('✅ Thanks! Your application has been received.\n\nWe\'ll review your application and get back to you within 2 weeks.');
       form.reset();
+      
     } catch (err) {
-      console.error(err);
-      alert(err.message || 'Something went wrong. Please try again.');
+      console.error('Application error:', err);
+      alert('❌ ' + (err.message || 'Something went wrong submitting your application.\n\nPlease try again or contact us at wrobb@vergoltd.com'));
     } finally {
       if (btn) btn.disabled = false;
     }

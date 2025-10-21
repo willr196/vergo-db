@@ -9,6 +9,8 @@ import { S3Client, GetObjectCommand, DeleteObjectCommand, HeadObjectCommand } fr
 import { Readable } from 'stream';
 import rateLimit from 'express-rate-limit';
 import { env } from '../env';
+// ✅ ADDED: Import email functions
+import { sendApplicationNotificationEmail, sendApplicationConfirmationToApplicant } from '../services/email';
 
 const r = Router();
 
@@ -189,7 +191,7 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
   }
 });
 
-// ---- Create application (BACK TO ORIGINAL - NO EMAIL)
+// ---- Create application WITH EMAIL NOTIFICATIONS ✅
 const createBody = z.object({
   applicantId: z.string().uuid(),
   firstName: z.string().min(1).max(100).trim(),
@@ -251,6 +253,30 @@ r.post('/', async (req, res, next) => {
       }
     });
 
+    // ✅ ADDED: Send email notifications (async, don't wait)
+    // Send to admin
+    sendApplicationNotificationEmail({
+      applicantName: `${d.firstName} ${d.lastName}`,
+      email: d.email,
+      phone: d.phone,
+      roles: d.roles,
+      cvOriginalName: d.cvOriginalName,
+      applicationId: app.id
+    }).catch(err => {
+      console.error('[EMAIL] Failed to send admin notification:', err);
+    });
+
+    // Send confirmation to applicant
+    sendApplicationConfirmationToApplicant({
+      to: d.email,
+      name: d.firstName,
+      roles: d.roles,
+      applicationId: app.id
+    }).catch(err => {
+      console.error('[EMAIL] Failed to send applicant confirmation:', err);
+    });
+
+    console.log(`[APPLICATION] New application: ${app.id} from ${d.email}`);
     res.status(201).json({ id: app.id });
   } catch (e) { next(e); }
 });
