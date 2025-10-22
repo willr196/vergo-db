@@ -230,7 +230,7 @@
 </head>
 <body>
   <div class="header">
-    <h1>📋 Applications</h1>
+    <h1>Applications</h1>
     <button id="logout">Logout</button>
   </div>
   
@@ -334,7 +334,7 @@
                 <div class="app-status status-${it.status}">${human[it.status] || it.status}</div>
               </div>
               <div class="app-info">
-                📧 ${it.email} ${it.phone ? '| 📞 ' + it.phone : ''}
+                ${it.email} ${it.phone ? '| ' + it.phone : ''}
               </div>
               <div class="app-roles">
                 <strong>Roles:</strong> ${rolesStr}
@@ -343,11 +343,11 @@
                 Applied: ${dateStr}${it.source ? ' | Source: ' + it.source : ''}${it.cvOriginalName ? ' | CV: ' + it.cvOriginalName : ''}
               </div>
               <div class="app-actions">
-                <button class="open btn-open" data-id="${it.id}">📄 Open CV</button>
-                <button class="set btn-reviewing" data-id="${it.id}" data-status="REVIEWING">✓ Reviewing</button>
-                <button class="set btn-shortlist" data-id="${it.id}" data-status="SHORTLISTED">⭐ Shortlist</button>
-                <button class="set btn-reject" data-id="${it.id}" data-status="REJECTED">✕ Reject</button>
-                <button class="set btn-hire" data-id="${it.id}" data-status="HIRED">🎉 Hire</button>
+                <button class="open btn-open" data-id="${it.id}">Open CV</button>
+                <button class="set btn-reviewing" data-id="${it.id}" data-status="REVIEWING">Reviewing</button>
+                <button class="set btn-shortlist" data-id="${it.id}" data-status="SHORTLISTED">Shortlist</button>
+                <button class="set btn-reject" data-id="${it.id}" data-status="REJECTED">Reject</button>
+                <button class="set btn-hire" data-id="${it.id}" data-status="HIRED">Hire</button>
               </div>
             </div>
           `;
@@ -418,7 +418,7 @@
         alert(err.message || 'Action failed');
         if (btnOpen) {
           btnOpen.disabled = false;
-          btnOpen.textContent = '📄 Open CV';
+          btnOpen.textContent = 'Open CV';
         }
         if (btnSet) {
           btnSet.disabled = false;
