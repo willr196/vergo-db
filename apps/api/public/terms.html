@@ -13,69 +13,138 @@
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: #f5f5f5;
-      color: #2c3e2f;
+      background: #0a0a0a;
+      color: #e0e0e0;
       line-height: 1.8;
     }
     
+    /* Header Navigation */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #D4AF37;
+      letter-spacing: 2px;
+      text-decoration: none;
+    }
+    
+    nav ul {
+      display: flex;
+      gap: 35px;
+      list-style: none;
+    }
+    
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+    
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #D4AF37;
+      transition: width 0.3s ease;
+    }
+    
+    nav a:hover {
+      color: #D4AF37;
+    }
+    
+    nav a:hover::after {
+      width: 100%;
+    }
+    
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+    }
+    
+    .menu-toggle span {
+      width: 25px;
+      height: 2px;
+      background: #D4AF37;
+    }
+    
+    /* Container */
     .container {
       max-width: 900px;
       margin: 0 auto;
-      padding: 40px 20px;
+      padding: 120px 40px 60px;
     }
     
     .back-link {
       display: inline-block;
       margin-bottom: 30px;
-      color: #2c3e2f;
+      color: #D4AF37;
       text-decoration: none;
       font-weight: 600;
-      font-size: 1.1rem;
-      padding: 12px 25px;
-      background: white;
-      border-radius: 50px;
+      font-size: 1rem;
+      padding: 12px 0;
       transition: all 0.3s ease;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     
     .back-link:hover {
       transform: translateX(-5px);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     }
     
     .terms-header {
-      background: white;
+      background: #1a1a1a;
       padding: 50px 40px;
-      border-radius: 20px;
+      border-radius: 12px;
       margin-bottom: 30px;
-      box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+      border: 2px solid rgba(212, 175, 55, 0.2);
       text-align: center;
     }
     
     h1 {
       font-size: 3rem;
       margin-bottom: 15px;
-      color: #2c3e2f;
+      color: #D4AF37;
+      font-weight: 700;
     }
     
     .last-updated {
-      color: #5a6b5a;
+      color: #999;
       font-size: 1rem;
       font-style: italic;
     }
     
     .terms-content {
-      background: white;
+      background: #1a1a1a;
       padding: 50px 40px;
-      border-radius: 20px;
-      box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      border: 2px solid rgba(212, 175, 55, 0.2);
     }
     
     h2 {
       font-size: 1.8rem;
       margin: 40px 0 20px 0;
-      color: #F2C88E;
-      border-left: 5px solid #F2C88E;
+      color: #D4AF37;
+      border-left: 5px solid #D4AF37;
       padding-left: 20px;
     }
     
@@ -86,12 +155,12 @@
     h3 {
       font-size: 1.3rem;
       margin: 25px 0 15px 0;
-      color: #2c3e2f;
+      color: #D4AF37;
     }
     
     p {
       margin-bottom: 20px;
-      color: #3d4a3e;
+      color: #cccccc;
       font-size: 1.05rem;
     }
     
@@ -101,61 +170,113 @@
     
     li {
       margin-bottom: 12px;
-      color: #3d4a3e;
+      color: #cccccc;
       font-size: 1.05rem;
     }
     
     strong {
-      color: #2c3e2f;
+      color: #D4AF37;
     }
     
     .highlight-box {
-      background: linear-gradient(135deg, #F2C88E 0%, #eebb7d 100%);
-      color: white;
+      background: rgba(212, 175, 55, 0.1);
+      border-left: 4px solid #D4AF37;
       padding: 25px 30px;
-      border-radius: 12px;
+      border-radius: 8px;
       margin: 30px 0;
     }
     
     .highlight-box p {
-      color: white;
+      color: #ffffff;
       margin-bottom: 0;
     }
     
     .warning-box {
-      background: #fff3cd;
-      border-left: 5px solid #ffc107;
+      background: rgba(255, 193, 7, 0.1);
+      border-left: 4px solid #ffc107;
       padding: 20px 25px;
       border-radius: 8px;
       margin: 25px 0;
     }
     
     .warning-box p {
-      color: #856404;
+      color: #ffc107;
       margin-bottom: 0;
     }
     
+    /* Footer */
     footer {
-      background: #2c3e2f;
-      color: #EADAC5;
-      text-align: center;
-      padding: 30px 20px;
-      margin-top: 60px;
-      border-radius: 15px 15px 0 0;
+      background: #0a0a0a;
+      color: #D4AF37;
+      padding: 40px 30px 25px;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+      margin-top: 80px;
     }
     
-    footer a {
-      color: #EADAC5;
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    .footer-links {
+      margin-bottom: 20px;
+    }
+    
+    .footer-links a {
+      color: #999;
       text-decoration: none;
-      margin: 0 15px;
+      margin: 0 20px;
+      font-size: 0.9rem;
       transition: color 0.3s ease;
     }
     
-    footer a:hover {
-      color: #F2C88E;
+    .footer-links a:hover {
+      color: #D4AF37;
+    }
+    
+    .footer-bottom {
+      color: #666;
+      font-size: 0.85rem;
+      margin-top: 15px;
+    }
+    
+    @media (max-width: 1024px) {
+      nav ul {
+        position: fixed;
+        top: 80px;
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 10, 0.98);
+        flex-direction: column;
+        padding: 30px;
+        gap: 20px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      nav ul.active {
+        transform: translateX(0);
+      }
+      
+      .menu-toggle {
+        display: flex;
+      }
     }
     
     @media (max-width: 768px) {
+      header {
+        padding: 15px 20px;
+      }
+      
+      .logo {
+        font-size: 1.5rem;
+      }
+      
+      .container {
+        padding: 100px 20px 40px;
+      }
+      
       h1 {
         font-size: 2rem;
       }
@@ -167,11 +288,17 @@
       h2 {
         font-size: 1.5rem;
       }
+      
+      .footer-links a {
+        display: block;
+        margin: 12px 0;
+      }
     }
   </style>
 </head>
 <body>
-    <header>
+  <!-- Header Navigation -->
+  <header>
     <a href="index.html" class="logo">VERGO</a>
     
     <div class="menu-toggle" onclick="toggleMenu()">
@@ -191,11 +318,12 @@
       </ul>
     </nav>
   </header>
+  
   <div class="container">
-    <a href="index.html" class="back-link">← Back to Home</a>
+    <a href="index.html" class="back-link">Back to Home</a>
     
     <div class="terms-header">
-      <h1>📋 Terms & Conditions</h1>
+      <h1>Terms & Conditions</h1>
       <p class="last-updated">Last Updated: January 2025</p>
     </div>
     
@@ -378,7 +506,7 @@
       </p>
       
       <div class="warning-box">
-        <p><strong>⚠️ Important:</strong> Clients are responsible for communicating allergen information to their guests. VERGO is not liable for allergic reactions if we were not properly informed.</p>
+        <p><strong> Important:</strong> Clients are responsible for communicating allergen information to their guests. VERGO is not liable for allergic reactions if we were not properly informed.</p>
       </div>
       
       <h2>11. Intellectual Property</h2>
@@ -425,20 +553,14 @@
         of revised Terms.
       </p>
       
-      <h2>16. Severability</h2>
-      <p>
-        If any provision of these Terms is found to be invalid or unenforceable, the remaining 
-        provisions shall remain in full force and effect.
-      </p>
-      
-      <h2>17. Governing Law</h2>
+      <h2>16. Governing Law</h2>
       <p>
         These Terms are governed by the laws of England and Wales. Any disputes arising from these 
         Terms or our services shall be subject to the exclusive jurisdiction of the courts of 
         England and Wales.
       </p>
       
-      <h2>18. Contact Information</h2>
+      <h2>17. Contact Information</h2>
       <p>For questions about these Terms and Conditions, please contact:</p>
       <div class="highlight-box">
         <p>
@@ -455,14 +577,35 @@
     </div>
   </div>
   
+  <!-- Footer -->
   <footer>
-    <p>
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
-      <a href="privacy.html">Privacy Policy</a>
-    </p>
-    <p style="margin-top: 15px;">&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy Policy</a>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
+      </div>
+    </div>
   </footer>
+  
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById('nav-menu');
+      menu.classList.toggle('active');
+    }
+    
+    document.addEventListener('click', function(event) {
+      const menu = document.getElementById('nav-menu');
+      const header = document.querySelector('header');
+      if (header && !header.contains(event.target)) {
+        menu.classList.remove('active');
+      }
+    });
+  </script>
 </body>
 </html>

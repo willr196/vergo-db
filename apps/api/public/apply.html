@@ -529,7 +529,7 @@
           <label>What roles are you applying for? *</label>
           
           <div class="roles-category">
-            <div class="category-title">🍽️ Hospitality</div>
+            <div class="category-title">Hospitality</div>
             <div class="roles-grid">
               <div class="role-checkbox">
                 <input type="checkbox" id="role-barista" name="roles" value="Barista" />
@@ -579,7 +579,7 @@
           </div>
           
           <div class="roles-category">
-            <div class="category-title">🎪 Events & Production</div>
+            <div class="category-title">Events & Production</div>
             <div class="roles-grid">
               <div class="role-checkbox">
                 <input type="checkbox" id="role-event-mgr" name="roles" value="Event Manager" />
@@ -621,7 +621,7 @@
           </div>
           
           <div class="roles-category">
-            <div class="category-title">🏢 Venue & Operations</div>
+            <div class="category-title">Venue & Operations</div>
             <div class="roles-grid">
               <div class="role-checkbox">
                 <input type="checkbox" id="role-steward" name="roles" value="Steward" />
@@ -647,13 +647,13 @@
           <input 
             type="file" 
             id="cv" 
-            name="cv"  <!-- ✅ ADD THIS LINE -->
+            name="cv"
             accept=".pdf,.doc,.docx" 
             required 
           />
         
         <div class="info-box">
-          <strong>📋 What happens next?</strong>
+          <strong>What happens next?</strong>
           We review all applications within 48 hours. Maximum file size: 10MB.
         </div>
         
@@ -712,8 +712,6 @@
     </div>
   </footer>
   
-  // Replace the ENTIRE <script> section in apply.html (from line 632 to </script>)
-
 <script>
 (function () {
   const form = document.getElementById('f');
@@ -805,10 +803,10 @@
       await verifyUpload(key);
       console.log('Verification complete');
 
-      // 4) Submit application - MUST include applicantId!
+    
       console.log('Step 4: Submitting application...');
       const payload = {
-        applicantId: applicantId,  // ✅ CRITICAL: Include this!
+        applicantId: applicantId,  //  CRITICAL: Include this!
         firstName: val('firstName'),
         lastName: val('lastName'),
         email: val('email'),
@@ -834,17 +832,17 @@
       }
 
       console.log('Application submitted successfully!');
-      alert('✅ Thanks! Your application has been received.\n\nWe\'ll review your application and get back to you within 2 weeks.');
+      alert(' Thanks! Your application has been received.\n\nWe\'ll review your application and get back to you within 2 weeks.');
       form.reset();
       
     } catch (err) {
       console.error('Application error:', err);
-      alert('❌ ' + (err.message || 'Something went wrong submitting your application.\n\nPlease try again or contact us at wrobb@vergoltd.com'));
+      alert(' ' + (err.message || 'Something went wrong submitting your application.\n\nPlease try again or contact us at wrobb@vergoltd.com'));
     } finally {
       if (btn) btn.disabled = false;
     }
   });
-})();
+  })();
 </script>
 
 </body>

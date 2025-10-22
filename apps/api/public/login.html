@@ -126,7 +126,7 @@
 </head>
 <body>
   <div class="login-container">
-    <h1>🔐 Admin Login</h1>
+    <h1> Admin Login</h1>
     <p class="subtitle">VERGO Events</p>
     
     <form id="f">
@@ -184,9 +184,9 @@
           
           // Handle different error types
           if (res.status === 423) {
-            showMessage('🔒 ' + (data.error || 'Account locked'), 'error');
+            showMessage('' + (data.error || 'Account locked'), 'error');
           } else if (res.status === 429) {
-            showMessage('⏱️ Too many attempts. Please wait.', 'error');
+            showMessage('Too many attempts. Please wait.', 'error');
           } else {
             showMessage(data.error || 'Login failed', 'error');
           }
@@ -195,7 +195,7 @@
           return;
         }
         
-        showMessage('✓ Success! Redirecting...', 'success');
+        showMessage('Success! Redirecting...', 'success');
         setTimeout(() => {
           location.href = '/admin.html';
         }, 500);
