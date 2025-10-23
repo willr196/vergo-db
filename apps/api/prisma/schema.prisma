@@ -26,9 +26,7 @@ model Role {
   applications ApplicationRole[] // CHANGED: now points to ApplicationRole
 }
 
-// REMOVED: ApplicantRole model entirely
 
-// NEW: ApplicationRole junction table
 model ApplicationRole {
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   applicationId String
@@ -73,4 +71,16 @@ model AdminUser {
   lockedUntil    DateTime?
   
   @@index([username])
+}
+
+model FileUploadVerification {
+  id          String   @id @default(uuid())
+  key         String   @unique @db.VarChar(500)
+  applicantId String   @db.VarChar(36)
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+  verified    Boolean  @default(false)
+  
+  @@index([key])
+  @@index([expiresAt])
 }
