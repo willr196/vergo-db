@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hire Our Staff - VERGO Events</title>
+  <title>Hire Event Staff - VERGO Events | Personally Vetted by Founder</title>
+  <meta name="description" content="Hire professional event staff personally vetted by our founder with 8+ years experience. 100% satisfaction guarantee. London's premium staffing solutions.">
   <style>
     * {
       margin: 0;
@@ -97,6 +98,20 @@
       border-bottom: 2px solid #D4AF37;
     }
     
+    .hero-badge {
+      display: inline-block;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: #D4AF37;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+    
     .hero h1 {
       font-size: 3.5rem;
       margin-bottom: 20px;
@@ -109,6 +124,7 @@
       color: #bbb;
       max-width: 700px;
       margin: 0 auto 40px;
+      line-height: 1.6;
     }
     
     .hero-cta {
@@ -130,6 +146,43 @@
       transform: scale(1.05);
     }
     
+    /* Trust Bar */
+    .trust-bar {
+      background: #1a1a1a;
+      padding: 40px 40px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .trust-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      text-align: center;
+    }
+    
+    .trust-item {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .trust-icon {
+      font-size: 2.5rem;
+    }
+    
+    .trust-text {
+      font-size: 1rem;
+      color: #D4AF37;
+      font-weight: 600;
+    }
+    
+    .trust-subtext {
+      font-size: 0.9rem;
+      color: #999;
+    }
+    
     /* Container */
     .container {
       max-width: 1400px;
@@ -140,6 +193,9 @@
     .intro-section {
       text-align: center;
       margin-bottom: 80px;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
     }
     
     .intro-section h2 {
@@ -151,9 +207,18 @@
     .intro-section p {
       font-size: 1.2rem;
       color: #bbb;
-      max-width: 900px;
-      margin: 0 auto;
+      margin-bottom: 20px;
       line-height: 1.9;
+    }
+    
+    .intro-highlight {
+      background: rgba(212, 175, 55, 0.05);
+      border-left: 3px solid #D4AF37;
+      padding: 20px 25px;
+      margin: 30px auto;
+      font-style: italic;
+      color: #D4AF37;
+      font-size: 1.1rem;
     }
     
     /* Category Sections */
@@ -215,6 +280,10 @@
     /* Why Choose Us */
     .benefits-section {
       margin: 80px 0;
+      background: #1a1a1a;
+      padding: 80px 40px;
+      border-radius: 8px;
+      border: 1px solid rgba(212, 175, 55, 0.2);
     }
     
     .benefits-section h2 {
@@ -224,38 +293,77 @@
       text-align: center;
     }
     
-    .benefits-list {
-      max-width: 900px;
+    .benefits-grid {
+      max-width: 1200px;
       margin: 0 auto;
-      background: #1a1a1a;
-      padding: 50px 40px;
-      border-radius: 12px;
-      border: 2px solid #2a2a2a;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 40px;
     }
     
-    .benefits-list ul {
-      list-style: none;
+    .benefit-card {
+      text-align: center;
+      padding: 30px 20px;
     }
     
-    .benefits-list li {
-      padding: 15px 0 15px 40px;
-      position: relative;
-      color: #bbb;
-      font-size: 1.1rem;
-      border-bottom: 1px solid #2a2a2a;
+    .benefit-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      display: block;
     }
     
-    .benefits-list li:last-child {
-      border-bottom: none;
-    }
-    
-    .benefits-list li::before {
-      content: "✓";
-      position: absolute;
-      left: 0;
+    .benefit-card h3 {
+      font-size: 1.4rem;
       color: #D4AF37;
-      font-weight: bold;
-      font-size: 1.5rem;
+      margin-bottom: 15px;
+    }
+    
+    .benefit-card p {
+      color: #999;
+      line-height: 1.7;
+    }
+    
+    /* Guarantee Section */
+    .guarantee-section {
+      max-width: 900px;
+      margin: 80px auto;
+      background: rgba(212, 175, 55, 0.05);
+      border: 2px solid #D4AF37;
+      border-radius: 12px;
+      padding: 60px 50px;
+      text-align: center;
+    }
+    
+    .guarantee-badge {
+      width: 100px;
+      height: 100px;
+      background: #D4AF37;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 30px;
+      font-size: 3rem;
+    }
+    
+    .guarantee-section h2 {
+      font-size: 2.5rem;
+      color: #D4AF37;
+      margin-bottom: 25px;
+    }
+    
+    .guarantee-section p {
+      font-size: 1.2rem;
+      color: #cccccc;
+      line-height: 1.8;
+      margin-bottom: 15px;
+    }
+    
+    .guarantee-highlight {
+      font-size: 1.3rem;
+      color: #ffffff;
+      font-weight: 700;
+      margin-top: 30px;
     }
     
     /* CTA Section */
@@ -265,6 +373,7 @@
       background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
       border-radius: 12px;
       border: 2px solid #D4AF37;
+      margin: 80px 0;
     }
     
     .cta-section h2 {
@@ -277,6 +386,9 @@
       font-size: 1.2rem;
       color: #bbb;
       margin-bottom: 35px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
     }
     
     .cta-button {
@@ -291,19 +403,21 @@
       transition: all 0.3s ease;
       text-transform: uppercase;
       letter-spacing: 1.5px;
+      border: 2px solid #D4AF37;
     }
     
     .cta-button:hover {
-      background: #fff;
-      transform: scale(1.05);
+      background: transparent;
+      color: #D4AF37;
+      transform: translateY(-2px);
     }
     
     /* Footer */
     footer {
       background: #0a0a0a;
       color: #D4AF37;
-      padding: 50px 40px 30px;
-      border-top: 2px solid #1a1a1a;
+      padding: 60px 30px 25px;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
     }
     
     .footer-content {
@@ -312,27 +426,29 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 40px;
-      margin-bottom: 30px;
+      margin-bottom: 40px;
     }
     
     .footer-section h3 {
-      font-size: 1.3rem;
-      margin-bottom: 20px;
       color: #D4AF37;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+    }
+    
+    .footer-section p,
+    .footer-section a {
+      color: #999;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      transition: color 0.3s ease;
     }
     
     .footer-section ul {
       list-style: none;
-    }
-    
-    .footer-section ul li {
-      margin-bottom: 10px;
-    }
-    
-    .footer-section a {
-      color: #999;
-      text-decoration: none;
-      transition: color 0.3s ease;
+      padding: 0;
     }
     
     .footer-section a:hover {
@@ -341,11 +457,13 @@
     
     .footer-bottom {
       text-align: center;
-      padding-top: 20px;
-      border-top: 1px solid #333;
+      padding-top: 30px;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
       color: #666;
+      font-size: 0.85rem;
     }
     
+    /* Responsive */
     @media (max-width: 1024px) {
       nav ul {
         position: fixed;
@@ -367,6 +485,10 @@
       .menu-toggle {
         display: flex;
       }
+      
+      .trust-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
     
     @media (max-width: 768px) {
@@ -379,11 +501,11 @@
       }
       
       .hero {
-        padding: 120px 20px 40px;
+        padding: 140px 20px 60px;
       }
       
       .hero h1 {
-        font-size: 2.2rem;
+        font-size: 2.5rem;
       }
       
       .container {
@@ -396,6 +518,18 @@
       
       .category-header {
         font-size: 1.8rem;
+      }
+      
+      .benefits-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .guarantee-section {
+        padding: 40px 25px;
+      }
+      
+      .trust-container {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -414,9 +548,9 @@
     <nav>
       <ul id="nav-menu">
         <li><a href="index.html">Home</a></li>
-        <li><a href="hire-us.html">Hire for Events</a></li>
+        <li><a href="hire-us.html">Event Management</a></li>
         <li><a href="hire-staff.html">Hire Staff</a></li>
-        <li><a href="apply.html">Apply</a></li>
+        <li><a href="apply.html">Join Us</a></li>
         <li><a href="about.html">About</a></li>
         <li><a href="contact.html">Contact</a></li>
       </ul>
@@ -425,24 +559,57 @@
   
   <!-- Hero -->
   <div class="hero">
-    <h1>Hire Our Staff</h1>
-    <p>Professional, vetted event staff on demand across London</p>
+    <div class="hero-badge">Personally Vetted by Founder with 8+ Years Experience</div>
+    <h1>Hire Professional Event Staff</h1>
+    <p>Premium event staffing for London's corporate, film, music, and private events. Every team member personally vetted. 100% satisfaction guaranteed.</p>
     <a href="contact.html" class="hero-cta">Request Staff Now</a>
+  </div>
+  
+  <!-- Trust Bar -->
+  <div class="trust-bar">
+    <div class="trust-container">
+      <div class="trust-item">
+        <span class="trust-icon">✓</span>
+        <div class="trust-text">Personally Vetted</div>
+        <div class="trust-subtext">Every staff member interviewed by founder</div>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon">🛡️</span>
+        <div class="trust-text">DBS Checked</div>
+        <div class="trust-subtext">All staff background verified</div>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon">💯</span>
+        <div class="trust-text">100% Guaranteed</div>
+        <div class="trust-subtext">Full refund + replacement if not satisfied</div>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon">📞</span>
+        <div class="trust-text">Direct Access</div>
+        <div class="trust-subtext">Text founder 24/7</div>
+      </div>
+    </div>
   </div>
   
   <!-- Content -->
   <div class="container">
     <div class="intro-section">
-      <h2>Available Roles</h2>
+      <h2>Professional Staff You Can Trust</h2>
       <p>
-        Our team of experienced professionals are ready to make your event run smoothly. 
-        All staff are fully trained, background-checked, and committed to excellence.
+        After 8 years working in events across London's hospitality, film, music, and corporate sectors, 
+        I know what separates exceptional staff from mediocre. That's why every VERGO team member is 
+        personally vetted, interviewed, and reference-checked by me.
       </p>
+      <div class="intro-highlight">
+        "I stake my personal reputation on every staff member we place. If they're not up to your 
+        standards, they're not up to mine either - and I'll make it right immediately."
+        <br><br>- [Your Name], Founder
+      </div>
     </div>
     
     <!-- Hospitality -->
     <div class="category-section">
-      <h2 class="category-header"><span>🍽️</span> Hospitality</h2>
+      <h2 class="category-header"><span>🍽️</span> Hospitality Staff</h2>
       <div class="staff-grid">
         <div class="staff-card">
           <span class="staff-icon">☕</span>
@@ -514,7 +681,7 @@
     
     <!-- Events & Production -->
     <div class="category-section">
-      <h2 class="category-header"><span>🎪</span> Events & Production</h2>
+      <h2 class="category-header"><span>🎪</span> Events & Production Staff</h2>
       <div class="staff-grid">
         <div class="staff-card">
           <span class="staff-icon">📋</span>
@@ -574,7 +741,7 @@
     
     <!-- Venue & Operations -->
     <div class="category-section">
-      <h2 class="category-header"><span>🏢</span> Venue & Operations</h2>
+      <h2 class="category-header"><span>🏢</span> Venue & Operations Staff</h2>
       <div class="staff-grid">
         <div class="staff-card">
           <span class="staff-icon">🎫</span>
@@ -601,29 +768,69 @@
         </div>
       </div>
     </div>
-    
-    <!-- Benefits -->
-    <div class="benefits-section">
-      <h2>Why VERGO Staff?</h2>
-      <div class="benefits-list">
-        <ul>
-          <li>All staff fully vetted and DBS checked</li>
-          <li>Minimum 2 years industry experience required</li>
-          <li>Professional uniforms and presentation standards</li>
-          <li>Flexible booking: single staff to full teams</li>
-          <li>Last-minute availability for urgent needs</li>
-          <li>Comprehensive liability insurance included</li>
-          <li>Dedicated account manager for your booking</li>
-          <li>Post-event feedback and quality assurance</li>
-        </ul>
+  </div>
+  
+  <!-- Benefits Section -->
+  <div class="benefits-section">
+    <h2>Why Choose VERGO Staff?</h2>
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <span class="benefit-icon">👤</span>
+        <h3>Personally Vetted</h3>
+        <p>Every staff member personally interviewed, reference-checked, and approved by our founder with 8+ years in the industry.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="benefit-icon">✅</span>
+        <h3>DBS Checked</h3>
+        <p>All staff undergo comprehensive DBS background checks for your peace of mind and venue requirements.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="benefit-icon">🎯</span>
+        <h3>Industry Experienced</h3>
+        <p>Our network includes professionals from film, music, hospitality, and corporate events across London.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="benefit-icon">⚡</span>
+        <h3>Fast Response</h3>
+        <p>Last-minute needs? Text the founder directly. We can often source quality staff within hours.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="benefit-icon">🛡️</span>
+        <h3>Fully Insured</h3>
+        <p>Comprehensive liability insurance included with all placements for complete protection.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="benefit-icon">💰</span>
+        <h3>Competitive Rates</h3>
+        <p>Premium quality at competitive prices, with founding client discounts currently available.</p>
       </div>
     </div>
-    
-    <!-- CTA -->
+  </div>
+  
+  <!-- Guarantee Section -->
+  <div class="container">
+    <div class="guarantee-section">
+      <div class="guarantee-badge">💯</div>
+      <h2>Our Ironclad Guarantee</h2>
+      <p>
+        If you're not 100% satisfied with our staff or service for any reason, 
+        we'll refund your payment in full AND provide replacement staff at no additional cost.
+      </p>
+      <p>
+        No questions asked. No fine print. No hassle.
+      </p>
+      <p class="guarantee-highlight">
+        That's how confident we are in our vetting process and the quality of our team.
+      </p>
+    </div>
+  </div>
+  
+  <!-- CTA -->
+  <div class="container">
     <div class="cta-section">
       <h2>Need Staff for Your Event?</h2>
-      <p>Let's discuss your staffing requirements and provide a custom quote.</p>
-      <a href="contact.html" class="cta-button">Contact Us</a>
+      <p>Let's discuss your staffing requirements. Direct access to founder with 8 years experience. Same-day quotes. 100% satisfaction guaranteed.</p>
+      <a href="contact.html" class="cta-button">Get a Quote</a>
     </div>
   </div>
   
@@ -632,33 +839,34 @@
     <div class="footer-content">
       <div class="footer-section">
         <h3>VERGO Events</h3>
-        <p style="color: #666; line-height: 1.8;">Professional event management and staffing solutions across London.</p>
+        <p>Premium event staffing founded by industry veterans. Combining 8+ years of hands-on experience with decades of family business expertise.</p>
+        <p style="margin-top: 15px; font-size: 0.85rem; color: #666;">Fully Insured • DBS Checked • 100% Guaranteed</p>
       </div>
       
       <div class="footer-section">
         <h3>Services</h3>
         <ul>
+          <li><a href="hire-staff.html">Event Staffing</a></li>
           <li><a href="hire-us.html">Event Management</a></li>
-          <li><a href="hire-staff.html">Staff Hire</a></li>
-          <li><a href="apply.html">Careers</a></li>
+          <li><a href="apply.html">Join Our Team</a></li>
+          <li><a href="about.html">About Us</a></li>
         </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h3>Contact</h3>
+        <p><strong>Founder Direct:</strong> +44 (0) 20 XXXX XXXX</p>
+        <p><strong>Email:</strong> wrobb@vergoltd.com</p>
+        <p><strong>Hours:</strong> 24/7 for urgent needs</p>
+        <p><strong>Location:</strong> London, UK</p>
       </div>
       
       <div class="footer-section">
         <h3>Company</h3>
         <ul>
-          <li><a href="about.html">About Us</a></li>
-          <li><a href="contact.html">Contact</a></li>
+          <li><a href="contact.html">Get a Quote</a></li>
           <li><a href="privacy.html">Privacy Policy</a></li>
           <li><a href="terms.html">Terms & Conditions</a></li>
-        </ul>
-      </div>
-      
-      <div class="footer-section">
-        <h3>Get in Touch</h3>
-        <ul>
-          <li><a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a></li>
-          <li style="color: #666;">London, United Kingdom</li>
         </ul>
       </div>
     </div>

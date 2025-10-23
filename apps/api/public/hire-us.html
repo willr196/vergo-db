@@ -3,6 +3,226 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Management - VERGO Events | 8+ Years Experience</title>
+  <meta name="description" content="Full-service event management from a founder with 8+ years experience. Corporate, film, music, and private events across London. 100% guaranteed.">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #ffffff; line-height: 1.7; }
+    
+    header { position: fixed; top: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
+    .logo { font-size: 1.8rem; font-weight: 700; color: #D4AF37; letter-spacing: 2px; text-decoration: none; }
+    nav ul { display: flex; gap: 35px; list-style: none; }
+    nav a { color: #ffffff; text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: color 0.3s ease; position: relative; }
+    nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: #D4AF37; transition: width 0.3s ease; }
+    nav a:hover { color: #D4AF37; }
+    nav a:hover::after { width: 100%; }
+    .menu-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+    .menu-toggle span { width: 25px; height: 2px; background: #D4AF37; }
+    
+    .page-hero { text-align: center; padding: 180px 40px 80px; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
+    .hero-badge { display: inline-block; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); color: #D4AF37; padding: 8px 20px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+    .page-hero h1 { font-size: 4rem; margin-bottom: 20px; color: #D4AF37; font-weight: 700; }
+    .page-hero p { font-size: 1.3rem; color: #999; max-width: 800px; margin: 0 auto; }
+    
+    .container { max-width: 1200px; margin: 0 auto; padding: 80px 40px; }
+    .intro-section { background: #1a1a1a; padding: 60px 50px; margin-bottom: 80px; border-radius: 8px; border-left: 4px solid #D4AF37; }
+    .intro-section h2 { font-size: 2.5rem; margin-bottom: 30px; color: #D4AF37; }
+    .intro-section p { font-size: 1.15rem; line-height: 1.9; color: #cccccc; margin-bottom: 20px; }
+    .intro-highlight { background: rgba(212, 175, 55, 0.05); border-left: 3px solid #D4AF37; padding: 20px 25px; margin: 30px 0; font-style: italic; color: #D4AF37; font-size: 1.1rem; }
+    
+    .category-section { margin-bottom: 80px; }
+    .category-header { font-size: 2.2rem; color: #D4AF37; margin-bottom: 40px; padding-bottom: 15px; border-bottom: 2px solid #D4AF37; display: flex; align-items: center; gap: 15px; }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+    .service-card { background: #1a1a1a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease; }
+    .service-card:hover { transform: translateY(-5px); }
+    .service-card h3 { font-size: 1.5rem; margin-bottom: 15px; color: #D4AF37; }
+    .service-card p { color: #999; line-height: 1.7; font-size: 1rem; }
+    
+    .cta-section { text-align: center; padding: 80px 40px; background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%); border-radius: 8px; margin: 60px 0; border: 1px solid rgba(212, 175, 55, 0.2); }
+    .cta-section h2 { font-size: 2.5rem; margin-bottom: 20px; color: #D4AF37; }
+    .cta-section p { font-size: 1.2rem; margin-bottom: 30px; color: #999; }
+    .cta-button { display: inline-block; padding: 18px 50px; background: #D4AF37; color: #1a1a1a; text-decoration: none; font-weight: 700; font-size: 1rem; border-radius: 4px; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1.5px; border: 2px solid #D4AF37; }
+    .cta-button:hover { background: transparent; color: #D4AF37; transform: translateY(-2px); }
+    
+    footer { background: #0a0a0a; color: #D4AF37; padding: 40px 30px 25px; border-top: 1px solid rgba(212, 175, 55, 0.2); margin-top: 80px; }
+    .footer-content { max-width: 1200px; margin: 0 auto; text-align: center; }
+    .footer-links { margin-bottom: 20px; }
+    .footer-links a { color: #999; text-decoration: none; margin: 0 20px; font-size: 0.9rem; transition: color 0.3s ease; }
+    .footer-links a:hover { color: #D4AF37; }
+    .footer-bottom { color: #666; font-size: 0.85rem; margin-top: 15px; }
+    
+    @media (max-width: 1024px) {
+      nav ul { position: fixed; top: 80px; left: 0; right: 0; background: rgba(10, 10, 10, 0.98); flex-direction: column; padding: 30px; gap: 20px; transform: translateX(-100%); transition: transform 0.3s ease; }
+      nav ul.active { transform: translateX(0); }
+      .menu-toggle { display: flex; }
+    }
+    
+    @media (max-width: 768px) {
+      header { padding: 15px 20px; }
+      .logo { font-size: 1.5rem; }
+      .page-hero { padding: 140px 20px 60px; }
+      .page-hero h1 { font-size: 2.5rem; }
+      .container { padding: 60px 20px; }
+      .intro-section { padding: 40px 30px; }
+      .category-header { font-size: 1.8rem; }
+      .services-grid { grid-template-columns: 1fr; }
+      .footer-links a { display: block; margin: 12px 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">VERGO</a>
+    <div class="menu-toggle" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </div>
+    <nav>
+      <ul id="nav-menu">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="hire-us.html">Event Management</a></li>
+        <li><a href="hire-staff.html">Hire Staff</a></li>
+        <li><a href="apply.html">Join Us</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <div class="page-hero">
+    <div class="hero-badge">Founded by Professional with 8+ Years Experience</div>
+    <h1>Event Management</h1>
+    <p>Full-service event planning and execution from intimate gatherings to large-scale productions. Personal attention from experienced founder. 100% satisfaction guaranteed.</p>
+  </div>
+  
+  <div class="container">
+    <div class="intro-section">
+      <h2>Experienced Event Management</h2>
+      <p>
+        After 8 years managing events across London's hospitality, corporate, film, and music sectors, 
+        I know what it takes to deliver exceptional experiences. At VERGO, you work directly with me - 
+        someone who's coordinated everything from intimate private dinners to major film productions.
+      </p>
+      <p>
+        Unlike larger agencies where you're passed to junior coordinators, your event gets my personal 
+        attention from concept through execution. I handle the details, anticipate the problems, and 
+        ensure everything runs smoothly.
+      </p>
+      <div class="intro-highlight">
+        "Every event reflects my personal reputation. Your success is my success, and I stake 
+        8 years of industry credibility on delivering exceptional results."
+        <br><br>- [Your Name], Founder
+      </div>
+    </div>
+    
+    <div class="category-section">
+      <h2 class="category-header"><span>💼</span> Corporate Events</h2>
+      <div class="services-grid">
+        <div class="service-card">
+          <h3>Conferences & Seminars</h3>
+          <p>Professional conference management, speaker coordination, and attendee experience with meticulous attention to detail.</p>
+        </div>
+        <div class="service-card">
+          <h3>Product Launches</h3>
+          <p>High-impact product launches that generate buzz and leave lasting impressions on your audience.</p>
+        </div>
+        <div class="service-card">
+          <h3>Team Building & Retreats</h3>
+          <p>Engaging corporate activities and retreats that strengthen team bonds and boost morale.</p>
+        </div>
+        <div class="service-card">
+          <h3>Gala Dinners</h3>
+          <p>Elegant corporate galas and award ceremonies managed with precision and style.</p>
+        </div>
+        <div class="service-card">
+          <h3>Client Entertainment</h3>
+          <p>Impressive client events that strengthen business relationships and showcase your brand.</p>
+        </div>
+        <div class="service-card">
+          <h3>Trade Shows & Exhibitions</h3>
+          <p>Stand-out exhibition presence with professional coordination and on-site management.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="category-section">
+      <h2 class="category-header"><span>🎊</span> Private Events</h2>
+      <div class="services-grid">
+        <div class="service-card">
+          <h3>Weddings</h3>
+          <p>Your dream wedding executed flawlessly, from intimate ceremonies to grand celebrations.</p>
+        </div>
+        <div class="service-card">
+          <h3>Milestone Celebrations</h3>
+          <p>Birthdays, anniversaries, and special occasions made memorable with personal touches.</p>
+        </div>
+        <div class="service-card">
+          <h3>Private Parties</h3>
+          <p>Bespoke party planning and production tailored to your vision and style.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="category-section">
+      <h2 class="category-header"><span>🎵</span> Film, Music & Entertainment</h2>
+      <div class="services-grid">
+        <div class="service-card">
+          <h3>Music Events & Concerts</h3>
+          <p>Live music production from intimate performances to large-scale concerts, drawing on family business connections in the music industry.</p>
+        </div>
+        <div class="service-card">
+          <h3>Film Set Support</h3>
+          <p>On-set catering coordination and crew support through our family's established film industry network.</p>
+        </div>
+        <div class="service-card">
+          <h3>Festivals & Cultural Events</h3>
+          <p>Complete festival management and cultural celebration coordination.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="cta-section">
+      <h2>Ready to Plan Your Event?</h2>
+      <p>Let's discuss your vision. Direct access to founder with 8 years experience. Same-day quotes. 100% satisfaction guaranteed.</p>
+      <a href="contact.html" class="cta-button">Get Started</a>
+    </div>
+  </div>
+  
+  <footer>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="hire-us.html">Event Management</a>
+        <a href="hire-staff.html">Hire Staff</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
+        <p style="margin-top: 5px;">Founded by industry professionals • 8+ years experience • 100% Guaranteed</p>
+      </div>
+    </div>
+  </footer>
+  
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById('nav-menu');
+      menu.classList.toggle('active');
+    }
+    document.addEventListener('click', function(event) {
+      const menu = document.getElementById('nav-menu');
+      const header = document.querySelector('header');
+      if (header && !header.contains(event.target)) {
+        menu.classList.remove('active');
+      }
+    });
+  </script>
+</body><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Event Management - VERGO Events</title>
   <style>
     * {
@@ -490,4 +710,5 @@
     });
   </script>
 </body>
+</html>
 </html>

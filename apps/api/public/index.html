@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VERGO Events - Professional Events & Staffing</title>
+  <title>VERGO Events - Premium Event Staffing | Founded by Industry Veterans</title>
   <style>
     * {
       margin: 0;
@@ -89,136 +89,75 @@
       background: #D4AF37;
     }
     
-    .hero-container {
-      display: flex;
-      height: 100vh;
-      position: relative;
-    }
-    
-    .hero-panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-      padding: 40px 30px;
-      border-right: 1px solid rgba(255,255,255,0.1);
-    }
-    
-    .hero-panel:last-child {
-      border-right: none;
-    }
-    
-    /* Gradient overlays for each panel */
-    .hero-panel::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      opacity: 0.9;
-      transition: opacity 0.5s ease;
-      z-index: 1;
-    }
-    
-    .hero-panel:hover::before {
-      opacity: 1;
-    }
-    
-    .hero-panel:hover {
-      flex: 1.5;
-    }
-    
-    .hero-panel:not(:hover) {
-      flex: 0.75;
-    }
-    
-    /* Professional dark gradients */
-    #panel1::before {
-      background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
-    }
-    
-    #panel2::before {
-      background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
-    }
-    
-    #panel3::before {
-      background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
-    }
-    
-    /* Accent line that appears on hover */
-    .hero-panel::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 4px;
-      height: 0;
-      background: #D4AF37;
-      transition: height 0.4s ease;
-      z-index: 2;
-    }
-    
-    .hero-panel:hover::after {
-      height: 100%;
-    }
-    
-    .panel-content {
-      position: relative;
-      z-index: 2;
+    /* Hero Section */
+    .hero-section {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      padding: 180px 40px 100px;
       text-align: center;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .hero-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .hero-badge {
+      display: inline-block;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: #D4AF37;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 30px;
+    }
+    
+    .hero-title {
+      font-size: 3.5rem;
       color: #ffffff;
-      max-width: 350px;
-      transform: translateY(0);
-      transition: transform 0.5s ease;
-    }
-    
-    .hero-panel:hover .panel-content {
-      transform: translateY(-10px);
-    }
-    
-    .panel-icon {
-      font-size: 3rem;
-      margin-bottom: 20px;
-      display: block;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-      transition: transform 0.3s ease;
-    }
-    
-    .hero-panel:hover .panel-icon {
-      transform: scale(1.1);
-    }
-    
-    .panel-title {
-      font-size: 2rem;
       font-weight: 700;
-      margin-bottom: 15px;
-      letter-spacing: -0.5px;
+      margin-bottom: 25px;
       line-height: 1.2;
-      color: #ffffff;
+      letter-spacing: -1px;
     }
     
-    .panel-subtitle {
-      font-size: 0.95rem;
-      margin-bottom: 25px;
-      opacity: 0.85;
-      line-height: 1.5;
+    .hero-subtitle {
+      font-size: 1.5rem;
+      color: #D4AF37;
+      font-weight: 600;
+      margin-bottom: 30px;
+      line-height: 1.4;
+    }
+    
+    .hero-description {
+      font-size: 1.15rem;
       color: #cccccc;
+      line-height: 1.8;
+      margin-bottom: 50px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .hero-cta-group {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
     }
     
     .cta-button {
       display: inline-block;
-      padding: 14px 35px;
+      padding: 16px 40px;
       background: #D4AF37;
       color: #1a1a1a;
       text-decoration: none;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 1rem;
       border-radius: 4px;
       transition: all 0.3s ease;
       text-transform: uppercase;
@@ -233,58 +172,470 @@
       box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
     }
     
+    .cta-button-secondary {
+      background: transparent;
+      color: #D4AF37;
+      border: 2px solid #D4AF37;
+    }
+    
+    .cta-button-secondary:hover {
+      background: #D4AF37;
+      color: #1a1a1a;
+    }
+    
+    /* Credentials Bar */
+    .credentials-bar {
+      background: #1a1a1a;
+      padding: 50px 40px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .credentials-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      text-align: center;
+    }
+    
+    .credential-item {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .credential-number {
+      font-size: 3rem;
+      color: #D4AF37;
+      font-weight: 700;
+      line-height: 1;
+    }
+    
+    .credential-label {
+      font-size: 1rem;
+      color: #999;
+      line-height: 1.5;
+    }
+    
+    /* Why VERGO Section */
+    .why-section {
+      background: #0a0a0a;
+      padding: 80px 40px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .section-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    
+    .section-title {
+      font-size: 2.8rem;
+      color: #D4AF37;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+    
+    .section-subtitle {
+      font-size: 1.2rem;
+      color: #999;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+    }
+    
+    .why-card {
+      background: #1a1a1a;
+      padding: 40px 30px;
+      border-radius: 8px;
+      border-left: 4px solid #D4AF37;
+      transition: transform 0.3s ease;
+    }
+    
+    .why-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .why-icon {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      display: block;
+    }
+    
+    .why-card h3 {
+      font-size: 1.4rem;
+      color: #D4AF37;
+      margin-bottom: 15px;
+    }
+    
+    .why-card p {
+      color: #cccccc;
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+    
+    /* Founder Section */
+    .founder-section {
+      background: #1a1a1a;
+      padding: 80px 40px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .founder-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    
+    .founder-photo {
+      width: 300px;
+      height: 300px;
+      border-radius: 8px;
+      background: rgba(212, 175, 55, 0.1);
+      border: 3px solid #D4AF37;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: #666;
+      overflow: hidden;
+    }
+    
+    .founder-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .founder-info h2 {
+      font-size: 2.5rem;
+      color: #D4AF37;
+      margin-bottom: 10px;
+    }
+    
+    .founder-title {
+      font-size: 1.2rem;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 30px;
+    }
+    
+    .founder-story {
+      font-size: 1.1rem;
+      color: #cccccc;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+    
+    .founder-highlight {
+      background: rgba(212, 175, 55, 0.05);
+      border-left: 3px solid #D4AF37;
+      padding: 20px 25px;
+      margin: 30px 0;
+      font-style: italic;
+      color: #D4AF37;
+      font-size: 1.1rem;
+    }
+    
+    .founder-credentials {
+      background: rgba(212, 175, 55, 0.05);
+      border-left: 3px solid #D4AF37;
+      padding: 25px 30px;
+      margin: 30px 0;
+    }
+    
+    .founder-credentials h4 {
+      color: #D4AF37;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .founder-credentials ul {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .founder-credentials li {
+      color: #cccccc;
+      margin-bottom: 12px;
+      font-size: 1rem;
+      padding-left: 25px;
+      position: relative;
+    }
+    
+    .founder-credentials li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #D4AF37;
+      font-weight: 700;
+    }
+    
+    .founder-contact {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .contact-button {
+      display: inline-block;
+      padding: 12px 25px;
+      background: transparent;
+      color: #D4AF37;
+      border: 2px solid #D4AF37;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+    
+    .contact-button:hover {
+      background: #D4AF37;
+      color: #1a1a1a;
+    }
+    
+    /* Guarantee Section */
+    .guarantee-section {
+      background: #0a0a0a;
+      padding: 80px 40px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .guarantee-box {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(212, 175, 55, 0.05);
+      border: 2px solid #D4AF37;
+      border-radius: 12px;
+      padding: 60px 50px;
+      text-align: center;
+    }
+    
+    .guarantee-badge {
+      width: 100px;
+      height: 100px;
+      background: #D4AF37;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 30px;
+      font-size: 3rem;
+    }
+    
+    .guarantee-box h2 {
+      font-size: 2.5rem;
+      color: #D4AF37;
+      margin-bottom: 25px;
+    }
+    
+    .guarantee-box p {
+      font-size: 1.2rem;
+      color: #cccccc;
+      line-height: 1.8;
+      margin-bottom: 15px;
+    }
+    
+    .guarantee-highlight {
+      font-size: 1.4rem;
+      color: #ffffff;
+      font-weight: 700;
+      margin-top: 30px;
+    }
+    
+    /* Services Section */
+    .services-section {
+      background: #1a1a1a;
+      padding: 80px 40px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+    }
+    
+    .service-card {
+      background: #0a0a0a;
+      padding: 50px 35px;
+      border-radius: 8px;
+      border-top: 3px solid #D4AF37;
+      text-align: center;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .service-card:hover {
+      transform: translateY(-8px);
+    }
+    
+    .service-icon {
+      font-size: 3.5rem;
+      margin-bottom: 25px;
+      display: block;
+    }
+    
+    .service-card h3 {
+      font-size: 1.8rem;
+      color: #D4AF37;
+      margin-bottom: 15px;
+    }
+    
+    .service-card p {
+      color: #999;
+      line-height: 1.7;
+      font-size: 1rem;
+      margin-bottom: 25px;
+    }
+    
+    .service-link {
+      display: inline-block;
+      color: #D4AF37;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .service-link:hover {
+      transform: translateX(5px);
+    }
+    
+    /* Launch Offer Section */
+    .launch-offer-section {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+      padding: 80px 40px;
+      text-align: center;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .offer-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .offer-badge {
+      display: inline-block;
+      background: #D4AF37;
+      color: #1a1a1a;
+      padding: 10px 25px;
+      border-radius: 25px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 25px;
+    }
+    
+    .offer-container h2 {
+      font-size: 2.8rem;
+      color: #ffffff;
+      margin-bottom: 20px;
+    }
+    
+    .offer-container p {
+      font-size: 1.2rem;
+      color: #cccccc;
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+    
+    .offer-details {
+      background: rgba(212, 175, 55, 0.05);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 8px;
+      padding: 30px;
+      margin-bottom: 40px;
+    }
+    
+    .offer-details ul {
+      list-style: none;
+      padding: 0;
+      text-align: left;
+    }
+    
+    .offer-details li {
+      color: #cccccc;
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      padding-left: 30px;
+      position: relative;
+    }
+    
+    .offer-details li::before {
+      content: '🎁';
+      position: absolute;
+      left: 0;
+      font-size: 1.2rem;
+    }
+    
     /* Footer */
     footer {
       background: #0a0a0a;
       color: #D4AF37;
-      padding: 40px 30px 25px;
+      padding: 60px 30px 25px;
       border-top: 1px solid rgba(212, 175, 55, 0.2);
     }
     
     .footer-content {
       max-width: 1200px;
       margin: 0 auto;
-      text-align: center;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
     }
     
-    .footer-links {
+    .footer-column h3 {
+      color: #D4AF37;
       margin-bottom: 20px;
+      font-size: 1.2rem;
     }
     
-    .footer-links a {
+    .footer-column p,
+    .footer-column a {
       color: #999;
       text-decoration: none;
-      margin: 0 20px;
-      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      line-height: 1.7;
       transition: color 0.3s ease;
-      position: relative;
     }
     
-    .footer-links a::after {
-      content: '';
-      position: absolute;
-      bottom: -3px;
-      left: 0;
-      width: 0;
-      height: 1px;
-      background: #D4AF37;
-      transition: width 0.3s ease;
-    }
-    
-    .footer-links a:hover {
+    .footer-column a:hover {
       color: #D4AF37;
     }
     
-    .footer-links a:hover::after {
-      width: 100%;
-    }
-    
     .footer-bottom {
+      text-align: center;
+      padding-top: 30px;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
       color: #666;
       font-size: 0.85rem;
-      margin-top: 20px;
     }
     
+    /* Responsive */
     @media (max-width: 1024px) {
       nav ul {
         position: fixed;
@@ -307,33 +658,17 @@
         display: flex;
       }
       
-      .hero-container {
-        flex-direction: column;
-        height: auto;
+      .founder-content {
+        grid-template-columns: 1fr;
+        text-align: center;
       }
       
-      .hero-panel {
-        height: 100vh;
-        border-right: none;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
+      .founder-photo {
+        margin: 0 auto;
       }
       
-      .hero-panel:last-child {
-        border-bottom: none;
-      }
-      
-      .hero-panel::after {
-        width: 0;
-        height: 4px;
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: auto;
-      }
-      
-      .hero-panel:hover::after {
-        width: 100%;
-        height: 4px;
+      .credentials-container {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
     
@@ -346,30 +681,46 @@
         font-size: 1.5rem;
       }
       
-      .hero-panel {
+      .hero-section {
+        padding: 140px 20px 60px;
+      }
+      
+      .hero-title {
+        font-size: 2.2rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 1.2rem;
+      }
+      
+      .section-title {
+        font-size: 2rem;
+      }
+      
+      .why-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .guarantee-box {
         padding: 40px 25px;
       }
       
-      .panel-title {
-        font-size: 1.8rem;
+      .founder-photo {
+        width: 250px;
+        height: 250px;
       }
       
-      .panel-subtitle {
-        font-size: 0.9rem;
+      .services-grid {
+        grid-template-columns: 1fr;
       }
       
-      .panel-icon {
-        font-size: 2.5rem;
+      .credentials-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
       }
       
-      .cta-button {
-        padding: 12px 30px;
-        font-size: 0.85rem;
-      }
-      
-      .footer-links a {
-        display: block;
-        margin: 12px 0;
+      .founder-contact {
+        justify-content: center;
       }
     }
   </style>
@@ -388,68 +739,313 @@
     <nav>
       <ul id="nav-menu">
         <li><a href="index.html">Home</a></li>
-        <li><a href="hire-us.html">Event Management</a></li>
-        <li><a href="hire-staff.html">Hire Staff</a></li>
-        <li><a href="apply.html">Apply</a></li>
+        <li><a href="hire-us.html">Hire Staff</a></li>
+        <li><a href="apply.html">Join Us</a></li>
         <li><a href="about.html">About</a></li>
         <li><a href="contact.html">Contact</a></li>
       </ul>
     </nav>
   </header>
 
-  <!-- Hero Panels -->
-  <div class="hero-container">
-    <!-- Panel 1: Hire Us for Events -->
-    <div class="hero-panel" id="panel1" onclick="window.location.href='hire-us.html'">
-      <div class="panel-content">
-        <span class="panel-icon"></span>
-        <h2 class="panel-title">Event<br>Management</h2>
-        <p class="panel-subtitle">Full-service event production for corporate, private, and cultural occasions</p>
-        <a href="hire-us.html" class="cta-button" onclick="event.stopPropagation()">
-          Hire Us
-        </a>
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">Est. 2025 • Founded by Industry Veterans</div>
+      <h1 class="hero-title">VERGO Events</h1>
+      <p class="hero-subtitle">
+        Premium Event Staffing Solutions for London's Film, Music & Corporate Events
+      </p>
+      <p class="hero-description">
+        Founded by an experienced event professional with 8+ years in the industry and backed by 
+        a family-run agency that's supplied the film and music sectors for decades. We combine 
+        industry expertise with personal service and competitive launch pricing.
+      </p>
+      <div class="hero-cta-group">
+        <a href="contact.html" class="cta-button">Get Started</a>
+        <a href="#founder" class="cta-button cta-button-secondary">Our Story</a>
       </div>
     </div>
-    
-    <!-- Panel 2: Hire Our Staff -->
-    <div class="hero-panel" id="panel2" onclick="window.location.href='hire-staff.html'">
-      <div class="panel-content">
-        <span class="panel-icon"></span>
-        <h2 class="panel-title">Professional<br>Staffing</h2>
-        <p class="panel-subtitle">Vetted event professionals available for temporary assignments across London</p>
-        <a href="hire-staff.html" class="cta-button" onclick="event.stopPropagation()">
-          Request Staff
-        </a>
+  </section>
+
+  <!-- Credentials Bar -->
+  <section class="credentials-bar">
+    <div class="credentials-container">
+      <div class="credential-item">
+        <span class="credential-number">8+</span>
+        <span class="credential-label">Years Experience<br>(Founder)</span>
+      </div>
+      <div class="credential-item">
+        <span class="credential-number">20+</span>
+        <span class="credential-label">Years Industry Connections<br>(Family Business)</span>
+      </div>
+      <div class="credential-item">
+        <span class="credential-number">100%</span>
+        <span class="credential-label">Satisfaction<br>Guarantee</span>
+      </div>
+      <div class="credential-item">
+        <span class="credential-number">24/7</span>
+        <span class="credential-label">Direct Founder<br>Access</span>
       </div>
     </div>
-    
-    <!-- Panel 3: Join Our Team -->
-    <div class="hero-panel" id="panel3" onclick="window.location.href='apply.html'">
-      <div class="panel-content">
-        <span class="panel-icon"></span>
-        <h2 class="panel-title">Career<br>Opportunities</h2>
-        <p class="panel-subtitle">Join London's leading event professionals and build your career with VERGO</p>
-        <a href="apply.html" class="cta-button" onclick="event.stopPropagation()">
-          Apply Now
-        </a>
+  </section>
+
+  <!-- Why VERGO -->
+  <section class="why-section">
+    <div class="section-container">
+      <div class="section-header">
+        <h2 class="section-title">Why Choose VERGO?</h2>
+        <p class="section-subtitle">
+          Industry experience meets personal service
+        </p>
+      </div>
+      
+      <div class="why-grid">
+        <div class="why-card">
+          <span class="why-icon">🎯</span>
+          <h3>Proven Track Record</h3>
+          <p>
+            8+ years of hands-on event management experience across hospitality, corporate, 
+            film, and music events. We know this industry inside and out.
+          </p>
+        </div>
+        
+        <div class="why-card">
+          <span class="why-icon">🎬</span>
+          <h3>Industry Connections</h3>
+          <p>
+            Backed by a family business with decades of experience supplying kitchen porters 
+            and crew to the film and music industries. Deep industry relationships.
+          </p>
+        </div>
+        
+        <div class="why-card">
+          <span class="why-icon">👤</span>
+          <h3>Personal Service</h3>
+          <p>
+            As a new agency, every client works directly with the founder. You get experienced 
+            leadership with attentive, personalized service.
+          </p>
+        </div>
+        
+        <div class="why-card">
+          <span class="why-icon">✅</span>
+          <h3>Personally Vetted Staff</h3>
+          <p>
+            Every team member is personally interviewed, reference-checked, and DBS verified 
+            by the founder. No shortcuts on quality.
+          </p>
+        </div>
+        
+        <div class="why-card">
+          <span class="why-icon">💰</span>
+          <h3>Competitive Launch Rates</h3>
+          <p>
+            Premium service at competitive prices. We're building our client base and offering 
+            excellent value to earn your long-term business.
+          </p>
+        </div>
+        
+        <div class="why-card">
+          <span class="why-icon">📞</span>
+          <h3>Direct Access</h3>
+          <p>
+            No call centers, no account managers. Text or call the founder directly 24/7 for 
+            urgent needs or last-minute changes.
+          </p>
+        </div>
       </div>
     </div>
-  </div>
-  
+  </section>
+
+  <!-- Founder Section -->
+  <section class="founder-section" id="founder">
+    <div class="section-container">
+      <div class="section-header">
+        <h2 class="section-title">Meet the Founder</h2>
+        <p class="section-subtitle">Industry veteran bringing experience and expertise to every placement</p>
+      </div>
+        
+        <div class="founder-info">
+          <h2>William</h2>
+          <p class="founder-title">Founder & CEO</p>
+          
+          <p class="founder-story">
+            "After 8 years working across every area of the events industry - from intimate private 
+            gatherings to large-scale corporate productions and film sets - I saw a gap in the market 
+            for a staffing agency that truly understood what clients need."
+          </p>
+          
+          <p class="founder-story">
+            "Growing up around my father's agency, which has been supplying kitchen porters to the 
+            film and music industries for over two decades, I learned what separates exceptional 
+            service from mediocre. It's about reliability, quality vetting, and building genuine 
+            relationships."
+          </p>
+          
+          <p class="founder-highlight">
+            "I founded VERGO to bring that same standard of excellence to London's broader events sector. 
+            Every placement reflects my personal reputation - and I stake that on every staff member we provide."
+          </p>
+          
+          <div class="founder-credentials">
+            <h4>Experience & Background</h4>
+            <ul>
+              <li>8+ years hands-on event management experience</li>
+              <li>Worked across corporate, film, music, and private events</li>
+              <li>Raised in family business serving film & music industries</li>
+              <li>Deep network of industry-vetted professionals</li>
+              <li>Personally vets and interviews every VERGO team member</li>
+              <li>DBS checked • Fully insured • Industry certified</li>
+            </ul>
+          </div>
+          
+          <div class="founder-contact">
+            <a href="tel:+44XXXXXXXXXX" class="contact-button">📞 Call Direct</a>
+            <a href="mailto:wrobb@vergoltd.com" class="contact-button">✉️ Email Me</a>
+            <a href="https://linkedin.com/in/yourprofile" target="_blank" class="contact-button">💼 LinkedIn</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Guarantee Section -->
+  <section class="guarantee-section">
+    <div class="section-container">
+      <div class="guarantee-box">
+        <div class="guarantee-badge">💯</div>
+        <h2>Our Ironclad Guarantee</h2>
+        <p>
+          If you're not 100% satisfied with our staff or service for any reason, 
+          we'll refund your payment in full AND provide replacement staff at no additional cost.
+        </p>
+        <p>
+          No questions asked. No fine print. No hassle.
+        </p>
+        <p class="guarantee-highlight">
+          That's how confident I am in our vetting process and the quality of our team.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section class="services-section">
+    <div class="section-container">
+      <div class="section-header">
+        <h2 class="section-title">Our Services</h2>
+        <p class="section-subtitle">Premium solutions for every type of event</p>
+      </div>
+      
+      <div class="services-grid">
+        <div class="service-card" onclick="window.location.href='hire-staff.html'">
+          <span class="service-icon">👥</span>
+          <h3>Event Staffing</h3>
+          <p>
+            Front of house, bartenders, servers, kitchen porters, event coordinators. 
+            Pre-vetted, DBS-checked professionals ready when you need them.
+          </p>
+          <a href="hire-staff.html" class="service-link">Learn More →</a>
+        </div>
+        
+        <div class="service-card" onclick="window.location.href='hire-us.html'">
+          <span class="service-icon">🎉</span>
+          <h3>Event Management</h3>
+          <p>
+            Full-service event planning and coordination. From concept to execution, 
+            we handle every detail of your corporate or private event.
+          </p>
+          <a href="hire-us.html" class="service-link">Learn More →</a>
+        </div>
+        
+        <div class="service-card" onclick="window.location.href='apply.html'">
+          <span class="service-icon">💼</span>
+          <h3>Join Our Team</h3>
+          <p>
+            Experienced event professional? Join a growing agency backed by industry veterans 
+            and work with premium clients across London.
+          </p>
+          <a href="apply.html" class="service-link">Apply Now →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Launch Offer -->
+  <section class="launch-offer-section">
+    <div class="offer-container">
+      <div class="offer-badge">🚀 Launch Offer - First 10 Clients</div>
+      <h2>Founding Client Benefits</h2>
+      <p>
+        Be one of our first clients and receive exclusive benefits while helping 
+        us build our reputation in London's events scene:
+      </p>
+      
+      <div class="offer-details">
+        <ul>
+          <li>30% off your first 3 bookings</li>
+          <li>Priority scheduling and last-minute availability</li>
+          <li>Direct 24/7 access to founder's mobile</li>
+          <li>Free consultation and event planning support</li>
+          <li>Founding client rates locked in for 12 months</li>
+          <li>First access to new services as we expand</li>
+        </ul>
+      </div>
+      
+      <a href="contact.html" class="cta-button">Claim Your Offer</a>
+      <p style="margin-top: 20px; font-size: 0.9rem; color: #999;">
+        Limited to first 10 clients • Some restrictions apply
+      </p>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer>
     <div class="footer-content">
-      <div class="footer-links">
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="terms.html">Terms</a>
+      <div class="footer-column">
+        <h3>VERGO Events</h3>
+        <p>
+          Premium event staffing solutions founded by industry veterans. Combining 8+ years 
+          of hands-on experience with decades of family business expertise in the film and music sectors.
+        </p>
+        <p style="margin-top: 20px; font-size: 0.85rem; color: #666;">
+          Fully Insured • DBS Checked • 100% Guaranteed
+        </p>
       </div>
       
-      <div class="footer-bottom">
-        <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
-        <p style="margin-top: 5px;">Professional Events & Staffing Solutions</p>
+      <div class="footer-column">
+        <h3>Services</h3>
+        <a href="hire-staff.html">Event Staffing</a>
+        <a href="hire-us.html">Event Management</a>
+        <a href="apply.html">Join Our Team</a>
+        <a href="about.html">About Us</a>
+        <a href="contact.html">Get a Quote</a>
       </div>
+      
+      <div class="footer-column">
+        <h3>Contact Founder</h3>
+        <p><strong>Direct:</strong> +44 (0) 20 XXXX XXXX</p>
+        <p><strong>Email:</strong> wrobb@vergoltd.com</p>
+        <p><strong>Hours:</strong> 24/7 for urgent needs</p>
+        <p><strong>Location:</strong> London, UK</p>
+      </div>
+      
+      <div class="footer-column">
+        <h3>Why VERGO?</h3>
+        <p>✓ 8+ years founder experience</p>
+        <p>✓ Family business backing</p>
+        <p>✓ 100% satisfaction guarantee</p>
+        <p>✓ Launch pricing available</p>
+        <p>✓ Direct founder access 24/7</p>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
+      <p style="margin-top: 5px;">
+        <a href="privacy.html" style="color: #666; text-decoration: none;">Privacy</a> | 
+        <a href="terms.html" style="color: #666; text-decoration: none;">Terms</a>
+      </p>
     </div>
   </footer>
 

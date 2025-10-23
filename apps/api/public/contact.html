@@ -3,914 +3,228 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact Us - VERGO Events</title>
+  <title>Get a Quote - VERGO Events | Founding Client Offer Available</title>
+  <meta name="description" content="Contact VERGO Events for premium event staffing. Founding client offer: 30% off + 100% guarantee. Direct access to founder with 8+ years experience.">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: #0a0a0a;
-      color: #ffffff;
-      line-height: 1.7;
-    }
-    
-    /* Header Navigation */
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: rgba(10, 10, 10, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 1000;
-    }
-    
-    .logo {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #D4AF37;
-      letter-spacing: 2px;
-      text-decoration: none;
-    }
-    
-    nav ul {
-      display: flex;
-      gap: 35px;
-      list-style: none;
-    }
-    
-    nav a {
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 0.95rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
-      position: relative;
-    }
-    
-    nav a::after {
-      content: '';
-      position: absolute;
-      bottom: -5px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: #D4AF37;
-      transition: width 0.3s ease;
-    }
-    
-    nav a:hover {
-      color: #D4AF37;
-    }
-    
-    nav a:hover::after {
-      width: 100%;
-    }
-    
-    .menu-toggle {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-    }
-    
-    .menu-toggle span {
-      width: 25px;
-      height: 2px;
-      background: #D4AF37;
-    }
-    
-    /* Container */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 120px 40px 60px;
-    }
-    
-    /* Page Hero */
-    .page-hero {
-      text-align: center;
-      padding: 80px 20px;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-      margin-bottom: 80px;
-    }
-    
-    .page-hero h1 {
-      font-size: 4rem;
-      margin-bottom: 20px;
-      color: #D4AF37;
-      font-weight: 700;
-    }
-    
-    .page-hero p {
-      font-size: 1.3rem;
-      color: #999;
-    }
-    
-    /* Tab Navigation */
-    .tab-container {
-      background: #1a1a1a;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid rgba(212, 175, 55, 0.2);
-    }
-    
-    .tabs {
-      display: flex;
-      background: #0a0a0a;
-      border-bottom: 2px solid rgba(212, 175, 55, 0.2);
-    }
-    
-    .tab {
-      flex: 1;
-      padding: 25px 20px;
-      text-align: center;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      color: #999;
-      border-bottom: 3px solid transparent;
-      user-select: none;
-    }
-    
-    .tab:hover {
-      background: rgba(212, 175, 55, 0.05);
-      color: #D4AF37;
-    }
-    
-    .tab.active {
-      color: #D4AF37;
-      background: #1a1a1a;
-      border-bottom: 3px solid #D4AF37;
-    }
-    
-    .tab-icon {
-      font-size: 1.8rem;
-      display: block;
-      margin-bottom: 8px;
-    }
-    
-    /* Tab Content */
-    .tab-content {
-      display: none;
-      padding: 50px 40px;
-    }
-    
-    .tab-content.active {
-      display: block;
-      animation: fadeIn 0.4s ease;
-    }
-    
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    .form-intro {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-    
-    .form-intro h2 {
-      font-size: 2rem;
-      color: #D4AF37;
-      margin-bottom: 15px;
-    }
-    
-    .form-intro p {
-      color: #999;
-      font-size: 1.1rem;
-    }
-    
-    .form-group {
-      margin-bottom: 25px;
-    }
-    
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #D4AF37;
-      font-size: 1rem;
-    }
-    
-    input, textarea, select {
-      width: 100%;
-      padding: 15px;
-      border: 2px solid rgba(212, 175, 55, 0.2);
-      border-radius: 8px;
-      font-size: 1rem;
-      font-family: inherit;
-      transition: all 0.3s ease;
-      background: #0a0a0a;
-      color: #ffffff;
-    }
-    
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: #D4AF37;
-      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
-    }
-    
-    textarea {
-      min-height: 150px;
-      resize: vertical;
-    }
-    
-    select {
-      cursor: pointer;
-    }
-    
-    option {
-      background: #1a1a1a;
-      color: #ffffff;
-    }
-    
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    
-    .submit-btn {
-      width: 100%;
-      padding: 18px;
-      background: #D4AF37;
-      color: #1a1a1a;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 20px;
-    }
-    
-    .submit-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
-    }
-    
-    .submit-btn:active {
-      transform: translateY(0);
-    }
-    
-    .submit-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-    
-    /* Honeypot - MUST BE HIDDEN */
-    .honeypot {
-      position: absolute;
-      left: -9999px;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-      pointer-events: none;
-    }
-    
-    /* Roles Section Styling */
-    .roles-section {
-      margin: 25px 0;
-      padding: 20px;
-      background: #0a0a0a;
-      border-radius: 8px;
-      border: 1px solid rgba(212, 175, 55, 0.2);
-    }
-    
-    .role-category {
-      margin-bottom: 25px;
-    }
-    
-    .role-category:last-child {
-      margin-bottom: 0;
-    }
-    
-    .category-header {
-      font-weight: 700;
-      font-size: 1rem;
-      color: #D4AF37;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #D4AF37;
-    }
-    
-    .roles-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-    }
-    
-    .role-checkbox-label {
-      display: flex;
-      align-items: center;
-      font-weight: normal;
-      font-size: 0.95rem;
-      padding: 10px 12px;
-      background: #1a1a1a;
-      border: 2px solid rgba(212, 175, 55, 0.2);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      color: #cccccc;
-    }
-    
-    .role-checkbox-label:hover {
-      background: rgba(212, 175, 55, 0.05);
-      border-color: #D4AF37;
-    }
-    
-    .role-checkbox-label input[type="checkbox"] {
-      width: auto;
-      margin-right: 8px;
-      cursor: pointer;
-      accent-color: #D4AF37;
-    }
-    
-    .role-checkbox-label:has(input[type="checkbox"]:checked) {
-      border-color: #D4AF37;
-      background: rgba(212, 175, 55, 0.1);
-    }
-    
-    .role-checkbox-label:has(input[type="checkbox"]:checked) span {
-      font-weight: 600;
-      color: #D4AF37;
-    }
-    
-    /* Contact Info Section */
-    .contact-info {
-      background: #1a1a1a;
-      padding: 60px 40px;
-      border-radius: 8px;
-      margin-top: 60px;
-      border: 1px solid rgba(212, 175, 55, 0.2);
-    }
-    
-    .contact-info h2 {
-      color: #D4AF37;
-      margin-bottom: 40px;
-      font-size: 2.5rem;
-      text-align: center;
-    }
-    
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 30px;
-    }
-    
-    .info-card {
-      text-align: center;
-      padding: 30px;
-      background: #0a0a0a;
-      border-radius: 8px;
-      border-top: 3px solid #D4AF37;
-      transition: transform 0.3s ease;
-    }
-    
-    .info-card:hover {
-      transform: translateY(-5px);
-    }
-    
-    .info-icon {
-      font-size: 2.5rem;
-      margin-bottom: 15px;
-      display: block;
-    }
-    
-    .info-card h3 {
-      font-size: 1.3rem;
-      margin-bottom: 10px;
-      color: #D4AF37;
-    }
-    
-    .info-card p {
-      color: #999;
-      font-size: 1rem;
-    }
-    
-    .info-card a {
-      color: #D4AF37;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    
-    .info-card a:hover {
-      text-decoration: underline;
-    }
-    
-    /* Footer */
-    footer {
-      background: #0a0a0a;
-      color: #D4AF37;
-      padding: 40px 30px 25px;
-      border-top: 1px solid rgba(212, 175, 55, 0.2);
-      margin-top: 80px;
-    }
-    
-    .footer-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    
-    .footer-links {
-      margin-bottom: 20px;
-    }
-    
-    .footer-links a {
-      color: #999;
-      text-decoration: none;
-      margin: 0 20px;
-      font-size: 0.9rem;
-      transition: color 0.3s ease;
-    }
-    
-    .footer-links a:hover {
-      color: #D4AF37;
-    }
-    
-    .footer-bottom {
-      color: #666;
-      font-size: 0.85rem;
-      margin-top: 15px;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #ffffff; line-height: 1.7; }
+    
+    header { position: fixed; top: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
+    .logo { font-size: 1.8rem; font-weight: 700; color: #D4AF37; letter-spacing: 2px; text-decoration: none; }
+    nav ul { display: flex; gap: 35px; list-style: none; }
+    nav a { color: #ffffff; text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: color 0.3s ease; position: relative; }
+    nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: #D4AF37; transition: width 0.3s ease; }
+    nav a:hover { color: #D4AF37; }
+    nav a:hover::after { width: 100%; }
+    .menu-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+    .menu-toggle span { width: 25px; height: 2px; background: #D4AF37; }
+    
+    .page-hero { text-align: center; padding: 180px 40px 80px; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
+    .hero-badge { display: inline-block; background: #D4AF37; color: #1a1a1a; padding: 10px 25px; border-radius: 25px; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 25px; }
+    .page-hero h1 { font-size: 4rem; margin-bottom: 20px; color: #D4AF37; font-weight: 700; }
+    .page-hero p { font-size: 1.3rem; color: #999; max-width: 800px; margin: 0 auto; }
+    
+    .container { max-width: 1200px; margin: 0 auto; padding: 80px 40px; }
+    
+    .offer-banner { background: rgba(212, 175, 55, 0.05); border: 2px solid #D4AF37; border-radius: 12px; padding: 50px 40px; text-align: center; margin-bottom: 80px; }
+    .offer-banner h2 { font-size: 2.5rem; color: #D4AF37; margin-bottom: 20px; }
+    .offer-banner p { font-size: 1.2rem; color: #cccccc; margin-bottom: 15px; line-height: 1.8; }
+    .offer-list { background: rgba(212, 175, 55, 0.03); padding: 30px; border-radius: 8px; margin: 30px auto; max-width: 700px; text-align: left; }
+    .offer-list ul { list-style: none; padding: 0; }
+    .offer-list li { padding: 12px 0 12px 35px; position: relative; color: #cccccc; font-size: 1.1rem; }
+    .offer-list li::before { content: '🎁'; position: absolute; left: 0; font-size: 1.2rem; }
+    
+    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-bottom: 80px; }
+    
+    .contact-form-section h2 { font-size: 2.2rem; color: #D4AF37; margin-bottom: 30px; }
+    .contact-form { background: #1a1a1a; padding: 40px; border-radius: 8px; border-left: 4px solid #D4AF37; }
+    .form-group { margin-bottom: 25px; }
+    .form-group label { display: block; margin-bottom: 8px; color: #D4AF37; font-weight: 600; font-size: 0.95rem; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 14px; background: #0a0a0a; border: 1px solid #333; border-radius: 4px; color: #ffffff; font-size: 1rem; font-family: inherit; transition: border-color 0.3s ease; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #D4AF37; }
+    .form-group textarea { min-height: 150px; resize: vertical; }
+    .submit-button { width: 100%; padding: 16px; background: #D4AF37; color: #1a1a1a; border: none; border-radius: 4px; font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.3s ease; }
+    .submit-button:hover { background: #fff; transform: translateY(-2px); }
+    
+    .direct-contact h2 { font-size: 2.2rem; color: #D4AF37; margin-bottom: 30px; }
+    .contact-methods { display: flex; flex-direction: column; gap: 30px; }
+    .contact-method { background: #1a1a1a; padding: 30px; border-radius: 8px; border-left: 4px solid #D4AF37; }
+    .contact-method h3 { font-size: 1.4rem; color: #D4AF37; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+    .contact-method p { color: #cccccc; margin-bottom: 10px; line-height: 1.7; }
+    .contact-method a { color: #D4AF37; text-decoration: none; font-weight: 600; }
+    .contact-method a:hover { text-decoration: underline; }
+    
+    .guarantee-box { background: rgba(212, 175, 55, 0.05); border: 2px solid #D4AF37; border-radius: 12px; padding: 40px; text-align: center; margin: 60px 0; }
+    .guarantee-badge { width: 80px; height: 80px; background: #D4AF37; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; }
+    .guarantee-box h3 { font-size: 2rem; color: #D4AF37; margin-bottom: 15px; }
+    .guarantee-box p { font-size: 1.1rem; color: #cccccc; line-height: 1.7; }
+    
+    footer { background: #0a0a0a; color: #D4AF37; padding: 40px 30px 25px; border-top: 1px solid rgba(212, 175, 55, 0.2); margin-top: 80px; }
+    .footer-content { max-width: 1200px; margin: 0 auto; text-align: center; }
+    .footer-links { margin-bottom: 20px; }
+    .footer-links a { color: #999; text-decoration: none; margin: 0 20px; font-size: 0.9rem; transition: color 0.3s ease; }
+    .footer-links a:hover { color: #D4AF37; }
+    .footer-bottom { color: #666; font-size: 0.85rem; margin-top: 15px; }
     
     @media (max-width: 1024px) {
-      nav ul {
-        position: fixed;
-        top: 80px;
-        left: 0;
-        right: 0;
-        background: rgba(10, 10, 10, 0.98);
-        flex-direction: column;
-        padding: 30px;
-        gap: 20px;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-      }
-      
-      nav ul.active {
-        transform: translateX(0);
-      }
-      
-      .menu-toggle {
-        display: flex;
-      }
+      nav ul { position: fixed; top: 80px; left: 0; right: 0; background: rgba(10, 10, 10, 0.98); flex-direction: column; padding: 30px; gap: 20px; transform: translateX(-100%); transition: transform 0.3s ease; }
+      nav ul.active { transform: translateX(0); }
+      .menu-toggle { display: flex; }
+      .content-grid { grid-template-columns: 1fr; gap: 40px; }
     }
     
     @media (max-width: 768px) {
-      header {
-        padding: 15px 20px;
-      }
-      
-      .logo {
-        font-size: 1.5rem;
-      }
-      
-      .container {
-        padding: 100px 20px 40px;
-      }
-      
-      .page-hero h1 {
-        font-size: 2.5rem;
-      }
-      
-      .page-hero p {
-        font-size: 1.1rem;
-      }
-      
-      .tabs {
-        flex-direction: column;
-      }
-      
-      .tab {
-        border-bottom: 2px solid rgba(212, 175, 55, 0.2);
-      }
-      
-      .tab.active {
-        border-bottom: 2px solid #D4AF37;
-        border-left: 4px solid #D4AF37;
-      }
-      
-      .tab-content {
-        padding: 30px 20px;
-      }
-      
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-      
-      .info-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .roles-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .footer-links a {
-        display: block;
-        margin: 12px 0;
-      }
+      header { padding: 15px 20px; }
+      .logo { font-size: 1.5rem; }
+      .page-hero { padding: 140px 20px 60px; }
+      .page-hero h1 { font-size: 2.5rem; }
+      .container { padding: 60px 20px; }
+      .offer-banner { padding: 30px 20px; }
+      .contact-form, .contact-method { padding: 25px 20px; }
+      .footer-links a { display: block; margin: 12px 0; }
     }
   </style>
 </head>
 <body>
-  <!-- Header Navigation -->
   <header>
     <a href="index.html" class="logo">VERGO</a>
-    
     <div class="menu-toggle" onclick="toggleMenu()">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span></span><span></span><span></span>
     </div>
-    
     <nav>
       <ul id="nav-menu">
         <li><a href="index.html">Home</a></li>
         <li><a href="hire-us.html">Event Management</a></li>
         <li><a href="hire-staff.html">Hire Staff</a></li>
-        <li><a href="apply.html">Apply</a></li>
+        <li><a href="apply.html">Join Us</a></li>
         <li><a href="about.html">About</a></li>
         <li><a href="contact.html">Contact</a></li>
       </ul>
     </nav>
   </header>
   
-  <!-- Page Hero -->
   <div class="page-hero">
-    <h1>Get in Touch</h1>
-    <p>We'd love to hear from you</p>
+    <div class="hero-badge">🚀 Founding Client Offer Available</div>
+    <h1>Get Started with VERGO</h1>
+    <p>Direct access to founder with 8+ years experience. Same-day quotes. Zero-risk guarantee.</p>
   </div>
   
-  <!-- Content -->
   <div class="container">
-    <div class="tab-container">
-      <!-- Tab Navigation -->
-      <div class="tabs">
-        <div class="tab active" data-tab="events">
-          <span class="tab-icon"></span>
-          Hire Us for Events
-        </div>
-        <div class="tab" data-tab="staff">
-          <span class="tab-icon"></span>
-          Request Staff
-        </div>
-        <div class="tab" data-tab="general">
-          <span class="tab-icon"></span>
-          General Enquiry
-        </div>
+    <div class="offer-banner">
+      <h2>Founding Client Package</h2>
+      <p>Be one of our first 10 clients and receive exclusive benefits:</p>
+      <div class="offer-list">
+        <ul>
+          <li>30% off your first 3 bookings</li>
+          <li>100% satisfaction guarantee (refund + free replacement)</li>
+          <li>Priority scheduling and last-minute availability</li>
+          <li>Direct 24/7 access to founder's mobile</li>
+          <li>Founding client rates locked in for 12 months</li>
+        </ul>
       </div>
-      
-      <!-- Events Form -->
-      <div id="eventsTab" class="tab-content active">
-        <div class="form-intro">
-          <h2>Book VERGO for Your Event</h2>
-          <p>Tell us about your vision and we'll make it happen</p>
-        </div>
-        
-        <form id="eventsForm">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="event-name">Your Name *</label>
-              <input type="text" id="event-name" name="name" required>
-            </div>
-            
-            <div class="form-group">
-              <label for="event-email">Email *</label>
-              <input type="email" id="event-email" name="email" required>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="event-phone">Phone</label>
-              <input type="tel" id="event-phone" name="phone">
-            </div>
-            
-            <div class="form-group">
-              <label for="event-type">Event Type *</label>
-              <select id="event-type" name="eventType" required>
-                <option value="">Select...</option>
-                <option value="corporate">Corporate Event</option>
-                <option value="wedding">Wedding</option>
-                <option value="private">Private Party</option>
-                <option value="music">Music Event</option>
-                <option value="charity">Charity Event</option>
-                <option value="festival">Festival</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="event-date">Preferred Date</label>
-              <input type="date" id="event-date" name="date">
-            </div>
-            
-            <div class="form-group">
-              <label for="event-guests">Expected Guest Count</label>
-              <input type="number" id="event-guests" name="guests" min="1">
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label for="event-message">Tell Us About Your Event *</label>
-            <textarea id="event-message" name="message" required placeholder="Please share your vision, requirements, budget range, venue details..."></textarea>
-          </div>
-          
-          <!-- HONEYPOT FIELD -->
-          <div class="honeypot">
-            <label for="event-website">Website</label>
-            <input type="text" id="event-website" name="website" tabindex="-1" autocomplete="off">
-          </div>
-          
-          <button type="submit" class="submit-btn">Send Event Enquiry</button>
-        </form>
-      </div>
-      
-      <!-- Staff Request Form -->
-      <div id="staffTab" class="tab-content">
-        <div class="form-intro">
-          <h2>Request Event Staff</h2>
-          <p>Let us know what roles you need and when</p>
-        </div>
-        
-        <form id="staffForm">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="staff-name">Your Name *</label>
-              <input type="text" id="staff-name" name="name" required>
-            </div>
-            
-            <div class="form-group">
-              <label for="staff-email">Email *</label>
-              <input type="email" id="staff-email" name="email" required>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="staff-phone">Phone</label>
-              <input type="tel" id="staff-phone" name="phone">
-            </div>
-            
-            <div class="form-group">
-              <label for="staff-company">Company/Event Name *</label>
-              <input type="text" id="staff-company" name="company" required>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label>Roles Required * (select all that apply)</label>
-            <div class="roles-section">
-              <!-- Hospitality Roles -->
-              <div class="role-category">
-                <div class="category-header">Hospitality</div>
-                <div class="roles-grid">
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Barista">
-                    <span> Barista</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Bartender">
-                    <span> Bartender</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Mixologist">
-                    <span> Mixologist</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Waiting Staff">
-                    <span>Waiting Staff</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Front of House (FOH)">
-                    <span> FOH</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Host/Hostess">
-                    <span> Host/Hostess</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Chef">
-                    <span>‍ Chef</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Sous Chef">
-                    <span>‍ Sous Chef</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Chef de Partie">
-                    <span> Chef de Partie</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Kitchen Porter (KP)">
-                    <span> Kitchen Porter</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Runner">
-                    <span> Runner</span>
-                  </label>
-                </div>
-              </div>
-              
-              <!-- Events & Production Roles -->
-              <div class="role-category">
-                <div class="category-header">Events & Production</div>
-                <div class="roles-grid">
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Event Manager">
-                    <span>Event Manager</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Event Supervisor">
-                    <span> Event Supervisor</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Stagehand">
-                    <span> Stagehand</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Site Crew">
-                    <span> Site Crew</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Rigger">
-                    <span> Rigger</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Loader">
-                    <span> Loader</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="AV Technician">
-                    <span> AV Technician</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Lighting Tech">
-                    <span> Lighting Tech</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Sound Tech">
-                    <span> Sound Tech</span>
-                  </label>
-                </div>
-              </div>
-              
-              <!-- Venue & Operations Roles -->
-              <div class="role-category">
-                <div class="category-header"> Venue & Operations</div>
-                <div class="roles-grid">
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Steward">
-                    <span> Steward</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Security (SIA)">
-                    <span> Security (SIA)</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Cleaner">
-                    <span> Cleaner</span>
-                  </label>
-                  <label class="role-checkbox-label">
-                    <input type="checkbox" name="roles" value="Driver">
-                    <span> Driver</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="staff-date">Event Date *</label>
-              <input type="date" id="staff-date" name="date" required>
-            </div>
-            
-            <div class="form-group">
-              <label for="staff-count">Number of Staff Needed *</label>
-              <input type="number" id="staff-count" name="staffCount" min="1" required>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label for="staff-message">Additional Details *</label>
-            <textarea id="staff-message" name="message" required placeholder="Event type, venue location, shift times, specific requirements..."></textarea>
-          </div>
-          
-          <!-- HONEYPOT FIELD -->
-          <div class="honeypot">
-            <label for="staff-website">Website</label>
-            <input type="text" id="staff-website" name="website" tabindex="-1" autocomplete="off">
-          </div>
-          
-          <button type="submit" class="submit-btn">Send Staff Request</button>
-        </form>
-      </div>
-      
-      <!-- General Enquiry Form -->
-      <div id="generalTab" class="tab-content">
-        <div class="form-intro">
-          <h2>General Enquiry</h2>
-          <p>Questions, feedback, or just want to say hello?</p>
-        </div>
-        
-        <form id="generalForm">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="general-name">Your Name *</label>
-              <input type="text" id="general-name" name="name" required>
-            </div>
-            
-            <div class="form-group">
-              <label for="general-email">Email *</label>
-              <input type="email" id="general-email" name="email" required>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label for="general-subject">Subject *</label>
-            <input type="text" id="general-subject" name="subject" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="general-message">Message *</label>
-            <textarea id="general-message" name="message" required placeholder="How can we help you?"></textarea>
-          </div>
-          
-          <!-- HONEYPOT FIELD -->
-          <div class="honeypot">
-            <label for="general-website">Website</label>
-            <input type="text" id="general-website" name="website" tabindex="-1" autocomplete="off">
-          </div>
-          
-          <button type="submit" class="submit-btn">Send Message</button>
-        </form>
-      </div>
+      <p style="font-size: 1rem; color: #999; margin-top: 20px;">Limited to first 10 clients • Some restrictions apply</p>
     </div>
     
-    <!-- Contact Info -->
-    <div class="contact-info">
-      <h2>Other Ways to Reach Us</h2>
-      <div class="info-grid">
-        <div class="info-card">
-          <span class="info-icon"></span>
-          <h3>Email</h3>
-          <p><a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a></p>
+    <div class="content-grid">
+      <div class="contact-form-section">
+        <h2>Request a Quote</h2>
+        <form class="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+          <div class="form-group">
+            <label for="name">Your Name *</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone">
+          </div>
+          
+          <div class="form-group">
+            <label for="service">Service Needed *</label>
+            <select id="service" name="service" required>
+              <option value="">Select a service...</option>
+              <option value="event-management">Event Management</option>
+              <option value="staff-hire">Staff Hire</option>
+              <option value="both">Both Services</option>
+              <option value="other">Other / Not Sure</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="date">Event Date</label>
+            <input type="date" id="date" name="date">
+          </div>
+          
+          <div class="form-group">
+            <label for="message">Tell Us About Your Event *</label>
+            <textarea id="message" name="message" required placeholder="Event type, number of guests, location, specific needs..."></textarea>
+          </div>
+          
+          <button type="submit" class="submit-button">Get My Quote</button>
+        </form>
+      </div>
+      
+      <div class="direct-contact">
+        <h2>Contact Founder Directly</h2>
+        
+        <div class="contact-methods">
+          <div class="contact-method">
+            <h3>📞 Phone</h3>
+            <p><strong>Founder Direct:</strong></p>
+            <a href="tel:+44XXXXXXXXXX">+44 (0) 20 XXXX XXXX</a>
+            <p style="margin-top: 10px; font-size: 0.9rem; color: #999;">Available 24/7 for urgent needs</p>
+          </div>
+          
+          <div class="contact-method">
+            <h3>✉️ Email</h3>
+            <p><strong>Get in touch:</strong></p>
+            <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
+            <p style="margin-top: 10px; font-size: 0.9rem; color: #999;">Responses within 24 hours</p>
+          </div>
+          
+          <div class="contact-method">
+            <h3>💼 LinkedIn</h3>
+            <p><strong>Connect professionally:</strong></p>
+            <a href="https://linkedin.com/in/yourprofile" target="_blank">View Profile</a>
+            <p style="margin-top: 10px; font-size: 0.9rem; color: #999;">See my 8+ years experience</p>
+          </div>
+          
+          <div class="contact-method">
+            <h3>📍 Location</h3>
+            <p><strong>Based in:</strong></p>
+            <p>London, United Kingdom</p>
+            <p style="margin-top: 10px; font-size: 0.9rem; color: #999;">Serving all London events</p>
+          </div>
         </div>
         
-        <div class="info-card">
-          <span class="info-icon"></span>
-          <h3>Location</h3>
-          <p>London, United Kingdom</p>
-        </div>
-        
-        <div class="info-card">
-          <span class="info-icon">⏰</span>
-          <h3>Response Time</h3>
-          <p>Within 24 hours<br>(usually much faster!)</p>
+        <div class="guarantee-box" style="margin-top: 40px;">
+          <div class="guarantee-badge">💯</div>
+          <h3>100% Guaranteed</h3>
+          <p>Not satisfied? Full refund + free replacement staff. No questions asked.</p>
         </div>
       </div>
     </div>
   </div>
   
-  <!-- Footer -->
   <footer>
     <div class="footer-content">
       <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="hire-us.html">Event Management</a>
+        <a href="hire-staff.html">Hire Staff</a>
+        <a href="about.html">About</a>
+        <a href="apply.html">Join Us</a>
         <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
       </div>
-      
       <div class="footer-bottom">
         <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
+        <p style="margin-top: 5px;">Founded by industry professionals • 8+ years experience • 100% Guaranteed</p>
       </div>
     </div>
   </footer>
@@ -920,7 +234,6 @@
       const menu = document.getElementById('nav-menu');
       menu.classList.toggle('active');
     }
-    
     document.addEventListener('click', function(event) {
       const menu = document.getElementById('nav-menu');
       const header = document.querySelector('header');
@@ -928,123 +241,6 @@
         menu.classList.remove('active');
       }
     });
-    
-    // Tab switching functionality
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        const tabName = this.getAttribute('data-tab');
-        
-        // Remove active class from all tabs and content
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
-        // Add active class to clicked tab and corresponding content
-        this.classList.add('active');
-        document.getElementById(tabName + 'Tab').classList.add('active');
-      });
-    });
-    
-    // Form submissions - FIXED VERSION
-    document.getElementById('eventsForm').addEventListener('submit', handleSubmit);
-    document.getElementById('staffForm').addEventListener('submit', handleSubmit);
-    document.getElementById('generalForm').addEventListener('submit', handleSubmit);
-    
-    async function handleSubmit(e) {
-      e.preventDefault();
-      
-      const form = e.target;
-      const formData = new FormData(form);
-      
-      // Convert FormData to object
-      const data = {};
-      
-      // Handle regular fields
-      for (const [key, value] of formData.entries()) {
-        if (key !== 'roles') {
-          data[key] = value;
-        }
-      }
-      
-      // Handle checkboxes for staff form (collect all checked values)
-      if (form.id === 'staffForm') {
-        const roles = [];
-        const roleCheckboxes = form.querySelectorAll('input[name="roles"]:checked');
-        roleCheckboxes.forEach(checkbox => {
-          roles.push(checkbox.value);
-        });
-        data.roles = roles;
-        
-        // Validate at least one role is selected
-        if (roles.length === 0) {
-          alert(' Please select at least one role');
-          return;
-        }
-        
-        // Convert staffCount to number
-        if (data.staffCount) {
-          data.staffCount = parseInt(data.staffCount, 10);
-        }
-      }
-      
-      // Convert guests to number for events form
-      if (form.id === 'eventsForm' && data.guests) {
-        data.guests = parseInt(data.guests, 10);
-      }
-      
-      // Determine endpoint
-      let endpoint = '';
-      if (form.id === 'eventsForm') {
-        endpoint = '/api/v1/contact/event-enquiry';
-      } else if (form.id === 'staffForm') {
-        endpoint = '/api/v1/contact/staff-request';
-      } else {
-        endpoint = '/api/v1/contact/general';
-      }
-      
-      const submitBtn = form.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
-      
-      try {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Sending...';
-        
-        console.log('Submitting to:', endpoint);
-        console.log('Data:', data);
-        
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-          alert(' ' + result.message);
-          form.reset();
-        } else {
-          // Better error handling
-          console.error('Form error:', result);
-          if (result.details) {
-            // Zod validation errors
-            const errors = result.details.map(err => `${err.path.join('.')}: ${err.message}`).join('\n');
-            alert(' Form validation failed:\n\n' + errors);
-          } else {
-            alert(' ' + (result.error || 'Something went wrong. Please try again.'));
-          }
-        }
-        
-      } catch (error) {
-        console.error('Form submission error:', error);
-        alert(' Connection error. Please check your internet and try again.');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
-      }
-    }
   </script>
 </body>
-</html>index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="
+</html>
