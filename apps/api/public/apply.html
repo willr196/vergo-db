@@ -58,13 +58,48 @@
     .application-section { margin: 80px 0; }
     .application-section h2 { font-size: 2.5rem; color: #D4AF37; margin-bottom: 30px; text-align: center; }
     .application-form { background: #1a1a1a; padding: 50px 40px; border-radius: 8px; border-left: 4px solid #D4AF37; max-width: 800px; margin: 0 auto; }
+    
     .form-group { margin-bottom: 25px; }
     .form-group label { display: block; margin-bottom: 8px; color: #D4AF37; font-weight: 600; font-size: 0.95rem; }
-    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 14px; background: #0a0a0a; border: 1px solid #333; border-radius: 4px; color: #ffffff; font-size: 1rem; font-family: inherit; transition: border-color 0.3s ease; }
-    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #D4AF37; }
-    .form-group textarea { min-height: 150px; resize: vertical; }
-    .submit-button { width: 100%; padding: 16px; background: #D4AF37; color: #1a1a1a; border: none; border-radius: 4px; font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.3s ease; }
-    .submit-button:hover { background: #fff; transform: translateY(-2px); }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="tel"],
+    .form-group input[type="file"] { width: 100%; padding: 14px; background: #0a0a0a; border: 1px solid #333; border-radius: 4px; color: #ffffff; font-size: 1rem; font-family: inherit; transition: border-color 0.3s ease; }
+    .form-group input:focus { outline: none; border-color: #D4AF37; }
+    
+    /* Roles Checkboxes */
+    .roles-category { margin-bottom: 25px; }
+    .category-title { font-weight: 600; color: #D4AF37; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #2a2a2a; }
+    .role-checkboxes { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .role-checkbox { display: flex; align-items: center; padding: 12px 15px; background: #0a0a0a; border: 2px solid #2a2a2a; border-radius: 6px; cursor: pointer; transition: all 0.2s; user-select: none; }
+    .role-checkbox:hover { background: #1a1a1a; border-color: #D4AF37; }
+    .role-checkbox input[type="checkbox"] { width: 18px; height: 18px; margin-right: 10px; cursor: pointer; accent-color: #D4AF37; }
+    .role-checkbox label { margin: 0; font-weight: 400; font-size: 0.95rem; cursor: pointer; flex: 1; color: #bbb; }
+    .role-checkbox input[type="checkbox"]:checked ~ label { font-weight: 600; color: #D4AF37; }
+    
+    /* File Input Styling */
+    input[type="file"]::file-selector-button { padding: 12px 25px; background: #D4AF37; color: #1a1a1a; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; margin-right: 15px; transition: background 0.3s; }
+    input[type="file"]::file-selector-button:hover { background: #fff; }
+    
+    .info-box { background: rgba(212, 175, 55, 0.1); border-left: 3px solid #D4AF37; padding: 20px; margin: 25px 0; border-radius: 4px; color: #cccccc; font-size: 0.95rem; line-height: 1.7; }
+    .info-box strong { color: #D4AF37; display: block; margin-bottom: 8px; }
+    
+    .consent { display: flex; gap: 12px; align-items: flex-start; margin-top: 25px; font-size: 0.95rem; color: #bbb; }
+    .consent input[type="checkbox"] { width: 18px; height: 18px; margin-top: 3px; cursor: pointer; accent-color: #D4AF37; flex-shrink: 0; }
+    .consent a { color: #D4AF37; text-decoration: none; }
+    .consent a:hover { text-decoration: underline; }
+    
+    .submit-button { width: 100%; padding: 16px; background: #D4AF37; color: #1a1a1a; border: none; border-radius: 4px; font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.3s ease; margin-top: 20px; }
+    .submit-button:hover:not(:disabled) { background: #fff; transform: translateY(-2px); }
+    .submit-button:disabled { opacity: 0.6; cursor: not-allowed; }
+    
+    /* Success Message */
+    .success-message { display: none; background: rgba(212, 175, 55, 0.1); border: 2px solid #D4AF37; border-radius: 12px; padding: 50px 40px; text-align: center; margin: 40px 0; }
+    .success-message.show { display: block; animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .success-message .icon { font-size: 4rem; margin-bottom: 20px; }
+    .success-message h3 { font-size: 2rem; color: #D4AF37; margin-bottom: 15px; }
+    .success-message p { font-size: 1.1rem; color: #cccccc; line-height: 1.7; }
     
     footer { background: #0a0a0a; color: #D4AF37; padding: 40px 30px 25px; border-top: 1px solid rgba(212, 175, 55, 0.2); margin-top: 80px; }
     .footer-content { max-width: 1200px; margin: 0 auto; text-align: center; }
@@ -131,7 +166,7 @@
       <div class="intro-highlight">
         "If you join VERGO, you're not just another name on a list. You're part of building something 
         special - an agency that respects event professionals and delivers genuine quality to clients."
-        <br><br>- [Your Name], Founder
+        <br><br>- William, Founder
       </div>
     </div>
     
@@ -155,44 +190,44 @@
         </div>
         <div class="benefit-card">
           <span class="benefit-icon">📅</span>
-          <h3>Flexible Scheduling</h3>
-          <p>Book as much or as little as you want. No minimum commitments or exclusive contracts.</p>
-        </div>
-        <div class="benefit-card">
-          <span class="benefit-icon">⚡</span>
-          <h3>Last-Minute Premium</h3>
-          <p>Higher rates for short-notice bookings. Your flexibility is valued and compensated.</p>
+          <h3>Flexible Work</h3>
+          <p>Choose your availability. Work when it suits you, turn down what doesn't.</p>
         </div>
         <div class="benefit-card">
           <span class="benefit-icon">🚀</span>
-          <h3>Growing Agency</h3>
-          <p>Join early and grow with us. Opportunities for preferred placement and expanded roles.</p>
+          <h3>Growth Opportunities</h3>
+          <p>As VERGO grows, so do opportunities for regular work and advancement.</p>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-icon">🤝</span>
+          <h3>Respect & Recognition</h3>
+          <p>Your professionalism is valued. Great work leads to more bookings and better rates.</p>
         </div>
       </div>
     </div>
     
     <div class="roles-section">
-      <h2>Current Openings</h2>
+      <h2>Roles We're Hiring</h2>
       <div class="roles-grid">
         <div class="role-card">
           <h3>Front of House</h3>
-          <p>Professional hosts and greeters for premium events</p>
+          <p>Welcoming guests and creating excellent first impressions</p>
         </div>
         <div class="role-card">
-          <h3>Bartenders & Mixologists</h3>
-          <p>Experienced bar professionals for corporate and private events</p>
+          <h3>Bartenders</h3>
+          <p>Professional bar service and mixology</p>
         </div>
         <div class="role-card">
           <h3>Waiting Staff</h3>
-          <p>Attentive service professionals for high-end events</p>
+          <p>Attentive table service for events</p>
         </div>
         <div class="role-card">
           <h3>Event Coordinators</h3>
-          <p>Experienced coordinators for on-site event management</p>
+          <p>Managing events from setup to breakdown</p>
         </div>
         <div class="role-card">
           <h3>Kitchen Porters</h3>
-          <p>Reliable kitchen support for film, music, and event catering</p>
+          <p>Supporting kitchen operations at events</p>
         </div>
         <div class="role-card">
           <h3>Technical Crew</h3>
@@ -255,10 +290,24 @@
         Tell me about your experience and why you'd be a good fit. I personally review every application.
       </p>
       
-      <form class="application-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+      <div id="successMessage" class="success-message">
+        <div class="icon">✅</div>
+        <h3>Application Received!</h3>
+        <p>Thanks for applying! We'll review your application and get back to you within 2 weeks.</p>
+        <p style="margin-top: 20px; font-size: 0.95rem; color: #999;">
+          Keep an eye on your email (including spam folder) for updates.
+        </p>
+      </div>
+      
+      <form id="f" class="application-form">
         <div class="form-group">
-          <label for="name">Full Name *</label>
-          <input type="text" id="name" name="name" required>
+          <label for="firstName">First Name *</label>
+          <input type="text" id="firstName" name="firstName" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="lastName">Last Name *</label>
+          <input type="text" id="lastName" name="lastName" required>
         </div>
         
         <div class="form-group">
@@ -272,45 +321,151 @@
         </div>
         
         <div class="form-group">
-          <label for="role">Primary Role *</label>
-          <select id="role" name="role" required>
-            <option value="">Select your role...</option>
-            <option value="foh">Front of House</option>
-            <option value="bartender">Bartender / Mixologist</option>
-            <option value="waiter">Waiting Staff</option>
-            <option value="coordinator">Event Coordinator</option>
-            <option value="kp">Kitchen Porter</option>
-            <option value="tech">Technical Crew (AV/Lighting/Sound)</option>
-            <option value="chef">Chef / Culinary</option>
-            <option value="other">Other</option>
-          </select>
+          <label>
+            <input type="checkbox" id="rightToWorkUk" name="rightToWorkUk" style="width: auto; margin-right: 10px;" required>
+            I have the right to work in the UK *
+          </label>
+        </div>
+        
+        <!-- Role Selection -->
+        <div class="form-group">
+          <label>Select All Roles You Can Do * (check all that apply)</label>
+          
+          <div class="roles-category">
+            <div class="category-title">🍽️ Hospitality & Service</div>
+            <div class="role-checkboxes">
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-bartender" name="roles" value="Bartender" />
+                <label for="role-bartender">Bartender</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-mixologist" name="roles" value="Mixologist" />
+                <label for="role-mixologist">Mixologist</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-waiter" name="roles" value="Waiting Staff" />
+                <label for="role-waiter">Waiting Staff</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-foh" name="roles" value="Front of House (FOH)" />
+                <label for="role-foh">Front of House</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-host" name="roles" value="Host/Hostess" />
+                <label for="role-host">Host/Hostess</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-chef" name="roles" value="Chef" />
+                <label for="role-chef">Chef</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-sous" name="roles" value="Sous Chef" />
+                <label for="role-sous">Sous Chef</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-cdp" name="roles" value="Chef de Partie" />
+                <label for="role-cdp">Chef de Partie</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-kp" name="roles" value="Kitchen Porter (KP)" />
+                <label for="role-kp">Kitchen Porter</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-runner" name="roles" value="Runner" />
+                <label for="role-runner">Runner</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="roles-category">
+            <div class="category-title">🎪 Events & Production</div>
+            <div class="role-checkboxes">
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-event-mgr" name="roles" value="Event Manager" />
+                <label for="role-event-mgr">Event Manager</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-supervisor" name="roles" value="Event Supervisor" />
+                <label for="role-supervisor">Event Supervisor</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-stagehand" name="roles" value="Stagehand" />
+                <label for="role-stagehand">Stagehand</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-site-crew" name="roles" value="Site Crew" />
+                <label for="role-site-crew">Site Crew</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-rigger" name="roles" value="Rigger" />
+                <label for="role-rigger">Rigger</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-loader" name="roles" value="Loader" />
+                <label for="role-loader">Loader</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-av" name="roles" value="AV Technician" />
+                <label for="role-av">AV Technician</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-lighting" name="roles" value="Lighting Tech" />
+                <label for="role-lighting">Lighting Tech</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-sound" name="roles" value="Sound Tech" />
+                <label for="role-sound">Sound Tech</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="roles-category">
+            <div class="category-title">🏢 Venue & Operations</div>
+            <div class="role-checkboxes">
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-steward" name="roles" value="Steward" />
+                <label for="role-steward">Steward</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-security" name="roles" value="Security (SIA)" />
+                <label for="role-security">Security (SIA)</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-cleaner" name="roles" value="Cleaner" />
+                <label for="role-cleaner">Cleaner</label>
+              </div>
+              <div class="role-checkbox">
+                <input type="checkbox" id="role-driver" name="roles" value="Driver" />
+                <label for="role-driver">Driver</label>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div class="form-group">
-          <label for="experience">Years of Experience *</label>
-          <select id="experience" name="experience" required>
-            <option value="">Select...</option>
-            <option value="1-2">1-2 years</option>
-            <option value="3-5">3-5 years</option>
-            <option value="5-10">5-10 years</option>
-            <option value="10+">10+ years</option>
-          </select>
+          <label for="cv">Your CV (PDF or Word) *</label>
+          <input 
+            type="file" 
+            id="cv" 
+            name="cv"
+            accept=".pdf,.doc,.docx" 
+            required 
+          />
         </div>
         
-        <div class="form-group">
-          <label for="cv">CV / Resume *</label>
-          <textarea id="cv" name="cv" required placeholder="Paste your CV here, or key experience / roles..."></textarea>
+        <div class="info-box">
+          <strong>What happens next?</strong>
+          We review all applications within 48 hours. If you're a good fit, I'll reach out directly to discuss opportunities. Maximum file size: 10MB.
         </div>
         
-        <div class="form-group">
-          <label for="why">Why VERGO? *</label>
-          <textarea id="why" name="why" required placeholder="What interests you about working with VERGO?"></textarea>
-        </div>
-        
-        <div class="form-group">
-          <label for="availability">Current Availability</label>
-          <textarea id="availability" name="availability" placeholder="Days/times you're typically available..."></textarea>
-        </div>
+        <label class="consent">
+          <input type="checkbox" id="consent" required />
+          <span>
+            I agree to VERGO processing my personal data for the purpose of handling my
+            application, in line with the
+            <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.
+          </span>
+        </label>
         
         <button type="submit" class="submit-button">Submit Application</button>
       </form>
@@ -347,6 +502,149 @@
         menu.classList.remove('active');
       }
     });
+    
+    // Application form with S3 upload
+    (function () {
+      const form = document.getElementById('f');
+      if (!form) return;
+
+      async function presign(file) {
+        const body = { fileName: file.name, fileType: file.type || 'application/octet-stream' };
+        const res = await fetch('/api/v1/applications/presign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error('Failed to presign CV upload');
+        return res.json(); // Returns { url, key, applicantId }
+      }
+
+      async function uploadToS3(url, file) {
+        const up = await fetch(url, {
+          method: 'PUT',
+          headers: { 'Content-Type': file.type || 'application/octet-stream' },
+          body: file
+        });
+        if (!up.ok) throw new Error('S3 upload failed');
+      }
+
+      async function verifyUpload(key) {
+        const res = await fetch('/api/v1/applications/verify-upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key })
+        });
+        if (!res.ok) throw new Error('Failed to verify upload');
+        return res.json();
+      }
+
+      function getRoles() {
+        return Array.from(document.querySelectorAll('input[name="roles"]:checked')).map(x => x.value);
+      }
+
+      function bool(name) {
+        const el = form.querySelector(`[name="${name}"]`);
+        if (!el) return undefined;
+        if (el.type === 'checkbox') return el.checked;
+        return undefined;
+      }
+
+      function val(name) {
+        const el = form.querySelector(`[name="${name}"]`);
+        return el ? el.value.trim() : '';
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const btn = form.querySelector('[type="submit"]');
+        const originalText = btn.textContent;
+        if (btn) btn.disabled = true;
+        btn.textContent = 'Uploading CV...';
+
+        try {
+          // 0) Grab CV file
+          const fileInput = form.querySelector('input[type="file"]');
+          const file = fileInput && fileInput.files && fileInput.files[0];
+          if (!file) throw new Error('Please attach your CV');
+
+          // Validate file size
+          const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+          if (file.size > MAX_SIZE) {
+            throw new Error('CV file is too large. Maximum size is 10MB.');
+          }
+
+          // Validate roles selected
+          const roles = getRoles();
+          if (roles.length === 0) {
+            throw new Error('Please select at least one role');
+          }
+
+          // 1) Presign - Get URL, key, AND applicantId
+          console.log('Step 1: Getting presigned URL...');
+          const presignResponse = await presign(file);
+          const { url, key, applicantId } = presignResponse;
+          console.log('Got presigned URL and applicantId:', applicantId);
+
+          // 2) Upload to S3
+          console.log('Step 2: Uploading to S3...');
+          btn.textContent = 'Uploading CV to server...';
+          await uploadToS3(url, file);
+          console.log('Upload complete');
+
+          // 3) Verify upload
+          console.log('Step 3: Verifying upload...');
+          btn.textContent = 'Verifying upload...';
+          await verifyUpload(key);
+          console.log('Verification complete');
+
+          // 4) Submit application
+          console.log('Step 4: Submitting application...');
+          btn.textContent = 'Submitting application...';
+          const payload = {
+            applicantId: applicantId,  // CRITICAL: Include this!
+            firstName: val('firstName'),
+            lastName: val('lastName'),
+            email: val('email'),
+            phone: val('phone') || undefined,
+            rightToWorkUk: bool('rightToWorkUk'),
+            roles: roles,
+            cvKey: key,
+            cvOriginalName: file.name,
+            source: 'website'
+          };
+
+          console.log('Payload:', payload);
+
+          const res = await fetch('/api/v1/applications', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err?.error || 'Application submission failed');
+          }
+
+          console.log('Application submitted successfully!');
+          
+          // Show success message
+          form.style.display = 'none';
+          document.getElementById('successMessage').classList.add('show');
+          document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+        } catch (err) {
+          console.error('Application error:', err);
+          alert('⚠️ ' + (err.message || 'Something went wrong submitting your application.\n\nPlease try again or contact us at wrobb@vergoltd.com'));
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = originalText;
+          }
+        }
+      });
+    })();
   </script>
 </body>
 </html>

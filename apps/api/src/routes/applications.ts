@@ -9,7 +9,6 @@ import { S3Client, GetObjectCommand, DeleteObjectCommand, HeadObjectCommand } fr
 import { Readable } from 'stream';
 import rateLimit from 'express-rate-limit';
 import { env } from '../env';
-// ✅ ADDED: Import email functions
 import { sendApplicationNotificationEmail, sendApplicationConfirmationToApplicant } from '../services/email';
 
 const r = Router();
@@ -31,18 +30,25 @@ async function streamToBuffer(stream: Readable, maxBytes: number): Promise<Buffe
   return Buffer.concat(chunks);
 }
 
-// Store pending verification keys temporarily (in production use Redis)
-const pendingVerifications = new Map<string, { timestamp: number; applicantId: string }>();
-
-// Clean up old entries every 10 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, data] of pendingVerifications.entries()) {
-    if (now - data.timestamp > 10 * 60 * 1000) { // 10 minutes
-      pendingVerifications.delete(key);
+// ============================================
+// CLEANUP JOB - Delete expired verifications every 15 minutes
+// ============================================
+setInterval(async () => {
+  try {
+    const result = await prisma.fileUploadVerification.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date()
+        }
+      }
+    });
+    if (result.count > 0) {
+      console.log(`[CLEANUP] Deleted ${result.count} expired verification(s)`);
     }
+  } catch (error) {
+    console.error('[CLEANUP] Failed to delete expired verifications:', error);
   }
-}, 10 * 60 * 1000);
+}, 15 * 60 * 1000);
 
 // ============================================
 // RATE LIMITERS
@@ -59,7 +65,9 @@ const verifyLimiter = rateLimit({
   message: { error: 'Too many verification requests. Please try again in a minute.' }
 });
 
-// ---- Presign for CV upload
+// ============================================
+// PRESIGN FOR CV UPLOAD
+// ============================================
 const presignBody = z.object({
   fileName: z.string().min(3).max(255),
   fileType: z.string().min(3).max(100)
@@ -80,15 +88,21 @@ r.post('/presign', presignLimiter, async (req, res, next) => {
     const key = `cv/${now.getFullYear()}/${now.getMonth() + 1}/${applicantId}/${randomUUID()}.${ext}`;
     const { url } = await presignUpload(key, fileType);
 
-    // Store this key as pending verification (attestation)
-    pendingVerifications.set(key, { timestamp: Date.now(), applicantId });
+    // ✅ Store in database instead of Map
+    await prisma.fileUploadVerification.create({
+      data: {
+        key,
+        applicantId,
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+      }
+    });
 
     res.json({ url, key, applicantId });
   } catch (e) { next(e); }
 });
 
 // ============================================
-// VERIFY UPLOADED FILE (with attestation check)
+// VERIFY UPLOADED FILE (with database attestation check)
 // ============================================
 const verifyBody = z.object({
   key: z.string().min(1).max(500)
@@ -98,17 +112,33 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
   try {
     const { key } = verifyBody.parse(req.body);
     
-    // 1. Check if this key was issued by us recently (attestation)
-    const pendingData = pendingVerifications.get(key);
-    if (!pendingData) {
+    // 1. Check database for this key (replaces Map check)
+    const verification = await prisma.fileUploadVerification.findUnique({
+      where: { key }
+    });
+    
+    if (!verification) {
       return res.status(403).json({ 
         error: 'Invalid or expired verification request' 
       });
     }
 
-    // 2. Validate key prefix (must start with cv/)
+    // Check if expired
+    if (verification.expiresAt < new Date()) {
+      return res.status(403).json({ 
+        error: 'Verification expired. Please upload again.' 
+      });
+    }
+
+    // Check if already verified
+    if (verification.verified) {
+      return res.status(400).json({ 
+        error: 'This file has already been verified' 
+      });
+    }
+
+    // 2. Validate key prefix
     if (!key.startsWith('cv/')) {
-      pendingVerifications.delete(key);
       return res.status(400).json({ error: 'Invalid key format' });
     }
 
@@ -129,13 +159,11 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
           Bucket: env.s3Bucket, 
           Key: key 
         }));
-        pendingVerifications.delete(key);
         return res.status(400).json({ 
           error: 'File too large. Maximum size is 10MB.' 
         });
       }
     } catch (headError: any) {
-      pendingVerifications.delete(key);
       if (headError.name === 'NotFound') {
         return res.status(404).json({ error: 'File not found' });
       }
@@ -152,7 +180,6 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
     const response = await s3.send(getCmd);
     
     if (!response.Body) {
-      pendingVerifications.delete(key);
       return res.status(400).json({ error: 'File not found' });
     }
 
@@ -175,15 +202,18 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
         Key: key 
       });
       await s3.send(deleteCmd);
-      pendingVerifications.delete(key);
       
       return res.status(400).json({ 
         error: 'Invalid file type. Only PDF and Word documents are allowed.' 
       });
     }
     
-    // Success - remove from pending and allow application creation
-    pendingVerifications.delete(key);
+    // ✅ Mark as verified in database
+    await prisma.fileUploadVerification.update({
+      where: { key },
+      data: { verified: true }
+    });
+    
     res.json({ ok: true, fileType: type.mime });
   } catch (error) {
     console.error('File verification error:', error);
@@ -191,7 +221,9 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
   }
 });
 
-// ---- Create application WITH EMAIL NOTIFICATIONS ✅
+// ============================================
+// CREATE APPLICATION WITH EMAIL NOTIFICATIONS
+// ============================================
 const createBody = z.object({
   applicantId: z.string().uuid(),
   firstName: z.string().min(1).max(100).trim(),
@@ -212,6 +244,17 @@ r.post('/', async (req, res, next) => {
     // Ensure cvKey has valid prefix
     if (!d.cvKey.startsWith('cv/')) {
       return res.status(400).json({ error: 'Invalid CV key' });
+    }
+
+    // ✅ Verify the file was properly verified
+    const verification = await prisma.fileUploadVerification.findUnique({
+      where: { key: d.cvKey }
+    });
+
+    if (!verification || !verification.verified) {
+      return res.status(400).json({ 
+        error: 'CV must be verified before creating application' 
+      });
     }
 
     const app = await prisma.application.create({
@@ -253,7 +296,7 @@ r.post('/', async (req, res, next) => {
       }
     });
 
-    // ✅ ADDED: Send email notifications (async, don't wait)
+    // Send email notifications (async, don't wait)
     // Send to admin
     sendApplicationNotificationEmail({
       applicantName: `${d.firstName} ${d.lastName}`,
@@ -281,7 +324,9 @@ r.post('/', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// ---- List apps (admin)
+// ============================================
+// LIST APPLICATIONS (ADMIN)
+// ============================================
 r.get('/', adminAuth, async (req, res, next) => {
   try {
     const apps = await prisma.application.findMany({
@@ -315,7 +360,9 @@ r.get('/', adminAuth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// ---- Get CV link (admin)
+// ============================================
+// GET CV LINK (ADMIN)
+// ============================================
 r.get('/:id/cv', adminAuth, async (req, res, next) => {
   try {
     const app = await prisma.application.findUnique({ where: { id: req.params.id } });
@@ -326,7 +373,9 @@ r.get('/:id/cv', adminAuth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// ---- Get one application (admin)
+// ============================================
+// GET ONE APPLICATION (ADMIN)
+// ============================================
 r.get('/:id', adminAuth, async (req, res, next) => {
   try {
     const app = await prisma.application.findUnique({
@@ -345,7 +394,9 @@ r.get('/:id', adminAuth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// ---- Update status (admin)
+// ============================================
+// UPDATE STATUS (ADMIN)
+// ============================================
 const updateStatusBody = z.object({
   status: z.enum(['RECEIVED','REVIEWING','SHORTLISTED','REJECTED','HIRED'])
 });

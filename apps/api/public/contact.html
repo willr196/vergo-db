@@ -34,30 +34,68 @@
     .offer-list li { padding: 12px 0 12px 35px; position: relative; color: #cccccc; font-size: 1.1rem; }
     .offer-list li::before { content: '🎁'; position: absolute; left: 0; font-size: 1.2rem; }
     
-    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-bottom: 80px; }
+    /* Tab Navigation */
+    .tab-container { background: #1a1a1a; border-radius: 8px; overflow: hidden; border: 1px solid rgba(212, 175, 55, 0.2); margin-bottom: 80px; }
+    .tabs { display: flex; background: #0a0a0a; border-bottom: 2px solid rgba(212, 175, 55, 0.2); }
+    .tab { flex: 1; padding: 25px 20px; text-align: center; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; color: #999; border-bottom: 3px solid transparent; user-select: none; }
+    .tab:hover { background: rgba(212, 175, 55, 0.05); color: #D4AF37; }
+    .tab.active { color: #D4AF37; background: #1a1a1a; border-bottom: 3px solid #D4AF37; }
+    .tab-icon { font-size: 1.8rem; display: block; margin-bottom: 8px; }
     
-    .contact-form-section h2 { font-size: 2.2rem; color: #D4AF37; margin-bottom: 30px; }
-    .contact-form { background: #1a1a1a; padding: 40px; border-radius: 8px; border-left: 4px solid #D4AF37; }
+    .tab-content { display: none; padding: 50px 40px; }
+    .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .form-intro { text-align: center; margin-bottom: 40px; }
+    .form-intro h2 { font-size: 2rem; color: #D4AF37; margin-bottom: 15px; }
+    .form-intro p { color: #999; font-size: 1.1rem; }
+    
     .form-group { margin-bottom: 25px; }
     .form-group label { display: block; margin-bottom: 8px; color: #D4AF37; font-weight: 600; font-size: 0.95rem; }
     .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 14px; background: #0a0a0a; border: 1px solid #333; border-radius: 4px; color: #ffffff; font-size: 1rem; font-family: inherit; transition: border-color 0.3s ease; }
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #D4AF37; }
     .form-group textarea { min-height: 150px; resize: vertical; }
-    .submit-button { width: 100%; padding: 16px; background: #D4AF37; color: #1a1a1a; border: none; border-radius: 4px; font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.3s ease; }
-    .submit-button:hover { background: #fff; transform: translateY(-2px); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     
-    .direct-contact h2 { font-size: 2.2rem; color: #D4AF37; margin-bottom: 30px; }
-    .contact-methods { display: flex; flex-direction: column; gap: 30px; }
-    .contact-method { background: #1a1a1a; padding: 30px; border-radius: 8px; border-left: 4px solid #D4AF37; }
-    .contact-method h3 { font-size: 1.4rem; color: #D4AF37; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+    /* Role Checkboxes */
+    .roles-section { margin: 30px 0; }
+    .role-category { margin-bottom: 25px; }
+    .category-header { font-weight: 600; color: #D4AF37; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid rgba(212, 175, 55, 0.2); }
+    .roles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .role-checkbox-label { display: flex; align-items: center; padding: 12px 15px; background: #0a0a0a; border: 2px solid #2a2a2a; border-radius: 6px; cursor: pointer; transition: all 0.2s; user-select: none; }
+    .role-checkbox-label:hover { background: #1a1a1a; border-color: #D4AF37; }
+    .role-checkbox-label input[type="checkbox"] { width: 18px; height: 18px; margin-right: 10px; cursor: pointer; accent-color: #D4AF37; }
+    .role-checkbox-label span { color: #bbb; font-size: 0.95rem; }
+    .role-checkbox-label input[type="checkbox"]:checked ~ span { font-weight: 600; color: #D4AF37; }
+    
+    .submit-button { width: 100%; padding: 16px; background: #D4AF37; color: #1a1a1a; border: none; border-radius: 4px; font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.3s ease; margin-top: 20px; }
+    .submit-button:hover:not(:disabled) { background: #fff; transform: translateY(-2px); }
+    .submit-button:disabled { opacity: 0.6; cursor: not-allowed; }
+    
+    /* Honeypot - MUST BE HIDDEN */
+    .honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    
+    /* Direct Contact Section */
+    .direct-contact { background: #1a1a1a; padding: 60px 50px; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.2); }
+    .direct-contact h2 { font-size: 2.2rem; color: #D4AF37; margin-bottom: 30px; text-align: center; }
+    .contact-methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+    .contact-method { background: #0a0a0a; padding: 30px; border-radius: 8px; border-left: 4px solid #D4AF37; text-align: center; }
+    .contact-method h3 { font-size: 1.4rem; color: #D4AF37; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
     .contact-method p { color: #cccccc; margin-bottom: 10px; line-height: 1.7; }
-    .contact-method a { color: #D4AF37; text-decoration: none; font-weight: 600; }
+    .contact-method a { color: #D4AF37; text-decoration: none; font-weight: 600; font-size: 1.2rem; }
     .contact-method a:hover { text-decoration: underline; }
     
     .guarantee-box { background: rgba(212, 175, 55, 0.05); border: 2px solid #D4AF37; border-radius: 12px; padding: 40px; text-align: center; margin: 60px 0; }
     .guarantee-badge { width: 80px; height: 80px; background: #D4AF37; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; }
     .guarantee-box h3 { font-size: 2rem; color: #D4AF37; margin-bottom: 15px; }
     .guarantee-box p { font-size: 1.1rem; color: #cccccc; line-height: 1.7; }
+    
+    /* Success Message */
+    .success-message { display: none; background: rgba(212, 175, 55, 0.1); border: 2px solid #D4AF37; border-radius: 12px; padding: 40px; text-align: center; margin: 30px 0; }
+    .success-message.show { display: block; animation: fadeIn 0.5s ease; }
+    .success-message .icon { font-size: 4rem; margin-bottom: 20px; }
+    .success-message h3 { font-size: 2rem; color: #D4AF37; margin-bottom: 15px; }
+    .success-message p { font-size: 1.1rem; color: #cccccc; line-height: 1.7; }
     
     footer { background: #0a0a0a; color: #D4AF37; padding: 40px 30px 25px; border-top: 1px solid rgba(212, 175, 55, 0.2); margin-top: 80px; }
     .footer-content { max-width: 1200px; margin: 0 auto; text-align: center; }
@@ -70,7 +108,7 @@
       nav ul { position: fixed; top: 80px; left: 0; right: 0; background: rgba(10, 10, 10, 0.98); flex-direction: column; padding: 30px; gap: 20px; transform: translateX(-100%); transition: transform 0.3s ease; }
       nav ul.active { transform: translateX(0); }
       .menu-toggle { display: flex; }
-      .content-grid { grid-template-columns: 1fr; gap: 40px; }
+      .form-row { grid-template-columns: 1fr; }
     }
     
     @media (max-width: 768px) {
@@ -79,9 +117,11 @@
       .page-hero { padding: 140px 20px 60px; }
       .page-hero h1 { font-size: 2.5rem; }
       .container { padding: 60px 20px; }
-      .offer-banner { padding: 30px 20px; }
-      .contact-form, .contact-method { padding: 25px 20px; }
+      .offer-banner, .tab-content, .direct-contact { padding: 30px 20px; }
       .footer-links a { display: block; margin: 12px 0; }
+      .tabs { flex-direction: column; }
+      .tab { border-bottom: none; border-left: 3px solid transparent; }
+      .tab.active { border-left: 3px solid #D4AF37; border-bottom: none; }
     }
   </style>
 </head>
@@ -106,7 +146,7 @@
   <div class="page-hero">
     <div class="hero-badge">🚀 Founding Client Offer Available</div>
     <h1>Get Started with VERGO</h1>
-    <p>Direct access to founder with 8+ years experience. Same-day quotes. Zero-risk guarantee.</p>
+    <p>Direct access to founder with 8+ years experience. Average response time: 2 hours. Zero-risk guarantee.</p>
   </div>
   
   <div class="container">
@@ -116,97 +156,297 @@
       <div class="offer-list">
         <ul>
           <li>30% off your first 3 bookings</li>
-          <li>100% satisfaction guarantee (refund + free replacement)</li>
           <li>Priority scheduling and last-minute availability</li>
           <li>Direct 24/7 access to founder's mobile</li>
+          <li>Free consultation and event planning support</li>
           <li>Founding client rates locked in for 12 months</li>
         </ul>
       </div>
-      <p style="font-size: 1rem; color: #999; margin-top: 20px;">Limited to first 10 clients • Some restrictions apply</p>
+      <p style="font-size: 0.9rem; color: #999; margin-top: 20px;">Limited to first 10 clients</p>
     </div>
     
-    <div class="content-grid">
-      <div class="contact-form-section">
-        <h2>Request a Quote</h2>
-        <form class="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
-          <div class="form-group">
-            <label for="name">Your Name *</label>
-            <input type="text" id="name" name="name" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="email">Email Address *</label>
-            <input type="email" id="email" name="email" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="phone">Phone Number</label>
-            <input type="tel" id="phone" name="phone">
-          </div>
-          
-          <div class="form-group">
-            <label for="service">Service Needed *</label>
-            <select id="service" name="service" required>
-              <option value="">Select a service...</option>
-              <option value="event-management">Event Management</option>
-              <option value="staff-hire">Staff Hire</option>
-              <option value="both">Both Services</option>
-              <option value="other">Other / Not Sure</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label for="date">Event Date</label>
-            <input type="date" id="date" name="date">
-          </div>
-          
-          <div class="form-group">
-            <label for="message">Tell Us About Your Event *</label>
-            <textarea id="message" name="message" required placeholder="Event type, number of guests, location, specific needs..."></textarea>
-          </div>
-          
-          <button type="submit" class="submit-button">Get My Quote</button>
-        </form>
+    <!-- Tab Navigation -->
+    <div class="tab-container">
+      <div class="tabs">
+        <div class="tab active" data-tab="events">
+          <span class="tab-icon">🎉</span>
+          Event Enquiry
+        </div>
+        <div class="tab" data-tab="staff">
+          <span class="tab-icon">👥</span>
+          Staff Request
+        </div>
+        <div class="tab" data-tab="general">
+          <span class="tab-icon">💬</span>
+          General Enquiry
+        </div>
       </div>
       
-      <div class="direct-contact">
-        <h2>Contact Founder Directly</h2>
-        
-        <div class="contact-methods">
-          <div class="contact-method">
-            <h3>📞 Phone</h3>
-            <p><strong>Founder Direct:</strong></p>
-            <a href="tel:+44XXXXXXXXXX">+44 (0) 20 XXXX XXXX</a>
-            <p style="margin-top: 10px; font-size: 0.9rem; color: #999;">Available 24/7 for urgent needs</p>
-          </div>
-          
-          <div class="contact-method">
-            <h3>✉️ Email</h3>
-            <p><strong>Get in touch:</strong></p>
-            <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
-            <p style="margin-top: 10px; font-size: 0.9rem; color: #999;">Responses within 24 hours</p>
-          </div>
-          
-          <div class="contact-method">
-            <h3>💼 LinkedIn</h3>
-            <p><strong>Connect professionally:</strong></p>
-            <a href="https://linkedin.com/in/yourprofile" target="_blank">View Profile</a>
-            <p style="margin-top: 10px; font-size: 0.9rem; color: #999;">See my 8+ years experience</p>
-          </div>
-          
-          <div class="contact-method">
-            <h3>📍 Location</h3>
-            <p><strong>Based in:</strong></p>
-            <p>London, United Kingdom</p>
-            <p style="margin-top: 10px; font-size: 0.9rem; color: #999;">Serving all London events</p>
-          </div>
+      <!-- EVENT ENQUIRY FORM -->
+      <div id="eventsTab" class="tab-content active">
+        <div class="form-intro">
+          <h2>Request Event Management</h2>
+          <p>Tell us about your event and we'll get back to you within 24 hours with a custom quote.</p>
         </div>
         
-        <div class="guarantee-box" style="margin-top: 40px;">
-          <div class="guarantee-badge">💯</div>
-          <h3>100% Guaranteed</h3>
-          <p>Not satisfied? Full refund + free replacement staff. No questions asked.</p>
+        <form id="eventsForm">
+          <!-- Honeypot -->
+          <input type="text" name="website" class="honeypot" tabindex="-1" autocomplete="off">
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="event-name">Your Name *</label>
+              <input type="text" id="event-name" name="name" required>
+            </div>
+            <div class="form-group">
+              <label for="event-email">Email *</label>
+              <input type="email" id="event-email" name="email" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="event-phone">Phone Number (optional)</label>
+            <input type="tel" id="event-phone" name="phone" placeholder="+44 7944 505 783"">
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="event-type">Event Type *</label>
+              <select id="event-type" name="eventType" required>
+                <option value="">Select type...</option>
+                <option value="corporate">Corporate Event</option>
+                <option value="wedding">Wedding</option>
+                <option value="private">Private Party</option>
+                <option value="music">Music Event</option>
+                <option value="charity">Charity Event</option>
+                <option value="festival">Festival</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="event-date">Preferred Date (optional)</label>
+              <input type="date" id="event-date" name="date">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="event-guests">Expected Guests (optional)</label>
+            <input type="number" id="event-guests" name="guests" min="1" placeholder="e.g. 100">
+          </div>
+          
+          <div class="form-group">
+            <label for="event-message">Tell Us About Your Event *</label>
+            <textarea id="event-message" name="message" required placeholder="Event details, venue, specific requirements..."></textarea>
+          </div>
+          
+          <button type="submit" class="submit-button">Send Enquiry</button>
+        </form>
+        
+        <div id="eventsSuccess" class="success-message">
+          <div class="icon">✅</div>
+          <h3>Enquiry Received!</h3>
+          <p>Thanks for reaching out! We'll review your event details and get back to you within 24 hours with a custom quote.</p>
         </div>
+      </div>
+      
+      <!-- STAFF REQUEST FORM -->
+      <div id="staffTab" class="tab-content">
+        <div class="form-intro">
+          <h2>Request Event Staff</h2>
+          <p>Need bartenders, servers, or other event staff? Tell us what you need and when.</p>
+        </div>
+        
+        <form id="staffForm">
+          <!-- Honeypot -->
+          <input type="text" name="website" class="honeypot" tabindex="-1" autocomplete="off">
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="staff-name">Your Name *</label>
+              <input type="text" id="staff-name" name="name" required>
+            </div>
+            <div class="form-group">
+              <label for="staff-email">Email *</label>
+              <input type="email" id="staff-email" name="email" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="staff-phone">Phone Number (optional)</label>
+              <input type="tel" id="staff-phone" name="phone" placeholder="+44 7700 900000">
+            </div>
+            <div class="form-group">
+              <label for="staff-company">Company Name *</label>
+              <input type="text" id="staff-company" name="company" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="staff-date">Event Date *</label>
+              <input type="date" id="staff-date" name="date" required>
+            </div>
+            <div class="form-group">
+              <label for="staff-count">Number of Staff Needed *</label>
+              <input type="number" id="staff-count" name="staffCount" required min="1" placeholder="e.g. 5">
+            </div>
+          </div>
+          
+          <div class="roles-section">
+            <label style="display: block; margin-bottom: 20px; color: #D4AF37; font-weight: 600;">Select Roles Needed *</label>
+            
+            <div class="role-category">
+              <div class="category-header">Hospitality</div>
+              <div class="roles-grid">
+                <label class="role-checkbox-label">
+                  <input type="checkbox" name="roles" value="Bartender">
+                  <span>Bartender</span>
+                </label>
+                <label class="role-checkbox-label">
+                  <input type="checkbox" name="roles" value="Server">
+                  <span>Server</span>
+                </label>
+                <label class="role-checkbox-label">
+                  <input type="checkbox" name="roles" value="Chef">
+                  <span>Chef</span>
+                </label>
+                <label class="role-checkbox-label">
+                  <input type="checkbox" name="roles" value="Kitchen Porter">
+                  <span>Kitchen Porter</span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="role-category">
+              <div class="category-header">Events & Production</div>
+              <div class="roles-grid">
+                <label class="role-checkbox-label">
+                  <input type="checkbox" name="roles" value="Event Manager">
+                  <span>Event Manager</span>
+                </label>
+                <label class="role-checkbox-label">
+                  <input type="checkbox" name="roles" value="Coordinator">
+                  <span>Coordinator</span>
+                </label>
+                <label class="role-checkbox-label">
+                  <input type="checkbox" name="roles" value="Stagehand">
+                  <span>Stagehand</span>
+                </label>
+                <label class="role-checkbox-label">
+                  <input type="checkbox" name="roles" value="AV Tech">
+                  <span>AV Tech</span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="role-category">
+              <div class="category-header">Front of House</div>
+              <div class="roles-grid">
+                <label class="role-checkbox-label">
+                  <input type="checkbox" name="roles" value="Host">
+                  <span>Host</span>
+                </label>
+                <label class="role-checkbox-label">
+                  <input type="checkbox" name="roles" value="Greeter">
+                  <span>Greeter</span>
+                </label>
+                <label class="role-checkbox-label">
+                  <input type="checkbox" name="roles" value="Security">
+                  <span>Security</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="staff-message">Additional Details *</label>
+            <textarea id="staff-message" name="message" required placeholder="Event type, venue, specific requirements, timing..."></textarea>
+          </div>
+          
+          <button type="submit" class="submit-button">Request Quote</button>
+        </form>
+        
+        <div id="staffSuccess" class="success-message">
+          <div class="icon">✅</div>
+          <h3>Request Received!</h3>
+          <p>Thanks! We'll review your staffing needs and send you a detailed quote within 24 hours.</p>
+        </div>
+      </div>
+      
+      <!-- GENERAL ENQUIRY FORM -->
+      <div id="generalTab" class="tab-content">
+        <div class="form-intro">
+          <h2>General Enquiry</h2>
+          <p>Have a question? Want to learn more about our services? Get in touch.</p>
+        </div>
+        
+        <form id="generalForm">
+          <!-- Honeypot -->
+          <input type="text" name="website" class="honeypot" tabindex="-1" autocomplete="off">
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="general-name">Your Name *</label>
+              <input type="text" id="general-name" name="name" required>
+            </div>
+            <div class="form-group">
+              <label for="general-email">Email *</label>
+              <input type="email" id="general-email" name="email" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="general-subject">Subject *</label>
+            <input type="text" id="general-subject" name="subject" required placeholder="What's this about?">
+          </div>
+          
+          <div class="form-group">
+            <label for="general-message">Message *</label>
+            <textarea id="general-message" name="message" required placeholder="Your message here..."></textarea>
+          </div>
+          
+          <button type="submit" class="submit-button">Send Message</button>
+        </form>
+        
+        <div id="generalSuccess" class="success-message">
+          <div class="icon">✅</div>
+          <h3>Message Sent!</h3>
+          <p>Thanks for getting in touch! We'll respond to your enquiry as soon as possible.</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Direct Contact Section -->
+    <div class="direct-contact">
+      <h2>Or Contact Us Directly</h2>
+      <div class="contact-methods">
+        <div class="contact-method">
+          <h3>📞 Phone</h3>
+          <p><strong>Founder Direct:</strong></p>
+          <a href="tel:+447700900000">+44 7700 900000</a>
+          <p style="margin-top: 15px; font-size: 0.9rem; color: #999;">Available 24/7 for urgent needs</p>
+        </div>
+        
+        <div class="contact-method">
+          <h3>✉️ Email</h3>
+          <p><strong>Get in touch:</strong></p>
+          <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
+          <p style="margin-top: 15px; font-size: 0.9rem; color: #999;">Responses within 24 hours</p>
+        </div>
+        
+        <div class="contact-method">
+          <h3>📍 Location</h3>
+          <p><strong>Based in:</strong></p>
+          <p style="font-size: 1.2rem; font-weight: 600; margin-top: 10px;">London, UK</p>
+          <p style="margin-top: 15px; font-size: 0.9rem; color: #999;">Serving all London events</p>
+        </div>
+      </div>
+      
+      <div class="guarantee-box" style="margin-top: 50px;">
+        <div class="guarantee-badge">💯</div>
+        <h3>100% Satisfaction Guaranteed</h3>
+        <p>Not happy with our service? Full refund + free replacement staff. No questions asked.</p>
       </div>
     </div>
   </div>
@@ -234,6 +474,7 @@
       const menu = document.getElementById('nav-menu');
       menu.classList.toggle('active');
     }
+    
     document.addEventListener('click', function(event) {
       const menu = document.getElementById('nav-menu');
       const header = document.querySelector('header');
@@ -241,6 +482,150 @@
         menu.classList.remove('active');
       }
     });
+    
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        const tabName = this.getAttribute('data-tab');
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById(tabName + 'Tab').classList.add('active');
+      });
+    });
+    
+    // Form submission handlers
+    document.getElementById('eventsForm').addEventListener('submit', handleSubmit);
+    document.getElementById('staffForm').addEventListener('submit', handleSubmit);
+    document.getElementById('generalForm').addEventListener('submit', handleSubmit);
+    
+    async function handleSubmit(e) {
+      e.preventDefault();
+      
+      const form = e.target;
+      const formData = new FormData(form);
+      
+      // Honeypot check
+      if (formData.get('website')) {
+        console.log('Honeypot triggered');
+        return;
+      }
+      
+      // Build payload
+      const data = {};
+      
+      // Get all form fields except roles and honeypot
+      for (const [key, value] of formData.entries()) {
+        if (key === 'roles' || key === 'website') continue;
+        const trimmed = typeof value === 'string' ? value.trim() : value;
+        if (trimmed) { // Only include non-empty values
+          data[key] = trimmed;
+        }
+      }
+      
+      // Handle form-specific fields
+      if (form.id === 'eventsForm') {
+        // Convert guests to number if provided
+        if (data.guests) {
+          const guestsNum = parseInt(data.guests, 10);
+          if (!isNaN(guestsNum) && guestsNum > 0) {
+            data.guests = guestsNum;
+          } else {
+            delete data.guests;
+          }
+        }
+      }
+      
+      if (form.id === 'staffForm') {
+        // Collect selected roles
+        const roles = Array.from(form.querySelectorAll('input[name="roles"]:checked'))
+          .map(cb => cb.value)
+          .filter(Boolean);
+        
+        if (roles.length === 0) {
+          alert('Please select at least one role');
+          return;
+        }
+        data.roles = roles;
+        
+        // Convert staffCount to number
+        if (data.staffCount) {
+          const count = parseInt(data.staffCount, 10);
+          if (!isNaN(count) && count > 0) {
+            data.staffCount = count;
+          } else {
+            alert('Please enter a valid number of staff');
+            return;
+          }
+        }
+      }
+      
+      // Determine endpoint
+      let endpoint = '';
+      let successElementId = '';
+      
+      if (form.id === 'eventsForm') {
+        endpoint = '/api/v1/contact/event-enquiry';
+        successElementId = 'eventsSuccess';
+      } else if (form.id === 'staffForm') {
+        endpoint = '/api/v1/contact/staff-request';
+        successElementId = 'staffSuccess';
+      } else {
+        endpoint = '/api/v1/contact/general';
+        successElementId = 'generalSuccess';
+      }
+      
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      
+      try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        
+        console.log('Sending to:', endpoint);
+        console.log('Payload:', data);
+        
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        const contentType = response.headers.get('content-type');
+        let result = {};
+        
+        if (contentType && contentType.includes('application/json')) {
+          result = await response.json();
+        }
+        
+        if (response.ok) {
+          // Success!
+          form.style.display = 'none';
+          const successEl = document.getElementById(successElementId);
+          if (successEl) {
+            successEl.classList.add('show');
+            successEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+          form.reset();
+        } else {
+          // Handle validation errors
+          if (result.details && Array.isArray(result.details)) {
+            const errors = result.details
+              .map(err => `${(err.path || []).join('.')}: ${err.message}`)
+              .join('\n');
+            alert('Validation failed:\n\n' + errors);
+          } else {
+            alert(result.error || 'Something went wrong. Please try again.');
+          }
+        }
+      } catch (err) {
+        console.error('Submission error:', err);
+        alert('Connection error. Please check your internet and try again.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    }
   </script>
 </body>
 </html>
