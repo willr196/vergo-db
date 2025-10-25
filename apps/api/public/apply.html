@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Join Our Team - VERGO Events | Personally Vetted by Founder</title>
   <meta name="description" content="Join VERGO's growing team of event professionals. Every team member personally vetted by founder with 8+ years experience. Premium rates. Quality clients.">
+  
+  <!-- Security Headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+  
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #ffffff; line-height: 1.7; }
@@ -16,7 +21,10 @@
     nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: #D4AF37; transition: width 0.3s ease; }
     nav a:hover { color: #D4AF37; }
     nav a:hover::after { width: 100%; }
-    .menu-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+    nav a:focus-visible { outline: 3px solid #D4AF37; outline-offset: 4px; border-radius: 2px; }
+    
+    .menu-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; border: none; background: transparent; padding: 8px; }
+    .menu-toggle:focus-visible { outline: 3px solid #D4AF37; outline-offset: 2px; }
     .menu-toggle span { width: 25px; height: 2px; background: #D4AF37; }
     
     .page-hero { text-align: center; padding: 180px 40px 80px; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
@@ -61,11 +69,13 @@
     
     .form-group { margin-bottom: 25px; }
     .form-group label { display: block; margin-bottom: 8px; color: #D4AF37; font-weight: 600; font-size: 0.95rem; }
+    .form-group label .required { color: #dc3545; margin-left: 4px; }
     .form-group input[type="text"],
     .form-group input[type="email"],
     .form-group input[type="tel"],
     .form-group input[type="file"] { width: 100%; padding: 14px; background: #0a0a0a; border: 1px solid #333; border-radius: 4px; color: #ffffff; font-size: 1rem; font-family: inherit; transition: border-color 0.3s ease; }
     .form-group input:focus { outline: none; border-color: #D4AF37; }
+    .form-group input:focus-visible { outline: 3px solid #D4AF37; outline-offset: 2px; }
     
     /* Roles Checkboxes */
     .roles-category { margin-bottom: 25px; }
@@ -91,6 +101,7 @@
     
     .submit-button { width: 100%; padding: 16px; background: #D4AF37; color: #1a1a1a; border: none; border-radius: 4px; font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.3s ease; margin-top: 20px; }
     .submit-button:hover:not(:disabled) { background: #fff; transform: translateY(-2px); }
+    .submit-button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
     .submit-button:disabled { opacity: 0.6; cursor: not-allowed; }
     
     /* Success Message */
@@ -126,19 +137,22 @@
       .footer-links a { display: block; margin: 12px 0; }
     }
   </style>
+  
+  <!-- Load accessibility styles -->
+  <link rel="stylesheet" href="/vergo-a11y.css">
 </head>
 <body>
-  <header>
-    <a href="index.html" class="logo">VERGO</a>
-    <div class="menu-toggle" onclick="toggleMenu()">
+  <header role="banner">
+    <a href="index.html" class="logo" aria-label="VERGO Events Home">VERGO</a>
+    <button class="menu-toggle" onclick="toggleMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">
       <span></span><span></span><span></span>
-    </div>
-    <nav>
+    </button>
+    <nav role="navigation" aria-label="Main navigation">
       <ul id="nav-menu">
         <li><a href="index.html">Home</a></li>
         <li><a href="hire-us.html">Event Management</a></li>
         <li><a href="hire-staff.html">Hire Staff</a></li>
-        <li><a href="apply.html">Join Us</a></li>
+        <li><a href="apply.html" aria-current="page">Join Us</a></li>
         <li><a href="about.html">About</a></li>
         <li><a href="contact.html">Contact</a></li>
       </ul>
@@ -151,7 +165,7 @@
     <p>Work with London's newest premium event agency. Every team member personally vetted by founder with 8+ years experience. Quality clients. Professional rates.</p>
   </div>
   
-  <div class="container">
+  <main id="main-content" class="container">
     <div class="intro-section">
       <h2>Why I'm Building VERGO Differently</h2>
       <p>
@@ -174,32 +188,32 @@
       <h2>Why Work With VERGO?</h2>
       <div class="benefits-grid">
         <div class="benefit-card">
-          <span class="benefit-icon">💰</span>
+          <span class="benefit-icon" aria-hidden="true">💰</span>
           <h3>Competitive Rates</h3>
           <p>Premium rates that reflect your professional value. We don't undercut - we pay well.</p>
         </div>
         <div class="benefit-card">
-          <span class="benefit-icon">🎯</span>
+          <span class="benefit-icon" aria-hidden="true">🎯</span>
           <h3>Quality Clients</h3>
           <p>Work with corporate, film, music, and high-end private events. No bottom-tier bookings.</p>
         </div>
         <div class="benefit-card">
-          <span class="benefit-icon">👤</span>
+          <span class="benefit-icon" aria-hidden="true">👤</span>
           <h3>Personal Relationship</h3>
           <p>Direct communication with founder. No bureaucracy or going through layers of management.</p>
         </div>
         <div class="benefit-card">
-          <span class="benefit-icon">📅</span>
+          <span class="benefit-icon" aria-hidden="true">📅</span>
           <h3>Flexible Work</h3>
           <p>Choose your availability. Work when it suits you, turn down what doesn't.</p>
         </div>
         <div class="benefit-card">
-          <span class="benefit-icon">🚀</span>
+          <span class="benefit-icon" aria-hidden="true">🚀</span>
           <h3>Growth Opportunities</h3>
           <p>As VERGO grows, so do opportunities for regular work and advancement.</p>
         </div>
         <div class="benefit-card">
-          <span class="benefit-icon">🤝</span>
+          <span class="benefit-icon" aria-hidden="true">🤝</span>
           <h3>Respect & Recognition</h3>
           <p>Your professionalism is valued. Great work leads to more bookings and better rates.</p>
         </div>
@@ -240,42 +254,42 @@
       <h2>Our Standards</h2>
       <div class="standards-grid">
         <div class="standard-item">
-          <span class="standard-icon">✓</span>
+          <span class="standard-icon" aria-hidden="true">✓</span>
           <div class="standard-content">
             <h3>Experience Required</h3>
             <p>Demonstrated experience in your role. We verify your background and references.</p>
           </div>
         </div>
         <div class="standard-item">
-          <span class="standard-icon">✓</span>
+          <span class="standard-icon" aria-hidden="true">✓</span>
           <div class="standard-content">
             <h3>DBS Checked</h3>
             <p>All team members undergo DBS background checks as required by venues and clients.</p>
           </div>
         </div>
         <div class="standard-item">
-          <span class="standard-icon">✓</span>
+          <span class="standard-icon" aria-hidden="true">✓</span>
           <div class="standard-content">
             <h3>Professional Presentation</h3>
             <p>Excellent personal presentation and communication skills essential.</p>
           </div>
         </div>
         <div class="standard-item">
-          <span class="standard-icon">✓</span>
+          <span class="standard-icon" aria-hidden="true">✓</span>
           <div class="standard-content">
             <h3>Reliability</h3>
             <p>Consistent punctuality and commitment. Your reputation matters as much as ours.</p>
           </div>
         </div>
         <div class="standard-item">
-          <span class="standard-icon">✓</span>
+          <span class="standard-icon" aria-hidden="true">✓</span>
           <div class="standard-content">
             <h3>Problem Solving</h3>
             <p>Ability to handle unexpected situations professionally and independently.</p>
           </div>
         </div>
         <div class="standard-item">
-          <span class="standard-icon">✓</span>
+          <span class="standard-icon" aria-hidden="true">✓</span>
           <div class="standard-content">
             <h3>Client Focus</h3>
             <p>Understanding that exceptional service builds both your reputation and ours.</p>
@@ -290,8 +304,8 @@
         Tell me about your experience and why you'd be a good fit. I personally review every application.
       </p>
       
-      <div id="successMessage" class="success-message">
-        <div class="icon">✅</div>
+      <div id="successMessage" class="success-message" role="alert">
+        <div class="icon" aria-hidden="true">✅</div>
         <h3>Application Received!</h3>
         <p>Thanks for applying! We'll review your application and get back to you within 2 weeks.</p>
         <p style="margin-top: 20px; font-size: 0.95rem; color: #999;">
@@ -299,40 +313,87 @@
         </p>
       </div>
       
-      <form id="f" class="application-form">
+      <form id="f" class="application-form" novalidate>
         <div class="form-group">
-          <label for="firstName">First Name *</label>
-          <input type="text" id="firstName" name="firstName" required>
+          <label for="firstName">
+            First Name <span class="required" aria-label="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="firstName" 
+            name="firstName" 
+            required
+            aria-required="true"
+            autocomplete="given-name"
+            maxlength="100"
+          >
         </div>
         
         <div class="form-group">
-          <label for="lastName">Last Name *</label>
-          <input type="text" id="lastName" name="lastName" required>
+          <label for="lastName">
+            Last Name <span class="required" aria-label="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="lastName" 
+            name="lastName" 
+            required
+            aria-required="true"
+            autocomplete="family-name"
+            maxlength="100"
+          >
         </div>
         
         <div class="form-group">
-          <label for="email">Email Address *</label>
-          <input type="email" id="email" name="email" required>
+          <label for="email">
+            Email Address <span class="required" aria-label="required">*</span>
+          </label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            required
+            aria-required="true"
+            autocomplete="email"
+            maxlength="100"
+          >
         </div>
         
         <div class="form-group">
-          <label for="phone">Phone Number *</label>
-          <input type="tel" id="phone" name="phone" required>
+          <label for="phone">
+            Phone Number <span class="required" aria-label="required">*</span>
+          </label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone" 
+            required
+            aria-required="true"
+            autocomplete="tel"
+            maxlength="20"
+          >
         </div>
         
         <div class="form-group">
           <label>
-            <input type="checkbox" id="rightToWorkUk" name="rightToWorkUk" style="width: auto; margin-right: 10px;" required>
-            I have the right to work in the UK *
+            <input 
+              type="checkbox" 
+              id="rightToWorkUk" 
+              name="rightToWorkUk" 
+              style="width: auto; margin-right: 10px;" 
+              required
+              aria-required="true"
+            >
+            I have the right to work in the UK <span class="required" aria-label="required">*</span>
           </label>
         </div>
         
         <!-- Role Selection -->
         <div class="form-group">
-          <label>Select All Roles You Can Do * (check all that apply)</label>
+          <label>Select All Roles You Can Do <span class="required" aria-label="required">*</span> (check all that apply)</label>
           
           <div class="roles-category">
-            <div class="category-title">🍽️ Hospitality & Service</div>
+            <div class="category-title"><span aria-hidden="true">🍽️</span> Hospitality & Service</div>
             <div class="role-checkboxes">
               <div class="role-checkbox">
                 <input type="checkbox" id="role-bartender" name="roles" value="Bartender" />
@@ -378,7 +439,7 @@
           </div>
           
           <div class="roles-category">
-            <div class="category-title">🎪 Events & Production</div>
+            <div class="category-title"><span aria-hidden="true">🎪</span> Events & Production</div>
             <div class="role-checkboxes">
               <div class="role-checkbox">
                 <input type="checkbox" id="role-event-mgr" name="roles" value="Event Manager" />
@@ -420,7 +481,7 @@
           </div>
           
           <div class="roles-category">
-            <div class="category-title">🏢 Venue & Operations</div>
+            <div class="category-title"><span aria-hidden="true">🏢</span> Venue & Operations</div>
             <div class="role-checkboxes">
               <div class="role-checkbox">
                 <input type="checkbox" id="role-steward" name="roles" value="Steward" />
@@ -443,13 +504,16 @@
         </div>
         
         <div class="form-group">
-          <label for="cv">Your CV (PDF or Word) *</label>
+          <label for="cv">
+            Your CV (PDF or Word) <span class="required" aria-label="required">*</span>
+          </label>
           <input 
             type="file" 
             id="cv" 
             name="cv"
             accept=".pdf,.doc,.docx" 
-            required 
+            required
+            aria-required="true"
           />
         </div>
         
@@ -458,8 +522,19 @@
           We review all applications within 48 hours. If you're a good fit, I'll reach out directly to discuss opportunities. Maximum file size: 10MB.
         </div>
         
+        <!-- Honeypot field (hidden from users, catches bots) -->
+        <div style="position: absolute; left: -9999px; opacity: 0;" aria-hidden="true">
+          <label for="website">Website (leave blank)</label>
+          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+        
         <label class="consent">
-          <input type="checkbox" id="consent" required />
+          <input 
+            type="checkbox" 
+            id="consent" 
+            required
+            aria-required="true"
+          />
           <span>
             I agree to VERGO processing my personal data for the purpose of handling my
             application, in line with the
@@ -470,11 +545,11 @@
         <button type="submit" class="submit-button">Submit Application</button>
       </form>
     </div>
-  </div>
+  </main>
   
-  <footer>
+  <footer role="contentinfo">
     <div class="footer-content">
-      <div class="footer-links">
+      <nav class="footer-links" aria-label="Footer navigation">
         <a href="index.html">Home</a>
         <a href="hire-us.html">Event Management</a>
         <a href="hire-staff.html">Hire Staff</a>
@@ -482,7 +557,7 @@
         <a href="contact.html">Contact</a>
         <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
-      </div>
+      </nav>
       <div class="footer-bottom">
         <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
         <p style="margin-top: 5px;">Founded by industry professionals • 8+ years experience • Building exceptional teams</p>
@@ -490,16 +565,25 @@
     </div>
   </footer>
   
+  <!-- Load utilities -->
+  <script src="/vergo-utils.js"></script>
+  
   <script>
+    'use strict';
+    
     function toggleMenu() {
       const menu = document.getElementById('nav-menu');
-      menu.classList.toggle('active');
+      const toggle = document.querySelector('.menu-toggle');
+      const isActive = menu.classList.toggle('active');
+      toggle.setAttribute('aria-expanded', isActive);
     }
+    
     document.addEventListener('click', function(event) {
       const menu = document.getElementById('nav-menu');
       const header = document.querySelector('header');
       if (header && !header.contains(event.target)) {
         menu.classList.remove('active');
+        document.querySelector('.menu-toggle')?.setAttribute('aria-expanded', 'false');
       }
     });
     
@@ -510,7 +594,7 @@
 
       async function presign(file) {
         const body = { fileName: file.name, fileType: file.type || 'application/octet-stream' };
-        const res = await fetch('/api/v1/applications/presign', {
+        const res = await secureFetch('/api/v1/applications/presign', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body)
@@ -520,6 +604,7 @@
       }
 
       async function uploadToS3(url, file) {
+        // S3 upload - use regular fetch (external service, no CSRF needed)
         const up = await fetch(url, {
           method: 'PUT',
           headers: { 'Content-Type': file.type || 'application/octet-stream' },
@@ -529,7 +614,7 @@
       }
 
       async function verifyUpload(key) {
-        const res = await fetch('/api/v1/applications/verify-upload', {
+        const res = await secureFetch('/api/v1/applications/verify-upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ key })
@@ -556,6 +641,13 @@
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // Check honeypot
+        const honeypot = form.querySelector('input[name="website"]');
+        if (honeypot && honeypot.value) {
+          console.warn('Bot detected');
+          return;
+        }
 
         const btn = form.querySelector('[type="submit"]');
         const originalText = btn.textContent;
@@ -566,7 +658,9 @@
           // 0) Grab CV file
           const fileInput = form.querySelector('input[type="file"]');
           const file = fileInput && fileInput.files && fileInput.files[0];
-          if (!file) throw new Error('Please attach your CV');
+          if (!file) {
+            throw new Error('Please attach your CV');
+          }
 
           // Validate file size
           const MAX_SIZE = 10 * 1024 * 1024; // 10MB
@@ -616,7 +710,7 @@
 
           console.log('Payload:', payload);
 
-          const res = await fetch('/api/v1/applications', {
+          const res = await secureFetch('/api/v1/applications', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -634,9 +728,11 @@
           document.getElementById('successMessage').classList.add('show');
           document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth', block: 'center' });
           
+          notify.show('Application submitted successfully!', 'success');
+          
         } catch (err) {
           console.error('Application error:', err);
-          alert('⚠️ ' + (err.message || 'Something went wrong submitting your application.\n\nPlease try again or contact us at wrobb@vergoltd.com'));
+          notify.show(err.message || 'Something went wrong submitting your application. Please try again or contact us at wrobb@vergoltd.com', 'error');
         } finally {
           if (btn) {
             btn.disabled = false;

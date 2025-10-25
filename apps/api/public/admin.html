@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Admin – VERGO Applications</title>
+  <title>Admin – VERGO Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
   <style>
     * {
       box-sizing: border-box;
@@ -46,6 +48,65 @@
       background: #c82333;
     }
     
+    /* Tab Navigation */
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 15px 20px;
+      border: none;
+      background: white;
+      color: #666;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab:hover {
+      background: #f8f9fa;
+      color: #333;
+    }
+    
+    .tab.active {
+      color: #007bff;
+      border-bottom-color: #007bff;
+      background: #f8f9ff;
+    }
+    
+    .tab-badge {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 2px 8px;
+      background: #e9ecef;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .tab.active .tab-badge {
+      background: #007bff;
+      color: white;
+    }
+    
+    /* Tab Content */
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
     #status {
       padding: 12px;
       background: #fff3cd;
@@ -65,78 +126,153 @@
       color: #155724;
     }
     
-    #list {
+    /* Cards */
+    .card-list {
       list-style: none;
       padding: 0;
       margin: 0;
     }
     
-    .app-card {
+    .card {
       background: white;
       padding: 20px;
       margin-bottom: 15px;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: box-shadow 0.2s;
     }
     
-    .app-header {
+    .card:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
     }
     
-    .app-name {
+    .card-title {
       font-size: 1.2em;
       font-weight: 600;
       color: #333;
     }
     
-    .app-status {
+    .card-status {
       padding: 6px 12px;
       border-radius: 4px;
       font-size: 0.85em;
       font-weight: 600;
     }
     
+    /* Application statuses */
     .status-RECEIVED { background: #d1ecf1; color: #0c5460; }
     .status-REVIEWING { background: #fff3cd; color: #856404; }
     .status-SHORTLISTED { background: #d4edda; color: #155724; }
     .status-REJECTED { background: #f8d7da; color: #721c24; }
     .status-HIRED { background: #d1e7dd; color: #0f5132; }
     
-    .app-info {
+    /* Contact statuses */
+    .status-NEW { background: #cfe2ff; color: #052c65; }
+    .status-CONTACTED { background: #fff3cd; color: #856404; }
+    .status-QUOTED { background: #e7d8ff; color: #3d0066; }
+    .status-BOOKED { background: #d4edda; color: #155724; }
+    .status-LOST { background: #f8d7da; color: #721c24; }
+    
+    /* Event statuses */
+    .status-UPCOMING { background: #cfe2ff; color: #052c65; }
+    .status-CONFIRMED { background: #d4edda; color: #155724; }
+    .status-COMPLETED { background: #e2e3e5; color: #383d41; }
+    .status-CANCELLED { background: #f8d7da; color: #721c24; }
+    
+    .card-info {
       margin: 8px 0;
       color: #666;
       font-size: 0.95em;
     }
     
-    .app-roles {
-      margin: 8px 0;
-      color: #333;
-    }
-    
-    .app-meta {
+    .card-meta {
       margin: 8px 0;
       font-size: 0.85em;
       color: #999;
     }
     
-    .app-actions {
+    .card-section {
+      margin: 12px 0;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+    
+    .card-section-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    
+    .card-actions {
       margin-top: 15px;
       padding-top: 15px;
       border-top: 1px solid #eee;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
     }
     
+    /* Notes */
+    .notes-list {
+      list-style: none;
+      padding: 0;
+      margin: 8px 0 0 0;
+    }
+    
+    .note-item {
+      padding: 8px;
+      background: white;
+      border-left: 3px solid #007bff;
+      margin-bottom: 8px;
+      border-radius: 4px;
+    }
+    
+    .note-text {
+      color: #333;
+      margin-bottom: 4px;
+    }
+    
+    .note-meta {
+      font-size: 0.8em;
+      color: #999;
+    }
+    
+    .add-note-form {
+      display: none;
+      margin-top: 10px;
+    }
+    
+    .add-note-form.show {
+      display: block;
+    }
+    
+    .add-note-form textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 60px;
+    }
+    
+    /* Buttons */
     button {
       padding: 8px 14px;
-      margin-right: 8px;
-      margin-bottom: 8px;
       border: none;
       border-radius: 4px;
       cursor: pointer;
       font-size: 14px;
       transition: all 0.2s;
+      font-weight: 500;
     }
     
     button:disabled {
@@ -144,68 +280,155 @@
       cursor: not-allowed;
     }
     
-    .btn-open {
+    .btn-primary {
       background: #007bff;
       color: white;
     }
     
-    .btn-open:hover:not(:disabled) {
+    .btn-primary:hover:not(:disabled) {
       background: #0056b3;
     }
     
-    .btn-reviewing {
-      background: #ffc107;
-      color: #000;
-    }
-    
-    .btn-reviewing:hover:not(:disabled) {
-      background: #e0a800;
-    }
-    
-    .btn-shortlist {
+    .btn-success {
       background: #28a745;
       color: white;
     }
     
-    .btn-shortlist:hover:not(:disabled) {
+    .btn-success:hover:not(:disabled) {
       background: #218838;
     }
     
-    .btn-reject {
+    .btn-warning {
+      background: #ffc107;
+      color: #000;
+    }
+    
+    .btn-warning:hover:not(:disabled) {
+      background: #e0a800;
+    }
+    
+    .btn-danger {
       background: #dc3545;
       color: white;
     }
     
-    .btn-reject:hover:not(:disabled) {
+    .btn-danger:hover:not(:disabled) {
       background: #c82333;
     }
     
-    .btn-hire {
-      background: #20c997;
+    .btn-secondary {
+      background: #6c757d;
       color: white;
     }
     
-    .btn-hire:hover:not(:disabled) {
-      background: #1aa179;
+    .btn-secondary:hover:not(:disabled) {
+      background: #545b62;
     }
     
-    #debug {
-      margin-top: 20px;
-      padding: 15px;
+    .btn-light {
       background: #f8f9fa;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+    
+    .btn-light:hover:not(:disabled) {
+      background: #e2e6ea;
+    }
+    
+    /* Create Event Form */
+    .create-event-section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
       border-radius: 8px;
-      font-family: monospace;
-      font-size: 12px;
-      max-height: 200px;
-      overflow-y: auto;
-      display: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
-    #debug.show {
-      display: block;
+    .create-event-section h2 {
+      margin-top: 0;
+      color: #333;
     }
     
-    @media (max-width: 600px) {
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .form-group label {
+      font-weight: 500;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+    
+    /* Stats Bar */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .stat-value {
+      font-size: 2em;
+      font-weight: 700;
+      color: #007bff;
+    }
+    
+    .stat-label {
+      color: #666;
+      font-size: 0.9em;
+      margin-top: 5px;
+    }
+    
+    @media (max-width: 768px) {
       body {
         padding: 10px;
       }
@@ -215,31 +438,168 @@
         gap: 10px;
       }
       
-      .app-header {
+      .tabs {
+        flex-direction: column;
+      }
+      
+      .tab {
+        border-bottom: 1px solid #eee;
+        border-left: 3px solid transparent;
+      }
+      
+      .tab.active {
+        border-bottom: 1px solid #eee;
+        border-left-color: #007bff;
+      }
+      
+      .card-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 8px;
       }
       
-      button {
+      .card-actions {
+        flex-direction: column;
+      }
+      
+      .card-actions button {
         width: 100%;
-        margin-right: 0;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
+  <link rel="stylesheet" href="/vergo-a11y.css">
 </head>
 <body>
-  <div class="header">
-    <h1>Applications</h1>
-    <button id="logout">Logout</button>
+  <div class="header" role="banner">
+    <h1>VERGO Dashboard</h1>
+    <button id="logout" aria-label="Log out of admin dashboard">Logout</button>
   </div>
   
-  <div id="status">Loading applications...</div>
-  <ul id="list"></ul>
-  <div id="debug"></div>
+  <div class="tabs">
+    <button class="tab active" data-tab="applications">
+      Applications <span class="tab-badge" id="apps-count">0</span>
+    </button>
+    <button class="tab" data-tab="contacts">
+      Contact Inquiries <span class="tab-badge" id="contacts-count">0</span>
+    </button>
+    <button class="tab" data-tab="events">
+      Events <span class="tab-badge" id="events-count">0</span>
+    </button>
+  </div>
+  
+  <div id="status">Loading...</div>
+  
+  <!-- APPLICATIONS TAB -->
+  <div id="applications-tab" class="tab-content active">
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-new-apps">0</div>
+        <div class="stat-label">New Applications</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-shortlisted">0</div>
+        <div class="stat-label">Shortlisted</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-hired">0</div>
+        <div class="stat-label">Hired</div>
+      </div>
+    </div>
+    <ul id="applications-list" class="card-list"></ul>
+  </div>
+  
+  <!-- CONTACTS TAB -->
+  <div id="contacts-tab" class="tab-content">
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-new-contacts">0</div>
+        <div class="stat-label">New Inquiries</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-quoted">0</div>
+        <div class="stat-label">Quoted</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-booked">0</div>
+        <div class="stat-label">Booked</div>
+      </div>
+    </div>
+    <ul id="contacts-list" class="card-list"></ul>
+  </div>
+  
+  <!-- EVENTS TAB -->
+  <div id="events-tab" class="tab-content">
+    <div class="create-event-section">
+      <h2>Create New Event</h2>
+      <form id="create-event-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Event Name *</label>
+            <input type="text" name="eventName" required placeholder="Smith Wedding">
+          </div>
+          <div class="form-group">
+            <label>Event Date *</label>
+            <input type="date" name="eventDate" required>
+          </div>
+          <div class="form-group">
+            <label>Client Name *</label>
+            <input type="text" name="clientName" required placeholder="John Smith">
+          </div>
+          <div class="form-group">
+            <label>Venue</label>
+            <input type="text" name="venue" placeholder="The Grand Hotel">
+          </div>
+          <div class="form-group">
+            <label>Staff Needed</label>
+            <input type="number" name="staffNeeded" min="1" placeholder="5">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select name="status">
+              <option value="UPCOMING">Upcoming</option>
+              <option value="CONFIRMED">Confirmed</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea name="notes" rows="3" placeholder="Any additional details..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Create Event</button>
+      </form>
+    </div>
+    
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-upcoming">0</div>
+        <div class="stat-label">Upcoming Events</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-this-week">0</div>
+        <div class="stat-label">This Week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-completed">0</div>
+        <div class="stat-label">Completed</div>
+      </div>
+    </div>
+    
+    <ul id="events-list" class="card-list"></ul>
+  </div>
 
   <script>
-    const human = {
+    // State
+    let currentTab = 'applications';
+    let applications = [];
+    let contacts = [];
+    let events = [];
+    
+    // Status labels
+    const appStatusLabels = {
       RECEIVED: 'New',
       REVIEWING: 'Reviewing',
       SHORTLISTED: 'Shortlisted',
@@ -247,186 +607,456 @@
       HIRED: 'Hired'
     };
     
-    const debugLog = [];
+    const contactStatusLabels = {
+      NEW: 'New',
+      CONTACTED: 'Contacted',
+      QUOTED: 'Quoted',
+      BOOKED: 'Booked',
+      LOST: 'Lost'
+    };
     
-    function log(message, data) {
-      console.log(message, data);
-      debugLog.push(`${new Date().toISOString()}: ${message}`);
-      if (data) debugLog.push(JSON.stringify(data, null, 2));
-      updateDebugPanel();
-    }
+    const eventStatusLabels = {
+      UPCOMING: 'Upcoming',
+      CONFIRMED: 'Confirmed',
+      COMPLETED: 'Completed',
+      CANCELLED: 'Cancelled'
+    };
     
-    function updateDebugPanel() {
-      const debug = document.getElementById('debug');
-      debug.textContent = debugLog.join('\n');
-      if (debugLog.length > 0) {
-        debug.classList.add('show');
-      }
-    }
-
-    async function fetchJSON(url, opts={}) {
-      log(`Fetching: ${url}`);
-      const res = await fetch(url, { credentials: 'include', ...opts });
-      log(`Response status: ${res.status}`);
-      
+    // Helper Functions
+    async function fetchJSON(url, opts = {}) {
+      const res = await secureFetch(url, opts);
       if (!res.ok) {
-        const text = await res.text();
-        log(`Error response: ${text}`);
-        throw new Error((await res.json().catch(()=>({}))).error || res.statusText);
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        throw new Error(err.error || res.statusText);
       }
-      
-      const data = await res.json();
-      log(`Response data:`, data);
-      return data;
+      return res.json();
     }
-
-    async function loadApps() {
+    
+    function showStatus(message, type = '') {
       const s = document.getElementById('status');
-      const ul = document.getElementById('list');
-      s.textContent = 'Loading applications...';
-      s.className = '';
+      s.textContent = message;
+      s.className = type;
+    }
+    
+    function formatDate(dateString) {
+      return new Date(dateString).toLocaleDateString('en-GB', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+    
+    function formatDateOnly(dateString) {
+      return new Date(dateString).toLocaleDateString('en-GB', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+    
+    // Tab Switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.dataset.tab;
+        
+        // Update active states
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(`${tabName}-tab`).classList.add('active');
+        
+        currentTab = tabName;
+      });
+    });
+    
+    // Load All Data
+    async function loadAllData() {
+      showStatus('Loading...', '');
       
       try {
-        log('Checking session...');
+        // Check authentication
         const session = await fetchJSON('/api/v1/auth/session');
-        
         if (!session.authenticated) {
-          log('Not authenticated!');
-          s.textContent = 'Not logged in. Redirecting...';
-          s.className = 'error';
-          setTimeout(() => location.href='/login.html', 1000);
+          showStatus('Not logged in. Redirecting...', 'error');
+          setTimeout(() => location.href = '/login.html', 1000);
           return;
         }
         
-        log('Authenticated as: ' + session.username);
+        // Load applications
+        applications = await fetchJSON('/api/v1/applications');
+        renderApplications();
         
-        log('Fetching applications...');
-        const items = await fetchJSON('/api/v1/applications');
-        
-        log(`Loaded ${items.length} applications`);
-        
-        s.textContent = `Showing ${items.length} application${items.length !== 1 ? 's' : ''}`;
-        s.className = 'success';
-        ul.innerHTML = '';
-        
-        if (items.length === 0) {
-          ul.innerHTML = '<li style="text-align:center; padding:40px; color:#999;">No applications yet</li>';
-          return;
+        // Load contacts (will fail gracefully if endpoint doesn't exist yet)
+        try {
+          contacts = await fetchJSON('/api/v1/contacts');
+          renderContacts();
+        } catch (e) {
+          console.log('Contacts endpoint not available yet:', e);
+          contacts = [];
+          renderContacts();
         }
         
-        for (const it of items) {
-          const li = document.createElement('li');
-          
-          const dateStr = new Date(it.createdAt).toLocaleDateString('en-GB', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          });
-          
-          const rolesStr = it.roles.join(', ') || 'No roles';
-          
-          li.innerHTML = `
-            <div class="app-card">
-              <div class="app-header">
-                <div class="app-name">${it.firstName} ${it.lastName}</div>
-                <div class="app-status status-${it.status}">${human[it.status] || it.status}</div>
-              </div>
-              <div class="app-info">
-                ${it.email} ${it.phone ? '| ' + it.phone : ''}
-              </div>
-              <div class="app-roles">
-                <strong>Roles:</strong> ${rolesStr}
-              </div>
-              <div class="app-meta">
-                Applied: ${dateStr}${it.source ? ' | Source: ' + it.source : ''}${it.cvOriginalName ? ' | CV: ' + it.cvOriginalName : ''}
-              </div>
-              <div class="app-actions">
-                <button class="open btn-open" data-id="${it.id}">Open CV</button>
-                <button class="set btn-reviewing" data-id="${it.id}" data-status="REVIEWING">Reviewing</button>
-                <button class="set btn-shortlist" data-id="${it.id}" data-status="SHORTLISTED">Shortlist</button>
-                <button class="set btn-reject" data-id="${it.id}" data-status="REJECTED">Reject</button>
-                <button class="set btn-hire" data-id="${it.id}" data-status="HIRED">Hire</button>
-              </div>
-            </div>
-          `;
-          ul.appendChild(li);
+        // Load events (will fail gracefully if endpoint doesn't exist yet)
+        try {
+          events = await fetchJSON('/api/v1/events');
+          renderEvents();
+        } catch (e) {
+          console.log('Events endpoint not available yet:', e);
+          events = [];
+          renderEvents();
         }
+        
+        updateStats();
+        showStatus('Dashboard loaded', 'success');
+        
+        // Hide status after 2 seconds
+        setTimeout(() => {
+          document.getElementById('status').style.display = 'none';
+        }, 2000);
+        
       } catch (e) {
-        log('ERROR:', e);
-        s.textContent = 'Failed to load: ' + e.message;
-        s.className = 'error';
+        console.error('Load error:', e);
+        showStatus('Failed to load: ' + e.message, 'error');
         
         if (e.message.includes('Unauthorized')) {
-          setTimeout(() => location.href='/login.html', 2000);
+          setTimeout(() => location.href = '/login.html', 2000);
         }
       }
     }
-
-    document.getElementById('logout')?.addEventListener('click', async () => {
+    
+    // Update Stats
+    function updateStats() {
+      // Application stats
+      document.getElementById('apps-count').textContent = applications.length;
+      document.getElementById('stat-new-apps').textContent = 
+        applications.filter(a => a.status === 'RECEIVED').length;
+      document.getElementById('stat-shortlisted').textContent = 
+        applications.filter(a => a.status === 'SHORTLISTED').length;
+      document.getElementById('stat-hired').textContent = 
+        applications.filter(a => a.status === 'HIRED').length;
+      
+      // Contact stats
+      document.getElementById('contacts-count').textContent = contacts.length;
+      document.getElementById('stat-new-contacts').textContent = 
+        contacts.filter(c => c.status === 'NEW').length;
+      document.getElementById('stat-quoted').textContent = 
+        contacts.filter(c => c.status === 'QUOTED').length;
+      document.getElementById('stat-booked').textContent = 
+        contacts.filter(c => c.status === 'BOOKED').length;
+      
+      // Event stats
+      document.getElementById('events-count').textContent = events.length;
+      document.getElementById('stat-upcoming').textContent = 
+        events.filter(e => ['UPCOMING', 'CONFIRMED'].includes(e.status)).length;
+      
+      const oneWeekFromNow = new Date();
+      oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+      document.getElementById('stat-this-week').textContent = 
+        events.filter(e => {
+          const eventDate = new Date(e.eventDate);
+          return eventDate >= new Date() && eventDate <= oneWeekFromNow;
+        }).length;
+      
+      document.getElementById('stat-completed').textContent = 
+        events.filter(e => e.status === 'COMPLETED').length;
+    }
+    
+    // Render Applications
+    function renderApplications() {
+      const list = document.getElementById('applications-list');
+      
+      if (applications.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <div>No applications yet</div>
+          </div>
+        `;
+        return;
+      }
+      
+      list.innerHTML = applications.map(app => `
+        <li class="card">
+          <div class="card-header">
+            <div class="card-title">${app.firstName} ${app.lastName}</div>
+            <div class="card-status status-${app.status}">${appStatusLabels[app.status] || app.status}</div>
+          </div>
+          <div class="card-info">
+            ${app.email} ${app.phone ? '| ' + app.phone : ''}
+          </div>
+          <div class="card-info">
+            <strong>Roles:</strong> ${app.roles.join(', ') || 'No roles'}
+          </div>
+          <div class="card-meta">
+            Applied: ${formatDate(app.createdAt)}${app.source ? ' | Source: ' + app.source : ''}
+          </div>
+          <div class="card-actions">
+            <button class="btn-primary" onclick="openCV('${app.id}')">Open CV</button>
+            <button class="btn-warning" onclick="updateAppStatus('${app.id}', 'REVIEWING')">Reviewing</button>
+            <button class="btn-success" onclick="updateAppStatus('${app.id}', 'SHORTLISTED')">Shortlist</button>
+            <button class="btn-danger" onclick="updateAppStatus('${app.id}', 'REJECTED')">Reject</button>
+            <button class="btn-success" onclick="updateAppStatus('${app.id}', 'HIRED')">Hire</button>
+          </div>
+        </li>
+      `).join('');
+    }
+    
+    // Render Contacts
+    function renderContacts() {
+      const list = document.getElementById('contacts-list');
+      
+      if (contacts.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📞</div>
+            <div>No contact inquiries yet</div>
+            <div style="margin-top: 10px; color: #666; font-size: 14px;">
+              Contact form submissions will appear here
+            </div>
+          </div>
+        `;
+        return;
+      }
+      
+      list.innerHTML = contacts.map(contact => {
+        const notesHtml = contact.notes && contact.notes.length > 0 ? `
+          <div class="card-section">
+            <div class="card-section-title">Notes</div>
+            <ul class="notes-list">
+              ${contact.notes.map(note => `
+                <li class="note-item">
+                  <div class="note-text">${note.text}</div>
+                  <div class="note-meta">${formatDate(note.createdAt)}</div>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+        ` : '';
+        
+        return `
+          <li class="card" data-contact-id="${contact.id}">
+            <div class="card-header">
+              <div class="card-title">${contact.name}</div>
+              <div class="card-status status-${contact.status}">${contactStatusLabels[contact.status] || contact.status}</div>
+            </div>
+            <div class="card-info">
+              ${contact.email} ${contact.phone ? '| ' + contact.phone : ''}
+            </div>
+            ${contact.eventType ? `<div class="card-info"><strong>Event Type:</strong> ${contact.eventType}</div>` : ''}
+            ${contact.eventDate ? `<div class="card-info"><strong>Event Date:</strong> ${formatDateOnly(contact.eventDate)}</div>` : ''}
+            ${contact.message ? `
+              <div class="card-section">
+                <div class="card-section-title">Message</div>
+                <div>${contact.message}</div>
+              </div>
+            ` : ''}
+            ${notesHtml}
+            <div class="add-note-form" id="note-form-${contact.id}">
+              <textarea placeholder="Add a note..." id="note-text-${contact.id}"></textarea>
+              <div style="margin-top: 8px; display: flex; gap: 8px;">
+                <button class="btn-primary" onclick="saveNote('${contact.id}')">Save Note</button>
+                <button class="btn-light" onclick="toggleNoteForm('${contact.id}')">Cancel</button>
+              </div>
+            </div>
+            <div class="card-meta">
+              Received: ${formatDate(contact.createdAt)}
+            </div>
+            <div class="card-actions">
+              <button class="btn-light" onclick="toggleNoteForm('${contact.id}')">Add Note</button>
+              <button class="btn-warning" onclick="updateContactStatus('${contact.id}', 'CONTACTED')">Contacted</button>
+              <button class="btn-primary" onclick="updateContactStatus('${contact.id}', 'QUOTED')">Quoted</button>
+              <button class="btn-success" onclick="updateContactStatus('${contact.id}', 'BOOKED')">Booked</button>
+              <button class="btn-danger" onclick="updateContactStatus('${contact.id}', 'LOST')">Lost</button>
+            </div>
+          </li>
+        `;
+      }).join('');
+    }
+    
+    // Render Events
+    function renderEvents() {
+      const list = document.getElementById('events-list');
+      
+      if (events.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🎉</div>
+            <div>No events yet</div>
+            <div style="margin-top: 10px; color: #666; font-size: 14px;">
+              Create your first event above
+            </div>
+          </div>
+        `;
+        return;
+      }
+      
+      // Sort by date (upcoming first)
+      const sortedEvents = [...events].sort((a, b) => 
+        new Date(a.eventDate) - new Date(b.eventDate)
+      );
+      
+      list.innerHTML = sortedEvents.map(event => `
+        <li class="card">
+          <div class="card-header">
+            <div class="card-title">${event.eventName}</div>
+            <div class="card-status status-${event.status}">${eventStatusLabels[event.status] || event.status}</div>
+          </div>
+          <div class="card-info">
+            <strong>Date:</strong> ${formatDateOnly(event.eventDate)}
+          </div>
+          <div class="card-info">
+            <strong>Client:</strong> ${event.clientName}
+          </div>
+          ${event.venue ? `<div class="card-info"><strong>Venue:</strong> ${event.venue}</div>` : ''}
+          ${event.staffNeeded ? `<div class="card-info"><strong>Staff Needed:</strong> ${event.staffNeeded}</div>` : ''}
+          ${event.notes ? `
+            <div class="card-section">
+              <div class="card-section-title">Notes</div>
+              <div>${event.notes}</div>
+            </div>
+          ` : ''}
+          <div class="card-meta">
+            Created: ${formatDate(event.createdAt)}
+          </div>
+          <div class="card-actions">
+            <button class="btn-success" onclick="updateEventStatus('${event.id}', 'CONFIRMED')">Mark Confirmed</button>
+            <button class="btn-secondary" onclick="updateEventStatus('${event.id}', 'COMPLETED')">Mark Completed</button>
+            <button class="btn-danger" onclick="updateEventStatus('${event.id}', 'CANCELLED')">Cancel Event</button>
+          </div>
+        </li>
+      `).join('');
+    }
+    
+    // Application Actions
+    async function openCV(appId) {
+      try {
+        const { url } = await fetchJSON(`/api/v1/applications/${appId}/cv`);
+        window.open(url, '_blank');
+      } catch (e) {
+        notify.show('Failed to open CV: ' + e.message, 'error');
+      }
+    }
+    
+    async function updateAppStatus(appId, status) {
+      if (status === 'REJECTED' && !confirm('Reject this applicant?')) return;
+      if (status === 'HIRED' && !confirm('Mark as hired?')) return;
+      
+      try {
+        await fetchJSON(`/api/v1/applications/${appId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        await loadAllData();
+      } catch (e) {
+        notify.show('Failed to update status: ' + e.message, 'error');
+      }
+    }
+    
+    // Contact Actions
+    function toggleNoteForm(contactId) {
+      const form = document.getElementById(`note-form-${contactId}`);
+      form.classList.toggle('show');
+    }
+    
+    async function saveNote(contactId) {
+      const textarea = document.getElementById(`note-text-${contactId}`);
+      const text = textarea.value.trim();
+      
+      if (!text) {
+        notify.show('Please enter a note', 'warning');
+        return;
+      }
+      
+      try {
+        await fetchJSON(`/api/v1/contacts/${contactId}/notes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+        
+        textarea.value = '';
+        toggleNoteForm(contactId);
+        await loadAllData();
+      } catch (e) {
+        notify.show('Failed to save note: ' + e.message, 'error');
+      }
+    }
+    
+    async function updateContactStatus(contactId, status) {
+      try {
+        await fetchJSON(`/api/v1/contacts/${contactId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        await loadAllData();
+      } catch (e) {
+        notify.show('Failed to update status: ' + e.message, 'error');
+      }
+    }
+    
+    // Event Actions
+    document.getElementById('create-event-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+      
+      try {
+        await fetchJSON('/api/v1/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        e.target.reset();
+        showStatus('Event created!', 'success');
+        await loadAllData();
+        
+        // Switch to events tab
+        document.querySelector('.tab[data-tab="events"]').click();
+      } catch (e) {
+        notify.show('Failed to create event: ' + e.message, 'error');
+      }
+    });
+    
+    async function updateEventStatus(eventId, status) {
+      if (status === 'CANCELLED' && !confirm('Cancel this event?')) return;
+      if (status === 'COMPLETED' && !confirm('Mark as completed?')) return;
+      
+      try {
+        await fetchJSON(`/api/v1/events/${eventId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        await loadAllData();
+      } catch (e) {
+        notify.show('Failed to update event: ' + e.message, 'error');
+      }
+    }
+    
+    // Logout
+    document.getElementById('logout').addEventListener('click', async () => {
       await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'include' });
       location.href = '/login.html';
     });
-
-    document.getElementById('list')?.addEventListener('click', async (e) => {
-      const btnOpen = e.target.closest('.open');
-      const btnSet = e.target.closest('.set');
-      
-      try {
-        if (btnOpen) {
-          btnOpen.disabled = true;
-          const originalText = btnOpen.textContent;
-          btnOpen.textContent = 'Loading...';
-          
-          const id = btnOpen.dataset.id;
-          log(`Opening CV for application: ${id}`);
-          const { url } = await fetchJSON(`/api/v1/applications/${id}/cv`);
-          window.open(url, '_blank');
-          
-          btnOpen.disabled = false;
-          btnOpen.textContent = originalText;
-        }
-        
-        if (btnSet) {
-          const status = btnSet.dataset.status;
-          
-          // Confirm destructive actions
-          if (status === 'REJECTED') {
-            if (!confirm('Are you sure you want to reject this applicant?')) return;
-          }
-          if (status === 'HIRED') {
-            if (!confirm('Are you sure you want to mark this applicant as hired?')) return;
-          }
-          
-          btnSet.disabled = true;
-          const originalText = btnSet.textContent;
-          btnSet.textContent = 'Updating...';
-          
-          const id = btnSet.dataset.id;
-          log(`Updating status for ${id} to ${status}`);
-          await fetchJSON(`/api/v1/applications/${id}/status`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status })
-          });
-          
-          await loadApps(); // refresh list
-        }
-      } catch (err) {
-        log('Action ERROR:', err);
-        alert(err.message || 'Action failed');
-        if (btnOpen) {
-          btnOpen.disabled = false;
-          btnOpen.textContent = 'Open CV';
-        }
-        if (btnSet) {
-          btnSet.disabled = false;
-        }
-      }
-    });
-
-    window.addEventListener('load', loadApps);
+    
+    // Make functions global
+    window.openCV = openCV;
+    window.updateAppStatus = updateAppStatus;
+    window.toggleNoteForm = toggleNoteForm;
+    window.saveNote = saveNote;
+    window.updateContactStatus = updateContactStatus;
+    window.updateEventStatus = updateEventStatus;
+    
+    // Initial load
+    window.addEventListener('load', loadAllData);
   </script>
+  <script src="/vergo-utils.js"></script>
 </body>
 </html>
