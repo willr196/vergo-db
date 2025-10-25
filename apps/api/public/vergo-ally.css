@@ -1,0 +1,460 @@
+/**
+ * VERGO Accessibility & GDPR Styles
+ * Import this after your main styles
+ */
+
+/* ============================================
+   SKIP LINK (Accessibility)
+   ============================================ */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: #D4AF37;
+  color: #1a1a1a;
+  padding: 12px 20px;
+  text-decoration: none;
+  font-weight: 700;
+  z-index: 10001;
+  border-radius: 0 0 4px 0;
+  transition: top 0.3s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ============================================
+   SCREEN READER ONLY (SR-ONLY)
+   ============================================ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============================================
+   ACCESSIBLE NOTIFICATIONS (Toast)
+   ============================================ */
+.vergo-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  min-width: 300px;
+  max-width: 500px;
+  background: white;
+  color: #333;
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10000;
+  animation: vergoSlideIn 0.3s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-left: 4px solid #007bff;
+}
+
+.vergo-toast-success {
+  border-left-color: #28a745;
+  background: #d4edda;
+  color: #155724;
+}
+
+.vergo-toast-error {
+  border-left-color: #dc3545;
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.vergo-toast-warning {
+  border-left-color: #ffc107;
+  background: #fff3cd;
+  color: #856404;
+}
+
+.vergo-toast-info {
+  border-left-color: #17a2b8;
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.vergo-toast-content {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.vergo-toast-icon {
+  font-size: 1.2rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.vergo-toast-message {
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.vergo-toast-close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.vergo-toast-close:hover,
+.vergo-toast-close:focus {
+  opacity: 1;
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@keyframes vergoSlideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes vergoSlideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes vergoSlideDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+/* ============================================
+   FORM FIELD ERRORS (Accessibility)
+   ============================================ */
+.field-error {
+  border-color: #dc3545 !important;
+  background-color: #fff5f5 !important;
+}
+
+.field-error:focus {
+  outline: 2px solid #dc3545;
+  outline-offset: 2px;
+}
+
+.field-error-message {
+  display: block;
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: rgba(220, 53, 69, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid #dc3545;
+}
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+  outline: 3px solid #D4AF37;
+  outline-offset: 2px;
+}
+
+/* Remove default focus for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   COOKIE CONSENT BANNER (GDPR)
+   ============================================ */
+.cookie-consent-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #1a1a1a;
+  color: #ffffff;
+  padding: 24px 20px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  border-top: 3px solid #D4AF37;
+  animation: vergoSlideUp 0.4s ease;
+}
+
+@keyframes vergoSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.cookie-consent-content,
+.cookie-preferences-panel {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.cookie-consent-title {
+  font-size: 1.5rem;
+  color: #D4AF37;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.cookie-consent-desc {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  color: #cccccc;
+}
+
+.cookie-consent-link {
+  color: #D4AF37;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.cookie-consent-link:hover {
+  color: #fff;
+}
+
+.cookie-consent-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-cookie {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-cookie-primary {
+  background: #D4AF37;
+  color: #1a1a1a;
+}
+
+.btn-cookie-primary:hover,
+.btn-cookie-primary:focus {
+  background: #fff;
+  transform: translateY(-2px);
+}
+
+.btn-cookie-secondary {
+  background: transparent;
+  color: #D4AF37;
+  border: 2px solid #D4AF37;
+}
+
+.btn-cookie-secondary:hover,
+.btn-cookie-secondary:focus {
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.btn-cookie-tertiary {
+  background: transparent;
+  color: #999;
+  border: 1px solid #666;
+}
+
+.btn-cookie-tertiary:hover,
+.btn-cookie-tertiary:focus {
+  color: #fff;
+  border-color: #999;
+}
+
+/* Cookie Preferences Panel */
+.cookie-preferences-panel {
+  padding-top: 20px;
+}
+
+.cookie-preferences-title {
+  font-size: 1.3rem;
+  color: #D4AF37;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.cookie-preference-item {
+  margin-bottom: 16px;
+  padding: 16px;
+  background: rgba(212, 175, 55, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid #D4AF37;
+}
+
+.cookie-preference-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.cookie-preference-label input[type="checkbox"] {
+  margin-top: 3px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #D4AF37;
+  flex-shrink: 0;
+}
+
+.cookie-preference-label input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.cookie-preference-text {
+  line-height: 1.6;
+  color: #cccccc;
+}
+
+.cookie-preference-text strong {
+  color: #D4AF37;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ============================================
+   LOADING SPINNER
+   ============================================ */
+.vergo-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: vergoSpin 0.8s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes vergoSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   MOBILE RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .vergo-toast {
+    left: 10px;
+    right: 10px;
+    min-width: auto;
+    top: 10px;
+  }
+  
+  .cookie-consent-banner {
+    padding: 16px;
+  }
+  
+  .cookie-consent-title {
+    font-size: 1.2rem;
+  }
+  
+  .cookie-consent-desc {
+    font-size: 0.9rem;
+  }
+  
+  .cookie-consent-actions {
+    flex-direction: column;
+  }
+  
+  .btn-cookie {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   HIGH CONTRAST MODE SUPPORT
+   ============================================ */
+@media (prefers-contrast: high) {
+  .vergo-toast {
+    border: 2px solid currentColor;
+  }
+  
+  .cookie-consent-banner {
+    border-top-width: 5px;
+  }
+  
+  .btn-cookie {
+    border-width: 2px;
+  }
+}
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .vergo-toast {
+    animation: none;
+  }
+  
+  .cookie-consent-banner {
+    animation: none;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+  .cookie-consent-banner,
+  .vergo-toast,
+  .skip-link {
+    display: none !important;
+  }
+}
