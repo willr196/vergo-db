@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VERGO Events - Premium Event Staffing | Founded by Industry Veterans</title>
+  
+  <!-- Security Headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+  
+  <!-- Accessibility -->
+  <link rel="stylesheet" href="/vergo-a11y.css">
+  
   <style>
     * {
       margin: 0;
@@ -81,6 +89,9 @@
       flex-direction: column;
       gap: 5px;
       cursor: pointer;
+      background: none;
+      border: none;
+      padding: 5px;
     }
     
     .menu-toggle span {
@@ -727,19 +738,26 @@
 </head>
 <body>
   <!-- Header Navigation -->
-  <header>
-    <a href="index.html" class="logo">VERGO</a>
+  <header role="banner">
+    <a href="index.html" class="logo" aria-label="VERGO Events Home">VERGO</a>
     
-    <div class="menu-toggle" onclick="toggleMenu()">
+    <button 
+      class="menu-toggle" 
+      onclick="toggleMenu()"
+      aria-label="Toggle navigation menu"
+      aria-expanded="false"
+      aria-controls="nav-menu"
+    >
       <span></span>
       <span></span>
       <span></span>
-    </div>
+    </button>
     
-    <nav>
+    <nav role="navigation" aria-label="Main navigation">
       <ul id="nav-menu">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="hire-us.html">Hire Staff</a></li>
+        <li><a href="index.html" aria-current="page">Home</a></li>
+        <li><a href="hire-us.html">Event Management</a></li>
+        <li><a href="hire-staff.html">Hire Staff</a></li>
         <li><a href="apply.html">Join Us</a></li>
         <li><a href="about.html">About</a></li>
         <li><a href="contact.html">Contact</a></li>
@@ -747,6 +765,7 @@
     </nav>
   </header>
 
+  <main id="main-content">
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
@@ -939,7 +958,7 @@
       
       <div class="services-grid">
         <div class="service-card" onclick="window.location.href='hire-staff.html'">
-          <span class="service-icon">👥</span>
+          <span class="service-icon" aria-hidden="true">👥</span>
           <h3>Event Staffing</h3>
           <p>
             Front of house, bartenders, servers, kitchen porters, event coordinators. 
@@ -949,7 +968,7 @@
         </div>
         
         <div class="service-card" onclick="window.location.href='hire-us.html'">
-          <span class="service-icon">🎉</span>
+          <span class="service-icon" aria-hidden="true">🎉</span>
           <h3>Event Management</h3>
           <p>
             Full-service event planning and coordination. From concept to execution, 
@@ -959,7 +978,7 @@
         </div>
         
         <div class="service-card" onclick="window.location.href='apply.html'">
-          <span class="service-icon">💼</span>
+          <span class="service-icon" aria-hidden="true">💼</span>
           <h3>Join Our Team</h3>
           <p>
             Experienced event professional? Join a growing agency backed by industry veterans 
@@ -999,8 +1018,10 @@
     </div>
   </section>
 
+  </main>
+
   <!-- Footer -->
-  <footer>
+  <footer role="contentinfo">
     <div class="footer-content">
       <div class="footer-column">
         <h3>VERGO Events</h3>
@@ -1049,10 +1070,13 @@
     </div>
   </footer>
 
+  <script src="/vergo-utils.js"></script>
   <script>
     function toggleMenu() {
       const menu = document.getElementById('nav-menu');
-      menu.classList.toggle('active');
+      const toggle = document.querySelector('.menu-toggle');
+      const isExpanded = menu.classList.toggle('active');
+      toggle.setAttribute('aria-expanded', isExpanded);
     }
     
     document.addEventListener('click', function(event) {
@@ -1060,6 +1084,7 @@
       const header = document.querySelector('header');
       if (header && !header.contains(event.target)) {
         menu.classList.remove('active');
+        document.querySelector('.menu-toggle').setAttribute('aria-expanded', 'false');
       }
     });
   </script>

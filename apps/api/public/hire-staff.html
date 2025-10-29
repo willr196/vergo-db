@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hire Event Staff - VERGO Events | Personally Vetted by Founder</title>
   <meta name="description" content="Hire professional event staff personally vetted by our founder with 8+ years experience. 100% satisfaction guarantee. London's premium staffing solutions.">
+  
+  <!-- Security Headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+  
+  <!-- Accessibility -->
+  <link rel="stylesheet" href="/vergo-a11y.css">
+  
   <style>
     * {
       margin: 0;
@@ -82,6 +90,9 @@
       flex-direction: column;
       gap: 5px;
       cursor: pointer;
+      background: none;
+      border: none;
+      padding: 5px;
     }
     
     .menu-toggle span {
@@ -277,20 +288,18 @@
       font-size: 1rem;
     }
     
-    /* Why Choose Us */
+    /* Benefits Section */
     .benefits-section {
-      margin: 80px 0;
-      background: #1a1a1a;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
       padding: 80px 40px;
-      border-radius: 8px;
-      border: 1px solid rgba(212, 175, 55, 0.2);
+      margin: 80px 0;
     }
     
     .benefits-section h2 {
-      font-size: 2.5rem;
-      color: #D4AF37;
-      margin-bottom: 40px;
       text-align: center;
+      font-size: 2.8rem;
+      color: #D4AF37;
+      margin-bottom: 50px;
     }
     
     .benefits-grid {
@@ -298,52 +307,54 @@
       margin: 0 auto;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 40px;
+      gap: 35px;
     }
     
     .benefit-card {
+      background: rgba(10, 10, 10, 0.6);
+      padding: 40px 30px;
+      border-radius: 8px;
+      border: 2px solid #D4AF37;
       text-align: center;
-      padding: 30px 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .benefit-card:hover {
+      transform: translateY(-5px);
+      background: rgba(212, 175, 55, 0.05);
     }
     
     .benefit-icon {
       font-size: 3rem;
-      margin-bottom: 15px;
       display: block;
+      margin-bottom: 20px;
     }
     
     .benefit-card h3 {
-      font-size: 1.4rem;
+      font-size: 1.6rem;
       color: #D4AF37;
       margin-bottom: 15px;
     }
     
     .benefit-card p {
-      color: #999;
-      line-height: 1.7;
+      color: #bbb;
+      line-height: 1.8;
+      font-size: 1.05rem;
     }
     
     /* Guarantee Section */
     .guarantee-section {
-      max-width: 900px;
-      margin: 80px auto;
-      background: rgba(212, 175, 55, 0.05);
-      border: 2px solid #D4AF37;
-      border-radius: 12px;
+      background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
       padding: 60px 50px;
+      border-radius: 8px;
+      border: 3px solid #D4AF37;
       text-align: center;
+      margin-bottom: 80px;
     }
     
     .guarantee-badge {
-      width: 100px;
-      height: 100px;
-      background: #D4AF37;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 30px;
-      font-size: 3rem;
+      font-size: 4rem;
+      margin-bottom: 20px;
     }
     
     .guarantee-section h2 {
@@ -354,15 +365,15 @@
     
     .guarantee-section p {
       font-size: 1.2rem;
-      color: #cccccc;
+      color: #bbb;
+      margin-bottom: 20px;
       line-height: 1.8;
-      margin-bottom: 15px;
     }
     
     .guarantee-highlight {
       font-size: 1.3rem;
-      color: #ffffff;
-      font-weight: 700;
+      color: #D4AF37;
+      font-weight: 600;
       margin-top: 30px;
     }
     
@@ -371,24 +382,20 @@
       text-align: center;
       padding: 80px 40px;
       background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
-      border-radius: 12px;
-      border: 2px solid #D4AF37;
-      margin: 80px 0;
+      border-radius: 8px;
+      border: 1px solid rgba(212, 175, 55, 0.2);
     }
     
     .cta-section h2 {
-      font-size: 2.8rem;
-      color: #D4AF37;
+      font-size: 2.5rem;
       margin-bottom: 20px;
+      color: #D4AF37;
     }
     
     .cta-section p {
       font-size: 1.2rem;
-      color: #bbb;
-      margin-bottom: 35px;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
+      margin-bottom: 30px;
+      color: #999;
     }
     
     .cta-button {
@@ -398,7 +405,7 @@
       color: #1a1a1a;
       text-decoration: none;
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1rem;
       border-radius: 4px;
       transition: all 0.3s ease;
       text-transform: uppercase;
@@ -415,13 +422,13 @@
     /* Footer */
     footer {
       background: #0a0a0a;
-      color: #D4AF37;
-      padding: 60px 30px 25px;
       border-top: 1px solid rgba(212, 175, 55, 0.2);
+      padding: 60px 40px 30px;
+      color: #999;
     }
     
     .footer-content {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -431,24 +438,29 @@
     
     .footer-section h3 {
       color: #D4AF37;
+      font-size: 1.3rem;
       margin-bottom: 20px;
-      font-size: 1.2rem;
     }
     
-    .footer-section p,
-    .footer-section a {
+    .footer-section p {
       color: #999;
-      text-decoration: none;
-      display: block;
-      margin-bottom: 10px;
+      line-height: 1.8;
       font-size: 0.95rem;
-      line-height: 1.7;
-      transition: color 0.3s ease;
+      margin-bottom: 10px;
     }
     
     .footer-section ul {
       list-style: none;
-      padding: 0;
+    }
+    
+    .footer-section ul li {
+      margin-bottom: 10px;
+    }
+    
+    .footer-section a {
+      color: #999;
+      text-decoration: none;
+      transition: color 0.3s ease;
     }
     
     .footer-section a:hover {
@@ -458,9 +470,9 @@
     .footer-bottom {
       text-align: center;
       padding-top: 30px;
-      border-top: 1px solid rgba(212, 175, 55, 0.2);
+      border-top: 1px solid #333;
       color: #666;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
     }
     
     /* Responsive */
@@ -485,10 +497,6 @@
       .menu-toggle {
         display: flex;
       }
-      
-      .trust-container {
-        grid-template-columns: repeat(2, 1fr);
-      }
     }
     
     @media (max-width: 768px) {
@@ -508,48 +516,51 @@
         font-size: 2.5rem;
       }
       
-      .container {
-        padding: 50px 20px;
+      .hero p {
+        font-size: 1.1rem;
       }
       
-      .staff-grid {
-        grid-template-columns: 1fr;
+      .container {
+        padding: 60px 20px;
       }
       
       .category-header {
         font-size: 1.8rem;
       }
       
+      .staff-grid {
+        grid-template-columns: 1fr;
+      }
+      
       .benefits-grid {
         grid-template-columns: 1fr;
       }
       
-      .guarantee-section {
-        padding: 40px 25px;
-      }
-      
-      .trust-container {
+      .footer-content {
         grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Header Navigation -->
-  <header>
-    <a href="index.html" class="logo">VERGO</a>
+  <header role="banner">
+    <a href="index.html" class="logo" aria-label="VERGO Events Home">VERGO</a>
     
-    <div class="menu-toggle" onclick="toggleMenu()">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
+    <button 
+      class="menu-toggle" 
+      onclick="toggleMenu()"
+      aria-label="Toggle navigation menu"
+      aria-expanded="false"
+      aria-controls="nav-menu"
+    >
+      <span></span><span></span><span></span>
+    </button>
     
-    <nav>
+    <nav role="navigation" aria-label="Main navigation">
       <ul id="nav-menu">
         <li><a href="index.html">Home</a></li>
         <li><a href="hire-us.html">Event Management</a></li>
-        <li><a href="hire-staff.html">Hire Staff</a></li>
+        <li><a href="hire-staff.html" aria-current="page">Hire Staff</a></li>
         <li><a href="apply.html">Join Us</a></li>
         <li><a href="about.html">About</a></li>
         <li><a href="contact.html">Contact</a></li>
@@ -557,285 +568,282 @@
     </nav>
   </header>
   
-  <!-- Hero -->
   <div class="hero">
-    <div class="hero-badge">Personally Vetted by Founder with 8+ Years Experience</div>
-    <h1>Hire Professional Event Staff</h1>
-    <p>Premium event staffing for London's corporate, film, music, and private events. Every team member personally vetted. 100% satisfaction guaranteed.</p>
-    <a href="contact.html" class="hero-cta">Request Staff Now</a>
+    <div class="hero-badge">Personally Vetted by Founder • 8+ Years Experience</div>
+    <h1>Hire Event Staff</h1>
+    <p>Premium event professionals, personally vetted and guaranteed. From intimate gatherings to major productions. Text the founder directly for urgent needs.</p>
+    <a href="contact.html" class="hero-cta">Get Staff Quote</a>
   </div>
   
-  <!-- Trust Bar -->
   <div class="trust-bar">
     <div class="trust-container">
       <div class="trust-item">
-        <span class="trust-icon">✓</span>
+        <span class="trust-icon" aria-hidden="true">👤</span>
         <div class="trust-text">Personally Vetted</div>
-        <div class="trust-subtext">Every staff member interviewed by founder</div>
+        <div class="trust-subtext">By Founder with 8+ Years Experience</div>
       </div>
       <div class="trust-item">
-        <span class="trust-icon">🛡️</span>
+        <span class="trust-icon" aria-hidden="true">✅</span>
         <div class="trust-text">DBS Checked</div>
-        <div class="trust-subtext">All staff background verified</div>
+        <div class="trust-subtext">Full Background Verification</div>
       </div>
       <div class="trust-item">
-        <span class="trust-icon">💯</span>
+        <span class="trust-icon" aria-hidden="true">🛡️</span>
+        <div class="trust-text">Fully Insured</div>
+        <div class="trust-subtext">Comprehensive Liability Coverage</div>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon" aria-hidden="true">💯</span>
         <div class="trust-text">100% Guaranteed</div>
-        <div class="trust-subtext">Full refund + replacement if not satisfied</div>
-      </div>
-      <div class="trust-item">
-        <span class="trust-icon">📞</span>
-        <div class="trust-text">Direct Access</div>
-        <div class="trust-subtext">Text founder 24/7</div>
+        <div class="trust-subtext">Full Refund + Free Replacement</div>
       </div>
     </div>
   </div>
   
-  <!-- Content -->
-  <div class="container">
-    <div class="intro-section">
-      <h2>Professional Staff You Can Trust</h2>
-      <p>
-        After 8 years working in events across London's hospitality, film, music, and corporate sectors, 
-        I know what separates exceptional staff from mediocre. That's why every VERGO team member is 
-        personally vetted, interviewed, and reference-checked by me.
-      </p>
-      <div class="intro-highlight">
-        "I stake my personal reputation on every staff member we place. If they're not up to your 
-        standards, they're not up to mine either - and I'll make it right immediately."
-        <br><br>- [Your Name], Founder
+  <main id="main-content">
+    <div class="container">
+      <div class="intro-section">
+        <h2>Professional Event Staff, Personally Guaranteed</h2>
+        <p>
+          Every person we place has been personally interviewed, reference-checked, and approved 
+          by our founder. After 8 years managing events across London's hospitality, film, and 
+          music sectors, I know exactly what makes exceptional event staff.
+        </p>
+        <p>
+          Unlike staffing agencies that send random people from a database, you're getting 
+          professionals from my personal network - people I've worked with, trust completely, 
+          and would happily deploy at my own events.
+        </p>
+        <div class="intro-highlight">
+          "I don't send anyone to your event that I wouldn't be proud to have representing me 
+          personally. Your success is my reputation."
+        </div>
+      </div>
+      
+      <!-- Hospitality Staff -->
+      <div class="category-section">
+        <h2 class="category-header"><span aria-hidden="true">🍽️</span> Hospitality & Service Staff</h2>
+        <div class="staff-grid">
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🍸</span>
+            <h3>Bartender</h3>
+            <p>Professional bar service with extensive knowledge of cocktails, wines, and spirits.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🍹</span>
+            <h3>Mixologist</h3>
+            <p>Craft cocktail specialists creating bespoke drinks and memorable bar experiences.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🍽️</span>
+            <h3>Waiting Staff</h3>
+            <p>Attentive table service professionals ensuring excellent guest experiences.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🎩</span>
+            <h3>Front of House (FOH)</h3>
+            <p>Professional hosts and greeters creating excellent first impressions.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">👔</span>
+            <h3>Host/Hostess</h3>
+            <p>Welcoming guests and managing seating arrangements with grace and efficiency.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">👨‍🍳</span>
+            <h3>Chef</h3>
+            <p>Experienced culinary professionals leading kitchen operations and menu execution.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">👨‍🍳</span>
+            <h3>Sous Chef</h3>
+            <p>Second-in-command chefs managing kitchen operations and staff coordination.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🔪</span>
+            <h3>Chef de Partie</h3>
+            <p>Station chefs specializing in specific areas of kitchen production.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🧹</span>
+            <h3>Kitchen Porter (KP)</h3>
+            <p>Hardworking support staff maintaining cleanliness and organization in kitchens.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🏃</span>
+            <h3>Runner</h3>
+            <p>Efficient food and beverage runners ensuring seamless service flow.</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Events & Production -->
+      <div class="category-section">
+        <h2 class="category-header"><span aria-hidden="true">🎪</span> Events & Production Staff</h2>
+        <div class="staff-grid">
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">📋</span>
+            <h3>Event Manager</h3>
+            <p>Experienced event coordinators overseeing all aspects of event execution.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">👷</span>
+            <h3>Event Supervisor</h3>
+            <p>On-site supervisors managing staff teams and ensuring smooth operations.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🎬</span>
+            <h3>Stagehand</h3>
+            <p>Technical crew for setup, breakdown, and running live events and productions.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🏗️</span>
+            <h3>Site Crew</h3>
+            <p>Experienced crew for large-scale event builds, installations, and strikes.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">⚙️</span>
+            <h3>Rigger</h3>
+            <p>Certified rigging specialists for aerial equipment and stage installations.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">📦</span>
+            <h3>Loader</h3>
+            <p>Strong, reliable staff for loading, unloading, and moving equipment.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🎥</span>
+            <h3>AV Technician</h3>
+            <p>Audio-visual experts managing sound, video, and presentation systems.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">💡</span>
+            <h3>Lighting Tech</h3>
+            <p>Lighting specialists creating atmosphere and managing illumination systems.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🔊</span>
+            <h3>Sound Tech</h3>
+            <p>Sound engineers ensuring crystal-clear audio for performances and speeches.</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Venue & Operations -->
+      <div class="category-section">
+        <h2 class="category-header"><span aria-hidden="true">🏢</span> Venue & Operations Staff</h2>
+        <div class="staff-grid">
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🎫</span>
+            <h3>Steward</h3>
+            <p>Venue stewards managing crowd flow, seating, and general guest assistance.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🛡️</span>
+            <h3>Security (SIA)</h3>
+            <p>Licensed security personnel ensuring safety and managing access control.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🧼</span>
+            <h3>Cleaner</h3>
+            <p>Professional cleaning staff maintaining venue hygiene and presentation.</p>
+          </div>
+          
+          <div class="staff-card">
+            <span class="staff-icon" aria-hidden="true">🚗</span>
+            <h3>Driver</h3>
+            <p>Professional drivers for guest transportation and equipment delivery.</p>
+          </div>
+        </div>
       </div>
     </div>
     
-    <!-- Hospitality -->
-    <div class="category-section">
-      <h2 class="category-header"><span>🍽️</span> Hospitality Staff</h2>
-      <div class="staff-grid">
-        <div class="staff-card">
-          <span class="staff-icon">☕</span>
-          <h3>Barista</h3>
-          <p>Expert coffee preparation, latte art, and specialty beverage service for your events.</p>
+    <!-- Benefits Section -->
+    <div class="benefits-section">
+      <h2>Why Choose VERGO Staff?</h2>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <span class="benefit-icon" aria-hidden="true">👤</span>
+          <h3>Personally Vetted</h3>
+          <p>Every staff member personally interviewed, reference-checked, and approved by our founder with 8+ years in the industry.</p>
         </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🍸</span>
-          <h3>Bartender</h3>
-          <p>Professional bar service with extensive knowledge of cocktails, wines, and spirits.</p>
+        <div class="benefit-card">
+          <span class="benefit-icon" aria-hidden="true">✅</span>
+          <h3>DBS Checked</h3>
+          <p>All staff undergo comprehensive DBS background checks for your peace of mind and venue requirements.</p>
         </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🍹</span>
-          <h3>Mixologist</h3>
-          <p>Craft cocktail specialists creating bespoke drinks and memorable bar experiences.</p>
+        <div class="benefit-card">
+          <span class="benefit-icon" aria-hidden="true">🎯</span>
+          <h3>Industry Experienced</h3>
+          <p>Our network includes professionals from film, music, hospitality, and corporate events across London.</p>
         </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🍽️</span>
-          <h3>Waiting Staff</h3>
-          <p>Attentive table service professionals ensuring excellent guest experiences.</p>
+        <div class="benefit-card">
+          <span class="benefit-icon" aria-hidden="true">⚡</span>
+          <h3>Fast Response</h3>
+          <p>Last-minute needs? Text the founder directly. We can often source quality staff within hours.</p>
         </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🎩</span>
-          <h3>Front of House (FOH)</h3>
-          <p>Professional hosts and greeters creating excellent first impressions.</p>
+        <div class="benefit-card">
+          <span class="benefit-icon" aria-hidden="true">🛡️</span>
+          <h3>Fully Insured</h3>
+          <p>Comprehensive liability insurance included with all placements for complete protection.</p>
         </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">👔</span>
-          <h3>Host/Hostess</h3>
-          <p>Welcoming guests and managing seating arrangements with grace and efficiency.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">👨‍🍳</span>
-          <h3>Chef</h3>
-          <p>Experienced culinary professionals leading kitchen operations and menu execution.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">👨‍🍳</span>
-          <h3>Sous Chef</h3>
-          <p>Second-in-command chefs managing kitchen operations and staff coordination.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🔪</span>
-          <h3>Chef de Partie</h3>
-          <p>Station chefs specializing in specific areas of kitchen production.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🧹</span>
-          <h3>Kitchen Porter (KP)</h3>
-          <p>Hardworking support staff maintaining cleanliness and organization in kitchens.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🏃</span>
-          <h3>Runner</h3>
-          <p>Efficient food and beverage runners ensuring seamless service flow.</p>
+        <div class="benefit-card">
+          <span class="benefit-icon" aria-hidden="true">💰</span>
+          <h3>Competitive Rates</h3>
+          <p>Premium quality at competitive prices, with founding client discounts currently available.</p>
         </div>
       </div>
     </div>
     
-    <!-- Events & Production -->
-    <div class="category-section">
-      <h2 class="category-header"><span>🎪</span> Events & Production Staff</h2>
-      <div class="staff-grid">
-        <div class="staff-card">
-          <span class="staff-icon">📋</span>
-          <h3>Event Manager</h3>
-          <p>Experienced event coordinators overseeing all aspects of event execution.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">👷</span>
-          <h3>Event Supervisor</h3>
-          <p>On-site supervisors managing staff teams and ensuring smooth operations.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🎬</span>
-          <h3>Stagehand</h3>
-          <p>Technical crew for setup, breakdown, and running live events and productions.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🏗️</span>
-          <h3>Site Crew</h3>
-          <p>Experienced crew for large-scale event builds, installations, and strikes.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">⚙️</span>
-          <h3>Rigger</h3>
-          <p>Certified rigging specialists for aerial equipment and stage installations.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">📦</span>
-          <h3>Loader</h3>
-          <p>Strong, reliable staff for loading, unloading, and moving equipment.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🎥</span>
-          <h3>AV Technician</h3>
-          <p>Audio-visual experts managing sound, video, and presentation systems.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">💡</span>
-          <h3>Lighting Tech</h3>
-          <p>Lighting specialists creating atmosphere and managing illumination systems.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🔊</span>
-          <h3>Sound Tech</h3>
-          <p>Sound engineers ensuring crystal-clear audio for performances and speeches.</p>
-        </div>
+    <!-- Guarantee Section -->
+    <div class="container">
+      <div class="guarantee-section">
+        <div class="guarantee-badge" aria-hidden="true">💯</div>
+        <h2>Our Ironclad Guarantee</h2>
+        <p>
+          If you're not 100% satisfied with our staff or service for any reason, 
+          we'll refund your payment in full AND provide replacement staff at no additional cost.
+        </p>
+        <p>
+          No questions asked. No fine print. No hassle.
+        </p>
+        <p class="guarantee-highlight">
+          That's how confident we are in our vetting process and the quality of our team.
+        </p>
       </div>
     </div>
     
-    <!-- Venue & Operations -->
-    <div class="category-section">
-      <h2 class="category-header"><span>🏢</span> Venue & Operations Staff</h2>
-      <div class="staff-grid">
-        <div class="staff-card">
-          <span class="staff-icon">🎫</span>
-          <h3>Steward</h3>
-          <p>Venue stewards managing crowd flow, seating, and general guest assistance.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🛡️</span>
-          <h3>Security (SIA)</h3>
-          <p>Licensed security personnel ensuring safety and managing access control.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🧼</span>
-          <h3>Cleaner</h3>
-          <p>Professional cleaning staff maintaining venue hygiene and presentation.</p>
-        </div>
-        
-        <div class="staff-card">
-          <span class="staff-icon">🚗</span>
-          <h3>Driver</h3>
-          <p>Professional drivers for guest transportation and equipment delivery.</p>
-        </div>
+    <!-- CTA -->
+    <div class="container">
+      <div class="cta-section">
+        <h2>Need Staff for Your Event?</h2>
+        <p>Let's discuss your staffing requirements. Direct access to founder with 8 years experience. Same-day quotes. 100% satisfaction guaranteed.</p>
+        <a href="contact.html" class="cta-button">Get a Quote</a>
       </div>
     </div>
-  </div>
-  
-  <!-- Benefits Section -->
-  <div class="benefits-section">
-    <h2>Why Choose VERGO Staff?</h2>
-    <div class="benefits-grid">
-      <div class="benefit-card">
-        <span class="benefit-icon">👤</span>
-        <h3>Personally Vetted</h3>
-        <p>Every staff member personally interviewed, reference-checked, and approved by our founder with 8+ years in the industry.</p>
-      </div>
-      <div class="benefit-card">
-        <span class="benefit-icon">✅</span>
-        <h3>DBS Checked</h3>
-        <p>All staff undergo comprehensive DBS background checks for your peace of mind and venue requirements.</p>
-      </div>
-      <div class="benefit-card">
-        <span class="benefit-icon">🎯</span>
-        <h3>Industry Experienced</h3>
-        <p>Our network includes professionals from film, music, hospitality, and corporate events across London.</p>
-      </div>
-      <div class="benefit-card">
-        <span class="benefit-icon">⚡</span>
-        <h3>Fast Response</h3>
-        <p>Last-minute needs? Text the founder directly. We can often source quality staff within hours.</p>
-      </div>
-      <div class="benefit-card">
-        <span class="benefit-icon">🛡️</span>
-        <h3>Fully Insured</h3>
-        <p>Comprehensive liability insurance included with all placements for complete protection.</p>
-      </div>
-      <div class="benefit-card">
-        <span class="benefit-icon">💰</span>
-        <h3>Competitive Rates</h3>
-        <p>Premium quality at competitive prices, with founding client discounts currently available.</p>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Guarantee Section -->
-  <div class="container">
-    <div class="guarantee-section">
-      <div class="guarantee-badge">💯</div>
-      <h2>Our Ironclad Guarantee</h2>
-      <p>
-        If you're not 100% satisfied with our staff or service for any reason, 
-        we'll refund your payment in full AND provide replacement staff at no additional cost.
-      </p>
-      <p>
-        No questions asked. No fine print. No hassle.
-      </p>
-      <p class="guarantee-highlight">
-        That's how confident we are in our vetting process and the quality of our team.
-      </p>
-    </div>
-  </div>
-  
-  <!-- CTA -->
-  <div class="container">
-    <div class="cta-section">
-      <h2>Need Staff for Your Event?</h2>
-      <p>Let's discuss your staffing requirements. Direct access to founder with 8 years experience. Same-day quotes. 100% satisfaction guaranteed.</p>
-      <a href="contact.html" class="cta-button">Get a Quote</a>
-    </div>
-  </div>
+  </main>
   
   <!-- Footer -->
-  <footer>
+  <footer role="contentinfo">
     <div class="footer-content">
       <div class="footer-section">
         <h3>VERGO Events</h3>
@@ -876,10 +884,13 @@
     </div>
   </footer>
 
+  <script src="/vergo-utils.js"></script>
   <script>
     function toggleMenu() {
       const menu = document.getElementById('nav-menu');
-      menu.classList.toggle('active');
+      const toggle = document.querySelector('.menu-toggle');
+      const isExpanded = menu.classList.toggle('active');
+      toggle.setAttribute('aria-expanded', isExpanded);
     }
     
     document.addEventListener('click', function(event) {
@@ -887,6 +898,7 @@
       const header = document.querySelector('header');
       if (header && !header.contains(event.target)) {
         menu.classList.remove('active');
+        document.querySelector('.menu-toggle').setAttribute('aria-expanded', 'false');
       }
     });
   </script>
