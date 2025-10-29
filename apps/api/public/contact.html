@@ -123,6 +123,88 @@
       .tab { border-bottom: none; border-left: 3px solid transparent; }
       .tab.active { border-left: 3px solid #D4AF37; border-bottom: none; }
     }
+      /* Testimonials Section */
+  .testimonials-section {
+    background: #1a1a1a;
+    padding: 60px 40px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmin(350px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .testimonial-card {
+    background: #0a0a0a;
+    padding: 35px 30px;
+    border-radius: 8px;
+    border-left: 4px solid #D4AF37;
+    transition: transform 0.3s ease;
+  }
+
+  .testimonial-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .testimonial-rating {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: #D4AF37;
+  }
+
+  .testimonial-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #cccccc;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .testimonial-author {
+    padding-top: 15px;
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+  }
+
+  .testimonial-author strong {
+    color: #D4AF37;
+    font-size: 1.05rem;
+  }
+
+  .testimonial-author span {
+    color: #999;
+    font-size: 0.9rem;
+  }
+
+  /* Trust Badges Bar */
+  .trust-badges {
+    background: rgba(212, 175, 55, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    padding: 25px 40px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin: 40px 0;
+  }
+
+  .trust-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #D4AF37;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .trust-badge-icon {
+    font-size: 1.5rem;
+  }
   </style>
 </head>
 <body>
@@ -274,7 +356,7 @@
           <div class="form-row">
             <div class="form-group">
               <label for="staff-phone">Phone Number (optional)</label>
-              <input type="tel" id="staff-phone" name="phone" placeholder="+44 7700 900000">
+              <input type="tel" id="staff-phone" name="phone" placeholder="+44 7944 505 783">
             </div>
             <div class="form-group">
               <label for="staff-company">Company Name *</label>
@@ -424,7 +506,7 @@
         <div class="contact-method">
           <h3>📞 Phone</h3>
           <p><strong>Founder Direct:</strong></p>
-          <a href="tel:+447700900000">+44 7700 900000</a>
+          <a href="tel:+44 7944 505 783">+44 7944 505 783</a>
           <p style="margin-top: 15px; font-size: 0.9rem; color: #999;">Available 24/7 for urgent needs</p>
         </div>
         
@@ -747,4 +829,4 @@
     document.head.appendChild(style);
   </script>
 </body>
-</html>
+</html> 

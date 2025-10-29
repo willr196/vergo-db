@@ -540,6 +540,88 @@
         grid-template-columns: 1fr;
       }
     }
+      /* Testimonials Section */
+  .testimonials-section {
+    background: #1a1a1a;
+    padding: 60px 40px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmin(350px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .testimonial-card {
+    background: #0a0a0a;
+    padding: 35px 30px;
+    border-radius: 8px;
+    border-left: 4px solid #D4AF37;
+    transition: transform 0.3s ease;
+  }
+
+  .testimonial-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .testimonial-rating {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: #D4AF37;
+  }
+
+  .testimonial-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #cccccc;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .testimonial-author {
+    padding-top: 15px;
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+  }
+
+  .testimonial-author strong {
+    color: #D4AF37;
+    font-size: 1.05rem;
+  }
+
+  .testimonial-author span {
+    color: #999;
+    font-size: 0.9rem;
+  }
+
+  /* Trust Badges Bar */
+  .trust-badges {
+    background: rgba(212, 175, 55, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    padding: 25px 40px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin: 40px 0;
+  }
+
+  .trust-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #D4AF37;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .trust-badge-icon {
+    font-size: 1.5rem;
+  }
   </style>
 </head>
 <body>
@@ -618,6 +700,27 @@
           "I don't send anyone to your event that I wouldn't be proud to have representing me 
           personally. Your success is my reputation."
         </div>
+      </div>
+      
+      <!-- Personal Vetting Box -->
+      <div class="personal-vetting-box">
+        <h3>Why Our Personal Vetting Makes the Difference</h3>
+        <p>
+          <strong>Every. Single. Person.</strong> Unlike large staffing agencies with thousands of 
+          names in a database, every staff member in our network has been personally interviewed and 
+          vetted by our founder.
+        </p>
+        <p>
+          With 8+ years in London's event industry, I know exactly what separates good staff from 
+          exceptional staff. I check references thoroughly, assess professionalism in person, and 
+          only work with people I trust completely. This personal approach means:
+        </p>
+        <ul style="margin: 20px 0 0 30px; line-height: 2;">
+          <li><strong>No surprises</strong> - you get reliable, professional staff every time</li>
+          <li><strong>Direct accountability</strong> - I personally guarantee their performance</li>
+          <li><strong>Higher quality</strong> - only the top 20% make it into our network</li>
+          <li><strong>Cultural fit</strong> - staff who understand your event's needs and atmosphere</li>
+        </ul>
       </div>
       
       <!-- Hospitality Staff -->
@@ -830,6 +933,71 @@
           That's how confident we are in our vetting process and the quality of our team.
         </p>
       </div>
+    </div>
+    
+    <!-- Trust Badges -->
+    <div class="container">
+      <div class="trust-badges">
+        <div class="trust-badge">
+          <span class="trust-badge-icon" aria-hidden="true">✓</span>
+          <span>100% Personally Vetted</span>
+        </div>
+        <div class="trust-badge">
+          <span class="trust-badge-icon" aria-hidden="true">✓</span>
+          <span>8+ Years Experience</span>
+        </div>
+        <div class="trust-badge">
+          <span class="trust-badge-icon" aria-hidden="true">✓</span>
+          <span>Money-Back Guarantee</span>
+        </div>
+        <div class="trust-badge">
+          <span class="trust-badge-icon" aria-hidden="true">✓</span>
+          <span>London's Finest</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Testimonials Section -->
+    <div class="container">
+      <section class="testimonials-section" aria-labelledby="testimonials-heading">
+        <h2 id="testimonials-heading" class="category-header">
+          <span aria-hidden="true">⭐</span> What Our Clients Say About Our Staff
+        </h2>
+        <div class="testimonials-grid">
+          <div class="testimonial-card">
+            <div class="testimonial-rating" aria-label="5 out of 5 stars">★★★★★</div>
+            <p class="testimonial-text">
+              "The bartenders were absolutely fantastic. Professional, friendly, and they kept the drinks flowing perfectly all night. Several guests asked where we found such great staff!"
+            </p>
+            <div class="testimonial-author">
+              <strong>Michael Chen</strong><br>
+              <span>Corporate Event Manager</span>
+            </div>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="testimonial-rating" aria-label="5 out of 5 stars">★★★★★</div>
+            <p class="testimonial-text">
+              "We've used other staffing agencies before, and the difference is night and day. VERGO's team was punctual, immaculately presented, and genuinely seemed to care about our event's success."
+            </p>
+            <div class="testimonial-author">
+              <strong>Rebecca Thompson</strong><br>
+              <span>Wedding Coordinator</span>
+            </div>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="testimonial-rating" aria-label="5 out of 5 stars">★★★★★</div>
+            <p class="testimonial-text">
+              "The personal vetting really shows. Every staff member was top-notch, knew exactly what to do, and handled everything with professionalism. We'll definitely be using VERGO again."
+            </p>
+            <div class="testimonial-author">
+              <strong>David Williams</strong><br>
+              <span>Private Event Host</span>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
     
     <!-- CTA -->

@@ -39,7 +39,16 @@ const eventEnquirySchema = z.object({
   email: z.string().email().max(255).toLowerCase(),
   phone: z.string().max(20).optional(),
   eventType: z.enum(['corporate', 'wedding', 'private', 'music', 'charity', 'festival', 'other']),
-  date: z.string().optional(),
+  date: z.string().refine(
+    (date) => {
+      if (!date) return true; // Allow empty dates
+      const eventDate = new Date(date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time to start of day
+      return eventDate >= today;
+    }, 
+    { message: "Event date must be today or in the future" }
+  ).optional(),
   guests: z.number().min(1).optional(),
   message: z.string().min(10).max(2000).trim(),
   // Honeypot fields (should remain empty)
