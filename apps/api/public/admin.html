@@ -1,643 +1,796 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Admin – VERGO Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - VERGO Events</title>
+  <link rel="icon" type="image/svg+xml" href="/vergo-logo.svg">
   <style>
     * {
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
     }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #f5f5f5;
+
+    :root {
+      --primary-gold: #D4AF37;
+      --bg-dark: #0f0f0f;
+      --bg-card: #1a1a1a;
+      --bg-hover: #252525;
+      --text-primary: #ffffff;
+      --text-secondary: #cccccc;
+      --text-muted: #999999;
+      --border-color: #2a2a2a;
+      --success: #28a745;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --info: #17a2b8;
     }
-    
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    /* Header */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-      padding: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--primary-gold);
     }
-    
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo img {
+      height: 40px;
+      width: auto;
+    }
+
     h1 {
-      margin: 0;
-      color: #333;
+      color: var(--primary-gold);
+      font-size: 1.8em;
     }
-    
-    #logout {
-      padding: 8px 16px;
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logout-btn {
       background: #dc3545;
       color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: #c82333;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 16px;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+    }
+
+    .tab.active {
+      color: var(--primary-gold);
+      border-bottom-color: var(--primary-gold);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Filters Bar - Google Sheets Style */
+    .filters-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .filters-row {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: end;
+    }
+
+    .filter-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .filter-group select,
+    .filter-group input {
+      width: 100%;
+      padding: 10px;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
+    .filter-group select:focus,
+    .filter-group input:focus {
+      outline: none;
+      border-color: var(--primary-gold);
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-filter {
+      padding: 10px 20px;
+      background: var(--primary-gold);
+      color: #000;
       border: none;
       border-radius: 4px;
       cursor: pointer;
       font-size: 14px;
-    }
-    
-    #logout:hover {
-      background: #c82333;
-    }
-    
-    /* Tab Navigation */
-    .tabs {
-      display: flex;
-      gap: 0;
-      margin-bottom: 20px;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .tab {
-      flex: 1;
-      padding: 15px 20px;
-      border: none;
-      background: white;
-      color: #666;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: 500;
-      transition: all 0.3s;
-      border-bottom: 3px solid transparent;
-    }
-    
-    .tab:hover {
-      background: #f8f9fa;
-      color: #333;
-    }
-    
-    .tab.active {
-      color: #007bff;
-      border-bottom-color: #007bff;
-      background: #f8f9ff;
-    }
-    
-    .tab-badge {
-      display: inline-block;
-      margin-left: 8px;
-      padding: 2px 8px;
-      background: #e9ecef;
-      border-radius: 12px;
-      font-size: 12px;
       font-weight: 600;
+      transition: all 0.2s;
     }
-    
-    .tab.active .tab-badge {
-      background: #007bff;
-      color: white;
+
+    .btn-filter:hover {
+      background: #c49b2f;
+      transform: translateY(-1px);
     }
-    
-    /* Tab Content */
-    .tab-content {
-      display: none;
-    }
-    
-    .tab-content.active {
-      display: block;
-    }
-    
-    #status {
-      padding: 12px;
-      background: #fff3cd;
-      border-radius: 4px;
-      margin-bottom: 20px;
-      text-align: center;
-      color: #856404;
-    }
-    
-    #status.error {
-      background: #f8d7da;
-      color: #721c24;
-    }
-    
-    #status.success {
-      background: #d4edda;
-      color: #155724;
-    }
-    
-    /* Cards */
-    .card-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    
-    .card {
-      background: white;
-      padding: 20px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      transition: box-shadow 0.2s;
-    }
-    
-    .card:hover {
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-    
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    
-    .card-title {
-      font-size: 1.2em;
-      font-weight: 600;
-      color: #333;
-    }
-    
-    .card-status {
-      padding: 6px 12px;
-      border-radius: 4px;
-      font-size: 0.85em;
-      font-weight: 600;
-    }
-    
-    /* Application statuses */
-    .status-RECEIVED { background: #d1ecf1; color: #0c5460; }
-    .status-REVIEWING { background: #fff3cd; color: #856404; }
-    .status-SHORTLISTED { background: #d4edda; color: #155724; }
-    .status-REJECTED { background: #f8d7da; color: #721c24; }
-    .status-HIRED { background: #d1e7dd; color: #0f5132; }
-    
-    /* Contact statuses */
-    .status-NEW { background: #cfe2ff; color: #052c65; }
-    .status-CONTACTED { background: #fff3cd; color: #856404; }
-    .status-QUOTED { background: #e7d8ff; color: #3d0066; }
-    .status-BOOKED { background: #d4edda; color: #155724; }
-    .status-LOST { background: #f8d7da; color: #721c24; }
-    
-    /* Event statuses */
-    .status-UPCOMING { background: #cfe2ff; color: #052c65; }
-    .status-CONFIRMED { background: #d4edda; color: #155724; }
-    .status-COMPLETED { background: #e2e3e5; color: #383d41; }
-    .status-CANCELLED { background: #f8d7da; color: #721c24; }
-    
-    .card-info {
-      margin: 8px 0;
-      color: #666;
-      font-size: 0.95em;
-    }
-    
-    .card-meta {
-      margin: 8px 0;
-      font-size: 0.85em;
-      color: #999;
-    }
-    
-    .card-section {
-      margin: 12px 0;
-      padding: 12px;
-      background: #f8f9fa;
-      border-radius: 4px;
-    }
-    
-    .card-section-title {
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 8px;
-    }
-    
-    .card-actions {
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid #eee;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    
-    /* Notes */
-    .notes-list {
-      list-style: none;
-      padding: 0;
-      margin: 8px 0 0 0;
-    }
-    
-    .note-item {
-      padding: 8px;
-      background: white;
-      border-left: 3px solid #007bff;
-      margin-bottom: 8px;
-      border-radius: 4px;
-    }
-    
-    .note-text {
-      color: #333;
-      margin-bottom: 4px;
-    }
-    
-    .note-meta {
-      font-size: 0.8em;
-      color: #999;
-    }
-    
-    .add-note-form {
-      display: none;
-      margin-top: 10px;
-    }
-    
-    .add-note-form.show {
-      display: block;
-    }
-    
-    .add-note-form textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-family: inherit;
-      resize: vertical;
-      min-height: 60px;
-    }
-    
-    /* Buttons */
-    button {
-      padding: 8px 14px;
-      border: none;
+
+    .btn-clear {
+      padding: 10px 20px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
       border-radius: 4px;
       cursor: pointer;
       font-size: 14px;
       transition: all 0.2s;
-      font-weight: 500;
     }
-    
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+
+    .btn-clear:hover {
+      color: var(--text-primary);
+      border-color: var(--text-primary);
     }
-    
-    .btn-primary {
-      background: #007bff;
-      color: white;
-    }
-    
-    .btn-primary:hover:not(:disabled) {
-      background: #0056b3;
-    }
-    
-    .btn-success {
-      background: #28a745;
-      color: white;
-    }
-    
-    .btn-success:hover:not(:disabled) {
-      background: #218838;
-    }
-    
-    .btn-warning {
-      background: #ffc107;
-      color: #000;
-    }
-    
-    .btn-warning:hover:not(:disabled) {
-      background: #e0a800;
-    }
-    
-    .btn-danger {
-      background: #dc3545;
-      color: white;
-    }
-    
-    .btn-danger:hover:not(:disabled) {
-      background: #c82333;
-    }
-    
-    .btn-secondary {
-      background: #6c757d;
-      color: white;
-    }
-    
-    .btn-secondary:hover:not(:disabled) {
-      background: #545b62;
-    }
-    
-    .btn-light {
-      background: #f8f9fa;
-      color: #333;
-      border: 1px solid #ddd;
-    }
-    
-    .btn-light:hover:not(:disabled) {
-      background: #e2e6ea;
-    }
-    
-    /* Create Event Form */
-    .create-event-section {
-      background: white;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .create-event-section h2 {
-      margin-top: 0;
-      color: #333;
-    }
-    
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 15px;
-      margin-bottom: 15px;
-    }
-    
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .form-group label {
-      font-weight: 500;
-      margin-bottom: 5px;
-      color: #333;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-family: inherit;
-      font-size: 14px;
-    }
-    
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #007bff;
-      box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
-    }
-    
-    /* Empty State */
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: #999;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .empty-state-icon {
-      font-size: 48px;
-      margin-bottom: 15px;
-      opacity: 0.5;
-    }
-    
-    /* Stats Bar */
-    .stats-bar {
+
+    /* Stats Overview */
+    .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 15px;
       margin-bottom: 20px;
     }
-    
+
     .stat-card {
-      background: white;
-      padding: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
     }
-    
-    .stat-value {
-      font-size: 2em;
-      font-weight: 700;
-      color: #007bff;
+
+    .stat-card:hover {
+      border-color: var(--primary-gold);
+      transform: translateY(-2px);
     }
-    
+
+    .stat-card.active {
+      border-color: var(--primary-gold);
+      background: var(--bg-hover);
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: bold;
+      color: var(--primary-gold);
+      margin-bottom: 5px;
+    }
+
     .stat-label {
-      color: #666;
-      font-size: 0.9em;
-      margin-top: 5px;
+      color: var(--text-muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
+
+    /* Table - Google Sheets Style */
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: var(--bg-hover);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    th {
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-primary);
+      border-bottom: 2px solid var(--border-color);
+      cursor: pointer;
+      user-select: none;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    th:hover {
+      background: var(--bg-card);
+    }
+
+    th .sort-icon {
+      margin-left: 5px;
+      opacity: 0.5;
+      font-size: 10px;
+    }
+
+    th.sorted .sort-icon {
+      opacity: 1;
+      color: var(--primary-gold);
+    }
+
+    td {
+      padding: 15px 12px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 14px;
+    }
+
+    tbody tr {
+      transition: background 0.2s;
+    }
+
+    tbody tr:hover {
+      background: var(--bg-hover);
+    }
+
+    /* Status Pills */
+    .status-pill {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-RECEIVED { background: rgba(23, 162, 184, 0.2); color: #17a2b8; }
+    .status-REVIEWING { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+    .status-SHORTLISTED { background: rgba(40, 167, 69, 0.2); color: #28a745; }
+    .status-REJECTED { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
+    .status-HIRED { background: rgba(32, 201, 151, 0.2); color: #20c997; }
     
+    .status-NEW { background: rgba(23, 162, 184, 0.2); color: #17a2b8; }
+    .status-CONTACTED { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+    .status-QUOTED { background: rgba(40, 167, 69, 0.2); color: #28a745; }
+    .status-BOOKED { background: rgba(32, 201, 151, 0.2); color: #20c997; }
+    .status-LOST { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
+    
+    .status-UPCOMING { background: rgba(23, 162, 184, 0.2); color: #17a2b8; }
+    .status-CONFIRMED { background: rgba(40, 167, 69, 0.2); color: #28a745; }
+    .status-COMPLETED { background: rgba(32, 201, 151, 0.2); color: #20c997; }
+    .status-CANCELLED { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
+
+    /* Role Pills */
+    .role-pill {
+      display: inline-block;
+      padding: 3px 8px;
+      margin: 2px;
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--primary-gold);
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-view {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-view:hover {
+      background: #0056b3;
+    }
+
+    .btn-reviewing {
+      background: #ffc107;
+      color: #000;
+    }
+
+    .btn-reviewing:hover {
+      background: #e0a800;
+    }
+
+    .btn-shortlist {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-shortlist:hover {
+      background: #218838;
+    }
+
+    .btn-reject {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-reject:hover {
+      background: #c82333;
+    }
+
+    .btn-hire {
+      background: #20c997;
+      color: white;
+    }
+
+    .btn-hire:hover {
+      background: #1aa179;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 1000;
+      display: none;
+      min-width: 300px;
+    }
+
+    .notification.show {
+      display: block;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .notification.success {
+      border-left: 4px solid var(--success);
+    }
+
+    .notification.error {
+      border-left: 4px solid var(--danger);
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
-      body {
-        padding: 10px;
-      }
-      
-      .header {
-        flex-direction: column;
-        gap: 10px;
-      }
-      
-      .tabs {
+      .filters-row {
         flex-direction: column;
       }
-      
-      .tab {
-        border-bottom: 1px solid #eee;
-        border-left: 3px solid transparent;
+
+      .filter-group {
+        min-width: 100%;
       }
-      
-      .tab.active {
-        border-bottom: 1px solid #eee;
-        border-left-color: #007bff;
+
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       }
-      
-      .card-header {
+
+      table {
+        font-size: 12px;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+
+      .action-buttons {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
       }
-      
-      .card-actions {
-        flex-direction: column;
-      }
-      
-      .card-actions button {
+
+      .btn-action {
         width: 100%;
-      }
-      
-      .form-grid {
-        grid-template-columns: 1fr;
       }
     }
   </style>
-  <link rel="stylesheet" href="/vergo-a11y.css">
 </head>
 <body>
-  <div class="header" role="banner">
-    <h1>VERGO Dashboard</h1>
-    <button id="logout" aria-label="Log out of admin dashboard">Logout</button>
+
+  <div class="header">
+    <div class="logo">
+      <img src="/vergo-logo.svg" alt="VERGO Events">
+      <h1>Admin Dashboard</h1>
+    </div>
+    <div class="user-info">
+      <span id="admin-name">Admin</span>
+      <button class="logout-btn" id="logout">Logout</button>
+    </div>
   </div>
-  
+
+  <div class="notification" id="notification"></div>
+
+  <!-- Tabs -->
   <div class="tabs">
-    <button class="tab active" data-tab="applications">
-      Applications <span class="tab-badge" id="apps-count">0</span>
-    </button>
-    <button class="tab" data-tab="contacts">
-      Contact Inquiries <span class="tab-badge" id="contacts-count">0</span>
-    </button>
-    <button class="tab" data-tab="events">
-      Events <span class="tab-badge" id="events-count">0</span>
-    </button>
+    <button class="tab active" data-tab="applications">Applications</button>
+    <button class="tab" data-tab="contacts">Contacts</button>
+    <button class="tab" data-tab="events">Events</button>
   </div>
-  
-  <div id="status">Loading...</div>
-  
-  <!-- APPLICATIONS TAB -->
+
+  <!-- Applications Tab -->
   <div id="applications-tab" class="tab-content active">
-    <div class="stats-bar">
-      <div class="stat-card">
-        <div class="stat-value" id="stat-new-apps">0</div>
-        <div class="stat-label">New Applications</div>
+    
+    <!-- Stats -->
+    <div class="stats-grid" id="app-stats">
+      <div class="stat-card" data-filter="all">
+        <div class="stat-number" id="stat-total">0</div>
+        <div class="stat-label">Total</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-shortlisted">0</div>
+      <div class="stat-card" data-filter="RECEIVED">
+        <div class="stat-number" id="stat-received">0</div>
+        <div class="stat-label">New</div>
+      </div>
+      <div class="stat-card" data-filter="REVIEWING">
+        <div class="stat-number" id="stat-reviewing">0</div>
+        <div class="stat-label">Reviewing</div>
+      </div>
+      <div class="stat-card" data-filter="SHORTLISTED">
+        <div class="stat-number" id="stat-shortlisted">0</div>
         <div class="stat-label">Shortlisted</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-hired">0</div>
+      <div class="stat-card" data-filter="REJECTED">
+        <div class="stat-number" id="stat-rejected">0</div>
+        <div class="stat-label">Rejected</div>
+      </div>
+      <div class="stat-card" data-filter="HIRED">
+        <div class="stat-number" id="stat-hired">0</div>
         <div class="stat-label">Hired</div>
       </div>
     </div>
-    <ul id="applications-list" class="card-list"></ul>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+      <div class="filters-row">
+        <div class="filter-group">
+          <label>Status</label>
+          <select id="filter-status">
+            <option value="">All Statuses</option>
+            <option value="RECEIVED">New Applications</option>
+            <option value="REVIEWING">Under Review</option>
+            <option value="SHORTLISTED">Shortlisted</option>
+            <option value="REJECTED">Rejected Pile</option>
+            <option value="HIRED">Hired Pile</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Role</label>
+          <select id="filter-role">
+            <option value="">All Roles</option>
+            <option value="BARTENDER">Bartender</option>
+            <option value="WAITER">Waiter/Waitress</option>
+            <option value="SUPERVISOR">Supervisor</option>
+            <option value="EVENT_MANAGER">Event Manager</option>
+            <option value="CHEF">Chef</option>
+            <option value="KITCHEN_PORTER">Kitchen Porter</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Search</label>
+          <input type="text" id="filter-search" placeholder="Name, email, phone...">
+        </div>
+        <div class="filter-actions">
+          <button class="btn-filter" onclick="applyFilters()">Apply</button>
+          <button class="btn-clear" onclick="clearFilters()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortTable('fullName')">Name <span class="sort-icon">↕</span></th>
+            <th onclick="sortTable('email')">Email <span class="sort-icon">↕</span></th>
+            <th onclick="sortTable('phone')">Phone <span class="sort-icon">↕</span></th>
+            <th onclick="sortTable('roles')">Roles <span class="sort-icon">↕</span></th>
+            <th onclick="sortTable('status')">Status <span class="sort-icon">↕</span></th>
+            <th onclick="sortTable('createdAt')">Applied <span class="sort-icon">↕</span></th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="applications-body">
+          <tr>
+            <td colspan="7" class="loading">Loading applications...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-  
-  <!-- CONTACTS TAB -->
+
+  <!-- Contacts Tab -->
   <div id="contacts-tab" class="tab-content">
-    <div class="stats-bar">
+    
+    <!-- Stats -->
+    <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-value" id="stat-new-contacts">0</div>
-        <div class="stat-label">New Inquiries</div>
+        <div class="stat-number" id="stat-contacts-total">0</div>
+        <div class="stat-label">Total</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="stat-quoted">0</div>
+        <div class="stat-number" id="stat-contacts-new">0</div>
+        <div class="stat-label">New</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-contacts-quoted">0</div>
         <div class="stat-label">Quoted</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="stat-booked">0</div>
+        <div class="stat-number" id="stat-contacts-booked">0</div>
         <div class="stat-label">Booked</div>
       </div>
     </div>
-    <ul id="contacts-list" class="card-list"></ul>
-  </div>
-  
-  <!-- EVENTS TAB -->
-  <div id="events-tab" class="tab-content">
-    <div class="create-event-section">
-      <h2>Create New Event</h2>
-      <form id="create-event-form">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Event Name *</label>
-            <input type="text" name="eventName" required placeholder="Smith Wedding">
-          </div>
-          <div class="form-group">
-            <label>Event Date *</label>
-            <input type="date" name="eventDate" required>
-          </div>
-          <div class="form-group">
-            <label>Client Name *</label>
-            <input type="text" name="clientName" required placeholder="John Smith">
-          </div>
-          <div class="form-group">
-            <label>Venue</label>
-            <input type="text" name="venue" placeholder="The Grand Hotel">
-          </div>
-          <div class="form-group">
-            <label>Staff Needed</label>
-            <input type="number" name="staffNeeded" min="1" placeholder="5">
-          </div>
-          <div class="form-group">
-            <label>Status</label>
-            <select name="status">
-              <option value="UPCOMING">Upcoming</option>
-              <option value="CONFIRMED">Confirmed</option>
-            </select>
-          </div>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+      <div class="filters-row">
+        <div class="filter-group">
+          <label>Status</label>
+          <select id="filter-contact-status">
+            <option value="">All Statuses</option>
+            <option value="NEW">New</option>
+            <option value="CONTACTED">Contacted</option>
+            <option value="QUOTED">Quoted</option>
+            <option value="BOOKED">Booked</option>
+            <option value="LOST">Lost</option>
+          </select>
         </div>
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea name="notes" rows="3" placeholder="Any additional details..."></textarea>
+        <div class="filter-group">
+          <label>Type</label>
+          <select id="filter-contact-type">
+            <option value="">All Types</option>
+            <option value="EVENT_ENQUIRY">Event Enquiry</option>
+            <option value="STAFF_REQUEST">Staff Request</option>
+            <option value="GENERAL">General</option>
+          </select>
         </div>
-        <button type="submit" class="btn-primary">Create Event</button>
-      </form>
+        <div class="filter-group">
+          <label>Search</label>
+          <input type="text" id="filter-contact-search" placeholder="Name, email, company...">
+        </div>
+        <div class="filter-actions">
+          <button class="btn-filter" onclick="applyContactFilters()">Apply</button>
+          <button class="btn-clear" onclick="clearContactFilters()">Clear</button>
+        </div>
+      </div>
     </div>
+
+    <!-- Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortContactTable('name')">Name <span class="sort-icon">↕</span></th>
+            <th onclick="sortContactTable('email')">Email <span class="sort-icon">↕</span></th>
+            <th onclick="sortContactTable('type')">Type <span class="sort-icon">↕</span></th>
+            <th onclick="sortContactTable('status')">Status <span class="sort-icon">↕</span></th>
+            <th onclick="sortContactTable('createdAt')">Date <span class="sort-icon">↕</span></th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="contacts-body">
+          <tr>
+            <td colspan="6" class="loading">Loading contacts...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Events Tab -->
+  <div id="events-tab" class="tab-content">
     
-    <div class="stats-bar">
+    <!-- Stats -->
+    <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-value" id="stat-upcoming">0</div>
-        <div class="stat-label">Upcoming Events</div>
+        <div class="stat-number" id="stat-events-total">0</div>
+        <div class="stat-label">Total</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="stat-this-week">0</div>
-        <div class="stat-label">This Week</div>
+        <div class="stat-number" id="stat-events-upcoming">0</div>
+        <div class="stat-label">Upcoming</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="stat-completed">0</div>
+        <div class="stat-number" id="stat-events-confirmed">0</div>
+        <div class="stat-label">Confirmed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-events-completed">0</div>
         <div class="stat-label">Completed</div>
       </div>
     </div>
-    
-    <ul id="events-list" class="card-list"></ul>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+      <div class="filters-row">
+        <div class="filter-group">
+          <label>Status</label>
+          <select id="filter-event-status">
+            <option value="">All Statuses</option>
+            <option value="UPCOMING">Upcoming</option>
+            <option value="CONFIRMED">Confirmed</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Search</label>
+          <input type="text" id="filter-event-search" placeholder="Event name, client...">
+        </div>
+        <div class="filter-actions">
+          <button class="btn-filter" onclick="applyEventFilters()">Apply</button>
+          <button class="btn-clear" onclick="clearEventFilters()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortEventTable('eventName')">Event <span class="sort-icon">↕</span></th>
+            <th onclick="sortEventTable('eventDate')">Date <span class="sort-icon">↕</span></th>
+            <th onclick="sortEventTable('clientName')">Client <span class="sort-icon">↕</span></th>
+            <th onclick="sortEventTable('status')">Status <span class="sort-icon">↕</span></th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="events-body">
+          <tr>
+            <td colspan="5" class="loading">Loading events...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
-    // State
-    let currentTab = 'applications';
-    let applications = [];
-    let contacts = [];
-    let events = [];
-    
-    // Status labels
-    const appStatusLabels = {
-      RECEIVED: 'New',
-      REVIEWING: 'Reviewing',
-      SHORTLISTED: 'Shortlisted',
-      REJECTED: 'Rejected',
-      HIRED: 'Hired'
-    };
-    
-    const contactStatusLabels = {
-      NEW: 'New',
-      CONTACTED: 'Contacted',
-      QUOTED: 'Quoted',
-      BOOKED: 'Booked',
-      LOST: 'Lost'
-    };
-    
-    const eventStatusLabels = {
-      UPCOMING: 'Upcoming',
-      CONFIRMED: 'Confirmed',
-      COMPLETED: 'Completed',
-      CANCELLED: 'Cancelled'
-    };
-    
-    // Helper Functions
+    // Global State
+    let allApplications = [];
+    let allContacts = [];
+    let allEvents = [];
+    let currentSort = { column: 'createdAt', direction: 'desc' };
+    let currentContactSort = { column: 'createdAt', direction: 'desc' };
+    let currentEventSort = { column: 'eventDate', direction: 'asc' };
+
+    // Utility Functions
     async function fetchJSON(url, opts = {}) {
-      const res = await secureFetch(url, opts);
+      const res = await fetch(url, { credentials: 'include', ...opts });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: res.statusText }));
         throw new Error(err.error || res.statusText);
       }
       return res.json();
     }
-    
-    function showStatus(message, type = '') {
-      const s = document.getElementById('status');
-      s.textContent = message;
-      s.className = type;
+
+    function notify(message, type = 'success') {
+      const notif = document.getElementById('notification');
+      notif.textContent = message;
+      notif.className = `notification ${type} show`;
+      setTimeout(() => {
+        notif.classList.remove('show');
+      }, 3000);
     }
-    
+
     function formatDate(dateString) {
       return new Date(dateString).toLocaleDateString('en-GB', {
         year: 'numeric',
@@ -647,7 +800,7 @@
         minute: '2-digit'
       });
     }
-    
+
     function formatDateOnly(dateString) {
       return new Date(dateString).toLocaleDateString('en-GB', {
         year: 'numeric',
@@ -655,337 +808,380 @@
         day: 'numeric'
       });
     }
-    
+
     // Tab Switching
     document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
         const tabName = tab.dataset.tab;
         
-        // Update active states
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         
         tab.classList.add('active');
         document.getElementById(`${tabName}-tab`).classList.add('active');
-        
-        currentTab = tabName;
       });
     });
-    
-    // Load All Data
-    async function loadAllData() {
-      showStatus('Loading...', '');
-      
+
+    // Load Applications
+    async function loadApplications() {
       try {
-        // Check authentication
-        const session = await fetchJSON('/api/v1/auth/session');
-        if (!session.authenticated) {
-          showStatus('Not logged in. Redirecting...', 'error');
-          setTimeout(() => location.href = '/login.html', 1000);
-          return;
-        }
-        
-        // Load applications
-        applications = await fetchJSON('/api/v1/applications');
-        renderApplications();
-        
-        // Load contacts (will fail gracefully if endpoint doesn't exist yet)
-        try {
-          contacts = await fetchJSON('/api/v1/contacts');
-          renderContacts();
-        } catch (e) {
-          console.log('Contacts endpoint not available yet:', e);
-          contacts = [];
-          renderContacts();
-        }
-        
-        // Load events (will fail gracefully if endpoint doesn't exist yet)
-        try {
-          events = await fetchJSON('/api/v1/events');
-          renderEvents();
-        } catch (e) {
-          console.log('Events endpoint not available yet:', e);
-          events = [];
-          renderEvents();
-        }
-        
+        const data = await fetchJSON('/api/v1/applications');
+        // Handle both formats: {applications: [...]} or [...]
+        allApplications = Array.isArray(data) ? data : (data.applications || []);
         updateStats();
-        showStatus('Dashboard loaded', 'success');
-        
-        // Hide status after 2 seconds
-        setTimeout(() => {
-          document.getElementById('status').style.display = 'none';
-        }, 2000);
-        
+        renderApplications();
       } catch (e) {
-        console.error('Load error:', e);
-        showStatus('Failed to load: ' + e.message, 'error');
-        
-        if (e.message.includes('Unauthorized')) {
-          setTimeout(() => location.href = '/login.html', 2000);
-        }
+        notify('Failed to load applications: ' + e.message, 'error');
+        document.getElementById('applications-body').innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-state">
+              <div class="empty-state-icon">⚠️</div>
+              <div>Failed to load applications: ${e.message}</div>
+            </td>
+          </tr>
+        `;
       }
     }
-    
+
     // Update Stats
     function updateStats() {
-      // Application stats
-      document.getElementById('apps-count').textContent = applications.length;
-      document.getElementById('stat-new-apps').textContent = 
-        applications.filter(a => a.status === 'RECEIVED').length;
-      document.getElementById('stat-shortlisted').textContent = 
-        applications.filter(a => a.status === 'SHORTLISTED').length;
-      document.getElementById('stat-hired').textContent = 
-        applications.filter(a => a.status === 'HIRED').length;
-      
-      // Contact stats
-      document.getElementById('contacts-count').textContent = contacts.length;
-      document.getElementById('stat-new-contacts').textContent = 
-        contacts.filter(c => c.status === 'NEW').length;
-      document.getElementById('stat-quoted').textContent = 
-        contacts.filter(c => c.status === 'QUOTED').length;
-      document.getElementById('stat-booked').textContent = 
-        contacts.filter(c => c.status === 'BOOKED').length;
-      
-      // Event stats
-      document.getElementById('events-count').textContent = events.length;
-      document.getElementById('stat-upcoming').textContent = 
-        events.filter(e => ['UPCOMING', 'CONFIRMED'].includes(e.status)).length;
-      
-      const oneWeekFromNow = new Date();
-      oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
-      document.getElementById('stat-this-week').textContent = 
-        events.filter(e => {
-          const eventDate = new Date(e.eventDate);
-          return eventDate >= new Date() && eventDate <= oneWeekFromNow;
-        }).length;
-      
-      document.getElementById('stat-completed').textContent = 
-        events.filter(e => e.status === 'COMPLETED').length;
+      const stats = {
+        total: allApplications.length,
+        received: allApplications.filter(a => a.status === 'RECEIVED').length,
+        reviewing: allApplications.filter(a => a.status === 'REVIEWING').length,
+        shortlisted: allApplications.filter(a => a.status === 'SHORTLISTED').length,
+        rejected: allApplications.filter(a => a.status === 'REJECTED').length,
+        hired: allApplications.filter(a => a.status === 'HIRED').length
+      };
+
+      document.getElementById('stat-total').textContent = stats.total;
+      document.getElementById('stat-received').textContent = stats.received;
+      document.getElementById('stat-reviewing').textContent = stats.reviewing;
+      document.getElementById('stat-shortlisted').textContent = stats.shortlisted;
+      document.getElementById('stat-rejected').textContent = stats.rejected;
+      document.getElementById('stat-hired').textContent = stats.hired;
     }
-    
-    // Render Applications
-    function renderApplications() {
-      const list = document.getElementById('applications-list');
-      
-      if (applications.length === 0) {
-        list.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">📝</div>
-            <div>No applications yet</div>
-          </div>
-        `;
-        return;
-      }
-      
-      list.innerHTML = applications.map(app => `
-        <li class="card">
-          <div class="card-header">
-            <div class="card-title">${app.firstName} ${app.lastName}</div>
-            <div class="card-status status-${app.status}">${appStatusLabels[app.status] || app.status}</div>
-          </div>
-          <div class="card-info">
-            ${app.email} ${app.phone ? '| ' + app.phone : ''}
-          </div>
-          <div class="card-info">
-            <strong>Roles:</strong> ${app.roles.join(', ') || 'No roles'}
-          </div>
-          <div class="card-meta">
-            Applied: ${formatDate(app.createdAt)}${app.source ? ' | Source: ' + app.source : ''}
-          </div>
-          <div class="card-actions">
-            <button class="btn-primary" onclick="openCV('${app.id}')">Open CV</button>
-            <button class="btn-warning" onclick="updateAppStatus('${app.id}', 'REVIEWING')">Reviewing</button>
-            <button class="btn-success" onclick="updateAppStatus('${app.id}', 'SHORTLISTED')">Shortlist</button>
-            <button class="btn-danger" onclick="updateAppStatus('${app.id}', 'REJECTED')">Reject</button>
-            <button class="btn-success" onclick="updateAppStatus('${app.id}', 'HIRED')">Hire</button>
-          </div>
-        </li>
-      `).join('');
-    }
-    
-    // Render Contacts
-    function renderContacts() {
-      const list = document.getElementById('contacts-list');
-      
-      if (contacts.length === 0) {
-        list.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">📞</div>
-            <div>No contact inquiries yet</div>
-            <div style="margin-top: 10px; color: #666; font-size: 14px;">
-              Contact form submissions will appear here
-            </div>
-          </div>
-        `;
-        return;
-      }
-      
-      list.innerHTML = contacts.map(contact => {
-        const notesHtml = contact.notes && contact.notes.length > 0 ? `
-          <div class="card-section">
-            <div class="card-section-title">Notes</div>
-            <ul class="notes-list">
-              ${contact.notes.map(note => `
-                <li class="note-item">
-                  <div class="note-text">${note.text}</div>
-                  <div class="note-meta">${formatDate(note.createdAt)}</div>
-                </li>
-              `).join('')}
-            </ul>
-          </div>
-        ` : '';
+
+    // Stat Card Filtering
+    document.querySelectorAll('#app-stats .stat-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const filter = card.dataset.filter;
         
-        return `
-          <li class="card" data-contact-id="${contact.id}">
-            <div class="card-header">
-              <div class="card-title">${contact.name}</div>
-              <div class="card-status status-${contact.status}">${contactStatusLabels[contact.status] || contact.status}</div>
-            </div>
-            <div class="card-info">
-              ${contact.email} ${contact.phone ? '| ' + contact.phone : ''}
-            </div>
-            ${contact.eventType ? `<div class="card-info"><strong>Event Type:</strong> ${contact.eventType}</div>` : ''}
-            ${contact.eventDate ? `<div class="card-info"><strong>Event Date:</strong> ${formatDateOnly(contact.eventDate)}</div>` : ''}
-            ${contact.message ? `
-              <div class="card-section">
-                <div class="card-section-title">Message</div>
-                <div>${contact.message}</div>
-              </div>
-            ` : ''}
-            ${notesHtml}
-            <div class="add-note-form" id="note-form-${contact.id}">
-              <textarea placeholder="Add a note..." id="note-text-${contact.id}"></textarea>
-              <div style="margin-top: 8px; display: flex; gap: 8px;">
-                <button class="btn-primary" onclick="saveNote('${contact.id}')">Save Note</button>
-                <button class="btn-light" onclick="toggleNoteForm('${contact.id}')">Cancel</button>
-              </div>
-            </div>
-            <div class="card-meta">
-              Received: ${formatDate(contact.createdAt)}
-            </div>
-            <div class="card-actions">
-              <button class="btn-light" onclick="toggleNoteForm('${contact.id}')">Add Note</button>
-              <button class="btn-warning" onclick="updateContactStatus('${contact.id}', 'CONTACTED')">Contacted</button>
-              <button class="btn-primary" onclick="updateContactStatus('${contact.id}', 'QUOTED')">Quoted</button>
-              <button class="btn-success" onclick="updateContactStatus('${contact.id}', 'BOOKED')">Booked</button>
-              <button class="btn-danger" onclick="updateContactStatus('${contact.id}', 'LOST')">Lost</button>
-            </div>
-          </li>
-        `;
-      }).join('');
+        // Update active state
+        document.querySelectorAll('#app-stats .stat-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        
+        // Apply filter
+        if (filter === 'all') {
+          document.getElementById('filter-status').value = '';
+        } else {
+          document.getElementById('filter-status').value = filter;
+        }
+        applyFilters();
+      });
+    });
+
+    // Apply Filters
+    function applyFilters() {
+      const statusFilter = document.getElementById('filter-status').value;
+      const roleFilter = document.getElementById('filter-role').value;
+      const searchFilter = document.getElementById('filter-search').value.toLowerCase();
+
+      let filtered = allApplications;
+
+      if (statusFilter) {
+        filtered = filtered.filter(app => app.status === statusFilter);
+      }
+
+      if (roleFilter) {
+        filtered = filtered.filter(app => 
+          app.roles && app.roles.includes(roleFilter)
+        );
+      }
+
+      if (searchFilter) {
+        filtered = filtered.filter(app => {
+          const searchText = `${app.firstName} ${app.lastName} ${app.email} ${app.phone || ''}`.toLowerCase();
+          return searchText.includes(searchFilter);
+        });
+      }
+
+      renderApplications(filtered);
     }
-    
-    // Render Events
-    function renderEvents() {
-      const list = document.getElementById('events-list');
+
+    function clearFilters() {
+      document.getElementById('filter-status').value = '';
+      document.getElementById('filter-role').value = '';
+      document.getElementById('filter-search').value = '';
+      document.querySelectorAll('#app-stats .stat-card').forEach(c => c.classList.remove('active'));
+      renderApplications();
+    }
+
+    // Sort Table
+    function sortTable(column) {
+      if (currentSort.column === column) {
+        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.column = column;
+        currentSort.direction = 'asc';
+      }
+
+      // Update sort icons
+      document.querySelectorAll('#applications-tab th').forEach(th => th.classList.remove('sorted'));
+      event.target.closest('th').classList.add('sorted');
+
+      renderApplications();
+    }
+
+    // Render Applications
+    function renderApplications(apps = allApplications) {
+      const tbody = document.getElementById('applications-body');
       
-      if (events.length === 0) {
-        list.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">🎉</div>
-            <div>No events yet</div>
-            <div style="margin-top: 10px; color: #666; font-size: 14px;">
-              Create your first event above
-            </div>
-          </div>
+      if (apps.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-state">
+              <div class="empty-state-icon">📋</div>
+              <div>No applications found</div>
+            </td>
+          </tr>
         `;
         return;
       }
-      
-      // Sort by date (upcoming first)
-      const sortedEvents = [...events].sort((a, b) => 
-        new Date(a.eventDate) - new Date(b.eventDate)
-      );
-      
-      list.innerHTML = sortedEvents.map(event => `
-        <li class="card">
-          <div class="card-header">
-            <div class="card-title">${event.eventName}</div>
-            <div class="card-status status-${event.status}">${eventStatusLabels[event.status] || event.status}</div>
-          </div>
-          <div class="card-info">
-            <strong>Date:</strong> ${formatDateOnly(event.eventDate)}
-          </div>
-          <div class="card-info">
-            <strong>Client:</strong> ${event.clientName}
-          </div>
-          ${event.venue ? `<div class="card-info"><strong>Venue:</strong> ${event.venue}</div>` : ''}
-          ${event.staffNeeded ? `<div class="card-info"><strong>Staff Needed:</strong> ${event.staffNeeded}</div>` : ''}
-          ${event.notes ? `
-            <div class="card-section">
-              <div class="card-section-title">Notes</div>
-              <div>${event.notes}</div>
+
+      // Sort applications
+      const sorted = [...apps].sort((a, b) => {
+        let aVal, bVal;
+        
+        // Handle name sorting (combine firstName and lastName)
+        if (currentSort.column === 'fullName') {
+          aVal = `${a.firstName} ${a.lastName}`.toLowerCase();
+          bVal = `${b.firstName} ${b.lastName}`.toLowerCase();
+        } else if (currentSort.column === 'createdAt') {
+          aVal = new Date(a.createdAt);
+          bVal = new Date(b.createdAt);
+        } else if (currentSort.column === 'roles') {
+          aVal = (a.roles || []).join(', ');
+          bVal = (b.roles || []).join(', ');
+        } else {
+          aVal = a[currentSort.column];
+          bVal = b[currentSort.column];
+        }
+
+        if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      tbody.innerHTML = sorted.map(app => `
+        <tr>
+          <td><strong>${app.firstName} ${app.lastName}</strong></td>
+          <td>${app.email}</td>
+          <td>${app.phone || 'N/A'}</td>
+          <td>
+            ${(app.roles || []).map(role => 
+              `<span class="role-pill">${role.replace('_', ' ')}</span>`
+            ).join('')}
+          </td>
+          <td>
+            <span class="status-pill status-${app.status}">
+              ${app.status}
+            </span>
+          </td>
+          <td>${formatDate(app.createdAt)}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-action btn-view" onclick="openCV('${app.cvUrl}')">
+                View CV
+              </button>
+              ${app.status !== 'REVIEWING' ? `
+                <button class="btn-action btn-reviewing" onclick="updateStatus('${app.id}', 'REVIEWING')">
+                  Review
+                </button>
+              ` : ''}
+              ${app.status !== 'SHORTLISTED' ? `
+                <button class="btn-action btn-shortlist" onclick="updateStatus('${app.id}', 'SHORTLISTED')">
+                  Shortlist
+                </button>
+              ` : ''}
+              ${app.status !== 'REJECTED' ? `
+                <button class="btn-action btn-reject" onclick="updateStatus('${app.id}', 'REJECTED')">
+                  Reject
+                </button>
+              ` : ''}
+              ${app.status !== 'HIRED' ? `
+                <button class="btn-action btn-hire" onclick="updateStatus('${app.id}', 'HIRED')">
+                  Hire
+                </button>
+              ` : ''}
             </div>
-          ` : ''}
-          <div class="card-meta">
-            Created: ${formatDate(event.createdAt)}
-          </div>
-          <div class="card-actions">
-            <button class="btn-success" onclick="updateEventStatus('${event.id}', 'CONFIRMED')">Mark Confirmed</button>
-            <button class="btn-secondary" onclick="updateEventStatus('${event.id}', 'COMPLETED')">Mark Completed</button>
-            <button class="btn-danger" onclick="updateEventStatus('${event.id}', 'CANCELLED')">Cancel Event</button>
-          </div>
-        </li>
+          </td>
+        </tr>
       `).join('');
     }
-    
-    // Application Actions
-    async function openCV(appId) {
-      try {
-        const { url } = await fetchJSON(`/api/v1/applications/${appId}/cv`);
-        window.open(url, '_blank');
-      } catch (e) {
-        notify.show('Failed to open CV: ' + e.message, 'error');
-      }
+
+    // Open CV
+    function openCV(url) {
+      window.open(url, '_blank');
     }
-    
-    async function updateAppStatus(appId, status) {
-      if (status === 'REJECTED' && !confirm('Reject this applicant?')) return;
-      if (status === 'HIRED' && !confirm('Mark as hired?')) return;
-      
+
+    // Update Application Status
+    async function updateStatus(appId, status) {
+      if (status === 'REJECTED' && !confirm('Move this application to the rejected pile?')) return;
+      if (status === 'HIRED' && !confirm('Mark this applicant as hired?')) return;
+
       try {
         await fetchJSON(`/api/v1/applications/${appId}/status`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status })
         });
-        await loadAllData();
+        
+        notify(`Application moved to ${status.toLowerCase()} pile`, 'success');
+        await loadApplications();
       } catch (e) {
-        notify.show('Failed to update status: ' + e.message, 'error');
+        notify('Failed to update status: ' + e.message, 'error');
       }
     }
-    
-    // Contact Actions
-    function toggleNoteForm(contactId) {
-      const form = document.getElementById(`note-form-${contactId}`);
-      form.classList.toggle('show');
+
+    // Load Contacts
+    async function loadContacts() {
+      try {
+        const data = await fetchJSON('/api/v1/contacts');
+        allContacts = Array.isArray(data) ? data : (data.contacts || []);
+        updateContactStats();
+        renderContacts();
+      } catch (e) {
+        console.log('Contacts not available:', e);
+        allContacts = [];
+        document.getElementById('contacts-body').innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state">
+              <div class="empty-state-icon">📧</div>
+              <div>No contact tracking set up yet</div>
+            </td>
+          </tr>
+        `;
+      }
     }
-    
-    async function saveNote(contactId) {
-      const textarea = document.getElementById(`note-text-${contactId}`);
-      const text = textarea.value.trim();
+
+    function updateContactStats() {
+      const stats = {
+        total: allContacts.length,
+        new: allContacts.filter(c => c.status === 'NEW').length,
+        quoted: allContacts.filter(c => c.status === 'QUOTED').length,
+        booked: allContacts.filter(c => c.status === 'BOOKED').length
+      };
+
+      document.getElementById('stat-contacts-total').textContent = stats.total;
+      document.getElementById('stat-contacts-new').textContent = stats.new;
+      document.getElementById('stat-contacts-quoted').textContent = stats.quoted;
+      document.getElementById('stat-contacts-booked').textContent = stats.booked;
+    }
+
+    function applyContactFilters() {
+      const statusFilter = document.getElementById('filter-contact-status').value;
+      const typeFilter = document.getElementById('filter-contact-type').value;
+      const searchFilter = document.getElementById('filter-contact-search').value.toLowerCase();
+
+      let filtered = allContacts;
+
+      if (statusFilter) {
+        filtered = filtered.filter(c => c.status === statusFilter);
+      }
+
+      if (typeFilter) {
+        filtered = filtered.filter(c => c.type === typeFilter);
+      }
+
+      if (searchFilter) {
+        filtered = filtered.filter(c => {
+          const searchText = `${c.name} ${c.email} ${c.company || ''}`.toLowerCase();
+          return searchText.includes(searchFilter);
+        });
+      }
+
+      renderContacts(filtered);
+    }
+
+    function clearContactFilters() {
+      document.getElementById('filter-contact-status').value = '';
+      document.getElementById('filter-contact-type').value = '';
+      document.getElementById('filter-contact-search').value = '';
+      renderContacts();
+    }
+
+    function sortContactTable(column) {
+      if (currentContactSort.column === column) {
+        currentContactSort.direction = currentContactSort.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentContactSort.column = column;
+        currentContactSort.direction = 'asc';
+      }
+
+      document.querySelectorAll('#contacts-tab th').forEach(th => th.classList.remove('sorted'));
+      event.target.closest('th').classList.add('sorted');
+
+      renderContacts();
+    }
+
+    function renderContacts(contacts = allContacts) {
+      const tbody = document.getElementById('contacts-body');
       
-      if (!text) {
-        notify.show('Please enter a note', 'warning');
+      if (contacts.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state">
+              <div class="empty-state-icon">📧</div>
+              <div>No contacts found</div>
+            </td>
+          </tr>
+        `;
         return;
       }
-      
-      try {
-        await fetchJSON(`/api/v1/contacts/${contactId}/notes`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text })
-        });
-        
-        textarea.value = '';
-        toggleNoteForm(contactId);
-        await loadAllData();
-      } catch (e) {
-        notify.show('Failed to save note: ' + e.message, 'error');
-      }
+
+      const sorted = [...contacts].sort((a, b) => {
+        let aVal = a[currentContactSort.column];
+        let bVal = b[currentContactSort.column];
+
+        if (currentContactSort.column === 'createdAt') {
+          aVal = new Date(aVal);
+          bVal = new Date(bVal);
+        }
+
+        if (aVal < bVal) return currentContactSort.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return currentContactSort.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      tbody.innerHTML = sorted.map(contact => `
+        <tr>
+          <td><strong>${contact.name}</strong></td>
+          <td>${contact.email}</td>
+          <td>${contact.type}</td>
+          <td>
+            <span class="status-pill status-${contact.status}">
+              ${contact.status}
+            </span>
+          </td>
+          <td>${formatDate(contact.createdAt)}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-action btn-reviewing" onclick="updateContactStatus('${contact.id}', 'CONTACTED')">
+                Contacted
+              </button>
+              <button class="btn-action btn-shortlist" onclick="updateContactStatus('${contact.id}', 'QUOTED')">
+                Quoted
+              </button>
+              <button class="btn-action btn-hire" onclick="updateContactStatus('${contact.id}', 'BOOKED')">
+                Booked
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
     }
-    
+
     async function updateContactStatus(contactId, status) {
       try {
         await fetchJSON(`/api/v1/contacts/${contactId}/status`, {
@@ -993,70 +1189,225 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status })
         });
-        await loadAllData();
+        
+        notify(`Contact status updated to ${status}`, 'success');
+        await loadContacts();
       } catch (e) {
-        notify.show('Failed to update status: ' + e.message, 'error');
+        notify('Failed to update contact: ' + e.message, 'error');
       }
     }
-    
-    // Event Actions
-    document.getElementById('create-event-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData);
-      
+
+    // Load Events
+    async function loadEvents() {
       try {
-        await fetchJSON('/api/v1/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        
-        e.target.reset();
-        showStatus('Event created!', 'success');
-        await loadAllData();
-        
-        // Switch to events tab
-        document.querySelector('.tab[data-tab="events"]').click();
+        const data = await fetchJSON('/api/v1/events');
+        allEvents = Array.isArray(data) ? data : (data.events || []);
+        updateEventStats();
+        renderEvents();
       } catch (e) {
-        notify.show('Failed to create event: ' + e.message, 'error');
+        console.log('Events not available:', e);
+        allEvents = [];
+        document.getElementById('events-body').innerHTML = `
+          <tr>
+            <td colspan="5" class="empty-state">
+              <div class="empty-state-icon">🎉</div>
+              <div>No event tracking set up yet</div>
+            </td>
+          </tr>
+        `;
       }
-    });
-    
+    }
+
+    function updateEventStats() {
+      const stats = {
+        total: allEvents.length,
+        upcoming: allEvents.filter(e => e.status === 'UPCOMING').length,
+        confirmed: allEvents.filter(e => e.status === 'CONFIRMED').length,
+        completed: allEvents.filter(e => e.status === 'COMPLETED').length
+      };
+
+      document.getElementById('stat-events-total').textContent = stats.total;
+      document.getElementById('stat-events-upcoming').textContent = stats.upcoming;
+      document.getElementById('stat-events-confirmed').textContent = stats.confirmed;
+      document.getElementById('stat-events-completed').textContent = stats.completed;
+    }
+
+    function applyEventFilters() {
+      const statusFilter = document.getElementById('filter-event-status').value;
+      const searchFilter = document.getElementById('filter-event-search').value.toLowerCase();
+
+      let filtered = allEvents;
+
+      if (statusFilter) {
+        filtered = filtered.filter(e => e.status === statusFilter);
+      }
+
+      if (searchFilter) {
+        filtered = filtered.filter(e => {
+          const searchText = `${e.eventName} ${e.clientName}`.toLowerCase();
+          return searchText.includes(searchFilter);
+        });
+      }
+
+      renderEvents(filtered);
+    }
+
+    function clearEventFilters() {
+      document.getElementById('filter-event-status').value = '';
+      document.getElementById('filter-event-search').value = '';
+      renderEvents();
+    }
+
+    function sortEventTable(column) {
+      if (currentEventSort.column === column) {
+        currentEventSort.direction = currentEventSort.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentEventSort.column = column;
+        currentEventSort.direction = 'asc';
+      }
+
+      document.querySelectorAll('#events-tab th').forEach(th => th.classList.remove('sorted'));
+      event.target.closest('th').classList.add('sorted');
+
+      renderEvents();
+    }
+
+    function renderEvents(events = allEvents) {
+      const tbody = document.getElementById('events-body');
+      
+      if (events.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="empty-state">
+              <div class="empty-state-icon">🎉</div>
+              <div>No events found</div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const sorted = [...events].sort((a, b) => {
+        let aVal = a[currentEventSort.column];
+        let bVal = b[currentEventSort.column];
+
+        if (currentEventSort.column === 'eventDate') {
+          aVal = new Date(aVal);
+          bVal = new Date(bVal);
+        }
+
+        if (aVal < bVal) return currentEventSort.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return currentEventSort.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      tbody.innerHTML = sorted.map(event => `
+        <tr>
+          <td><strong>${event.eventName}</strong></td>
+          <td>${formatDateOnly(event.eventDate)}</td>
+          <td>${event.clientName}</td>
+          <td>
+            <span class="status-pill status-${event.status}">
+              ${event.status}
+            </span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-action btn-shortlist" onclick="updateEventStatus('${event.id}', 'CONFIRMED')">
+                Confirm
+              </button>
+              <button class="btn-action btn-hire" onclick="updateEventStatus('${event.id}', 'COMPLETED')">
+                Complete
+              </button>
+              <button class="btn-action btn-reject" onclick="updateEventStatus('${event.id}', 'CANCELLED')">
+                Cancel
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
     async function updateEventStatus(eventId, status) {
       if (status === 'CANCELLED' && !confirm('Cancel this event?')) return;
       if (status === 'COMPLETED' && !confirm('Mark as completed?')) return;
-      
+
       try {
         await fetchJSON(`/api/v1/events/${eventId}/status`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status })
         });
-        await loadAllData();
+        
+        notify(`Event status updated to ${status}`, 'success');
+        await loadEvents();
       } catch (e) {
-        notify.show('Failed to update event: ' + e.message, 'error');
+        notify('Failed to update event: ' + e.message, 'error');
       }
     }
-    
+
     // Logout
     document.getElementById('logout').addEventListener('click', async () => {
-      await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'include' });
-      location.href = '/login.html';
+      try {
+        await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'include' });
+        window.location.href = '/login.html';
+      } catch (e) {
+        notify('Logout failed', 'error');
+      }
     });
-    
-    // Make functions global
-    window.openCV = openCV;
-    window.updateAppStatus = updateAppStatus;
-    window.toggleNoteForm = toggleNoteForm;
-    window.saveNote = saveNote;
-    window.updateContactStatus = updateContactStatus;
-    window.updateEventStatus = updateEventStatus;
-    
-    // Initial load
-    window.addEventListener('load', loadAllData);
+
+    // Initialize
+    async function init() {
+      try {
+        const session = await fetchJSON('/api/v1/auth/session');
+        if (!session.authenticated) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        document.getElementById('admin-name').textContent = session.username;
+        
+        // Load applications (always available)
+        await loadApplications();
+        
+        // Load contacts (optional - will show empty if not available)
+        try {
+          await loadContacts();
+        } catch (e) {
+          console.log('Contacts endpoint not available yet:', e);
+          document.getElementById('contacts-body').innerHTML = `
+            <tr>
+              <td colspan="6" class="empty-state">
+                <div class="empty-state-icon">📧</div>
+                <div>Contacts endpoint not set up yet</div>
+              </td>
+            </tr>
+          `;
+        }
+        
+        // Load events (optional - will show empty if not available)
+        try {
+          await loadEvents();
+        } catch (e) {
+          console.log('Events endpoint not available yet:', e);
+          document.getElementById('events-body').innerHTML = `
+            <tr>
+              <td colspan="5" class="empty-state">
+                <div class="empty-state-icon">🎉</div>
+                <div>Events endpoint not set up yet</div>
+              </td>
+            </tr>
+          `;
+        }
+        
+        notify('Dashboard loaded successfully', 'success');
+      } catch (e) {
+        notify('Failed to load dashboard: ' + e.message, 'error');
+      }
+    }
+
+    window.addEventListener('load', init);
   </script>
-  <script src="/vergo-utils.js"></script>
+
 </body>
 </html>
