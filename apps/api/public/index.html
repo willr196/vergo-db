@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VERGO Events - Premium Event Staffing | Founded by Industry Veterans</title>
+  <title>VERGO Events - Premium Event Staff</title>
+  <meta name="description" content="Professional bartenders, waiters & chefs for London events. Every staff member personally vetted by founder with 8+ years experience. Founding client specials available.">
   
   <!-- Security Headers -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -56,6 +57,10 @@
       list-style: none;
     }
     
+    nav li {
+      position: relative;
+    }
+    
     nav a {
       color: #ffffff;
       text-decoration: none;
@@ -63,12 +68,14 @@
       font-weight: 500;
       transition: color 0.3s ease;
       position: relative;
+      display: block;
+      padding: 5px 0;
     }
     
     nav a::after {
       content: '';
       position: absolute;
-      bottom: -5px;
+      bottom: 0;
       left: 0;
       width: 0;
       height: 2px;
@@ -82,6 +89,69 @@
     
     nav a:hover::after {
       width: 100%;
+    }
+    
+    /* Dropdown Styles */
+    .nav-dropdown {
+      position: relative;
+    }
+    
+    .nav-dropdown > a {
+      cursor: pointer;
+    }
+    
+    .nav-dropdown > a::before {
+      content: '▼';
+      font-size: 0.7rem;
+      margin-left: 6px;
+      transition: transform 0.3s ease;
+    }
+    
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: rgba(10, 10, 10, 0.98);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 4px;
+      min-width: 200px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .nav-dropdown:hover .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .dropdown-menu li {
+      list-style: none;
+    }
+    
+    .dropdown-menu a {
+      padding: 12px 20px;
+      display: block;
+      color: #ffffff;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+      font-size: 0.9rem;
+    }
+    
+    .dropdown-menu a::after {
+      display: none;
+    }
+    
+    .dropdown-menu li:last-child a {
+      border-bottom: none;
+    }
+    
+    .dropdown-menu a:hover {
+      background: rgba(212, 175, 55, 0.1);
+      color: #D4AF37;
     }
     
     .menu-toggle {
@@ -935,10 +1005,15 @@
     <nav role="navigation" aria-label="Main navigation">
       <ul id="nav-menu">
         <li><a href="index.html" aria-current="page">Home</a></li>
-        <li><a href="hire-us.html">Event Management</a></li>
-        <li><a href="hire-staff.html">Hire Staff</a></li>
-        <li><a href="apply.html">Join Us</a></li>
-        <li><a href="about.html">About</a></li>
+        <li class="nav-dropdown">
+          <a href="#" onclick="return false;">Services</a>
+          <ul class="dropdown-menu">
+            <li><a href="hire-staff.html">Hire Staff</a></li>
+            <li><a href="hire-us.html">Event Management</a></li>
+          </ul>
+        </li>
+        <li><a href="apply.html">Apply</a></li>
+        <li><a href="about.html#my-story">My Story</a></li>
         <li><a href="contact.html">Contact</a></li>
       </ul>
     </nav>
@@ -948,20 +1023,23 @@
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
-      <div class="hero-badge">Est. 2025 • Founded by Industry Veterans</div>
-      <h1 class="hero-title">VERGO Events</h1>
+      <div class="hero-badge">Founding Client Special (Limited Availability)</div>
+      <h1 class="hero-title">Premium Event staff</h1>
       <p class="hero-subtitle">
-        Premium Event Staffing Solutions for London's Film, Music & Corporate Events
+        Professional bartenders, waiters & chefs for your London events
       </p>
       <p class="hero-description">
-        Founded by an experienced event professional with 8+ years in the industry and backed by 
-        a family-run agency that's supplied the film and music sectors for decades. We combine 
-        industry expertise with personal service and competitive launch pricing.
+        Every staff member hand-picked and personally vetted by our founder with 8+ years 
+        in London's hospitality, film, and music industries. Not random names from a database—
+        experienced professionals we trust completely.
       </p>
       <div class="hero-cta-group">
-        <a href="contact.html" class="cta-button">Get Your Free Quote</a>
-        <a href="#founder" class="cta-button cta-button-secondary">Meet the Founder</a>
+        <a href="contact.html" class="cta-button">Get Your Quote</a>
+        <a href="hire-staff.html" class="cta-button cta-button-secondary">View Staff Roles</a>
       </div>
+      <p style="text-align: center; margin-top: 20px; font-size: 0.95rem; color: #999;">
+        <a href="hire-us.html" style="color: #D4AF37; text-decoration: underline;">Need full event management? We offer that too →</a>
+      </p>
     </div>
   </section>
 
@@ -980,9 +1058,57 @@
         <span class="credential-number">100%</span>
         <span class="credential-label">Satisfaction<br>Guarantee</span>
       </div>
-      <div class="credential-item">
-        <span class="credential-number">24/7</span>
-        <span class="credential-label">Direct Founder<br>Access</span>
+    </div>
+  </section>
+
+  <!-- Service Areas -->
+  <section style="background: #1a1a1a; padding: 40px 20px; text-align: center; border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
+    <div style="max-width: 800px; margin: 0 auto;">
+      <h2 style="color: #D4AF37; font-size: 1.8rem; margin-bottom: 15px; font-weight: 700;">Service Coverage</h2>
+      <p style="color: #cccccc; font-size: 1.15rem; line-height: 1.6;">
+        Proudly serving <strong style="color: #D4AF37;">London and Greater London</strong>
+      </p>
+      <p style="color: #999; font-size: 1rem; margin-top: 10px;">
+        All boroughs covered • Professional staff deployed across the capital
+      </p>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section class="services-section">
+    <div class="section-container">
+      <div class="section-header">
+        <h2 class="section-title">Our Services</h2>
+        <p class="section-subtitle">Premium solutions for every type of event</p>
+      </div>
+      
+      <div class="services-grid">
+        <div class="service-card" onclick="window.location.href='hire-staff.html'">
+          <h3>Event Staffing</h3>
+          <p>
+            Front of house, bartenders, servers, kitchen porters, event coordinators. 
+            Pre-vetted, DBS-checked professionals ready when you need them.
+          </p>
+          <a href="hire-staff.html" class="service-link">Learn More →</a>
+        </div>
+        
+        <div class="service-card" onclick="window.location.href='hire-us.html'">
+          <h3>Event Management</h3>
+          <p>
+            Full-service event planning and coordination. From concept to execution, 
+            we handle every detail of your corporate or private event.
+          </p>
+          <a href="hire-us.html" class="service-link">Learn More →</a>
+        </div>
+        
+        <div class="service-card" onclick="window.location.href='apply.html'">
+          <h3>Join Our Team</h3>
+          <p>
+            Experienced event professional? Join a growing agency backed by industry veterans 
+            and work with premium clients across London.
+          </p>
+          <a href="apply.html" class="service-link">Apply Now →</a>
+        </div>
       </div>
     </div>
   </section>
@@ -999,7 +1125,6 @@
       
       <div class="why-grid">
         <div class="why-card">
-          <span class="why-icon">🎯</span>
           <h3>Proven Track Record</h3>
           <p>
             8+ years of hands-on event management experience across hospitality, corporate, 
@@ -1008,7 +1133,6 @@
         </div>
         
         <div class="why-card">
-          <span class="why-icon">🎬</span>
           <h3>Industry Connections</h3>
           <p>
             Backed by a family business with decades of experience supplying kitchen porters 
@@ -1017,7 +1141,6 @@
         </div>
         
         <div class="why-card">
-          <span class="why-icon">👤</span>
           <h3>Personal Service</h3>
           <p>
             As a new agency, every client works directly with the founder. You get experienced 
@@ -1026,7 +1149,6 @@
         </div>
         
         <div class="why-card">
-          <span class="why-icon">✅</span>
           <h3>Personally Vetted Staff</h3>
           <p>
             Every team member is personally interviewed, reference-checked, and DBS verified 
@@ -1035,7 +1157,6 @@
         </div>
         
         <div class="why-card">
-          <span class="why-icon">💰</span>
           <h3>Competitive Launch Rates</h3>
           <p>
             Premium service at competitive prices. We're building our client base and offering 
@@ -1044,64 +1165,11 @@
         </div>
         
         <div class="why-card">
-          <span class="why-icon">📞</span>
           <h3>Direct Access</h3>
           <p>
-            No call centers, no account managers. Text or call the founder directly 24/7 for 
+            No call centers, no account managers. Text or call the founder directly for 
             urgent needs or last-minute changes.
           </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Founder Section -->
-  <section class="founder-section" id="founder">
-    <div class="section-container">
-      <div class="section-header">
-        <h2 class="section-title">Meet the Founder</h2>
-        <p class="section-subtitle">Industry veteran bringing experience and expertise to every placement</p>
-      </div>
-        
-        <div class="founder-info">
-          <h2>William</h2>
-          <p class="founder-title">Founder & CEO</p>
-          
-          <p class="founder-story">
-            "After 8 years working across every area of the events industry - from intimate private 
-            gatherings to large-scale corporate productions and film sets - I saw a gap in the market 
-            for a staffing agency that truly understood what clients need."
-          </p>
-          
-          <p class="founder-story">
-            "Growing up around my father's agency, which has been supplying kitchen porters to the 
-            film and music industries for over two decades, I learned what separates exceptional 
-            service from mediocre. It's about reliability, quality vetting, and building genuine 
-            relationships."
-          </p>
-          
-          <p class="founder-highlight">
-            "I founded VERGO to bring that same standard of excellence to London's broader events sector. 
-            Every placement reflects my personal reputation - and I stake that on every staff member we provide."
-          </p>
-          
-          <div class="founder-credentials">
-            <h4>Experience & Background</h4>
-            <ul>
-              <li>8+ years hands-on event management experience</li>
-              <li>Worked across corporate, film, music, and private events</li>
-              <li>Raised in family business serving film & music industries</li>
-              <li>Deep network of industry-vetted professionals</li>
-              <li>Personally vets and interviews every VERGO team member</li>
-              <li>DBS checked • Fully insured • Industry certified</li>
-            </ul>
-          </div>
-          
-          <div class="founder-contact">
-            <a href="tel:+44 7944 505 783" class="contact-button">📞 Call Direct</a>
-            <a href="mailto:wrobb@vergoltd.com" class="contact-button">✉️ Email Me</a>
-            <a href="https://www.linkedin.com/company/109586221/admin/dashboard/" target="_blank" class="contact-button">💼 LinkedIn</a>
-          </div>
         </div>
       </div>
     </div>
@@ -1135,68 +1203,6 @@
             event at a time.
           </p>
           <a href="contact.html" class="testimonial-cta">Work With Us</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Guarantee Section -->
-  <section class="guarantee-section">
-    <div class="section-container">
-      <div class="guarantee-box">
-        <div class="guarantee-badge">💯</div>
-        <h2>Our Ironclad Guarantee</h2>
-        <p>
-          If you're not 100% satisfied with our staff or service for any reason, 
-          we'll refund your payment in full AND provide replacement staff at no additional cost.
-        </p>
-        <p>
-          No questions asked. No fine print. No hassle.
-        </p>
-        <p class="guarantee-highlight">
-          That's how confident I am in our vetting process and the quality of our team.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Services -->
-  <section class="services-section">
-    <div class="section-container">
-      <div class="section-header">
-        <h2 class="section-title">Our Services</h2>
-        <p class="section-subtitle">Premium solutions for every type of event</p>
-      </div>
-      
-      <div class="services-grid">
-        <div class="service-card" onclick="window.location.href='hire-staff.html'">
-          <span class="service-icon" aria-hidden="true">👥</span>
-          <h3>Event Staffing</h3>
-          <p>
-            Front of house, bartenders, servers, kitchen porters, event coordinators. 
-            Pre-vetted, DBS-checked professionals ready when you need them.
-          </p>
-          <a href="hire-staff.html" class="service-link">Learn More →</a>
-        </div>
-        
-        <div class="service-card" onclick="window.location.href='hire-us.html'">
-          <span class="service-icon" aria-hidden="true">🎉</span>
-          <h3>Event Management</h3>
-          <p>
-            Full-service event planning and coordination. From concept to execution, 
-            we handle every detail of your corporate or private event.
-          </p>
-          <a href="hire-us.html" class="service-link">Learn More →</a>
-        </div>
-        
-        <div class="service-card" onclick="window.location.href='apply.html'">
-          <span class="service-icon" aria-hidden="true">💼</span>
-          <h3>Join Our Team</h3>
-          <p>
-            Experienced event professional? Join a growing agency backed by industry veterans 
-            and work with premium clients across London.
-          </p>
-          <a href="apply.html" class="service-link">Apply Now →</a>
         </div>
       </div>
     </div>
@@ -1248,7 +1254,7 @@
         <ul>
           <li>30% off your first 3 bookings</li>
           <li>Priority scheduling and last-minute availability</li>
-          <li>Direct 24/7 access to founder's mobile</li>
+          <li>Direct access to founder's mobile</li>
           <li>Free consultation and event planning support</li>
           <li>Founding client rates locked in for 12 months</li>
           <li>First access to new services as we expand</li>
@@ -1268,13 +1274,13 @@
   <footer role="contentinfo">
     <div class="footer-content">
       <div class="footer-column">
-        <h3>VERGO Events</h3>
+        <h3>About Us</h3>
         <p>
           Premium event staffing solutions founded by industry veterans. Combining 8+ years 
           of hands-on experience with decades of family business expertise in the film and music sectors.
         </p>
         <p style="margin-top: 20px; font-size: 0.85rem; color: #666;">
-          Fully Insured • DBS Checked • 100% Guaranteed
+          Fully Insured • DBS Checked
         </p>
       </div>
       
@@ -1291,7 +1297,6 @@
         <h3>Contact Founder</h3>
         <p><strong>Direct:</strong> +44 7944 505 783</p>
         <p><strong>Email:</strong> wrobb@vergoltd.com</p>
-        <p><strong>Hours:</strong> 24/7 for urgent needs</p>
         <p><strong>Location:</strong> London, UK</p>
       </div>
       
@@ -1299,9 +1304,8 @@
         <h3>Why VERGO?</h3>
         <p>✓ 8+ years founder experience</p>
         <p>✓ Family business backing</p>
-        <p>✓ 100% satisfaction guarantee</p>
         <p>✓ Launch pricing available</p>
-        <p>✓ Direct founder access 24/7</p>
+        <p>✓ Direct founder access</p>
       </div>
     </div>
     

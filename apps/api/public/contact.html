@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Get a Quote - VERGO Events | Founding Client Offer Available</title>
-  <meta name="description" content="Contact VERGO Events for premium event staffing. Founding client offer: 30% off + 100% guarantee. Direct access to founder with 8+ years experience.">
+  <meta name="description" content="Contact VERGO Events for premium event staffing. Direct access to founder with 8+ years experience.">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #ffffff; line-height: 1.7; }
@@ -205,6 +205,68 @@
   .trust-badge-icon {
     font-size: 1.5rem;
   }
+  /* Dropdown Styles */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown > a {
+  cursor: pointer;
+}
+
+.nav-dropdown > a::before {
+  content: '▼';
+  font-size: 0.7rem;
+  margin-left: 6px;
+  transition: transform 0.3s ease;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: rgba(10, 10, 10, 0.98);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 4px;
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.nav-dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-menu li {
+  list-style: none;
+}
+
+.dropdown-menu a {
+  padding: 12px 20px;
+  display: block;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  font-size: 0.9rem;
+}
+
+.dropdown-menu a::after {
+  display: none;
+}
+
+.dropdown-menu li:last-child a {
+  border-bottom: none;
+}
+
+.dropdown-menu a:hover {
+  background: rgba(212, 175, 55, 0.1);
+  color: #D4AF37;
+}
   </style>
 </head>
 <body>
@@ -213,16 +275,21 @@
     <div class="menu-toggle" onclick="toggleMenu()">
       <span></span><span></span><span></span>
     </div>
-    <nav>
-      <ul id="nav-menu">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="hire-us.html">Event Management</a></li>
-        <li><a href="hire-staff.html">Hire Staff</a></li>
-        <li><a href="apply.html">Join Us</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
+    <nav role="navigation" aria-label="Main navigation">
+          <ul id="nav-menu">
+            <li><a href="index.html">Home</a></li>
+            <li class="nav-dropdown">
+              <a href="#" onclick="return false;">Services</a>
+              <ul class="dropdown-menu">
+                <li><a href="hire-staff.html">Hire Staff</a></li>
+                <li><a href="hire-us.html">Event Management</a></li>
+              </ul>
+            </li>
+            <li><a href="apply.html">Apply</a></li>
+            <li><a href="about.html#my-story">My Story</a></li>
+            <li><a href="contact.html" aria-current="page">Contact</a></li>
+          </ul>
+        </nav>
   </header>
   
   <div class="page-hero">
@@ -239,7 +306,7 @@
         <ul>
           <li>30% off your first 3 bookings</li>
           <li>Priority scheduling and last-minute availability</li>
-          <li>Direct 24/7 access to founder's mobile</li>
+          <li>Direct access to founder's mobile</li>
           <li>Free consultation and event planning support</li>
           <li>Founding client rates locked in for 12 months</li>
         </ul>
@@ -507,7 +574,7 @@
           <h3>📞 Phone</h3>
           <p><strong>Founder Direct:</strong></p>
           <a href="tel:+44 7944 505 783">+44 7944 505 783</a>
-          <p style="margin-top: 15px; font-size: 0.9rem; color: #999;">Available 24/7 for urgent needs</p>
+          <p style="margin-top: 15px; font-size: 0.9rem; color: #999;">Available for urgent needs</p>
         </div>
         
         <div class="contact-method">
@@ -527,11 +594,105 @@
       
       <div class="guarantee-box" style="margin-top: 50px;">
         <div class="guarantee-badge">💯</div>
-        <h3>100% Satisfaction Guaranteed</h3>
+        <h3>Satisfaction Guaranteed</h3>
         <p>Not happy with our service? Full refund + free replacement staff. No questions asked.</p>
       </div>
     </div>
   </div>
+  
+  <!-- Booking Process Section -->
+  <section style="background: #0a0a0a; padding: 80px 20px; border-top: 1px solid rgba(212, 175, 55, 0.2);">
+    <div style="max-width: 1000px; margin: 0 auto;">
+      <div style="text-align: center; margin-bottom: 60px;">
+        <h2 style="font-size: 2.5rem; color: #D4AF37; margin-bottom: 15px; font-weight: 700;">How It Works</h2>
+        <p style="font-size: 1.2rem; color: #999;">Simple, transparent booking process</p>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; margin-top: 50px;">
+        <div style="text-align: center;">
+          <div style="width: 70px; height: 70px; background: rgba(212, 175, 55, 0.1); border: 2px solid #D4AF37; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; font-weight: 700; color: #D4AF37;">1</div>
+          <h3 style="color: #D4AF37; font-size: 1.3rem; margin-bottom: 12px;">Contact Us</h3>
+          <p style="color: #cccccc; line-height: 1.6;">Fill out the form above or call directly. Tell us about your event requirements.</p>
+        </div>
+        
+        <div style="text-align: center;">
+          <div style="width: 70px; height: 70px; background: rgba(212, 175, 55, 0.1); border: 2px solid #D4AF37; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; font-weight: 700; color: #D4AF37;">2</div>
+          <h3 style="color: #D4AF37; font-size: 1.3rem; margin-bottom: 12px;">Get Your Quote</h3>
+          <p style="color: #cccccc; line-height: 1.6;">Receive a detailed quote within 24 hours. Transparent pricing, no hidden fees.</p>
+        </div>
+        
+        <div style="text-align: center;">
+          <div style="width: 70px; height: 70px; background: rgba(212, 175, 55, 0.1); border: 2px solid #D4AF37; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; font-weight: 700; color: #D4AF37;">3</div>
+          <h3 style="color: #D4AF37; font-size: 1.3rem; margin-bottom: 12px;">Confirm Booking</h3>
+          <p style="color: #cccccc; line-height: 1.6;">Accept the quote and pay 25% deposit to secure your booking. Balance due 24 hours before event.</p>
+        </div>
+        
+        <div style="text-align: center;">
+          <div style="width: 70px; height: 70px; background: rgba(212, 175, 55, 0.1); border: 2px solid #D4AF37; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; font-weight: 700; color: #D4AF37;">4</div>
+          <h3 style="color: #D4AF37; font-size: 1.3rem; margin-bottom: 12px;">Event Day</h3>
+          <p style="color: #cccccc; line-height: 1.6;">Our vetted professionals arrive on time, ready to deliver exceptional service.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- FAQ Section -->
+  <section style="background: #1a1a1a; padding: 80px 20px; border-top: 1px solid rgba(212, 175, 55, 0.2);">
+    <div style="max-width: 900px; margin: 0 auto;">
+      <div style="text-align: center; margin-bottom: 60px;">
+        <h2 style="font-size: 2.5rem; color: #D4AF37; margin-bottom: 15px; font-weight: 700;">Frequently Asked Questions</h2>
+        <p style="font-size: 1.2rem; color: #999;">Everything you need to know</p>
+      </div>
+      
+      <div style="display: flex; flex-direction: column; gap: 25px;">
+        <div style="background: #0a0a0a; padding: 30px; border-radius: 8px; border-left: 4px solid #D4AF37;">
+          <h3 style="color: #D4AF37; font-size: 1.3rem; margin-bottom: 12px;">What's your minimum booking?</h3>
+          <p style="color: #cccccc; line-height: 1.7;">We require a minimum of 1 staff member for 4-5 hours. This ensures we can provide quality service while making the booking worthwhile for both parties.</p>
+        </div>
+        
+        <div style="background: #0a0a0a; padding: 30px; border-radius: 8px; border-left: 4px solid #D4AF37;">
+          <h3 style="color: #D4AF37; font-size: 1.3rem; margin-bottom: 12px;">How far in advance do I need to book?</h3>
+          <p style="color: #cccccc; line-height: 1.7;">We recommend booking at least 1-2 weeks in advance for best availability. However, we can accommodate last-minute requests - give us a call and we'll do our best to help.</p>
+        </div>
+        
+        <div style="background: #0a0a0a; padding: 30px; border-radius: 8px; border-left: 4px solid #D4AF37;">
+          <h3 style="color: #D4AF37; font-size: 1.3rem; margin-bottom: 12px;">What if I need to cancel or reschedule?</h3>
+          <p style="color: #cccccc; line-height: 1.7;">You can cancel or reschedule free of charge with at least 48 hours (2 days) notice. Your deposit will be fully refunded. Cancellations within 48 hours may forfeit the deposit.</p>
+        </div>
+        
+        <div style="background: #0a0a0a; padding: 30px; border-radius: 8px; border-left: 4px solid #D4AF37;">
+          <h3 style="color: #D4AF37; font-size: 1.3rem; margin-bottom: 12px;">Are all staff DBS checked?</h3>
+          <p style="color: #cccccc; line-height: 1.7;">Yes, absolutely. Every single team member is DBS checked, personally interviewed by our founder, and thoroughly reference-checked before joining our roster.</p>
+        </div>
+        
+        <div style="background: #0a0a0a; padding: 30px; border-radius: 8px; border-left: 4px solid #D4AF37;">
+          <h3 style="color: #D4AF37; font-size: 1.3rem; margin-bottom: 12px;">What's included in your rates?</h3>
+          <p style="color: #cccccc; line-height: 1.7;">Our rates cover the staff member's time, their professional expertise, and our vetting/coordination service. Uniforms and basic equipment are included. Travel costs within London are included.</p>
+        </div>
+        
+        <div style="background: #0a0a0a; padding: 30px; border-radius: 8px; border-left: 4px solid #D4AF37;">
+          <h3 style="color: #D4AF37; font-size: 1.3rem; margin-bottom: 12px;">Do you require a deposit?</h3>
+          <p style="color: #cccccc; line-height: 1.7;">Yes, we require a 25% deposit at the time of booking to secure your staff and date. The remaining 75% balance is due 24 hours before your event. Deposits are fully refundable with 48+ hours notice.</p>
+        </div>
+        
+        <div style="background: #0a0a0a; padding: 30px; border-radius: 8px; border-left: 4px solid #D4AF37;">
+          <h3 style="color: #D4AF37; font-size: 1.3rem; margin-bottom: 12px;">How quickly will I receive my quote?</h3>
+          <p style="color: #cccccc; line-height: 1.7;">You'll receive a detailed, transparent quote within 24 hours of submitting your inquiry. For urgent requests, call us directly for same-day quotes.</p>
+        </div>
+        
+        <div style="background: #0a0a0a; padding: 30px; border-radius: 8px; border-left: 4px solid #D4AF37;">
+          <h3 style="color: #D4AF37; font-size: 1.3rem; margin-bottom: 12px;">What areas do you cover?</h3>
+          <p style="color: #cccccc; line-height: 1.7;">We cover all of London and Greater London. All boroughs are within our service area, and travel within these areas is included in our rates.</p>
+        </div>
+      </div>
+      
+      <div style="text-align: center; margin-top: 50px; padding: 30px; background: rgba(212, 175, 55, 0.05); border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2);">
+        <p style="color: #D4AF37; font-size: 1.1rem; margin-bottom: 15px; font-weight: 600;">Still have questions?</p>
+        <p style="color: #cccccc; margin-bottom: 20px;">We're here to help. Get in touch and we'll answer any questions you have.</p>
+        <a href="tel:+447944505783" style="display: inline-block; padding: 14px 35px; background: #D4AF37; color: #1a1a1a; text-decoration: none; font-weight: 700; border-radius: 4px; transition: all 0.3s ease;">Call Us Now</a>
+      </div>
+    </div>
+  </section>
   
   <footer>
     <div class="footer-content">
@@ -546,7 +707,7 @@
       </div>
       <div class="footer-bottom">
         <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
-        <p style="margin-top: 5px;">Founded by industry professionals • 8+ years experience • 100% Guaranteed</p>
+        <p style="margin-top: 5px;">Founded by industry professionals • 8+ years experience • Guaranteed</p>
       </div>
     </div>
   </footer>
@@ -829,4 +990,4 @@
     document.head.appendChild(style);
   </script>
 </body>
-</html> 
+</html>
