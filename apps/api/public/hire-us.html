@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Event Management - VERGO Events | 8+ Years Experience</title>
-  <meta name="description" content="Full-service event management from a founder with 8+ years experience. Corporate, film, music, and private events across London. 100% guaranteed.">
+  <meta name="description" content="Full-service event management from a founder with 8+ years experience. Corporate, film, music, and private events across London. guaranteed.">
   
   <!-- Security Headers -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -158,6 +158,68 @@
   .trust-badge-icon {
     font-size: 1.5rem;
   }
+  /* Dropdown Styles */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown > a {
+  cursor: pointer;
+}
+
+.nav-dropdown > a::before {
+  content: '▼';
+  font-size: 0.7rem;
+  margin-left: 6px;
+  transition: transform 0.3s ease;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: rgba(10, 10, 10, 0.98);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 4px;
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.nav-dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-menu li {
+  list-style: none;
+}
+
+.dropdown-menu a {
+  padding: 12px 20px;
+  display: block;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  font-size: 0.9rem;
+}
+
+.dropdown-menu a::after {
+  display: none;
+}
+
+.dropdown-menu li:last-child a {
+  border-bottom: none;
+}
+
+.dropdown-menu a:hover {
+  background: rgba(212, 175, 55, 0.1);
+  color: #D4AF37;
+}
   </style>
 </head>
 <body>
@@ -175,21 +237,26 @@
     </button>
     
     <nav role="navigation" aria-label="Main navigation">
-      <ul id="nav-menu">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="hire-us.html" aria-current="page">Event Management</a></li>
-        <li><a href="hire-staff.html">Hire Staff</a></li>
-        <li><a href="apply.html">Join Us</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
+          <ul id="nav-menu">
+            <li><a href="index.html">Home</a></li>
+            <li class="nav-dropdown">
+              <a href="#" onclick="return false;">Services</a>
+              <ul class="dropdown-menu">
+                <li><a href="hire-staff.html">Hire Staff</a></li>
+                <li><a href="hire-us.html" aria-current="page">Event Management</a></li>
+              </ul>
+            </li>
+            <li><a href="apply.html">Apply</a></li>
+            <li><a href="about.html#my-story">My Story</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </nav>
   </header>
   
   <div class="page-hero">
     <div class="hero-badge">Founded by Professional with 8+ Years Experience</div>
     <h1>Event Management</h1>
-    <p>Full-service event planning and execution from intimate gatherings to large-scale productions. Personal attention from experienced founder. 100% satisfaction guaranteed.</p>
+    <p>Full-service event planning and execution from intimate gatherings to large-scale productions. Personal attention from experienced founder. satisfaction guaranteed.</p>
   </div>
   
   <main id="main-content">
@@ -282,19 +349,19 @@
       <!-- Trust Badges -->
       <div class="trust-badges">
         <div class="trust-badge">
-          <span class="trust-badge-icon" aria-hidden="true">✓</span>
+          
           <span>8+ Years Experience</span>
         </div>
         <div class="trust-badge">
-          <span class="trust-badge-icon" aria-hidden="true">✓</span>
+          
           <span>Personal Service Guaranteed</span>
         </div>
         <div class="trust-badge">
-          <span class="trust-badge-icon" aria-hidden="true">✓</span>
-          <span>100% Satisfaction Promise</span>
+          
+          <span>Satisfaction Promise</span>
         </div>
         <div class="trust-badge">
-          <span class="trust-badge-icon" aria-hidden="true">✓</span>
+          
           <span>London-Based</span>
         </div>
       </div>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Event Management - VERGO Events</title>
+  <title>About Us - VERGO Events</title>
   <style>
     * {
       margin: 0;
@@ -407,6 +407,68 @@
   .trust-badge-icon {
     font-size: 1.5rem;
   }
+  /* Dropdown Styles */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown > a {
+  cursor: pointer;
+}
+
+.nav-dropdown > a::before {
+  content: '▼';
+  font-size: 0.7rem;
+  margin-left: 6px;
+  transition: transform 0.3s ease;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: rgba(10, 10, 10, 0.98);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 4px;
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.nav-dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-menu li {
+  list-style: none;
+}
+
+.dropdown-menu a {
+  padding: 12px 20px;
+  display: block;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  font-size: 0.9rem;
+}
+
+.dropdown-menu a::after {
+  display: none;
+}
+
+.dropdown-menu li:last-child a {
+  border-bottom: none;
+}
+
+.dropdown-menu a:hover {
+  background: rgba(212, 175, 55, 0.1);
+  color: #D4AF37;
+}
   </style>
 </head>
 <body>
@@ -420,42 +482,76 @@
       <span></span>
     </div>
     
-    <nav>
-      <ul id="nav-menu">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="hire-us.html">Event Management</a></li>
-        <li><a href="hire-staff.html">Hire Staff</a></li>
-        <li><a href="apply.html">Apply</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
+    <nav role="navigation" aria-label="Main navigation">
+          <ul id="nav-menu">
+            <li><a href="index.html">Home</a></li>
+            <li class="nav-dropdown">
+              <a href="#" onclick="return false;">Services</a>
+              <ul class="dropdown-menu">
+                <li><a href="hire-staff.html">Hire Staff</a></li>
+                <li><a href="hire-us.html">Event Management</a></li>
+              </ul>
+            </li>
+            <li><a href="apply.html">Apply</a></li>
+            <li><a href="about.html#my-story" aria-current="page">My Story</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </nav>
   </header>
   
   <!-- Page Hero -->
   <div class="page-hero">
-    <h1>Event Management</h1>
-    <p>Professional Events & Staffing Solutions</p>
+    <h1>About Us</h1>
+    <p>Industry Experience Meets Personal Service</p>
   </div>
   
   <!-- Content -->
   <div class="container">
-    <div class="intro-section">
-      <h2>Full-Service Event Solutions</h2>
+    <!-- Founder Story Section -->
+    <div class="intro-section" id="my-story">
+      <h2>My Story</h2>
+      <p class="founder-title" style="color: #D4AF37; font-weight: 600; margin-bottom: 20px;">William - Founder & CEO</p>
+      
       <p>
-        From intimate gatherings to large-scale productions, VERGO Events delivers exceptional 
-        experiences tailored to your vision. Our comprehensive services cover every aspect of 
-        event planning, coordination, and execution.
+        "After 8 years working across every area of the events industry - from intimate private 
+        gatherings to large-scale corporate productions and film sets - I saw a gap in the market 
+        for a staffing agency that truly understood what clients need."
       </p>
+      
       <p>
-        Our team brings together experienced event professionals who are passionate about creating 
-        memorable moments with precision and care.
+        "Growing up around my father's agency, which has been supplying kitchen porters to the 
+        film and music industries for over two decades, I learned what separates exceptional 
+        service from mediocre. It's about reliability, quality vetting, and building genuine 
+        relationships."
       </p>
+      
+      <p style="font-weight: 600; color: #D4AF37; font-size: 1.15rem; margin-top: 25px;">
+        "I founded VERGO to bring that same standard of excellence to London's broader events sector. 
+        Every placement reflects my personal reputation - and I stake that on every staff member we provide."
+      </p>
+      
+      <div style="margin-top: 35px; padding: 25px; background: rgba(212, 175, 55, 0.05); border-radius: 6px;">
+        <h4 style="color: #D4AF37; margin-bottom: 15px; font-size: 1.2rem;">Experience & Background</h4>
+        <ul style="list-style-position: inside; color: #cccccc; line-height: 2;">
+          <li>8+ years hands-on event management experience</li>
+          <li>Worked across corporate, film, music, and private events</li>
+          <li>Raised in family business serving film & music industries</li>
+          <li>Deep network of industry-vetted professionals</li>
+          <li>Personally vets and interviews every VERGO team member</li>
+          <li>DBS checked • Fully insured • Industry certified</li>
+        </ul>
+      </div>
+      
+      <div style="margin-top: 30px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+        <a href="tel:+447944505783" style="display: inline-block; padding: 12px 25px; background: #D4AF37; color: #1a1a1a; text-decoration: none; font-weight: 700; border-radius: 4px; transition: all 0.3s ease;">📞 Call Direct</a>
+        <a href="mailto:wrobb@vergoltd.com" style="display: inline-block; padding: 12px 25px; background: transparent; color: #D4AF37; text-decoration: none; font-weight: 700; border-radius: 4px; border: 2px solid #D4AF37; transition: all 0.3s ease;">✉️ Email Me</a>
+        <a href="https://www.linkedin.com/company/109586221/admin/dashboard/" target="_blank" style="display: inline-block; padding: 12px 25px; background: transparent; color: #D4AF37; text-decoration: none; font-weight: 700; border-radius: 4px; border: 2px solid #D4AF37; transition: all 0.3s ease;">💼 LinkedIn</a>
+      </div>
     </div>
     
     <!-- Corporate Events -->
     <div class="category-section">
-      <h2 class="category-header"><span>💼</span> Corporate Events</h2>
+      <h2 class="category-header">Corporate Events</h2>
       <div class="services-grid">
         <div class="service-card">
           <h3>Conferences & Seminars</h3>
@@ -474,7 +570,7 @@
     
     <!-- Social Events -->
     <div class="category-section">
-      <h2 class="category-header"><span>🎊</span> Social Events</h2>
+      <h2 class="category-header">Social Events</h2>
       <div class="services-grid">
         <div class="service-card">
           <h3>Weddings</h3>
@@ -493,7 +589,7 @@
     
     <!-- Entertainment -->
     <div class="category-section">
-      <h2 class="category-header"><span>🎵</span> Entertainment Events</h2>
+      <h2 class="category-header">Entertainment Events</h2>
       <div class="services-grid">
         <div class="service-card">
           <h3>Music Events</h3>
@@ -512,7 +608,7 @@
     
     <!-- Hospitality -->
     <div class="category-section">
-      <h2 class="category-header"><span>🍽️</span> Hospitality Services</h2>
+      <h2 class="category-header">Hospitality Services</h2>
       <div class="services-grid">
         <div class="service-card">
           <h3>Catering</h3>

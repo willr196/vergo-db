@@ -294,6 +294,68 @@
         margin: 12px 0;
       }
     }
+    /* Dropdown Styles */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown > a {
+  cursor: pointer;
+}
+
+.nav-dropdown > a::before {
+  content: '▼';
+  font-size: 0.7rem;
+  margin-left: 6px;
+  transition: transform 0.3s ease;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: rgba(10, 10, 10, 0.98);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 4px;
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.nav-dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-menu li {
+  list-style: none;
+}
+
+.dropdown-menu a {
+  padding: 12px 20px;
+  display: block;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  font-size: 0.9rem;
+}
+
+.dropdown-menu a::after {
+  display: none;
+}
+
+.dropdown-menu li:last-child a {
+  border-bottom: none;
+}
+
+.dropdown-menu a:hover {
+  background: rgba(212, 175, 55, 0.1);
+  color: #D4AF37;
+}
   </style>
 </head>
 <body>
@@ -307,16 +369,21 @@
       <span></span>
     </div>
     
-    <nav>
-      <ul id="nav-menu">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="hire-us.html">Event Management</a></li>
-        <li><a href="hire-staff.html">Hire Staff</a></li>
-        <li><a href="apply.html">Apply</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
+    <nav role="navigation" aria-label="Main navigation">
+          <ul id="nav-menu">
+            <li><a href="index.html">Home</a></li>
+            <li class="nav-dropdown">
+              <a href="#" onclick="return false;">Services</a>
+              <ul class="dropdown-menu">
+                <li><a href="hire-staff.html">Hire Staff</a></li>
+                <li><a href="hire-us.html">Event Management</a></li>
+              </ul>
+            </li>
+            <li><a href="apply.html">Apply</a></li>
+            <li><a href="about.html#my-story">My Story</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </nav>
   </header>
   
   <div class="container">
