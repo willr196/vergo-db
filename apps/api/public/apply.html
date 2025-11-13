@@ -16,9 +16,7 @@
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #ffffff; line-height: 1.7; }
     
     header { position: fixed; top: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-    .logo { display: flex; align-items: center; text-decoration: none; }
-    .logo img { height: 50px; width: auto; transition: transform 0.3s ease; }
-    .logo:hover img { transform: scale(1.05); }
+    .logo { font-size: 1.8rem; font-weight: 700; color: #D4AF37; letter-spacing: 2px; text-decoration: none; }
     nav ul { display: flex; gap: 35px; list-style: none; }
     nav a { color: #ffffff; text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: color 0.3s ease; position: relative; }
     nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: #D4AF37; transition: width 0.3s ease; }
@@ -461,13 +459,24 @@
   </script>
 </head>
 <body>
+  <!-- Skip Link for Accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  
   <header role="banner">
     <a href="index.html" class="logo" aria-label="VERGO Events Home">
       <img src="/logo.png" alt="VERGO Events Logo">
     </a>
-    <button class="menu-toggle" onclick="toggleMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">
+    
+    <button 
+      class="menu-toggle" 
+      onclick="toggleMenu()"
+      aria-label="Toggle navigation menu"
+      aria-expanded="false"
+      aria-controls="nav-menu"
+    >
       <span></span><span></span><span></span>
     </button>
+    
     <nav role="navigation" aria-label="Main navigation">
           <ul id="nav-menu">
             <li><a href="index.html">Home</a></li>
@@ -717,6 +726,7 @@
         <!-- Role Selection -->
         <div class="form-group">
           <label>Select All Roles You Can Do <span class="required" aria-label="required">*</span> (check all that apply)</label>
+          <div id="roles-error" class="field-error-message" style="display: none;" role="alert"></div>
           
           <div class="roles-category">
             <div class="category-title"><span aria-hidden="true">🍽️</span> Hospitality & Service</div>
@@ -964,6 +974,16 @@
         const el = form.querySelector(`[name="${name}"]`);
         return el ? el.value.trim() : '';
       }
+      
+      // Clear roles error when user selects a role
+      document.querySelectorAll('input[name="roles"]').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+          const rolesError = document.getElementById('roles-error');
+          if (rolesError && getRoles().length > 0) {
+            rolesError.style.display = 'none';
+          }
+        });
+      });
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -997,6 +1017,12 @@
           // Validate roles selected
           const roles = getRoles();
           if (roles.length === 0) {
+            const rolesError = document.getElementById('roles-error');
+            if (rolesError) {
+              rolesError.textContent = 'Please select at least one role you can perform';
+              rolesError.style.display = 'block';
+              rolesError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
             throw new Error('Please select at least one role');
           }
 

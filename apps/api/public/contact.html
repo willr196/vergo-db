@@ -274,13 +274,24 @@
   </style>
 </head>
 <body>
-  <header>
-    <a href="index.html" class="logo">
+  <!-- Skip Link for Accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  
+  <header role="banner">
+    <a href="index.html" class="logo" aria-label="VERGO Events Home">
       <img src="/logo.png" alt="VERGO Events Logo">
     </a>
-    <div class="menu-toggle" onclick="toggleMenu()">
+    
+    <button 
+      class="menu-toggle" 
+      onclick="toggleMenu()"
+      aria-label="Toggle navigation menu"
+      aria-expanded="false"
+      aria-controls="nav-menu"
+    >
       <span></span><span></span><span></span>
-    </div>
+    </button>
+    
     <nav role="navigation" aria-label="Main navigation">
           <ul id="nav-menu">
             <li><a href="index.html">Home</a></li>
@@ -298,6 +309,7 @@
         </nav>
   </header>
   
+  <main id="main-content">
   <div class="page-hero">
     <div class="hero-badge">🚀 Founding Client Offer Available</div>
     <h1>Get Started with VERGO</h1>
@@ -700,6 +712,15 @@
     </div>
   </section>
   
+  <!-- Clear CTA Section -->
+  <section style="background: rgba(212, 175, 55, 0.05); padding: 60px 20px; text-align: center;">
+    <div style="max-width: 800px; margin: 0 auto;">
+      <h2 style="font-size: 2rem; color: #ffffff; margin-bottom: 20px; font-weight: 700;">Ready to talk about your event?</h2>
+      <p style="font-size: 1.1rem; color: #cccccc; margin-bottom: 30px;">Get a quote or discuss your staffing needs. Every enquiry gets personal attention from our founder.</p>
+      <a href="#eventsTab" class="cta-button" onclick="document.getElementById('eventsTab').click(); document.getElementById('eventsTab').scrollIntoView({behavior: 'smooth', block: 'center'}); return false;" style="display: inline-block; padding: 16px 40px; background: #D4AF37; color: #1a1a1a; text-decoration: none; font-weight: 700; font-size: 1.1rem; border-radius: 4px; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px;">Get a Quote</a>
+    </div>
+  </section>
+  
   <footer>
     <div class="footer-content">
       <div class="footer-links">
@@ -995,5 +1016,6 @@
     `;
     document.head.appendChild(style);
   </script>
+  </main>
 </body>
 </html>

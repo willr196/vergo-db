@@ -45,12 +45,6 @@
     }
     
     .logo {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-    }
-    
-    .logo img {
       font-size: 1.8rem;
       font-weight: 700;
       color: #D4AF37;
@@ -544,12 +538,6 @@
       }
       
       .logo {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-    }
-    
-    .logo img {
         font-size: 1.5rem;
       }
       
@@ -575,6 +563,28 @@
       
       .staff-grid {
         grid-template-columns: 1fr;
+      }
+      
+      /* Make descriptions always visible on mobile */
+      .staff-card {
+        cursor: default;
+      }
+      
+      .staff-card p {
+        display: block;
+        position: static;
+        transform: none;
+        width: auto;
+        margin-top: 10px;
+        margin-bottom: 0;
+        border: none;
+        padding: 0;
+        background: transparent;
+        font-size: 0.9rem;
+      }
+      
+      .staff-card p::after {
+        display: none;
       }
       
       .benefits-grid {
@@ -732,6 +742,9 @@
   </style>
 </head>
 <body>
+  <!-- Skip Link for Accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  
   <header role="banner">
     <a href="index.html" class="logo" aria-label="VERGO Events Home">
       <img src="/logo.png" alt="VERGO Events Logo">
@@ -1007,7 +1020,7 @@
       <div class="cta-section">
         <h2>Need Staff for Your Event?</h2>
         <p>Let's discuss your staffing requirements. Direct access to founder with 8 years experience. Same-day quotes. Satisfaction guaranteed.</p>
-        <a href="contact.html" class="cta-button">Get a Quote</a>
+        <a href="contact.html#staffTab" class="cta-button">Request Staff → contact.html#staffTab</a>
       </div>
     </div>
   </main>
