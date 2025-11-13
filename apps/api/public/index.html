@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/logo.png">
   <title>VERGO Events - Premium Event Staff</title>
   <meta name="description" content="Professional bartenders, waiters & chefs for London events. Every staff member personally vetted by founder with 8+ years experience. Founding client specials available.">
+  
+  <!-- Google Search Console Verification -->
+  <meta name="google-site-verification" content="google153cacaf2b1d1296" />
   
   <!-- Security Headers -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -44,11 +48,19 @@
     }
     
     .logo {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #D4AF37;
-      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
       text-decoration: none;
+    }
+    
+    .logo img {
+      height: 50px;
+      width: auto;
+      transition: transform 0.3s ease;
+    }
+    
+    .logo:hover img {
+      transform: scale(1.05);
     }
     
     nav ul {
@@ -91,7 +103,7 @@
       width: 100%;
     }
     
-    /* Dropdown Styles */
+    /* Dropdown Styles - Fixed for Mobile */
     .nav-dropdown {
       position: relative;
     }
@@ -123,10 +135,22 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
     
+    /* Desktop hover */
     .nav-dropdown:hover .dropdown-menu {
       opacity: 1;
       visibility: visible;
       transform: translateY(0);
+    }
+    
+    /* Mobile/Touch support - show when active class is added */
+    .nav-dropdown.active .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .nav-dropdown.active > a::before {
+      transform: rotate(180deg);
     }
     
     .dropdown-menu li {
@@ -299,556 +323,6 @@
       line-height: 1.5;
     }
     
-    /* Why VERGO Section */
-    .why-section {
-      background: #0a0a0a;
-      padding: 80px 40px;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-    }
-    
-    .section-container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    
-    .section-header {
-      text-align: center;
-      margin-bottom: 60px;
-    }
-    
-    .section-title {
-      font-size: 2.8rem;
-      color: #D4AF37;
-      margin-bottom: 15px;
-      font-weight: 700;
-    }
-    
-    .section-subtitle {
-      font-size: 1.2rem;
-      color: #999;
-      max-width: 700px;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
-    
-    .why-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 30px;
-    }
-    
-    .why-card {
-      background: #1a1a1a;
-      padding: 40px 30px;
-      border-radius: 8px;
-      border-left: 4px solid #D4AF37;
-      transition: transform 0.3s ease;
-    }
-    
-    .why-card:hover {
-      transform: translateY(-5px);
-    }
-    
-    .why-icon {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-      display: block;
-    }
-    
-    .why-card h3 {
-      font-size: 1.4rem;
-      color: #D4AF37;
-      margin-bottom: 15px;
-    }
-    
-    .why-card p {
-      color: #cccccc;
-      line-height: 1.7;
-      font-size: 1rem;
-    }
-    
-    /* Founder Section */
-    .founder-section {
-      background: #1a1a1a;
-      padding: 80px 40px;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-    }
-    
-    .founder-content {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 300px 1fr;
-      gap: 60px;
-      align-items: center;
-    }
-    
-    .founder-photo {
-      width: 300px;
-      height: 300px;
-      border-radius: 8px;
-      background: rgba(212, 175, 55, 0.1);
-      border: 3px solid #D4AF37;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      color: #666;
-      overflow: hidden;
-    }
-    
-    .founder-photo img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .founder-info h2 {
-      font-size: 2.5rem;
-      color: #D4AF37;
-      margin-bottom: 10px;
-    }
-    
-    .founder-title {
-      font-size: 1.2rem;
-      color: #999;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 30px;
-    }
-    
-    .founder-story {
-      font-size: 1.1rem;
-      color: #cccccc;
-      line-height: 1.8;
-      margin-bottom: 20px;
-    }
-    
-    .founder-highlight {
-      background: rgba(212, 175, 55, 0.05);
-      border-left: 3px solid #D4AF37;
-      padding: 20px 25px;
-      margin: 30px 0;
-      font-style: italic;
-      color: #D4AF37;
-      font-size: 1.1rem;
-    }
-    
-    .founder-credentials {
-      background: rgba(212, 175, 55, 0.05);
-      border-left: 3px solid #D4AF37;
-      padding: 25px 30px;
-      margin: 30px 0;
-    }
-    
-    .founder-credentials h4 {
-      color: #D4AF37;
-      margin-bottom: 15px;
-      font-size: 1.1rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    
-    .founder-credentials ul {
-      list-style: none;
-      padding: 0;
-    }
-    
-    .founder-credentials li {
-      color: #cccccc;
-      margin-bottom: 12px;
-      font-size: 1rem;
-      padding-left: 25px;
-      position: relative;
-    }
-    
-    .founder-credentials li::before {
-      content: '✓';
-      position: absolute;
-      left: 0;
-      color: #D4AF37;
-      font-weight: 700;
-    }
-    
-    .founder-contact {
-      display: flex;
-      gap: 15px;
-      margin-top: 30px;
-      flex-wrap: wrap;
-    }
-    
-    .contact-button {
-      display: inline-block;
-      padding: 12px 25px;
-      background: transparent;
-      color: #D4AF37;
-      border: 2px solid #D4AF37;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.9rem;
-      border-radius: 4px;
-      transition: all 0.3s ease;
-    }
-    
-    .contact-button:hover {
-      background: #D4AF37;
-      color: #1a1a1a;
-    }
-    
-    /* Guarantee Section */
-    .guarantee-section {
-      background: #0a0a0a;
-      padding: 80px 40px;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-    }
-    
-    .guarantee-box {
-      max-width: 900px;
-      margin: 0 auto;
-      background: rgba(212, 175, 55, 0.05);
-      border: 2px solid #D4AF37;
-      border-radius: 12px;
-      padding: 60px 50px;
-      text-align: center;
-    }
-    
-    .guarantee-badge {
-      width: 100px;
-      height: 100px;
-      background: #D4AF37;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 30px;
-      font-size: 3rem;
-    }
-    
-    .guarantee-box h2 {
-      font-size: 2.5rem;
-      color: #D4AF37;
-      margin-bottom: 25px;
-    }
-    
-    .guarantee-box p {
-      font-size: 1.2rem;
-      color: #cccccc;
-      line-height: 1.8;
-      margin-bottom: 15px;
-    }
-    
-    .guarantee-highlight {
-      font-size: 1.4rem;
-      color: #ffffff;
-      font-weight: 700;
-      margin-top: 30px;
-    }
-    
-    /* Testimonials Section */
-    .testimonials-section {
-      background: #1a1a1a;
-      padding: 80px 40px;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-    }
-    
-    .testimonials-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 30px;
-      margin-top: 40px;
-    }
-    
-    .testimonial-card {
-      background: #0a0a0a;
-      padding: 40px 35px;
-      border-radius: 8px;
-      border-left: 4px solid #D4AF37;
-      transition: transform 0.3s ease;
-    }
-    
-    .testimonial-card:hover {
-      transform: translateY(-5px);
-    }
-    
-    .testimonial-rating {
-      font-size: 1.2rem;
-      margin-bottom: 20px;
-      color: #D4AF37;
-    }
-    
-    .testimonial-text {
-      font-size: 1.1rem;
-      line-height: 1.8;
-      color: #cccccc;
-      margin-bottom: 25px;
-      font-style: italic;
-    }
-    
-    .testimonial-author {
-      padding-top: 20px;
-      border-top: 1px solid rgba(212, 175, 55, 0.2);
-    }
-    
-    .testimonial-author strong {
-      color: #D4AF37;
-      font-size: 1.1rem;
-    }
-    
-    .testimonial-author span {
-      color: #999;
-      font-size: 0.95rem;
-    }
-    
-    .testimonial-placeholder {
-      background: rgba(212, 175, 55, 0.05);
-      border-left-color: rgba(212, 175, 55, 0.4);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-    
-    .testimonial-icon {
-      font-size: 3rem;
-      margin-bottom: 20px;
-      opacity: 0.5;
-    }
-    
-    .testimonial-placeholder .testimonial-text {
-      font-style: normal;
-      margin-bottom: 20px;
-    }
-    
-    .testimonial-cta {
-      display: inline-block;
-      padding: 12px 30px;
-      background: #D4AF37;
-      color: #1a1a1a;
-      text-decoration: none;
-      font-weight: 700;
-      border-radius: 4px;
-      transition: all 0.3s ease;
-    }
-    
-    .testimonial-cta:hover {
-      background: transparent;
-      color: #D4AF37;
-      border: 2px solid #D4AF37;
-      padding: 10px 28px;
-    }
-    
-    /* Services Section */
-    .services-section {
-      background: #1a1a1a;
-      padding: 80px 40px;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-    }
-    
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 30px;
-    }
-    
-    .service-card {
-      background: #0a0a0a;
-      padding: 50px 35px;
-      border-radius: 8px;
-      border-top: 3px solid #D4AF37;
-      text-align: center;
-      transition: transform 0.3s ease;
-      cursor: pointer;
-    }
-    
-    .service-card:hover {
-      transform: translateY(-8px);
-    }
-    
-    .service-icon {
-      font-size: 3.5rem;
-      margin-bottom: 25px;
-      display: block;
-    }
-    
-    .service-card h3 {
-      font-size: 1.8rem;
-      color: #D4AF37;
-      margin-bottom: 15px;
-    }
-    
-    .service-card p {
-      color: #999;
-      line-height: 1.7;
-      font-size: 1rem;
-      margin-bottom: 25px;
-    }
-    
-    .service-link {
-      display: inline-block;
-      color: #D4AF37;
-      text-decoration: none;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-    
-    .service-link:hover {
-      transform: translateX(5px);
-    }
-    
-    /* Launch Offer Section */
-    .launch-offer-section {
-      background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
-      padding: 80px 40px;
-      text-align: center;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-    }
-    
-    .offer-container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    
-    .offer-badge {
-      display: inline-block;
-      background: #D4AF37;
-      color: #1a1a1a;
-      padding: 10px 25px;
-      border-radius: 25px;
-      font-weight: 700;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 25px;
-    }
-    
-    .offer-container h2 {
-      font-size: 2.8rem;
-      color: #ffffff;
-      margin-bottom: 20px;
-    }
-    
-    .offer-container p {
-      font-size: 1.2rem;
-      color: #cccccc;
-      line-height: 1.7;
-      margin-bottom: 40px;
-    }
-    
-    .offer-details {
-      background: rgba(212, 175, 55, 0.05);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      border-radius: 8px;
-      padding: 30px;
-      margin-bottom: 40px;
-    }
-    
-    .offer-details ul {
-      list-style: none;
-      padding: 0;
-      text-align: left;
-    }
-    
-    .offer-details li {
-      color: #cccccc;
-      font-size: 1.1rem;
-      margin-bottom: 15px;
-      padding-left: 30px;
-      position: relative;
-    }
-    
-    .offer-details li::before {
-      content: '🎁';
-      position: absolute;
-      left: 0;
-      font-size: 1.2rem;
-    }
-    
-    /* Scarcity Elements */
-    .scarcity-bar {
-      background: rgba(220, 53, 69, 0.1);
-      border: 2px solid #dc3545;
-      border-radius: 8px;
-      padding: 25px;
-      margin: 30px 0;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 30px;
-    }
-    
-    .scarcity-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .scarcity-number {
-      font-size: 3.5rem;
-      font-weight: 700;
-      color: #dc3545;
-      line-height: 1;
-      text-shadow: 0 0 20px rgba(220, 53, 69, 0.5);
-      animation: scarcityPulse 2s infinite;
-    }
-    
-    @keyframes scarcityPulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.1); opacity: 0.9; }
-    }
-    
-    .scarcity-label {
-      font-size: 0.95rem;
-      color: #dc3545;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: 600;
-    }
-    
-    .countdown-container {
-      margin: 30px 0;
-    }
-    
-    .countdown-label-main {
-      font-size: 1rem;
-      color: #D4AF37;
-      margin-bottom: 15px;
-      font-weight: 600;
-    }
-    
-    .countdown-timer {
-      display: inline-flex;
-      gap: 20px;
-      padding: 20px 30px;
-      background: rgba(212, 175, 55, 0.1);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      border-radius: 8px;
-    }
-    
-    .countdown-unit {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-width: 60px;
-    }
-    
-    .countdown-number {
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: #D4AF37;
-      line-height: 1;
-    }
-    
-    .countdown-label {
-      font-size: 0.75rem;
-      color: #999;
-      text-transform: uppercase;
-      margin-top: 5px;
-      letter-spacing: 0.5px;
-    }
-    
     /* Footer */
     footer {
       background: #0a0a0a;
@@ -918,13 +392,22 @@
         display: flex;
       }
       
-      .founder-content {
-        grid-template-columns: 1fr;
-        text-align: center;
+      /* Mobile dropdown positioning */
+      .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        margin-top: 10px;
+        margin-left: 20px;
       }
       
-      .founder-photo {
-        margin: 0 auto;
+      .nav-dropdown .dropdown-menu {
+        display: none;
+      }
+      
+      .nav-dropdown.active .dropdown-menu {
+        display: block;
       }
       
       .credentials-container {
@@ -937,8 +420,8 @@
         padding: 15px 20px;
       }
       
-      .logo {
-        font-size: 1.5rem;
+      .logo img {
+        height: 40px;
       }
       
       .hero-section {
@@ -953,34 +436,9 @@
         font-size: 1.2rem;
       }
       
-      .section-title {
-        font-size: 2rem;
-      }
-      
-      .why-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .guarantee-box {
-        padding: 40px 25px;
-      }
-      
-      .founder-photo {
-        width: 250px;
-        height: 250px;
-      }
-      
-      .services-grid {
-        grid-template-columns: 1fr;
-      }
-      
       .credentials-container {
         grid-template-columns: 1fr;
         gap: 30px;
-      }
-      
-      .founder-contact {
-        justify-content: center;
       }
     }
   </style>
@@ -988,7 +446,9 @@
 <body>
   <!-- Header Navigation -->
   <header role="banner">
-    <a href="index.html" class="logo" aria-label="VERGO Events Home">VERGO</a>
+    <a href="index.html" class="logo" aria-label="VERGO Events Home">
+      <img src="/logo.png" alt="VERGO Events Logo">
+    </a>
     
     <button 
       class="menu-toggle" 
@@ -1005,11 +465,11 @@
     <nav role="navigation" aria-label="Main navigation">
       <ul id="nav-menu">
         <li><a href="index.html" aria-current="page">Home</a></li>
-        <li class="nav-dropdown">
-          <a href="#" onclick="return false;">Services</a>
-          <ul class="dropdown-menu">
-            <li><a href="hire-staff.html">Hire Staff</a></li>
-            <li><a href="hire-us.html">Event Management</a></li>
+        <li class="nav-dropdown" id="services-dropdown">
+          <a href="#" onclick="toggleDropdown(event, 'services-dropdown'); return false;" aria-haspopup="true" aria-expanded="false">Services</a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="hire-staff.html" role="menuitem">Hire Staff</a></li>
+            <li><a href="hire-us.html" role="menuitem">Event Management</a></li>
           </ul>
         </li>
         <li><a href="apply.html">Apply</a></li>
@@ -1023,248 +483,89 @@
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
-      <div class="hero-badge">Founding Client Special (Limited Availability)</div>
-      <h1 class="hero-title">Premium Event staff</h1>
+      <div class="hero-badge">Founding Client Specials Available</div>
+      <h1 class="hero-title">Premium Event Staff for London</h1>
       <p class="hero-subtitle">
-        Professional bartenders, waiters & chefs for your London events
+        Professional bartenders, waiters & chefs
       </p>
       <p class="hero-description">
-        Every staff member hand-picked and personally vetted by our founder with 8+ years 
-        in London's hospitality, film, and music industries. Not random names from a database—
-        experienced professionals we trust completely.
+        Every staff member personally vetted by our founder with 8+ years in London's events industry. Experienced professionals, not random names from a database.
       </p>
       <div class="hero-cta-group">
         <a href="contact.html" class="cta-button">Get Your Quote</a>
-        <a href="hire-staff.html" class="cta-button cta-button-secondary">View Staff Roles</a>
-      </div>
-      <p style="text-align: center; margin-top: 20px; font-size: 0.95rem; color: #999;">
-        <a href="hire-us.html" style="color: #D4AF37; text-decoration: underline;">Need full event management? We offer that too →</a>
-      </p>
-    </div>
-  </section>
-
-  <!-- Credentials Bar -->
-  <section class="credentials-bar">
-    <div class="credentials-container">
-      <div class="credential-item">
-        <span class="credential-number">8+</span>
-        <span class="credential-label">Years Experience<br>(Founder)</span>
-      </div>
-      <div class="credential-item">
-        <span class="credential-number">20+</span>
-        <span class="credential-label">Years Industry Connections<br>(Family Business)</span>
-      </div>
-      <div class="credential-item">
-        <span class="credential-number">100%</span>
-        <span class="credential-label">Satisfaction<br>Guarantee</span>
+        <a href="hire-staff.html" class="cta-button cta-button-secondary">View Roles</a>
       </div>
     </div>
   </section>
 
   <!-- Service Areas -->
-  <section style="background: #1a1a1a; padding: 40px 20px; text-align: center; border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
-    <div style="max-width: 800px; margin: 0 auto;">
-      <h2 style="color: #D4AF37; font-size: 1.8rem; margin-bottom: 15px; font-weight: 700;">Service Coverage</h2>
-      <p style="color: #cccccc; font-size: 1.15rem; line-height: 1.6;">
-        Proudly serving <strong style="color: #D4AF37;">London and Greater London</strong>
-      </p>
-      <p style="color: #999; font-size: 1rem; margin-top: 10px;">
-        All boroughs covered • Professional staff deployed across the capital
+  <section style="background: #0a0a0a; padding: 50px 20px; text-align: center; border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
+    <div style="max-width: 700px; margin: 0 auto;">
+      <h2 style="color: #D4AF37; font-size: 2rem; margin-bottom: 15px; font-weight: 700;">Covering All of London</h2>
+      <p style="color: #cccccc; font-size: 1.1rem; line-height: 1.6;">
+        All boroughs • Greater London • Professional staff deployed across the capital
       </p>
     </div>
   </section>
 
   <!-- Services -->
-  <section class="services-section">
-    <div class="section-container">
-      <div class="section-header">
-        <h2 class="section-title">Our Services</h2>
-        <p class="section-subtitle">Premium solutions for every type of event</p>
+  <section style="background: #1a1a1a; padding: 80px 20px;">
+    <div style="max-width: 1100px; margin: 0 auto;">
+      <div style="text-align: center; margin-bottom: 60px;">
+        <h2 style="font-size: 2.5rem; color: #D4AF37; margin-bottom: 15px; font-weight: 700;">What We Do</h2>
+        <p style="font-size: 1.2rem; color: #999;">Three ways we can help your event succeed</p>
       </div>
       
-      <div class="services-grid">
-        <div class="service-card" onclick="window.location.href='hire-staff.html'">
-          <h3>Event Staffing</h3>
-          <p>
-            Front of house, bartenders, servers, kitchen porters, event coordinators. 
-            Pre-vetted, DBS-checked professionals ready when you need them.
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease; cursor: pointer;" onclick="window.location.href='hire-staff.html'">
+          <h3 style="font-size: 1.5rem; color: #D4AF37; margin-bottom: 15px;">Hire Event Staff</h3>
+          <p style="color: #cccccc; line-height: 1.7; margin-bottom: 20px;">
+            Bartenders, waiters, chefs, front of house. All DBS-checked and personally vetted.
           </p>
-          <a href="hire-staff.html" class="service-link">Learn More →</a>
+          <a href="hire-staff.html" style="color: #D4AF37; text-decoration: none; font-weight: 600;">View Roles →</a>
         </div>
         
-        <div class="service-card" onclick="window.location.href='hire-us.html'">
-          <h3>Event Management</h3>
-          <p>
-            Full-service event planning and coordination. From concept to execution, 
-            we handle every detail of your corporate or private event.
+        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease; cursor: pointer;" onclick="window.location.href='hire-us.html'">
+          <h3 style="font-size: 1.5rem; color: #D4AF37; margin-bottom: 15px;">Event Management</h3>
+          <p style="color: #cccccc; line-height: 1.7; margin-bottom: 20px;">
+            Full-service planning and coordination from concept to execution.
           </p>
-          <a href="hire-us.html" class="service-link">Learn More →</a>
+          <a href="hire-us.html" style="color: #D4AF37; text-decoration: none; font-weight: 600;">Learn More →</a>
         </div>
         
-        <div class="service-card" onclick="window.location.href='apply.html'">
-          <h3>Join Our Team</h3>
-          <p>
-            Experienced event professional? Join a growing agency backed by industry veterans 
-            and work with premium clients across London.
+        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease; cursor: pointer;" onclick="window.location.href='apply.html'">
+          <h3 style="font-size: 1.5rem; color: #D4AF37; margin-bottom: 15px;">Join Our Team</h3>
+          <p style="color: #cccccc; line-height: 1.7; margin-bottom: 20px;">
+            Experienced professionals wanted. Premium rates and quality clients.
           </p>
-          <a href="apply.html" class="service-link">Apply Now →</a>
+          <a href="apply.html" style="color: #D4AF37; text-decoration: none; font-weight: 600;">Apply Now →</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Why VERGO -->
-  <section class="why-section">
-    <div class="section-container">
-      <div class="section-header">
-        <h2 class="section-title">Why Choose VERGO?</h2>
-        <p class="section-subtitle">
-          Industry experience meets personal service
+  <!-- Testimonial -->
+  <section style="background: #0a0a0a; padding: 60px 20px; border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
+    <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+      <div style="background: #1a1a1a; padding: 40px 35px; border-radius: 8px; border-left: 4px solid #D4AF37;">
+        <div style="color: #D4AF37; font-size: 1.3rem; margin-bottom: 20px;">⭐⭐⭐⭐⭐</div>
+        <p style="color: #cccccc; font-size: 1.15rem; line-height: 1.7; font-style: italic; margin-bottom: 25px;">
+          "Lovely working alongside Vergo at the O2 Arena, great attitude towards work. Would love to work alongside in the future."
         </p>
-      </div>
-      
-      <div class="why-grid">
-        <div class="why-card">
-          <h3>Proven Track Record</h3>
-          <p>
-            8+ years of hands-on event management experience across hospitality, corporate, 
-            film, and music events. We know this industry inside and out.
-          </p>
-        </div>
-        
-        <div class="why-card">
-          <h3>Industry Connections</h3>
-          <p>
-            Backed by a family business with decades of experience supplying kitchen porters 
-            and crew to the film and music industries. Deep industry relationships.
-          </p>
-        </div>
-        
-        <div class="why-card">
-          <h3>Personal Service</h3>
-          <p>
-            As a new agency, every client works directly with the founder. You get experienced 
-            leadership with attentive, personalized service.
-          </p>
-        </div>
-        
-        <div class="why-card">
-          <h3>Personally Vetted Staff</h3>
-          <p>
-            Every team member is personally interviewed, reference-checked, and DBS verified 
-            by the founder. No shortcuts on quality.
-          </p>
-        </div>
-        
-        <div class="why-card">
-          <h3>Competitive Launch Rates</h3>
-          <p>
-            Premium service at competitive prices. We're building our client base and offering 
-            excellent value to earn your long-term business.
-          </p>
-        </div>
-        
-        <div class="why-card">
-          <h3>Direct Access</h3>
-          <p>
-            No call centers, no account managers. Text or call the founder directly for 
-            urgent needs or last-minute changes.
-          </p>
-        </div>
+        <p style="color: #D4AF37; font-weight: 600; font-size: 1.05rem;">Wild Rainbow Music</p>
+        <p style="color: #999; font-size: 0.95rem;">O2 Arena Event</p>
       </div>
     </div>
   </section>
 
-  <!-- Testimonials Section -->
-  <section class="testimonials-section">
-    <div class="section-container">
-      <div class="section-header">
-        <h2 class="section-title">What Clients Say</h2>
-        <p class="section-subtitle">Real feedback from real events</p>
-      </div>
-      
-      <div class="testimonials-grid">
-        <div class="testimonial-card">
-          <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
-          <p class="testimonial-text">
-            "Lovely working alongside Vergo at the O2 Arena, great attitude towards work. 
-            Would love to work alongside in the future."
-          </p>
-          <div class="testimonial-author">
-            <strong>Wild Rainbow Music</strong><br>
-            <span>O2 Arena Event</span>
-          </div>
-        </div>
-        
-        <div class="testimonial-card testimonial-placeholder">
-          <div class="testimonial-icon">💬</div>
-          <p class="testimonial-text">
-            Your testimonial could be here! We're building our reputation one exceptional 
-            event at a time.
-          </p>
-          <a href="contact.html" class="testimonial-cta">Work With Us</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Launch Offer -->
-  <section class="launch-offer-section">
-    <div class="offer-container">
-      <div class="offer-badge">🚀 Launch Offer - Limited Time Only</div>
-      <h2>Founding Client Benefits</h2>
-      
-      <!-- Scarcity Bar -->
-      <div class="scarcity-bar">
-        <div class="scarcity-item">
-          <div class="scarcity-number">7</div>
-          <div class="scarcity-label">Spots Remaining</div>
-        </div>
-        <div class="scarcity-item">
-          <div class="scarcity-number">3</div>
-          <div class="scarcity-label">Already Claimed</div>
-        </div>
-      </div>
-      
-      <!-- Countdown Timer -->
-      <div class="countdown-container">
-        <p class="countdown-label-main">⏰ Offer Expires In:</p>
-        <div class="countdown-timer" id="countdown">
-          <div class="countdown-unit">
-            <span class="countdown-number" id="days">14</span>
-            <span class="countdown-label">Days</span>
-          </div>
-          <div class="countdown-unit">
-            <span class="countdown-number" id="hours">23</span>
-            <span class="countdown-label">Hours</span>
-          </div>
-          <div class="countdown-unit">
-            <span class="countdown-number" id="minutes">59</span>
-            <span class="countdown-label">Minutes</span>
-          </div>
-        </div>
-      </div>
-      
-      <p>
-        Be one of our first clients and receive exclusive benefits while helping 
-        us build our reputation in London's events scene:
+  <!-- Final CTA - REMOVED 24 hour guarantee -->
+  <section style="background: #1a1a1a; padding: 80px 20px; text-align: center;">
+    <div style="max-width: 700px; margin: 0 auto;">
+      <h2 style="font-size: 2.5rem; color: #D4AF37; margin-bottom: 20px; font-weight: 700;">Ready to Get Started?</h2>
+      <p style="font-size: 1.2rem; color: #cccccc; margin-bottom: 35px; line-height: 1.6;">
+        Get in touch today for professional staff for your London event.
       </p>
-      
-      <div class="offer-details">
-        <ul>
-          <li>30% off your first 3 bookings</li>
-          <li>Priority scheduling and last-minute availability</li>
-          <li>Direct access to founder's mobile</li>
-          <li>Free consultation and event planning support</li>
-          <li>Founding client rates locked in for 12 months</li>
-          <li>First access to new services as we expand</li>
-        </ul>
-      </div>
-      
-      <a href="contact.html" class="cta-button">Claim Your Founding Client Spot</a>
-      <p style="margin-top: 20px; font-size: 0.9rem; color: #999;">
-        Only 7 spots left out of 10 • Offer expires in 14 days
-      </p>
+      <a href="contact.html" style="display: inline-block; padding: 18px 50px; background: #D4AF37; color: #1a1a1a; text-decoration: none; font-weight: 700; font-size: 1.1rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 1.5px; transition: all 0.3s ease;">Get Your Quote</a>
     </div>
   </section>
 
@@ -1296,16 +597,8 @@
       <div class="footer-column">
         <h3>Contact Founder</h3>
         <p><strong>Direct:</strong> +44 7944 505 783</p>
-        <p><strong>Email:</strong> wrobb@vergoltd.com</p>
+        <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="93e4e1fcf1f1d3e5f6e1f4fcffe7f7bdf0fcfe">[email&#160;protected]</a></p>
         <p><strong>Location:</strong> London, UK</p>
-      </div>
-      
-      <div class="footer-column">
-        <h3>Why VERGO?</h3>
-        <p>✓ 8+ years founder experience</p>
-        <p>✓ Family business backing</p>
-        <p>✓ Launch pricing available</p>
-        <p>✓ Direct founder access</p>
       </div>
     </div>
     
@@ -1318,8 +611,9 @@
     </div>
   </footer>
 
-  <script src="/vergo-utils.js"></script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/vergo-utils.js"></script>
   <script>
+    // Mobile menu toggle
     function toggleMenu() {
       const menu = document.getElementById('nav-menu');
       const toggle = document.querySelector('.menu-toggle');
@@ -1327,52 +621,52 @@
       toggle.setAttribute('aria-expanded', isExpanded);
     }
     
+    // Dropdown toggle for mobile and desktop
+    function toggleDropdown(event, dropdownId) {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      const dropdown = document.getElementById(dropdownId);
+      const isActive = dropdown.classList.toggle('active');
+      
+      // Update aria-expanded
+      const link = dropdown.querySelector('a[aria-haspopup]');
+      if (link) {
+        link.setAttribute('aria-expanded', isActive);
+      }
+      
+      // Close other dropdowns
+      document.querySelectorAll('.nav-dropdown').forEach(item => {
+        if (item.id !== dropdownId) {
+          item.classList.remove('active');
+          const otherLink = item.querySelector('a[aria-haspopup]');
+          if (otherLink) {
+            otherLink.setAttribute('aria-expanded', 'false');
+          }
+        }
+      });
+    }
+    
+    // Close menu and dropdowns when clicking outside
     document.addEventListener('click', function(event) {
       const menu = document.getElementById('nav-menu');
       const header = document.querySelector('header');
+      
       if (header && !header.contains(event.target)) {
+        // Close mobile menu
         menu.classList.remove('active');
         document.querySelector('.menu-toggle').setAttribute('aria-expanded', 'false');
+        
+        // Close all dropdowns
+        document.querySelectorAll('.nav-dropdown').forEach(item => {
+          item.classList.remove('active');
+          const link = item.querySelector('a[aria-haspopup]');
+          if (link) {
+            link.setAttribute('aria-expanded', 'false');
+          }
+        });
       }
     });
-    
-    // Countdown Timer for Launch Offer
-    function updateCountdown() {
-      // Set end date to 14 days from now (you can change this to a specific date)
-      const endDate = new Date();
-      endDate.setDate(endDate.getDate() + 14);
-      
-      // Or set a specific end date like this:
-      // const endDate = new Date('2025-11-15T23:59:59');
-      
-      function update() {
-        const now = new Date().getTime();
-        const distance = endDate.getTime() - now;
-        
-        if (distance < 0) {
-          document.getElementById('days').textContent = '0';
-          document.getElementById('hours').textContent = '0';
-          document.getElementById('minutes').textContent = '0';
-          return;
-        }
-        
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        
-        document.getElementById('days').textContent = days;
-        document.getElementById('hours').textContent = hours;
-        document.getElementById('minutes').textContent = minutes;
-      }
-      
-      update();
-      setInterval(update, 60000); // Update every minute
-    }
-    
-    // Start countdown when page loads
-    if (document.getElementById('countdown')) {
-      updateCountdown();
-    }
   </script>
 </body>
 </html>

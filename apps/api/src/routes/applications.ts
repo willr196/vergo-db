@@ -342,6 +342,7 @@ r.get('/', adminAuth, async (req, res, next) => {
       }
     });
     
+    // 🔧 FIX: Return cvUrl instead of cvKey for frontend compatibility
     const shaped = apps.map(a => ({
       id: a.id,
       createdAt: a.createdAt,
@@ -350,7 +351,8 @@ r.get('/', adminAuth, async (req, res, next) => {
       email: a.applicant.email,
       phone: a.applicant.phone ?? '',
       roles: a.roles.map(r => r.role.name),
-      cvKey: a.cvKey,
+      cvUrl: a.cvKey,  // ← FIXED: Changed from cvKey to cvUrl
+      cvKey: a.cvKey,  // Keep cvKey for backward compatibility
       cvOriginalName: a.cvOriginalName ?? null,
       source: a.source,
       status: a.status
@@ -369,7 +371,9 @@ r.get('/:id/cv', adminAuth, async (req, res, next) => {
     if (!app?.cvKey) return res.status(404).json({ error: 'No CV on file' });
 
     const url = await presignDownload(app.cvKey);
-    res.json({ url });
+    
+    // Return as signedUrl for consistency with frontend expectations
+    res.json({ signedUrl: url, url });
   } catch (e) { next(e); }
 });
 

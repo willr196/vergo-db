@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/logo.png">
   <title>Hire Event Staff - VERGO Events | Personally Vetted by Founder</title>
   <meta name="description" content="Hire professional event staff personally vetted by our founder with 8+ years experience. Satisfaction guarantee. London's premium staffing solutions.">
   
@@ -44,6 +45,12 @@
     }
     
     .logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    
+    .logo img {
       font-size: 1.8rem;
       font-weight: 700;
       color: #D4AF37;
@@ -250,23 +257,26 @@
     
     .staff-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 25px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
     }
     
     .staff-card {
       background: #1a1a1a;
-      padding: 30px 25px;
-      border-radius: 8px;
+      padding: 20px 15px;
+      border-radius: 6px;
       border: 2px solid #2a2a2a;
-      border-left: 4px solid #D4AF37;
+      border-left: 3px solid #D4AF37;
       transition: all 0.3s ease;
+      position: relative;
+      cursor: help;
+      text-align: center;
     }
     
     .staff-card:hover {
-      transform: translateY(-5px);
+      transform: translateY(-3px);
       border-color: #D4AF37;
-      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+      box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
       background: #222;
     }
     
@@ -277,15 +287,44 @@
     }
     
     .staff-card h3 {
-      font-size: 1.5rem;
-      margin-bottom: 12px;
+      font-size: 1.1rem;
+      margin: 0;
       color: #D4AF37;
+      font-weight: 600;
     }
     
     .staff-card p {
-      color: #bbb;
-      line-height: 1.7;
-      font-size: 1rem;
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0a0a0a;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 6px;
+      border: 2px solid #D4AF37;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      width: 250px;
+      max-width: 90vw;
+      margin-bottom: 10px;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .staff-card p::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-top-color: #D4AF37;
+    }
+    
+    .staff-card:hover p {
+      display: block;
     }
     
     /* Benefits Section */
@@ -505,6 +544,12 @@
       }
       
       .logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    
+    .logo img {
         font-size: 1.5rem;
       }
       
@@ -688,7 +733,9 @@
 </head>
 <body>
   <header role="banner">
-    <a href="index.html" class="logo" aria-label="VERGO Events Home">VERGO</a>
+    <a href="index.html" class="logo" aria-label="VERGO Events Home">
+      <img src="/logo.png" alt="VERGO Events Logo">
+    </a>
     
     <button 
       class="menu-toggle" 
@@ -718,81 +765,24 @@
   </header>
   
   <div class="hero">
-    <div class="hero-badge">Personally Vetted by Founder • 8+ Years Experience</div>
+    <div class="hero-badge">London Event Staffing</div>
     <h1>Hire Event Staff</h1>
-    <p>Premium event professionals, personally vetted and guaranteed. From intimate gatherings to major productions. Text the founder directly for urgent needs.</p>
-    <a href="contact.html" class="hero-cta">Get Staff Quote</a>
-  </div>
-  
-  <div class="trust-bar">
-    <div class="trust-container">
-      <div class="trust-item">
-        
-        <div class="trust-text">Personally Vetted</div>
-        <div class="trust-subtext">By Founder with 8+ Years Experience</div>
-      </div>
-      <div class="trust-item">
-        
-        <div class="trust-text">DBS Checked</div>
-        <div class="trust-subtext">Full Background Verification</div>
-      </div>
-      <div class="trust-item">
-        
-        <div class="trust-text">Fully Insured</div>
-        <div class="trust-subtext">Comprehensive Liability Coverage</div>
-      </div>
-      <div class="trust-item">
-        
-        <div class="trust-text">Fully Guaranteed</div>
-        <div class="trust-subtext">Full Refund + Free Replacement</div>
-      </div>
-    </div>
+    <p>Professional staff for events across London. Bartenders, waiters, chefs, and more.</p>
+    <a href="contact.html" class="hero-cta">Get Quote</a>
   </div>
   
   <main id="main-content">
     <div class="container">
       <div class="intro-section">
-        <h2>Professional Event Staff, Personally Guaranteed</h2>
-        <p>
-          Every person we place has been personally interviewed, reference-checked, and approved 
-          by our founder. After 8 years managing events across London's hospitality, film, and 
-          music sectors, I know exactly what makes exceptional event staff.
+        <h2>Event Staff for London</h2>
+        <p style="max-width: 700px; margin: 0 auto;">
+          Professional event staff for your London events. Available when you need them.
         </p>
-        <p>
-          Unlike staffing agencies that send random people from a database, you're getting 
-          professionals from my personal network - people I've worked with, trust completely, 
-          and would happily deploy at my own events.
-        </p>
-        <div class="intro-highlight">
-          "I don't send anyone to your event that I wouldn't be proud to have representing me 
-          personally. Your success is my reputation."
-        </div>
-      </div>
-      
-      <!-- Personal Vetting Box -->
-      <div class="personal-vetting-box">
-        <h3>Why Our Personal Vetting Makes the Difference</h3>
-        <p>
-          <strong>Every. Single. Person.</strong> Unlike large staffing agencies with thousands of 
-          names in a database, every staff member in our network has been personally interviewed and 
-          vetted by our founder.
-        </p>
-        <p>
-          With 8+ years in London's event industry, I know exactly what separates good staff from 
-          exceptional staff. I check references thoroughly, assess professionalism in person, and 
-          only work with people I trust completely. This personal approach means:
-        </p>
-        <ul style="margin: 20px 0 0 30px; line-height: 2;">
-          <li><strong>No surprises</strong> - you get reliable, professional staff every time</li>
-          <li><strong>Direct accountability</strong> - I personally guarantee their performance</li>
-          <li><strong>Higher quality</strong> - only the top 20% make it into our network</li>
-          <li><strong>Cultural fit</strong> - staff who understand your event's needs and atmosphere</li>
-        </ul>
       </div>
       
       <!-- Hospitality Staff -->
       <div class="category-section">
-        <h2 class="category-header"><span aria-hidden="true">🍽️</span> Hospitality & Service Staff</h2>
+        <h2 class="category-header">Hospitality & Service Staff</h2>
         <div class="staff-grid">
           <div class="staff-card">
             
@@ -947,45 +937,6 @@
       </div>
     </div>
     
-    <!-- Benefits Section -->
-    <div class="benefits-section">
-      <h2>Why Choose VERGO Staff?</h2>
-      <div class="benefits-grid">
-        <div class="benefit-card">
-          
-          <h3>Personally Vetted</h3>
-          <p>Every staff member personally interviewed, reference-checked, and approved by our founder with 8+ years in the industry.</p>
-        </div>
-        <div class="benefit-card">
-          
-          <h3>DBS Checked</h3>
-          <p>All staff undergo comprehensive DBS background checks for your peace of mind and venue requirements.</p>
-        </div>
-        <div class="benefit-card">
-          
-          <h3>Industry Experienced</h3>
-          <p>Our network includes professionals from film, music, hospitality, and corporate events across London.</p>
-        </div>
-        <div class="benefit-card">
-          
-          <h3>Fast Response</h3>
-          <p>Last-minute needs? Text the founder directly. We can often source quality staff within hours.</p>
-        </div>
-        <div class="benefit-card">
-          
-          <h3>Fully Insured</h3>
-          <p>Comprehensive liability insurance included with all placements for complete protection.</p>
-        </div>
-        <div class="benefit-card">
-          
-          <h3>Competitive Rates</h3>
-          <p>Premium quality at competitive prices, with founding client discounts currently available.</p>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Guarantee Section -->
-    <div class="container">
     <!-- Trust Badges -->
     <div class="container">
       <div class="trust-badges">

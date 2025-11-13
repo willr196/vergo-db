@@ -890,6 +890,15 @@
         const data = await fetchJSON('/api/v1/applications');
         // Handle both formats: {applications: [...]} or [...]
         allApplications = Array.isArray(data) ? data : (data.applications || []);
+        
+        // DEBUG: Log the first application to see what fields are available
+        if (allApplications.length > 0) {
+          console.log('=== APPLICATION DATA STRUCTURE ===');
+          console.log('First application:', allApplications[0]);
+          console.log('Available fields:', Object.keys(allApplications[0]));
+          console.log('CV field value:', allApplications[0].cvUrl || allApplications[0].cv_url || allApplications[0].cvPath || allApplications[0].resumeUrl || 'NOT FOUND');
+        }
+        
         updateStats();
         renderApplications();
       } catch (e) {
@@ -1053,7 +1062,7 @@
           <td>${formatDate(app.createdAt)}</td>
           <td>
             <div class="action-buttons">
-              <button class="btn-action btn-view" onclick="openCV('${app.cvUrl}')">
+              <button class="btn-action btn-view" onclick="openCV('${app.id}', '${app.cvUrl || app.cv_url || app.cvPath || app.resumeUrl || ''}')">
                 View CV
               </button>
               ${app.status !== 'REVIEWING' ? `
@@ -1083,8 +1092,44 @@
     }
 
     // Open CV
-    function openCV(url) {
-      window.open(url, '_blank');
+    async function openCV(applicationId, cvUrl) {
+      console.log('=== OPEN CV DEBUG ===');
+      console.log('Application ID:', applicationId);
+      console.log('CV URL:', cvUrl);
+      
+      if (!cvUrl || cvUrl === 'undefined' || cvUrl === 'null') {
+        notify('No CV available for this application', 'warning');
+        console.error('CV URL is missing or invalid');
+        return;
+      }
+
+      try {
+        // If it's already a full URL (starts with http), open directly
+        if (cvUrl.startsWith('http://') || cvUrl.startsWith('https://')) {
+          console.log('Opening URL directly:', cvUrl);
+          window.open(cvUrl, '_blank');
+          return;
+        }
+
+        // Otherwise, fetch the signed URL from the backend using application ID
+        notify('Loading CV...', 'info');
+        console.log('Requesting signed URL for application:', applicationId);
+        
+        const response = await fetchJSON(`/api/v1/applications/${applicationId}/cv`);
+        console.log('Backend response:', response);
+        
+        if (response.signedUrl) {
+          console.log('Opening signed URL:', response.signedUrl);
+          window.open(response.signedUrl, '_blank');
+          notify('CV opened in new tab', 'success');
+        } else {
+          throw new Error('No signed URL received from backend');
+        }
+      } catch (e) {
+        console.error('=== CV ERROR ===');
+        console.error('Error details:', e);
+        notify('Failed to open CV: ' + e.message, 'error');
+      }
     }
 
     // Update Application Status
