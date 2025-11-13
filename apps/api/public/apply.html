@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/logo.png">
   <title>Join Our Team - VERGO Events | Personally Vetted by Founder</title>
   <meta name="description" content="Join VERGO's growing team of event professionals. Every team member personally vetted by founder with 8+ years experience. Premium rates. Quality clients.">
   
@@ -15,7 +16,9 @@
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #ffffff; line-height: 1.7; }
     
     header { position: fixed; top: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-    .logo { font-size: 1.8rem; font-weight: 700; color: #D4AF37; letter-spacing: 2px; text-decoration: none; }
+    .logo { display: flex; align-items: center; text-decoration: none; }
+    .logo img { height: 50px; width: auto; transition: transform 0.3s ease; }
+    .logo:hover img { transform: scale(1.05); }
     nav ul { display: flex; gap: 35px; list-style: none; }
     nav a { color: #ffffff; text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: color 0.3s ease; position: relative; }
     nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: #D4AF37; transition: width 0.3s ease; }
@@ -42,18 +45,21 @@
     .why-join { margin: 80px 0; }
     .why-join h2 { font-size: 2.5rem; color: #D4AF37; margin-bottom: 50px; text-align: center; }
     .benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-    .benefit-card { background: #1a1a1a; padding: 40px 30px; border-radius: 8px; border-left: 4px solid #D4AF37; }
+    .benefit-card { background: #1a1a1a; padding: 30px 25px; border-radius: 8px; border-left: 4px solid #D4AF37; transition: all 0.3s ease; cursor: pointer; }
+    .benefit-card:hover { transform: translateY(-8px); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.2); background: #222; }
     .benefit-icon { font-size: 2.5rem; margin-bottom: 15px; display: block; }
-    .benefit-card h3 { font-size: 1.5rem; color: #D4AF37; margin-bottom: 15px; }
-    .benefit-card p { color: #999; line-height: 1.7; }
+    .benefit-card h3 { font-size: 1.3rem; color: #D4AF37; margin-bottom: 15px; transition: color 0.3s ease; }
+    .benefit-card:hover h3 { color: #e6c758; }
+    .benefit-card p { color: #999; line-height: 1.6; font-size: 0.95rem; }
     
     .roles-section { margin: 80px 0; }
     .roles-section h2 { font-size: 2.5rem; color: #D4AF37; margin-bottom: 50px; text-align: center; }
     .roles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
-    .role-card { background: #1a1a1a; padding: 30px 25px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease; }
-    .role-card:hover { transform: translateY(-5px); }
-    .role-card h3 { font-size: 1.3rem; color: #D4AF37; margin-bottom: 10px; }
-    .role-card p { color: #999; font-size: 0.95rem; }
+    .role-card { background: #1a1a1a; padding: 25px 20px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: all 0.3s ease; cursor: pointer; }
+    .role-card:hover { transform: translateY(-8px); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.2); background: #222; }
+    .role-card h3 { font-size: 1.15rem; color: #D4AF37; margin-bottom: 10px; transition: color 0.3s ease; }
+    .role-card:hover h3 { color: #e6c758; }
+    .role-card p { color: #999; font-size: 0.9rem; line-height: 1.6; }
     
     .standards-section { background: #1a1a1a; padding: 60px 50px; margin: 80px 0; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2); }
     .standards-section h2 { font-size: 2.5rem; color: #D4AF37; margin-bottom: 40px; text-align: center; }
@@ -202,10 +208,263 @@
   
   <!-- Load accessibility styles -->
   <link rel="stylesheet" href="/vergo-a11y.css">
+  
+  <!-- Google Jobs Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": "Bartender - Events & Hospitality",
+    "description": "<p>Join VERGO Events as a professional bartender for premium events across London. Work with a new agency that respects and values event professionals.</p><p><strong>About the Role:</strong> Professional bar service and mixology for corporate events, weddings, private parties, and entertainment events across London.</p><p><strong>What We Offer:</strong> Competitive rates, quality clients, flexible work schedule, direct communication with founder, respect and recognition for your professionalism.</p><p><strong>Requirements:</strong> Demonstrated bartending experience, DBS check required, professional presentation, excellent communication skills, reliability and punctuality.</p>",
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "VERGO Events Ltd",
+      "value": "BARTENDER-2025"
+    },
+    "datePosted": "2025-01-15",
+    "validThrough": "2025-12-31T23:59:59.000Z",
+    "employmentType": ["PART_TIME", "CONTRACTOR"],
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": "VERGO Events Ltd",
+      "sameAs": "https://vergoltd.com",
+      "logo": "https://vergoltd.com/logo.png"
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "London",
+        "addressRegion": "Greater London",
+        "addressCountry": "GB"
+      }
+    },
+    "baseSalary": {
+      "@type": "MonetaryAmount",
+      "currency": "GBP",
+      "value": {
+        "@type": "QuantitativeValue",
+        "minValue": 13.00,
+        "maxValue": 18.00,
+        "unitText": "HOUR"
+      }
+    },
+    "qualifications": "Demonstrated bartending experience in events or hospitality. Professional presentation and communication skills. DBS check required.",
+    "responsibilities": "Professional bar service for events including corporate functions, weddings, private parties, and entertainment events. Mixology and customer service.",
+    "skills": "Bartending, Mixology, Customer Service, Event Service",
+    "applicantLocationRequirements": {
+      "@type": "City",
+      "name": "London"
+    },
+    "jobLocationType": "TELECOMMUTE"
+  }
+  </script>
+  
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": "Front of House Staff - Premium Events",
+    "description": "<p>Join VERGO Events as front of house staff for high-end events across London. Create excellent first impressions and provide attentive service at corporate, entertainment, and private events.</p><p><strong>About the Role:</strong> Welcoming guests, managing guest lists, coat check, directing guests, light serving duties, and creating positive first impressions at premium London events.</p><p><strong>What We Offer:</strong> Premium rates that reflect your value, quality clients (no bottom-tier bookings), flexible schedule, direct founder communication, professional development opportunities.</p><p><strong>Requirements:</strong> Experience in hospitality or events, excellent presentation and communication, DBS checked, professional appearance, friendly and approachable demeanor.</p>",
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "VERGO Events Ltd",
+      "value": "FOH-STAFF-2025"
+    },
+    "datePosted": "2025-01-15",
+    "validThrough": "2025-12-31T23:59:59.000Z",
+    "employmentType": ["PART_TIME", "CONTRACTOR"],
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": "VERGO Events Ltd",
+      "sameAs": "https://vergoltd.com",
+      "logo": "https://vergoltd.com/logo.png"
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "London",
+        "addressRegion": "Greater London",
+        "addressCountry": "GB"
+      }
+    },
+    "baseSalary": {
+      "@type": "MonetaryAmount",
+      "currency": "GBP",
+      "value": {
+        "@type": "QuantitativeValue",
+        "minValue": 13.00,
+        "maxValue": 16.00,
+        "unitText": "HOUR"
+      }
+    },
+    "qualifications": "Experience in hospitality or events. Excellent presentation and communication skills. DBS check required.",
+    "responsibilities": "Guest welcoming, guest list management, coat check, directing guests, light serving duties, creating positive first impressions, maintaining professional appearance.",
+    "skills": "Customer Service, Communication, Professional Presentation, Guest Relations, Hospitality",
+    "applicantLocationRequirements": {
+      "@type": "City",
+      "name": "London"
+    },
+    "jobLocationType": "TELECOMMUTE"
+  }
+  </script>
+  
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": "Event Runner - London Events",
+    "description": "<p>Join VERGO Events as an event runner for premium corporate and private events across London. Support event coordination and ensure smooth operations throughout events.</p><p><strong>About the Role:</strong> Assisting with event setup and breakdown, running errands, supporting coordinators, liaising between team members, and ensuring everything runs smoothly at corporate, wedding, and entertainment events.</p><p><strong>What We Offer:</strong> Competitive rates, work with quality events and clients, opportunity to learn event management, direct founder relationship, flexible scheduling, potential for advancement.</p><p><strong>Requirements:</strong> Energetic and proactive attitude, good organizational skills, excellent communication, physically fit (lots of movement), DBS checked, professional presentation, reliable and punctual.</p>",
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "VERGO Events Ltd",
+      "value": "RUNNER-2025"
+    },
+    "datePosted": "2025-01-15",
+    "validThrough": "2025-12-31T23:59:59.000Z",
+    "employmentType": ["PART_TIME", "CONTRACTOR"],
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": "VERGO Events Ltd",
+      "sameAs": "https://vergoltd.com",
+      "logo": "https://vergoltd.com/logo.png"
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "London",
+        "addressRegion": "Greater London",
+        "addressCountry": "GB"
+      }
+    },
+    "baseSalary": {
+      "@type": "MonetaryAmount",
+      "currency": "GBP",
+      "value": {
+        "@type": "QuantitativeValue",
+        "minValue": 13.00,
+        "maxValue": 15.00,
+        "unitText": "HOUR"
+      }
+    },
+    "qualifications": "Energetic and proactive attitude. Good organizational skills. DBS check required. Physically fit.",
+    "responsibilities": "Event setup and breakdown assistance, running errands during events, supporting event coordinators, team liaison, ensuring smooth operations, general event support.",
+    "skills": "Organization, Communication, Physical Fitness, Teamwork, Problem Solving, Flexibility",
+    "applicantLocationRequirements": {
+      "@type": "City",
+      "name": "London"
+    },
+    "jobLocationType": "TELECOMMUTE"
+  }
+  </script>
+  
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": "Kitchen Porter - Events & Catering",
+    "description": "<p>Join VERGO Events as a kitchen porter supporting kitchen operations at premium events across London. Work with quality catering operations at high-end venues.</p><p><strong>About the Role:</strong> Supporting kitchen operations at events including washing up, food prep assistance, kitchen organization, and maintaining cleanliness standards.</p><p><strong>What We Offer:</strong> Fair competitive rates, work at quality venues and events, flexible scheduling, direct founder communication, opportunities for advancement.</p><p><strong>Requirements:</strong> Experience in kitchen or catering environment preferred, hard-working and reliable, DBS checked, ability to work in fast-paced environment.</p>",
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "VERGO Events Ltd",
+      "value": "KP-2025"
+    },
+    "datePosted": "2025-01-15",
+    "validThrough": "2025-12-31T23:59:59.000Z",
+    "employmentType": ["PART_TIME", "CONTRACTOR"],
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": "VERGO Events Ltd",
+      "sameAs": "https://vergoltd.com",
+      "logo": "https://vergoltd.com/logo.png"
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "London",
+        "addressRegion": "Greater London",
+        "addressCountry": "GB"
+      }
+    },
+    "baseSalary": {
+      "@type": "MonetaryAmount",
+      "currency": "GBP",
+      "value": {
+        "@type": "QuantitativeValue",
+        "minValue": 13.00,
+        "maxValue": 15.00,
+        "unitText": "HOUR"
+      }
+    },
+    "qualifications": "Kitchen or catering experience preferred. Ability to work in fast-paced environment. DBS check required.",
+    "responsibilities": "Kitchen cleaning and organization, dishwashing, food prep assistance, maintaining health and safety standards, supporting kitchen team.",
+    "skills": "Kitchen Work, Food Safety, Organization, Teamwork, Physical Stamina",
+    "applicantLocationRequirements": {
+      "@type": "City",
+      "name": "London"
+    },
+    "jobLocationType": "TELECOMMUTE"
+  }
+  </script>
+  
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": "Chef - Events & Catering",
+    "description": "<p>Join VERGO Events as a chef for premium events across London. Deliver exceptional culinary experiences at corporate functions, weddings, and high-end private events.</p><p><strong>About the Role:</strong> Preparing and cooking high-quality food at events, managing kitchen operations, maintaining food safety standards, working with event catering teams across London venues.</p><p><strong>What We Offer:</strong> Competitive chef rates, work at premium events and venues, quality ingredients and equipment, flexible scheduling, direct founder communication, professional development opportunities.</p><p><strong>Requirements:</strong> Proven chef/cooking experience, food safety certification, ability to work under pressure, DBS checked, professional kitchen standards, reliable and punctual.</p>",
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "VERGO Events Ltd",
+      "value": "CHEF-2025"
+    },
+    "datePosted": "2025-01-15",
+    "validThrough": "2025-12-31T23:59:59.000Z",
+    "employmentType": ["PART_TIME", "CONTRACTOR"],
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": "VERGO Events Ltd",
+      "sameAs": "https://vergoltd.com",
+      "logo": "https://vergoltd.com/logo.png"
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "London",
+        "addressRegion": "Greater London",
+        "addressCountry": "GB"
+      }
+    },
+    "baseSalary": {
+      "@type": "MonetaryAmount",
+      "currency": "GBP",
+      "value": {
+        "@type": "QuantitativeValue",
+        "minValue": 15.00,
+        "maxValue": 22.00,
+        "unitText": "HOUR"
+      }
+    },
+    "qualifications": "Proven chef or cooking experience. Food safety certification. Ability to work under pressure. DBS check required.",
+    "responsibilities": "Food preparation and cooking, kitchen operations management, maintaining food safety and hygiene standards, menu execution, working with catering teams.",
+    "skills": "Cooking, Food Safety, Kitchen Management, Time Management, Attention to Detail, Teamwork",
+    "applicantLocationRequirements": {
+      "@type": "City",
+      "name": "London"
+    },
+    "jobLocationType": "TELECOMMUTE"
+  }
+  </script>
 </head>
 <body>
   <header role="banner">
-    <a href="index.html" class="logo" aria-label="VERGO Events Home">VERGO</a>
+    <a href="index.html" class="logo" aria-label="VERGO Events Home">
+      <img src="/logo.png" alt="VERGO Events Logo">
+    </a>
     <button class="menu-toggle" onclick="toggleMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">
       <span></span><span></span><span></span>
     </button>
