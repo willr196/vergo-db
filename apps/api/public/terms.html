@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terms & Conditions - VERGO Events</title>
+  <title>Privacy Policy - VERGO Events</title>
+  <meta name="description" content="VERGO Events privacy policy. How we collect, use and protect your personal data. GDPR compliant. Contact details, data rights, and information security practices.">
   <style>
     * {
       margin: 0;
@@ -35,12 +36,6 @@
     }
     
     .logo {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-    }
-    
-    .logo img {
       font-size: 1.8rem;
       font-weight: 700;
       color: #D4AF37;
@@ -117,7 +112,7 @@
       transform: translateX(-5px);
     }
     
-    .terms-header {
+    .policy-header {
       background: #1a1a1a;
       padding: 50px 40px;
       border-radius: 12px;
@@ -139,7 +134,7 @@
       font-style: italic;
     }
     
-    .terms-content {
+    .policy-content {
       background: #1a1a1a;
       padding: 50px 40px;
       border-radius: 12px;
@@ -156,12 +151,6 @@
     
     h2:first-of-type {
       margin-top: 0;
-    }
-    
-    h3 {
-      font-size: 1.3rem;
-      margin: 25px 0 15px 0;
-      color: #D4AF37;
     }
     
     p {
@@ -194,19 +183,6 @@
     
     .highlight-box p {
       color: #ffffff;
-      margin-bottom: 0;
-    }
-    
-    .warning-box {
-      background: rgba(255, 193, 7, 0.1);
-      border-left: 4px solid #ffc107;
-      padding: 20px 25px;
-      border-radius: 8px;
-      margin: 25px 0;
-    }
-    
-    .warning-box p {
-      color: #ffc107;
       margin-bottom: 0;
     }
     
@@ -276,12 +252,6 @@
       }
       
       .logo {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-    }
-    
-    .logo img {
         font-size: 1.5rem;
       }
       
@@ -293,7 +263,7 @@
         font-size: 2rem;
       }
       
-      .terms-header, .terms-content {
+      .policy-header, .policy-content {
         padding: 30px 20px;
       }
       
@@ -371,17 +341,23 @@
   </style>
 </head>
 <body>
-  <!-- Header Navigation -->
-  <header>
-    <a href="index.html" class="logo">
+  <!-- Skip Link for Accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  
+  <header role="banner">
+    <a href="index.html" class="logo" aria-label="VERGO Events Home">
       <img src="/logo.png" alt="VERGO Events Logo">
     </a>
     
-    <div class="menu-toggle" onclick="toggleMenu()">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
+    <button 
+      class="menu-toggle" 
+      onclick="toggleMenu()"
+      aria-label="Toggle navigation menu"
+      aria-expanded="false"
+      aria-controls="nav-menu"
+    >
+      <span></span><span></span><span></span>
+    </button>
     
     <nav role="navigation" aria-label="Main navigation">
           <ul id="nav-menu">
@@ -395,6 +371,7 @@
             </li>
             <li><a href="apply.html">Apply</a></li>
             <li><a href="about.html#my-story">My Story</a></li>
+            <li><a href="faq.html">FAQ</a></li>
             <li><a href="contact.html">Contact</a></li>
           </ul>
         </nav>
@@ -403,246 +380,140 @@
   <div class="container">
     <a href="index.html" class="back-link">Back to Home</a>
     
-    <div class="terms-header">
-      <h1>Terms & Conditions</h1>
+    <div class="policy-header">
+      <h1>Privacy Policy</h1>
       <p class="last-updated">Last Updated: January 2025</p>
     </div>
     
-    <div class="terms-content">
+    <div class="policy-content">
       <div class="highlight-box">
-        <p><strong>Welcome to VERGO Events!</strong> These Terms and Conditions govern your use of our services. Please read them carefully before engaging with us.</p>
+        <p><strong>Your Privacy Matters:</strong> VERGO Events Ltd is committed to protecting your personal information and being transparent about how we collect, use, and safeguard your data.</p>
       </div>
       
       <h2>1. Introduction</h2>
       <p>
-        These Terms and Conditions ("Terms") constitute a legally binding agreement between you 
-        ("Client", "you", or "your") and VERGO Events Ltd ("VERGO", "we", "us", or "our"), 
-        a company registered in England and Wales.
+        This Privacy Policy explains how VERGO Events Ltd ("we", "us", or "our") collects, uses, 
+        discloses, and protects your personal information when you use our services, visit our 
+        website, or interact with us.
       </p>
       <p>
-        By booking our services, submitting an enquiry, or using our website, you acknowledge 
-        that you have read, understood, and agree to be bound by these Terms.
+        By using our services or providing us with your personal information, you agree to the 
+        practices described in this Privacy Policy.
       </p>
       
-      <h2>2. Services</h2>
+      <h2>2. Information We Collect</h2>
+      <p>We collect several types of information:</p>
       
-      <h3>2.1 Event Management Services</h3>
-      <p>VERGO provides comprehensive event management services, including but not limited to:</p>
+      <p><strong>Information You Provide Directly:</strong></p>
       <ul>
-        <li>Event planning, coordination, and production</li>
-        <li>Venue sourcing and management</li>
-        <li>Catering and beverage services</li>
-        <li>Entertainment booking and coordination</li>
-        <li>Equipment hire and technical support</li>
-        <li>On-site event management</li>
+        <li>Name, email address, phone number when you contact us or submit enquiries</li>
+        <li>Event details, preferences, and requirements when booking our services</li>
+        <li>Employment information when applying for positions (CV, work history, references)</li>
+        <li>Payment and billing information when making transactions</li>
+        <li>Feedback, reviews, and communications with our team</li>
       </ul>
       
-      <h3>2.2 Staffing Services</h3>
-      <p>We provide professional event staff for temporary assignments, including:</p>
+      <p><strong>Information We Collect Automatically:</strong></p>
       <ul>
-        <li>Chefs, bartenders, and catering staff</li>
-        <li>Front of house personnel</li>
-        <li>Security staff</li>
-        <li>Technical crew and stage hands</li>
+        <li>Browser type, device information, and IP address</li>
+        <li>Pages visited, time spent on our website, and navigation patterns</li>
+        <li>Cookies and similar tracking technologies</li>
       </ul>
       
-      <h2>3. Bookings and Contracts</h2>
-      
-      <h3>3.1 Quotations</h3>
-      <p>
-        All quotations are valid for 30 days from the date of issue unless otherwise stated. 
-        Quotations are estimates and may be subject to change based on final requirements.
-      </p>
-      
-      <h3>3.2 Confirmation</h3>
-      <p>
-        A booking is confirmed only upon receipt of a signed contract and the required deposit. 
-        Verbal agreements or email confirmations do not constitute a binding contract.
-      </p>
-      
-      <h3>3.3 Changes to Bookings</h3>
-      <p>
-        Changes to confirmed bookings must be requested in writing. We will make reasonable efforts 
-        to accommodate changes, but additional charges may apply. Changes requested less than 14 days 
-        before the event may not be possible.
-      </p>
-      
-      <h2>4. Payment Terms</h2>
-      
-      <h3>4.1 Deposits</h3>
-      <p>
-        A non-refundable deposit of 30-50% (depending on the service) is required to secure your booking. 
-        The deposit amount will be specified in your contract.
-      </p>
-      
-      <h3>4.2 Final Payment</h3>
-      <p>
-        Full payment is due 14 days before the event date unless otherwise agreed in writing. 
-        Failure to make timely payment may result in cancellation of services.
-      </p>
-      
-      <h3>4.3 Late Payment</h3>
-      <p>
-        Late payments may incur interest charges at a rate of 4% above the Bank of England base rate. 
-        We reserve the right to suspend services until payment is received.
-      </p>
-      
-      <h3>4.4 Additional Charges</h3>
-      <p>
-        Additional charges may apply for services requested beyond the scope of the original contract, 
-        including overtime, extra staff, or last-minute changes.
-      </p>
-      
-      <h2>5. Cancellation and Refund Policy</h2>
-      
-      <h3>5.1 Cancellation by Client</h3>
+      <h2>3. How We Use Your Information</h2>
+      <p>We use your personal information for the following purposes:</p>
       <ul>
-        <li><strong>More than 60 days before the event:</strong> 50% refund of total payment (deposit non-refundable)</li>
-        <li><strong>30-60 days before the event:</strong> 25% refund of total payment</li>
-        <li><strong>Less than 30 days before the event:</strong> No refund</li>
+        <li><strong>Service Delivery:</strong> To provide event management, staffing, and related services</li>
+        <li><strong>Communication:</strong> To respond to enquiries, provide quotes, and send booking confirmations</li>
+        <li><strong>Recruitment:</strong> To process job applications and manage our talent pool</li>
+        <li><strong>Payment Processing:</strong> To handle transactions and maintain financial records</li>
+        <li><strong>Improvement:</strong> To enhance our services, website, and customer experience</li>
+        <li><strong>Legal Compliance:</strong> To meet legal obligations and protect our rights</li>
+        <li><strong>Marketing:</strong> To send relevant updates and newsletters (with your consent)</li>
       </ul>
       
-      <h3>5.2 Cancellation by VERGO</h3>
-      <p>
-        In the unlikely event that we must cancel your booking, you will receive a full refund. 
-        We are not liable for any consequential losses or expenses incurred.
-      </p>
-      
-      <h3>5.3 Force Majeure</h3>
-      <p>
-        Neither party shall be liable for failure to perform obligations due to circumstances beyond 
-        reasonable control, including but not limited to natural disasters, strikes, government 
-        restrictions, pandemics, or other force majeure events. In such cases, alternative arrangements 
-        will be discussed.
-      </p>
-      
-      <h2>6. Client Responsibilities</h2>
-      <p>Clients are responsible for:</p>
+      <h2>4. Legal Basis for Processing (GDPR)</h2>
+      <p>Under the General Data Protection Regulation (GDPR), we process your data based on:</p>
       <ul>
-        <li>Providing accurate information about event requirements, guest numbers, and timings</li>
-        <li>Obtaining necessary permits, licenses, and insurance for the event</li>
-        <li>Ensuring venue access and facilities are available as agreed</li>
-        <li>Providing a safe working environment for our staff</li>
-        <li>Informing us of any dietary requirements, allergies, or special needs</li>
-        <li>Ensuring timely payment as per the agreed schedule</li>
+        <li><strong>Contract Performance:</strong> Processing necessary to fulfill our services to you</li>
+        <li><strong>Legitimate Interest:</strong> For business operations, fraud prevention, and service improvement</li>
+        <li><strong>Legal Obligation:</strong> To comply with laws, regulations, and legal processes</li>
+        <li><strong>Consent:</strong> When you've given explicit permission (e.g., marketing emails)</li>
       </ul>
       
-      <h2>7. Liability and Insurance</h2>
+      <h2>5. Data Sharing and Disclosure</h2>
+      <p>We do not sell your personal information. We may share your data with:</p>
+      <ul>
+        <li><strong>Service Providers:</strong> Payment processors, cloud hosting, email services</li>
+        <li><strong>Event Partners:</strong> Venues, suppliers, and vendors (only information necessary for the event)</li>
+        <li><strong>Legal Authorities:</strong> When required by law or to protect our rights</li>
+        <li><strong>Business Transfers:</strong> In the event of a merger, acquisition, or asset sale</li>
+      </ul>
+      <p>All third parties are contractually obligated to protect your data and use it only for specified purposes.</p>
       
-      <h3>7.1 Our Liability</h3>
+      <h2>6. Data Retention</h2>
+      <p>We retain your personal information for as long as necessary to:</p>
+      <ul>
+        <li>Fulfill the purposes outlined in this policy</li>
+        <li>Comply with legal, accounting, or regulatory requirements</li>
+        <li>Resolve disputes and enforce our agreements</li>
+      </ul>
       <p>
-        VERGO carries comprehensive public liability insurance and employer's liability insurance. 
-        Our liability is limited to the total value of the contract. We are not liable for:
+        Job applications are retained for up to 12 months unless you consent to remain in our talent pool. 
+        Client data is retained for up to 7 years for tax and legal compliance.
+      </p>
+      
+      <h2>7. Your Rights</h2>
+      <p>Under data protection law, you have the right to:</p>
+      <ul>
+        <li><strong>Access:</strong> Request a copy of your personal data</li>
+        <li><strong>Rectification:</strong> Correct inaccurate or incomplete information</li>
+        <li><strong>Erasure:</strong> Request deletion of your data (subject to legal obligations)</li>
+        <li><strong>Restriction:</strong> Limit how we use your data in certain circumstances</li>
+        <li><strong>Portability:</strong> Receive your data in a structured, machine-readable format</li>
+        <li><strong>Objection:</strong> Object to processing based on legitimate interests</li>
+        <li><strong>Withdraw Consent:</strong> Revoke consent for marketing or other optional processing</li>
+      </ul>
+      <p>To exercise any of these rights, please contact us at <strong>wrobb@vergoltd.com</strong>.</p>
+      
+      <h2>8. Security</h2>
+      <p>
+        We implement appropriate technical and organizational measures to protect your personal 
+        information from unauthorized access, disclosure, alteration, or destruction. These include:
       </p>
       <ul>
-        <li>Loss of profit, business, or opportunity</li>
-        <li>Indirect or consequential losses</li>
-        <li>Damages caused by third-party suppliers or venue issues</li>
-        <li>Guest injuries or property damage not caused by our negligence</li>
+        <li>Encryption of data in transit and at rest</li>
+        <li>Regular security assessments and updates</li>
+        <li>Access controls and employee training</li>
+        <li>Secure payment processing through PCI-DSS compliant providers</li>
       </ul>
-      
-      <h3>7.2 Client Insurance</h3>
       <p>
-        Clients are strongly advised to obtain event insurance covering cancellation, liability, 
-        and other risks. We are not responsible for losses that could have been covered by insurance.
+        However, no method of transmission over the internet is 100% secure. We cannot guarantee 
+        absolute security but take all reasonable precautions to protect your data.
       </p>
       
-      <h2>8. Staffing Terms</h2>
-      
-      <h3>8.1 Staff Allocation</h3>
+      <h2>9. Children's Privacy</h2>
       <p>
-        We assign staff based on availability, skills, and suitability. While we accommodate preferences, 
-        we cannot guarantee specific individuals will be assigned to your event.
+        Our services are not directed at individuals under 18 years of age. We do not knowingly 
+        collect personal information from children. If we become aware of such data, we will 
+        promptly delete it.
       </p>
       
-      <h3>8.2 Staff Conduct</h3>
+      <h2>10. International Transfers</h2>
       <p>
-        Our staff are expected to maintain professional conduct at all times. Any concerns should be 
-        reported to our on-site manager immediately.
+        Your data may be transferred to, and processed in, countries outside the UK/EU. We ensure 
+        appropriate safeguards are in place, such as Standard Contractual Clauses or adequacy decisions.
       </p>
       
-      <h3>8.3 Direct Employment</h3>
+      <h2>11. Changes to This Policy</h2>
       <p>
-        Clients agree not to directly employ or engage any VERGO staff members for a period of 12 months 
-        following the event without prior written consent and payment of an introduction fee.
+        We may update this Privacy Policy periodically to reflect changes in our practices or legal 
+        requirements. The "Last Updated" date at the top indicates when changes were made. We encourage 
+        you to review this policy regularly.
       </p>
       
-      <h2>9. Health and Safety</h2>
-      <p>
-        VERGO is committed to health and safety compliance. We conduct risk assessments and ensure 
-        staff are properly trained. Clients must:
-      </p>
-      <ul>
-        <li>Provide safe working conditions and necessary facilities</li>
-        <li>Share relevant health and safety information about the venue</li>
-        <li>Report any hazards or incidents immediately</li>
-        <li>Comply with applicable health and safety regulations</li>
-      </ul>
-      
-      <h2>10. Food Safety and Allergens</h2>
-      <p>
-        All food is prepared in accordance with UK food safety regulations. Clients must inform us 
-        of guest allergies and dietary requirements at least 7 days before the event. While we take 
-        all precautions, we cannot guarantee the complete absence of allergens.
-      </p>
-      
-      <div class="warning-box">
-        <p><strong> Important:</strong> Clients are responsible for communicating allergen information to their guests. VERGO is not liable for allergic reactions if we were not properly informed.</p>
-      </div>
-      
-      <h2>11. Intellectual Property</h2>
-      <p>
-        All materials, designs, concepts, and proposals created by VERGO remain our intellectual 
-        property unless otherwise agreed in writing. Clients may not reproduce, distribute, or use 
-        these materials without permission.
-      </p>
-      
-      <h2>12. Photography and Marketing</h2>
-      <p>
-        We may photograph or film events for marketing purposes. If you object to this, please 
-        notify us in writing before the event. Images may be used on our website, social media, 
-        and promotional materials.
-      </p>
-      
-      <h2>13. Data Protection</h2>
-      <p>
-        We process personal data in accordance with our Privacy Policy and applicable data protection 
-        laws (GDPR). By using our services, you consent to such processing. See our Privacy Policy 
-        for full details.
-      </p>
-      
-      <h2>14. Complaints and Disputes</h2>
-      
-      <h3>14.1 Complaints Procedure</h3>
-      <p>
-        If you are unhappy with our services, please contact us within 7 days of the event. We will 
-        investigate and respond within 14 days. Complaints must be submitted in writing to 
-        <strong>wrobb@vergoltd.com</strong>.
-      </p>
-      
-      <h3>14.2 Dispute Resolution</h3>
-      <p>
-        In the event of a dispute, both parties agree to attempt resolution through good-faith 
-        negotiation. If unresolved, disputes will be subject to the jurisdiction of the courts 
-        of England and Wales.
-      </p>
-      
-      <h2>15. Amendments</h2>
-      <p>
-        We reserve the right to amend these Terms at any time. Changes will be posted on our website 
-        with an updated "Last Updated" date. Continued use of our services constitutes acceptance 
-        of revised Terms.
-      </p>
-      
-      <h2>16. Governing Law</h2>
-      <p>
-        These Terms are governed by the laws of England and Wales. Any disputes arising from these 
-        Terms or our services shall be subject to the exclusive jurisdiction of the courts of 
-        England and Wales.
-      </p>
-      
-      <h2>17. Contact Information</h2>
-      <p>For questions about these Terms and Conditions, please contact:</p>
+      <h2>12. Contact Us</h2>
+      <p>If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:</p>
       <div class="highlight-box">
         <p>
           <strong>VERGO Events Ltd</strong><br>
@@ -652,8 +523,8 @@
       </div>
       
       <p>
-        <strong>By engaging our services, you acknowledge that you have read, understood, and agree 
-        to be bound by these Terms and Conditions.</strong>
+        You also have the right to lodge a complaint with the Information Commissioner's Office (ICO), 
+        the UK's data protection authority, if you believe your data rights have been violated.
       </p>
     </div>
   </div>
@@ -665,7 +536,7 @@
         <a href="index.html">Home</a>
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
-        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms & Conditions</a>
       </div>
       
       <div class="footer-bottom">

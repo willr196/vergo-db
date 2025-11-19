@@ -12,6 +12,14 @@
       box-sizing: border-box;
     }
     
+    /* Ensure all images have no borders or backgrounds */
+    img {
+      border: none;
+      background: transparent;
+      max-width: 100%;
+      height: auto;
+    }
+    
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
       background: #0a0a0a;
@@ -41,6 +49,19 @@
       color: #D4AF37;
       letter-spacing: 2px;
       text-decoration: none;
+    }
+    
+    .logo img {
+      height: 50px;
+      width: auto;
+      border: none !important;
+      background: transparent !important;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+    
+    .logo:hover img {
+      transform: scale(1.05);
     }
     
     nav ul {
@@ -474,7 +495,7 @@
         <li><strong>Objection:</strong> Object to processing based on legitimate interests</li>
         <li><strong>Withdraw Consent:</strong> Revoke consent for marketing or other optional processing</li>
       </ul>
-      <p>To exercise any of these rights, please contact us at <strong>wrobb@vergoltd.com</strong>.</p>
+      <p>To exercise any of these rights, please contact us at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0f787d606d6d4f796a7d6860637b6b216c6062">[email&#160;protected]</a></strong>.</p>
       
       <h2>8. Security</h2>
       <p>
@@ -517,7 +538,7 @@
       <div class="highlight-box">
         <p>
           <strong>VERGO Events Ltd</strong><br>
-          Email: <strong>wrobb@vergoltd.com</strong><br>
+          Email: <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f78085989595b781928590989b8393d994989a">[email&#160;protected]</a></strong><br>
           London, United Kingdom
         </p>
       </div>
@@ -545,19 +566,6 @@
     </div>
   </footer>
   
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     function toggleMenu() {
       const menu = document.getElementById('nav-menu');
-      menu.classList.toggle('active');
-    }
-    
-    document.addEventListener('click', function(event) {
-      const menu = document.getElementById('nav-menu');
-      const header = document.querySelector('header');
-      if (header && !header.contains(event.target)) {
-        menu.classList.remove('active');
-      }
-    });
-  </script>
-</body>
-</html>
