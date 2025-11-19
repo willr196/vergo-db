@@ -24,6 +24,14 @@
       box-sizing: border-box;
     }
     
+    /* Ensure all images have no borders or backgrounds */
+    img {
+      border: none;
+      background: transparent;
+      max-width: 100%;
+      height: auto;
+    }
+    
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
       overflow-x: hidden;
@@ -57,6 +65,9 @@
       height: 50px;
       width: auto;
       transition: transform 0.3s ease;
+      border: none !important;
+      background: transparent !important;
+      display: block;
     }
     
     .logo:hover img {
@@ -196,7 +207,7 @@
     
     /* Hero Section */
     .hero-section {
-      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1410 50%, #0a0a0a 100%);
       padding: 180px 40px 100px;
       text-align: center;
       border-bottom: 1px solid rgba(212, 175, 55, 0.2);
@@ -444,6 +455,9 @@
   </style>
 </head>
 <body>
+  <!-- Skip Link for Accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  
   <!-- Header Navigation -->
   <header role="banner">
     <a href="index.html" class="logo" aria-label="VERGO Events Home">
@@ -474,26 +488,33 @@
         </li>
         <li><a href="apply.html">Apply</a></li>
         <li><a href="about.html#my-story">My Story</a></li>
-        <li><a href="contact.html">Contact</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+            <li><a href="contact.html">Contact</a></li>
       </ul>
     </nav>
   </header>
 
-  <main id="main-content">
+  <main>
   <!-- Hero Section -->
-  <section class="hero-section">
+  <section class="hero-section" id="main-content">
     <div class="hero-content">
+      <!-- Centered Logo -->
+      <div style="text-align: center; margin-bottom: 40px;">
+        <img src="logo.png" alt="VERGO Events" style="height: 120px; width: auto; max-width: 100%; margin: 0 auto; display: block; border: none; background: transparent;">
+      </div>
+      
       <div class="hero-badge">Founding Client Specials Available</div>
       <h1 class="hero-title">Premium Event Staff for London</h1>
-      <p class="hero-subtitle">
-        Professional bartenders, waiters & chefs
-      </p>
-      <p class="hero-description">
-        Every staff member personally vetted by our founder with 8+ years in London's events industry. Experienced professionals, not random names from a database.
-      </p>
+      
       <div class="hero-cta-group">
         <a href="contact.html" class="cta-button">Get Your Quote</a>
         <a href="hire-staff.html" class="cta-button cta-button-secondary">View Roles</a>
+      </div>
+      
+      <!-- Trust Bar -->
+      <div style="margin-top: 50px; padding-top: 40px; border-top: 1px solid rgba(212, 175, 55, 0.2);">
+        <p style="color: #999; font-size: 0.9rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">Experience with:</p>
+        <p style="color: #D4AF37; font-size: 1rem; line-height: 1.8;">Private dining • Corporate events • Festivals • Production sets • Brand activations</p>
       </div>
     </div>
   </section>
@@ -517,28 +538,28 @@
       </div>
       
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease; cursor: pointer;" onclick="window.location.href='hire-staff.html'">
+        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease;">
           <h3 style="font-size: 1.5rem; color: #D4AF37; margin-bottom: 15px;">Hire Event Staff</h3>
           <p style="color: #cccccc; line-height: 1.7; margin-bottom: 20px;">
             Bartenders, waiters, chefs, front of house. All DBS-checked and personally vetted.
           </p>
-          <a href="hire-staff.html" style="color: #D4AF37; text-decoration: none; font-weight: 600;">View Roles →</a>
+          <a href="hire-staff.html" style="color: #D4AF37; text-decoration: none; font-weight: 600; display: block; padding: 10px 0;">View Roles →</a>
         </div>
         
-        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease; cursor: pointer;" onclick="window.location.href='hire-us.html'">
+        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease;">
           <h3 style="font-size: 1.5rem; color: #D4AF37; margin-bottom: 15px;">Event Management</h3>
           <p style="color: #cccccc; line-height: 1.7; margin-bottom: 20px;">
             Full-service planning and coordination from concept to execution.
           </p>
-          <a href="hire-us.html" style="color: #D4AF37; text-decoration: none; font-weight: 600;">Learn More →</a>
+          <a href="hire-us.html" style="color: #D4AF37; text-decoration: none; font-weight: 600; display: block; padding: 10px 0;">Learn More →</a>
         </div>
         
-        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease; cursor: pointer;" onclick="window.location.href='apply.html'">
+        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease;">
           <h3 style="font-size: 1.5rem; color: #D4AF37; margin-bottom: 15px;">Join Our Team</h3>
           <p style="color: #cccccc; line-height: 1.7; margin-bottom: 20px;">
             Experienced professionals wanted. Premium rates and quality clients.
           </p>
-          <a href="apply.html" style="color: #D4AF37; text-decoration: none; font-weight: 600;">Apply Now →</a>
+          <a href="apply.html" style="color: #D4AF37; text-decoration: none; font-weight: 600; display: block; padding: 10px 0;">Apply Now →</a>
         </div>
       </div>
     </div>

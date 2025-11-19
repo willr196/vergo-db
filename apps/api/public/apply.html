@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="shortcut icon" type="image/png" href="logo.png">
   <title>Join Our Team - VERGO Events | Personally Vetted by Founder</title>
   <meta name="description" content="Join VERGO's growing team of event professionals. Every team member personally vetted by founder with 8+ years experience. Premium rates. Quality clients.">
   
@@ -13,10 +15,16 @@
   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    /* Ensure all images have no borders or backgrounds */
+    img { border: none; background: transparent; max-width: 100%; height: auto; }
+    
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #ffffff; line-height: 1.7; }
     
     header { position: fixed; top: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
     .logo { font-size: 1.8rem; font-weight: 700; color: #D4AF37; letter-spacing: 2px; text-decoration: none; }
+    .logo img { height: 50px; width: auto; border: none !important; background: transparent !important; display: block; transition: transform 0.3s ease; }
+    .logo:hover img { transform: scale(1.05); }
     nav ul { display: flex; gap: 35px; list-style: none; }
     nav a { color: #ffffff; text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: color 0.3s ease; position: relative; }
     nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: #D4AF37; transition: width 0.3s ease; }
@@ -28,7 +36,7 @@
     .menu-toggle:focus-visible { outline: 3px solid #D4AF37; outline-offset: 2px; }
     .menu-toggle span { width: 25px; height: 2px; background: #D4AF37; }
     
-    .page-hero { text-align: center; padding: 180px 40px 80px; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
+    .page-hero { text-align: center; padding: 180px 40px 80px; background: linear-gradient(135deg, #0f0f0f 0%, #1a1410 50%, #0a0a0a 100%); border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
     .hero-badge { display: inline-block; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); color: #D4AF37; padding: 8px 20px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
     .page-hero h1 { font-size: 4rem; margin-bottom: 20px; color: #D4AF37; font-weight: 700; }
     .page-hero p { font-size: 1.3rem; color: #999; max-width: 800px; margin: 0 auto; }
@@ -91,6 +99,68 @@
     .role-checkbox label { margin: 0; font-weight: 400; font-size: 0.95rem; cursor: pointer; flex: 1; color: #bbb; }
     .role-checkbox input[type="checkbox"]:checked ~ label { font-weight: 600; color: #D4AF37; }
     
+    /* Confidence Rating */
+    .confidence-rating {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    
+    .rating-option {
+      flex: 1;
+      min-width: 100px;
+    }
+    
+    .rating-option input[type="radio"] {
+      display: none;
+    }
+    
+    .rating-option label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 10px;
+      background: #0a0a0a;
+      border: 2px solid #2a2a2a;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    
+    .rating-option label:hover {
+      background: #1a1a1a;
+      border-color: #D4AF37;
+      transform: translateY(-2px);
+    }
+    
+    .rating-option input[type="radio"]:checked + label {
+      background: rgba(212, 175, 55, 0.1);
+      border-color: #D4AF37;
+      border-width: 3px;
+    }
+    
+    .rating-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #D4AF37;
+      margin-bottom: 8px;
+      display: block;
+    }
+    
+    .rating-label {
+      font-size: 0.85rem;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+    
+    .rating-option input[type="radio"]:checked + label .rating-label {
+      color: #D4AF37;
+    }
+    
     /* File Input Styling */
     input[type="file"]::file-selector-button { padding: 12px 25px; background: #D4AF37; color: #1a1a1a; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; margin-right: 15px; transition: background 0.3s; }
     input[type="file"]::file-selector-button:hover { background: #fff; }
@@ -139,6 +209,31 @@
       .intro-section, .standards-section, .application-form { padding: 40px 25px; }
       .benefits-grid, .roles-grid { grid-template-columns: 1fr; }
       .footer-links a { display: block; margin: 12px 0; }
+      
+      /* Confidence rating mobile */
+      .confidence-rating {
+        flex-direction: column;
+      }
+      
+      .rating-option {
+        min-width: 100%;
+      }
+      
+      .rating-option label {
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 15px 20px;
+        gap: 15px;
+      }
+      
+      .rating-number {
+        font-size: 1.5rem;
+        margin-bottom: 0;
+      }
+      
+      .rating-label {
+        text-align: left;
+      }
     }
     /* Dropdown Styles */
 .nav-dropdown {
@@ -208,7 +303,7 @@
   <link rel="stylesheet" href="/vergo-a11y.css">
   
   <!-- Google Jobs Structured Data -->
-  <script type="application/ld+json">
+  <!-- <script type="application/ld+json">
   {
     "@context": "https://schema.org/",
     "@type": "JobPosting",
@@ -456,7 +551,8 @@
     },
     "jobLocationType": "TELECOMMUTE"
   }
-  </script>
+  </script>-->
+  
 </head>
 <body>
   <!-- Skip Link for Accessibility -->
@@ -489,6 +585,7 @@
             </li>
              <li><a href="apply.html" aria-current="page">Apply</a></li>
             <li><a href="about.html#my-story">My Story</a></li>
+            <li><a href="faq.html">FAQ</a></li>
             <li><a href="contact.html">Contact</a></li>
           </ul>
         </nav>
@@ -501,86 +598,36 @@
   </div>
   
   <main id="main-content" class="container">
-    <div class="intro-section">
-      <h2>Why I'm Building VERGO Differently</h2>
-      <p>
-        After 8 years in London's events industry, I've seen how most agencies treat their staff - 
-        as interchangeable numbers rather than valued professionals. I started VERGO to change that.
-      </p>
-      <p>
-        Every team member at VERGO is personally interviewed, reference-checked, and vetted by me. 
-        I'm not building a massive roster - I'm building a network of exceptional professionals who 
-        take pride in their work and reflect the standards I've held throughout my career.
-      </p>
-      <div class="intro-highlight">
-        "If you join VERGO, you're not just another name on a list. You're part of building something 
-        special - an agency that respects event professionals and delivers genuine quality to clients."
-        <br><br>- William, Founder
-      </div>
-    </div>
-    
-    <div class="why-join">
-      <h2>Why Work With VERGO?</h2>
-      <div class="benefits-grid">
-        <div class="benefit-card">
-          <span class="benefit-icon" aria-hidden="true">💰</span>
-          <h3>Competitive Rates</h3>
-          <p>Premium rates that reflect your professional value. We don't undercut - we pay well.</p>
-        </div>
-        <div class="benefit-card">
-          <span class="benefit-icon" aria-hidden="true">🎯</span>
-          <h3>Quality Clients</h3>
-          <p>Work with corporate, film, music, and high-end private events. No bottom-tier bookings.</p>
-        </div>
-        <div class="benefit-card">
-          <span class="benefit-icon" aria-hidden="true">👤</span>
-          <h3>Personal Relationship</h3>
-          <p>Direct communication with founder. No bureaucracy or going through layers of management.</p>
-        </div>
-        <div class="benefit-card">
-          <span class="benefit-icon" aria-hidden="true">📅</span>
-          <h3>Flexible Work</h3>
-          <p>Choose your availability. Work when it suits you, turn down what doesn't.</p>
-        </div>
-        <div class="benefit-card">
-          <span class="benefit-icon" aria-hidden="true">🚀</span>
-          <h3>Growth Opportunities</h3>
-          <p>As VERGO grows, so do opportunities for regular work and advancement.</p>
-        </div>
-        <div class="benefit-card">
-          <span class="benefit-icon" aria-hidden="true">🤝</span>
-          <h3>Respect & Recognition</h3>
-          <p>Your professionalism is valued. Great work leads to more bookings and better rates.</p>
-        </div>
-      </div>
-    </div>
-    
     <div class="roles-section">
       <h2>Roles We're Hiring</h2>
       <div class="roles-grid">
         <div class="role-card">
+          <h3>Bartender</h3>
+          <p>Professional bar service for events</p>
+        </div>
+        <div class="role-card">
+          <h3>Barista</h3>
+          <p>Coffee service and preparation</p>
+        </div>
+        <div class="role-card">
           <h3>Front of House</h3>
-          <p>Welcoming guests and creating excellent first impressions</p>
+          <p>Guest welcome and first impressions</p>
         </div>
         <div class="role-card">
-          <h3>Bartenders</h3>
-          <p>Professional bar service and mixology</p>
+          <h3>Waiter</h3>
+          <p>Table service for events</p>
         </div>
         <div class="role-card">
-          <h3>Waiting Staff</h3>
-          <p>Attentive table service for events</p>
+          <h3>Chef</h3>
+          <p>Kitchen operations and food prep</p>
         </div>
         <div class="role-card">
-          <h3>Event Coordinators</h3>
-          <p>Managing events from setup to breakdown</p>
+          <h3>Kitchen Porter</h3>
+          <p>Kitchen support and cleaning</p>
         </div>
         <div class="role-card">
-          <h3>Kitchen Porters</h3>
-          <p>Supporting kitchen operations at events</p>
-        </div>
-        <div class="role-card">
-          <h3>Technical Crew</h3>
-          <p>AV, lighting, sound, and stage professionals</p>
+          <h3>Runner</h3>
+          <p>Food and drink delivery</p>
         </div>
       </div>
     </div>
@@ -729,42 +776,29 @@
           <div id="roles-error" class="field-error-message" style="display: none;" role="alert"></div>
           
           <div class="roles-category">
-            <div class="category-title"><span aria-hidden="true">🍽️</span> Hospitality & Service</div>
             <div class="role-checkboxes">
               <div class="role-checkbox">
                 <input type="checkbox" id="role-bartender" name="roles" value="Bartender" />
                 <label for="role-bartender">Bartender</label>
               </div>
               <div class="role-checkbox">
-                <input type="checkbox" id="role-mixologist" name="roles" value="Mixologist" />
-                <label for="role-mixologist">Mixologist</label>
+                <input type="checkbox" id="role-barista" name="roles" value="Barista" />
+                <label for="role-barista">Barista</label>
               </div>
               <div class="role-checkbox">
-                <input type="checkbox" id="role-waiter" name="roles" value="Waiting Staff" />
-                <label for="role-waiter">Waiting Staff</label>
-              </div>
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-foh" name="roles" value="Front of House (FOH)" />
+                <input type="checkbox" id="role-foh" name="roles" value="Front of House" />
                 <label for="role-foh">Front of House</label>
               </div>
               <div class="role-checkbox">
-                <input type="checkbox" id="role-host" name="roles" value="Host/Hostess" />
-                <label for="role-host">Host/Hostess</label>
+                <input type="checkbox" id="role-waiter" name="roles" value="Waiter" />
+                <label for="role-waiter">Waiter</label>
               </div>
               <div class="role-checkbox">
                 <input type="checkbox" id="role-chef" name="roles" value="Chef" />
                 <label for="role-chef">Chef</label>
               </div>
               <div class="role-checkbox">
-                <input type="checkbox" id="role-sous" name="roles" value="Sous Chef" />
-                <label for="role-sous">Sous Chef</label>
-              </div>
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-cdp" name="roles" value="Chef de Partie" />
-                <label for="role-cdp">Chef de Partie</label>
-              </div>
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-kp" name="roles" value="Kitchen Porter (KP)" />
+                <input type="checkbox" id="role-kp" name="roles" value="Kitchen Porter" />
                 <label for="role-kp">Kitchen Porter</label>
               </div>
               <div class="role-checkbox">
@@ -773,68 +807,47 @@
               </div>
             </div>
           </div>
-          
-          <div class="roles-category">
-            <div class="category-title"><span aria-hidden="true">🎪</span> Events & Production</div>
-            <div class="role-checkboxes">
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-event-mgr" name="roles" value="Event Manager" />
-                <label for="role-event-mgr">Event Manager</label>
-              </div>
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-supervisor" name="roles" value="Event Supervisor" />
-                <label for="role-supervisor">Event Supervisor</label>
-              </div>
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-stagehand" name="roles" value="Stagehand" />
-                <label for="role-stagehand">Stagehand</label>
-              </div>
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-site-crew" name="roles" value="Site Crew" />
-                <label for="role-site-crew">Site Crew</label>
-              </div>
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-rigger" name="roles" value="Rigger" />
-                <label for="role-rigger">Rigger</label>
-              </div>
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-loader" name="roles" value="Loader" />
-                <label for="role-loader">Loader</label>
-              </div>
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-av" name="roles" value="AV Technician" />
-                <label for="role-av">AV Technician</label>
-              </div>
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-lighting" name="roles" value="Lighting Tech" />
-                <label for="role-lighting">Lighting Tech</label>
-              </div>
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-sound" name="roles" value="Sound Tech" />
-                <label for="role-sound">Sound Tech</label>
-              </div>
+        </div>
+        
+        <!-- Confidence Rating -->
+        <div class="form-group">
+          <label>Rate Your Overall Confidence <span class="required" aria-label="required">*</span></label>
+          <p style="color: #999; font-size: 0.9rem; margin-bottom: 15px;">How confident are you in delivering excellent service at premium events?</p>
+          <div class="confidence-rating">
+            <div class="rating-option">
+              <input type="radio" id="confidence-1" name="confidence" value="1" required />
+              <label for="confidence-1">
+                <span class="rating-number">1</span>
+                <span class="rating-label">Beginner</span>
+              </label>
             </div>
-          </div>
-          
-          <div class="roles-category">
-            <div class="category-title"><span aria-hidden="true">🏢</span> Venue & Operations</div>
-            <div class="role-checkboxes">
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-steward" name="roles" value="Steward" />
-                <label for="role-steward">Steward</label>
-              </div>
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-security" name="roles" value="Security (SIA)" />
-                <label for="role-security">Security (SIA)</label>
-              </div>
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-cleaner" name="roles" value="Cleaner" />
-                <label for="role-cleaner">Cleaner</label>
-              </div>
-              <div class="role-checkbox">
-                <input type="checkbox" id="role-driver" name="roles" value="Driver" />
-                <label for="role-driver">Driver</label>
-              </div>
+            <div class="rating-option">
+              <input type="radio" id="confidence-2" name="confidence" value="2" required />
+              <label for="confidence-2">
+                <span class="rating-number">2</span>
+                <span class="rating-label">Learning</span>
+              </label>
+            </div>
+            <div class="rating-option">
+              <input type="radio" id="confidence-3" name="confidence" value="3" required />
+              <label for="confidence-3">
+                <span class="rating-number">3</span>
+                <span class="rating-label">Competent</span>
+              </label>
+            </div>
+            <div class="rating-option">
+              <input type="radio" id="confidence-4" name="confidence" value="4" required />
+              <label for="confidence-4">
+                <span class="rating-number">4</span>
+                <span class="rating-label">Experienced</span>
+              </label>
+            </div>
+            <div class="rating-option">
+              <input type="radio" id="confidence-5" name="confidence" value="5" required />
+              <label for="confidence-5">
+                <span class="rating-number">5</span>
+                <span class="rating-label">Expert</span>
+              </label>
             </div>
           </div>
         </div>
@@ -1055,6 +1068,7 @@
             phone: val('phone') || undefined,
             rightToWorkUk: bool('rightToWorkUk'),
             roles: roles,
+            confidence: form.querySelector('input[name="confidence"]:checked')?.value ? parseInt(form.querySelector('input[name="confidence"]:checked').value) : undefined,
             cvKey: key,
             cvOriginalName: file.name,
             source: 'website'

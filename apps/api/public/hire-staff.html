@@ -21,6 +21,14 @@
       box-sizing: border-box;
     }
     
+    /* Ensure all images have no borders or backgrounds */
+    img {
+      border: none;
+      background: transparent;
+      max-width: 100%;
+      height: auto;
+    }
+    
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
       background: #0a0a0a;
@@ -50,6 +58,19 @@
       color: #D4AF37;
       letter-spacing: 2px;
       text-decoration: none;
+    }
+    
+    .logo img {
+      height: 50px;
+      width: auto;
+      border: none !important;
+      background: transparent !important;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+    
+    .logo:hover img {
+      transform: scale(1.05);
     }
     
     nav ul {
@@ -104,7 +125,7 @@
     
     /* Hero */
     .hero {
-      background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1410 50%, #0a0a0a 100%);
       padding: 180px 40px 80px;
       text-align: center;
       border-bottom: 2px solid #D4AF37;
@@ -772,6 +793,7 @@
             </li>
             <li><a href="apply.html">Apply</a></li>
             <li><a href="about.html#my-story">My Story</a></li>
+            <li><a href="faq.html">FAQ</a></li>
             <li><a href="contact.html">Contact</a></li>
           </ul>
         </nav>
@@ -787,192 +809,54 @@
   <main id="main-content">
     <div class="container">
       <div class="intro-section">
-        <h2>Event Staff for London</h2>
-        <p style="max-width: 700px; margin: 0 auto;">
-          Professional event staff for your London events. Available when you need them.
+        <h2>Premium Event Staff for London</h2>
+        <p style="max-width: 800px; margin: 0 auto;">
+          Every staff member is personally vetted by our founder with 8+ years of hands-on experience in London's hospitality industry. We match the right professionals to your specific event needs.
         </p>
       </div>
       
-      <!-- Hospitality Staff -->
+      <!-- Available Roles -->
       <div class="category-section">
-        <h2 class="category-header">Hospitality & Service Staff</h2>
+        <h2 class="category-header">Available Roles</h2>
         <div class="staff-grid">
           <div class="staff-card">
-            
             <h3>Bartender</h3>
-            <p>Professional bar service with extensive knowledge of cocktails, wines, and spirits.</p>
+            <p>Professional bar service with extensive knowledge of cocktails, wines, and spirits. Experienced in high-volume service.</p>
           </div>
           
           <div class="staff-card">
-            
-            <h3>Mixologist</h3>
-            <p>Craft cocktail specialists creating bespoke drinks and memorable bar experiences.</p>
+            <h3>Barista</h3>
+            <p>Skilled coffee professionals specializing in espresso-based drinks and cafe service for corporate events and festivals.</p>
           </div>
           
           <div class="staff-card">
-            
-            <h3>Waiting Staff</h3>
-            <p>Attentive table service professionals ensuring excellent guest experiences.</p>
+            <h3>Front of House</h3>
+            <p>Professional hosts creating excellent first impressions. Managing guest experiences and coordinating service flow.</p>
           </div>
           
           <div class="staff-card">
-            
-            <h3>Front of House (FOH)</h3>
-            <p>Professional hosts and greeters creating excellent first impressions.</p>
+            <h3>Waiter</h3>
+            <p>Attentive table service professionals ensuring excellent guest experiences at private dining and corporate events.</p>
           </div>
           
           <div class="staff-card">
-            
-            <h3>Host/Hostess</h3>
-            <p>Welcoming guests and managing seating arrangements with grace and efficiency.</p>
-          </div>
-          
-          <div class="staff-card">
-            
             <h3>Chef</h3>
-            <p>Experienced culinary professionals leading kitchen operations and menu execution.</p>
+            <p>Experienced culinary professionals handling kitchen operations and menu execution for events of all sizes.</p>
           </div>
           
           <div class="staff-card">
-            
-            <h3>Sous Chef</h3>
-            <p>Second-in-command chefs managing kitchen operations and staff coordination.</p>
+            <h3>Kitchen Porter</h3>
+            <p>Hardworking support staff maintaining cleanliness and organization in event kitchens. Essential for smooth operations.</p>
           </div>
           
           <div class="staff-card">
-            
-            <h3>Chef de Partie</h3>
-            <p>Station chefs specializing in specific areas of kitchen production.</p>
-          </div>
-          
-          <div class="staff-card">
-            
-            <h3>Kitchen Porter (KP)</h3>
-            <p>Hardworking support staff maintaining cleanliness and organization in kitchens.</p>
-          </div>
-          
-          <div class="staff-card">
-            
             <h3>Runner</h3>
-            <p>Efficient food and beverage runners ensuring seamless service flow.</p>
+            <p>Efficient food and beverage runners ensuring seamless service flow between kitchen and guests.</p>
           </div>
         </div>
       </div>
       
-      <!-- Events & Production -->
-      <div class="category-section">
-        <h2 class="category-header"><span aria-hidden="true">🎪</span> Events & Production Staff</h2>
-        <div class="staff-grid">
-          <div class="staff-card">
-            
-            <h3>Event Manager</h3>
-            <p>Experienced event coordinators overseeing all aspects of event execution.</p>
-          </div>
-          
-          <div class="staff-card">
-            
-            <h3>Event Supervisor</h3>
-            <p>On-site supervisors managing staff teams and ensuring smooth operations.</p>
-          </div>
-          
-          <div class="staff-card">
-            
-            <h3>Stagehand</h3>
-            <p>Technical crew for setup, breakdown, and running live events and productions.</p>
-          </div>
-          
-          <div class="staff-card">
-            
-            <h3>Site Crew</h3>
-            <p>Experienced crew for large-scale event builds, installations, and strikes.</p>
-          </div>
-          
-          <div class="staff-card">
-            
-            <h3>Rigger</h3>
-            <p>Certified rigging specialists for aerial equipment and stage installations.</p>
-          </div>
-          
-          <div class="staff-card">
-            
-            <h3>Loader</h3>
-            <p>Strong, reliable staff for loading, unloading, and moving equipment.</p>
-          </div>
-          
-          <div class="staff-card">
-            
-            <h3>AV Technician</h3>
-            <p>Audio-visual experts managing sound, video, and presentation systems.</p>
-          </div>
-          
-          <div class="staff-card">
-            
-            <h3>Lighting Tech</h3>
-            <p>Lighting specialists creating atmosphere and managing illumination systems.</p>
-          </div>
-          
-          <div class="staff-card">
-            
-            <h3>Sound Tech</h3>
-            <p>Sound engineers ensuring crystal-clear audio for performances and speeches.</p>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Venue & Operations -->
-      <div class="category-section">
-        <h2 class="category-header"><span aria-hidden="true">🏢</span> Venue & Operations Staff</h2>
-        <div class="staff-grid">
-          <div class="staff-card">
-            
-            <h3>Steward</h3>
-            <p>Venue stewards managing crowd flow, seating, and general guest assistance.</p>
-          </div>
-          
-          <div class="staff-card">
-            
-            <h3>Security (SIA)</h3>
-            <p>Licensed security personnel ensuring safety and managing access control.</p>
-          </div>
-          
-          <div class="staff-card">
-            
-            <h3>Cleaner</h3>
-            <p>Professional cleaning staff maintaining venue hygiene and presentation.</p>
-          </div>
-          
-          <div class="staff-card">
-            
-            <h3>Driver</h3>
-            <p>Professional drivers for guest transportation and equipment delivery.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Trust Badges -->
-    <div class="container">
-      <div class="trust-badges">
-        <div class="trust-badge">
-          
-          <span>Personally Vetted</span>
-        </div>
-        <div class="trust-badge">
-          
-          <span>8+ Years Experience</span>
-        </div>
-        <div class="trust-badge">
-          
-          <span>Money-Back Guarantee</span>
-        </div>
-        <div class="trust-badge">
-          
-          <span>London's Finest</span>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Testimonials Section -->
+      <!-- Testimonials Section -->
     <div class="container">
       <section class="testimonials-section" aria-labelledby="testimonials-heading">
         <h2 id="testimonials-heading" class="category-header">
@@ -982,7 +866,18 @@
           <div class="testimonial-card">
             <div class="testimonial-rating" aria-label="5 out of 5 stars">★★★★★</div>
             <p class="testimonial-text">
-              "The bartenders were absolutely fantastic. Professional, friendly, and they kept the drinks flowing perfectly all night. Several guests asked where we found such great staff!"
+              "Lovely working alongside Vergo at the O2 Arena, great attitude towards work. Would love to work alongside in the future."
+            </p>
+            <div class="testimonial-author">
+              <strong>Wild Rainbow Music</strong><br>
+              <span>O2 Arena Event</span>
+            </div>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="testimonial-rating" aria-label="5 out of 5 stars">★★★★★</div>
+            <p class="testimonial-text">
+              "The bartenders were absolutely fantastic. Professional, friendly, and they kept the drinks flowing perfectly all night."
             </p>
             <div class="testimonial-author">
               <strong>Michael Chen</strong><br>
@@ -993,34 +888,52 @@
           <div class="testimonial-card">
             <div class="testimonial-rating" aria-label="5 out of 5 stars">★★★★★</div>
             <p class="testimonial-text">
-              "We've used other staffing agencies before, and the difference is night and day. VERGO's team was punctual, immaculately presented, and genuinely seemed to care about our event's success."
+              "VERGO's team was punctual, immaculately presented, and genuinely seemed to care about our event's success."
             </p>
             <div class="testimonial-author">
               <strong>Rebecca Thompson</strong><br>
               <span>Wedding Coordinator</span>
             </div>
           </div>
-          
-          <div class="testimonial-card">
-            <div class="testimonial-rating" aria-label="5 out of 5 stars">★★★★★</div>
-            <p class="testimonial-text">
-              "The personal vetting really shows. Every staff member was top-notch, knew exactly what to do, and handled everything with professionalism. We'll definitely be using VERGO again."
-            </p>
-            <div class="testimonial-author">
-              <strong>David Williams</strong><br>
-              <span>Private Event Host</span>
+        </div>
+      </section>
+      </div>
+      
+      <!-- Why Hire From VERGO -->
+      <div class="intro-section" style="margin-top: 80px;">
+        <h2>Why Hire From VERGO</h2>
+        <div style="max-width: 900px; margin: 0 auto;">
+          <p style="margin-bottom: 25px;">
+            Every staff member is personally interviewed and vetted by our founder who has 8+ years of hands-on experience working in London's hospitality, film, and music industries.
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-top: 40px;">
+            <div>
+              <h3 style="color: #D4AF37; font-size: 1.2rem; margin-bottom: 10px;">✓ Personally Vetted</h3>
+              <p style="color: #999;">Every team member personally interviewed and approved by founder</p>
+            </div>
+            <div>
+              <h3 style="color: #D4AF37; font-size: 1.2rem; margin-bottom: 10px;">✓ DBS Checked</h3>
+              <p style="color: #999;">All staff undergo comprehensive background checks</p>
+            </div>
+            <div>
+              <h3 style="color: #D4AF37; font-size: 1.2rem; margin-bottom: 10px;">✓ Experienced</h3>
+              <p style="color: #999;">Proven track record at premium London venues and events</p>
+            </div>
+            <div>
+              <h3 style="color: #D4AF37; font-size: 1.2rem; margin-bottom: 10px;">✓ Reliable</h3>
+              <p style="color: #999;">Professional, punctual, and committed to excellence</p>
             </div>
           </div>
         </div>
-      </section>
+      </div>
     </div>
     
     <!-- CTA -->
     <div class="container">
       <div class="cta-section">
         <h2>Need Staff for Your Event?</h2>
-        <p>Let's discuss your staffing requirements. Direct access to founder with 8 years experience. Same-day quotes. Satisfaction guaranteed.</p>
-        <a href="contact.html#staffTab" class="cta-button">Request Staff → contact.html#staffTab</a>
+        <p>Let's discuss your staffing requirements. Direct access to founder with 8+ years experience. Same-day quotes. Satisfaction guaranteed.</p>
+        <a href="contact.html#staffTab" class="cta-button">Get Your Quote</a>
       </div>
     </div>
   </main>
@@ -1046,8 +959,8 @@
       
       <div class="footer-section">
         <h3>Contact</h3>
-        <p><strong>Founder Direct:</strong> +44 (0) 20 XXXX XXXX</p>
-        <p><strong>Email:</strong> wrobb@vergoltd.com</p>
+        <p><strong>Founder Direct:</strong> +44 7944 505 783</p>
+        <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b1c6c3ded3d3f1c7d4c3d6deddc5d59fd2dedc">[email&#160;protected]</a></p>
         <p><strong>Hours:</strong>  for urgent needs</p>
         <p><strong>Location:</strong> London, UK</p>
       </div>
@@ -1067,7 +980,7 @@
     </div>
   </footer>
 
-  <script src="/vergo-utils.js"></script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/vergo-utils.js"></script>
   <script>
     function toggleMenu() {
       const menu = document.getElementById('nav-menu');
