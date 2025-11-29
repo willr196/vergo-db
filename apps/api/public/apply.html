@@ -99,67 +99,7 @@
     .role-checkbox label { margin: 0; font-weight: 400; font-size: 0.95rem; cursor: pointer; flex: 1; color: #bbb; }
     .role-checkbox input[type="checkbox"]:checked ~ label { font-weight: 600; color: #D4AF37; }
     
-    /* Confidence Rating */
-    .confidence-rating {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
     
-    .rating-option {
-      flex: 1;
-      min-width: 100px;
-    }
-    
-    .rating-option input[type="radio"] {
-      display: none;
-    }
-    
-    .rating-option label {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 10px;
-      background: #0a0a0a;
-      border: 2px solid #2a2a2a;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-    }
-    
-    .rating-option label:hover {
-      background: #1a1a1a;
-      border-color: #D4AF37;
-      transform: translateY(-2px);
-    }
-    
-    .rating-option input[type="radio"]:checked + label {
-      background: rgba(212, 175, 55, 0.1);
-      border-color: #D4AF37;
-      border-width: 3px;
-    }
-    
-    .rating-number {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #D4AF37;
-      margin-bottom: 8px;
-      display: block;
-    }
-    
-    .rating-label {
-      font-size: 0.85rem;
-      color: #999;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-weight: 600;
-    }
-    
-    .rating-option input[type="radio"]:checked + label .rating-label {
-      color: #D4AF37;
-    }
     
     /* File Input Styling */
     input[type="file"]::file-selector-button { padding: 12px 25px; background: #D4AF37; color: #1a1a1a; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; margin-right: 15px; transition: background 0.3s; }
@@ -501,11 +441,11 @@
     },
     "jobLocationType": "TELECOMMUTE"
   }
-  </script>
+  </script>-->
   
   <script type="application/ld+json">
   {
-    "@context": "https://schema.org/",
+    "@context": "https://schema.org",
     "@type": "JobPosting",
     "title": "Chef - Events & Catering",
     "description": "<p>Join VERGO Events as a chef for premium events across London. Deliver exceptional culinary experiences at corporate functions, weddings, and high-end private events.</p><p><strong>About the Role:</strong> Preparing and cooking high-quality food at events, managing kitchen operations, maintaining food safety standards, working with event catering teams across London venues.</p><p><strong>What We Offer:</strong> Competitive chef rates, work at premium events and venues, quality ingredients and equipment, flexible scheduling, direct founder communication, professional development opportunities.</p><p><strong>Requirements:</strong> Proven chef/cooking experience, food safety certification, ability to work under pressure, DBS checked, professional kitchen standards, reliable and punctual.</p>",
@@ -514,8 +454,8 @@
       "name": "VERGO Events Ltd",
       "value": "CHEF-2025"
     },
-    "datePosted": "2025-01-15",
-    "validThrough": "2025-12-31T23:59:59.000Z",
+    "datePosted": "2025-11-19",
+    "validThrough": "2025-12-31",
     "employmentType": ["PART_TIME", "CONTRACTOR"],
     "hiringOrganization": {
       "@type": "Organization",
@@ -527,7 +467,9 @@
       "@type": "Place",
       "address": {
         "@type": "PostalAddress",
+        "streetAddress": "Charing Cross",
         "addressLocality": "London",
+        "postalCode": "WC2N 5DU",
         "addressRegion": "Greater London",
         "addressCountry": "GB"
       }
@@ -544,14 +486,10 @@
     },
     "qualifications": "Proven chef or cooking experience. Food safety certification. Ability to work under pressure. DBS check required.",
     "responsibilities": "Food preparation and cooking, kitchen operations management, maintaining food safety and hygiene standards, menu execution, working with catering teams.",
-    "skills": "Cooking, Food Safety, Kitchen Management, Time Management, Attention to Detail, Teamwork",
-    "applicantLocationRequirements": {
-      "@type": "City",
-      "name": "London"
-    },
-    "jobLocationType": "TELECOMMUTE"
+    "skills": "Cooking, Food Safety, Kitchen Management, Time Management, Attention to Detail, Teamwork"
   }
-  </script>-->
+  </script>
+
   
 </head>
 <body>
@@ -1068,8 +1006,6 @@
             phone: val('phone') || undefined,
             rightToWorkUk: bool('rightToWorkUk'),
             roles: roles,
-            confidence: form.querySelector('input[name="confidence"]:checked')?.value ? parseInt(form.querySelector('input[name="confidence"]:checked').value) : undefined,
-            cvKey: key,
             cvOriginalName: file.name,
             source: 'website'
           };
