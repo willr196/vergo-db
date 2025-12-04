@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <title>Log In - VERGO Events</title>
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #0a0a0a;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    header {
+      background: rgba(10, 10, 10, 0.95);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .logo img { height: 50px; }
+    
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    
+    .auth-container {
+      width: 100%;
+      max-width: 420px;
+    }
+    
+    .auth-box {
+      background: #1a1a1a;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 12px;
+      padding: 40px;
+    }
+    
+    .auth-box h1 {
+      color: #D4AF37;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    
+    .auth-box .subtitle {
+      color: #999;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      color: #ccc;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 14px 16px;
+      background: #0a0a0a;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 4px;
+      color: #fff;
+      font-size: 1rem;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #D4AF37;
+    }
+    
+    .error-msg {
+      background: rgba(220, 53, 69, 0.1);
+      border: 1px solid rgba(220, 53, 69, 0.3);
+      color: #dc3545;
+      padding: 12px 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .success-msg {
+      background: rgba(40, 167, 69, 0.1);
+      border: 1px solid rgba(40, 167, 69, 0.3);
+      color: #28a745;
+      padding: 12px 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .info-msg {
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: #D4AF37;
+      padding: 12px 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 16px;
+      background: #D4AF37;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    
+    .btn:hover { background: #e5c349; }
+    .btn:disabled { background: #666; cursor: not-allowed; }
+    
+    .forgot-link {
+      display: block;
+      text-align: right;
+      margin-top: -10px;
+      margin-bottom: 20px;
+      color: #999;
+      font-size: 0.85rem;
+      text-decoration: none;
+    }
+    
+    .forgot-link:hover { color: #D4AF37; }
+    
+    .auth-footer {
+      text-align: center;
+      margin-top: 25px;
+      padding-top: 25px;
+      border-top: 1px solid rgba(212, 175, 55, 0.1);
+      color: #999;
+    }
+    
+    .auth-footer a {
+      color: #D4AF37;
+      text-decoration: none;
+    }
+    
+    .auth-footer a:hover { text-decoration: underline; }
+    
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    
+    .back-link:hover { color: #D4AF37; }
+    
+    /* Resend verification section */
+    .resend-section {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(212, 175, 55, 0.1);
+    }
+    
+    .resend-section p {
+      color: #999;
+      font-size: 0.85rem;
+      margin-bottom: 10px;
+    }
+    
+    .btn-link {
+      background: none;
+      border: none;
+      color: #D4AF37;
+      cursor: pointer;
+      font-size: 0.85rem;
+      text-decoration: underline;
+    }
+    
+    .btn-link:hover { color: #e5c349; }
+    
+    footer {
+      background: #0a0a0a;
+      color: #666;
+      padding: 20px;
+      text-align: center;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+      font-size: 0.8rem;
+    }
+    
+    @media (max-width: 480px) {
+      header { padding: 15px 20px; }
+      .auth-box { padding: 30px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">
+      <img src="/logo.png" alt="VERGO Events">
+    </a>
+  </header>
+  
+  <main>
+    <div class="auth-container">
+      <div class="auth-box">
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Log in to your VERGO account</p>
+        
+        <div id="message"></div>
+        
+        <form id="login-form">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required autocomplete="email">
+          </div>
+          
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password">
+          </div>
+          
+          <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
+          
+          <button type="submit" class="btn">Log In</button>
+        </form>
+        
+        <div id="resend-section" class="resend-section" style="display: none;">
+          <p>Didn't receive verification email?</p>
+          <button class="btn-link" onclick="resendVerification()">Resend verification email</button>
+        </div>
+        
+        <div class="auth-footer">
+          Don't have an account? <a href="user-register.html">Create one</a>
+        </div>
+      </div>
+      
+      <a href="jobs.html" class="back-link">← Back to Jobs</a>
+    </div>
+  </main>
+  
+  <footer>
+    <p>&copy; 2025 VERGO Events Ltd.</p>
+  </footer>
+  
+  <script>
+    const form = document.getElementById('login-form');
+    const msgBox = document.getElementById('message');
+    const resendSection = document.getElementById('resend-section');
+    
+    // Get redirect URL and check for verified param
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect') || 'jobs.html';
+    
+    // Show success if just verified
+    if (params.get('verified') === 'true') {
+      msgBox.innerHTML = '<div class="success-msg">Email verified! You can now log in.</div>';
+    }
+    
+    let lastEmail = '';
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const btn = form.querySelector('button');
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      
+      lastEmail = email;
+      
+      btn.disabled = true;
+      btn.textContent = 'Logging in...';
+      msgBox.innerHTML = '';
+      resendSection.style.display = 'none';
+      
+      try {
+        const res = await fetch('/api/v1/user/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) {
+          // Show resend option if email not verified
+          if (data.code === 'EMAIL_NOT_VERIFIED') {
+            resendSection.style.display = 'block';
+          }
+          throw new Error(data.error || 'Login failed');
+        }
+        
+        // Success - redirect
+        window.location.href = redirect;
+        
+      } catch (err) {
+        msgBox.innerHTML = `<div class="error-msg">${escapeHtml(err.message)}</div>`;
+        btn.disabled = false;
+        btn.textContent = 'Log In';
+      }
+    });
+    
+    async function resendVerification() {
+      if (!lastEmail) {
+        msgBox.innerHTML = '<div class="error-msg">Please enter your email first</div>';
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/v1/user/resend-verification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: lastEmail })
+        });
+        
+        msgBox.innerHTML = '<div class="info-msg">If your email is registered and unverified, a new verification link has been sent.</div>';
+        resendSection.style.display = 'none';
+        
+      } catch (err) {
+        msgBox.innerHTML = '<div class="error-msg">Failed to resend. Please try again.</div>';
+      }
+    }
+    
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+  </script>
+</body>
+</html>

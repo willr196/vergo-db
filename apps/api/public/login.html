@@ -266,13 +266,32 @@
   <!-- Load utilities -->
   <script src="/vergo-utils.js"></script>
   
-  <script>
-    'use strict';
-    
-    // Configuration
-    const MAX_ATTEMPTS = 5;
-    const LOCKOUT_DURATION = 60; // seconds
-    const STORAGE_KEY = 'vergo_login_attempts';
+<script>
+  'use strict';
+
+  // Safe notification wrapper – won't crash if notify / notify.show is missing
+  function safeNotify(message, type = 'info') {
+    try {
+      // Case 1: vergo-utils defines notify.show(...)
+      if (window.notify && typeof notify.show === 'function') {
+        notify.show(message, type);
+      }
+      // Case 2: like admin.html, where notify(...) is a function
+      else if (typeof notify === 'function') {
+        notify(message, type);
+      } else {
+        // Fallback: just log
+        console.log(`[${type}] ${message}`);
+      }
+    } catch (e) {
+      console.warn('Notification failed:', e);
+    }
+  }
+
+  // Configuration
+  const MAX_ATTEMPTS = 5;
+  const LOCKOUT_DURATION = 60; // seconds
+  const STORAGE_KEY = 'vergo_login_attempts';
     
     // State
     let attemptCount = 0;
@@ -409,7 +428,7 @@
           
           // Redirect after short delay
           setTimeout(() => {
-            window.location.href = '/admin.html';
+            window.location.href = '/admin-jobs.html';
           }, 500);
         } else {
           // Handle errors

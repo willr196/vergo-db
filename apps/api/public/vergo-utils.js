@@ -1,6 +1,7 @@
 /**
- * VERGO Shared Utilities
- * Security, Accessibility, and GDPR compliance helpers
+ * VERGO Events - JavaScript Utilities
+ * Security, Form Handling, and Enhanced Features
+ * Version: 2.0
  */
 
 // ============================================
@@ -19,9 +20,12 @@ const CSRF = {
         const response = await fetch('/api/v1/csrf-token', {
           credentials: 'include'
         });
-        const data = await response.json();
-        token = data.token;
-        sessionStorage.setItem(this.TOKEN_STORAGE_KEY, token);
+        
+        if (response.ok) {
+          const data = await response.json();
+          token = data.token;
+          sessionStorage.setItem(this.TOKEN_STORAGE_KEY, token);
+        }
       } catch (error) {
         console.error('Failed to fetch CSRF token:', error);
         return null;
@@ -34,6 +38,8 @@ const CSRF = {
   // Add CSRF token to fetch options
   async addToFetch(options = {}) {
     const token = await this.getToken();
+    
+    if (!token) return options;
     
     return {
       ...options,
@@ -67,6 +73,12 @@ async function secureFetch(url, options = {}) {
       return fetch(url, retryOptions);
     }
     
+    // Handle 401 Unauthorized
+    if (response.status === 401 && window.location.pathname !== '/login.html') {
+      window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+      return null;
+    }
+    
     return response;
   } catch (error) {
     console.error('Fetch error:', error);
@@ -75,11 +87,13 @@ async function secureFetch(url, options = {}) {
 }
 
 // ============================================
-// 3. ACCESSIBLE ERROR HANDLING
+// 3. ACCESSIBLE NOTIFICATIONS
 // ============================================
 class AccessibleNotification {
   constructor() {
     this.createLiveRegion();
+    this.notificationQueue = [];
+    this.isProcessing = false;
   }
   
   createLiveRegion() {
@@ -94,54 +108,69 @@ class AccessibleNotification {
     document.body.appendChild(liveRegion);
   }
   
-  show(message, type = 'info', duration = 7000) {
+  async show(message, type = 'info', duration = 7000) {
     // Update ARIA live region for screen readers
     const liveRegion = document.getElementById('aria-live-region');
     if (liveRegion) {
-      liveRegion.textContent = `${type}: ${message}`;
+      liveRegion.textContent = message;
     }
     
-    // Show visual toast
-    const toast = document.createElement('div');
-    toast.className = `vergo-toast vergo-toast-${type}`;
-    toast.setAttribute('role', 'alert');
-    toast.setAttribute('aria-live', 'assertive');
-    
-    const icon = this.getIcon(type);
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'vergo-toast-close';
-    closeBtn.setAttribute('aria-label', 'Close notification');
-    closeBtn.innerHTML = '&times;';
-    closeBtn.onclick = () => this.dismiss(toast);
-    
-    const content = document.createElement('div');
-    content.className = 'vergo-toast-content';
-    content.innerHTML = `
-      <span class="vergo-toast-icon" aria-hidden="true">${icon}</span>
-      <span class="vergo-toast-message">${this.escapeHtml(message)}</span>
+    // Create visual notification
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.setAttribute('role', 'alert');
+    notification.innerHTML = `
+      <div class="notification-content">
+        <span class="notification-icon">${this.getIcon(type)}</span>
+        <span class="notification-message">${this.escapeHtml(message)}</span>
+        <button class="notification-close" aria-label="Close notification">×</button>
+      </div>
     `;
     
-    toast.appendChild(content);
-    toast.appendChild(closeBtn);
-    document.body.appendChild(toast);
+    // Add to container
+    let container = document.getElementById('notification-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'notification-container';
+      container.className = 'notification-container';
+      document.body.appendChild(container);
+    }
     
-    // Auto dismiss
-    setTimeout(() => this.dismiss(toast), duration);
+    container.appendChild(notification);
     
-    return toast;
+    // Animate in
+    requestAnimationFrame(() => {
+      notification.classList.add('notification-show');
+    });
+    
+    // Close button handler
+    notification.querySelector('.notification-close').addEventListener('click', () => {
+      this.hide(notification);
+    });
+    
+    // Auto-hide after duration
+    if (duration > 0) {
+      setTimeout(() => this.hide(notification), duration);
+    }
+    
+    return notification;
   }
   
-  dismiss(toast) {
-    toast.style.animation = 'vergoSlideOut 0.3s ease';
-    setTimeout(() => toast.remove(), 300);
+  hide(notification) {
+    if (!notification) return;
+    
+    notification.classList.add('notification-hide');
+    setTimeout(() => {
+      notification.remove();
+    }, 300);
   }
   
   getIcon(type) {
     const icons = {
-      success: '✓',
-      error: '✕',
-      warning: '⚠',
-      info: 'ℹ'
+      'success': '✓',
+      'error': '✕',
+      'warning': '⚠',
+      'info': 'ℹ'
     };
     return icons[type] || icons.info;
   }
@@ -154,385 +183,694 @@ class AccessibleNotification {
 }
 
 // Global notification instance
-const notify = new AccessibleNotification();
+const notification = new AccessibleNotification();
 
 // ============================================
-// 4. GDPR COOKIE CONSENT
-// ============================================
-class CookieConsent {
-  constructor() {
-    this.CONSENT_KEY = 'vergo_cookie_consent';
-    this.PREFERENCES_KEY = 'vergo_cookie_preferences';
-    this.init();
-  }
-  
-  init() {
-    if (!this.hasConsent()) {
-      this.showBanner();
-    } else {
-      this.loadScripts();
-    }
-  }
-  
-  hasConsent() {
-    return localStorage.getItem(this.CONSENT_KEY) === 'true';
-  }
-  
-  getPreferences() {
-    const prefs = localStorage.getItem(this.PREFERENCES_KEY);
-    return prefs ? JSON.parse(prefs) : {
-      necessary: true,
-      analytics: false,
-      marketing: false
-    };
-  }
-  
-  setConsent(preferences) {
-    localStorage.setItem(this.CONSENT_KEY, 'true');
-    localStorage.setItem(this.PREFERENCES_KEY, JSON.stringify(preferences));
-    this.loadScripts();
-    this.hideBanner();
-  }
-  
-  showBanner() {
-    if (document.getElementById('cookie-consent-banner')) return;
-    
-    const banner = document.createElement('div');
-    banner.id = 'cookie-consent-banner';
-    banner.className = 'cookie-consent-banner';
-    banner.setAttribute('role', 'dialog');
-    banner.setAttribute('aria-labelledby', 'cookie-consent-title');
-    banner.setAttribute('aria-describedby', 'cookie-consent-desc');
-    
-    banner.innerHTML = `
-      <div class="cookie-consent-content">
-        <h2 id="cookie-consent-title" class="cookie-consent-title">We use cookies</h2>
-        <p id="cookie-consent-desc" class="cookie-consent-desc">
-          We use necessary cookies to make our site work. We'd also like to set optional analytics cookies to help us improve it.
-          We won't set optional cookies unless you enable them. 
-          <a href="/privacy.html#cookies" class="cookie-consent-link">Learn more</a>
-        </p>
-        <div class="cookie-consent-actions">
-          <button id="cookie-accept-all" class="btn-cookie btn-cookie-primary">
-            Accept all cookies
-          </button>
-          <button id="cookie-accept-necessary" class="btn-cookie btn-cookie-secondary">
-            Necessary only
-          </button>
-          <button id="cookie-manage" class="btn-cookie btn-cookie-tertiary">
-            Manage preferences
-          </button>
-        </div>
-      </div>
-      <div id="cookie-preferences-panel" class="cookie-preferences-panel" style="display: none;">
-        <h3 class="cookie-preferences-title">Cookie Preferences</h3>
-        <div class="cookie-preference-item">
-          <label class="cookie-preference-label">
-            <input type="checkbox" checked disabled>
-            <span class="cookie-preference-text">
-              <strong>Necessary cookies</strong> - Required for the website to function
-            </span>
-          </label>
-        </div>
-        <div class="cookie-preference-item">
-          <label class="cookie-preference-label">
-            <input type="checkbox" id="cookie-analytics">
-            <span class="cookie-preference-text">
-              <strong>Analytics cookies</strong> - Help us understand how visitors use our site
-            </span>
-          </label>
-        </div>
-        <div class="cookie-consent-actions">
-          <button id="cookie-save-prefs" class="btn-cookie btn-cookie-primary">
-            Save preferences
-          </button>
-          <button id="cookie-cancel-prefs" class="btn-cookie btn-cookie-secondary">
-            Cancel
-          </button>
-        </div>
-      </div>
-    `;
-    
-    document.body.appendChild(banner);
-    this.attachEventListeners();
-  }
-  
-  attachEventListeners() {
-    document.getElementById('cookie-accept-all')?.addEventListener('click', () => {
-      this.setConsent({ necessary: true, analytics: true, marketing: false });
-    });
-    
-    document.getElementById('cookie-accept-necessary')?.addEventListener('click', () => {
-      this.setConsent({ necessary: true, analytics: false, marketing: false });
-    });
-    
-    document.getElementById('cookie-manage')?.addEventListener('click', () => {
-      document.querySelector('.cookie-consent-content').style.display = 'none';
-      document.getElementById('cookie-preferences-panel').style.display = 'block';
-    });
-    
-    document.getElementById('cookie-save-prefs')?.addEventListener('click', () => {
-      const analytics = document.getElementById('cookie-analytics').checked;
-      this.setConsent({ necessary: true, analytics, marketing: false });
-    });
-    
-    document.getElementById('cookie-cancel-prefs')?.addEventListener('click', () => {
-      document.querySelector('.cookie-consent-content').style.display = 'block';
-      document.getElementById('cookie-preferences-panel').style.display = 'none';
-    });
-  }
-  
-  hideBanner() {
-    const banner = document.getElementById('cookie-consent-banner');
-    if (banner) {
-      banner.style.animation = 'vergoSlideDown 0.3s ease';
-      setTimeout(() => banner.remove(), 300);
-    }
-  }
-  
-  loadScripts() {
-    const prefs = this.getPreferences();
-    
-    // Load analytics if consented
-    if (prefs.analytics && typeof gtag === 'undefined') {
-      const script = document.createElement('script');
-      script.async = true;
-      script.src = 'https://www.googletagmanager.com/gtag/js?id=YOUR_GA_ID';
-      document.head.appendChild(script);
-      
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'YOUR_GA_ID', {
-        anonymize_ip: true,
-        cookie_flags: 'SameSite=None;Secure'
-      });
-    }
-  }
-}
-
-// ============================================
-// 5. FORM VALIDATION WITH VISUAL FEEDBACK
+// 4. FORM VALIDATION
 // ============================================
 class FormValidator {
-  constructor(form) {
+  constructor(form, options = {}) {
     this.form = form;
+    this.options = {
+      validateOnBlur: true,
+      validateOnInput: false,
+      showInlineErrors: true,
+      ...options
+    };
+    
+    this.validators = {
+      required: (value) => value.trim() !== '',
+      email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+      phone: (value) => /^[\d\s\-\+\(\)]+$/.test(value) && value.replace(/\D/g, '').length >= 10,
+      minLength: (value, min) => value.length >= min,
+      maxLength: (value, max) => value.length <= max,
+      pattern: (value, pattern) => new RegExp(pattern).test(value),
+      match: (value, matchFieldName) => {
+        const matchField = this.form.querySelector(`[name="${matchFieldName}"]`);
+        return matchField && value === matchField.value;
+      }
+    };
+    
     this.init();
   }
   
   init() {
-    // Add aria-live region for form errors
-    this.createErrorRegion();
+    // Add novalidate to prevent browser validation
+    this.form.setAttribute('novalidate', '');
+    
+    // Get all form fields
+    this.fields = this.form.querySelectorAll('input, textarea, select');
     
     // Add event listeners
-    this.form.querySelectorAll('input, select, textarea').forEach(field => {
-      field.addEventListener('blur', () => this.validateField(field));
-      field.addEventListener('input', () => this.clearFieldError(field));
+    this.fields.forEach(field => {
+      if (this.options.validateOnBlur) {
+        field.addEventListener('blur', () => this.validateField(field));
+      }
+      
+      if (this.options.validateOnInput) {
+        field.addEventListener('input', () => this.validateField(field));
+      }
     });
     
+    // Form submit handler
     this.form.addEventListener('submit', (e) => this.handleSubmit(e));
   }
   
-  createErrorRegion() {
-    if (!document.getElementById('form-error-region')) {
-      const region = document.createElement('div');
-      region.id = 'form-error-region';
-      region.setAttribute('role', 'alert');
-      region.setAttribute('aria-live', 'polite');
-      region.className = 'sr-only';
-      this.form.insertBefore(region, this.form.firstChild);
-    }
-  }
-  
   validateField(field) {
-    const error = this.getFieldError(field);
+    const errors = [];
+    const value = field.value;
     
-    if (error) {
-      this.showFieldError(field, error);
-      return false;
-    } else {
-      this.clearFieldError(field);
-      return true;
+    // Check required
+    if (field.hasAttribute('required') && !this.validators.required(value)) {
+      errors.push('This field is required');
     }
+    
+    // Check email
+    if (field.type === 'email' && value && !this.validators.email(value)) {
+      errors.push('Please enter a valid email address');
+    }
+    
+    // Check phone
+    if (field.type === 'tel' && value && !this.validators.phone(value)) {
+      errors.push('Please enter a valid phone number');
+    }
+    
+    // Check min length
+    const minLength = field.getAttribute('minlength');
+    if (minLength && !this.validators.minLength(value, minLength)) {
+      errors.push(`Minimum ${minLength} characters required`);
+    }
+    
+    // Check max length
+    const maxLength = field.getAttribute('maxlength');
+    if (maxLength && !this.validators.maxLength(value, maxLength)) {
+      errors.push(`Maximum ${maxLength} characters allowed`);
+    }
+    
+    // Check pattern
+    const pattern = field.getAttribute('pattern');
+    if (pattern && value && !this.validators.pattern(value, pattern)) {
+      const title = field.getAttribute('title') || 'Please match the required format';
+      errors.push(title);
+    }
+    
+    // Check password match
+    const match = field.getAttribute('data-match');
+    if (match && !this.validators.match(value, match)) {
+      errors.push('Passwords do not match');
+    }
+    
+    // Show errors
+    if (this.options.showInlineErrors) {
+      this.showFieldErrors(field, errors);
+    }
+    
+    return errors.length === 0;
   }
   
-  getFieldError(field) {
-    if (!field.required && !field.value) return null;
-    
-    if (field.required && !field.value.trim()) {
-      return `${this.getFieldLabel(field)} is required`;
+  showFieldErrors(field, errors) {
+    // Remove existing errors
+    const existingError = field.parentElement.querySelector('.field-error-message');
+    if (existingError) {
+      existingError.remove();
     }
     
-    if (field.type === 'email' && field.value) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(field.value)) {
-        return 'Please enter a valid email address';
-      }
-    }
-    
-    if (field.type === 'tel' && field.value) {
-      const phoneRegex = /^[\d\s\+\-\(\)]+$/;
-      if (!phoneRegex.test(field.value)) {
-        return 'Please enter a valid phone number';
-      }
-    }
-    
-    if (field.type === 'date' && field.value) {
-      const date = new Date(field.value);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      if (date < today) {
-        return 'Date must be in the future';
-      }
-    }
-    
-    return null;
-  }
-  
-  getFieldLabel(field) {
-    const label = this.form.querySelector(`label[for="${field.id}"]`);
-    return label ? label.textContent.trim() : field.name;
-  }
-  
-  showFieldError(field, message) {
-    // Add error class
-    field.classList.add('field-error');
-    field.setAttribute('aria-invalid', 'true');
-    
-    // Create or update error message
-    let errorEl = field.parentElement.querySelector('.field-error-message');
-    if (!errorEl) {
-      errorEl = document.createElement('div');
-      errorEl.className = 'field-error-message';
-      errorEl.id = `${field.id}-error`;
-      field.setAttribute('aria-describedby', errorEl.id);
-      field.parentElement.appendChild(errorEl);
-    }
-    
-    errorEl.textContent = message;
-    errorEl.setAttribute('role', 'alert');
-  }
-  
-  clearFieldError(field) {
+    // Remove error class
     field.classList.remove('field-error');
     field.removeAttribute('aria-invalid');
+    field.removeAttribute('aria-describedby');
     
-    const errorEl = field.parentElement.querySelector('.field-error-message');
-    if (errorEl) {
-      errorEl.remove();
-      field.removeAttribute('aria-describedby');
+    // Add new errors if any
+    if (errors.length > 0) {
+      field.classList.add('field-error');
+      field.setAttribute('aria-invalid', 'true');
+      
+      const errorId = `error-${field.name || field.id}`;
+      const errorElement = document.createElement('div');
+      errorElement.className = 'field-error-message';
+      errorElement.id = errorId;
+      errorElement.setAttribute('role', 'alert');
+      errorElement.textContent = errors[0]; // Show first error only
+      
+      field.parentElement.appendChild(errorElement);
+      field.setAttribute('aria-describedby', errorId);
     }
   }
   
-  handleSubmit(e) {
-    let isValid = true;
-    const errors = [];
+  async handleSubmit(e) {
+    e.preventDefault();
     
-    this.form.querySelectorAll('input, select, textarea').forEach(field => {
+    // Validate all fields
+    let isValid = true;
+    this.fields.forEach(field => {
       if (!this.validateField(field)) {
         isValid = false;
-        errors.push(this.getFieldLabel(field));
       }
     });
     
     if (!isValid) {
-      e.preventDefault();
-      
-      // Update ARIA live region
-      const errorRegion = document.getElementById('form-error-region');
-      if (errorRegion) {
-        errorRegion.textContent = `Please correct the following fields: ${errors.join(', ')}`;
-      }
-      
-      // Focus first error
+      // Focus first error field
       const firstError = this.form.querySelector('.field-error');
       if (firstError) {
         firstError.focus();
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
       
-      notify.show('Please correct the errors in the form', 'error');
+      notification.show('Please fix the errors in the form', 'error');
+      return;
     }
     
-    return isValid;
+    // Call custom submit handler if provided
+    if (this.options.onSubmit) {
+      await this.options.onSubmit(new FormData(this.form));
+    }
+  }
+  
+  reset() {
+    this.form.reset();
+    this.fields.forEach(field => {
+      this.showFieldErrors(field, []);
+    });
   }
 }
 
 // ============================================
-// 6. ACCESSIBILITY HELPERS
+// 5. SESSION MANAGEMENT
 // ============================================
-const A11y = {
-  // Add skip link
-  addSkipLink() {
-    if (document.getElementById('skip-link')) return;
+class SessionManager {
+  constructor(options = {}) {
+    this.options = {
+      checkInterval: 60000, // Check every minute
+      warningTime: 5 * 60 * 1000, // Warn 5 minutes before expiry
+      logoutUrl: '/api/v1/auth/logout',
+      loginUrl: '/login.html',
+      ...options
+    };
     
-    const skipLink = document.createElement('a');
-    skipLink.id = 'skip-link';
-    skipLink.href = '#main-content';
-    skipLink.className = 'skip-link';
-    skipLink.textContent = 'Skip to main content';
-    
-    document.body.insertBefore(skipLink, document.body.firstChild);
-  },
+    this.startChecking();
+  }
   
-  // Add main landmark
-  addMainLandmark() {
-    const container = document.querySelector('.container, .hero-section');
-    if (container && !container.closest('main')) {
-      const main = document.createElement('main');
-      main.id = 'main-content';
-      container.parentNode.insertBefore(main, container);
-      main.appendChild(container);
-    }
-  },
-  
-  // Trap focus in modal
-  trapFocus(element) {
-    const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
-    );
-    
-    const firstFocusable = focusableElements[0];
-    const lastFocusable = focusableElements[focusableElements.length - 1];
-    
-    element.addEventListener('keydown', (e) => {
-      if (e.key !== 'Tab') return;
+  async checkSession() {
+    try {
+      const response = await secureFetch('/api/v1/auth/session');
+      if (!response) return;
       
-      if (e.shiftKey) {
-        if (document.activeElement === firstFocusable) {
-          lastFocusable.focus();
-          e.preventDefault();
-        }
-      } else {
-        if (document.activeElement === lastFocusable) {
-          firstFocusable.focus();
-          e.preventDefault();
-        }
+      const data = await response.json();
+      
+      if (!data.authenticated) {
+        this.handleLogout();
       }
+      
+      return data;
+    } catch (error) {
+      console.error('Session check failed:', error);
+    }
+  }
+  
+  startChecking() {
+    // Check immediately
+    this.checkSession();
+    
+    // Set up interval
+    this.interval = setInterval(() => {
+      this.checkSession();
+    }, this.options.checkInterval);
+    
+    // Listen for activity
+    ['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
+      document.addEventListener(event, () => this.updateActivity(), { passive: true });
     });
   }
-};
+  
+  updateActivity() {
+    // Debounce activity updates
+    clearTimeout(this.activityTimeout);
+    this.activityTimeout = setTimeout(() => {
+      sessionStorage.setItem('lastActivity', Date.now().toString());
+    }, 1000);
+  }
+  
+  async handleLogout() {
+    clearInterval(this.interval);
+    CSRF.clear();
+    
+    try {
+      await fetch(this.options.logoutUrl, {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+    
+    window.location.href = this.options.loginUrl;
+  }
+  
+  destroy() {
+    clearInterval(this.interval);
+    clearTimeout(this.activityTimeout);
+  }
+}
 
 // ============================================
-// 7. INITIALIZE ON LOAD
+// 6. JOB BOARD UTILITIES
 // ============================================
-window.addEventListener('DOMContentLoaded', () => {
-  // Add accessibility features
-  A11y.addSkipLink();
-  A11y.addMainLandmark();
+class JobBoard {
+  constructor() {
+    this.filters = {
+      search: '',
+      category: '',
+      location: '',
+      type: '',
+      minPay: null,
+      maxPay: null
+    };
+    
+    this.currentPage = 1;
+    this.itemsPerPage = 20;
+    this.jobs = [];
+  }
   
-  // Initialize cookie consent
-  new CookieConsent();
+  async loadJobs(filters = {}) {
+    try {
+      const params = new URLSearchParams({
+        ...this.filters,
+        ...filters,
+        page: this.currentPage,
+        limit: this.itemsPerPage
+      });
+      
+      const response = await secureFetch(`/api/v1/jobs?${params}`);
+      if (!response) return;
+      
+      const data = await response.json();
+      this.jobs = data.jobs;
+      this.totalPages = data.totalPages;
+      
+      this.renderJobs();
+      this.renderPagination();
+      
+      return data;
+    } catch (error) {
+      console.error('Failed to load jobs:', error);
+      notification.show('Failed to load jobs', 'error');
+    }
+  }
   
-  // Initialize form validation on all forms
-  document.querySelectorAll('form').forEach(form => {
-    if (!form.classList.contains('no-validation')) {
-      new FormValidator(form);
+  renderJobs() {
+    const container = document.getElementById('job-list');
+    if (!container) return;
+    
+    if (this.jobs.length === 0) {
+      container.innerHTML = `
+        <div class="no-results">
+          <h3>No jobs found</h3>
+          <p>Try adjusting your filters or search terms</p>
+        </div>
+      `;
+      return;
+    }
+    
+    container.innerHTML = this.jobs.map(job => `
+      <article class="job-card" data-job-id="${job.id}">
+        <div class="job-header">
+          <h3>
+            <a href="/jobs/${job.id}" class="job-title">
+              ${this.escapeHtml(job.title)}
+            </a>
+          </h3>
+          ${job.featured ? '<span class="featured-badge">Featured</span>' : ''}
+        </div>
+        
+        <div class="job-company">
+          ${job.companyLogo ? `<img src="${job.companyLogo}" alt="${job.company} logo" class="company-logo">` : ''}
+          <span>${this.escapeHtml(job.company)}</span>
+        </div>
+        
+        <div class="job-meta">
+          <span class="job-location">📍 ${this.escapeHtml(job.location)}</span>
+          <span class="job-type">${this.escapeHtml(job.type)}</span>
+          ${job.payRate ? `<span class="job-pay">£${job.payRate}/${job.payPeriod}</span>` : ''}
+        </div>
+        
+        <p class="job-description">
+          ${this.escapeHtml(job.description.substring(0, 200))}...
+        </p>
+        
+        <div class="job-actions">
+          <button onclick="jobBoard.saveJob('${job.id}')" class="btn-save" aria-label="Save job">
+            ${job.saved ? '❤️' : '🤍'} Save
+          </button>
+          <a href="/jobs/${job.id}" class="btn-apply">View Details</a>
+        </div>
+      </article>
+    `).join('');
+    
+    // Add click tracking
+    container.querySelectorAll('.job-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (!e.target.closest('button, a')) {
+          const jobId = card.dataset.jobId;
+          window.location.href = `/jobs/${jobId}`;
+        }
+      });
+    });
+  }
+  
+  renderPagination() {
+    const container = document.getElementById('pagination');
+    if (!container || this.totalPages <= 1) return;
+    
+    const pages = [];
+    const maxVisible = 5;
+    
+    // Previous button
+    pages.push(`
+      <button 
+        onclick="jobBoard.goToPage(${this.currentPage - 1})"
+        ${this.currentPage === 1 ? 'disabled' : ''}
+        aria-label="Previous page"
+      >
+        ← Previous
+      </button>
+    `);
+    
+    // Page numbers
+    for (let i = 1; i <= Math.min(this.totalPages, maxVisible); i++) {
+      pages.push(`
+        <button 
+          onclick="jobBoard.goToPage(${i})"
+          class="${i === this.currentPage ? 'active' : ''}"
+          aria-label="Go to page ${i}"
+          ${i === this.currentPage ? 'aria-current="page"' : ''}
+        >
+          ${i}
+        </button>
+      `);
+    }
+    
+    // Next button
+    pages.push(`
+      <button 
+        onclick="jobBoard.goToPage(${this.currentPage + 1})"
+        ${this.currentPage === this.totalPages ? 'disabled' : ''}
+        aria-label="Next page"
+      >
+        Next →
+      </button>
+    `);
+    
+    container.innerHTML = pages.join('');
+  }
+  
+  async saveJob(jobId) {
+    try {
+      const response = await secureFetch(`/api/v1/jobs/${jobId}/save`, {
+        method: 'POST'
+      });
+      
+      if (response && response.ok) {
+        notification.show('Job saved!', 'success');
+        // Update UI
+        const job = this.jobs.find(j => j.id === jobId);
+        if (job) {
+          job.saved = !job.saved;
+          this.renderJobs();
+        }
+      }
+    } catch (error) {
+      console.error('Failed to save job:', error);
+      notification.show('Failed to save job', 'error');
+    }
+  }
+  
+  goToPage(page) {
+    this.currentPage = page;
+    this.loadJobs();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  applyFilters() {
+    // Get filter values from DOM
+    const form = document.getElementById('job-filters');
+    if (!form) return;
+    
+    const formData = new FormData(form);
+    this.filters = Object.fromEntries(formData);
+    this.currentPage = 1;
+    
+    this.loadJobs();
+  }
+  
+  clearFilters() {
+    this.filters = {
+      search: '',
+      category: '',
+      location: '',
+      type: '',
+      minPay: null,
+      maxPay: null
+    };
+    
+    this.currentPage = 1;
+    
+    // Reset form
+    const form = document.getElementById('job-filters');
+    if (form) form.reset();
+    
+    this.loadJobs();
+  }
+  
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+}
+
+// ============================================
+// 7. USER AUTHENTICATION
+// ============================================
+class UserAuth {
+  constructor() {
+    this.user = null;
+    this.checkAuth();
+  }
+  
+  async checkAuth() {
+    try {
+      const response = await secureFetch('/api/v1/users/session');
+      if (response && response.ok) {
+        const data = await response.json();
+        this.user = data.user || null;
+        this.updateUI();
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+    }
+  }
+  
+  updateUI() {
+    const authLinks = document.getElementById('auth-links');
+    if (!authLinks) return;
+    
+    if (this.user) {
+      authLinks.innerHTML = `
+        <div class="user-menu">
+          <button class="user-menu-toggle" aria-expanded="false">
+            ${this.user.firstName} ${this.user.lastName}
+          </button>
+          <ul class="user-dropdown" role="menu">
+            <li><a href="/dashboard" role="menuitem">Dashboard</a></li>
+            <li><a href="/dashboard/profile" role="menuitem">Profile</a></li>
+            <li><a href="/dashboard/applications" role="menuitem">My Applications</a></li>
+            <li><a href="/dashboard/saved" role="menuitem">Saved Jobs</a></li>
+            <li><hr></li>
+            <li><button onclick="userAuth.logout()" role="menuitem">Logout</button></li>
+          </ul>
+        </div>
+      `;
+      
+      // Toggle dropdown
+      const toggle = authLinks.querySelector('.user-menu-toggle');
+      toggle.addEventListener('click', () => {
+        const expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', !expanded);
+      });
+    } else {
+      authLinks.innerHTML = `
+        <a href="/login" class="btn-login">Sign In</a>
+        <a href="/register" class="btn-register">Register</a>
+      `;
+    }
+  }
+  
+  async login(email, password) {
+    try {
+      const response = await secureFetch('/api/v1/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      
+      if (response && response.ok) {
+        const data = await response.json();
+        this.user = data.user;
+        notification.show('Login successful!', 'success');
+        
+        // Redirect to intended page or dashboard
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get('redirect') || '/dashboard';
+        window.location.href = redirect;
+      } else {
+        const error = await response.json();
+        notification.show(error.message || 'Login failed', 'error');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      notification.show('Login failed', 'error');
+    }
+  }
+  
+  async logout() {
+    try {
+      await secureFetch('/api/v1/users/logout', {
+        method: 'POST'
+      });
+      
+      this.user = null;
+      CSRF.clear();
+      notification.show('Logged out successfully', 'success');
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  }
+  
+  async register(formData) {
+    try {
+      const response = await secureFetch('/api/v1/users/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(formData))
+      });
+      
+      if (response && response.ok) {
+        notification.show('Registration successful! Please check your email to verify your account.', 'success');
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 3000);
+      } else {
+        const error = await response.json();
+        notification.show(error.message || 'Registration failed', 'error');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      notification.show('Registration failed', 'error');
+    }
+  }
+}
+
+// ============================================
+// 8. INITIALIZATION
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize global instances
+  window.userAuth = new UserAuth();
+  
+  // Initialize job board if on jobs page
+  if (window.location.pathname.includes('/jobs')) {
+    window.jobBoard = new JobBoard();
+    window.jobBoard.loadJobs();
+  }
+  
+  // Initialize session manager for authenticated pages
+  if (document.querySelector('[data-requires-auth]')) {
+    window.sessionManager = new SessionManager();
+  }
+  
+  // Initialize forms
+  document.querySelectorAll('form[data-validate]').forEach(form => {
+    new FormValidator(form);
+  });
+  
+  // Add keyboard navigation helpers
+  document.addEventListener('keydown', (e) => {
+    // Escape key closes modals
+    if (e.key === 'Escape') {
+      const modal = document.querySelector('[role="dialog"]:not([hidden])');
+      if (modal) {
+        modal.setAttribute('hidden', '');
+        const trigger = document.querySelector('[aria-expanded="true"]');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+      }
     }
   });
+  
+  // Add focus visible polyfill for older browsers
+  if (!('CSS' in window) || !CSS.supports('selector(:focus-visible)')) {
+    document.documentElement.classList.add('js-focus-visible');
+  }
 });
 
-// Export for use in other scripts
+// ============================================
+// 9. UTILITY FUNCTIONS
+// ============================================
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+function throttle(func, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+function formatDate(date, format = 'short') {
+  const d = new Date(date);
+  const options = format === 'short' 
+    ? { day: 'numeric', month: 'short', year: 'numeric' }
+    : { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+  
+  return d.toLocaleDateString('en-GB', options);
+}
+
+function formatCurrency(amount, currency = 'GBP') {
+  return new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: currency
+  }).format(amount);
+}
+
+// ============================================
+// 10. EXPORT FOR MODULES
+// ============================================
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { CSRF, secureFetch, notify, CookieConsent, FormValidator, A11y };
+  module.exports = {
+    CSRF,
+    secureFetch,
+    AccessibleNotification,
+    FormValidator,
+    SessionManager,
+    JobBoard,
+    UserAuth,
+    notification,
+    debounce,
+    throttle,
+    formatDate,
+    formatCurrency
+  };
 }
