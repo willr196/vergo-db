@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <title>Manage Jobs - VERGO Admin</title>
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #0a0a0a;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+    
+    header {
+      background: #1a1a1a;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo img { height: 40px; }
+    
+    .header-nav {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    
+    .header-nav a {
+      color: #999;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    
+    .header-nav a:hover, .header-nav a.active {
+      color: #D4AF37;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-primary {
+      background: #D4AF37;
+      color: #1a1a1a;
+    }
+    
+    .btn-primary:hover { background: #e5c349; }
+    
+    .btn-secondary {
+      background: #333;
+      color: #fff;
+    }
+    
+    .btn-secondary:hover { background: #444; }
+    
+    .btn-danger {
+      background: #dc3545;
+      color: #fff;
+    }
+    
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
+    
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .page-header h1 {
+      color: #D4AF37;
+      font-size: 1.8rem;
+    }
+    
+    /* Filters */
+    .filters {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+    
+    .filters select {
+      padding: 10px 15px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.9rem;
+      min-width: 150px;
+    }
+    
+    /* Table */
+    .table-container {
+      background: #1a1a1a;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #333;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+    
+    th {
+      background: #222;
+      color: #D4AF37;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    td {
+      color: #ccc;
+      font-size: 0.9rem;
+    }
+    
+    tr:hover {
+      background: rgba(212, 175, 55, 0.05);
+    }
+    
+    .job-title-cell {
+      max-width: 250px;
+    }
+    
+    .job-title-cell strong {
+      color: #fff;
+      display: block;
+      margin-bottom: 3px;
+    }
+    
+    .job-title-cell span {
+      color: #666;
+      font-size: 0.8rem;
+    }
+    
+    /* Status badges */
+    .status {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .status-draft { background: #333; color: #999; }
+    .status-open { background: rgba(40, 167, 69, 0.2); color: #28a745; }
+    .status-filled { background: rgba(0, 123, 255, 0.2); color: #007bff; }
+    .status-closed { background: rgba(108, 117, 125, 0.2); color: #6c757d; }
+    
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    
+    .modal {
+      background: #1a1a1a;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 700px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      padding: 20px 25px;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-header h2 {
+      color: #D4AF37;
+      font-size: 1.3rem;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    .modal-close:hover { color: #fff; }
+    
+    .modal-body {
+      padding: 25px;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    
+    .form-group label {
+      display: block;
+      color: #999;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #D4AF37;
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    .form-group .hint {
+      color: #666;
+      font-size: 0.75rem;
+      margin-top: 4px;
+    }
+    
+    .modal-footer {
+      padding: 20px 25px;
+      border-top: 1px solid #333;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+    
+    .empty-state h3 {
+      color: #999;
+      margin-bottom: 10px;
+    }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #666;
+    }
+    
+    /* Alert messages */
+    .alert {
+      padding: 12px 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .alert-success {
+      background: rgba(40, 167, 69, 0.1);
+      border: 1px solid rgba(40, 167, 69, 0.3);
+      color: #28a745;
+    }
+    
+    .alert-error {
+      background: rgba(220, 53, 69, 0.1);
+      border: 1px solid rgba(220, 53, 69, 0.3);
+      color: #dc3545;
+    }
+    
+    /* Responsive */
+    @media (max-width: 900px) {
+      .form-row { grid-template-columns: 1fr; }
+      
+      table { font-size: 0.85rem; }
+      th, td { padding: 10px; }
+      
+      .hide-mobile { display: none; }
+    }
+    
+    @media (max-width: 600px) {
+      main { padding: 15px; }
+      .page-header { flex-direction: column; gap: 15px; align-items: flex-start; }
+      .filters { flex-direction: column; }
+      .filters select { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">
+      <img src="/logo.png" alt="VERGO Events">
+    </a>
+    <div class="header-nav">
+      <a href="admin.html">Applications</a>
+      <a href="admin-jobs.html" class="active">Jobs</a>
+      <a href="index.html">View Site</a>
+      <button onclick="logout()" class="btn btn-secondary btn-small">Logout</button>
+    </div>
+  </header>
+  
+  <main>
+    <div id="alert-container"></div>
+    
+    <div class="page-header">
+      <h1>Manage Jobs</h1>
+      <button onclick="openCreateModal()" class="btn btn-primary">+ Add Job</button>
+    </div>
+    
+    <div class="filters">
+      <select id="filter-status" onchange="loadJobs()">
+        <option value="">All Statuses</option>
+        <option value="DRAFT">Draft</option>
+        <option value="OPEN">Open</option>
+        <option value="FILLED">Filled</option>
+        <option value="CLOSED">Closed</option>
+      </select>
+      <select id="filter-type" onchange="loadJobs()">
+        <option value="">All Types</option>
+        <option value="INTERNAL">VERGO Jobs</option>
+        <option value="EXTERNAL">External Jobs</option>
+      </select>
+    </div>
+    
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Job</th>
+            <th>Company</th>
+            <th>Date</th>
+            <th>Pay</th>
+            <th>Apps</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="jobs-table">
+          <tr><td colspan="7" class="loading">Loading jobs...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+  
+  <!-- Create/Edit Modal -->
+  <div id="job-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">Add New Job</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="job-form" onsubmit="saveJob(event)">
+        <div class="modal-body">
+          <div id="form-alert"></div>
+          
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label>Job Title *</label>
+              <input type="text" name="title" required placeholder="e.g. Bartender - Corporate Event">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Role *</label>
+              <select name="roleId" required id="role-select">
+                <option value="">Select role...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Type *</label>
+              <select name="type" required>
+                <option value="EXTERNAL">External (Other Company)</option>
+                <option value="INTERNAL">Internal (VERGO)</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Company Name</label>
+              <input type="text" name="companyName" placeholder="e.g. Compass Group">
+              <p class="hint">Leave blank for VERGO jobs</p>
+            </div>
+            <div class="form-group">
+              <label>External Apply URL</label>
+              <input type="url" name="externalUrl" placeholder="https://...">
+              <p class="hint">If they apply elsewhere</p>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Location *</label>
+              <input type="text" name="location" required placeholder="e.g. Central London">
+            </div>
+            <div class="form-group">
+              <label>Venue</label>
+              <input type="text" name="venue" placeholder="e.g. The Savoy">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Event Date</label>
+              <input type="date" name="eventDate">
+            </div>
+            <div class="form-group">
+              <label>End Date (if multi-day)</label>
+              <input type="date" name="eventEndDate">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Shift Start</label>
+              <input type="time" name="shiftStart">
+            </div>
+            <div class="form-group">
+              <label>Shift End</label>
+              <input type="time" name="shiftEnd">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Pay Rate (£)</label>
+              <input type="number" name="payRate" step="0.01" min="0" placeholder="e.g. 15.00">
+            </div>
+            <div class="form-group">
+              <label>Pay Type</label>
+              <select name="payType">
+                <option value="HOURLY">Per Hour</option>
+                <option value="DAILY">Per Day</option>
+                <option value="FIXED">Fixed Fee</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Staff Needed</label>
+              <input type="number" name="staffNeeded" min="1" value="1">
+            </div>
+            <div class="form-group">
+              <label>Status *</label>
+              <select name="status" required>
+                <option value="DRAFT">Draft (hidden)</option>
+                <option value="OPEN">Open (visible)</option>
+                <option value="FILLED">Filled</option>
+                <option value="CLOSED">Closed</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group full-width">
+            <label>Description *</label>
+            <textarea name="description" required rows="4" placeholder="Describe the job, duties, what to expect..."></textarea>
+          </div>
+          
+          <div class="form-group full-width">
+            <label>Requirements</label>
+            <textarea name="requirements" rows="3" placeholder="Experience needed, certifications, dress code..."></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>Application Deadline</label>
+            <input type="date" name="closingDate">
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">Save Job</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    let jobs = [];
+    let roles = [];
+    let editingId = null;
+    
+    // Check admin auth
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/v1/auth/session');
+        const data = await res.json();
+        if (!data.authenticated) {
+          window.location.href = 'login.html';
+        }
+      } catch (err) {
+        window.location.href = 'login.html';
+      }
+    }
+    
+    // Load roles
+    async function loadRoles() {
+      try {
+        const res = await fetch('/api/v1/jobs/meta/roles');
+        roles = await res.json();
+        
+        const select = document.getElementById('role-select');
+        select.innerHTML = '<option value="">Select role...</option>';
+        roles.forEach(role => {
+          select.innerHTML += `<option value="${role.id}">${escapeHtml(role.name)}</option>`;
+        });
+        
+        if (roles.length === 0) {
+          showAlert('No roles found. Please seed your roles first.', 'error');
+        }
+      } catch (err) {
+        console.error('Failed to load roles:', err);
+      }
+    }
+    
+    // Load jobs
+    async function loadJobs() {
+      const status = document.getElementById('filter-status').value;
+      const type = document.getElementById('filter-type').value;
+      
+      const params = new URLSearchParams({ limit: 50 });
+      if (status) params.append('status', status);
+      if (type) params.append('type', type);
+      
+      try {
+        const res = await fetch(`/api/v1/jobs/admin/all?${params}`);
+        const data = await res.json();
+        jobs = data.jobs || [];
+        renderTable();
+      } catch (err) {
+        console.error('Failed to load jobs:', err);
+        document.getElementById('jobs-table').innerHTML = '<tr><td colspan="7" class="empty-state">Failed to load jobs</td></tr>';
+      }
+    }
+    
+    // Render table
+    function renderTable() {
+      const tbody = document.getElementById('jobs-table');
+      
+      if (jobs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><h3>No jobs yet</h3><p>Click "Add Job" to create your first listing</p></td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = jobs.map(job => {
+        const date = job.eventDate 
+          ? new Date(job.eventDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+          : '-';
+        
+        const pay = job.payRate 
+          ? `£${Number(job.payRate).toFixed(0)}/${job.payType === 'HOURLY' ? 'hr' : job.payType === 'DAILY' ? 'day' : 'fixed'}`
+          : '-';
+        
+        const company = job.companyName || 'VERGO';
+        const apps = job._count?.applications || 0;
+        
+        return `
+          <tr>
+            <td class="job-title-cell">
+              <strong>${escapeHtml(job.title)}</strong>
+              <span>${escapeHtml(job.role?.name || '')}</span>
+            </td>
+            <td>${escapeHtml(company)}</td>
+            <td>${date}</td>
+            <td>${pay}</td>
+            <td>${apps}</td>
+            <td><span class="status status-${job.status.toLowerCase()}">${job.status}</span></td>
+            <td class="actions">
+              <button onclick="editJob('${job.id}')" class="btn btn-secondary btn-small">Edit</button>
+              <button onclick="deleteJob('${job.id}')" class="btn btn-danger btn-small">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+    
+    // Open create modal
+    function openCreateModal() {
+      editingId = null;
+      document.getElementById('modal-title').textContent = 'Add New Job';
+      document.getElementById('job-form').reset();
+      document.getElementById('form-alert').innerHTML = '';
+      document.getElementById('job-modal').style.display = 'flex';
+    }
+    
+    // Edit job
+    async function editJob(id) {
+      try {
+        const res = await fetch(`/api/v1/jobs/admin/${id}`);
+        if (!res.ok) throw new Error('Failed to load job');
+        
+        const job = await res.json();
+        editingId = id;
+        
+        document.getElementById('modal-title').textContent = 'Edit Job';
+        document.getElementById('form-alert').innerHTML = '';
+        
+        const form = document.getElementById('job-form');
+        form.title.value = job.title || '';
+        form.roleId.value = job.roleId || '';
+        form.type.value = job.type || 'EXTERNAL';
+        form.companyName.value = job.companyName || '';
+        form.externalUrl.value = job.externalUrl || '';
+        form.location.value = job.location || '';
+        form.venue.value = job.venue || '';
+        form.eventDate.value = job.eventDate ? job.eventDate.split('T')[0] : '';
+        form.eventEndDate.value = job.eventEndDate ? job.eventEndDate.split('T')[0] : '';
+        form.shiftStart.value = job.shiftStart || '';
+        form.shiftEnd.value = job.shiftEnd || '';
+        form.payRate.value = job.payRate || '';
+        form.payType.value = job.payType || 'HOURLY';
+        form.staffNeeded.value = job.staffNeeded || 1;
+        form.status.value = job.status || 'DRAFT';
+        form.description.value = job.description || '';
+        form.requirements.value = job.requirements || '';
+        form.closingDate.value = job.closingDate ? job.closingDate.split('T')[0] : '';
+        
+        document.getElementById('job-modal').style.display = 'flex';
+      } catch (err) {
+        showAlert('Failed to load job', 'error');
+      }
+    }
+    
+    // Close modal
+    function closeModal() {
+      document.getElementById('job-modal').style.display = 'none';
+      editingId = null;
+    }
+    
+    // Save job
+    async function saveJob(e) {
+      e.preventDefault();
+      
+      const form = e.target;
+      const btn = document.getElementById('save-btn');
+      const formAlert = document.getElementById('form-alert');
+      
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      formAlert.innerHTML = '';
+      
+      const data = {
+        title: form.title.value.trim(),
+        roleId: form.roleId.value,
+        type: form.type.value,
+        companyName: form.companyName.value.trim() || undefined,
+        externalUrl: form.externalUrl.value.trim() || undefined,
+        location: form.location.value.trim(),
+        venue: form.venue.value.trim() || undefined,
+        eventDate: form.eventDate.value || undefined,
+        eventEndDate: form.eventEndDate.value || undefined,
+        shiftStart: form.shiftStart.value || undefined,
+        shiftEnd: form.shiftEnd.value || undefined,
+        payRate: form.payRate.value ? parseFloat(form.payRate.value) : undefined,
+        payType: form.payType.value,
+        staffNeeded: parseInt(form.staffNeeded.value) || 1,
+        status: form.status.value,
+        description: form.description.value.trim(),
+        requirements: form.requirements.value.trim() || undefined,
+        closingDate: form.closingDate.value || undefined
+      };
+      
+      try {
+        const url = editingId ? `/api/v1/jobs/${editingId}` : '/api/v1/jobs';
+        const method = editingId ? 'PATCH' : 'POST';
+        
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(result.error || 'Failed to save job');
+        }
+        
+        closeModal();
+        showAlert(editingId ? 'Job updated successfully' : 'Job created successfully', 'success');
+        loadJobs();
+        
+      } catch (err) {
+        formAlert.innerHTML = `<div class="alert alert-error">${escapeHtml(err.message)}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save Job';
+      }
+    }
+    
+    // Delete job
+    async function deleteJob(id) {
+      if (!confirm('Are you sure you want to delete this job? This cannot be undone.')) return;
+      
+      try {
+        const res = await fetch(`/api/v1/jobs/${id}`, { method: 'DELETE' });
+        
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Failed to delete');
+        }
+        
+        showAlert('Job deleted', 'success');
+        loadJobs();
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+    
+    // Show alert
+    function showAlert(message, type) {
+      const container = document.getElementById('alert-container');
+      container.innerHTML = `<div class="alert alert-${type}">${escapeHtml(message)}</div>`;
+      setTimeout(() => { container.innerHTML = ''; }, 5000);
+    }
+    
+    // Logout
+    async function logout() {
+      await fetch('/api/v1/auth/logout', { method: 'POST' });
+      window.location.href = 'login.html';
+    }
+    
+    // Escape HTML
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    
+    // Close modal on backdrop click
+    document.getElementById('job-modal').addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-backdrop')) closeModal();
+    });
+    
+    // Close modal on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+    
+    // Init
+    checkAuth();
+    loadRoles();
+    loadJobs();
+  </script>
+</body>
+</html>

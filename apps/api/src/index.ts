@@ -9,6 +9,10 @@ import applications from './routes/applications';
 import { adminAuth } from './middleware/adminAuth';
 import auth from './routes/auth';
 import contact from './routes/contact';
+import userAuth from './routes/userAuth';
+import jobs from './routes/jobs';
+import jobApplications from './routes/jobApplications';
+
 
 const app = express();
 app.disable('x-powered-by');
@@ -17,6 +21,7 @@ app.disable('x-powered-by');
 if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
+// Security headers
 
 // Security headers
 app.use(helmet({ contentSecurityPolicy: false }));
@@ -64,11 +69,15 @@ app.use('/api/v1/auth', auth);
 // Contact form endpoints
 app.use('/api/v1/contact', contact);
 
+app.use('/api/v1/jobs', jobs);
+
 // Protect admin.html BEFORE static middleware
 app.get('/admin.html', adminAuth, (req, res) => {
   const pub = path.join(process.cwd(), 'public');
   res.sendFile(path.join(pub, 'admin.html'));
 });
+
+app.use('/api/v1/user', userAuth);
 
 // Applications API
 app.use('/api/v1/applications', applications);
@@ -80,10 +89,13 @@ app.get('/', (_, res) => res.redirect('/index.html'));
 const pub = path.join(process.cwd(), 'public');
 app.use(express.static(pub, { extensions: ['html'] }));
 
+app.use('/api/v1/job-applications', jobApplications);
+
 // 404 handler (after static)
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
+
 
 // Error handler (must be last)
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

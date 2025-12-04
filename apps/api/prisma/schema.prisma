@@ -7,25 +7,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ============================================
+// EXISTING MODELS (updated with relations)
+// ============================================
+
 model Applicant {
-  id            String   @id @default(cuid())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id            String        @id @default(cuid())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   firstName     String
   lastName      String
-  email         String   @unique
+  email         String        @unique
   phone         String?
   rightToWorkUk Boolean?
-  // REMOVED: roles field
   applications  Application[]
+  
+  // NEW: Link to user account (if they register)
+  user          User?
 }
 
 model Role {
   id           String            @id @default(cuid())
   name         String            @unique
-  applications ApplicationRole[] // CHANGED: now points to ApplicationRole
+  applications ApplicationRole[]
+  
+  // NEW: Jobs for this role
+  jobs         Job[]
 }
-
 
 model ApplicationRole {
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
@@ -47,7 +55,7 @@ model Application {
   source         String?
   applicant      Applicant         @relation(fields: [applicantId], references: [id])
   applicantId    String
-  roles          ApplicationRole[] // NEW: roles now belong to application
+  roles          ApplicationRole[]
 
   @@index([status, createdAt])
 }
@@ -65,8 +73,6 @@ model AdminUser {
   username       String    @unique
   password       String
   createdAt      DateTime  @default(now())
-  
-  // Security fields
   failedAttempts Int       @default(0)
   lockedUntil    DateTime?
   
@@ -83,4 +89,171 @@ model FileUploadVerification {
   
   @@index([key])
   @@index([expiresAt])
+}
+
+// ============================================
+// NEW: JOB BOARD MODELS
+// ============================================
+
+// User accounts for job seekers
+model User {
+  id              String           @id @default(cuid())
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  
+  // Auth
+  email           String           @unique
+  passwordHash    String
+  emailVerified   Boolean          @default(false)
+  verifyToken     String?          // For email verification
+  verifyTokenExp  DateTime?        // Verification token expiry
+  resetToken      String?          // For password reset
+  resetTokenExp   DateTime?
+  
+  // Profile
+  firstName       String
+  lastName        String
+  phone           String?
+  
+  // Link to VERGO roster (if they've applied to join your team)
+  applicantId     String?          @unique
+  applicant       Applicant?       @relation(fields: [applicantId], references: [id])
+  
+  // Security
+  failedAttempts  Int              @default(0)
+  lockedUntil     DateTime?
+  lastLoginAt     DateTime?
+  
+  // Relations
+  jobApplications JobApplication[]
+  savedJobs       SavedJob[]
+  
+  @@index([email])
+}
+
+// Job listings
+model Job {
+  id            String        @id @default(cuid())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  // Core info
+  title         String
+  description   String        @db.Text
+  requirements  String?       @db.Text  // What you need from applicants
+  
+  // Type & Status
+  type          JobType       @default(INTERNAL)
+  status        JobStatus     @default(DRAFT)
+  
+  // Location
+  location      String        // e.g. "Central London", "O2 Arena"
+  venue         String?       // Specific venue name
+  
+  // Compensation
+  payRate       Decimal?      @db.Decimal(10, 2)
+  payType       PayType       @default(HOURLY)
+  
+  // Event/Shift details (primarily for INTERNAL jobs)
+  eventDate     DateTime?
+  eventEndDate  DateTime?     // For multi-day events
+  shiftStart    String?       // e.g. "18:00"
+  shiftEnd      String?       // e.g. "02:00"
+  
+  // Staffing
+  staffNeeded   Int           @default(1)
+  staffConfirmed Int          @default(0)
+  
+  // For external jobs
+  companyName   String?
+  externalUrl   String?       // Link to apply externally
+  
+  // Publishing
+  publishedAt   DateTime?
+  closingDate   DateTime?
+  
+  // Role required
+  roleId        String
+  role          Role          @relation(fields: [roleId], references: [id])
+  
+  // Relations
+  applications  JobApplication[]
+  savedBy       SavedJob[]
+  
+  @@index([status, type])
+  @@index([roleId])
+  @@index([eventDate])
+  @@index([publishedAt])
+}
+
+// When a user applies to a job
+model JobApplication {
+  id            String               @id @default(cuid())
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  
+  status        JobApplicationStatus @default(PENDING)
+  
+  // Optional message from applicant
+  coverNote     String?              @db.Text
+  
+  // Admin notes (internal)
+  adminNotes    String?              @db.Text
+  
+  // Relations
+  userId        String
+  user          User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  jobId         String
+  job           Job                  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  // Prevent duplicate applications
+  @@unique([userId, jobId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Saved/bookmarked jobs
+model SavedJob {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, jobId])
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum JobType {
+  INTERNAL    // Your VERGO gigs
+  EXTERNAL    // Aggregated/partner jobs
+}
+
+enum JobStatus {
+  DRAFT       // Not visible to users
+  OPEN        // Accepting applications
+  FILLED      // All positions filled
+  CLOSED      // Manually closed/cancelled
+}
+
+enum PayType {
+  HOURLY
+  DAILY
+  FIXED       // Fixed fee for the gig
+}
+
+enum JobApplicationStatus {
+  PENDING     // Awaiting review
+  REVIEWED    // Admin has seen it
+  SHORTLISTED // Being considered
+  CONFIRMED   // Got the job
+  REJECTED    // Not selected
+  WITHDRAWN   // User cancelled
 }

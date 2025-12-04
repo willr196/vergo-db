@@ -337,3 +337,190 @@ export async function sendApplicationConfirmationToApplicant(data: {
     console.warn('[EMAIL] Continuing despite confirmation email failure');
   }
 }
+// ============================================
+// ADD THESE FUNCTIONS TO YOUR EXISTING email.ts
+// ============================================
+
+// Send email verification to new users
+export async function sendUserVerificationEmail(data: {
+  to: string;
+  name: string;
+  token: string;
+}) {
+  try {
+    const verifyUrl = `${env.webOrigin}/api/v1/user/verify-email?token=${data.token}`;
+    
+    const result = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: data.to,
+      subject: '✅ Verify your VERGO Events account',
+      tags: [
+        { name: 'category', value: 'user-verification' },
+        { name: 'source', value: 'website' }
+      ],
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: #D4AF37; padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">VERGO Events</h1>
+          </div>
+          
+          <div style="padding: 30px; background: #f9f9f9;">
+            <h2 style="color: #2c3e2f; margin-top: 0;">Welcome, ${data.name}!</h2>
+            
+            <p>Thanks for creating an account with VERGO Events. Please verify your email address to get started.</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verifyUrl}" style="display: inline-block; padding: 15px 40px; background: #D4AF37; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                Verify Email Address
+              </a>
+            </div>
+            
+            <p style="color: #666; font-size: 14px;">Or copy this link into your browser:</p>
+            <p style="color: #666; font-size: 12px; word-break: break-all; background: #fff; padding: 10px; border-radius: 4px;">${verifyUrl}</p>
+            
+            <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+              <p style="margin: 0; font-size: 14px;">This link will expire in 24 hours. If you didn't create an account, you can ignore this email.</p>
+            </div>
+          </div>
+          
+          <div style="padding: 20px; text-align: center; color: #666; font-size: 12px; background: #f0f0f0;">
+            <p style="margin: 0;">VERGO Events Ltd | London, United Kingdom</p>
+          </div>
+        </div>
+      `
+    });
+    
+    console.log('[EMAIL] User verification sent:', result);
+    return result;
+  } catch (error) {
+    console.error('[EMAIL ERROR] User verification failed:', error);
+    throw error;
+  }
+}
+
+// Send password reset email
+export async function sendPasswordResetEmail(data: {
+  to: string;
+  name: string;
+  token: string;
+}) {
+  try {
+    const resetUrl = `${env.webOrigin}/reset-password.html?token=${data.token}`;
+    
+    const result = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: data.to,
+      subject: '🔐 Reset your VERGO Events password',
+      tags: [
+        { name: 'category', value: 'password-reset' },
+        { name: 'source', value: 'website' }
+      ],
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: #D4AF37; padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">VERGO Events</h1>
+          </div>
+          
+          <div style="padding: 30px; background: #f9f9f9;">
+            <h2 style="color: #2c3e2f; margin-top: 0;">Password Reset Request</h2>
+            
+            <p>Hi ${data.name},</p>
+            
+            <p>We received a request to reset your password. Click the button below to create a new password:</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" style="display: inline-block; padding: 15px 40px; background: #D4AF37; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                Reset Password
+              </a>
+            </div>
+            
+            <p style="color: #666; font-size: 14px;">Or copy this link into your browser:</p>
+            <p style="color: #666; font-size: 12px; word-break: break-all; background: #fff; padding: 10px; border-radius: 4px;">${resetUrl}</p>
+            
+            <div style="margin-top: 30px; padding: 20px; background: #f8d7da; border-left: 4px solid #dc3545; border-radius: 4px;">
+              <p style="margin: 0; font-size: 14px;"><strong>⏰ This link expires in 1 hour.</strong></p>
+              <p style="margin: 10px 0 0 0; font-size: 14px;">If you didn't request this reset, please ignore this email or contact us if you're concerned about your account security.</p>
+            </div>
+          </div>
+          
+          <div style="padding: 20px; text-align: center; color: #666; font-size: 12px; background: #f0f0f0;">
+            <p style="margin: 0;">VERGO Events Ltd | London, United Kingdom</p>
+          </div>
+        </div>
+      `
+    });
+    
+    console.log('[EMAIL] Password reset sent:', result);
+    return result;
+  } catch (error) {
+    console.error('[EMAIL ERROR] Password reset failed:', error);
+    throw error;
+  }
+}
+// Notify admin of new job application
+export async function sendJobApplicationNotification(data: {
+  jobTitle: string;
+  applicantName: string;
+  applicantEmail: string;
+  applicationId: string;
+}) {
+  return resend.emails.send({
+    from: FROM_EMAIL,
+    to: TO_EMAIL,
+    subject: `📋 New Job Application - ${data.jobTitle}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #D4AF37; padding: 20px; text-align: center;">
+          <h1 style="color: white; margin: 0;">VERGO Events</h1>
+        </div>
+        <div style="padding: 30px; background: #f9f9f9;">
+          <h2 style="color: #2c3e2f;">📋 New Job Application</h2>
+          <div style="background: white; padding: 20px; border-radius: 8px;">
+            <p><strong>Job:</strong> ${data.jobTitle}</p>
+            <p><strong>Applicant:</strong> ${data.applicantName}</p>
+            <p><strong>Email:</strong> ${data.applicantEmail}</p>
+          </div>
+          <div style="text-align: center; margin-top: 20px;">
+            <a href="${env.webOrigin}/admin.html" style="padding: 15px 30px; background: #D4AF37; color: white; text-decoration: none; border-radius: 8px;">View in Admin</a>
+          </div>
+        </div>
+      </div>
+    `
+  });
+}
+
+// Confirm to user
+export async function sendJobApplicationConfirmation(data: {
+  to: string;
+  name: string;
+  jobTitle: string;
+  eventDate: Date | null;
+  location: string;
+}) {
+  const dateStr = data.eventDate 
+    ? new Date(data.eventDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    : 'TBC';
+  
+  return resend.emails.send({
+    from: FROM_EMAIL,
+    to: data.to,
+    subject: `✅ Application Received - ${data.jobTitle}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #D4AF37; padding: 20px; text-align: center;">
+          <h1 style="color: white; margin: 0;">VERGO Events</h1>
+        </div>
+        <div style="padding: 30px; background: #f9f9f9;">
+          <h2 style="color: #2c3e2f;">Application Received!</h2>
+          <p>Hi ${data.name},</p>
+          <p>We've received your application for:</p>
+          <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #D4AF37; margin: 20px 0;">
+            <p style="margin: 0;"><strong>${data.jobTitle}</strong></p>
+            <p style="margin: 5px 0 0; color: #666;">📍 ${data.location} • 📅 ${dateStr}</p>
+          </div>
+          <p>We'll be in touch within 48 hours if you're selected.</p>
+        </div>
+      </div>
+    `
+  });
+}
