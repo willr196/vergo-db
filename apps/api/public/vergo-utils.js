@@ -13,27 +13,8 @@ const CSRF = {
   
   // Get CSRF token from storage or fetch from server
   async getToken() {
-    let token = sessionStorage.getItem(this.TOKEN_STORAGE_KEY);
-    
-    if (!token) {
-      try {
-        const response = await fetch('/api/v1/csrf-token', {
-          credentials: 'include'
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          token = data.token;
-          sessionStorage.setItem(this.TOKEN_STORAGE_KEY, token);
-        }
-      } catch (error) {
-        console.error('Failed to fetch CSRF token:', error);
-        return null;
-      }
-    }
-    
-    return token;
-  },
+  return 'not-used'; // CSRF handled by SameSite cookies
+},
   
   // Add CSRF token to fetch options
   async addToFetch(options = {}) {
