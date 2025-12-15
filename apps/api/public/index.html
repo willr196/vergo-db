@@ -18,8 +18,252 @@
   <!-- Accessibility -->
   <link rel="stylesheet" href="/vergo-a11y.css">
   <link rel="stylesheet" href="/vergo-styles.css">
+  <link rel="stylesheet" href="/vergo-mobile.css">
   
   <style>
+    /* ============================================
+     * STANDARD HEADER & NAV STYLES
+     * ============================================ */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 10, 0.98);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    
+    .logo img {
+      height: 45px;
+      width: auto;
+      transition: transform 0.3s ease;
+      border: none !important;
+      background: transparent !important;
+      display: block;
+    }
+    
+    .logo:hover img {
+      transform: scale(1.05);
+    }
+    
+    nav ul {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    
+    nav li {
+      position: relative;
+    }
+    
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      position: relative;
+      display: block;
+      padding: 8px 0;
+    }
+    
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #D4AF37;
+      transition: width 0.3s ease;
+    }
+    
+    nav a:hover {
+      color: #D4AF37;
+    }
+    
+    nav a:hover::after {
+      width: 100%;
+    }
+    
+    nav a[aria-current="page"] {
+      color: #D4AF37;
+    }
+    
+    nav a[aria-current="page"]::after {
+      width: 100%;
+    }
+    
+    /* Dropdown Styles */
+    .nav-dropdown {
+      position: relative;
+    }
+    
+    .nav-dropdown > a {
+      cursor: pointer;
+    }
+    
+    .nav-dropdown > a::before {
+      content: '▼';
+      font-size: 0.6rem;
+      margin-left: 5px;
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+    
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: rgba(10, 10, 10, 0.98);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 4px;
+      min-width: 180px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      margin-top: 5px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      padding: 0;
+    }
+    
+    .nav-dropdown:hover .dropdown-menu,
+    .nav-dropdown.active .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .nav-dropdown.active > a::before {
+      transform: rotate(180deg);
+    }
+    
+    .dropdown-menu li {
+      list-style: none;
+    }
+    
+    .dropdown-menu a {
+      padding: 12px 18px;
+      display: block;
+      color: #ffffff;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+      font-size: 0.85rem;
+    }
+    
+    .dropdown-menu a::after {
+      display: none;
+    }
+    
+    .dropdown-menu li:last-child a {
+      border-bottom: none;
+    }
+    
+    .dropdown-menu a:hover {
+      background: rgba(212, 175, 55, 0.1);
+      color: #D4AF37;
+    }
+    
+    /* Mobile Menu Toggle */
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 8px;
+    }
+    
+    .menu-toggle span {
+      width: 24px;
+      height: 2px;
+      background: #D4AF37;
+      transition: all 0.3s ease;
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 900px) {
+      header {
+        padding: 12px 20px;
+      }
+      
+      .logo img {
+        height: 38px;
+      }
+      
+      nav ul {
+        position: fixed;
+        top: 65px;
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 10, 0.98);
+        flex-direction: column;
+        padding: 20px;
+        gap: 0;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      }
+      
+      nav ul.active {
+        transform: translateX(0);
+      }
+      
+      nav li {
+        border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+      }
+      
+      nav li:last-child {
+        border-bottom: none;
+      }
+      
+      nav a {
+        padding: 15px 10px;
+      }
+      
+      .menu-toggle {
+        display: flex;
+      }
+      
+      /* Mobile dropdown */
+      .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        margin: 0;
+        padding-left: 15px;
+        display: none;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+      }
+      
+      .nav-dropdown.active .dropdown-menu {
+        display: block;
+      }
+      
+      .dropdown-menu a {
+        padding: 12px 10px;
+        border-bottom: none;
+      }
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -460,18 +704,12 @@
   <a href="#main-content" class="skip-link">Skip to main content</a>
   
   <!-- Header Navigation -->
-  <header role="banner">
+    <header role="banner">
     <a href="index.html" class="logo" aria-label="VERGO Events Home">
       <img src="/logo.png" alt="VERGO Events Logo">
     </a>
     
-    <button 
-      class="menu-toggle" 
-      onclick="toggleMenu()"
-      aria-label="Toggle navigation menu"
-      aria-expanded="false"
-      aria-controls="nav-menu"
-    >
+    <button class="menu-toggle" onclick="toggleMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">
       <span></span>
       <span></span>
       <span></span>
@@ -487,11 +725,11 @@
             <li><a href="hire-us.html" role="menuitem">Event Management</a></li>
           </ul>
         </li>
-        <li><a href="jobs.html">Jobs</a></li>
-        <li><a href="apply.html">Apply</a></li>
-        <li><a href="about.html#my-story">My Story</a></li>
+        <li><a href="jobs.html">Job Board</a></li>
+        <li><a href="apply.html">Join VERGO</a></li>
+        <li><a href="about.html">About</a></li>
         <li><a href="faq.html">FAQ</a></li>
-            <li><a href="contact.html">Contact</a></li>
+        <li><a href="contact.html">Contact</a></li>
       </ul>
     </nav>
   </header>
@@ -500,28 +738,18 @@
   <!-- Hero Section -->
   <section class="hero-section" id="main-content">
     <div class="hero-content">
-      <!-- Centered Logo -->
-      <div style="text-align: center; margin-bottom: 40px;">
-        <img src="logo.png" alt="VERGO Events" style="height: 180px; width: auto; max-width: 100%; margin: 0 auto; display: block; border: none; background: transparent;">
-
-      </div>
-      
-      <div class="hero-badge">Founding Client Specials Available</div>
-      <h1 class="hero-title">Event Chefs & Premium Event Staff in London</h1>
-
-      
-      <div class="hero-cta-group">
-        <a href="contact.html" class="cta-button">Get Your Quote</a>
-        <a href="hire-staff.html" class="cta-button cta-button-secondary">View Roles</a>
-      </div>
-      
-      <!-- Trust Bar -->
-      <div style="margin-top: 50px; padding-top: 40px; border-top: 1px solid rgba(212, 175, 55, 0.2);">
-        <p style="color: #999; font-size: 0.9rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">Experience with:</p>
-        <p style="color: #D4AF37; font-size: 1rem; line-height: 1.8;">Private dining • Corporate events • Festivals • Production sets • Brand activations</p>
-      </div>
+    <!-- Centered Logo -->
+    <div style="text-align: center; margin-bottom: 40px;">
+    <img src="logo.png" alt="VERGO Events" style="height: 180px; width: auto; max-width: 100%; margin: 0 auto; display: block; border: none; background: transparent;">
     </div>
-  </section>
+    <h1 class="hero-title">Event Chefs & Premium Event Staff in London</h1>
+    <p style="color: #D4AF37; font-size: 1.1rem; margin: 20px 0 30px 0; font-weight: 500;">DBS Checked • Fully Insured • 8+ Years Experience</p>
+    <div class="hero-cta-group">
+    <a href="contact.html" class="cta-button">Get Your Quote</a>
+    <a href="hire-staff.html" class="cta-button cta-button-secondary">View Roles</a>
+    </div>
+    </div>
+    </section>
 
     <!-- SEO Intro Section -->
   <section style="background:#000; padding:50px 20px; border-bottom:1px solid rgba(212, 175, 55, 0.2);">
@@ -614,6 +842,7 @@
   </main>
 
   <!-- Footer -->
+    <!-- Footer -->
   <footer role="contentinfo">
     <div class="footer-content">
       <div class="footer-column">
@@ -638,8 +867,8 @@
       
       <div class="footer-column">
         <h3>Contact Founder</h3>
-        <p><strong>Direct:</strong> +44 7944 505 783</p>
-        <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="93e4e1fcf1f1d3e5f6e1f4fcffe7f7bdf0fcfe">[email&#160;protected]</a></p>
+        <p><strong>Direct:</strong> <a href="tel:+447944505783" style="color: #999;">+44 7944 505 783</a></p>
+        <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection#ee999c818c8cae988b9c8981829a8ac08d8183" style="color: #999;"><span class="__cf_email__" data-cfemail="0473766b666644726176636b6870602a676b69">[email&#160;protected]</span></a></p>
         <p><strong>Location:</strong> London, UK</p>
       </div>
     </div>
@@ -653,7 +882,7 @@
     </div>
   </footer>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/vergo-utils.js"></script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/vergo-utils.js"></script>
   <script>
     // Mobile menu toggle
     function toggleMenu() {
@@ -717,15 +946,4 @@
   "name": "VERGO Events Ltd",
   "url": "https://vergoltd.com",
   "image": "https://vergoltd.com/logo.png",
-  "description": "VERGO is a London-based hospitality staffing agency supplying event chefs, kitchen porters, bartenders and front of house staff for private, corporate and production events.",
-  "telephone": "+44 7944 505 783",
-  "address": {
-    "@type": "PostalAddress",
-    "addressLocality": "London",
-    "addressCountry": "GB"
-  }
-}
-</script>
-
-</body>
-</html>
+  "description": "VERGO is a London-based hospitality staffing agency supplying event chefs, kitchen porters, bartenders and 
