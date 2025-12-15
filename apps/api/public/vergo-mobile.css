@@ -1,0 +1,426 @@
+/**
+ * VERGO Events - Mobile Responsiveness Fixes
+ * Based on mobile audit - fixes navigation, hero, typography, spacing, grids, buttons, footer
+ * Add this AFTER your main stylesheet
+ */
+
+/* ============================================
+ * 1. MOBILE NAVIGATION - Hamburger Menu
+ * ============================================ */
+
+@media (max-width: 900px) {
+  /* Hide desktop navigation */
+  nav ul {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    background: #0a0a0a;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    padding: 20px;
+    gap: 0;
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+  }
+
+  /* Show menu when active */
+  nav ul.active {
+    display: flex;
+  }
+
+  nav ul li {
+    width: 100%;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  }
+
+  nav ul li:last-child {
+    border-bottom: none;
+  }
+
+  nav ul li a {
+    display: block;
+    padding: 15px 20px;
+    width: 100%;
+  }
+
+  /* Show hamburger button */
+  .menu-toggle {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    gap: 5px;
+    padding: 10px;
+  }
+
+  .menu-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #D4AF37;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  /* Hamburger animation when open */
+  .menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+
+  .menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+
+  /* Header needs relative positioning for dropdown */
+  header {
+    position: relative;
+  }
+
+  /* Logo sizing */
+  .logo img {
+    max-height: 40px;
+  }
+}
+
+/* ============================================
+ * 2. HERO SECTIONS - Mobile Sizing
+ * ============================================ */
+
+@media (max-width: 768px) {
+  .hero-section,
+  .hero,
+  .page-hero {
+    padding: 120px 20px 60px;
+    min-height: auto;
+  }
+
+  .hero-title,
+  .hero h1 {
+    font-size: 2.4rem;
+    line-height: 1.2;
+  }
+
+  .hero-badge {
+    font-size: 0.75rem;
+    padding: 8px 16px;
+  }
+
+  .hero-tagline,
+  .hero p {
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section,
+  .hero,
+  .page-hero {
+    padding: 100px 16px 50px;
+  }
+
+  .hero-title,
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero-badge {
+    font-size: 0.7rem;
+    padding: 6px 14px;
+  }
+}
+
+/* ============================================
+ * 3. TYPOGRAPHY - Responsive Scaling
+ * ============================================ */
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2.2rem !important;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 1.8rem !important;
+  }
+
+  h3 {
+    font-size: 1.4rem !important;
+  }
+
+  p, li {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .page-hero h1 {
+    font-size: 2.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.8rem !important;
+  }
+
+  h2 {
+    font-size: 1.5rem !important;
+  }
+
+  h3 {
+    font-size: 1.25rem !important;
+  }
+
+  .page-hero h1 {
+    font-size: 2rem !important;
+  }
+}
+
+/* ============================================
+ * 4. SECTION SPACING - Reduced for Mobile
+ * ============================================ */
+
+@media (max-width: 768px) {
+  .container,
+  .section,
+  section {
+    padding: 60px 24px;
+  }
+
+  .section,
+  section {
+    margin-bottom: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container,
+  .section,
+  section {
+    padding: 50px 16px;
+  }
+
+  .section,
+  section {
+    margin-bottom: 30px;
+  }
+
+  /* Reduce gaps between elements */
+  .section > * + * {
+    margin-top: 1.5rem;
+  }
+}
+
+/* ============================================
+ * 5. GRIDS - Single Column on Mobile
+ * ============================================ */
+
+@media (max-width: 768px) {
+  .services-grid,
+  .roles-grid,
+  .benefits-grid,
+  .team-grid,
+  .features-grid,
+  .cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px;
+  }
+
+  /* Two-column grids go single */
+  .two-column,
+  .split-layout {
+    grid-template-columns: 1fr !important;
+    gap: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .services-grid,
+  .roles-grid,
+  .benefits-grid,
+  .team-grid,
+  .features-grid,
+  .cards-grid {
+    gap: 15px;
+  }
+}
+
+/* ============================================
+ * 6. BUTTONS & CTAs - Full Width Mobile
+ * ============================================ */
+
+@media (max-width: 768px) {
+  .hero-cta,
+  .cta-button,
+  .submit-button,
+  .btn-primary {
+    width: 100%;
+    max-width: 320px;
+    padding: 16px 24px;
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  /* Button groups stack */
+  .button-group,
+  .cta-buttons {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .button-group .btn,
+  .cta-buttons a {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-cta,
+  .cta-button,
+  .submit-button,
+  .btn-primary {
+    padding: 14px 20px;
+    font-size: 0.95rem;
+  }
+}
+
+/* ============================================
+ * 7. FOOTER - Compact Mobile Layout
+ * ============================================ */
+
+@media (max-width: 768px) {
+  footer {
+    padding: 30px 20px 20px;
+    text-align: center;
+  }
+
+  .footer-content,
+  .footer-grid {
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  .footer-links {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .footer-links a {
+    display: block;
+    padding: 8px 0;
+  }
+
+  .footer-social {
+    justify-content: center;
+  }
+
+  .footer-copyright {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+  }
+}
+
+/* ============================================
+ * 8. FORMS - Mobile Optimized
+ * ============================================ */
+
+@media (max-width: 768px) {
+  form {
+    padding: 0 16px;
+  }
+
+  input,
+  textarea,
+  select {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px; /* Prevents iOS zoom */
+  }
+
+  .form-row,
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 15px;
+  }
+
+  label {
+    font-size: 0.9rem;
+  }
+}
+
+/* ============================================
+ * 9. CARDS & BOXES - Mobile Padding
+ * ============================================ */
+
+@media (max-width: 768px) {
+  .card,
+  .service-card,
+  .benefit-card,
+  .role-card {
+    padding: 24px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card,
+  .service-card,
+  .benefit-card,
+  .role-card {
+    padding: 20px 16px;
+  }
+}
+
+/* ============================================
+ * 10. IMAGES - Responsive
+ * ============================================ */
+
+@media (max-width: 768px) {
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .hero-image,
+  .featured-image {
+    margin: 20px 0;
+  }
+}
+
+/* ============================================
+ * 11. UTILITY OVERRIDES
+ * ============================================ */
+
+@media (max-width: 768px) {
+  /* Hide on mobile */
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* Show on mobile */
+  .mobile-only {
+    display: block !important;
+  }
+
+  /* Center text on mobile */
+  .mobile-center {
+    text-align: center;
+  }
+
+  /* Remove horizontal scroll */
+  body {
+    overflow-x: hidden;
+  }
+}
