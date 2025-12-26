@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <title>VERGO — Event Chefs & Hospitality Staffing Agency in London</title>
+  <meta name="description" content="VERGO is a London-based hospitality staffing agency supplying event chefs, kitchen porters, bartenders and front of house staff for private, corporate and production events. Personally vetted staff, premium service and same-day cover available.">
+
+  
+  <!-- Google Search Console Verification -->
+  <meta name="google-site-verification" content="google153cacaf2b1d1296" />
+  
+  <!-- Security Headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+  
+  <!-- Accessibility -->
+  <link rel="stylesheet" href="/vergo-a11y.css">
+  <link rel="stylesheet" href="/vergo-styles.css">
+  <link rel="stylesheet" href="/vergo-mobile.css">
+  
+  <style>
+    /* ============================================
+     * STANDARD HEADER & NAV STYLES
+     * ============================================ */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 10, 0.98);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    
+    .logo img {
+      height: 45px;
+      width: auto;
+      transition: transform 0.3s ease;
+      border: none !important;
+      background: transparent !important;
+      display: block;
+    }
+    
+    .logo:hover img {
+      transform: scale(1.05);
+    }
+    
+    nav ul {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    
+    nav li {
+      position: relative;
+    }
+    
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      position: relative;
+      display: block;
+      padding: 8px 0;
+    }
+    
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #D4AF37;
+      transition: width 0.3s ease;
+    }
+    
+    nav a:hover {
+      color: #D4AF37;
+    }
+    
+    nav a:hover::after {
+      width: 100%;
+    }
+    
+    nav a[aria-current="page"] {
+      color: #D4AF37;
+    }
+    
+    nav a[aria-current="page"]::after {
+      width: 100%;
+    }
+    
+    /* Dropdown Styles */
+    .nav-dropdown {
+      position: relative;
+    }
+    
+    .nav-dropdown > a {
+      cursor: pointer;
+    }
+    
+    .nav-dropdown > a::before {
+      content: '▼';
+      font-size: 0.6rem;
+      margin-left: 5px;
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+    
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: rgba(10, 10, 10, 0.98);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 4px;
+      min-width: 180px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      margin-top: 5px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      padding: 0;
+    }
+    
+    .nav-dropdown:hover .dropdown-menu,
+    .nav-dropdown.active .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .nav-dropdown.active > a::before {
+      transform: rotate(180deg);
+    }
+    
+    .dropdown-menu li {
+      list-style: none;
+    }
+    
+    .dropdown-menu a {
+      padding: 12px 18px;
+      display: block;
+      color: #ffffff;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+      font-size: 0.85rem;
+    }
+    
+    .dropdown-menu a::after {
+      display: none;
+    }
+    
+    .dropdown-menu li:last-child a {
+      border-bottom: none;
+    }
+    
+    .dropdown-menu a:hover {
+      background: rgba(212, 175, 55, 0.1);
+      color: #D4AF37;
+    }
+    
+    /* Mobile Menu Toggle */
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 8px;
+    }
+    
+    .menu-toggle span {
+      width: 24px;
+      height: 2px;
+      background: #D4AF37;
+      transition: all 0.3s ease;
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 900px) {
+      header {
+        padding: 12px 20px;
+      }
+      
+      .logo img {
+        height: 38px;
+      }
+      
+      nav ul {
+        position: fixed;
+        top: 65px;
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 10, 0.98);
+        flex-direction: column;
+        padding: 20px;
+        gap: 0;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      }
+      
+      nav ul.active {
+        transform: translateX(0);
+      }
+      
+      nav li {
+        border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+      }
+      
+      nav li:last-child {
+        border-bottom: none;
+      }
+      
+      nav a {
+        padding: 15px 10px;
+      }
+      
+      .menu-toggle {
+        display: flex;
+      }
+      
+      /* Mobile dropdown */
+      .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        margin: 0;
+        padding-left: 15px;
+        display: none;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+      }
+      
+      .nav-dropdown.active .dropdown-menu {
+        display: block;
+      }
+      
+      .dropdown-menu a {
+        padding: 12px 10px;
+        border-bottom: none;
+      }
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    /* Ensure all images have no borders or backgrounds */
+    img {
+      border: none;
+      background: transparent;
+      max-width: 100%;
+      height: auto;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      overflow-x: hidden;
+      background: #0a0a0a;
+      color: #ffffff;
+    }
+    
+    /* Hero Section */
+    .hero-section {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 40px 80px;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1410 50%, #0a0a0a 100%);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .hero-content {
+      max-width: 900px;
+    }
+    
+    .hero-badge {
+      display: inline-block;
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: #D4AF37;
+      padding: 10px 25px;
+      border-radius: 25px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 30px;
+    }
+    
+    .hero-title {
+      font-size: 3.5rem;
+      color: #ffffff;
+      font-weight: 700;
+      margin-bottom: 25px;
+      line-height: 1.2;
+      letter-spacing: -1px;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.5rem;
+      color: #D4AF37;
+      font-weight: 600;
+      margin-bottom: 30px;
+      line-height: 1.4;
+    }
+    
+    .hero-description {
+      font-size: 1.15rem;
+      color: #cccccc;
+      line-height: 1.8;
+      margin-bottom: 50px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .hero-cta-group {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .cta-button {
+      display: inline-block;
+      padding: 16px 40px;
+      background: #D4AF37;
+      color: #1a1a1a;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      border: 2px solid #D4AF37;
+    }
+    
+    .cta-button:hover {
+      background: transparent;
+      color: #D4AF37;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+    }
+    
+    .cta-button-secondary {
+      background: transparent;
+      color: #D4AF37;
+      border: 2px solid #D4AF37;
+    }
+    
+    .cta-button-secondary:hover {
+      background: #D4AF37;
+      color: #1a1a1a;
+    }
+    
+    /* Credentials Bar */
+    .credentials-bar {
+      background: #1a1a1a;
+      padding: 50px 40px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .credentials-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      text-align: center;
+    }
+    
+    .credential-item {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .credential-number {
+      font-size: 3rem;
+      color: #D4AF37;
+      font-weight: 700;
+      line-height: 1;
+    }
+    
+    .credential-label {
+      font-size: 1rem;
+      color: #999;
+      line-height: 1.5;
+    }
+    
+    /* Footer */
+    footer {
+      background: #0a0a0a;
+      color: #D4AF37;
+      padding: 60px 30px 25px;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    
+    .footer-column h3 {
+      color: #D4AF37;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+    }
+    
+    .footer-column p,
+    .footer-column a {
+      color: #999;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      transition: color 0.3s ease;
+    }
+    
+    .footer-column a:hover {
+      color: #D4AF37;
+    }
+    
+    .footer-bottom {
+      text-align: center;
+      padding-top: 30px;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+      color: #666;
+      font-size: 0.85rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+      nav ul {
+        position: fixed;
+        top: 80px;
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 10, 0.98);
+        flex-direction: column;
+        padding: 30px;
+        gap: 20px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      nav ul.active {
+        transform: translateX(0);
+      }
+      
+      .menu-toggle {
+        display: flex;
+      }
+      
+      /* Mobile dropdown positioning */
+      .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        margin-top: 10px;
+        margin-left: 20px;
+      }
+      
+      .nav-dropdown .dropdown-menu {
+        display: none;
+      }
+      
+      .nav-dropdown.active .dropdown-menu {
+        display: block;
+      }
+      
+      .credentials-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      header {
+        padding: 15px 20px;
+      }
+      
+      .logo img {
+        height: 40px;
+      }
+      
+      .hero-section {
+        padding: 140px 20px 60px;
+      }
+      
+      .hero-title {
+        font-size: 2.2rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 1.2rem;
+      }
+      
+      .credentials-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Skip Link for Accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  
+  <!-- Header Navigation - Will be replaced by vergo-nav.js -->
+  <header></header>
+
+  <main>
+  <!-- Hero Section -->
+  <section class="hero-section" id="main-content">
+    <div class="hero-content">
+    <!-- Centered Logo -->
+    <div style="text-align: center; margin-bottom: 40px;">
+    <img src="logo.png" alt="VERGO Events" style="height: 180px; width: auto; max-width: 100%; margin: 0 auto; display: block; border: none; background: transparent;">
+    </div>
+    <h1 class="hero-title">Event Chefs & Premium Event Staff in London</h1>
+    <p style="color: #D4AF37; font-size: 1.1rem; margin: 20px 0 30px 0; font-weight: 500;">DBS Checked • Fully Insured • 8+ Years Experience</p>
+    <div class="hero-cta-group">
+    <a href="contact.html" class="cta-button">Get Your Quote</a>
+    <a href="hire-staff.html" class="cta-button cta-button-secondary">View Roles</a>
+    </div>
+    </div>
+  </section>
+
+  <!-- SEO Intro Section -->
+  <section style="background:#000; padding:50px 20px; border-bottom:1px solid rgba(212, 175, 55, 0.2);">
+    <div style="max-width:800px; margin:0 auto; text-align:center; color:#ccc; line-height:1.8;">
+      <p>
+        VERGO is a London-based hospitality staffing agency supplying experienced
+        <strong>event chefs, kitchen porters, bartenders, waiters and front of house teams</strong>
+        for private dining, corporate events, festivals, brand activations and production sets.
+        Every staff member is personally vetted for reliability, attitude and professionalism.
+      </p>
+      <p style="margin-top:18px;">
+        Whether you need <strong>same-day cover</strong> for a kitchen or a full team for a planned event,
+        VERGO provides flexible, premium event staffing across London with clear communication and smooth organisation.
+      </p>
+    </div>
+  </section>
+
+
+  <!-- Service Areas -->
+  <section style="background: #0a0a0a; padding: 50px 20px; text-align: center; border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
+    <div style="max-width: 700px; margin: 0 auto;">
+      <h2 style="color: #D4AF37; font-size: 2rem; margin-bottom: 15px; font-weight: 700;">Covering All of London</h2>
+      <p style="color: #cccccc; font-size: 1.1rem; line-height: 1.6;">
+        All boroughs • Greater London • Professional staff deployed across the capital
+      </p>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section style="background: #1a1a1a; padding: 80px 20px;">
+    <div style="max-width: 1100px; margin: 0 auto;">
+      <div style="text-align: center; margin-bottom: 60px;">
+        <h2 style="font-size: 2.5rem; color: #D4AF37; margin-bottom: 15px; font-weight: 700;">What We Do</h2>
+        <p style="font-size: 1.2rem; color: #999;">Three ways we can help your event succeed</p>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease;">
+          <h3 style="font-size: 1.5rem; color: #D4AF37; margin-bottom: 15px;">Hire Event Staff</h3>
+          <p style="color: #cccccc; line-height: 1.7; margin-bottom: 20px;">
+            Bartenders, waiters, chefs, front of house. All DBS-checked and personally vetted.
+          </p>
+          <a href="hire-staff.html" style="color: #D4AF37; text-decoration: none; font-weight: 600; display: block; padding: 10px 0;">View Roles →</a>
+        </div>
+        
+        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease;">
+          <h3 style="font-size: 1.5rem; color: #D4AF37; margin-bottom: 15px;">Event Management</h3>
+          <p style="color: #cccccc; line-height: 1.7; margin-bottom: 20px;">
+            Full-service planning and coordination from concept to execution.
+          </p>
+          <a href="hire-us.html" style="color: #D4AF37; text-decoration: none; font-weight: 600; display: block; padding: 10px 0;">Learn More →</a>
+        </div>
+        
+        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease;">
+          <h3 style="font-size: 1.5rem; color: #D4AF37; margin-bottom: 15px;">Join Our Team</h3>
+          <p style="color: #cccccc; line-height: 1.7; margin-bottom: 20px;">
+            Experienced hospitality professional? Work with premium clients across London.
+          </p>
+          <a href="apply.html" style="color: #D4AF37; text-decoration: none; font-weight: 600; display: block; padding: 10px 0;">Apply Now →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%); padding: 80px 20px; text-align: center; border-top: 1px solid rgba(212, 175, 55, 0.2);">
+    <div style="max-width: 700px; margin: 0 auto;">
+      <h2 style="font-size: 2.5rem; color: #D4AF37; margin-bottom: 20px; font-weight: 700;">Ready to Staff Your Event?</h2>
+      <p style="font-size: 1.2rem; color: #cccccc; margin-bottom: 30px; line-height: 1.7;">
+        Get a quote within 24 hours. Direct access to our founder. Satisfaction guaranteed.
+      </p>
+      <a href="contact.html" style="display: inline-block; padding: 18px 50px; background: #D4AF37; color: #1a1a1a; text-decoration: none; font-weight: 700; font-size: 1.1rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 1.5px; transition: all 0.3s ease;">Get Your Quote</a>
+    </div>
+  </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer role="contentinfo">
+    <div class="footer-content">
+      <div class="footer-column">
+        <h3>About Us</h3>
+        <p>
+          Premium event staffing solutions founded by industry veterans. Combining 8+ years 
+          of hands-on experience with decades of family business expertise in the film and music sectors.
+        </p>
+        <p style="margin-top: 20px; font-size: 0.85rem; color: #666;">
+          Fully Insured • DBS Checked
+        </p>
+      </div>
+      
+      <div class="footer-column">
+        <h3>Services</h3>
+        <a href="hire-staff.html">Event Staffing</a>
+        <a href="hire-us.html">Event Management</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="apply.html">Join Our Team</a>
+        <a href="blog.html">Blog</a>
+      </div>
+      
+      <div class="footer-column">
+        <h3>Contact Founder</h3>
+        <p><strong>Direct:</strong> <a href="tel:+447944505783" style="color: #999;">+44 7944 505 783</a></p>
+        <p><strong>Email:</strong> <a href="mailto:will@vergoltd.com" style="color: #999;">will@vergoltd.com</a></p>
+        <p><strong>Location:</strong> London, UK</p>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
+      <p style="margin-top: 5px;">
+        <a href="privacy.html" style="color: #666; text-decoration: none;">Privacy</a> | 
+        <a href="terms.html" style="color: #666; text-decoration: none;">Terms</a>
+      </p>
+    </div>
+  </footer>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+  <script src="/vergo-utils.js"></script>
+  <script src="/vergo-nav.js"></script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "VERGO Events Ltd",
+  "url": "https://vergoltd.com",
+  "image": "https://vergoltd.com/logo.png",
+  "description": "VERGO is a London-based hospitality staffing agency supplying event chefs, kitchen porters, bartenders and front of house staff for private, corporate and production events.",
+  "telephone": "+447944505783",
+  "email": "will@vergoltd.com",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "London",
+    "addressCountry": "GB"
+  },
+  "areaServed": {
+    "@type": "City",
+    "name": "London"
+  },
+  "priceRange": "££",
+  "openingHours": "Mo-Su 08:00-22:00"
+}
+  </script>
+</body>
+</html>

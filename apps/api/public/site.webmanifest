@@ -1,0 +1,104 @@
+{
+  "name": "VERGO Events - Premium Event Staffing",
+  "short_name": "VERGO",
+  "description": "London's premium event staffing agency. Professional bartenders, waiters, and event staff.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#D4AF37",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en-GB",
+  "categories": ["business", "lifestyle"],
+  "icons": [
+    {
+      "src": "/images/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/images/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/images/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/images/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/images/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/images/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/images/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/images/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Find Jobs",
+      "short_name": "Jobs",
+      "description": "Browse available event staff positions",
+      "url": "/jobs.html",
+      "icons": [{ "src": "/images/icons/jobs-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Get a Quote",
+      "short_name": "Quote",
+      "description": "Request staffing for your event",
+      "url": "/contact.html",
+      "icons": [{ "src": "/images/icons/quote-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Pricing",
+      "short_name": "Pricing",
+      "description": "View our rates",
+      "url": "/pricing.html",
+      "icons": [{ "src": "/images/icons/pricing-96x96.png", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/screenshots/homepage.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "VERGO Events Homepage"
+    },
+    {
+      "src": "/images/screenshots/jobs.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Job Listings"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

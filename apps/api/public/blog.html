@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L4XRTDYMTZ');
+</script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Meta -->
+  <title>Event Staffing Blog | Tips, Guides & Industry Insights | VERGO Events</title>
+  <meta name="description" content="Expert advice on event planning, staffing, and hospitality in London. Tips for hiring event staff, running successful events, and industry trends.">
+  <meta name="keywords" content="event planning tips, hospitality blog, event staffing advice, hire bartenders guide, London events">
+  <link rel="canonical" href="https://vergoevents.com/blog">
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://vergoevents.com/blog">
+  <meta property="og:title" content="Event Staffing Blog | VERGO Events">
+  <meta property="og:description" content="Expert advice on event planning, staffing, and hospitality in London.">
+  <meta property="og:image" content="https://vergoevents.com/images/blog-og.jpg">
+  <meta property="og:site_name" content="VERGO Events">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Event Staffing Blog | VERGO Events">
+  <meta name="twitter:description" content="Expert advice on event planning, staffing, and hospitality in London.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+        .logo img {
+      height: 50px;
+      width: auto;
+      border: none !important;
+      background: transparent !important;
+    }
+
+    @media (max-width: 768px) {
+      .logo img {
+        height: 40px;
+      }
+}
+    :root {
+      --gold: #D4AF37;
+      --gold-light: #e6c758;
+      --gold-dark: #b8942a;
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #1a1a1a;
+      --bg-tertiary: #252525;
+      --text-primary: #ffffff;
+      --text-secondary: #cccccc;
+      --text-muted: #999999;
+      --border: #333333;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+    }
+    
+    /* Header */
+    header {
+      background: rgba(26, 26, 26, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--gold);
+      padding: 15px 30px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--gold);
+      text-decoration: none;
+    }
+    
+    nav {
+      display: flex;
+      gap: 30px;
+    }
+    
+    nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    
+    nav a:hover, nav a.active {
+      color: var(--gold);
+    }
+    
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 20px 60px;
+      background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    }
+    
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: var(--text-primary);
+    }
+    
+    .hero h1 span {
+      color: var(--gold);
+    }
+    
+    .hero p {
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Categories */
+    .categories {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+      padding: 0 20px;
+    }
+    
+    .category-tag {
+      padding: 8px 20px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 25px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    
+    .category-tag:hover, .category-tag.active {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    
+    /* Main */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+    
+    /* Featured Post */
+    .featured-post {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 40px;
+      margin-bottom: 60px;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    
+    .featured-image {
+      height: 100%;
+      min-height: 350px;
+      background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+    }
+    
+    .featured-content {
+      padding: 40px 40px 40px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .featured-badge {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--bg-primary);
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+      width: fit-content;
+    }
+    
+    .featured-content h2 {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      line-height: 1.3;
+    }
+    
+    .featured-content h2 a {
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    
+    .featured-content h2 a:hover {
+      color: var(--gold);
+    }
+    
+    .featured-content p {
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+    
+    .post-meta {
+      display: flex;
+      gap: 20px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    
+    /* Blog Grid */
+    .section-title {
+      font-size: 1.5rem;
+      color: var(--gold);
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 30px;
+    }
+    
+    .blog-card {
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    
+    .blog-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-5px);
+    }
+    
+    .blog-card-image {
+      height: 200px;
+      background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+    
+    .blog-card-content {
+      padding: 25px;
+    }
+    
+    .blog-card-category {
+      display: inline-block;
+      color: var(--gold);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    
+    .blog-card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    
+    .blog-card h3 a {
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    
+    .blog-card h3 a:hover {
+      color: var(--gold);
+    }
+    
+    .blog-card p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 15px;
+    }
+    
+    .read-more {
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: gap 0.2s;
+    }
+    
+    .read-more:hover {
+      gap: 10px;
+    }
+    
+    /* Newsletter */
+    .newsletter {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 50px;
+      margin-top: 60px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    
+    .newsletter h2 {
+      color: var(--gold);
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+    
+    .newsletter p {
+      color: var(--text-secondary);
+      margin-bottom: 25px;
+    }
+    
+    .newsletter-form {
+      display: flex;
+      gap: 15px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    .newsletter-form input {
+      flex: 1;
+      padding: 14px 18px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 1rem;
+    }
+    
+    .newsletter-form input:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+    
+    .newsletter-form button {
+      padding: 14px 30px;
+      background: var(--gold);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .newsletter-form button:hover {
+      background: var(--gold-light);
+    }
+    
+    /* Footer */
+    footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 40px 20px;
+      text-align: center;
+    }
+    
+    footer p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    footer a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+    
+    /* Mobile */
+    @media (max-width: 900px) {
+      .featured-post {
+        grid-template-columns: 1fr;
+      }
+      
+      .featured-image {
+        min-height: 250px;
+      }
+      
+      .featured-content {
+        padding: 30px;
+      }
+      
+      nav {
+        display: none;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+      
+      .blog-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .newsletter {
+        padding: 30px 20px;
+      }
+      
+      .newsletter-form {
+        flex-direction: column;
+      }
+    }
+  </style>
+  
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": "VERGO Events Blog",
+    "description": "Expert advice on event planning, staffing, and hospitality in London",
+    "url": "https://vergoevents.com/blog",
+    "publisher": {
+      "@type": "Organization",
+      "name": "VERGO Events",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://vergoevents.com/images/logo-small.png"
+      }
+    }
+  }
+  </script>
+</head>
+<body>
+<header></header>
+  
+  <!-- Hero -->
+  <section class="hero">
+    <h1>The <span>VERGO</span> Blog</h1>
+    <p>Insights, tips, and guides for event planning and hospitality in London</p>
+    
+    <div class="categories">
+      <a href="#" class="category-tag active">All Posts</a>
+      <a href="#" class="category-tag">Event Planning</a>
+      <a href="#" class="category-tag">Hiring Guide</a>
+      <a href="#" class="category-tag">Industry Insights</a>
+      <a href="#" class="category-tag">Staff Tips</a>
+    </div>
+  </section>
+  
+  <main>
+    <!-- Featured Post -->
+    <article class="featured-post">
+      <div class="featured-image">🍸</div>
+      <div class="featured-content">
+        <span class="featured-badge">Featured</span>
+        <h2><a href="blog/how-to-hire-bartenders-london.html">The Complete Guide to Hiring Bartenders for Your London Event</a></h2>
+        <p>Everything you need to know about finding, vetting, and booking professional bartenders. From cocktail parties to corporate events, we cover ratios, rates, and what to look for.</p>
+        <div class="post-meta">
+          <span>📅 December 15, 2024</span>
+          <span>⏱️ 8 min read</span>
+          <span>🏷️ Hiring Guide</span>
+        </div>
+      </div>
+    </article>
+    
+    <!-- Latest Posts -->
+    <h2 class="section-title">Latest Articles</h2>
+    
+    <div class="blog-grid">
+      <article class="blog-card">
+        <div class="blog-card-image">🎪</div>
+        <div class="blog-card-content">
+          <span class="blog-card-category">Event Planning</span>
+          <h3><a href="blog/corporate-event-planning-checklist.html">Corporate Event Planning Checklist: 30 Days to Success</a></h3>
+          <p>A comprehensive timeline and checklist for planning your next corporate event, from venue selection to post-event follow-up.</p>
+          <a href="blog/corporate-event-planning-checklist.html" class="read-more">Read More →</a>
+        </div>
+      </article>
+      
+      <article class="blog-card">
+        <div class="blog-card-image">💷</div>
+        <div class="blog-card-content">
+          <span class="blog-card-category">Industry Insights</span>
+          <h3><a href="blog/event-staffing-costs-london-2024.html">Event Staffing Costs in London: 2024 Market Rates</a></h3>
+          <p>What should you expect to pay for event staff in London? We break down current market rates and what affects pricing.</p>
+          <a href="blog/event-staffing-costs-london-2024.html" class="read-more">Read More →</a>
+        </div>
+      </article>
+      
+      <article class="blog-card">
+        <div class="blog-card-image">⭐</div>
+        <div class="blog-card-content">
+          <span class="blog-card-category">Hiring Guide</span>
+          <h3><a href="blog/questions-to-ask-staffing-agency.html">10 Questions to Ask Before Hiring an Event Staffing Agency</a></h3>
+          <p>Don't get caught out. These essential questions will help you separate professional agencies from the rest.</p>
+          <a href="blog/questions-to-ask-staffing-agency.html" class="read-more">Read More →</a>
+        </div>
+      </article>
+      
+      <article class="blog-card">
+        <div class="blog-card-image">🍾</div>
+        <div class="blog-card-content">
+          <span class="blog-card-category">Staff Tips</span>
+          <h3><a href="blog/bartender-to-guest-ratio.html">Bartender to Guest Ratio: How Many Do You Really Need?</a></h3>
+          <p>The industry formulas for calculating the right number of bartenders, plus factors that affect the equation.</p>
+          <a href="blog/bartender-to-guest-ratio.html" class="read-more">Read More →</a>
+        </div>
+      </article>
+      
+      <article class="blog-card">
+        <div class="blog-card-image">🎉</div>
+        <div class="blog-card-content">
+          <span class="blog-card-category">Event Planning</span>
+          <h3><a href="blog/london-event-venues-2024.html">Top 15 Event Venues in London for Corporate Functions</a></h3>
+          <p>Our curated list of standout venues across London, from historic halls to modern rooftops, with capacity and pricing info.</p>
+          <a href="blog/london-event-venues-2024.html" class="read-more">Read More →</a>
+        </div>
+      </article>
+      
+      <article class="blog-card">
+        <div class="blog-card-image">📋</div>
+        <div class="blog-card-content">
+          <span class="blog-card-category">Industry Insights</span>
+          <h3><a href="blog/dbs-checks-event-staff.html">DBS Checks for Event Staff: What You Need to Know</a></h3>
+          <p>Understanding DBS checks, why they matter, and what level of check is appropriate for different event roles.</p>
+          <a href="blog/dbs-checks-event-staff.html" class="read-more">Read More →</a>
+        </div>
+      </article>
+    </div>
+    
+    <!-- Newsletter -->
+    <section class="newsletter">
+      <h2>Stay in the Loop</h2>
+      <p>Get event planning tips, industry insights, and exclusive offers delivered to your inbox.</p>
+      <form class="newsletter-form" id="newsletter-form">
+        <input type="email" placeholder="Enter your email" required>
+        <button type="submit">Subscribe</button>
+      </form>
+    </section>
+  </main>
+  
+  <footer>
+    <p>&copy; 2024 VERGO Events. <a href="tel:+447944505783">07944 505 783</a> | <a href="mailto:bookings@vergoevents.com">bookings@vergoevents.com</a></p>
+  </footer>
+  
+  <script>
+    // Newsletter form
+    document.getElementById('newsletter-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = this.querySelector('input').value;
+      // TODO: Submit to your email service
+      this.innerHTML = '<p style="color: var(--gold);">✓ Thanks for subscribing!</p>';
+    });
+    
+  </script>
+  <script src="/vergo-menu.js"></script>
+  <script src="/vergo-utils.js"></script>
+  <script src="/vergo-nav.js"></script>
+  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-analytics.js"></script>
+</body>
+</html>

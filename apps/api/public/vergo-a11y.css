@@ -40,24 +40,35 @@
 }
 
 /* Skip navigation link */
+/* Skip navigation link - visible below fixed header */
+:root {
+  --header-offset: 90px; /* desktop header clearance */
+}
+
+@media (max-width: 900px) {
+  :root { --header-offset: 75px; } /* mobile header clearance */
+}
+
 .skip-link {
-  position: absolute;
-  top: -40px;
-  left: 0;
+  position: fixed;
+  top: -100px;         /* hidden off-screen until focused */
+  left: 16px;
   background: #D4AF37;
   color: #0a0a0a;
-  padding: 12px 24px;
+  padding: 12px 18px;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
   z-index: 10000;
-  border-radius: 0 0 8px 0;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
 .skip-link:focus {
-  top: 0;
+  top: var(--header-offset); /* drops below your fixed header */
   outline: 3px solid #fff;
   outline-offset: 2px;
 }
+
 
 /* ============================================
  * 2. FOCUS INDICATORS
@@ -432,15 +443,23 @@ p {
   border-bottom: 3px solid #D4AF37;
 }
 
-/* Dropdown menu indicators */
-[aria-expanded="false"]::after {
+/* Dropdown menu indicators - only for nav dropdown links */
+.nav-dropdown > a[aria-expanded="false"]::after {
   content: ' ▼';
-  font-size: 0.8em;
+  font-size: 0.7em;
+  position: static;
+  width: auto;
+  height: auto;
+  background: none;
 }
 
-[aria-expanded="true"]::after {
+.nav-dropdown > a[aria-expanded="true"]::after {
   content: ' ▲';
-  font-size: 0.8em;
+  font-size: 0.7em;
+  position: static;
+  width: auto;
+  height: auto;
+  background: none;
 }
 
 /* Mobile menu button */

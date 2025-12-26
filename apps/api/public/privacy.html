@@ -1,837 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L4XRTDYMTZ');
+</script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Privacy Policy - VERGO Events</title>
-  <meta name="description" content="VERGO Events privacy policy. How we collect, use and protect your personal data. GDPR compliant. Contact details, data rights, and information security practices.">
+  <link rel="icon" type="image/png" href="/logo-small.png">
+  <title>Terms & Conditions - VERGO Events</title>
+  <meta name="description" content="VERGO Events terms and conditions. Service agreement, booking policies, cancellation terms, and liability information for event staffing and management services.">
+  
+  <link rel="stylesheet" href="/vergo-a11y.css">
+  <link rel="stylesheet" href="/vergo-styles.css">
+  <link rel="stylesheet" href="/vergo-header.css">
+  <link rel="stylesheet" href="/vergo-mobile.css">
+  
   <style>
-    /* ============================================
-     * STANDARD HEADER & NAV STYLES
-     * ============================================ */
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: rgba(10, 10, 10, 0.98);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-      padding: 15px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 1000;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #e0e0e0; line-height: 1.8; }
     
-    .logo {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-    }
+    .container { max-width: 900px; margin: 0 auto; padding: 120px 40px 60px; }
+    .back-link { display: inline-block; margin-bottom: 30px; color: #D4AF37; text-decoration: none; font-weight: 600; font-size: 1rem; padding: 12px 0; transition: all 0.3s ease; }
+    .back-link:hover { transform: translateX(-5px); }
     
-    .logo img {
-      height: 45px;
-      width: auto;
-      transition: transform 0.3s ease;
-      border: none !important;
-      background: transparent !important;
-      display: block;
-    }
+    .policy-header { background: #1a1a1a; padding: 50px 40px; border-radius: 12px; margin-bottom: 30px; border: 2px solid rgba(212, 175, 55, 0.2); text-align: center; }
+    h1 { font-size: 3rem; margin-bottom: 15px; color: #D4AF37; font-weight: 700; }
+    .last-updated { color: #999; font-size: 1rem; font-style: italic; }
     
-    .logo:hover img {
-      transform: scale(1.05);
-    }
+    .policy-content { background: #1a1a1a; padding: 50px 40px; border-radius: 12px; border: 2px solid rgba(212, 175, 55, 0.2); }
+    h2 { font-size: 1.8rem; margin: 40px 0 20px 0; color: #D4AF37; border-left: 5px solid #D4AF37; padding-left: 20px; }
+    h2:first-of-type { margin-top: 0; }
+    p { margin-bottom: 20px; color: #cccccc; font-size: 1.05rem; }
+    ul { margin: 20px 0 20px 30px; }
+    li { margin-bottom: 12px; color: #cccccc; font-size: 1.05rem; }
+    strong { color: #D4AF37; }
     
-    nav ul {
-      display: flex;
-      gap: 30px;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    
-    nav li {
-      position: relative;
-    }
-    
-    nav a {
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
-      position: relative;
-      display: block;
-      padding: 8px 0;
-    }
-    
-    nav a::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: #D4AF37;
-      transition: width 0.3s ease;
-    }
-    
-    nav a:hover {
-      color: #D4AF37;
-    }
-    
-    nav a:hover::after {
-      width: 100%;
-    }
-    
-    nav a[aria-current="page"] {
-      color: #D4AF37;
-    }
-    
-    nav a[aria-current="page"]::after {
-      width: 100%;
-    }
-    
-    /* Dropdown Styles */
-    .nav-dropdown {
-      position: relative;
-    }
-    
-    .nav-dropdown > a {
-      cursor: pointer;
-    }
-    
-    .nav-dropdown > a::before {
-      content: '▼';
-      font-size: 0.6rem;
-      margin-left: 5px;
-      display: inline-block;
-      transition: transform 0.3s ease;
-    }
-    
-    .dropdown-menu {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background: rgba(10, 10, 10, 0.98);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      border-radius: 4px;
-      min-width: 180px;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-10px);
-      transition: all 0.3s ease;
-      margin-top: 5px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      padding: 0;
-    }
-    
-    .nav-dropdown:hover .dropdown-menu,
-    .nav-dropdown.active .dropdown-menu {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-    
-    .nav-dropdown.active > a::before {
-      transform: rotate(180deg);
-    }
-    
-    .dropdown-menu li {
-      list-style: none;
-    }
-    
-    .dropdown-menu a {
-      padding: 12px 18px;
-      display: block;
-      color: #ffffff;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-      font-size: 0.85rem;
-    }
-    
-    .dropdown-menu a::after {
-      display: none;
-    }
-    
-    .dropdown-menu li:last-child a {
-      border-bottom: none;
-    }
-    
-    .dropdown-menu a:hover {
-      background: rgba(212, 175, 55, 0.1);
-      color: #D4AF37;
-    }
-    
-    /* Mobile Menu Toggle */
-    .menu-toggle {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 8px;
-    }
-    
-    .menu-toggle span {
-      width: 24px;
-      height: 2px;
-      background: #D4AF37;
-      transition: all 0.3s ease;
-    }
-    
-    /* Mobile Responsive */
-    @media (max-width: 900px) {
-      header {
-        padding: 12px 20px;
-      }
-      
-      .logo img {
-        height: 38px;
-      }
-      
-      nav ul {
-        position: fixed;
-        top: 65px;
-        left: 0;
-        right: 0;
-        background: rgba(10, 10, 10, 0.98);
-        flex-direction: column;
-        padding: 20px;
-        gap: 0;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-      }
-      
-      nav ul.active {
-        transform: translateX(0);
-      }
-      
-      nav li {
-        border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-      }
-      
-      nav li:last-child {
-        border-bottom: none;
-      }
-      
-      nav a {
-        padding: 15px 10px;
-      }
-      
-      .menu-toggle {
-        display: flex;
-      }
-      
-      /* Mobile dropdown */
-      .dropdown-menu {
-        position: static;
-        opacity: 1;
-        visibility: visible;
-        transform: none;
-        margin: 0;
-        padding-left: 15px;
-        display: none;
-        border: none;
-        box-shadow: none;
-        background: transparent;
-      }
-      
-      .nav-dropdown.active .dropdown-menu {
-        display: block;
-      }
-      
-      .dropdown-menu a {
-        padding: 12px 10px;
-        border-bottom: none;
-      }
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: #0a0a0a;
-      color: #e0e0e0;
-      line-height: 1.8;
-    }
-    
-    /* Header Navigation */
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: rgba(10, 10, 10, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 1000;
-    }
-    
-    .logo {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #D4AF37;
-      letter-spacing: 2px;
-      text-decoration: none;
-    }
-    
-    nav ul {
-      display: flex;
-      gap: 35px;
-      list-style: none;
-    }
-    
-    nav a {
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 0.95rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
-      position: relative;
-    }
-    
-    nav a::after {
-      content: '';
-      position: absolute;
-      bottom: -5px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: #D4AF37;
-      transition: width 0.3s ease;
-    }
-    
-    nav a:hover {
-      color: #D4AF37;
-    }
-    
-    nav a:hover::after {
-      width: 100%;
-    }
-    
-    .menu-toggle {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-    }
-    
-    .menu-toggle span {
-      width: 25px;
-      height: 2px;
-      background: #D4AF37;
-    }
-    
-    /* Container */
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 120px 40px 60px;
-    }
-    
-    .back-link {
-      display: inline-block;
-      margin-bottom: 30px;
-      color: #D4AF37;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1rem;
-      padding: 12px 0;
-      transition: all 0.3s ease;
-    }
-    
-    .back-link:hover {
-      transform: translateX(-5px);
-    }
-    
-    .policy-header {
-      background: #1a1a1a;
-      padding: 50px 40px;
-      border-radius: 12px;
-      margin-bottom: 30px;
-      border: 2px solid rgba(212, 175, 55, 0.2);
-      text-align: center;
-    }
-    
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 15px;
-      color: #D4AF37;
-      font-weight: 700;
-    }
-    
-    .last-updated {
-      color: #999;
-      font-size: 1rem;
-      font-style: italic;
-    }
-    
-    .policy-content {
-      background: #1a1a1a;
-      padding: 50px 40px;
-      border-radius: 12px;
-      border: 2px solid rgba(212, 175, 55, 0.2);
-    }
-    
-    h2 {
-      font-size: 1.8rem;
-      margin: 40px 0 20px 0;
-      color: #D4AF37;
-      border-left: 5px solid #D4AF37;
-      padding-left: 20px;
-    }
-    
-    h2:first-of-type {
-      margin-top: 0;
-    }
-    
-    p {
-      margin-bottom: 20px;
-      color: #cccccc;
-      font-size: 1.05rem;
-    }
-    
-    ul {
-      margin: 20px 0 20px 30px;
-    }
-    
-    li {
-      margin-bottom: 12px;
-      color: #cccccc;
-      font-size: 1.05rem;
-    }
-    
-    strong {
-      color: #D4AF37;
-    }
-    
-    .highlight-box {
-      background: rgba(212, 175, 55, 0.1);
-      border-left: 4px solid #D4AF37;
-      padding: 25px 30px;
-      border-radius: 8px;
-      margin: 30px 0;
-    }
-    
-    .highlight-box p {
-      color: #ffffff;
-      margin-bottom: 0;
-    }
-    
-    /* Footer */
-    footer {
-      background: #0a0a0a;
-      color: #D4AF37;
-      padding: 40px 30px 25px;
-      border-top: 1px solid rgba(212, 175, 55, 0.2);
-      margin-top: 80px;
-    }
-    
-    .footer-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    
-    .footer-links {
-      margin-bottom: 20px;
-    }
-    
-    .footer-links a {
-      color: #999;
-      text-decoration: none;
-      margin: 0 20px;
-      font-size: 0.9rem;
-      transition: color 0.3s ease;
-    }
-    
-    .footer-links a:hover {
-      color: #D4AF37;
-    }
-    
-    .footer-bottom {
-      color: #666;
-      font-size: 0.85rem;
-      margin-top: 15px;
-    }
-    
-    @media (max-width: 1024px) {
-      nav ul {
-        position: fixed;
-        top: 80px;
-        left: 0;
-        right: 0;
-        background: rgba(10, 10, 10, 0.98);
-        flex-direction: column;
-        padding: 30px;
-        gap: 20px;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-      }
-      
-      nav ul.active {
-        transform: translateX(0);
-      }
-      
-      .menu-toggle {
-        display: flex;
-      }
-    }
+    .highlight-box { background: rgba(212, 175, 55, 0.1); border-left: 4px solid #D4AF37; padding: 25px 30px; border-radius: 8px; margin: 30px 0; }
+    .highlight-box p { color: #ffffff; margin-bottom: 0; }
     
     @media (max-width: 768px) {
-      header {
-        padding: 15px 20px;
-      }
-      
-      .logo {
-        font-size: 1.5rem;
-      }
-      
-      .container {
-        padding: 100px 20px 40px;
-      }
-      
-      h1 {
-        font-size: 2rem;
-      }
-      
-      .policy-header, .policy-content {
-        padding: 30px 20px;
-      }
-      
-      h2 {
-        font-size: 1.5rem;
-      }
-      
-      .footer-links a {
-        display: block;
-        margin: 12px 0;
-      }
+      .container { padding: 100px 20px 40px; }
+      h1 { font-size: 2rem; }
+      .policy-header, .policy-content { padding: 30px 20px; }
+      h2 { font-size: 1.5rem; }
     }
-    /* Dropdown Styles */
-.nav-dropdown {
-  position: relative;
-}
-
-.nav-dropdown > a {
-  cursor: pointer;
-}
-
-.nav-dropdown > a::before {
-  content: '▼';
-  font-size: 0.7rem;
-  margin-left: 6px;
-  transition: transform 0.3s ease;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: rgba(10, 10, 10, 0.98);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  border-radius: 4px;
-  min-width: 200px;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: all 0.3s ease;
-  margin-top: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.nav-dropdown:hover .dropdown-menu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.dropdown-menu li {
-  list-style: none;
-}
-
-.dropdown-menu a {
-  padding: 12px 20px;
-  display: block;
-  color: #ffffff;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-  font-size: 0.9rem;
-}
-
-.dropdown-menu a::after {
-  display: none;
-}
-
-.dropdown-menu li:last-child a {
-  border-bottom: none;
-}
-
-.dropdown-menu a:hover {
-  background: rgba(212, 175, 55, 0.1);
-  color: #D4AF37;
-}
   </style>
-  <link rel="stylesheet" href="/vergo-mobile.css">
 </head>
 <body>
-  <!-- Skip Link for Accessibility -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
+<header></header>
   
-    <header role="banner">
-    <a href="index.html" class="logo" aria-label="VERGO Events Home">
-      <img src="/logo.png" alt="VERGO Events Logo">
-    </a>
-    
-    <button class="menu-toggle" onclick="toggleMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-    
-    <nav role="navigation" aria-label="Main navigation">
-      <ul id="nav-menu">
-        <li><a href="index.html">Home</a></li>
-        <li class="nav-dropdown" id="services-dropdown">
-          <a href="#" onclick="toggleDropdown(event, 'services-dropdown'); return false;" aria-haspopup="true" aria-expanded="false">Services</a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="hire-staff.html" role="menuitem">Hire Staff</a></li>
-            <li><a href="hire-us.html" role="menuitem">Event Management</a></li>
-          </ul>
-        </li>
-        <li><a href="jobs.html">Job Board</a></li>
-        <li><a href="apply.html">Join VERGO</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="faq.html">FAQ</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
-  
-  <div class="container">
-    <a href="index.html" class="back-link">Back to Home</a>
-    
-    <div class="policy-header">
-      <h1>Privacy Policy</h1>
-      <p class="last-updated">Last Updated: January 2025</p>
-    </div>
-    
-    <div class="policy-content">
-      <div class="highlight-box">
-        <p><strong>Your Privacy Matters:</strong> VERGO Events Ltd is committed to protecting your personal information and being transparent about how we collect, use, and safeguard your data.</p>
+  <main id="main-content">
+    <div class="container">
+      <a href="index.html" class="back-link">← Back to Home</a>
+      
+      <div class="policy-header">
+        <h1>Terms & Conditions</h1>
+        <p class="last-updated">Last Updated: January 2025</p>
       </div>
       
-      <h2>1. Introduction</h2>
-      <p>
-        This Privacy Policy explains how VERGO Events Ltd ("we", "us", or "our") collects, uses, 
-        discloses, and protects your personal information when you use our services, visit our 
-        website, or interact with us.
-      </p>
-      <p>
-        By using our services or providing us with your personal information, you agree to the 
-        practices described in this Privacy Policy.
-      </p>
-      
-      <h2>2. Information We Collect</h2>
-      <p>We collect several types of information:</p>
-      
-      <p><strong>Information You Provide Directly:</strong></p>
-      <ul>
-        <li>Name, email address, phone number when you contact us or submit enquiries</li>
-        <li>Event details, preferences, and requirements when booking our services</li>
-        <li>Employment information when applying for positions (CV, work history, references)</li>
-        <li>Payment and billing information when making transactions</li>
-        <li>Feedback, reviews, and communications with our team</li>
-      </ul>
-      
-      <p><strong>Information We Collect Automatically:</strong></p>
-      <ul>
-        <li>Browser type, device information, and IP address</li>
-        <li>Pages visited, time spent on our website, and navigation patterns</li>
-        <li>Cookies and similar tracking technologies</li>
-      </ul>
-      
-      <h2>3. How We Use Your Information</h2>
-      <p>We use your personal information for the following purposes:</p>
-      <ul>
-        <li><strong>Service Delivery:</strong> To provide event management, staffing, and related services</li>
-        <li><strong>Communication:</strong> To respond to enquiries, provide quotes, and send booking confirmations</li>
-        <li><strong>Recruitment:</strong> To process job applications and manage our talent pool</li>
-        <li><strong>Payment Processing:</strong> To handle transactions and maintain financial records</li>
-        <li><strong>Improvement:</strong> To enhance our services, website, and customer experience</li>
-        <li><strong>Legal Compliance:</strong> To meet legal obligations and protect our rights</li>
-        <li><strong>Marketing:</strong> To send relevant updates and newsletters (with your consent)</li>
-      </ul>
-      
-      <h2>4. Legal Basis for Processing (GDPR)</h2>
-      <p>Under the General Data Protection Regulation (GDPR), we process your data based on:</p>
-      <ul>
-        <li><strong>Contract Performance:</strong> Processing necessary to fulfill our services to you</li>
-        <li><strong>Legitimate Interest:</strong> For business operations, fraud prevention, and service improvement</li>
-        <li><strong>Legal Obligation:</strong> To comply with laws, regulations, and legal processes</li>
-        <li><strong>Consent:</strong> When you've given explicit permission (e.g., marketing emails)</li>
-      </ul>
-      
-      <h2>5. Data Sharing and Disclosure</h2>
-      <p>We do not sell your personal information. We may share your data with:</p>
-      <ul>
-        <li><strong>Service Providers:</strong> Payment processors, cloud hosting, email services</li>
-        <li><strong>Event Partners:</strong> Venues, suppliers, and vendors (only information necessary for the event)</li>
-        <li><strong>Legal Authorities:</strong> When required by law or to protect our rights</li>
-        <li><strong>Business Transfers:</strong> In the event of a merger, acquisition, or asset sale</li>
-      </ul>
-      <p>All third parties are contractually obligated to protect your data and use it only for specified purposes.</p>
-      
-      <h2>6. Data Retention</h2>
-      <p>We retain your personal information for as long as necessary to:</p>
-      <ul>
-        <li>Fulfill the purposes outlined in this policy</li>
-        <li>Comply with legal, accounting, or regulatory requirements</li>
-        <li>Resolve disputes and enforce our agreements</li>
-      </ul>
-      <p>
-        Job applications are retained for up to 12 months unless you consent to remain in our talent pool. 
-        Client data is retained for up to 7 years for tax and legal compliance.
-      </p>
-      
-      <h2>7. Your Rights</h2>
-      <p>Under data protection law, you have the right to:</p>
-      <ul>
-        <li><strong>Access:</strong> Request a copy of your personal data</li>
-        <li><strong>Rectification:</strong> Correct inaccurate or incomplete information</li>
-        <li><strong>Erasure:</strong> Request deletion of your data (subject to legal obligations)</li>
-        <li><strong>Restriction:</strong> Limit how we use your data in certain circumstances</li>
-        <li><strong>Portability:</strong> Receive your data in a structured, machine-readable format</li>
-        <li><strong>Objection:</strong> Object to processing based on legitimate interests</li>
-        <li><strong>Withdraw Consent:</strong> Revoke consent for marketing or other optional processing</li>
-      </ul>
-      <p>To exercise any of these rights, please contact us at <strong><a href="/cdn-cgi/l/email-protection#8ef9fce1ececcef8ebfce9e1e2faeaa0ede1e3" style="color: #999;"><span class="__cf_email__" data-cfemail="c3b4b1aca1a183b5a6b1a4acafb7a7eda0acae">[email&#160;protected]</span></a></strong>.</p>
-      
-      <h2>8. Security</h2>
-      <p>
-        We implement appropriate technical and organizational measures to protect your personal 
-        information from unauthorized access, disclosure, alteration, or destruction. These include:
-      </p>
-      <ul>
-        <li>Encryption of data in transit and at rest</li>
-        <li>Regular security assessments and updates</li>
-        <li>Access controls and employee training</li>
-        <li>Secure payment processing through PCI-DSS compliant providers</li>
-      </ul>
-      <p>
-        However, no method of transmission over the internet is 100% secure. We cannot guarantee 
-        absolute security but take all reasonable precautions to protect your data.
-      </p>
-      
-      <h2>9. Children's Privacy</h2>
-      <p>
-        Our services are not directed at individuals under 18 years of age. We do not knowingly 
-        collect personal information from children. If we become aware of such data, we will 
-        promptly delete it.
-      </p>
-      
-      <h2>10. International Transfers</h2>
-      <p>
-        Your data may be transferred to, and processed in, countries outside the UK/EU. We ensure 
-        appropriate safeguards are in place, such as Standard Contractual Clauses or adequacy decisions.
-      </p>
-      
-      <h2>11. Changes to This Policy</h2>
-      <p>
-        We may update this Privacy Policy periodically to reflect changes in our practices or legal 
-        requirements. The "Last Updated" date at the top indicates when changes were made. We encourage 
-        you to review this policy regularly.
-      </p>
-      
-      <h2>12. Contact Us</h2>
-      <p>If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:</p>
-      <div class="highlight-box">
-        <p>
-          <strong>VERGO Events Ltd</strong><br>
-          Email: <strong><a href="/cdn-cgi/l/email-protection#7403061b161634021106131b1800105a171b19" style="color: #999;"><span class="__cf_email__" data-cfemail="8cfbfee3eeeeccfae9feebe3e0f8e8a2efe3e1">[email&#160;protected]</span></a></strong><br>
-          London, United Kingdom
-        </p>
+      <div class="policy-content">
+        <div class="highlight-box">
+          <p><strong>Important:</strong> By using our services, you agree to be bound by these terms and conditions. Please read them carefully before engaging our services.</p>
+        </div>
+        
+        <h2>1. Definitions</h2>
+        <p>In these Terms and Conditions:</p>
+        <ul>
+          <li><strong>"VERGO"</strong>, <strong>"we"</strong>, <strong>"us"</strong>, or <strong>"our"</strong> refers to VERGO Events Ltd</li>
+          <li><strong>"Client"</strong> refers to any person or organisation engaging our services</li>
+          <li><strong>"Staff"</strong> refers to event professionals supplied by VERGO</li>
+          <li><strong>"Event"</strong> refers to any function, gathering, or occasion for which services are provided</li>
+          <li><strong>"Services"</strong> refers to event staffing, management, and related services</li>
+        </ul>
+        
+        <h2>2. Service Agreement</h2>
+        <p>A binding agreement is formed when:</p>
+        <ul>
+          <li>We accept your booking request in writing (including email)</li>
+          <li>You pay the required deposit</li>
+          <li>You agree to these terms and conditions</li>
+        </ul>
+        <p>All bookings are subject to staff availability. We reserve the right to decline any booking at our discretion.</p>
+        
+        <h2>3. Booking & Payment</h2>
+        <p><strong>Deposits:</strong> A 50% deposit is required to secure your booking. The remaining balance is due 7 days before the event date.</p>
+        <p><strong>Payment Methods:</strong> We accept bank transfer and major credit/debit cards.</p>
+        <p><strong>Late Payment:</strong> Invoices not paid within the agreed terms may incur a late payment fee of 8% above the Bank of England base rate.</p>
+        
+        <h2>4. Cancellation Policy</h2>
+        <p>Cancellations must be made in writing. The following fees apply:</p>
+        <ul>
+          <li><strong>More than 14 days before:</strong> Full refund minus 10% administration fee</li>
+          <li><strong>7-14 days before:</strong> 50% of total booking fee</li>
+          <li><strong>Less than 7 days:</strong> 100% of total booking fee</li>
+          <li><strong>Same day / no-show:</strong> 100% of total booking fee plus any additional costs incurred</li>
+        </ul>
+        
+        <h2>5. Client Responsibilities</h2>
+        <p>The Client agrees to:</p>
+        <ul>
+          <li>Provide accurate event details, including venue, times, and requirements</li>
+          <li>Ensure a safe working environment for all staff</li>
+          <li>Provide adequate facilities (break areas, refreshments, etc.)</li>
+          <li>Notify us of any changes to the event at least 48 hours in advance</li>
+          <li>Not engage our staff directly for 12 months following an event</li>
+        </ul>
+        
+        <h2>6. Staff Conduct & Standards</h2>
+        <p>All VERGO staff are:</p>
+        <ul>
+          <li>Personally vetted by our founder</li>
+          <li>Professionally trained and experienced</li>
+          <li>DBS checked where required</li>
+          <li>Covered by our public liability insurance</li>
+        </ul>
+        <p>If you have any concerns about staff performance, please notify us immediately so we can address the issue.</p>
+        
+        <h2>7. Liability & Insurance</h2>
+        <p>VERGO Events Ltd maintains comprehensive public liability insurance of £5,000,000.</p>
+        <p>Our liability is limited to the total value of the booking. We are not liable for:</p>
+        <ul>
+          <li>Indirect or consequential losses</li>
+          <li>Loss of profits or business opportunities</li>
+          <li>Damage caused by third parties</li>
+          <li>Events beyond our reasonable control (force majeure)</li>
+        </ul>
+        
+        <h2>8. Intellectual Property</h2>
+        <p>All content on our website, including logos, images, and text, is the property of VERGO Events Ltd and may not be used without written permission.</p>
+        
+        <h2>9. Confidentiality</h2>
+        <p>Both parties agree to keep confidential any information disclosed during the course of business. This includes event details, pricing, and any proprietary information.</p>
+        
+        <h2>10. Dispute Resolution</h2>
+        <p>In the event of a dispute, both parties agree to:</p>
+        <ul>
+          <li>Attempt to resolve the matter through good-faith negotiation</li>
+          <li>If unsuccessful, submit to mediation before pursuing legal action</li>
+          <li>These terms are governed by English law and subject to the jurisdiction of English courts</li>
+        </ul>
+        
+        <h2>11. Changes to Terms</h2>
+        <p>We reserve the right to update these terms at any time. Changes will be posted on our website and take effect immediately. Continued use of our services constitutes acceptance of the updated terms.</p>
+        
+        <h2>12. Contact</h2>
+        <p>For questions about these terms, please contact:</p>
+        <div class="highlight-box">
+          <p>
+            <strong>VERGO Events Ltd</strong><br>
+            Email: <a href="mailto:info@vergoevents.com" style="color: #D4AF37;">info@vergoevents.com</a><br>
+            Company Registration: [Your Company Number]
+          </p>
+        </div>
       </div>
-      
-      <p>
-        You also have the right to lodge a complaint with the Information Commissioner's Office (ICO), 
-        the UK's data protection authority, if you believe your data rights have been violated.
-      </p>
     </div>
-  </div>
+  </main>
   
-  <!-- Footer -->
-    <!-- Footer -->
-  <footer role="contentinfo">
+  <footer>
     <div class="footer-content">
-      <div class="footer-column">
-        <h3>About Us</h3>
-        <p>
-          Premium event staffing solutions founded by industry veterans. Combining 8+ years 
-          of hands-on experience with decades of family business expertise in the film and music sectors.
-        </p>
-        <p style="margin-top: 20px; font-size: 0.85rem; color: #666;">
-          Fully Insured • DBS Checked
-        </p>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
       </div>
-      
-      <div class="footer-column">
-        <h3>Services</h3>
-        <a href="hire-staff.html">Event Staffing</a>
-        <a href="hire-us.html">Event Management</a>
-        <a href="apply.html">Join Our Team</a>
-        <a href="about.html">About Us</a>
-        <a href="contact.html">Get a Quote</a>
+      <div class="footer-bottom">
+        <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
       </div>
-      
-      <div class="footer-column">
-        <h3>Contact Founder</h3>
-        <p><strong>Direct:</strong> <a href="tel:+447944505783" style="color: #999;">+44 7944 505 783</a></p>
-        <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection#0b7c796469694b7d6e796c64677f6f25686466" style="color: #999;"><span class="__cf_email__" data-cfemail="b2c5c0ddd0d0f2c4d7c0d5dddec6d69cd1dddf">[email&#160;protected]</span></a></p>
-        <p><strong>Location:</strong> London, UK</p>
-      </div>
-    </div>
-    
-    <div class="footer-bottom">
-      <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
-      <p style="margin-top: 5px;">
-        <a href="privacy.html" style="color: #666; text-decoration: none;">Privacy</a> | 
-        <a href="terms.html" style="color: #666; text-decoration: none;">Terms</a>
-      </p>
     </div>
   </footer>
   
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-    function toggleMenu() {
-      const menu = document.getElementById('nav-menu');
-      menu.classList.toggle('active');
-    }
-    // Dropdown toggle for mobile and desktop
-    function toggleDropdown(event, dropdownId) {
-      event.preventDefault();
-      event.stopPropagation();
-      
-      const dropdown = document.getElementById(dropdownId);
-      const isActive = dropdown.classList.toggle('active');
-      
-      // Update aria-expanded
-      const link = dropdown.querySelector('a[aria-haspopup]');
-      if (link) {
-        link.setAttribute('aria-expanded', isActive);
-      }
-      
-      // Close other dropdowns
-      document.querySelectorAll('.nav-dropdown').forEach(item => {
-        if (item.id !== dropdownId) {
-          item.classList.remove('active');
- 
+  <script src="/vergo-menu.js"></script>
+  <script src="/vergo-utils.js"></script>
+  <script src="/vergo-nav.js"></script>
+  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-analytics.js"></script>
+</body>
+</html>

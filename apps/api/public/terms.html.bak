@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L4XRTDYMTZ');
+</script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <title>Terms & Conditions - VERGO Events</title>
+  <meta name="description" content="VERGO Events terms and conditions. Service agreement, booking policies, cancellation terms, and liability information for event staffing and management services.">
+  
+  <link rel="stylesheet" href="/vergo-a11y.css">
+  <link rel="stylesheet" href="/vergo-styles.css">
+  <link rel="stylesheet" href="/vergo-header.css">
+  <link rel="stylesheet" href="/vergo-mobile.css">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #e0e0e0; line-height: 1.8; }
+    
+    .container { max-width: 900px; margin: 0 auto; padding: 120px 40px 60px; }
+    .back-link { display: inline-block; margin-bottom: 30px; color: #D4AF37; text-decoration: none; font-weight: 600; font-size: 1rem; padding: 12px 0; transition: all 0.3s ease; }
+    .back-link:hover { transform: translateX(-5px); }
+    
+    .policy-header { background: #1a1a1a; padding: 50px 40px; border-radius: 12px; margin-bottom: 30px; border: 2px solid rgba(212, 175, 55, 0.2); text-align: center; }
+    h1 { font-size: 3rem; margin-bottom: 15px; color: #D4AF37; font-weight: 700; }
+    .last-updated { color: #999; font-size: 1rem; font-style: italic; }
+    
+    .policy-content { background: #1a1a1a; padding: 50px 40px; border-radius: 12px; border: 2px solid rgba(212, 175, 55, 0.2); }
+    h2 { font-size: 1.8rem; margin: 40px 0 20px 0; color: #D4AF37; border-left: 5px solid #D4AF37; padding-left: 20px; }
+    h2:first-of-type { margin-top: 0; }
+    p { margin-bottom: 20px; color: #cccccc; font-size: 1.05rem; }
+    ul { margin: 20px 0 20px 30px; }
+    li { margin-bottom: 12px; color: #cccccc; font-size: 1.05rem; }
+    strong { color: #D4AF37; }
+    
+    .highlight-box { background: rgba(212, 175, 55, 0.1); border-left: 4px solid #D4AF37; padding: 25px 30px; border-radius: 8px; margin: 30px 0; }
+    .highlight-box p { color: #ffffff; margin-bottom: 0; }
+    
+    @media (max-width: 768px) {
+      .container { padding: 100px 20px 40px; }
+      h1 { font-size: 2rem; }
+      .policy-header, .policy-content { padding: 30px 20px; }
+      h2 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  
+<header></header>
+  
+  <main id="main-content">
+    <div class="container">
+      <a href="index.html" class="back-link">← Back to Home</a>
+      
+      <div class="policy-header">
+        <h1>Terms & Conditions</h1>
+        <p class="last-updated">Last Updated: January 2025</p>
+      </div>
+      
+      <div class="policy-content">
+        <div class="highlight-box">
+          <p><strong>Important:</strong> By using our services, you agree to be bound by these terms and conditions. Please read them carefully before engaging our services.</p>
+        </div>
+        
+        <h2>1. Definitions</h2>
+        <p>In these Terms and Conditions:</p>
+        <ul>
+          <li><strong>"VERGO"</strong>, <strong>"we"</strong>, <strong>"us"</strong>, or <strong>"our"</strong> refers to VERGO Events Ltd</li>
+          <li><strong>"Client"</strong> refers to any person or organisation engaging our services</li>
+          <li><strong>"Staff"</strong> refers to event professionals supplied by VERGO</li>
+          <li><strong>"Event"</strong> refers to any function, gathering, or occasion for which services are provided</li>
+          <li><strong>"Services"</strong> refers to event staffing, management, and related services</li>
+        </ul>
+        
+        <h2>2. Service Agreement</h2>
+        <p>A binding agreement is formed when:</p>
+        <ul>
+          <li>We accept your booking request in writing (including email)</li>
+          <li>You pay the required deposit</li>
+          <li>You agree to these terms and conditions</li>
+        </ul>
+        <p>All bookings are subject to staff availability. We reserve the right to decline any booking at our discretion.</p>
+        
+        <h2>3. Booking & Payment</h2>
+        <p><strong>Deposits:</strong> A 50% deposit is required to secure your booking. The remaining balance is due 7 days before the event date.</p>
+        <p><strong>Payment Methods:</strong> We accept bank transfer and major credit/debit cards.</p>
+        <p><strong>Late Payment:</strong> Invoices not paid within the agreed terms may incur a late payment fee of 8% above the Bank of England base rate.</p>
+        
+        <h2>4. Cancellation Policy</h2>
+        <p>Cancellations must be made in writing. The following fees apply:</p>
+        <ul>
+          <li><strong>More than 14 days before:</strong> Full refund minus 10% administration fee</li>
+          <li><strong>7-14 days before:</strong> 50% of total booking fee</li>
+          <li><strong>Less than 7 days:</strong> 100% of total booking fee</li>
+          <li><strong>Same day / no-show:</strong> 100% of total booking fee plus any additional costs incurred</li>
+        </ul>
+        
+        <h2>5. Client Responsibilities</h2>
+        <p>The Client agrees to:</p>
+        <ul>
+          <li>Provide accurate event details, including venue, times, and requirements</li>
+          <li>Ensure a safe working environment for all staff</li>
+          <li>Provide adequate facilities (break areas, refreshments, etc.)</li>
+          <li>Notify us of any changes to the event at least 48 hours in advance</li>
+          <li>Not engage our staff directly for 12 months following an event</li>
+        </ul>
+        
+        <h2>6. Staff Conduct & Standards</h2>
+        <p>All VERGO staff are:</p>
+        <ul>
+          <li>Personally vetted by our founder</li>
+          <li>Professionally trained and experienced</li>
+          <li>DBS checked where required</li>
+          <li>Covered by our public liability insurance</li>
+        </ul>
+        <p>If you have any concerns about staff performance, please notify us immediately so we can address the issue.</p>
+        
+        <h2>7. Liability & Insurance</h2>
+        <p>VERGO Events Ltd maintains comprehensive public liability insurance of £5,000,000.</p>
+        <p>Our liability is limited to the total value of the booking. We are not liable for:</p>
+        <ul>
+          <li>Indirect or consequential losses</li>
+          <li>Loss of profits or business opportunities</li>
+          <li>Damage caused by third parties</li>
+          <li>Events beyond our reasonable control (force majeure)</li>
+        </ul>
+        
+        <h2>8. Intellectual Property</h2>
+        <p>All content on our website, including logos, images, and text, is the property of VERGO Events Ltd and may not be used without written permission.</p>
+        
+        <h2>9. Confidentiality</h2>
+        <p>Both parties agree to keep confidential any information disclosed during the course of business. This includes event details, pricing, and any proprietary information.</p>
+        
+        <h2>10. Dispute Resolution</h2>
+        <p>In the event of a dispute, both parties agree to:</p>
+        <ul>
+          <li>Attempt to resolve the matter through good-faith negotiation</li>
+          <li>If unsuccessful, submit to mediation before pursuing legal action</li>
+          <li>These terms are governed by English law and subject to the jurisdiction of English courts</li>
+        </ul>
+        
+        <h2>11. Changes to Terms</h2>
+        <p>We reserve the right to update these terms at any time. Changes will be posted on our website and take effect immediately. Continued use of our services constitutes acceptance of the updated terms.</p>
+        
+        <h2>12. Contact</h2>
+        <p>For questions about these terms, please contact:</p>
+        <div class="highlight-box">
+          <p>
+            <strong>VERGO Events Ltd</strong><br>
+            Email: <a href="mailto:info@vergoevents.com" style="color: #D4AF37;">info@vergoevents.com</a><br>
+            Company Registration: [Your Company Number]
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <footer>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+  
+  <script src="/vergo-menu.js"></script>
+  <script src="/vergo-nav.js"></script>
+</body>
+</html>

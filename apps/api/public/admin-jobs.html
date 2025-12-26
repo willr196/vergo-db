@@ -1,76 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L4XRTDYMTZ');
+</script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="/logo.png">
   <title>Manage Jobs - VERGO Admin</title>
-  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      font-family: 'Inter', -apple-system, sans-serif;
       background: #0a0a0a;
-      color: #ffffff;
+      color: #fff;
       min-height: 100vh;
     }
     
+    /* Header */
     header {
-      background: #1a1a1a;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-      padding: 20px 30px;
+      background: rgba(26, 26, 26, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #D4AF37;
+      padding: 15px 30px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
     
-    .logo img { height: 40px; }
+    .logo img {
+      height: 40px;
+    }
     
     .header-nav {
       display: flex;
-      gap: 20px;
       align-items: center;
+      gap: 20px;
     }
     
     .header-nav a {
-      color: #999;
+      color: #ccc;
       text-decoration: none;
       font-size: 0.9rem;
+      transition: color 0.2s;
     }
     
-    .header-nav a:hover, .header-nav a.active {
+    .header-nav a:hover,
+    .header-nav a.active {
       color: #D4AF37;
     }
     
+    /* Main */
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+    
+    /* Buttons */
     .btn {
       padding: 10px 20px;
       border-radius: 4px;
-      font-weight: 600;
       font-size: 0.9rem;
-      text-decoration: none;
+      font-weight: 500;
       cursor: pointer;
       border: none;
-      transition: all 0.2s ease;
+      transition: all 0.2s;
     }
     
     .btn-primary {
       background: #D4AF37;
-      color: #1a1a1a;
+      color: #000;
     }
     
-    .btn-primary:hover { background: #e5c349; }
+    .btn-primary:hover {
+      background: #e6c758;
+    }
     
     .btn-secondary {
       background: #333;
       color: #fff;
     }
     
-    .btn-secondary:hover { background: #444; }
-    
-    .btn-danger {
-      background: #dc3545;
-      color: #fff;
+    .btn-secondary:hover {
+      background: #444;
     }
     
     .btn-small {
@@ -78,12 +109,49 @@
       font-size: 0.8rem;
     }
     
-    main {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 30px;
+    .btn-approve {
+      background: rgba(40, 167, 69, 0.2);
+      color: #28a745;
+      border: 1px solid rgba(40, 167, 69, 0.4);
     }
     
+    .btn-approve:hover {
+      background: rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-reject {
+      background: rgba(220, 53, 69, 0.2);
+      color: #dc3545;
+      border: 1px solid rgba(220, 53, 69, 0.4);
+    }
+    
+    .btn-reject:hover {
+      background: rgba(220, 53, 69, 0.3);
+    }
+    
+    .btn-edit {
+      background: rgba(0, 123, 255, 0.2);
+      color: #007bff;
+      border: 1px solid rgba(0, 123, 255, 0.4);
+    }
+    
+    .btn-edit:hover {
+      background: rgba(0, 123, 255, 0.3);
+    }
+    
+    .btn-delete {
+      background: rgba(108, 117, 125, 0.2);
+      color: #999;
+      border: 1px solid rgba(108, 117, 125, 0.4);
+    }
+    
+    .btn-delete:hover {
+      background: rgba(220, 53, 69, 0.2);
+      color: #dc3545;
+      border-color: rgba(220, 53, 69, 0.4);
+    }
+    
+    /* Page header */
     .page-header {
       display: flex;
       justify-content: space-between;
@@ -94,6 +162,39 @@
     .page-header h1 {
       color: #D4AF37;
       font-size: 1.8rem;
+    }
+    
+    /* Pending banner */
+    .pending-banner {
+      background: rgba(255, 193, 7, 0.1);
+      border: 1px solid rgba(255, 193, 7, 0.3);
+      border-radius: 8px;
+      padding: 15px 20px;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .pending-banner.hidden {
+      display: none;
+    }
+    
+    .pending-banner-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #ffc107;
+    }
+    
+    .pending-banner-text strong {
+      font-size: 1.1rem;
+    }
+    
+    .pending-banner button {
+      background: rgba(255, 193, 7, 0.2);
+      border: 1px solid rgba(255, 193, 7, 0.4);
+      color: #ffc107;
     }
     
     /* Filters */
@@ -112,6 +213,11 @@
       color: #fff;
       font-size: 0.9rem;
       min-width: 150px;
+    }
+    
+    .filters select:focus {
+      border-color: #D4AF37;
+      outline: none;
     }
     
     /* Table */
@@ -166,6 +272,13 @@
       font-size: 0.8rem;
     }
     
+    .poster-email {
+      color: #D4AF37;
+      font-size: 0.75rem;
+      display: block;
+      margin-top: 2px;
+    }
+    
     /* Status badges */
     .status {
       padding: 4px 10px;
@@ -175,6 +288,7 @@
       text-transform: uppercase;
     }
     
+    .status-pending { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
     .status-draft { background: #333; color: #999; }
     .status-open { background: rgba(40, 167, 69, 0.2); color: #28a745; }
     .status-filled { background: rgba(0, 123, 255, 0.2); color: #007bff; }
@@ -183,15 +297,59 @@
     .actions {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    /* Form row */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    
+    .form-group label {
+      color: #ccc;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 10px 12px;
+      background: #252525;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: #D4AF37;
+      outline: none;
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
     }
     
     /* Modal */
     .modal-backdrop {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       background: rgba(0, 0, 0, 0.8);
       display: flex;
       align-items: center;
@@ -202,12 +360,12 @@
     
     .modal {
       background: #1a1a1a;
-      border: 1px solid rgba(212, 175, 55, 0.3);
       border-radius: 12px;
       width: 100%;
       max-width: 700px;
       max-height: 90vh;
       overflow-y: auto;
+      border: 1px solid #333;
     }
     
     .modal-header {
@@ -231,62 +389,12 @@
       cursor: pointer;
     }
     
-    .modal-close:hover { color: #fff; }
+    .modal-close:hover {
+      color: #fff;
+    }
     
     .modal-body {
       padding: 25px;
-    }
-    
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    
-    .form-group {
-      margin-bottom: 20px;
-    }
-    
-    .form-group.full-width {
-      grid-column: 1 / -1;
-    }
-    
-    .form-group label {
-      display: block;
-      color: #999;
-      font-size: 0.85rem;
-      margin-bottom: 6px;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 12px 14px;
-      background: #0a0a0a;
-      border: 1px solid #333;
-      border-radius: 4px;
-      color: #fff;
-      font-size: 0.95rem;
-      font-family: inherit;
-    }
-    
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #D4AF37;
-    }
-    
-    .form-group textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-    
-    .form-group .hint {
-      color: #666;
-      font-size: 0.75rem;
-      margin-top: 4px;
     }
     
     .modal-footer {
@@ -339,10 +447,8 @@
     /* Responsive */
     @media (max-width: 900px) {
       .form-row { grid-template-columns: 1fr; }
-      
       table { font-size: 0.85rem; }
       th, td { padding: 10px; }
-      
       .hide-mobile { display: none; }
     }
     
@@ -351,6 +457,7 @@
       .page-header { flex-direction: column; gap: 15px; align-items: flex-start; }
       .filters { flex-direction: column; }
       .filters select { width: 100%; }
+      .actions { flex-direction: column; }
     }
   </style>
 </head>
@@ -360,8 +467,9 @@
       <img src="/logo.png" alt="VERGO Events">
     </a>
     <div class="header-nav">
-      <a href="admin.html">Applications</a>
-      <a href="admin-jobs.html" class="active">Jobs</a>
+      <a href="admin.html">Roster</a>
+      <a href="admin-jobs.html">Jobs</a>
+      <a href="admin-job-applications.html">Applicants</a>
       <a href="index.html">View Site</a>
       <button onclick="logout()" class="btn btn-secondary btn-small">Logout</button>
     </div>
@@ -369,6 +477,15 @@
   
   <main>
     <div id="alert-container"></div>
+    
+    <!-- Pending jobs banner -->
+    <div id="pending-banner" class="pending-banner hidden">
+      <div class="pending-banner-text">
+        <span>⚠️</span>
+        <strong><span id="pending-count">0</span> job(s) awaiting approval</strong>
+      </div>
+      <button class="btn btn-small" onclick="filterPending()">Review Now</button>
+    </div>
     
     <div class="page-header">
       <h1>Manage Jobs</h1>
@@ -378,6 +495,7 @@
     <div class="filters">
       <select id="filter-status" onchange="loadJobs()">
         <option value="">All Statuses</option>
+        <option value="PENDING">⚠️ Pending Approval</option>
         <option value="DRAFT">Draft</option>
         <option value="OPEN">Open</option>
         <option value="FILLED">Filled</option>
@@ -397,8 +515,8 @@
             <th>Job</th>
             <th>Company</th>
             <th>Date</th>
-            <th>Pay</th>
-            <th>Apps</th>
+            <th class="hide-mobile">Pay</th>
+            <th class="hide-mobile">Apps</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -447,35 +565,22 @@
           <div class="form-row">
             <div class="form-group">
               <label>Company Name</label>
-              <input type="text" name="companyName" placeholder="e.g. Compass Group">
-              <p class="hint">Leave blank for VERGO jobs</p>
+              <input type="text" name="companyName" placeholder="e.g. ABC Events Ltd">
             </div>
-            <div class="form-group">
-              <label>External Apply URL</label>
-              <input type="url" name="externalUrl" placeholder="https://...">
-              <p class="hint">If they apply elsewhere</p>
-            </div>
-          </div>
-          
-          <div class="form-row">
             <div class="form-group">
               <label>Location *</label>
               <input type="text" name="location" required placeholder="e.g. Central London">
             </div>
-            <div class="form-group">
-              <label>Venue</label>
-              <input type="text" name="venue" placeholder="e.g. The Savoy">
-            </div>
           </div>
           
           <div class="form-row">
             <div class="form-group">
-              <label>Event Date</label>
-              <input type="date" name="eventDate">
+              <label>Venue</label>
+              <input type="text" name="venue" placeholder="e.g. The Dorchester Hotel">
             </div>
             <div class="form-group">
-              <label>End Date (if multi-day)</label>
-              <input type="date" name="eventEndDate">
+              <label>Event Date</label>
+              <input type="date" name="eventDate">
             </div>
           </div>
           
@@ -493,7 +598,7 @@
           <div class="form-row">
             <div class="form-group">
               <label>Pay Rate (£)</label>
-              <input type="number" name="payRate" step="0.01" min="0" placeholder="e.g. 15.00">
+              <input type="number" name="payRate" step="0.01" min="0" max="1000" placeholder="15.00">
             </div>
             <div class="form-group">
               <label>Pay Type</label>
@@ -549,6 +654,7 @@
     let jobs = [];
     let roles = [];
     let editingId = null;
+    let pendingCount = 0;
     
     // Check admin auth
     async function checkAuth() {
@@ -588,19 +694,43 @@
       const status = document.getElementById('filter-status').value;
       const type = document.getElementById('filter-type').value;
       
-      const params = new URLSearchParams({ limit: 50 });
+      const params = new URLSearchParams({ limit: '50' });
       if (status) params.append('status', status);
       if (type) params.append('type', type);
       
       try {
-        const res = await fetch(`/api/v1/jobs/admin/all?${params}`);
+        const res = await fetch(`/api/v1/jobs/admin/list?${params}`);
         const data = await res.json();
         jobs = data.jobs || [];
+        
+        // Count pending jobs
+        pendingCount = jobs.filter(j => j.status === 'PENDING').length;
+        updatePendingBanner();
+        
         renderTable();
       } catch (err) {
         console.error('Failed to load jobs:', err);
         document.getElementById('jobs-table').innerHTML = '<tr><td colspan="7" class="empty-state">Failed to load jobs</td></tr>';
       }
+    }
+    
+    // Update pending banner
+    function updatePendingBanner() {
+      const banner = document.getElementById('pending-banner');
+      const countEl = document.getElementById('pending-count');
+      
+      if (pendingCount > 0) {
+        banner.classList.remove('hidden');
+        countEl.textContent = pendingCount;
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+    
+    // Filter to pending jobs
+    function filterPending() {
+      document.getElementById('filter-status').value = 'PENDING';
+      loadJobs();
     }
     
     // Render table
@@ -618,27 +748,44 @@
           : '-';
         
         const pay = job.payRate 
-          ? `£${Number(job.payRate).toFixed(0)}/${job.payType === 'HOURLY' ? 'hr' : job.payType === 'DAILY' ? 'day' : 'fixed'}`
+          ? `£${Number(job.payRate).toFixed(0)}/${job.payType === 'HOURLY' ? 'hr' : job.payType === 'DAILY' ? 'day' : 'fee'}`
           : '-';
         
-        const company = job.companyName || 'VERGO';
-        const apps = job._count?.applications || 0;
+        const roleName = job.role?.name || 'Unknown';
+        const companyDisplay = job.companyName || (job.type === 'INTERNAL' ? 'VERGO' : '-');
+        const posterEmail = job.posterEmail ? `<span class="poster-email">${escapeHtml(job.posterEmail)}</span>` : '';
+        
+        // Determine which action buttons to show
+        let actionButtons = '';
+        
+        if (job.status === 'PENDING') {
+          actionButtons = `
+            <button class="btn btn-small btn-approve" onclick="approveJob('${job.id}')">✓ Approve</button>
+            <button class="btn btn-small btn-reject" onclick="rejectJob('${job.id}')">✗ Reject</button>
+            <button class="btn btn-small btn-edit" onclick="editJob('${job.id}')">Edit</button>
+          `;
+        } else {
+          actionButtons = `
+            <button class="btn btn-small btn-edit" onclick="editJob('${job.id}')">Edit</button>
+            <button class="btn btn-small btn-delete" onclick="deleteJob('${job.id}')">Delete</button>
+          `;
+        }
         
         return `
           <tr>
             <td class="job-title-cell">
               <strong>${escapeHtml(job.title)}</strong>
-              <span>${escapeHtml(job.role?.name || '')}</span>
+              <span>${escapeHtml(roleName)}</span>
             </td>
-            <td>${escapeHtml(company)}</td>
+            <td>
+              ${escapeHtml(companyDisplay)}
+              ${posterEmail}
+            </td>
             <td>${date}</td>
-            <td>${pay}</td>
-            <td>${apps}</td>
+            <td class="hide-mobile">${pay}</td>
+            <td class="hide-mobile">${job._count?.applications || 0}</td>
             <td><span class="status status-${job.status.toLowerCase()}">${job.status}</span></td>
-            <td class="actions">
-              <button onclick="editJob('${job.id}')" class="btn btn-secondary btn-small">Edit</button>
-              <button onclick="deleteJob('${job.id}')" class="btn btn-danger btn-small">Delete</button>
-            </td>
+            <td class="actions">${actionButtons}</td>
           </tr>
         `;
       }).join('');
@@ -654,41 +801,33 @@
     }
     
     // Edit job
-    async function editJob(id) {
-      try {
-        const res = await fetch(`/api/v1/jobs/admin/${id}`);
-        if (!res.ok) throw new Error('Failed to load job');
-        
-        const job = await res.json();
-        editingId = id;
-        
-        document.getElementById('modal-title').textContent = 'Edit Job';
-        document.getElementById('form-alert').innerHTML = '';
-        
-        const form = document.getElementById('job-form');
-        form.title.value = job.title || '';
-        form.roleId.value = job.roleId || '';
-        form.type.value = job.type || 'EXTERNAL';
-        form.companyName.value = job.companyName || '';
-        form.externalUrl.value = job.externalUrl || '';
-        form.location.value = job.location || '';
-        form.venue.value = job.venue || '';
-        form.eventDate.value = job.eventDate ? job.eventDate.split('T')[0] : '';
-        form.eventEndDate.value = job.eventEndDate ? job.eventEndDate.split('T')[0] : '';
-        form.shiftStart.value = job.shiftStart || '';
-        form.shiftEnd.value = job.shiftEnd || '';
-        form.payRate.value = job.payRate || '';
-        form.payType.value = job.payType || 'HOURLY';
-        form.staffNeeded.value = job.staffNeeded || 1;
-        form.status.value = job.status || 'DRAFT';
-        form.description.value = job.description || '';
-        form.requirements.value = job.requirements || '';
-        form.closingDate.value = job.closingDate ? job.closingDate.split('T')[0] : '';
-        
-        document.getElementById('job-modal').style.display = 'flex';
-      } catch (err) {
-        showAlert('Failed to load job', 'error');
-      }
+    function editJob(id) {
+      const job = jobs.find(j => j.id === id);
+      if (!job) return;
+      
+      editingId = id;
+      document.getElementById('modal-title').textContent = 'Edit Job';
+      document.getElementById('form-alert').innerHTML = '';
+      
+      const form = document.getElementById('job-form');
+      form.title.value = job.title;
+      form.roleId.value = job.roleId;
+      form.type.value = job.type;
+      form.companyName.value = job.companyName || '';
+      form.location.value = job.location;
+      form.venue.value = job.venue || '';
+      form.eventDate.value = job.eventDate ? job.eventDate.split('T')[0] : '';
+      form.shiftStart.value = job.shiftStart || '';
+      form.shiftEnd.value = job.shiftEnd || '';
+      form.payRate.value = job.payRate || '';
+      form.payType.value = job.payType;
+      form.staffNeeded.value = job.staffNeeded;
+      form.status.value = job.status === 'PENDING' ? 'DRAFT' : job.status; // Can't set to PENDING manually
+      form.description.value = job.description;
+      form.requirements.value = job.requirements || '';
+      form.closingDate.value = job.closingDate ? job.closingDate.split('T')[0] : '';
+      
+      document.getElementById('job-modal').style.display = 'flex';
     }
     
     // Close modal
@@ -702,33 +841,30 @@
       e.preventDefault();
       
       const form = e.target;
-      const btn = document.getElementById('save-btn');
       const formAlert = document.getElementById('form-alert');
-      
-      btn.disabled = true;
-      btn.textContent = 'Saving...';
-      formAlert.innerHTML = '';
+      const btn = document.getElementById('save-btn');
       
       const data = {
         title: form.title.value.trim(),
         roleId: form.roleId.value,
         type: form.type.value,
-        companyName: form.companyName.value.trim() || undefined,
-        externalUrl: form.externalUrl.value.trim() || undefined,
+        companyName: form.companyName.value.trim() || null,
         location: form.location.value.trim(),
-        venue: form.venue.value.trim() || undefined,
-        eventDate: form.eventDate.value || undefined,
-        eventEndDate: form.eventEndDate.value || undefined,
-        shiftStart: form.shiftStart.value || undefined,
-        shiftEnd: form.shiftEnd.value || undefined,
-        payRate: form.payRate.value ? parseFloat(form.payRate.value) : undefined,
+        venue: form.venue.value.trim() || null,
+        eventDate: form.eventDate.value || null,
+        shiftStart: form.shiftStart.value || null,
+        shiftEnd: form.shiftEnd.value || null,
+        payRate: form.payRate.value ? parseFloat(form.payRate.value) : null,
         payType: form.payType.value,
         staffNeeded: parseInt(form.staffNeeded.value) || 1,
         status: form.status.value,
         description: form.description.value.trim(),
-        requirements: form.requirements.value.trim() || undefined,
-        closingDate: form.closingDate.value || undefined
+        requirements: form.requirements.value.trim() || null,
+        closingDate: form.closingDate.value || null
       };
+      
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
       
       try {
         const url = editingId ? `/api/v1/jobs/${editingId}` : '/api/v1/jobs';
@@ -755,6 +891,52 @@
       } finally {
         btn.disabled = false;
         btn.textContent = 'Save Job';
+      }
+    }
+    
+    // Approve pending job
+    async function approveJob(id) {
+      const job = jobs.find(j => j.id === id);
+      if (!confirm(`Approve "${job?.title}"?\n\nThis will make it visible to job seekers.`)) return;
+      
+      try {
+        const res = await fetch(`/api/v1/jobs/${id}/approve`, { method: 'POST' });
+        
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Failed to approve');
+        }
+        
+        showAlert('Job approved and now visible to job seekers', 'success');
+        loadJobs();
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+    
+    // Reject pending job
+    async function rejectJob(id) {
+      const job = jobs.find(j => j.id === id);
+      const reason = prompt(`Reject "${job?.title}"?\n\nOptionally enter a reason (will be emailed to submitter):`);
+      
+      if (reason === null) return; // User cancelled
+      
+      try {
+        const res = await fetch(`/api/v1/jobs/${id}/reject`, { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason: reason || undefined })
+        });
+        
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Failed to reject');
+        }
+        
+        showAlert('Job rejected and removed', 'success');
+        loadJobs();
+      } catch (err) {
+        showAlert(err.message, 'error');
       }
     }
     

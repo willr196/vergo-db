@@ -1,0 +1,35 @@
+# VERGO Events - robots.txt
+# https://vergoevents.com/robots.txt
+
+User-agent: *
+Allow: /
+
+# Disallow admin and private areas
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /admin-jobs.html
+Disallow: /login.html
+Disallow: /api/
+
+# Disallow user account pages (not useful for search)
+Disallow: /user-login.html
+Disallow: /user-register.html
+Disallow: /user-dashboard.html
+Disallow: /reset-password.html
+Disallow: /forgot-password.html
+
+# Sitemap location
+Sitemap: https://vergoevents.com/sitemap.xml
+
+# Crawl-delay (optional - be nice to server)
+Crawl-delay: 1
+
+# Block bad bots (optional)
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /

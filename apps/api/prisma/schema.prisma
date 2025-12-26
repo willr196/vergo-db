@@ -78,6 +78,102 @@ model AdminUser {
   
   @@index([username])
 }
+// ============================================
+// CLIENT/COMPANY MODELS
+// ============================================
+
+// Corporate clients who hire staff
+model Client {
+  id              String        @id @default(cuid())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Company details
+  companyName     String
+  industry        String?
+  website         String?
+  companySize     String?       // e.g. "1-10", "11-50", "51-200", "200+"
+  
+  // Primary contact
+  contactName     String
+  email           String        @unique
+  passwordHash    String
+  phone           String?
+  jobTitle        String?       // e.g. "Event Manager", "HR Director"
+  
+  // Approval workflow
+  status          ClientStatus  @default(PENDING)
+  approvedAt      DateTime?
+  approvedBy      String?       // Admin username who approved
+  rejectionReason String?
+  
+  // Auth
+  emailVerified   Boolean       @default(false)
+  verifyToken     String?
+  verifyTokenExp  DateTime?
+  resetToken      String?
+  resetTokenExp   DateTime?
+  
+  // Security
+  failedAttempts  Int           @default(0)
+  lockedUntil     DateTime?
+  lastLoginAt     DateTime?
+  
+  // Admin notes
+  adminNotes      String?       @db.Text
+  
+  // Relations
+  quoteRequests   QuoteRequest[]
+  
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Quote requests from clients
+model QuoteRequest {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Event details
+  eventType     String    // e.g. "Corporate Event", "Wedding", "Festival"
+  eventDate     DateTime?
+  eventEndDate  DateTime?
+  location      String
+  venue         String?
+  
+  // Staffing requirements
+  staffCount    Int
+  roles         String    // Comma-separated or JSON
+  shiftStart    String?
+  shiftEnd      String?
+  
+  // Additional info
+  description   String?   @db.Text
+  budget        String?   // Budget range
+  
+  // Status tracking
+  status        String    @default("NEW") // NEW, QUOTED, ACCEPTED, DECLINED, COMPLETED
+  adminNotes    String?   @db.Text
+  quotedAmount  Decimal?  @db.Decimal(10, 2)
+  quoteSentAt   DateTime?
+  
+  // Relations
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum ClientStatus {
+  PENDING     // Awaiting admin approval
+  APPROVED    // Can log in and use platform
+  REJECTED    // Application denied
+  SUSPENDED   // Account suspended
+}
 
 model FileUploadVerification {
   id          String   @id @default(uuid())
@@ -105,15 +201,25 @@ model User {
   email           String           @unique
   passwordHash    String
   emailVerified   Boolean          @default(false)
-  verifyToken     String?          // For email verification
-  verifyTokenExp  DateTime?        // Verification token expiry
-  resetToken      String?          // For password reset
+  verifyToken     String?
+  verifyTokenExp  DateTime?
+  resetToken      String?
   resetTokenExp   DateTime?
   
   // Profile
   firstName       String
   lastName        String
   phone           String?
+  
+  // User type (JOB_SEEKER or CLIENT)
+  userType        UserType         @default(JOB_SEEKER)
+  
+  // Client/Company fields (only used when userType = CLIENT)
+  companyName     String?
+  companyWebsite  String?
+  vatNumber       String?
+  billingAddress  String?
+  approvedClient  Boolean          @default(false)
   
   // Link to VERGO roster (if they've applied to join your team)
   applicantId     String?          @unique
@@ -128,7 +234,9 @@ model User {
   jobApplications JobApplication[]
   savedJobs       SavedJob[]
   
+  // Indexes (must be at the end)
   @@index([email])
+  @@index([userType])
 }
 
 // Job listings
@@ -257,3 +365,10 @@ enum JobApplicationStatus {
   REJECTED    // Not selected
   WITHDRAWN   // User cancelled
 }
+
+
+enum UserType {
+  JOB_SEEKER
+  CLIENT
+}
+
