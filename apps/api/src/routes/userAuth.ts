@@ -180,7 +180,7 @@ r.get("/verify-email", async (req, res) => {
     console.log(`[USER] Email verified: ${user.id}`);
     
     // Redirect to login page with success message
-    res.redirect("/login.html?verified=true");
+    res.redirect("/user-login.html?verified=true");
     
   } catch (error) {
     console.error("[ERROR] Email verification failed:", error);

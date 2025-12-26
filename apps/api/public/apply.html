@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L4XRTDYMTZ');
+</script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="logo.png">
-  <link rel="apple-touch-icon" href="logo.png">
-  <link rel="shortcut icon" type="image/png" href="logo.png">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="apple-touch-icon" href="/logo.png">
+  <link rel="shortcut icon" type="image/png" href="/logo.png">
   <title>Join Our Team - VERGO Events | Personally Vetted by Founder</title>
   <meta name="description" content="Join VERGO's growing team of event professionals. Every team member personally vetted by founder with 8+ years experience. Premium rates. Quality clients.">
   
@@ -13,275 +24,18 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
   
-  <link rel="stylesheet" href="/vergo-a11y.css"> <!-- Accessibility -->
+  <link rel="stylesheet" href="/vergo-a11y.css">
   <link rel="stylesheet" href="/vergo-styles.css">
+  <link rel="stylesheet" href="/vergo-header.css">
   <link rel="stylesheet" href="/vergo-mobile.css">
 
   <style>
-    /* ============================================
-     * STANDARD HEADER & NAV STYLES
-     * ============================================ */
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: rgba(10, 10, 10, 0.98);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-      padding: 15px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 1000;
-    }
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-    }
-    
-    .logo img {
-      height: 45px;
-      width: auto;
-      transition: transform 0.3s ease;
-      border: none !important;
-      background: transparent !important;
-      display: block;
-    }
-    
-    .logo:hover img {
-      transform: scale(1.05);
-    }
-    
-    nav ul {
-      display: flex;
-      gap: 30px;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    
-    nav li {
-      position: relative;
-    }
-    
-    nav a {
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
-      position: relative;
-      display: block;
-      padding: 8px 0;
-    }
-    
-    nav a::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: #D4AF37;
-      transition: width 0.3s ease;
-    }
-    
-    nav a:hover {
-      color: #D4AF37;
-    }
-    
-    nav a:hover::after {
-      width: 100%;
-    }
-    
-    nav a[aria-current="page"] {
-      color: #D4AF37;
-    }
-    
-    nav a[aria-current="page"]::after {
-      width: 100%;
-    }
-    
-    /* Dropdown Styles */
-    .nav-dropdown {
-      position: relative;
-    }
-    
-    .nav-dropdown > a {
-      cursor: pointer;
-    }
-    
-    .nav-dropdown > a::before {
-      content: '▼';
-      font-size: 0.6rem;
-      margin-left: 5px;
-      display: inline-block;
-      transition: transform 0.3s ease;
-    }
-    
-    .dropdown-menu {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background: rgba(10, 10, 10, 0.98);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      border-radius: 4px;
-      min-width: 180px;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-10px);
-      transition: all 0.3s ease;
-      margin-top: 5px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      padding: 0;
-    }
-    
-    .nav-dropdown:hover .dropdown-menu,
-    .nav-dropdown.active .dropdown-menu {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-    
-    .nav-dropdown.active > a::before {
-      transform: rotate(180deg);
-    }
-    
-    .dropdown-menu li {
-      list-style: none;
-    }
-    
-    .dropdown-menu a {
-      padding: 12px 18px;
-      display: block;
-      color: #ffffff;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-      font-size: 0.85rem;
-    }
-    
-    .dropdown-menu a::after {
-      display: none;
-    }
-    
-    .dropdown-menu li:last-child a {
-      border-bottom: none;
-    }
-    
-    .dropdown-menu a:hover {
-      background: rgba(212, 175, 55, 0.1);
-      color: #D4AF37;
-    }
-    
-    /* Mobile Menu Toggle */
-    .menu-toggle {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 8px;
-    }
-    
-    .menu-toggle span {
-      width: 24px;
-      height: 2px;
-      background: #D4AF37;
-      transition: all 0.3s ease;
-    }
-    
-    /* Mobile Responsive */
-    @media (max-width: 900px) {
-      header {
-        padding: 12px 20px;
-      }
-      
-      .logo img {
-        height: 38px;
-      }
-      
-      nav ul {
-        position: fixed;
-        top: 65px;
-        left: 0;
-        right: 0;
-        background: rgba(10, 10, 10, 0.98);
-        flex-direction: column;
-        padding: 20px;
-        gap: 0;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-      }
-      
-      nav ul.active {
-        transform: translateX(0);
-      }
-      
-      nav li {
-        border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-      }
-      
-      nav li:last-child {
-        border-bottom: none;
-      }
-      
-      nav a {
-        padding: 15px 10px;
-      }
-      
-      .menu-toggle {
-        display: flex;
-      }
-      
-      /* Mobile dropdown */
-      .dropdown-menu {
-        position: static;
-        opacity: 1;
-        visibility: visible;
-        transform: none;
-        margin: 0;
-        padding-left: 15px;
-        display: none;
-        border: none;
-        box-shadow: none;
-        background: transparent;
-      }
-      
-      .nav-dropdown.active .dropdown-menu {
-        display: block;
-      }
-      
-      .dropdown-menu a {
-        padding: 12px 10px;
-        border-bottom: none;
-      }
-    }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     /* Ensure all images have no borders or backgrounds */
     img { border: none; background: transparent; max-width: 100%; height: auto; }
     
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #ffffff; line-height: 1.7; }
-    
-    header { position: fixed; top: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-    .logo { font-size: 1.8rem; font-weight: 700; color: #D4AF37; letter-spacing: 2px; text-decoration: none; }
-    .logo img { height: 50px; width: auto; border: none !important; background: transparent !important; display: block; transition: transform 0.3s ease; }
-    .logo:hover img { transform: scale(1.05); }
-    nav ul { display: flex; gap: 35px; list-style: none; }
-    nav a { color: #ffffff; text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: color 0.3s ease; position: relative; }
-    nav a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: #D4AF37; transition: width 0.3s ease; }
-    nav a:hover { color: #D4AF37; }
-    nav a:hover::after { width: 100%; }
-    nav a:focus-visible { outline: 3px solid #D4AF37; outline-offset: 4px; border-radius: 2px; }
-    
-    .menu-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; border: none; background: transparent; padding: 8px; }
-    .menu-toggle:focus-visible { outline: 3px solid #D4AF37; outline-offset: 2px; }
-    .menu-toggle span { width: 25px; height: 2px; background: #D4AF37; }
     
     .page-hero { text-align: center; padding: 180px 40px 80px; background: linear-gradient(135deg, #0f0f0f 0%, #1a1410 50%, #0a0a0a 100%); border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
     .hero-badge { display: inline-block; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); color: #D4AF37; padding: 8px 20px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
@@ -396,74 +150,8 @@
       .intro-section, .standards-section, .application-form { padding: 40px 25px; }
       .benefits-grid, .roles-grid { grid-template-columns: 1fr; }
       .footer-links a { display: block; margin: 12px 0; }
-      
     }
-    /* Dropdown Styles */
-.nav-dropdown {
-  position: relative;
-}
-
-.nav-dropdown > a {
-  cursor: pointer;
-}
-
-.nav-dropdown > a::before {
-  content: '▼';
-  font-size: 0.7rem;
-  margin-left: 6px;
-  transition: transform 0.3s ease;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: rgba(10, 10, 10, 0.98);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  border-radius: 4px;
-  min-width: 200px;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: all 0.3s ease;
-  margin-top: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.nav-dropdown:hover .dropdown-menu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.dropdown-menu li {
-  list-style: none;
-}
-
-.dropdown-menu a {
-  padding: 12px 20px;
-  display: block;
-  color: #ffffff;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-  font-size: 0.9rem;
-}
-
-.dropdown-menu a::after {
-  display: none;
-}
-
-.dropdown-menu li:last-child a {
-  border-bottom: none;
-}
-
-.dropdown-menu a:hover {
-  background: rgba(212, 175, 55, 0.1);
-  color: #D4AF37;
-}
   </style>
-  
-  <!-- Load accessibility styles -->
-  <link rel="stylesheet" href="/vergo-a11y.css">
   
   <!-- Google Jobs Structured Data -->
   <!-- <script type="application/ld+json">
@@ -719,15 +407,19 @@
   <!-- Skip Link for Accessibility -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
   
-    <header role="banner">
+  <header role="banner">
     <a href="index.html" class="logo" aria-label="VERGO Events Home">
       <img src="/logo.png" alt="VERGO Events Logo">
     </a>
     
-    <button class="menu-toggle" onclick="toggleMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">
-      <span></span>
-      <span></span>
-      <span></span>
+    <button 
+      class="menu-toggle" 
+      onclick="toggleMenu()"
+      aria-label="Toggle navigation menu"
+      aria-expanded="false"
+      aria-controls="nav-menu"
+    >
+      <span></span><span></span><span></span>
     </button>
     
     <nav role="navigation" aria-label="Main navigation">
@@ -967,6 +659,26 @@
           </div>
         </div>
         
+        
+        <div class="form-group">
+          <label for="cv">
+            Your CV (PDF or Word) <span class="required" aria-label="required">*</span>
+          </label>
+          <input 
+            type="file" 
+            id="cv" 
+            name="cv"
+            accept=".pdf,.doc,.docx" 
+            required
+            aria-required="true"
+          />
+        </div>
+        
+        <div class="info-box">
+          <strong>What happens next?</strong>
+          We review all applications within 48 hours. If you're a good fit, I'll reach out directly to discuss opportunities. Maximum file size: 10MB.
+        </div>
+        
         <!-- Honeypot field (hidden from users, catches bots) -->
         <div style="position: absolute; left: -9999px; opacity: 0;" aria-hidden="true">
           <label for="website">Website (leave blank)</label>
@@ -992,93 +704,30 @@
     </div>
   </main>
   
-    <!-- Footer -->
   <footer role="contentinfo">
     <div class="footer-content">
-      <div class="footer-column">
-        <h3>About Us</h3>
-        <p>
-          Premium event staffing solutions founded by industry veterans. Combining 8+ years 
-          of hands-on experience with decades of family business expertise in the film and music sectors.
-        </p>
-        <p style="margin-top: 20px; font-size: 0.85rem; color: #666;">
-          Fully Insured • DBS Checked
-        </p>
-      </div>
-      
-      <div class="footer-column">
-        <h3>Services</h3>
-        <a href="hire-staff.html">Event Staffing</a>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="index.html">Home</a>
         <a href="hire-us.html">Event Management</a>
-        <a href="apply.html">Join Our Team</a>
-        <a href="about.html">About Us</a>
-        <a href="contact.html">Get a Quote</a>
+        <a href="hire-staff.html">Hire Staff</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+      <div class="footer-bottom">
+        <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
+        <p style="margin-top: 5px;">Founded by industry professionals • 8+ years experience • Building exceptional teams</p>
       </div>
-      
-      <div class="footer-column">
-        <h3>Contact Founder</h3>
-        <p><strong>Direct:</strong> <a href="tel:+447944505783" style="color: #999;">+44 7944 505 783</a></p>
-        <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection#7d0a0f121f1f3d0b180f1a12110919531e1210" style="color: #999;"><span class="__cf_email__" data-cfemail="8dfaffe2efefcdfbe8ffeae2e1f9e9a3eee2e0">[email&#160;protected]</span></a></p>
-        <p><strong>Location:</strong> London, UK</p>
-      </div>
-    </div>
-    
-    <div class="footer-bottom">
-      <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
-      <p style="margin-top: 5px;">
-        <a href="privacy.html" style="color: #666; text-decoration: none;">Privacy</a> | 
-        <a href="terms.html" style="color: #666; text-decoration: none;">Terms</a>
-      </p>
     </div>
   </footer>
   
   <!-- Load utilities -->
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/vergo-utils.js"></script>
+  <script src="/vergo-utils.js"></script>
   
+  <script src="/vergo-menu.js"></script>
   <script>
     'use strict';
-    
-    function toggleMenu() {
-      const menu = document.getElementById('nav-menu');
-      const toggle = document.querySelector('.menu-toggle');
-      const isActive = menu.classList.toggle('active');
-      toggle.setAttribute('aria-expanded', isActive);
-    }
-    // Dropdown toggle for mobile and desktop
-    function toggleDropdown(event, dropdownId) {
-      event.preventDefault();
-      event.stopPropagation();
-      
-      const dropdown = document.getElementById(dropdownId);
-      const isActive = dropdown.classList.toggle('active');
-      
-      // Update aria-expanded
-      const link = dropdown.querySelector('a[aria-haspopup]');
-      if (link) {
-        link.setAttribute('aria-expanded', isActive);
-      }
-      
-      // Close other dropdowns
-      document.querySelectorAll('.nav-dropdown').forEach(item => {
-        if (item.id !== dropdownId) {
-          item.classList.remove('active');
-          const otherLink = item.querySelector('a[aria-haspopup]');
-          if (otherLink) {
-            otherLink.setAttribute('aria-expanded', 'false');
-          }
-        }
-      });
-    }
-
-    
-    document.addEventListener('click', function(event) {
-      const menu = document.getElementById('nav-menu');
-      const header = document.querySelector('header');
-      if (header && !header.contains(event.target)) {
-        menu.classList.remove('active');
-        document.querySelector('.menu-toggle')?.setAttribute('aria-expanded', 'false');
-      }
-    });
     
     // Application form with S3 upload
     (function () {
@@ -1240,4 +889,19 @@
           
         } catch (err) {
           console.error('Application error:', err);
-          notify.show(err.message || 'Something went wrong submitting your application. Please try
+          notify.show(err.message || 'Something went wrong submitting your application. Please try again or contact us at wrobb@vergoltd.com', 'error');
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = originalText;
+          }
+        }
+      });
+    })();
+  </script>
+  <script src="/vergo-utils.js"></script>
+  <script src="/vergo-nav.js"></script>
+  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-analytics.js"></script>
+</body>
+</html>

@@ -12,7 +12,7 @@ import contact from './routes/contact';
 import userAuth from './routes/userAuth';
 import jobs from './routes/jobs';
 import jobApplications from './routes/jobApplications';
-
+import clientAuthRoutes from './routes/clientAuth';
 
 const app = express();
 app.disable('x-powered-by');
@@ -90,6 +90,8 @@ const pub = path.join(process.cwd(), 'public');
 app.use(express.static(pub, { extensions: ['html'] }));
 
 app.use('/api/v1/job-applications', jobApplications);
+
+app.use('/api/v1/client', clientAuthRoutes);
 
 // 404 handler (after static)
 app.use((req, res) => {

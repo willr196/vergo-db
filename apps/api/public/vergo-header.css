@@ -1,0 +1,334 @@
+/**
+ * VERGO Events - Header & Navigation Styles
+ * Shared across all pages for consistency
+ * Include AFTER vergo-styles.css
+ */
+
+/* ============================================
+ * HEADER
+ * ============================================ */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(10, 10, 10, 0.98);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  padding: 15px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* ============================================
+ * LOGO
+ * ============================================ */
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logo img {
+  height: 45px;
+  width: auto;
+  transition: transform 0.3s ease;
+  border: none !important;
+  background: transparent !important;
+  display: block;
+}
+
+.logo:hover img {
+  transform: scale(1.05);
+}
+
+/* ============================================
+ * NAVIGATION
+ * ============================================ */
+nav ul {
+  display: flex;
+  gap: 30px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav li {
+  position: relative;
+}
+
+nav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  position: relative;
+  display: block;
+  padding: 8px 0;
+}
+
+nav a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #D4AF37;
+  transition: width 0.3s ease;
+}
+
+nav a:hover {
+  color: #D4AF37;
+}
+
+nav a:hover::after {
+  width: 100%;
+}
+
+nav a[aria-current="page"] {
+  color: #D4AF37;
+}
+
+nav a[aria-current="page"]::after {
+  width: 100%;
+}
+
+/* ============================================
+ * DROPDOWN MENUS
+ * ============================================ */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown > a {
+  cursor: pointer;
+}
+
+/* Arrow handled by vergo-a11y.css via [aria-expanded]::after */
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: rgba(10, 10, 10, 0.98);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 4px;
+  min-width: 180px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  margin-top: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  padding: 0;
+}
+
+.nav-dropdown:hover .dropdown-menu,
+.nav-dropdown.active .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-menu li {
+  list-style: none;
+}
+
+.dropdown-menu a {
+  padding: 12px 18px;
+  display: block;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  font-size: 0.85rem;
+}
+
+.dropdown-menu a::after {
+  display: none;
+}
+
+.dropdown-menu li:last-child a {
+  border-bottom: none;
+}
+
+.dropdown-menu a:hover {
+  background: rgba(212, 175, 55, 0.1);
+  color: #D4AF37;
+}
+
+/* ============================================
+ * MOBILE MENU TOGGLE (Hamburger)
+ * ============================================ */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 8px;
+}
+
+.menu-toggle span {
+  width: 24px;
+  height: 2px;
+  background: #D4AF37;
+  transition: all 0.3s ease;
+}
+
+/* Hamburger animation when active */
+.menu-toggle.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-toggle.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* ============================================
+ * MOBILE RESPONSIVE (max-width: 900px)
+ * ============================================ */
+@media (max-width: 900px) {
+  header {
+    padding: 12px 20px;
+  }
+  
+  .logo img {
+    height: 38px;
+  }
+  
+  nav ul {
+    position: fixed;
+    top: 65px;
+    left: 0;
+    right: 0;
+    background: rgba(10, 10, 10, 0.98);
+    flex-direction: column;
+    padding: 20px;
+    gap: 0;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    max-height: calc(100vh - 65px);
+    overflow-y: auto;
+  }
+  
+  nav ul.active {
+    transform: translateX(0);
+  }
+  
+  nav li {
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  }
+  
+  nav li:last-child {
+    border-bottom: none;
+  }
+  
+  nav a {
+    padding: 15px 10px;
+  }
+  
+  .menu-toggle {
+    display: flex;
+  }
+  
+  /* Mobile dropdown */
+  .dropdown-menu {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    margin: 0;
+    padding-left: 15px;
+    display: none;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+  
+  .nav-dropdown.active .dropdown-menu {
+    display: block;
+  }
+  
+  .dropdown-menu a {
+    padding: 12px 10px;
+    border-bottom: none;
+  }
+}
+
+/* ============================================
+ * FOOTER
+ * ============================================ */
+footer {
+  background: #0a0a0a;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+  padding: 60px 40px 30px;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 60px;
+}
+
+.footer-column h3 {
+  color: #D4AF37;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.footer-column p {
+  color: #999;
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+.footer-column a {
+  display: block;
+  color: #999;
+  text-decoration: none;
+  padding: 8px 0;
+  transition: color 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.footer-column a:hover {
+  color: #D4AF37;
+}
+
+.footer-bottom {
+  max-width: 1200px;
+  margin: 40px auto 0;
+  padding-top: 20px;
+  border-top: 1px solid rgba(212, 175, 55, 0.1);
+  text-align: center;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  footer {
+    padding: 40px 20px 20px;
+  }
+  
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    text-align: center;
+  }
+  
+  .footer-column a {
+    padding: 6px 0;
+  }
+}

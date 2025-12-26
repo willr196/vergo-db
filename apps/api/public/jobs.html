@@ -1,256 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L4XRTDYMTZ');
+</script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="icon" type="image/png" href="/logo-small.png">
   <title>Jobs - VERGO Events</title>
   <meta name="description" content="Find bartending, waiting, and chef opportunities in London. Browse available shifts and apply to join the VERGO Events team.">
   
-  <style>
-    /* ============================================
-     * STANDARD HEADER & NAV STYLES
-     * ============================================ */
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: rgba(10, 10, 10, 0.98);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-      padding: 15px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 1000;
-    }
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-    }
-    
-    .logo img {
-      height: 45px;
-      width: auto;
-      transition: transform 0.3s ease;
-      border: none !important;
-      background: transparent !important;
-      display: block;
-    }
-    
-    .logo:hover img {
-      transform: scale(1.05);
-    }
-    
-    nav ul {
-      display: flex;
-      gap: 30px;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    
-    nav li {
-      position: relative;
-    }
-    
-    nav a {
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
-      position: relative;
-      display: block;
-      padding: 8px 0;
-    }
-    
-    nav a::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: #D4AF37;
-      transition: width 0.3s ease;
-    }
-    
-    nav a:hover {
-      color: #D4AF37;
-    }
-    
-    nav a:hover::after {
-      width: 100%;
-    }
-    
-    nav a[aria-current="page"] {
-      color: #D4AF37;
-    }
-    
-    nav a[aria-current="page"]::after {
-      width: 100%;
-    }
-    
-    /* Dropdown Styles */
-    .nav-dropdown {
-      position: relative;
-    }
-    
-    .nav-dropdown > a {
-      cursor: pointer;
-    }
-    
-    .nav-dropdown > a::before {
-      content: '▼';
-      font-size: 0.6rem;
-      margin-left: 5px;
-      display: inline-block;
-      transition: transform 0.3s ease;
-    }
-    
-    .dropdown-menu {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background: rgba(10, 10, 10, 0.98);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      border-radius: 4px;
-      min-width: 180px;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-10px);
-      transition: all 0.3s ease;
-      margin-top: 5px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      padding: 0;
-    }
-    
-    .nav-dropdown:hover .dropdown-menu,
-    .nav-dropdown.active .dropdown-menu {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-    
-    .nav-dropdown.active > a::before {
-      transform: rotate(180deg);
-    }
-    
-    .dropdown-menu li {
-      list-style: none;
-    }
-    
-    .dropdown-menu a {
-      padding: 12px 18px;
-      display: block;
-      color: #ffffff;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-      font-size: 0.85rem;
-    }
-    
-    .dropdown-menu a::after {
-      display: none;
-    }
-    
-    .dropdown-menu li:last-child a {
-      border-bottom: none;
-    }
-    
-    .dropdown-menu a:hover {
-      background: rgba(212, 175, 55, 0.1);
-      color: #D4AF37;
-    }
-    
-    /* Mobile Menu Toggle */
-    .menu-toggle {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 8px;
-    }
-    
-    .menu-toggle span {
-      width: 24px;
-      height: 2px;
-      background: #D4AF37;
-      transition: all 0.3s ease;
-    }
-    
-    /* Mobile Responsive */
-    @media (max-width: 900px) {
-      header {
-        padding: 12px 20px;
-      }
-      
-      .logo img {
-        height: 38px;
-      }
-      
-      nav ul {
-        position: fixed;
-        top: 65px;
-        left: 0;
-        right: 0;
-        background: rgba(10, 10, 10, 0.98);
-        flex-direction: column;
-        padding: 20px;
-        gap: 0;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-      }
-      
-      nav ul.active {
-        transform: translateX(0);
-      }
-      
-      nav li {
-        border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-      }
-      
-      nav li:last-child {
-        border-bottom: none;
-      }
-      
-      nav a {
-        padding: 15px 10px;
-      }
-      
-      .menu-toggle {
-        display: flex;
-      }
-      
-      /* Mobile dropdown */
-      .dropdown-menu {
-        position: static;
-        opacity: 1;
-        visibility: visible;
-        transform: none;
-        margin: 0;
-        padding-left: 15px;
-        display: none;
-        border: none;
-        box-shadow: none;
-        background: transparent;
-      }
-      
-      .nav-dropdown.active .dropdown-menu {
-        display: block;
-      }
-      
-      .dropdown-menu a {
-        padding: 12px 10px;
-        border-bottom: none;
-      }
-    }
+  <link rel="stylesheet" href="/vergo-a11y.css">
+  <link rel="stylesheet" href="/vergo-styles.css">
+  <link rel="stylesheet" href="/vergo-header.css">
+  <link rel="stylesheet" href="/vergo-mobile.css">
 
+  <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
@@ -683,37 +456,11 @@
   <link rel="stylesheet" href="/vergo-mobile.css">
 </head>
 <body>
-    <header role="banner">
-    <a href="index.html" class="logo" aria-label="VERGO Events Home">
-      <img src="/logo.png" alt="VERGO Events Logo">
-    </a>
-    
-    <button class="menu-toggle" onclick="toggleMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-    
-    <nav role="navigation" aria-label="Main navigation">
-      <ul id="nav-menu">
-        <li><a href="index.html">Home</a></li>
-        <li class="nav-dropdown" id="services-dropdown">
-          <a href="#" onclick="toggleDropdown(event, 'services-dropdown'); return false;" aria-haspopup="true" aria-expanded="false">Services</a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="hire-staff.html" role="menuitem">Hire Staff</a></li>
-            <li><a href="hire-us.html" role="menuitem">Event Management</a></li>
-          </ul>
-        </li>
-        <li><a href="jobs.html" aria-current="page">Job Board</a></li>
-        <li><a href="apply.html">Join VERGO</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="faq.html">FAQ</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
   
-  <main>
+<header></header>
+  
+  <main id="main-content">
     <div class="page-header">
       <h1>Available Jobs</h1>
       <p>Find your next opportunity in London's events industry</p>
@@ -797,7 +544,9 @@
     </div>
   </footer>
   
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+  <script src="/vergo-menu.js"></script>
+  <script>
     // State
     let currentUser = null;
     let currentPage = 1;
@@ -991,48 +740,14 @@
       loadJobs(1);
     });
     
-    // Mobile menu
-    function toggleMenu() {
-      document.getElementById('nav-menu').classList.toggle('active');
-    }
-    
-    // Dropdown toggle for mobile and desktop
-    function toggleDropdown(event, dropdownId) {
-      event.preventDefault();
-      event.stopPropagation();
-      
-      const dropdown = document.getElementById(dropdownId);
-      const isActive = dropdown.classList.toggle('active');
-      
-      // Update aria-expanded
-      const link = dropdown.querySelector('a[aria-haspopup]');
-      if (link) {
-        link.setAttribute('aria-expanded', isActive);
-      }
-      
-      // Close other dropdowns
-      document.querySelectorAll('.nav-dropdown').forEach(item => {
-        if (item.id !== dropdownId) {
-          item.classList.remove('active');
-          const otherLink = item.querySelector('a[aria-haspopup]');
-          if (otherLink) {
-            otherLink.setAttribute('aria-expanded', 'false');
-          }
-        }
-      });
-    }
-    
-    // Close menu and dropdowns when clicking outside
-    document.addEventListener('click', function(event) {
-      const menu = document.getElementById('nav-menu');
-      const header = document.querySelector('header');
-      
-      if (header && !header.contains(event.target)) {
-        // Close mobile menu
-        menu.classList.remove('active');
-        document.querySelector('.menu-toggle')?.setAttribute('aria-expanded', 'false');
-        
-        // Close all dropdowns
-        document.querySelectorAll('.nav-dropdown').forEach(item => {
-          item.classList.remove('active');
-          const link = item.query
+    // Init
+    checkAuth();
+    loadRoles();
+    loadJobs();
+  </script>
+  <script src="/vergo-utils.js"></script>
+  <script src="/vergo-nav.js"></script>
+  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-analytics.js"></script>
+</body>
+</html>

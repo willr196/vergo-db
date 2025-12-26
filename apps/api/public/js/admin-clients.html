@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Clients - VERGO Admin</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      min-height: 100vh;
+    }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background: #111;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+    }
+    
+    .logo { color: #D4AF37; font-weight: 700; font-size: 1.3rem; text-decoration: none; }
+    
+    nav { display: flex; gap: 20px; }
+    nav a { color: #999; text-decoration: none; font-size: 0.9rem; padding: 8px 12px; border-radius: 4px; }
+    nav a:hover { color: #fff; background: rgba(255,255,255,0.05); }
+    nav a.active { color: #D4AF37; background: rgba(212, 175, 55, 0.1); }
+    
+    main { padding: 30px; max-width: 1400px; margin: 0 auto; }
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .page-header h1 { font-size: 1.8rem; color: #D4AF37; }
+    
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: #1a1a1a;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .stat-card h3 { color: #999; font-size: 0.8rem; margin-bottom: 8px; text-transform: uppercase; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: #D4AF37; }
+    .stat-card.pending .value { color: #ffc107; }
+    .stat-card.approved .value { color: #28a745; }
+    .stat-card.rejected .value { color: #dc3545; }
+    
+    /* Filters */
+    .filters {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .filters select, .filters input {
+      padding: 10px 15px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    
+    .filters select:focus, .filters input:focus {
+      outline: none;
+      border-color: #D4AF37;
+    }
+    
+    .filters input { min-width: 250px; }
+    
+    /* Table */
+    .table-container {
+      background: #1a1a1a;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    table { width: 100%; border-collapse: collapse; }
+    
+    th, td { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    th { background: rgba(212, 175, 55, 0.1); color: #D4AF37; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+    
+    tr:hover { background: rgba(255,255,255,0.02); }
+    
+    .company-cell { max-width: 200px; }
+    .company-name { font-weight: 600; color: #fff; }
+    .company-industry { color: #666; font-size: 0.85rem; }
+    
+    .contact-cell { max-width: 250px; }
+    .contact-name { color: #ccc; }
+    .contact-email { color: #666; font-size: 0.85rem; }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .status-PENDING { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+    .status-APPROVED { background: rgba(40, 167, 69, 0.2); color: #28a745; }
+    .status-REJECTED { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
+    .status-SUSPENDED { background: rgba(108, 117, 125, 0.2); color: #6c757d; }
+    
+    .verified-badge { color: #28a745; margin-left: 5px; }
+    .unverified-badge { color: #dc3545; margin-left: 5px; }
+    
+    .actions { display: flex; gap: 8px; }
+    
+    .btn {
+      padding: 6px 12px;
+      border-radius: 4px;
+      border: none;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-approve { background: #28a745; color: #fff; }
+    .btn-approve:hover { background: #218838; }
+    
+    .btn-reject { background: #dc3545; color: #fff; }
+    .btn-reject:hover { background: #c82333; }
+    
+    .btn-view { background: #6c757d; color: #fff; }
+    .btn-view:hover { background: #5a6268; }
+    
+    .btn-suspend { background: #ffc107; color: #000; }
+    .btn-suspend:hover { background: #e0a800; }
+    
+    .btn-reinstate { background: #17a2b8; color: #fff; }
+    .btn-reinstate:hover { background: #138496; }
+    
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    
+    .modal {
+      background: #1a1a1a;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 25px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .modal-header h2 { color: #D4AF37; font-size: 1.2rem; }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    .modal-body { padding: 25px; }
+    
+    .detail-row {
+      display: flex;
+      margin-bottom: 15px;
+    }
+    
+    .detail-label {
+      color: #999;
+      width: 120px;
+      flex-shrink: 0;
+    }
+    
+    .detail-value { color: #fff; }
+    
+    .modal-section {
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .modal-section h3 {
+      color: #D4AF37;
+      font-size: 1rem;
+      margin-bottom: 15px;
+    }
+    
+    textarea {
+      width: 100%;
+      padding: 12px;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 0.95rem;
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: #D4AF37;
+    }
+    
+    .modal-footer {
+      padding: 20px 25px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    
+    .btn-lg {
+      padding: 10px 20px;
+      font-size: 0.95rem;
+    }
+    
+    .loading { text-align: center; padding: 40px; color: #666; }
+    
+    .alert {
+      padding: 15px 20px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+    
+    .alert-success { background: rgba(40, 167, 69, 0.2); border: 1px solid #28a745; color: #28a745; }
+    .alert-error { background: rgba(220, 53, 69, 0.2); border: 1px solid #dc3545; color: #dc3545; }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+    
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .pagination button {
+      padding: 8px 16px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #999;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .pagination button:hover:not(:disabled) {
+      border-color: #D4AF37;
+      color: #D4AF37;
+    }
+    
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .pagination span {
+      padding: 8px 16px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="admin.html" class="logo">VERGO Admin</a>
+    <nav>
+      <a href="admin.html">Dashboard</a>
+      <a href="admin-applicants.html">Applicants</a>
+      <a href="admin-jobs.html">Jobs</a>
+      <a href="admin-clients.html" class="active">Clients</a>
+    </nav>
+  </header>
+  
+  <main>
+    <div id="alert-container"></div>
+    
+    <div class="page-header">
+      <h1>Manage Clients</h1>
+    </div>
+    
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card pending">
+        <h3>Pending</h3>
+        <div class="value" id="stat-pending">-</div>
+      </div>
+      <div class="stat-card approved">
+        <h3>Approved</h3>
+        <div class="value" id="stat-approved">-</div>
+      </div>
+      <div class="stat-card rejected">
+        <h3>Rejected</h3>
+        <div class="value" id="stat-rejected">-</div>
+      </div>
+      <div class="stat-card">
+        <h3>Total</h3>
+        <div class="value" id="stat-total">-</div>
+      </div>
+    </div>
+    
+    <div class="filters">
+      <select id="filter-status" onchange="loadClients()">
+        <option value="">All Statuses</option>
+        <option value="PENDING">Pending</option>
+        <option value="APPROVED">Approved</option>
+        <option value="REJECTED">Rejected</option>
+        <option value="SUSPENDED">Suspended</option>
+      </select>
+      <input type="text" id="filter-search" placeholder="Search by company, email, or contact..." onkeyup="debounceSearch()">
+    </div>
+    
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Contact</th>
+            <th>Status</th>
+            <th>Registered</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="clients-table">
+          <tr><td colspan="5" class="loading">Loading clients...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="pagination" id="pagination"></div>
+  </main>
+  
+  <!-- View/Edit Modal -->
+  <div id="client-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">Client Details</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Populated by JS -->
+      </div>
+      <div class="modal-footer" id="modal-footer">
+        <button type="button" class="btn btn-view btn-lg" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Reject Reason Modal -->
+  <div id="reject-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal" style="max-width: 450px;">
+      <div class="modal-header">
+        <h2>Reject Client</h2>
+        <button class="modal-close" onclick="closeRejectModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: #999; margin-bottom: 15px;">Optionally provide a reason for rejection:</p>
+        <textarea id="reject-reason" placeholder="Reason (optional)"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-view btn-lg" onclick="closeRejectModal()">Cancel</button>
+        <button type="button" class="btn btn-reject btn-lg" onclick="confirmReject()">Reject Client</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let clients = [];
+    let currentPage = 1;
+    let totalPages = 1;
+    let searchTimeout = null;
+    let pendingRejectId = null;
+    
+    // Check admin auth
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/v1/auth/session');
+        const data = await res.json();
+        if (!data.authenticated) {
+          window.location.href = 'login.html';
+        }
+      } catch (err) {
+        window.location.href = 'login.html';
+      }
+    }
+    
+    // Load stats
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/v1/admin/clients/stats');
+        const stats = await res.json();
+        
+        document.getElementById('stat-pending').textContent = stats.pending;
+        document.getElementById('stat-approved').textContent = stats.approved;
+        document.getElementById('stat-rejected').textContent = stats.rejected;
+        document.getElementById('stat-total').textContent = stats.total;
+      } catch (err) {
+        console.error('Failed to load stats:', err);
+      }
+    }
+    
+    // Load clients
+    async function loadClients(page = 1) {
+      currentPage = page;
+      const status = document.getElementById('filter-status').value;
+      const search = document.getElementById('filter-search').value;
+      
+      const params = new URLSearchParams({ page, limit: 20 });
+      if (status) params.append('status', status);
+      if (search) params.append('search', search);
+      
+      const tbody = document.getElementById('clients-table');
+      tbody.innerHTML = '<tr><td colspan="5" class="loading">Loading...</td></tr>';
+      
+      try {
+        const res = await fetch(`/api/v1/admin/clients?${params}`);
+        const data = await res.json();
+        
+        clients = data.clients;
+        totalPages = data.pagination.pages;
+        
+        if (clients.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No clients found</td></tr>';
+          updatePagination();
+          return;
+        }
+        
+        tbody.innerHTML = clients.map(client => `
+          <tr>
+            <td class="company-cell">
+              <div class="company-name">${escapeHtml(client.companyName)}</div>
+              <div class="company-industry">${escapeHtml(client.industry || 'Not specified')}</div>
+            </td>
+            <td class="contact-cell">
+              <div class="contact-name">
+                ${escapeHtml(client.contactName)}
+                ${client.emailVerified 
+                  ? '<span class="verified-badge" title="Email verified">✓</span>' 
+                  : '<span class="unverified-badge" title="Email not verified">✗</span>'}
+              </div>
+              <div class="contact-email">${escapeHtml(client.email)}</div>
+            </td>
+            <td>
+              <span class="status-badge status-${client.status}">${client.status}</span>
+            </td>
+            <td>${formatDate(client.createdAt)}</td>
+            <td class="actions">
+              ${getActionButtons(client)}
+            </td>
+          </tr>
+        `).join('');
+        
+        updatePagination();
+        
+      } catch (err) {
+        console.error('Failed to load clients:', err);
+        tbody.innerHTML = '<tr><td colspan="5" class="loading">Failed to load clients</td></tr>';
+      }
+    }
+    
+    function getActionButtons(client) {
+      let buttons = `<button class="btn btn-view" onclick="viewClient('${client.id}')">View</button>`;
+      
+      if (client.status === 'PENDING' && client.emailVerified) {
+        buttons += `
+          <button class="btn btn-approve" onclick="approveClient('${client.id}')">Approve</button>
+          <button class="btn btn-reject" onclick="openRejectModal('${client.id}')">Reject</button>
+        `;
+      } else if (client.status === 'APPROVED') {
+        buttons += `<button class="btn btn-suspend" onclick="suspendClient('${client.id}')">Suspend</button>`;
+      } else if (client.status === 'SUSPENDED' || client.status === 'REJECTED') {
+        buttons += `<button class="btn btn-reinstate" onclick="reinstateClient('${client.id}')">Reinstate</button>`;
+      }
+      
+      return buttons;
+    }
+    
+    function updatePagination() {
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = `
+        <button onclick="loadClients(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>← Prev</button>
+        <span>Page ${currentPage} of ${totalPages || 1}</span>
+        <button onclick="loadClients(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>Next →</button>
+      `;
+    }
+    
+    function debounceSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => loadClients(1), 300);
+    }
+    
+    // View client details
+    async function viewClient(id) {
+      try {
+        const res = await fetch(`/api/v1/admin/clients/${id}`);
+        const client = await res.json();
+        
+        document.getElementById('modal-title').textContent = client.companyName;
+        document.getElementById('modal-body').innerHTML = `
+          <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value"><span class="status-badge status-${client.status}">${client.status}</span></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Email Verified:</span>
+            <span class="detail-value">${client.emailVerified ? 'Yes ✓' : 'No ✗'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Industry:</span>
+            <span class="detail-value">${escapeHtml(client.industry || 'Not specified')}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Company Size:</span>
+            <span class="detail-value">${escapeHtml(client.companySize || 'Not specified')}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Website:</span>
+            <span class="detail-value">${client.website ? `<a href="${escapeHtml(client.website)}" target="_blank" style="color: #D4AF37;">${escapeHtml(client.website)}</a>` : 'Not specified'}</span>
+          </div>
+          
+          <div class="modal-section">
+            <h3>Contact Details</h3>
+            <div class="detail-row">
+              <span class="detail-label">Name:</span>
+              <span class="detail-value">${escapeHtml(client.contactName)}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Email:</span>
+              <span class="detail-value">${escapeHtml(client.email)}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Phone:</span>
+              <span class="detail-value">${escapeHtml(client.phone || 'Not specified')}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Job Title:</span>
+              <span class="detail-value">${escapeHtml(client.jobTitle || 'Not specified')}</span>
+            </div>
+          </div>
+          
+          <div class="modal-section">
+            <h3>Account Info</h3>
+            <div class="detail-row">
+              <span class="detail-label">Registered:</span>
+              <span class="detail-value">${formatDate(client.createdAt)}</span>
+            </div>
+            ${client.approvedAt ? `
+            <div class="detail-row">
+              <span class="detail-label">Approved:</span>
+              <span class="detail-value">${formatDate(client.approvedAt)} by ${escapeHtml(client.approvedBy || 'Admin')}</span>
+            </div>
+            ` : ''}
+            ${client.rejectionReason ? `
+            <div class="detail-row">
+              <span class="detail-label">Rejection Reason:</span>
+              <span class="detail-value">${escapeHtml(client.rejectionReason)}</span>
+            </div>
+            ` : ''}
+            ${client.lastLoginAt ? `
+            <div class="detail-row">
+              <span class="detail-label">Last Login:</span>
+              <span class="detail-value">${formatDate(client.lastLoginAt)}</span>
+            </div>
+            ` : ''}
+          </div>
+          
+          <div class="modal-section">
+            <h3>Admin Notes</h3>
+            <textarea id="admin-notes-${client.id}" placeholder="Add notes about this client...">${escapeHtml(client.adminNotes || '')}</textarea>
+            <button class="btn btn-view" style="margin-top: 10px;" onclick="saveNotes('${client.id}')">Save Notes</button>
+          </div>
+        `;
+        
+        document.getElementById('client-modal').style.display = 'flex';
+        
+      } catch (err) {
+        showAlert('Failed to load client details', 'error');
+      }
+    }
+    
+    function closeModal() {
+      document.getElementById('client-modal').style.display = 'none';
+    }
+    
+    // Client actions
+    async function approveClient(id) {
+      if (!confirm('Approve this client? They will be able to log in and request quotes.')) return;
+      
+      try {
+        const res = await fetch(`/api/v1/admin/clients/${id}/approve`, { method: 'POST' });
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error);
+        
+        showAlert('Client approved successfully', 'success');
+        loadClients(currentPage);
+        loadStats();
+        
+      } catch (err) {
+        showAlert(err.message || 'Failed to approve client', 'error');
+      }
+    }
+    
+    function openRejectModal(id) {
+      pendingRejectId = id;
+      document.getElementById('reject-reason').value = '';
+      document.getElementById('reject-modal').style.display = 'flex';
+    }
+    
+    function closeRejectModal() {
+      pendingRejectId = null;
+      document.getElementById('reject-modal').style.display = 'none';
+    }
+    
+    async function confirmReject() {
+      if (!pendingRejectId) return;
+      
+      const reason = document.getElementById('reject-reason').value.trim();
+      
+      try {
+        const res = await fetch(`/api/v1/admin/clients/${pendingRejectId}/reject`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        showAlert('Client rejected', 'success');
+        closeRejectModal();
+        loadClients(currentPage);
+        loadStats();
+        
+      } catch (err) {
+        showAlert(err.message || 'Failed to reject client', 'error');
+      }
+    }
+    
+    async function suspendClient(id) {
+      if (!confirm('Suspend this client? They will no longer be able to log in.')) return;
+      
+      try {
+        const res = await fetch(`/api/v1/admin/clients/${id}/suspend`, { method: 'POST' });
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error);
+        
+        showAlert('Client suspended', 'success');
+        loadClients(currentPage);
+        loadStats();
+        
+      } catch (err) {
+        showAlert(err.message || 'Failed to suspend client', 'error');
+      }
+    }
+    
+    async function reinstateClient(id) {
+      if (!confirm('Reinstate this client? They will be able to log in again.')) return;
+      
+      try {
+        const res = await fetch(`/api/v1/admin/clients/${id}/reinstate`, { method: 'POST' });
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error);
+        
+        showAlert('Client reinstated', 'success');
+        loadClients(currentPage);
+        loadStats();
+        
+      } catch (err) {
+        showAlert(err.message || 'Failed to reinstate client', 'error');
+      }
+    }
+    
+    async function saveNotes(id) {
+      const notes = document.getElementById(`admin-notes-${id}`).value;
+      
+      try {
+        const res = await fetch(`/api/v1/admin/clients/${id}/notes`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        showAlert('Notes saved', 'success');
+        
+      } catch (err) {
+        showAlert(err.message || 'Failed to save notes', 'error');
+      }
+    }
+    
+    // Helpers
+    function showAlert(message, type) {
+      const container = document.getElementById('alert-container');
+      container.innerHTML = `<div class="alert alert-${type}">${escapeHtml(message)}</div>`;
+      setTimeout(() => container.innerHTML = '', 5000);
+    }
+    
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      return new Date(dateStr).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+    }
+    
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    
+    // Initialize
+    checkAuth();
+    loadStats();
+    loadClients();
+  </script>
+</body>
+</html>

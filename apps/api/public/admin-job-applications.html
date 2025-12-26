@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Applications - VERGO Admin</title>
+  <link rel="icon" type="image/png" href="/logo.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: #f0f0f0;
+      min-height: 100vh;
+    }
+    
+    header {
+      background: #111;
+      border-bottom: 1px solid #D4AF37;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .logo img { height: 40px; }
+    
+    .header-nav {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    
+    .header-nav a {
+      color: #ccc;
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    
+    .header-nav a:hover { color: #D4AF37; }
+    .header-nav a.active { color: #D4AF37; background: rgba(212, 175, 55, 0.1); }
+    
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .page-header h1 {
+      font-size: 1.8rem;
+      color: #fff;
+    }
+    
+    /* Stats Row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-box {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .stat-box.pending { border-color: #f0ad4e; }
+    .stat-box.confirmed { border-color: #28a745; }
+    .stat-box.rejected { border-color: #dc3545; }
+    
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #D4AF37;
+    }
+    
+    .stat-label {
+      font-size: 0.85rem;
+      color: #888;
+      margin-top: 5px;
+    }
+    
+    /* Filters */
+    .filters {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+    
+    .filters select, .filters input {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #f0f0f0;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      min-width: 160px;
+    }
+    
+    .filters select:focus, .filters input:focus {
+      outline: none;
+      border-color: #D4AF37;
+    }
+    
+    /* Table */
+    .table-container {
+      background: #111;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #222;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th {
+      background: #1a1a1a;
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      color: #D4AF37;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #333;
+    }
+    
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #222;
+      vertical-align: top;
+    }
+    
+    tr:hover { background: rgba(212, 175, 55, 0.03); }
+    
+    /* Applicant Info */
+    .applicant-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .applicant-name {
+      font-weight: 600;
+      color: #fff;
+    }
+    
+    .applicant-email {
+      font-size: 0.85rem;
+      color: #888;
+    }
+    
+    .applicant-email a {
+      color: #888;
+      text-decoration: none;
+    }
+    
+    .applicant-email a:hover {
+      color: #D4AF37;
+    }
+    
+    .roster-badge {
+      display: inline-block;
+      background: rgba(212, 175, 55, 0.2);
+      color: #D4AF37;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-top: 4px;
+    }
+    
+    /* Job Info */
+    .job-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .job-title {
+      font-weight: 500;
+      color: #fff;
+    }
+    
+    .job-title a {
+      color: #fff;
+      text-decoration: none;
+    }
+    
+    .job-title a:hover {
+      color: #D4AF37;
+    }
+    
+    .job-meta {
+      font-size: 0.8rem;
+      color: #666;
+    }
+    
+    .job-type {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-top: 4px;
+    }
+    
+    .job-type.internal {
+      background: rgba(40, 167, 69, 0.2);
+      color: #28a745;
+    }
+    
+    .job-type.external {
+      background: rgba(108, 117, 125, 0.2);
+      color: #6c757d;
+    }
+    
+    /* Status Badge */
+    .status-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .status-badge.pending {
+      background: rgba(240, 173, 78, 0.2);
+      color: #f0ad4e;
+    }
+    
+    .status-badge.reviewed {
+      background: rgba(91, 192, 222, 0.2);
+      color: #5bc0de;
+    }
+    
+    .status-badge.shortlisted {
+      background: rgba(212, 175, 55, 0.2);
+      color: #D4AF37;
+    }
+    
+    .status-badge.confirmed {
+      background: rgba(40, 167, 69, 0.2);
+      color: #28a745;
+    }
+    
+    .status-badge.rejected {
+      background: rgba(220, 53, 69, 0.2);
+      color: #dc3545;
+    }
+    
+    .status-badge.withdrawn {
+      background: rgba(108, 117, 125, 0.2);
+      color: #6c757d;
+    }
+    
+    /* Cover Note */
+    .cover-note {
+      max-width: 250px;
+      font-size: 0.85rem;
+      color: #999;
+    }
+    
+    .cover-note-preview {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    
+    .cover-note-preview:hover {
+      color: #D4AF37;
+    }
+    
+    /* Actions */
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      text-align: center;
+    }
+    
+    .btn-small { padding: 4px 8px; font-size: 0.75rem; }
+    
+    .btn-confirm {
+      background: #28a745;
+      color: white;
+    }
+    .btn-confirm:hover { background: #218838; }
+    
+    .btn-shortlist {
+      background: #D4AF37;
+      color: #000;
+    }
+    .btn-shortlist:hover { background: #c9a430; }
+    
+    .btn-reject {
+      background: #dc3545;
+      color: white;
+    }
+    .btn-reject:hover { background: #c82333; }
+    
+    .btn-secondary {
+      background: #333;
+      color: #fff;
+    }
+    .btn-secondary:hover { background: #444; }
+    
+    .btn-link {
+      background: none;
+      color: #888;
+      padding: 4px 0;
+    }
+    .btn-link:hover { color: #D4AF37; }
+    
+    /* Date */
+    .date-cell {
+      font-size: 0.85rem;
+      color: #888;
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+    
+    .empty-state h3 {
+      color: #999;
+      margin-bottom: 10px;
+    }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #666;
+    }
+    
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 25px;
+      border-bottom: 1px solid #333;
+    }
+    
+    .modal-header h2 {
+      color: #D4AF37;
+      font-size: 1.2rem;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    .modal-close:hover { color: #fff; }
+    
+    .modal-body {
+      padding: 25px;
+    }
+    
+    .detail-row {
+      display: flex;
+      padding: 12px 0;
+      border-bottom: 1px solid #222;
+    }
+    
+    .detail-label {
+      width: 120px;
+      color: #888;
+      font-size: 0.9rem;
+    }
+    
+    .detail-value {
+      flex: 1;
+      color: #fff;
+    }
+    
+    .notes-section {
+      margin-top: 20px;
+    }
+    
+    .notes-section h4 {
+      color: #D4AF37;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+    
+    .notes-section textarea {
+      width: 100%;
+      background: #111;
+      border: 1px solid #333;
+      color: #f0f0f0;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .notes-section textarea:focus {
+      outline: none;
+      border-color: #D4AF37;
+    }
+    
+    .modal-footer {
+      padding: 20px 25px;
+      border-top: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .status-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    /* Alert */
+    .alert {
+      padding: 12px 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .alert-success {
+      background: rgba(40, 167, 69, 0.1);
+      border: 1px solid rgba(40, 167, 69, 0.3);
+      color: #28a745;
+    }
+    
+    .alert-error {
+      background: rgba(220, 53, 69, 0.1);
+      border: 1px solid rgba(220, 53, 69, 0.3);
+      color: #dc3545;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1000px) {
+      .hide-mobile { display: none; }
+      td, th { padding: 10px; }
+    }
+    
+    @media (max-width: 600px) {
+      main { padding: 15px; }
+      .page-header { flex-direction: column; align-items: flex-start; }
+      .filters { flex-direction: column; }
+      .filters select, .filters input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">
+      <img src="/logo.png" alt="VERGO Events">
+    </a>
+    <div class="header-nav">
+      <a href="admin.html">Roster</a>
+      <a href="admin-jobs.html">Jobs</a>
+      <a href="admin-job-applications.html" class="active">Applications</a>
+      <a href="index.html">View Site</a>
+      <button onclick="logout()" class="btn btn-secondary btn-small">Logout</button>
+    </div>
+  </header>
+  
+  <main>
+    <div id="alert-container"></div>
+    
+    <div class="page-header">
+      <h1>Job Applications</h1>
+    </div>
+    
+    <div class="stats-row" id="stats-row">
+      <div class="stat-box">
+        <div class="stat-number" id="stat-total">-</div>
+        <div class="stat-label">Total</div>
+      </div>
+      <div class="stat-box pending">
+        <div class="stat-number" id="stat-pending">-</div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number" id="stat-shortlisted">-</div>
+        <div class="stat-label">Shortlisted</div>
+      </div>
+      <div class="stat-box confirmed">
+        <div class="stat-number" id="stat-confirmed">-</div>
+        <div class="stat-label">Confirmed</div>
+      </div>
+      <div class="stat-box rejected">
+        <div class="stat-number" id="stat-rejected">-</div>
+        <div class="stat-label">Rejected</div>
+      </div>
+    </div>
+    
+    <div class="filters">
+      <select id="filter-status" onchange="loadApplications()">
+        <option value="">All Statuses</option>
+        <option value="PENDING">Pending</option>
+        <option value="REVIEWED">Reviewed</option>
+        <option value="SHORTLISTED">Shortlisted</option>
+        <option value="CONFIRMED">Confirmed</option>
+        <option value="REJECTED">Rejected</option>
+        <option value="WITHDRAWN">Withdrawn</option>
+      </select>
+      <select id="filter-job" onchange="loadApplications()">
+        <option value="">All Jobs</option>
+      </select>
+    </div>
+    
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Applicant</th>
+            <th>Job</th>
+            <th>Status</th>
+            <th class="hide-mobile">Note</th>
+            <th>Applied</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="applications-table">
+          <tr><td colspan="6" class="loading">Loading applications...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+  
+  <!-- Detail Modal -->
+  <div id="detail-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Application Details</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Filled by JS -->
+      </div>
+      <div class="modal-footer" id="modal-footer">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let applications = [];
+    let jobs = [];
+    let currentApplication = null;
+    
+    // Check auth
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/v1/auth/session');
+        const data = await res.json();
+        if (!data.authenticated) {
+          window.location.href = 'login.html';
+        }
+      } catch (err) {
+        window.location.href = 'login.html';
+      }
+    }
+    
+    // Load jobs for filter dropdown
+    async function loadJobs() {
+      try {
+        const res = await fetch('/api/v1/jobs/admin/all?limit=100');
+        const data = await res.json();
+        jobs = data.jobs || [];
+        
+        const select = document.getElementById('filter-job');
+        jobs.forEach(job => {
+          const opt = document.createElement('option');
+          opt.value = job.id;
+          opt.textContent = job.title;
+          select.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Failed to load jobs:', err);
+      }
+    }
+    
+    // Load applications
+    async function loadApplications() {
+      const status = document.getElementById('filter-status').value;
+      const jobId = document.getElementById('filter-job').value;
+      
+      const params = new URLSearchParams({ limit: '100' });
+      if (status) params.append('status', status);
+      if (jobId) params.append('jobId', jobId);
+      
+      try {
+        const res = await fetch(`/api/v1/job-applications?${params}`);
+        const data = await res.json();
+        applications = data.applications || [];
+        updateStats();
+        renderTable();
+      } catch (err) {
+        console.error('Failed to load applications:', err);
+        document.getElementById('applications-table').innerHTML = 
+          '<tr><td colspan="6" class="empty-state">Failed to load applications</td></tr>';
+      }
+    }
+    
+    // Update stats
+    function updateStats() {
+      const stats = {
+        total: applications.length,
+        pending: applications.filter(a => a.status === 'PENDING').length,
+        shortlisted: applications.filter(a => a.status === 'SHORTLISTED').length,
+        confirmed: applications.filter(a => a.status === 'CONFIRMED').length,
+        rejected: applications.filter(a => a.status === 'REJECTED').length
+      };
+      
+      document.getElementById('stat-total').textContent = stats.total;
+      document.getElementById('stat-pending').textContent = stats.pending;
+      document.getElementById('stat-shortlisted').textContent = stats.shortlisted;
+      document.getElementById('stat-confirmed').textContent = stats.confirmed;
+      document.getElementById('stat-rejected').textContent = stats.rejected;
+    }
+    
+    // Render table
+    function renderTable() {
+      const tbody = document.getElementById('applications-table');
+      
+      if (applications.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state">
+              <h3>No applications found</h3>
+              <p>Try adjusting your filters</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tbody.innerHTML = applications.map(app => {
+        const appliedDate = new Date(app.createdAt).toLocaleDateString('en-GB', {
+          day: 'numeric', month: 'short'
+        });
+        
+        const eventDate = app.job.eventDate 
+          ? new Date(app.job.eventDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+          : 'Flexible';
+        
+        const hasRosterApp = app.user.applicantId;
+        
+        const coverPreview = app.coverNote 
+          ? escapeHtml(app.coverNote.substring(0, 60)) + (app.coverNote.length > 60 ? '...' : '')
+          : '<span style="color:#555">-</span>';
+        
+        return `
+          <tr>
+            <td>
+              <div class="applicant-info">
+                <span class="applicant-name">${escapeHtml(app.user.firstName)} ${escapeHtml(app.user.lastName)}</span>
+                <span class="applicant-email"><a href="mailto:${escapeHtml(app.user.email)}">${escapeHtml(app.user.email)}</a></span>
+                ${app.user.phone ? `<span class="applicant-email">${escapeHtml(app.user.phone)}</span>` : ''}
+                ${hasRosterApp ? '<span class="roster-badge">On Roster</span>' : ''}
+              </div>
+            </td>
+            <td>
+              <div class="job-info">
+                <span class="job-title"><a href="admin-jobs.html">${escapeHtml(app.job.title)}</a></span>
+                <span class="job-meta">${escapeHtml(app.job.location)} • ${eventDate}</span>
+                <span class="job-type ${app.job.type === 'INTERNAL' ? 'internal' : 'external'}">
+                  ${app.job.type === 'INTERNAL' ? 'VERGO' : 'External'}
+                </span>
+              </div>
+            </td>
+            <td>
+              <span class="status-badge ${app.status.toLowerCase()}">${formatStatus(app.status)}</span>
+            </td>
+            <td class="hide-mobile">
+              <div class="cover-note">
+                ${app.coverNote ? `<span class="cover-note-preview" onclick="openDetail('${app.id}')">${coverPreview}</span>` : '-'}
+              </div>
+            </td>
+            <td class="date-cell">${appliedDate}</td>
+            <td>
+              <div class="actions">
+                <button class="btn btn-secondary btn-small" onclick="openDetail('${app.id}')">View</button>
+                ${app.status === 'PENDING' ? `
+                  <button class="btn btn-shortlist btn-small" onclick="updateStatus('${app.id}', 'SHORTLISTED')">Shortlist</button>
+                ` : ''}
+                ${app.status === 'SHORTLISTED' ? `
+                  <button class="btn btn-confirm btn-small" onclick="updateStatus('${app.id}', 'CONFIRMED')">Confirm</button>
+                ` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+    
+    // Format status
+    function formatStatus(status) {
+      const labels = {
+        PENDING: 'Pending',
+        REVIEWED: 'Reviewed',
+        SHORTLISTED: 'Shortlisted',
+        CONFIRMED: 'Confirmed',
+        REJECTED: 'Rejected',
+        WITHDRAWN: 'Withdrawn'
+      };
+      return labels[status] || status;
+    }
+    
+    // Open detail modal
+    async function openDetail(id) {
+      currentApplication = applications.find(a => a.id === id);
+      if (!currentApplication) return;
+      
+      const app = currentApplication;
+      const eventDate = app.job.eventDate 
+        ? new Date(app.job.eventDate).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
+        : 'Flexible';
+      
+      const appliedDate = new Date(app.createdAt).toLocaleDateString('en-GB', { 
+        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+      
+      document.getElementById('modal-body').innerHTML = `
+        <div class="detail-row">
+          <div class="detail-label">Applicant</div>
+          <div class="detail-value">
+            <strong>${escapeHtml(app.user.firstName)} ${escapeHtml(app.user.lastName)}</strong>
+            ${app.user.applicantId ? '<span class="roster-badge" style="margin-left:8px;">On Roster</span>' : ''}
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Email</div>
+          <div class="detail-value"><a href="mailto:${escapeHtml(app.user.email)}" style="color:#D4AF37">${escapeHtml(app.user.email)}</a></div>
+        </div>
+        ${app.user.phone ? `
+        <div class="detail-row">
+          <div class="detail-label">Phone</div>
+          <div class="detail-value"><a href="tel:${escapeHtml(app.user.phone)}" style="color:#D4AF37">${escapeHtml(app.user.phone)}</a></div>
+        </div>
+        ` : ''}
+        <div class="detail-row">
+          <div class="detail-label">Job</div>
+          <div class="detail-value"><strong>${escapeHtml(app.job.title)}</strong></div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Location</div>
+          <div class="detail-value">${escapeHtml(app.job.location)}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Event Date</div>
+          <div class="detail-value">${eventDate}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Applied</div>
+          <div class="detail-value">${appliedDate}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Status</div>
+          <div class="detail-value"><span class="status-badge ${app.status.toLowerCase()}">${formatStatus(app.status)}</span></div>
+        </div>
+        ${app.coverNote ? `
+        <div class="detail-row" style="flex-direction:column; gap:8px;">
+          <div class="detail-label">Cover Note</div>
+          <div class="detail-value" style="white-space:pre-wrap; background:#111; padding:12px; border-radius:6px; font-size:0.9rem;">${escapeHtml(app.coverNote)}</div>
+        </div>
+        ` : ''}
+        
+        <div class="notes-section">
+          <h4>Admin Notes</h4>
+          <textarea id="admin-notes" placeholder="Add internal notes about this applicant...">${escapeHtml(app.adminNotes || '')}</textarea>
+          <button class="btn btn-secondary" style="margin-top:10px" onclick="saveNotes('${app.id}')">Save Notes</button>
+        </div>
+      `;
+      
+      // Footer with status actions
+      const footerActions = [];
+      
+      if (app.status !== 'CONFIRMED' && app.status !== 'WITHDRAWN') {
+        if (app.status !== 'REVIEWED') footerActions.push(`<button class="btn btn-secondary" onclick="updateStatus('${app.id}', 'REVIEWED', true)">Mark Reviewed</button>`);
+        if (app.status !== 'SHORTLISTED') footerActions.push(`<button class="btn btn-shortlist" onclick="updateStatus('${app.id}', 'SHORTLISTED', true)">Shortlist</button>`);
+        footerActions.push(`<button class="btn btn-confirm" onclick="updateStatus('${app.id}', 'CONFIRMED', true)">Confirm</button>`);
+        if (app.status !== 'REJECTED') footerActions.push(`<button class="btn btn-reject" onclick="updateStatus('${app.id}', 'REJECTED', true)">Reject</button>`);
+      }
+      
+      document.getElementById('modal-footer').innerHTML = `
+        <div class="status-actions">${footerActions.join('')}</div>
+        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+      `;
+      
+      document.getElementById('detail-modal').style.display = 'flex';
+    }
+    
+    // Close modal
+    function closeModal() {
+      document.getElementById('detail-modal').style.display = 'none';
+      currentApplication = null;
+    }
+    
+    // Update status
+    async function updateStatus(id, status, fromModal = false) {
+      if (status === 'REJECTED' && !confirm('Reject this application?')) return;
+      if (status === 'CONFIRMED' && !confirm('Confirm this applicant for the job?')) return;
+      
+      try {
+        const res = await fetch(`/api/v1/job-applications/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Failed to update status');
+        }
+        
+        showAlert(`Application ${formatStatus(status).toLowerCase()}`, 'success');
+        await loadApplications();
+        
+        if (fromModal) {
+          closeModal();
+        }
+        
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+    
+    // Save notes
+    async function saveNotes(id) {
+      const notes = document.getElementById('admin-notes').value;
+      
+      try {
+        const res = await fetch(`/api/v1/job-applications/${id}/notes`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes })
+        });
+        
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Failed to save notes');
+        }
+        
+        showAlert('Notes saved', 'success');
+        
+        // Update local data
+        const app = applications.find(a => a.id === id);
+        if (app) app.adminNotes = notes;
+        
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+    
+    // Show alert
+    function showAlert(message, type) {
+      const container = document.getElementById('alert-container');
+      container.innerHTML = `<div class="alert alert-${type}">${escapeHtml(message)}</div>`;
+      setTimeout(() => { container.innerHTML = ''; }, 4000);
+    }
+    
+    // Logout
+    async function logout() {
+      await fetch('/api/v1/auth/logout', { method: 'POST' });
+      window.location.href = 'login.html';
+    }
+    
+    // Escape HTML
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    
+    // Close modal on backdrop click
+    document.getElementById('detail-modal').addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-backdrop')) closeModal();
+    });
+    
+    // Close modal on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+    
+    // Init
+    checkAuth();
+    loadJobs();
+    loadApplications();
+  </script>
+</body>
+</html>
