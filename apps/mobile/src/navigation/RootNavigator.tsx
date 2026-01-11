@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
@@ -56,10 +56,9 @@ const ClientProfile = () => (
 
 // Navigation theme
 const navigationTheme = {
-  ...DefaultTheme,
-  dark: Boolean(true),
+  ...DarkTheme,
   colors: {
-    ...DefaultTheme.colors,
+    ...DarkTheme.colors,
     primary: colors.primary,
     background: colors.background,
     card: colors.surface,
