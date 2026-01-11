@@ -84,11 +84,8 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
     CompanyProfile: '🏢',
   };
 
-  // Ensure focused is boolean type
-  const isFocused = Boolean(focused);
-
   return (
-    <Text style={[styles.tabIcon, isFocused && styles.tabIconFocused]}>
+    <Text style={[styles.tabIcon, focused && styles.tabIconFocused]}>
       {icons[label] || '•'}
     </Text>
   );
@@ -99,7 +96,7 @@ function JobSeekerTabNavigator() {
   return (
     <JobSeekerTab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: Boolean(false),
+        headerShown: false,
         tabBarStyle: styles.tabBar,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
@@ -133,7 +130,7 @@ function ClientTabNavigator() {
   return (
     <ClientTab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: Boolean(false),
+        headerShown: false,
         tabBarStyle: styles.tabBar,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
@@ -167,7 +164,7 @@ function AuthStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: Boolean(false),
+        headerShown: false,
         contentStyle: { backgroundColor: colors.background },
         animation: 'slide_from_right',
       }}
@@ -185,21 +182,21 @@ function JobSeekerStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: Boolean(false),
+        headerShown: false,
         contentStyle: { backgroundColor: colors.background },
         animation: 'slide_from_right',
       }}
     >
       <Stack.Screen name="JobSeekerTabs" component={JobSeekerTabNavigator} />
       <Stack.Screen name="JobDetail" component={JobDetailScreen} />
-      <Stack.Screen 
-        name="ApplyToJob" 
+      <Stack.Screen
+        name="ApplyToJob"
         component={ApplyToJobScreen}
         options={{ presentation: 'modal' }}
       />
       <Stack.Screen name="ApplicationDetail" component={ApplicationDetailScreen} />
-      <Stack.Screen 
-        name="EditProfile" 
+      <Stack.Screen
+        name="EditProfile"
         component={EditProfileScreen}
         options={{ presentation: 'modal' }}
       />
@@ -212,7 +209,7 @@ function ClientStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: Boolean(false),
+        headerShown: false,
         contentStyle: { backgroundColor: colors.background },
         animation: 'slide_from_right',
       }}
