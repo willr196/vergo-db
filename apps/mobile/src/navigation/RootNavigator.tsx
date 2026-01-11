@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   
   tabLabel: {
     fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
     marginTop: 4,
   },
   
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
   placeholderText: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     marginBottom: 8,
   },
   
