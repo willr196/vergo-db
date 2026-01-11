@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   
   text: {
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   textSm: {

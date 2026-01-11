@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   
   searchContainer: {
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   filterBadgeText: {
     color: colors.white,
     fontSize: 10,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   
   listContent: {
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
   
   modalReset: {
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
   filterLabel: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
     marginBottom: spacing.sm,
     marginTop: spacing.md,
   },
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
   checkmark: {
     color: colors.textInverse,
     fontSize: 14,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   
   checkboxLabel: {
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
   applyButtonText: {
     color: colors.textInverse,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
 });
 

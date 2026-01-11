@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   
   // Text styles
   text: {
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
     textAlign: 'center',
   },
   primaryText: {

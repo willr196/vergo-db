@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   label: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
     marginBottom: spacing.xs,
   },
   
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   showHideText: {
     color: colors.primary,
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   error: {

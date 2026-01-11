@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
   stepTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     marginBottom: spacing.xs,
   },
   
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
   summaryValue: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   warningText: {
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
   warningTitle: {
     color: colors.warning,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
     marginBottom: spacing.xs,
   },
   
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
   tipTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
     marginBottom: spacing.sm,
   },
   
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
   jobTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     marginBottom: spacing.xs,
   },
   

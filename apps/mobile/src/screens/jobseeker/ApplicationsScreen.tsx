@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   
   headerSubtitle: {
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   filterChipText: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   filterChipTextActive: {
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
   jobTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
     marginBottom: spacing.xs,
   },
   
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
   viewDetails: {
     color: colors.primary,
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
 });
 

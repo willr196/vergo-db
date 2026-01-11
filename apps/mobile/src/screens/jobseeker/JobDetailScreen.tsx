@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   backText: {
     color: colors.primary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   content: {
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   roleText: {
     color: colors.primary,
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
   
   dbsBadge: {
@@ -333,13 +333,13 @@ const styles = StyleSheet.create({
   dbsText: {
     color: colors.info,
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
   
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     marginBottom: spacing.xs,
   },
   
@@ -374,12 +374,12 @@ const styles = StyleSheet.create({
   infoValue: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   payRate: {
     color: colors.primary,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   
   section: {
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.primary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
     marginBottom: spacing.sm,
     paddingBottom: spacing.sm,
     borderBottomWidth: 1,
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   detailValue: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   urgentText: {
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
   appliedText: {
     color: colors.success,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
   
   filledBanner: {
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
   filledText: {
     color: colors.textMuted,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
 });
 
