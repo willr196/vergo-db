@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     marginBottom: spacing.sm,
     textAlign: 'center',
   },
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   errorTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     marginBottom: spacing.sm,
   },
   

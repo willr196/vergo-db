@@ -363,13 +363,13 @@ const styles = StyleSheet.create({
   backText: {
     color: colors.primary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   headerTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
   
   content: {
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
   statusTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     marginBottom: spacing.sm,
   },
   
@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
   reasonTitle: {
     color: colors.error,
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
     marginBottom: spacing.xs,
   },
   
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
     marginBottom: spacing.md,
   },
   
@@ -466,13 +466,13 @@ const styles = StyleSheet.create({
   roleText: {
     color: colors.primary,
     fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
   
   jobTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
     marginBottom: spacing.xs,
   },
   
@@ -507,13 +507,13 @@ const styles = StyleSheet.create({
   payRate: {
     color: colors.primary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   
   viewLink: {
     color: colors.primary,
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   noteCard: {
@@ -572,7 +572,7 @@ const styles = StyleSheet.create({
   timelineLabel: {
     color: colors.textMuted,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   timelineLabelActive: {

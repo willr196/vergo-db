@@ -101,13 +101,13 @@ const styles = StyleSheet.create({
   logoText: {
     color: colors.textInverse,
     fontSize: 40,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   
   brandName: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxxl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     letterSpacing: 4,
   },
   
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   welcomeTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     textAlign: 'center',
     lineHeight: 32,
     marginBottom: spacing.md,

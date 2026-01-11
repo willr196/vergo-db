@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   
   profileCard: {
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   avatarText: {
     color: colors.textInverse,
     fontSize: typography.fontSize.xxl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   
   availabilityDot: {
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   userName: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     marginBottom: spacing.xs,
   },
   
@@ -407,13 +407,13 @@ const styles = StyleSheet.create({
   completionTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   completionPercent: {
     color: colors.primary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   
   progressBar: {
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
   statValue: {
     color: colors.primary,
     fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   
   statLabel: {
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
     marginBottom: spacing.sm,
   },
   

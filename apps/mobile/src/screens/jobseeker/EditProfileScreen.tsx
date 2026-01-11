@@ -360,13 +360,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
   
   saveText: {
     color: colors.primary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
     textAlign: 'right',
   },
   
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
     marginBottom: spacing.md,
   },
   
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
   fieldLabel: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
     marginBottom: spacing.sm,
     marginTop: spacing.md,
   },
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
   optionText: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   optionTextActive: {
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
   
   roleChipTextActive: {
     color: colors.primary,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
 });
 
