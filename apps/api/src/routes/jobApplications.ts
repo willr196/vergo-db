@@ -67,7 +67,8 @@ r.post("/", requireUser, async (req, res, next) => {
       location: job.location
     }).catch(err => console.error("[EMAIL]", err));
     
-    res.status(201).json({ id: application.id, status: application.status, job: application.job, createdAt: application.createdAt });
+    const payload = { id: application.id, status: application.status, job: application.job, createdAt: application.createdAt };
+    res.status(201).json({ ok: true, ...payload, data: payload });
   } catch (error) {
     if (error instanceof z.ZodError) return res.status(400).json({ error: "Invalid input" });
     next(error);
@@ -91,10 +92,12 @@ r.get("/mine", requireUser, async (req, res, next) => {
       }
     });
     
-    res.json(applications.map(app => ({
+    const payload = applications.map(app => ({
       ...app,
       job: { ...app.job, payRate: app.job.payRate ? Number(app.job.payRate) : null }
-    })));
+    }));
+    
+    res.json({ ok: true, applications: payload, data: payload });
   } catch (error) { next(error); }
 });
 
@@ -105,7 +108,7 @@ r.get("/check/:jobId", requireUser, async (req, res, next) => {
       where: { userId_jobId: { userId: req.session.userId!, jobId: req.params.jobId } },
       select: { id: true, status: true, createdAt: true }
     });
-    res.json({ applied: !!application, application });
+    res.json({ ok: true, applied: !!application, application, data: { applied: !!application, application } });
   } catch (error) { next(error); }
 });
 
@@ -126,7 +129,7 @@ r.post("/:id/withdraw", requireUser, async (req, res, next) => {
     
     console.log(`[JOB APPLICATION] Withdrawn | ID: ${req.params.id} | User: ${req.session.userEmail} | Job: ${application.job.title}`);
     
-    res.json({ ok: true, status: "WITHDRAWN" });
+    res.json({ ok: true, status: "WITHDRAWN", data: { status: "WITHDRAWN" } });
   } catch (error) { next(error); }
 });
 
@@ -152,7 +155,8 @@ r.get("/", adminAuth, async (req, res, next) => {
       prisma.jobApplication.count({ where })
     ]);
     
-    res.json({ applications, pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / Number(limit)) } });
+    const payload = { applications, pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / Number(limit)) } };
+    res.json({ ok: true, ...payload, data: payload });
   } catch (error) { next(error); }
 });
 
@@ -172,7 +176,7 @@ r.get("/:id", adminAuth, async (req, res, next) => {
       }
     });
     if (!application) return res.status(404).json({ error: "Not found" });
-    res.json(application);
+    res.json({ ok: true, application, data: application });
   } catch (error) { next(error); }
 });
 
@@ -214,7 +218,7 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
     // AUDIT LOG
     console.log(`[AUDIT] Application status changed | ID: ${req.params.id} | User: ${application.user.email} | Job: ${application.job.title} | From: ${previousStatus} | To: ${status} | Admin: ${req.session.username}`);
     
-    res.json({ id: req.params.id, status });
+    res.json({ ok: true, id: req.params.id, status, data: { id: req.params.id, status } });
   } catch (error) {
     if (error instanceof z.ZodError) return res.status(400).json({ error: "Invalid status" });
     next(error);
@@ -233,7 +237,7 @@ r.patch("/:id/notes", adminAuth, async (req, res, next) => {
     // AUDIT LOG
     console.log(`[AUDIT] Application notes updated | ID: ${req.params.id} | Admin: ${req.session.username}`);
     
-    res.json({ id: application.id, adminNotes: application.adminNotes });
+    res.json({ ok: true, id: application.id, adminNotes: application.adminNotes, data: { id: application.id, adminNotes: application.adminNotes } });
   } catch (error) { next(error); }
 });
 

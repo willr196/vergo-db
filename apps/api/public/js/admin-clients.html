@@ -415,7 +415,8 @@
     async function checkAuth() {
       try {
         const res = await fetch('/api/v1/auth/session');
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         if (!data.authenticated) {
           window.location.href = 'login.html';
         }
@@ -428,7 +429,8 @@
     async function loadStats() {
       try {
         const res = await fetch('/api/v1/admin/clients/stats');
-        const stats = await res.json();
+        const payload = await res.json();
+        const stats = payload.data ?? payload;
         
         document.getElementById('stat-pending').textContent = stats.pending;
         document.getElementById('stat-approved').textContent = stats.approved;
@@ -454,7 +456,8 @@
       
       try {
         const res = await fetch(`/api/v1/admin/clients?${params}`);
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         
         clients = data.clients;
         totalPages = data.pagination.pages;
@@ -533,7 +536,8 @@
     async function viewClient(id) {
       try {
         const res = await fetch(`/api/v1/admin/clients/${id}`);
-        const client = await res.json();
+        const payload = await res.json();
+        const client = payload.data ?? payload;
         
         document.getElementById('modal-title').textContent = client.companyName;
         document.getElementById('modal-body').innerHTML = `
@@ -628,7 +632,8 @@
       
       try {
         const res = await fetch(`/api/v1/admin/clients/${id}/approve`, { method: 'POST' });
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         
         if (!res.ok) throw new Error(data.error);
         
@@ -664,7 +669,8 @@
           body: JSON.stringify({ reason })
         });
         
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         if (!res.ok) throw new Error(data.error);
         
         showAlert('Client rejected', 'success');
@@ -682,7 +688,8 @@
       
       try {
         const res = await fetch(`/api/v1/admin/clients/${id}/suspend`, { method: 'POST' });
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         
         if (!res.ok) throw new Error(data.error);
         
@@ -700,7 +707,8 @@
       
       try {
         const res = await fetch(`/api/v1/admin/clients/${id}/reinstate`, { method: 'POST' });
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         
         if (!res.ok) throw new Error(data.error);
         
@@ -723,7 +731,8 @@
           body: JSON.stringify({ notes })
         });
         
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         if (!res.ok) throw new Error(data.error);
         
         showAlert('Notes saved', 'success');

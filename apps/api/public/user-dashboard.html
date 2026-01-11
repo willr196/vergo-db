@@ -364,7 +364,8 @@
     async function checkAuth() {
       try {
         const res = await fetch('/api/v1/user/session');
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         
         if (!data.authenticated) {
           showLoginRequired();
@@ -395,7 +396,9 @@
     async function loadApplications() {
       try {
         const res = await fetch('/api/v1/job-applications/mine');
-        applications = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
+        applications = data.applications ?? data;
         renderDashboard();
       } catch (err) {
         console.error('Failed to load applications:', err);
@@ -503,7 +506,8 @@
       
       try {
         const res = await fetch(`/api/v1/job-applications/${id}/withdraw`, { method: 'POST' });
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         
         if (!res.ok) throw new Error(data.error);
         

@@ -307,7 +307,8 @@
           body: JSON.stringify({ email, password })
         });
         
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         
         if (!res.ok) {
           // Show resend option if email not verified

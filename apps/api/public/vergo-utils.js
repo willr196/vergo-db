@@ -67,6 +67,14 @@ async function secureFetch(url, options = {}) {
   }
 }
 
+// Normalize API responses that wrap payloads in { ok, data }
+function unwrapResponse(payload) {
+  if (payload && typeof payload === 'object' && 'data' in payload) {
+    return payload.data;
+  }
+  return payload;
+}
+
 // ============================================
 // 3. ACCESSIBLE NOTIFICATIONS
 // ============================================
@@ -356,7 +364,8 @@ class SessionManager {
       const response = await secureFetch('/api/v1/auth/session');
       if (!response) return;
       
-      const data = await response.json();
+      const payload = await response.json();
+      const data = unwrapResponse(payload);
       
       if (!data.authenticated) {
         this.handleLogout();
@@ -444,9 +453,10 @@ class JobBoard {
       const response = await secureFetch(`/api/v1/jobs?${params}`);
       if (!response) return;
       
-      const data = await response.json();
+      const payload = await response.json();
+      const data = unwrapResponse(payload);
       this.jobs = data.jobs;
-      this.totalPages = data.totalPages;
+      this.totalPages = data.pagination?.totalPages ?? data.totalPages;
       
       this.renderJobs();
       this.renderPagination();
@@ -642,7 +652,8 @@ class UserAuth {
     try {
       const response = await secureFetch('/api/v1/users/session');
       if (response && response.ok) {
-        const data = await response.json();
+        const payload = await response.json();
+        const data = unwrapResponse(payload);
         this.user = data.user || null;
         this.updateUI();
       }
@@ -695,7 +706,8 @@ class UserAuth {
       });
       
       if (response && response.ok) {
-        const data = await response.json();
+        const payload = await response.json();
+        const data = unwrapResponse(payload);
         this.user = data.user;
         notification.show('Login successful!', 'success');
         
@@ -704,7 +716,8 @@ class UserAuth {
         const redirect = params.get('redirect') || '/dashboard';
         window.location.href = redirect;
       } else {
-        const error = await response.json();
+        const payload = await response.json();
+        const error = unwrapResponse(payload);
         notification.show(error.message || 'Login failed', 'error');
       }
     } catch (error) {
@@ -742,7 +755,8 @@ class UserAuth {
           window.location.href = '/login';
         }, 3000);
       } else {
-        const error = await response.json();
+        const payload = await response.json();
+        const error = unwrapResponse(payload);
         notification.show(error.message || 'Registration failed', 'error');
       }
     } catch (error) {

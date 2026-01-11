@@ -4,6 +4,7 @@ import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import path from 'node:path';
 import session from 'express-session';
+import connectPgSimple from 'connect-pg-simple';
 import { env } from './env';
 import applications from './routes/applications';
 import { adminAuth } from './middleware/adminAuth';
@@ -13,6 +14,10 @@ import userAuth from './routes/userAuth';
 import jobs from './routes/jobs';
 import jobApplications from './routes/jobApplications';
 import clientAuthRoutes from './routes/clientAuth';
+import adminClients from './routes/adminClients';
+import quotes from './routes/quotes';
+import mobileJobs from './routes/mobileJobs';
+import mobileJobApplications from './routes/mobileJobApplications';
 
 const app = express();
 app.disable('x-powered-by');
@@ -47,11 +52,20 @@ if (env.nodeEnv === 'production' && !process.env.SESSION_SECRET) {
 }
 
 const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-only-secret-change-in-production';
+const PgSession = connectPgSimple(session);
+const dbUsesSsl = /sslmode=require/i.test(env.dbUrl);
+
 app.use(session({
   name: 'vergo.sid',
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  store: new PgSession({
+    conString: env.dbUrl,
+    tableName: 'user_sessions',
+    createTableIfMissing: true,
+    ssl: dbUsesSsl ? { rejectUnauthorized: false } : false
+  }),
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -91,7 +105,18 @@ app.use(express.static(pub, { extensions: ['html'] }));
 
 app.use('/api/v1/job-applications', jobApplications);
 
+// Mobile app endpoints (JWT)
+app.use('/api/v1/mobile/jobs', mobileJobs);
+app.use('/api/v1/mobile/job-applications', mobileJobApplications);
+
+// Admin clients
+app.use('/api/v1/admin/clients', adminClients);
+
+// Quotes
+app.use('/api/v1/quotes', quotes);
+
 app.use('/api/v1/client', clientAuthRoutes);
+app.use('/api/v1/clients', clientAuthRoutes);
 
 // 404 handler (after static)
 app.use((req, res) => {

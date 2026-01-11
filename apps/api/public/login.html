@@ -420,7 +420,8 @@
         let data = {};
         
         if (contentType && contentType.includes('application/json')) {
-          data = await response.json();
+          const payload = await response.json();
+          data = payload.data ?? payload;
         }
         
         if (response.ok) {

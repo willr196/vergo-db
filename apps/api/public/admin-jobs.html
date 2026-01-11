@@ -660,7 +660,8 @@
     async function checkAuth() {
       try {
         const res = await fetch('/api/v1/auth/session');
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         if (!data.authenticated) {
           window.location.href = 'login.html';
         }
@@ -673,7 +674,8 @@
     async function loadRoles() {
       try {
         const res = await fetch('/api/v1/jobs/meta/roles');
-        roles = await res.json();
+        const payload = await res.json();
+        roles = payload.data ?? payload;
         
         const select = document.getElementById('role-select');
         select.innerHTML = '<option value="">Select role...</option>';
@@ -700,7 +702,8 @@
       
       try {
         const res = await fetch(`/api/v1/jobs/admin/list?${params}`);
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         jobs = data.jobs || [];
         
         // Count pending jobs
@@ -876,7 +879,8 @@
           body: JSON.stringify(data)
         });
         
-        const result = await res.json();
+        const payload = await res.json();
+        const result = payload.data ?? payload;
         
         if (!res.ok) {
           throw new Error(result.error || 'Failed to save job');
@@ -903,7 +907,8 @@
         const res = await fetch(`/api/v1/jobs/${id}/approve`, { method: 'POST' });
         
         if (!res.ok) {
-          const data = await res.json();
+          const payload = await res.json();
+          const data = payload.data ?? payload;
           throw new Error(data.error || 'Failed to approve');
         }
         
@@ -929,7 +934,8 @@
         });
         
         if (!res.ok) {
-          const data = await res.json();
+          const payload = await res.json();
+          const data = payload.data ?? payload;
           throw new Error(data.error || 'Failed to reject');
         }
         
@@ -948,7 +954,8 @@
         const res = await fetch(`/api/v1/jobs/${id}`, { method: 'DELETE' });
         
         if (!res.ok) {
-          const data = await res.json();
+          const payload = await res.json();
+          const data = payload.data ?? payload;
           throw new Error(data.error || 'Failed to delete');
         }
         

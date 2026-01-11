@@ -397,7 +397,8 @@
           body: JSON.stringify(formData)
         });
         
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         
         if (!res.ok && !data.ok) {
           throw new Error(data.error || 'Registration failed');

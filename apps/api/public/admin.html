@@ -849,7 +849,8 @@
         const err = await res.json().catch(() => ({ error: res.statusText }));
         throw new Error(err.error || res.statusText);
       }
-      return res.json();
+      const payload = await res.json();
+      return payload && payload.data !== undefined ? payload.data : payload;
     }
 
     function notify(message, type = 'success') {

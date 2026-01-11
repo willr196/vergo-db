@@ -543,7 +543,8 @@
     async function checkAuth() {
       try {
         const res = await fetch('/api/v1/clients/session');
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         
         if (!data.authenticated) {
           window.location.href = '/client-login.html';
@@ -662,7 +663,8 @@
       
       try {
         const res = await fetch('/api/v1/clients/profile');
-        const profile = await res.json();
+        const payload = await res.json();
+        const profile = payload.data ?? payload;
         
         main.innerHTML = `
           <h1 class="page-title">Company Profile</h1>

@@ -307,7 +307,8 @@
           body: JSON.stringify({ firstName, lastName, email, phone: phone || undefined, password })
         });
         
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         
         if (!res.ok && res.status !== 200) {
           throw new Error(data.error || 'Registration failed');

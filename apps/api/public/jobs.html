@@ -557,7 +557,8 @@
     async function checkAuth() {
       try {
         const res = await fetch('/api/v1/user/session');
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         
         if (data.authenticated) {
           currentUser = data.user;
@@ -609,7 +610,8 @@
     async function loadRoles() {
       try {
         const res = await fetch('/api/v1/jobs/meta/roles');
-        const roles = await res.json();
+        const payload = await res.json();
+        const roles = payload.data ?? payload;
         
         const select = document.getElementById('filter-role');
         roles.forEach(role => {
@@ -634,7 +636,8 @@
         if (filters.type) params.append('type', filters.type);
         
         const res = await fetch(`/api/v1/jobs?${params}`);
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         
         currentPage = data.pagination.page;
         totalPages = data.pagination.totalPages;
