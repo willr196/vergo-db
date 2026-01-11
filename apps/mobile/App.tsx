@@ -84,10 +84,10 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <StatusBar 
-          barStyle="light-content" 
+        <StatusBar
+          barStyle="light-content"
           backgroundColor={colors.background}
-          translucent={false}
+          translucent={Boolean(false)}
         />
         <View style={styles.container}>
           <AppContent />
