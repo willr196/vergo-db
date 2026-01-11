@@ -39,9 +39,8 @@ export function Input({
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Ensure boolean type safety for secure text entry
-  const isPassword = Boolean(secureTextEntry);
-  
+  const isPassword = !!secureTextEntry;
+
   return (
     <View style={[styles.container, containerStyle]}>
       {label && <Text style={styles.label}>{label}</Text>}
@@ -65,7 +64,7 @@ export function Input({
           placeholderTextColor={colors.textMuted}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          secureTextEntry={Boolean(isPassword && !showPassword)}
+          secureTextEntry={isPassword && !showPassword}
           {...props}
         />
         
