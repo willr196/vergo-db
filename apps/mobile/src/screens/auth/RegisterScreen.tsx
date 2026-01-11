@@ -256,7 +256,7 @@ export function RegisterScreen({ navigation, route }: Props) {
               placeholder="you@example.com"
               keyboardType="email-address"
               autoCapitalize="none"
-              autoCorrect={false}
+              autoCorrect={Boolean(false)}
               value={email}
               onChangeText={(text) => {
                 setEmail(text);

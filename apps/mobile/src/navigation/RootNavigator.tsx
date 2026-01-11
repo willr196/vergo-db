@@ -57,7 +57,7 @@ const ClientProfile = () => (
 // Navigation theme
 const navigationTheme = {
   ...DefaultTheme,
-  dark: true,
+  dark: Boolean(true),
   colors: {
     ...DefaultTheme.colors,
     primary: colors.primary,
@@ -84,9 +84,12 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
     MyJobs: '📝',
     CompanyProfile: '🏢',
   };
-  
+
+  // Ensure focused is boolean type
+  const isFocused = Boolean(focused);
+
   return (
-    <Text style={[styles.tabIcon, focused && styles.tabIconFocused]}>
+    <Text style={[styles.tabIcon, isFocused && styles.tabIconFocused]}>
       {icons[label] || '•'}
     </Text>
   );
@@ -97,7 +100,7 @@ function JobSeekerTabNavigator() {
   return (
     <JobSeekerTab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: false,
+        headerShown: Boolean(false),
         tabBarStyle: styles.tabBar,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
@@ -131,7 +134,7 @@ function ClientTabNavigator() {
   return (
     <ClientTab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: false,
+        headerShown: Boolean(false),
         tabBarStyle: styles.tabBar,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
@@ -165,7 +168,7 @@ function AuthStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: false,
+        headerShown: Boolean(false),
         contentStyle: { backgroundColor: colors.background },
         animation: 'slide_from_right',
       }}
@@ -183,7 +186,7 @@ function JobSeekerStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: false,
+        headerShown: Boolean(false),
         contentStyle: { backgroundColor: colors.background },
         animation: 'slide_from_right',
       }}
@@ -210,7 +213,7 @@ function ClientStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: false,
+        headerShown: Boolean(false),
         contentStyle: { backgroundColor: colors.background },
         animation: 'slide_from_right',
       }}
