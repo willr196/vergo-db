@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   companyName: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     marginTop: spacing.xs,
   },
   statsGrid: {
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   statNumber: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   statNumberHighlight: {
     color: colors.textInverse,
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
     marginBottom: spacing.md,
   },
   actionCard: {
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
   actionTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   actionSubtitle: {
     color: colors.textSecondary,
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
   summaryValue: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
   divider: {
     height: 1,

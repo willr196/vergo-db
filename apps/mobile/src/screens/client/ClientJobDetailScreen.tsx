@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
   jobTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     marginBottom: spacing.sm,
   },
   metaRow: {
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
     textTransform: 'capitalize',
   },
   tabs: {
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
   },
   tabTextActive: {
     color: colors.primary,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   content: {
     flex: 1,
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
     marginBottom: spacing.xs,
   },
   emptySubtitle: {
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
   applicantInitial: {
     color: colors.textInverse,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   applicantInfo: {
     flex: 1,
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
   applicantName: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
   applicantEmail: {
     color: colors.textSecondary,
@@ -490,7 +490,7 @@ const styles = StyleSheet.create({
   },
   appStatusText: {
     fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
     textTransform: 'capitalize',
   },
   coverNoteSection: {
@@ -540,12 +540,12 @@ const styles = StyleSheet.create({
   actionButtonText: {
     color: colors.textInverse,
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   rejectButtonText: {
     color: colors.error,
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   detailsSection: {
     backgroundColor: colors.surface,
@@ -568,7 +568,7 @@ const styles = StyleSheet.create({
   detailValue: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   descriptionSection: {
     marginTop: spacing.md,

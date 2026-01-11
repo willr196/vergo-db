@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     marginBottom: spacing.sm,
   },
   
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   loginLink: {
     color: colors.primary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
 });
 

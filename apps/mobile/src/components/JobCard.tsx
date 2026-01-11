@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   roleText: {
     color: colors.textInverse,
     fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
   
   dbsBadge: {
@@ -202,13 +202,13 @@ const styles = StyleSheet.create({
   dbsText: {
     color: colors.warning,
     fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
   
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     marginBottom: spacing.xs,
   },
   
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   payAmount: {
     color: colors.primary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   
   spotsContainer: {
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   spotsText: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   spotsTextUrgent: {
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   compactTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   compactMeta: {
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   compactBadgeText: {
     color: colors.primary,
     fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
 });
 

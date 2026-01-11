@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   companyCard: {
     flexDirection: 'row',
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
   companyInitial: {
     color: colors.textInverse,
     fontSize: typography.fontSize.xxl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   companyInfo: {
     flex: 1,
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   companyName: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
   companyEmail: {
     color: colors.textSecondary,
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   editButtonText: {
     color: colors.primary,
     fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   statsRow: {
     flexDirection: 'row',
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   statNumber: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   statLabel: {
     color: colors.textSecondary,
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   menuTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   menuSubtitle: {
     color: colors.textSecondary,
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
   signOutText: {
     color: colors.error,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   versionText: {
     textAlign: 'center',

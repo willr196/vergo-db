@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
   },
   headerSpacer: {
     width: 60,
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: '600' as const,
     marginBottom: spacing.md,
   },
   field: {
@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
   checkmark: {
     color: colors.textInverse,
     fontSize: 14,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
   },
   checkboxLabel: {
     color: colors.textPrimary,

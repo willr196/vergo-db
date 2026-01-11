@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   backText: {
     color: colors.primary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   content: {
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   title: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     marginBottom: spacing.sm,
   },
   
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   
   helpLink: {
     color: colors.primary,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
   
   // Success State
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   successTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: '700' as const,
     marginBottom: spacing.md,
     textAlign: 'center',
   },
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
   retryText: {
     color: colors.primary,
     fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: '500' as const,
   },
 });
 
