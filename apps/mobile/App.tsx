@@ -87,7 +87,7 @@ export default function App() {
         <StatusBar
           barStyle="light-content"
           backgroundColor={colors.background}
-          translucent={Boolean(false)}
+          translucent={false}
         />
         <View style={styles.container}>
           <AppContent />
