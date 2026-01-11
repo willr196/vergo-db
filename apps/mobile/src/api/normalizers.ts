@@ -9,16 +9,25 @@ const TRUE_STRING = 'true';
 const FALSE_STRING = 'false';
 
 function coerceBoolean(value: unknown): boolean | undefined {
+  // Handle actual booleans
   if (value === true || value === false) {
     return value;
   }
 
-  if (value === TRUE_STRING) {
-    return true;
+  // Handle string booleans (from API or storage)
+  if (typeof value === 'string') {
+    const normalized = value.toLowerCase().trim();
+    if (normalized === TRUE_STRING || normalized === '1') {
+      return true;
+    }
+    if (normalized === FALSE_STRING || normalized === '0' || normalized === '') {
+      return false;
+    }
   }
 
-  if (value === FALSE_STRING) {
-    return false;
+  // Handle numbers (1 = true, 0 = false)
+  if (typeof value === 'number') {
+    return value !== 0;
   }
 
   return undefined;
@@ -211,9 +220,22 @@ export function normalizeClientCompany(user: Partial<ClientCompany> & { contactN
 }
 
 export function normalizeStoredUser(user: JobSeeker | ClientCompany): JobSeeker | ClientCompany {
+  // Ensure boolean fields are actually booleans, not strings
+  // This handles cases where old persisted data may have string booleans
+  const sanitized = { ...user };
+
   if (user.type === 'jobseeker') {
-    return normalizeJobSeeker(user);
+    const jobSeeker = sanitized as JobSeeker;
+    return normalizeJobSeeker({
+      ...jobSeeker,
+      hasDBSCheck: coerceBoolean(jobSeeker.hasDBSCheck) ?? false,
+      rightToWork: coerceBoolean(jobSeeker.rightToWork) ?? false,
+    });
   }
 
-  return normalizeClientCompany(user);
+  const client = sanitized as ClientCompany;
+  return normalizeClientCompany({
+    ...client,
+    isApproved: coerceBoolean(client.isApproved) ?? false,
+  });
 }
