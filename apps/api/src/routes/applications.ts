@@ -4,7 +4,6 @@ import { presignUpload, presignDownload } from '../services/s3';
 import { prisma } from '../prisma';
 import { randomUUID } from 'crypto';
 import { adminAuth } from '../middleware/adminAuth';
-import fileType from 'file-type';
 import { S3Client, GetObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
 import rateLimit from 'express-rate-limit';
@@ -28,6 +27,27 @@ async function streamToBuffer(stream: Readable, maxBytes: number): Promise<Buffe
     chunks.push(chunk);
   }
   return Buffer.concat(chunks);
+}
+
+let fileTypeFromBufferFn: ((buffer: Buffer) => Promise<{ mime: string } | undefined>) | null = null;
+
+async function getFileType(buffer: Buffer) {
+  if (!fileTypeFromBufferFn) {
+    const mod = await import('file-type');
+    const modAny = mod as {
+      fileTypeFromBuffer?: (buffer: Buffer) => Promise<{ mime: string } | undefined>;
+      fromBuffer?: (buffer: Buffer) => Promise<{ mime: string } | undefined>;
+    };
+    fileTypeFromBufferFn = modAny.fileTypeFromBuffer ?? modAny.fromBuffer ?? null;
+    if (!fileTypeFromBufferFn) {
+      throw new Error('file-type: missing buffer detection function');
+    }
+  }
+  const fn = fileTypeFromBufferFn;
+  if (!fn) {
+    throw new Error('file-type: buffer detection not initialized');
+  }
+  return fn(buffer);
 }
 
 // ============================================
@@ -97,7 +117,8 @@ r.post('/presign', presignLimiter, async (req, res, next) => {
       }
     });
 
-    res.json({ url, key, applicantId });
+    const payload = { url, key, applicantId };
+    res.json({ ok: true, ...payload, data: payload });
   } catch (e) { next(e); }
 });
 
@@ -187,7 +208,7 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
     const buffer = await streamToBuffer(response.Body as Readable, 4096);
     
     // 5. Check actual file type from buffer
-    const type = await fileType.fromBuffer(buffer);
+    const type = await getFileType(buffer);
       
     const allowedMimeTypes = [
       'application/pdf',
@@ -214,7 +235,7 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
       data: { verified: true }
     });
     
-    res.json({ ok: true, fileType: type.mime });
+    res.json({ ok: true, fileType: type.mime, data: { fileType: type.mime } });
   } catch (error) {
     console.error('File verification error:', error);
     next(error);
@@ -320,7 +341,7 @@ r.post('/', async (req, res, next) => {
     });
 
     console.log(`[APPLICATION] New application: ${app.id} from ${d.email}`);
-    res.status(201).json({ id: app.id });
+    res.status(201).json({ ok: true, id: app.id, data: { id: app.id } });
   } catch (e) { next(e); }
 });
 
@@ -358,7 +379,7 @@ r.get('/', adminAuth, async (req, res, next) => {
       status: a.status
     }));
     
-    res.json(shaped);
+    res.json({ ok: true, applications: shaped, data: shaped });
   } catch (e) { next(e); }
 });
 
@@ -373,7 +394,7 @@ r.get('/:id/cv', adminAuth, async (req, res, next) => {
     const url = await presignDownload(app.cvKey);
     
     // Return as signedUrl for consistency with frontend expectations
-    res.json({ signedUrl: url, url });
+    res.json({ ok: true, signedUrl: url, url, data: { signedUrl: url, url } });
   } catch (e) { next(e); }
 });
 
@@ -394,7 +415,7 @@ r.get('/:id', adminAuth, async (req, res, next) => {
       }
     });
     if (!app) return res.status(404).end();
-    res.json(app);
+    res.json({ ok: true, application: app, data: app });
   } catch (e) { next(e); }
 });
 
@@ -415,7 +436,7 @@ r.patch('/:id/status', adminAuth, async (req, res, next) => {
       where: { id: req.params.id },
       data: { status: parsed.data.status as any }
     });
-    res.json({ id: app.id, status: app.status });
+    res.json({ ok: true, id: app.id, status: app.status, data: { id: app.id, status: app.status } });
   } catch (e) { next(e); }
 });
 

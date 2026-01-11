@@ -12,8 +12,11 @@ async function main() {
   const client = new Client({ connectionString: dbUrl, ssl });
   await client.connect();
 
-  const res = await client.query('DELETE FROM user_sessions WHERE expire < NOW();');
-  console.log(`🧹 Deleted ${res.rowCount} expired sessions`);
+  const sessionRes = await client.query('DELETE FROM user_sessions WHERE expire < NOW();');
+  console.log(`🧹 Deleted ${sessionRes.rowCount} expired sessions`);
+
+  const refreshRes = await client.query('DELETE FROM "RefreshToken" WHERE "expiresAt" < NOW() OR "revokedAt" IS NOT NULL;');
+  console.log(`🧹 Deleted ${refreshRes.rowCount} expired/revoked refresh tokens`);
 
   await client.end();
 }

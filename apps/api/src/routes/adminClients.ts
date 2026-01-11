@@ -70,7 +70,7 @@ r.get("/", async (req, res) => {
       prisma.client.count({ where })
     ]);
     
-    res.json({
+    const payload = {
       clients,
       pagination: {
         page: query.page,
@@ -78,7 +78,9 @@ r.get("/", async (req, res) => {
         total,
         pages: Math.ceil(total / query.limit)
       }
-    });
+    };
+
+    res.json({ ok: true, ...payload, data: payload });
     
   } catch (error) {
     console.error("[ERROR] List clients failed:", error);
@@ -107,14 +109,16 @@ r.get("/stats", async (req, res) => {
       where: { createdAt: { gte: weekAgo } }
     });
     
-    res.json({
+    const payload = {
       pending,
       approved,
       rejected,
       suspended,
       total,
       recentRegistrations
-    });
+    };
+
+    res.json({ ok: true, ...payload, data: payload });
     
   } catch (error) {
     console.error("[ERROR] Get client stats failed:", error);
@@ -144,7 +148,7 @@ r.get("/:id", async (req, res) => {
     // Remove sensitive fields
     const { passwordHash, verifyToken, resetToken, ...safeClient } = client;
     
-    res.json(safeClient);
+    res.json({ ok: true, client: safeClient, data: safeClient });
     
   } catch (error) {
     console.error("[ERROR] Get client failed:", error);
@@ -181,7 +185,7 @@ r.post("/:id/approve", async (req, res) => {
       return res.status(400).json({ error: "Client is already approved" });
     }
     
-    const adminUsername = (req.session as any)?.admin?.username || "admin";
+    const adminUsername = (req.session as any)?.username || "admin";
     
     await prisma.client.update({
       where: { id: req.params.id },
@@ -204,7 +208,7 @@ r.post("/:id/approve", async (req, res) => {
     
     console.log(`[ADMIN] Approved client: ${client.companyName} by ${adminUsername}`);
     
-    res.json({ ok: true, message: "Client approved successfully" });
+    res.json({ ok: true, message: "Client approved successfully", data: { message: "Client approved successfully" } });
     
   } catch (error) {
     console.error("[ERROR] Approve client failed:", error);
@@ -261,7 +265,7 @@ r.post("/:id/reject", async (req, res) => {
     
     console.log(`[ADMIN] Rejected client: ${client.companyName}`);
     
-    res.json({ ok: true, message: "Client rejected" });
+    res.json({ ok: true, message: "Client rejected", data: { message: "Client rejected" } });
     
   } catch (error) {
     console.error("[ERROR] Reject client failed:", error);
@@ -290,7 +294,7 @@ r.post("/:id/suspend", async (req, res) => {
     
     console.log(`[ADMIN] Suspended client: ${client.companyName}`);
     
-    res.json({ ok: true, message: "Client suspended" });
+    res.json({ ok: true, message: "Client suspended", data: { message: "Client suspended" } });
     
   } catch (error) {
     console.error("[ERROR] Suspend client failed:", error);
@@ -326,7 +330,7 @@ r.post("/:id/reinstate", async (req, res) => {
     
     console.log(`[ADMIN] Reinstated client: ${client.companyName}`);
     
-    res.json({ ok: true, message: "Client reinstated" });
+    res.json({ ok: true, message: "Client reinstated", data: { message: "Client reinstated" } });
     
   } catch (error) {
     console.error("[ERROR] Reinstate client failed:", error);
@@ -354,7 +358,7 @@ r.put("/:id/notes", async (req, res) => {
       data: { adminNotes: parsed.data.notes || null }
     });
     
-    res.json({ ok: true });
+    res.json({ ok: true, data: { ok: true } });
     
   } catch (error) {
     console.error("[ERROR] Update client notes failed:", error);
@@ -382,7 +386,7 @@ r.delete("/:id", async (req, res) => {
     
     console.log(`[ADMIN] Deleted client: ${client.companyName}`);
     
-    res.json({ ok: true, message: "Client deleted" });
+    res.json({ ok: true, message: "Client deleted", data: { message: "Client deleted" } });
     
   } catch (error) {
     console.error("[ERROR] Delete client failed:", error);

@@ -742,7 +742,8 @@
           body: JSON.stringify(body)
         });
         if (!res.ok) throw new Error('Failed to presign CV upload');
-        return res.json(); // Returns { url, key, applicantId }
+        const payload = await res.json();
+        return payload.data ?? payload; // Returns { url, key, applicantId }
       }
 
       async function uploadToS3(url, file) {
@@ -762,7 +763,8 @@
           body: JSON.stringify({ key })
         });
         if (!res.ok) throw new Error('Failed to verify upload');
-        return res.json();
+        const payload = await res.json();
+        return payload.data ?? payload;
       }
 
       function getRoles() {
@@ -874,7 +876,8 @@
           });
 
           if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
+            const payload = await res.json().catch(() => ({}));
+            const err = payload.data ?? payload;
             throw new Error(err?.error || 'Application submission failed');
           }
 

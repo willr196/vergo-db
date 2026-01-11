@@ -6,6 +6,8 @@ import { z } from "zod";
 import { prisma } from "../prisma";
 // NOTE: Add these functions to your existing email.ts file
 // import { sendClientVerificationEmail, sendClientApprovalEmail, sendClientRejectionEmail } from "../services/email";
+import { requireClientJwt } from "../middleware/jwtAuth";
+import { signAccessToken, signRefreshToken, verifyToken, getTokenExpiresAt, hashToken } from "../utils/jwt";
 
 const r = Router();
 
@@ -38,6 +40,14 @@ const resetPasswordSchema = z.object({
   password: z.string().min(8).max(72)
 });
 
+const refreshSchema = z.object({
+  refreshToken: z.string().min(1)
+});
+
+const logoutSchema = z.object({
+  refreshToken: z.string().min(1).optional()
+});
+
 // ============================================
 // RATE LIMITING
 // ============================================
@@ -67,6 +77,28 @@ const DUMMY_HASH = "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.G0G0G0G0G0G0G0
 
 function generateToken(): string {
   return crypto.randomBytes(32).toString("hex");
+}
+
+function shapeMobileClient(client: {
+  id: string;
+  email: string;
+  companyName: string;
+  contactName: string;
+  phone: string | null;
+  status: string;
+  industry?: string | null;
+  website?: string | null;
+}) {
+  return {
+    id: client.id,
+    email: client.email,
+    companyName: client.companyName,
+    contactName: client.contactName,
+    phone: client.phone || undefined,
+    status: client.status,
+    industry: client.industry || undefined,
+    website: client.website || undefined
+  };
 }
 
 // ============================================
@@ -327,9 +359,322 @@ r.post("/logout", (req, res) => {
       console.error("[ERROR] Client logout failed:", err);
       return res.status(500).json({ error: "Logout failed" });
     }
-    res.clearCookie("connect.sid");
+    res.clearCookie("vergo.sid", {
+      path: "/",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict"
+    });
     res.json({ ok: true });
   });
+});
+
+// ============================================
+// POST /api/v1/client/mobile/login
+// ============================================
+r.post("/mobile/login", loginLimiter, async (req, res) => {
+  try {
+    const parsed = loginSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: "Invalid input" });
+    }
+
+    const { email, password } = parsed.data;
+
+    const client = await prisma.client.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        companyName: true,
+        contactName: true,
+        emailVerified: true,
+        status: true,
+        phone: true,
+        industry: true,
+        website: true,
+        failedAttempts: true,
+        lockedUntil: true
+      }
+    });
+
+    const hashToCompare = client?.passwordHash || DUMMY_HASH;
+    const passwordMatches = await bcrypt.compare(password, hashToCompare);
+
+    if (client?.lockedUntil && client.lockedUntil > new Date()) {
+      const minutesLeft = Math.ceil((client.lockedUntil.getTime() - Date.now()) / 60000);
+      return res.status(423).json({
+        ok: false,
+        error: `Account temporarily locked. Try again in ${minutesLeft} minute${minutesLeft !== 1 ? "s" : ""}.`
+      });
+    }
+
+    if (!client || !passwordMatches) {
+      if (client) {
+        const newFailedAttempts = (client.failedAttempts || 0) + 1;
+        const shouldLock = newFailedAttempts >= 5;
+
+        await prisma.client.update({
+          where: { id: client.id },
+          data: {
+            failedAttempts: newFailedAttempts,
+            lockedUntil: shouldLock ? new Date(Date.now() + 30 * 60 * 1000) : null
+          }
+        });
+      }
+      return res.status(401).json({ ok: false, error: "Invalid email or password" });
+    }
+
+    if (!client.emailVerified) {
+      return res.status(403).json({
+        ok: false,
+        error: "Please verify your email before logging in.",
+        code: "EMAIL_NOT_VERIFIED"
+      });
+    }
+
+    if (client.status !== "APPROVED") {
+      return res.status(403).json({
+        ok: false,
+        error: "Your account is not approved yet.",
+        code: client.status
+      });
+    }
+
+    await prisma.client.update({
+      where: { id: client.id },
+      data: {
+        failedAttempts: 0,
+        lockedUntil: null,
+        lastLoginAt: new Date()
+      }
+    });
+
+    const accessToken = signAccessToken({ sub: client.id, type: 'client', email: client.email });
+    const refreshToken = signRefreshToken({ sub: client.id, type: 'client', email: client.email });
+
+    await prisma.refreshToken.create({
+      data: {
+        tokenHash: hashToken(refreshToken),
+        clientId: client.id,
+        expiresAt: getTokenExpiresAt(refreshToken)
+      }
+    });
+
+    res.json({
+      ok: true,
+      token: accessToken,
+      refreshToken,
+      user: shapeMobileClient(client)
+    });
+  } catch (error) {
+    console.error("[ERROR] Mobile client login failed:", error);
+    res.status(500).json({ ok: false, error: "Login failed" });
+  }
+});
+
+// ============================================
+// POST /api/v1/client/mobile/register
+// ============================================
+r.post("/mobile/register", registerLimiter, async (req, res) => {
+  try {
+    const parsed = registerSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        ok: false,
+        error: "Invalid input",
+        details: parsed.error.issues.map(i => i.message)
+      });
+    }
+
+    const {
+      companyName, industry, website, companySize,
+      contactName, email, password, phone, jobTitle
+    } = parsed.data;
+
+    const existing = await prisma.client.findUnique({
+      where: { email },
+      select: { id: true }
+    });
+
+    if (existing) {
+      return res.status(200).json({
+        ok: true,
+        message: "If this email is not registered, you will receive a verification email.",
+        requiresVerification: true
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const verifyToken = generateToken();
+    const verifyTokenExp = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    const client = await prisma.client.create({
+      data: {
+        companyName,
+        industry: industry || null,
+        website: website || null,
+        companySize: companySize || null,
+        contactName,
+        email,
+        passwordHash,
+        phone: phone || null,
+        jobTitle: jobTitle || null,
+        verifyToken,
+        verifyTokenExp,
+        emailVerified: false,
+        status: "PENDING"
+      }
+    });
+
+    res.status(201).json({
+      ok: true,
+      message: "Registration successful. Please check your email to verify your account. Once verified, your account will be reviewed by our team.",
+      requiresVerification: true,
+      user: shapeMobileClient(client)
+    });
+  } catch (error) {
+    console.error("[ERROR] Mobile client registration failed:", error);
+    res.status(500).json({ ok: false, error: "Registration failed. Please try again." });
+  }
+});
+
+// ============================================
+// POST /api/v1/client/mobile/refresh
+// ============================================
+r.post("/mobile/refresh", async (req, res) => {
+  try {
+    const parsed = refreshSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: "Invalid input" });
+    }
+
+    const payload = verifyToken(parsed.data.refreshToken);
+    if (payload.tokenType !== 'refresh' || payload.type !== 'client') {
+      return res.status(401).json({ ok: false, error: "Invalid refresh token" });
+    }
+
+    const tokenHash = hashToken(parsed.data.refreshToken);
+    const stored = await prisma.refreshToken.findUnique({
+      where: { tokenHash }
+    });
+    if (!stored || stored.revokedAt || stored.expiresAt < new Date() || stored.clientId !== payload.sub) {
+      return res.status(401).json({ ok: false, error: "Refresh token revoked" });
+    }
+
+    await prisma.refreshToken.update({
+      where: { tokenHash },
+      data: { revokedAt: new Date() }
+    });
+
+    const accessToken = signAccessToken({ sub: payload.sub, type: 'client', email: payload.email });
+    const refreshToken = signRefreshToken({ sub: payload.sub, type: 'client', email: payload.email });
+
+    await prisma.refreshToken.create({
+      data: {
+        tokenHash: hashToken(refreshToken),
+        clientId: payload.sub,
+        expiresAt: getTokenExpiresAt(refreshToken)
+      }
+    });
+
+    res.json({ ok: true, token: accessToken, refreshToken });
+  } catch (error) {
+    res.status(401).json({ ok: false, error: "Invalid or expired refresh token" });
+  }
+});
+
+// ============================================
+// POST /api/v1/client/mobile/logout
+// ============================================
+r.post("/mobile/logout", requireClientJwt, async (req, res) => {
+  try {
+    const parsed = logoutSchema.safeParse(req.body);
+    const refreshToken = parsed.success ? parsed.data.refreshToken : undefined;
+
+    if (refreshToken) {
+      await prisma.refreshToken.updateMany({
+        where: {
+          tokenHash: hashToken(refreshToken),
+          clientId: req.auth!.userId,
+          revokedAt: null
+        },
+        data: { revokedAt: new Date() }
+      });
+    } else {
+      await prisma.refreshToken.updateMany({
+        where: { clientId: req.auth!.userId, revokedAt: null },
+        data: { revokedAt: new Date() }
+      });
+    }
+
+    res.json({ ok: true });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: "Logout failed" });
+  }
+});
+
+// ============================================
+// GET /api/v1/client/mobile/me
+// ============================================
+r.get("/mobile/me", requireClientJwt, async (req, res) => {
+  try {
+    const client = await prisma.client.findUnique({
+      where: { id: req.auth!.userId },
+      select: {
+        id: true,
+        email: true,
+        companyName: true,
+        contactName: true,
+        phone: true,
+        status: true,
+        industry: true,
+        website: true
+      }
+    });
+
+    if (!client) {
+      return res.status(404).json({ ok: false, error: "Client not found" });
+    }
+
+    res.json({ ok: true, user: shapeMobileClient(client) });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: "Failed to get client" });
+  }
+});
+
+// ============================================
+// PUT /api/v1/client/mobile/profile
+// ============================================
+r.put("/mobile/profile", requireClientJwt, async (req, res) => {
+  try {
+    const parsed = updateProfileSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: "Invalid input" });
+    }
+
+    const client = await prisma.client.update({
+      where: { id: req.auth!.userId },
+      data: parsed.data,
+      select: {
+        id: true,
+        email: true,
+        companyName: true,
+        contactName: true,
+        phone: true,
+        status: true,
+        industry: true,
+        website: true
+      }
+    });
+
+    res.json({ ok: true, user: shapeMobileClient(client) });
+  } catch (error) {
+    console.error("[ERROR] Mobile client profile update failed:", error);
+    res.status(500).json({ ok: false, error: "Failed to update profile" });
+  }
 });
 
 // ============================================
@@ -341,7 +686,7 @@ r.get("/session", async (req, res) => {
     const isClient = (req.session as any)?.isClient;
     
     if (!clientId || !isClient) {
-      return res.json({ authenticated: false });
+      return res.json({ ok: true, authenticated: false, data: { authenticated: false } });
     }
     
     const client = await prisma.client.findUnique({
@@ -359,17 +704,15 @@ r.get("/session", async (req, res) => {
     });
     
     if (!client || client.status !== "APPROVED") {
-      return res.json({ authenticated: false });
+      return res.json({ ok: true, authenticated: false, data: { authenticated: false } });
     }
     
-    res.json({
-      authenticated: true,
-      client
-    });
+    const payload = { authenticated: true, client };
+    res.json({ ok: true, ...payload, data: payload });
     
   } catch (error) {
     console.error("[ERROR] Client session check failed:", error);
-    res.json({ authenticated: false });
+    res.json({ ok: true, authenticated: false, data: { authenticated: false } });
   }
 });
 

@@ -100,7 +100,7 @@ r.get("/", async (req, res, next) => {
       applicationCount: job._count.applications
     }));
     
-    res.json({
+    const payload = {
       jobs: shaped,
       pagination: {
         page: query.page,
@@ -108,8 +108,26 @@ r.get("/", async (req, res, next) => {
         total,
         totalPages: Math.ceil(total / query.limit)
       }
+    };
+
+    res.json({ ok: true, ...payload, data: payload });
+    
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ============================================
+// PUBLIC: GET /api/v1/jobs/roles - Get available roles
+// ============================================
+r.get("/meta/roles", async (req, res, next) => {
+  try {
+    const roles = await prisma.role.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true }
     });
     
+    res.json({ ok: true, roles, data: roles });
   } catch (error) {
     next(error);
   }
@@ -141,7 +159,7 @@ r.get("/:id", async (req, res, next) => {
       return res.status(404).json({ error: "Job not found" });
     }
     
-    res.json({
+    const payload = {
       id: job.id,
       title: job.title,
       description: job.description,
@@ -165,24 +183,10 @@ r.get("/:id", async (req, res, next) => {
       publishedAt: job.publishedAt,
       role: job.role,
       applicationCount: job._count.applications
-    });
-    
-  } catch (error) {
-    next(error);
-  }
-});
+    };
 
-// ============================================
-// PUBLIC: GET /api/v1/jobs/roles - Get available roles
-// ============================================
-r.get("/meta/roles", async (req, res, next) => {
-  try {
-    const roles = await prisma.role.findMany({
-      orderBy: { name: "asc" },
-      select: { id: true, name: true }
-    });
+    res.json({ ok: true, ...payload, data: payload });
     
-    res.json(roles);
   } catch (error) {
     next(error);
   }
@@ -219,7 +223,7 @@ r.get("/admin/all", adminAuth, async (req, res, next) => {
       prisma.job.count({ where })
     ]);
     
-    res.json({
+    const payload = {
       jobs,
       pagination: {
         page: query.page,
@@ -227,7 +231,9 @@ r.get("/admin/all", adminAuth, async (req, res, next) => {
         total,
         totalPages: Math.ceil(total / query.limit)
       }
-    });
+    };
+    
+    res.json({ ok: true, ...payload, data: payload });
     
   } catch (error) {
     next(error);
@@ -264,7 +270,7 @@ r.get("/admin/:id", adminAuth, async (req, res, next) => {
       return res.status(404).json({ error: "Job not found" });
     }
     
-    res.json(job);
+    res.json({ ok: true, job, data: job });
     
   } catch (error) {
     next(error);
@@ -317,7 +323,7 @@ r.post("/", adminAuth, async (req, res, next) => {
     // AUDIT LOG
     console.log(`[AUDIT] Job created | ID: ${job.id} | Title: ${job.title} | Admin: ${req.session.username} | Type: ${data.type} | Status: ${data.status}`);
     
-    res.status(201).json(job);
+    res.status(201).json({ ok: true, job, data: job });
     
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -392,7 +398,7 @@ r.patch("/:id", adminAuth, async (req, res, next) => {
     // AUDIT LOG
     console.log(`[AUDIT] Job updated | ID: ${job.id} | Admin: ${req.session.username} | Fields: ${Object.keys(data).join(', ')}`);
     
-    res.json(job);
+    res.json({ ok: true, job, data: job });
     
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -459,7 +465,7 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
     // AUDIT LOG
     console.log(`[AUDIT] Job status changed | ID: ${job.id} | From: ${existing.status} | To: ${status} | Admin: ${req.session.username}`);
     
-    res.json({ id: job.id, status: job.status });
+    res.json({ ok: true, id: job.id, status: job.status, data: { id: job.id, status: job.status } });
     
   } catch (error) {
     next(error);

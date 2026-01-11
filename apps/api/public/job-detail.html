@@ -421,7 +421,8 @@
     async function checkAuth() {
       try {
         const res = await fetch('/api/v1/user/session');
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         if (data.authenticated) {
           currentUser = data.user;
           checkIfApplied();
@@ -437,7 +438,8 @@
       
       try {
         const res = await fetch(`/api/v1/job-applications/check/${jobId}`);
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         hasApplied = data.applied;
         renderApplySection();
       } catch (err) {
@@ -461,7 +463,8 @@
           return;
         }
         
-        currentJob = await res.json();
+        const payload = await res.json();
+        currentJob = payload.data ?? payload;
         renderJob();
         
       } catch (err) {
@@ -625,7 +628,8 @@
           body: JSON.stringify({ jobId, coverNote: coverNote || undefined })
         });
         
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.data ?? payload;
         
         if (!res.ok) {
           throw new Error(data.error || 'Failed to submit application');

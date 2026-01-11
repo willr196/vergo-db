@@ -114,13 +114,15 @@ form.addEventListener('submit', async (e) => {
     })
     
     if (res.ok) {
-      const data = await res.json()
+      const payload = await res.json()
+      const data = payload.data ?? payload
       alert('✓ Application received!\n\nWe\'ll review your application and get back to you within 2 weeks.')
       form.reset()
       submitBtn.textContent = originalText
       submitBtn.disabled = false
     } else {
-      const errData = await res.json().catch(() => ({}))
+      const payload = await res.json().catch(() => ({}))
+      const errData = payload.data ?? payload
       throw new Error(errData.error || 'Application submission failed')
     }
     

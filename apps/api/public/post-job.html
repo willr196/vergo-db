@@ -738,7 +738,8 @@
     async function loadRoles() {
       try {
         const res = await fetch('/api/v1/jobs/meta/roles');
-        const roles = await res.json();
+        const payload = await res.json();
+        const roles = payload.data ?? payload;
         
         const select = document.getElementById('role-select');
         
@@ -875,7 +876,8 @@
           body: JSON.stringify(data)
         });
         
-        const result = await res.json();
+        const payload = await res.json();
+        const result = payload.data ?? payload;
         
         if (!res.ok) {
           throw new Error(result.error || result.details?.join(', ') || 'Failed to submit');

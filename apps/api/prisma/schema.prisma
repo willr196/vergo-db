@@ -124,6 +124,7 @@ model Client {
   
   // Relations
   quoteRequests   QuoteRequest[]
+  refreshTokens   RefreshToken[]
   
   @@index([email])
   @@index([status])
@@ -233,10 +234,29 @@ model User {
   // Relations
   jobApplications JobApplication[]
   savedJobs       SavedJob[]
+  refreshTokens   RefreshToken[]
   
   // Indexes (must be at the end)
   @@index([email])
   @@index([userType])
+}
+
+// Refresh tokens for mobile JWT auth
+model RefreshToken {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  tokenHash  String   @unique
+  userId     String?
+  clientId   String?
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client     Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([clientId])
+  @@index([expiresAt])
 }
 
 // Job listings
@@ -371,4 +391,3 @@ enum UserType {
   JOB_SEEKER
   CLIENT
 }
-

@@ -182,12 +182,13 @@ r.post("/logout", (req, res) => {
 // ============================================
 r.get("/session", (req, res) => {
   if (req.session?.isAdmin) {
-    return res.json({ 
+    const payload = {
       authenticated: true,
-      username: req.session.username 
-    });
+      username: req.session.username
+    };
+    return res.json({ ok: true, ...payload, data: payload });
   }
-  res.json({ authenticated: false });
+  res.json({ ok: true, authenticated: false, data: { authenticated: false } });
 });
 
 export default r;

@@ -90,9 +90,11 @@ r.post('/event-enquiry', contactLimiter, async (req, res, next) => {
     // Check honeypot
     if (honeypotCheck(data)) {
       // Return success to bot but don't send email
-      return res.status(200).json({ 
-        success: true, 
-        message: 'Event enquiry received.' 
+      return res.status(200).json({
+        ok: true,
+        success: true,
+        message: 'Event enquiry received.',
+        data: { success: true, message: 'Event enquiry received.' }
       });
     }
     
@@ -107,9 +109,11 @@ r.post('/event-enquiry', contactLimiter, async (req, res, next) => {
       guests: data.guests
     });
     
-    res.status(200).json({ 
-      success: true, 
-      message: 'Event enquiry received. We\'ll be in touch within 24 hours!' 
+    res.status(200).json({
+      ok: true,
+      success: true,
+      message: 'Event enquiry received. We\'ll be in touch within 24 hours!',
+      data: { success: true, message: 'Event enquiry received. We\'ll be in touch within 24 hours!' }
     });
     
   } catch (error) {
@@ -138,9 +142,11 @@ r.post('/staff-request', contactLimiter, async (req, res, next) => {
     
     // Check honeypot
     if (honeypotCheck(data)) {
-      return res.status(200).json({ 
-        success: true, 
-        message: 'Staff request received.' 
+      return res.status(200).json({
+        ok: true,
+        success: true,
+        message: 'Staff request received.',
+        data: { success: true, message: 'Staff request received.' }
       });
     }
     
@@ -156,9 +162,11 @@ r.post('/staff-request', contactLimiter, async (req, res, next) => {
       staffCount: data.staffCount
     });
     
-    res.status(200).json({ 
-      success: true, 
-      message: 'Staff request received. We\'ll send you a quote within 24 hours!' 
+    res.status(200).json({
+      ok: true,
+      success: true,
+      message: 'Staff request received. We\'ll send you a quote within 24 hours!',
+      data: { success: true, message: 'Staff request received. We\'ll send you a quote within 24 hours!' }
     });
     
   } catch (error) {
@@ -186,9 +194,11 @@ r.post('/general', contactLimiter, async (req, res, next) => {
     
     // Check honeypot
     if (honeypotCheck(data)) {
-      return res.status(200).json({ 
-        success: true, 
-        message: 'Message received.' 
+      return res.status(200).json({
+        ok: true,
+        success: true,
+        message: 'Message received.',
+        data: { success: true, message: 'Message received.' }
       });
     }
     
@@ -201,9 +211,11 @@ r.post('/general', contactLimiter, async (req, res, next) => {
       subject: data.subject
     });
     
-    res.status(200).json({ 
-      success: true, 
-      message: 'Message received. We\'ll get back to you soon!' 
+    res.status(200).json({
+      ok: true,
+      success: true,
+      message: 'Message received. We\'ll get back to you soon!',
+      data: { success: true, message: 'Message received. We\'ll get back to you soon!' }
     });
     
   } catch (error) {
