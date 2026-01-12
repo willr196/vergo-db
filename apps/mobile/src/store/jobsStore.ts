@@ -122,13 +122,18 @@ export const useJobsStore = create<JobsState>((set, get) => ({
   },
   
   setFilters: (newFilters) => {
-    set((state) => ({
-      filters: { ...state.filters, ...newFilters },
+    // Merge filters and reset pagination atomically
+    const updatedFilters = { ...get().filters, ...newFilters };
+    set({
+      filters: updatedFilters,
       currentPage: 1,
-    }));
-    
-    // Auto-fetch with new filters
-    get().fetchJobs();
+    });
+
+    // Use setTimeout to ensure state update completes before fetching
+    // This prevents race conditions when multiple filter changes happen rapidly
+    setTimeout(() => {
+      get().fetchJobs();
+    }, 0);
   },
   
   clearFilters: () => {
@@ -139,14 +144,15 @@ export const useJobsStore = create<JobsState>((set, get) => ({
   saveJob: async (jobId) => {
     try {
       await jobsApi.saveJob(jobId);
-      
-      // Update local state
-      const { jobs, savedJobs } = get();
-      const job = jobs.find(j => j.id === jobId);
-      
-      if (job && !savedJobs.find(j => j.id === jobId)) {
-        set({ savedJobs: [...savedJobs, job] });
-      }
+
+      // Update local state atomically using updater function
+      set((state) => {
+        const job = state.jobs.find(j => j.id === jobId);
+        if (job && !state.savedJobs.find(j => j.id === jobId)) {
+          return { savedJobs: [...state.savedJobs, job] };
+        }
+        return state;
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to save job';
       set({ error: message });

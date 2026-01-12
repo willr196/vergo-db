@@ -3,7 +3,7 @@
  * Displays a job listing in a card format
  */
 
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,8 @@ import {
   ViewStyle,
 } from 'react-native';
 import { colors, spacing, borderRadius, typography, shadows } from '../theme';
-import type { Job, JobRole } from '../types';
+import { ROLE_LABELS } from '../constants/roles';
+import type { Job } from '../types';
 
 interface JobCardProps {
   job: Job;
@@ -21,26 +22,7 @@ interface JobCardProps {
   compact?: boolean;
 }
 
-// Role display names
-const ROLE_LABELS: Record<JobRole, string> = {
-  bartender: 'Bartender',
-  server: 'Server',
-  chef: 'Chef',
-  sous_chef: 'Sous Chef',
-  kitchen_porter: 'Kitchen Porter',
-  event_manager: 'Event Manager',
-  event_coordinator: 'Event Coordinator',
-  front_of_house: 'Front of House',
-  back_of_house: 'Back of House',
-  runner: 'Runner',
-  barista: 'Barista',
-  sommelier: 'Sommelier',
-  mixologist: 'Mixologist',
-  catering_assistant: 'Catering Assistant',
-  other: 'Other',
-};
-
-export function JobCard({ job, onPress, style, compact = false }: JobCardProps) {
+function JobCardComponent({ job, onPress, style, compact = false }: JobCardProps) {
   const formattedDate = formatDate(job.date);
   const formattedTime = `${formatTime(job.startTime)} - ${formatTime(job.endTime)}`;
   const spotsLeft = (job.positionsAvailable || 0) - (job.positionsFilled || 0);
@@ -161,6 +143,15 @@ function formatTime(timeString: string): string {
   const hour12 = hour % 12 || 12;
   return `${hour12}:${minutes}${ampm}`;
 }
+
+// Memoize the component to prevent unnecessary re-renders in FlatLists
+export const JobCard = memo(JobCardComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.job.id === nextProps.job.id &&
+    prevProps.compact === nextProps.compact &&
+    prevProps.onPress === nextProps.onPress
+  );
+});
 
 const styles = StyleSheet.create({
   card: {
@@ -320,3 +311,6 @@ const styles = StyleSheet.create({
 });
 
 export default JobCard;
+
+// Re-export for backwards compatibility
+export { JobCardComponent };

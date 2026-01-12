@@ -57,7 +57,7 @@ export const jobsApi = {
       if (filters.search) params.append('search', filters.search);
     }
     
-    const response = await apiClient.get<any>(`/api/v1/mobile/jobs?${params.toString()}`);
+    const response = await apiClient.get<BackendResponse<Job>>(`/api/v1/mobile/jobs?${params.toString()}`);
     
     return {
       ok: true,
@@ -193,14 +193,15 @@ export const jobsApi = {
   async getSavedJobs(): Promise<Job[]> {
     try {
       const response = await apiClient.get<BackendResponse<Job>>('/api/v1/jobs/saved');
-      
+
       if (response.data.ok && response.data.jobs) {
-        return response.data.jobs;
+        return response.data.jobs.map(normalizeJob);
       }
-    } catch {
-      // Saved jobs is optional feature
+    } catch (error) {
+      // Log for debugging - saved jobs is optional but we want visibility
+      console.warn('[Jobs] getSavedJobs failed:', error instanceof Error ? error.message : 'Unknown error');
     }
-    
+
     return [];
   },
 };

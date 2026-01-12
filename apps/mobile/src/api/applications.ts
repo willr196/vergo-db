@@ -50,7 +50,9 @@ export const applicationsApi = {
       WITHDRAWN: 'withdrawn',
     };
 
-    const normalizedStatus = statusMap[String((application as any).status).toUpperCase()] || application.status;
+    const rawStatus = application.status;
+    const statusKey = typeof rawStatus === 'string' ? rawStatus.toUpperCase() : String(rawStatus || '').toUpperCase();
+    const normalizedStatus = statusMap[statusKey] || application.status;
 
     return {
       ...application,
@@ -151,12 +153,16 @@ export const applicationsApi = {
    */
   async hasApplied(jobId: string): Promise<boolean> {
     try {
-      const response = await apiClient.get<BackendResponse<{ hasApplied: boolean }>>(
+      const response = await apiClient.get<BackendResponse<{ hasApplied: boolean; applied?: boolean }>>(
         `/api/v1/mobile/job-applications/check/${jobId}`
       );
-      
-      return (response.data as any).applied ?? response.data.hasApplied ?? false;
-    } catch {
+
+      // Handle both 'applied' and 'hasApplied' response formats
+      const data = response.data;
+      return data.applied ?? data.hasApplied ?? false;
+    } catch (error) {
+      // Log error for debugging but return false for UX
+      console.warn('[Applications] hasApplied check failed:', error instanceof Error ? error.message : 'Unknown error');
       return false;
     }
   },

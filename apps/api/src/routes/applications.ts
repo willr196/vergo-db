@@ -346,24 +346,53 @@ r.post('/', async (req, res, next) => {
 });
 
 // ============================================
-// LIST APPLICATIONS (ADMIN)
+// LIST APPLICATIONS (ADMIN) - With Pagination
 // ============================================
+const listApplicationsQuery = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  status: z.enum(['RECEIVED', 'REVIEWING', 'SHORTLISTED', 'REJECTED', 'HIRED']).optional(),
+  search: z.string().max(100).optional(),
+});
+
 r.get('/', adminAuth, async (req, res, next) => {
   try {
-    const apps = await prisma.application.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 200,
-      include: {
-        applicant: true,
-        roles: {
-          include: {
-            role: true
+    const query = listApplicationsQuery.parse(req.query);
+    const skip = (query.page - 1) * query.limit;
+
+    // Build where clause
+    const where: any = {};
+    if (query.status) {
+      where.status = query.status;
+    }
+    if (query.search) {
+      where.OR = [
+        { applicant: { firstName: { contains: query.search, mode: 'insensitive' } } },
+        { applicant: { lastName: { contains: query.search, mode: 'insensitive' } } },
+        { applicant: { email: { contains: query.search, mode: 'insensitive' } } },
+      ];
+    }
+
+    // Fetch applications and total count in parallel
+    const [apps, total] = await Promise.all([
+      prisma.application.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: query.limit,
+        include: {
+          applicant: true,
+          roles: {
+            include: {
+              role: true
+            }
           }
         }
-      }
-    });
-    
-    // 🔧 FIX: Return cvUrl instead of cvKey for frontend compatibility
+      }),
+      prisma.application.count({ where })
+    ]);
+
+    // Shape response
     const shaped = apps.map(a => ({
       id: a.id,
       createdAt: a.createdAt,
@@ -372,14 +401,22 @@ r.get('/', adminAuth, async (req, res, next) => {
       email: a.applicant.email,
       phone: a.applicant.phone ?? '',
       roles: a.roles.map(r => r.role.name),
-      cvUrl: a.cvKey,  // ← FIXED: Changed from cvKey to cvUrl
-      cvKey: a.cvKey,  // Keep cvKey for backward compatibility
+      cvUrl: a.cvKey,
+      cvKey: a.cvKey,
       cvOriginalName: a.cvOriginalName ?? null,
       source: a.source,
       status: a.status
     }));
-    
-    res.json({ ok: true, applications: shaped, data: shaped });
+
+    const pagination = {
+      page: query.page,
+      limit: query.limit,
+      total,
+      totalPages: Math.ceil(total / query.limit),
+      hasMore: query.page * query.limit < total,
+    };
+
+    res.json({ ok: true, applications: shaped, pagination, data: { applications: shaped, pagination } });
   } catch (e) { next(e); }
 });
 

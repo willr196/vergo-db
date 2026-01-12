@@ -312,6 +312,8 @@ model Job {
   @@index([roleId])
   @@index([eventDate])
   @@index([publishedAt])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 // When a user applies to a job
@@ -337,6 +339,8 @@ model JobApplication {
   
   // Prevent duplicate applications
   @@unique([userId, jobId])
+  @@index([userId])
+  @@index([jobId])
   @@index([status])
   @@index([createdAt])
 }
@@ -345,14 +349,16 @@ model JobApplication {
 model SavedJob {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
-  
+
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   jobId     String
   job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
+
   @@unique([userId, jobId])
+  @@index([userId])
+  @@index([jobId])
 }
 
 // ============================================

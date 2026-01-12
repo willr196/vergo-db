@@ -169,7 +169,6 @@ r.post("/register", registerLimiter, async (req, res) => {
     // });
     
     console.log(`[CLIENT] New registration: ${companyName} (${email})`);
-    console.log(`[CLIENT] Verify token: ${verifyToken}`); // Remove in production
     
     res.status(201).json({ 
       ok: true,
@@ -753,7 +752,6 @@ r.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
     
     // TODO: Send reset email
     console.log(`[CLIENT] Password reset requested: ${email}`);
-    console.log(`[CLIENT] Reset token: ${resetToken}`); // Remove in production
     
     res.json(successResponse);
     

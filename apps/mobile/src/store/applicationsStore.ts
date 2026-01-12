@@ -160,7 +160,11 @@ export const useApplicationsStore = create<ApplicationsState>((set, get) => ({
   
   setStatusFilter: (status) => {
     set({ statusFilter: status, currentPage: 1 });
-    get().fetchApplications();
+    // Use setTimeout to ensure state update completes before fetching
+    // This prevents race conditions when filter changes rapidly
+    setTimeout(() => {
+      get().fetchApplications();
+    }, 0);
   },
   
   hasAppliedToJob: (jobId) => {
