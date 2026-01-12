@@ -61,10 +61,22 @@
       font-size: 1.8em;
     }
 
-    .user-info {
+    .header-nav {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 20px;
+    }
+
+    .header-nav a {
+      color: #ccc;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .header-nav a:hover,
+    .header-nav a.active {
+      color: var(--primary-gold);
     }
 
     .logout-btn {
@@ -573,16 +585,12 @@
       <h1>Admin Dashboard</h1>
     </div>
     <div class="header-nav">
-  <a href="admin.html">Roster</a>
-  <a href="admin-jobs.html">Jobs</a>
-  <a href="admin-clients.html">Clients</a>
-  <a href="admin-job-applications.html">Applicants</a>
-  <a href="index.html">View Site</a>
-  <button onclick="logout()" class="btn btn-secondary btn-small">Logout</button>
-</div>
-    <div class="user-info">
-      <span id="admin-name">Admin</span>
-      <button class="logout-btn" id="logout">Logout</button>
+      <a href="admin.html">Roster</a>
+      <a href="admin-jobs.html">Jobs</a>
+      <a href="admin-job-applications.html">Applications</a>
+      <a href="admin-clients.html">Clients</a>
+      <a href="index.html">View Site</a>
+      <button onclick="logout()" class="btn logout-btn">Logout</button>
     </div>
   </div>
 
