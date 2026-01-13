@@ -650,7 +650,7 @@ class UserAuth {
   
   async checkAuth() {
     try {
-      const response = await secureFetch('/api/v1/users/session');
+      const response = await secureFetch('/api/v1/user/session');
       if (response && response.ok) {
         const payload = await response.json();
         const data = unwrapResponse(payload);
@@ -699,7 +699,7 @@ class UserAuth {
   
   async login(email, password) {
     try {
-      const response = await secureFetch('/api/v1/users/login', {
+      const response = await secureFetch('/api/v1/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -728,7 +728,7 @@ class UserAuth {
   
   async logout() {
     try {
-      await secureFetch('/api/v1/users/logout', {
+      await secureFetch('/api/v1/user/logout', {
         method: 'POST'
       });
       
@@ -743,7 +743,7 @@ class UserAuth {
   
   async register(formData) {
     try {
-      const response = await secureFetch('/api/v1/users/register', {
+      const response = await secureFetch('/api/v1/user/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(Object.fromEntries(formData))

@@ -13,23 +13,27 @@
       background: #0a0a0a;
       color: #fff;
       min-height: 100vh;
+      padding-top: 80px;
     }
     
-    header {
+    .admin-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 15px 30px;
       background: #111;
       border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+      position: sticky;
+      top: 80px;
+      z-index: 900;
     }
     
     .logo { color: #D4AF37; font-weight: 700; font-size: 1.3rem; text-decoration: none; }
     
-    nav { display: flex; gap: 20px; }
-    nav a { color: #999; text-decoration: none; font-size: 0.9rem; padding: 8px 12px; border-radius: 4px; }
-    nav a:hover { color: #fff; background: rgba(255,255,255,0.05); }
-    nav a.active { color: #D4AF37; background: rgba(212, 175, 55, 0.1); }
+    .admin-header nav { display: flex; gap: 20px; }
+    .admin-header nav a { color: #999; text-decoration: none; font-size: 0.9rem; padding: 8px 12px; border-radius: 4px; }
+    .admin-header nav a:hover { color: #fff; background: rgba(255,255,255,0.05); }
+    .admin-header nav a.active { color: #D4AF37; background: rgba(212, 175, 55, 0.1); }
     
     main { padding: 30px; max-width: 1400px; margin: 0 auto; }
     
@@ -303,7 +307,8 @@
   </style>
 </head>
 <body>
-  <header>
+  <header></header>
+  <div class="admin-header">
     <a href="admin.html" class="logo">VERGO Admin</a>
     <nav>
       <a href="admin.html">Dashboard</a>
@@ -311,7 +316,7 @@
       <a href="admin-jobs.html">Jobs</a>
       <a href="admin-clients.html" class="active">Clients</a>
     </nav>
-  </header>
+  </div>
   
   <main>
     <div id="alert-container"></div>
@@ -768,5 +773,8 @@
     loadStats();
     loadClients();
   </script>
+  <footer></footer>
+  <script src="/vergo-nav.js"></script>
+  <script src="/vergo-footer.js"></script>
 </body>
 </html>

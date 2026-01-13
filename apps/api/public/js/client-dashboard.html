@@ -16,10 +16,11 @@
       background: #0a0a0a;
       color: #ffffff;
       min-height: 100vh;
+      padding-top: 80px;
     }
     
     /* Header */
-    header {
+    .dashboard-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -27,8 +28,8 @@
       background: #0a0a0a;
       border-bottom: 1px solid rgba(212, 175, 55, 0.2);
       position: sticky;
-      top: 0;
-      z-index: 100;
+      top: 80px;
+      z-index: 900;
     }
     
     .logo img { height: 35px; }
@@ -409,7 +410,7 @@
     }
     
     @media (max-width: 768px) {
-      header { padding: 15px 20px; }
+      .dashboard-header { padding: 15px 20px; }
       .sidebar { display: none; }
       .main-content { padding: 20px; }
       .form-row { grid-template-columns: 1fr; }
@@ -417,7 +418,8 @@
   </style>
 </head>
 <body>
-  <header>
+  <header></header>
+  <div class="dashboard-header">
     <a href="index.html" class="logo">
       <img src="/logo.png" alt="VERGO Events">
     </a>
@@ -425,7 +427,7 @@
       <span class="company-name" id="company-name">Loading...</span>
       <button class="btn-logout" onclick="logout()">Log Out</button>
     </div>
-  </header>
+  </div>
   
   <div class="dashboard-layout">
     <aside class="sidebar">
@@ -744,5 +746,8 @@
     // Initialize
     checkAuth();
   </script>
+  <footer></footer>
+  <script src="/vergo-nav.js"></script>
+  <script src="/vergo-footer.js"></script>
 </body>
 </html>

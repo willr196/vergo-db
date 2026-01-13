@@ -13,9 +13,10 @@
       background: #0a0a0a;
       color: #f0f0f0;
       min-height: 100vh;
+      padding-top: 80px;
     }
     
-    header {
+    .admin-header {
       background: #111;
       border-bottom: 1px solid #D4AF37;
       padding: 15px 30px;
@@ -23,8 +24,8 @@
       justify-content: space-between;
       align-items: center;
       position: sticky;
-      top: 0;
-      z-index: 100;
+      top: 80px;
+      z-index: 900;
     }
     
     .logo img { height: 40px; }
@@ -515,7 +516,8 @@
   </style>
 </head>
 <body>
-  <header>
+  <header></header>
+  <div class="admin-header">
     <a href="index.html" class="logo">
       <img src="/logo.png" alt="VERGO Events">
     </a>
@@ -527,7 +529,7 @@
       <a href="index.html">View Site</a>
       <button onclick="logout()" class="btn btn-secondary btn-small">Logout</button>
     </div>
-  </header>
+  </div>
   
   <main>
     <div id="alert-container"></div>
@@ -958,5 +960,8 @@
     loadJobs();
     loadApplications();
   </script>
+  <footer></footer>
+  <script src="/vergo-nav.js"></script>
+  <script src="/vergo-footer.js"></script>
 </body>
 </html>
