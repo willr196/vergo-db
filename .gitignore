@@ -32,3 +32,7 @@ Thumbs.db
 .turbo/
 .cache/
 coverage/
+
+# Ignore archives & scripts
+*.zip
+*.sh
