@@ -34,7 +34,7 @@ const registerSchema = z.object({
 
 const loginSchema = z.object({
   email: z.string().email().max(255).toLowerCase().trim(),
-  password: z.string().min(1).max(72)
+  password: z.string().min(8).max(72)
 });
 
 const forgotPasswordSchema = z.object({
@@ -67,7 +67,11 @@ const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10, // 10 attempts per 15 min
   skipSuccessfulRequests: true,
-  message: { error: "Too many login attempts. Try again in 15 minutes." }
+  message: { error: "Too many login attempts. Try again in 15 minutes." },
+  keyGenerator: (req) => {
+    const email = req.body?.email || "unknown";
+    return `${req.ip}-${email}`;
+  }
 });
 
 const forgotPasswordLimiter = rateLimit({

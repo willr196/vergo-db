@@ -11,7 +11,7 @@ const r = Router();
 // ============================================
 const loginSchema = z.object({
   username: z.string().min(1).max(100).trim(),
-  password: z.string().min(1).max(72)
+  password: z.string().min(8).max(72)
 });
 
 // ============================================

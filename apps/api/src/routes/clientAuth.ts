@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -28,7 +28,7 @@ const registerSchema = z.object({
 
 const loginSchema = z.object({
   email: z.string().email().max(100).toLowerCase().trim(),
-  password: z.string().min(1).max(72)
+  password: z.string().min(8).max(72)
 });
 
 const forgotPasswordSchema = z.object({
@@ -61,7 +61,11 @@ const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10,
   skipSuccessfulRequests: true,
-  message: { error: "Too many login attempts. Try again in 15 minutes." }
+  message: { error: "Too many login attempts. Try again in 15 minutes." },
+  keyGenerator: (req) => {
+    const email = req.body?.email || "unknown";
+    return `${req.ip}-${email}`;
+  }
 });
 
 const forgotPasswordLimiter = rateLimit({
@@ -74,6 +78,49 @@ const forgotPasswordLimiter = rateLimit({
 // HELPERS
 // ============================================
 const DUMMY_HASH = "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.G0G0G0G0G0G0G0";
+const CLIENT_IDLE_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours
+const CLIENT_MAX_SESSION_AGE = 24 * 60 * 60 * 1000; // 24 hours
+
+function clearClientSession(req: Request, res: Response) {
+  req.session.destroy(() => {});
+  res.clearCookie("vergo.sid");
+}
+
+function validateClientSession(req: Request, res: Response) {
+  const clientId = (req.session as any)?.clientId;
+  const isClient = (req.session as any)?.isClient;
+
+  if (!clientId || !isClient) {
+    return { ok: false };
+  }
+
+  const now = Date.now();
+  const loginTime = (req.session as any)?.clientLoginTime || 0;
+  const lastActivity = (req.session as any)?.clientLastActivity || 0;
+
+  if (loginTime && now - loginTime > CLIENT_MAX_SESSION_AGE) {
+    console.warn(`[SECURITY] Client session expired (age): ${clientId}`);
+    clearClientSession(req, res);
+    return { ok: false, error: "Session expired. Please log in again.", code: "SESSION_EXPIRED" };
+  }
+
+  if (lastActivity && now - lastActivity > CLIENT_IDLE_TIMEOUT) {
+    console.warn(`[SECURITY] Client session expired (idle): ${clientId}`);
+    clearClientSession(req, res);
+    return { ok: false, error: "Session expired due to inactivity. Please log in again.", code: "SESSION_IDLE" };
+  }
+
+  (req.session as any).clientLastActivity = now;
+  return { ok: true, clientId };
+}
+
+function requireClientSession(req: Request, res: Response, next: NextFunction) {
+  const result = validateClientSession(req, res);
+  if (!result.ok) {
+    return res.status(401).json({ error: result.error || "Not authenticated", code: result.code });
+  }
+  return next();
+}
 
 function generateToken(): string {
   return crypto.randomBytes(32).toString("hex");
@@ -327,21 +374,36 @@ r.post("/login", loginLimiter, async (req, res) => {
       }
     });
     
-    // Set session
-    (req.session as any).clientId = client.id;
-    (req.session as any).clientEmail = client.email;
-    (req.session as any).isClient = true;
-    
-    console.log(`[CLIENT] Login: ${client.companyName}`);
-    
-    res.json({
-      ok: true,
-      client: {
-        id: client.id,
-        email: client.email,
-        companyName: client.companyName,
-        contactName: client.contactName
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error("[ERROR] Client session regeneration failed:", err);
+        return res.status(500).json({ error: "Login failed" });
       }
+
+      (req.session as any).clientId = client.id;
+      (req.session as any).clientEmail = client.email;
+      (req.session as any).isClient = true;
+      (req.session as any).clientLoginTime = Date.now();
+      (req.session as any).clientLastActivity = Date.now();
+
+      req.session.save((err) => {
+        if (err) {
+          console.error("[ERROR] Client session save failed:", err);
+          return res.status(500).json({ error: "Login failed" });
+        }
+
+        console.log(`[CLIENT] Login: ${client.companyName}`);
+
+        res.json({
+          ok: true,
+          client: {
+            id: client.id,
+            email: client.email,
+            companyName: client.companyName,
+            contactName: client.contactName
+          }
+        });
+      });
     });
     
   } catch (error) {
@@ -682,12 +744,12 @@ r.put("/mobile/profile", requireClientJwt, async (req, res) => {
 // ============================================
 r.get("/session", async (req, res) => {
   try {
-    const clientId = (req.session as any)?.clientId;
-    const isClient = (req.session as any)?.isClient;
-    
-    if (!clientId || !isClient) {
+    const sessionResult = validateClientSession(req, res);
+    if (!sessionResult.ok) {
       return res.json({ ok: true, authenticated: false, data: { authenticated: false } });
     }
+
+    const clientId = sessionResult.clientId as string;
     
     const client = await prisma.client.findUnique({
       where: { id: clientId },
@@ -814,7 +876,7 @@ r.post("/reset-password", async (req, res) => {
 // ============================================
 // GET /api/v1/clients/profile (authenticated)
 // ============================================
-r.get("/profile", async (req, res) => {
+r.get("/profile", requireClientSession, async (req, res) => {
   try {
     const clientId = (req.session as any)?.clientId;
     
@@ -863,7 +925,7 @@ const updateProfileSchema = z.object({
   jobTitle: z.string().max(100).optional()
 });
 
-r.put("/profile", async (req, res) => {
+r.put("/profile", requireClientSession, async (req, res) => {
   try {
     const clientId = (req.session as any)?.clientId;
     

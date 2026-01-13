@@ -295,6 +295,15 @@
       }
     }
 
+    function secureFetch(url, options = {}) {
+      const headers = options.headers ? { ...options.headers } : {};
+      return fetch(url, {
+        ...options,
+        credentials: 'same-origin',
+        headers
+      });
+    }
+
     // Configuration
     const MAX_ATTEMPTS = 5;
     const LOCKOUT_DURATION = 60; // seconds

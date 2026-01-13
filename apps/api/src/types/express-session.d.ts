@@ -12,5 +12,14 @@ declare module "express-session" {
     // User (job seekers)
     isUser?: boolean;
     userEmail?: string;
+    userLoginTime?: number;
+    userLastActivity?: number;
+
+    // Client
+    isClient?: boolean;
+    clientId?: string;
+    clientEmail?: string;
+    clientLoginTime?: number;
+    clientLastActivity?: number;
   }
 }
