@@ -6,6 +6,7 @@
 import apiClient, { setAuthTokens, clearAuthTokens, STORAGE_KEYS } from './client';
 import * as SecureStore from 'expo-secure-store';
 import { normalizeClientCompany, normalizeJobSeeker } from './normalizers';
+import { logger } from '../utils/logger';
 import type {
   LoginRequest,
   LoginResponse,
@@ -146,7 +147,7 @@ export const authApi = {
       const endpoint = userType === 'client' ? '/api/v1/client/mobile/logout' : '/api/v1/user/mobile/logout';
       await apiClient.post(endpoint, { refreshToken });
     } catch (error) {
-      console.warn('Logout API call failed:', error);
+      logger.warn('Logout API call failed:', error);
     }
     
     await clearAuthTokens();
@@ -217,18 +218,25 @@ export const authApi = {
       const token = await SecureStore.getItemAsync(STORAGE_KEYS.ACCESS_TOKEN);
       const userType = await SecureStore.getItemAsync(STORAGE_KEYS.USER_TYPE) as UserType | null;
       const userData = await SecureStore.getItemAsync(STORAGE_KEYS.USER_DATA);
-      
+
       if (token && userType && userData) {
-        const parsedUser = JSON.parse(userData) as JobSeeker | ClientCompany;
-        const user = userType === 'jobseeker'
-          ? normalizeJobSeeker(parsedUser as JobSeeker)
-          : normalizeClientCompany(parsedUser as ClientCompany);
-        return { isAuthenticated: true, userType, user };
+        try {
+          const parsedUser = JSON.parse(userData) as JobSeeker | ClientCompany;
+          const user = userType === 'jobseeker'
+            ? normalizeJobSeeker(parsedUser as JobSeeker)
+            : normalizeClientCompany(parsedUser as ClientCompany);
+          return { isAuthenticated: true, userType, user };
+        } catch (parseError) {
+          // JSON parsing failed - clear corrupted tokens
+          await clearAuthTokens();
+          return { isAuthenticated: false, userType: null, user: null };
+        }
       }
-      
+
       return { isAuthenticated: false, userType: null, user: null };
     } catch (error) {
-      console.warn('Auth check failed:', error);
+      logger.warn('Auth check failed:', error);
+      await clearAuthTokens();
       return { isAuthenticated: false, userType: null, user: null };
     }
   },

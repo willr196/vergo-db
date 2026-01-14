@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -22,9 +22,9 @@ import {
 } from '../screens/auth';
 
 // Job Seeker Screens
-import { 
-  JobsScreen, 
-  JobDetailScreen, 
+import {
+  JobsScreen,
+  JobDetailScreen,
   ApplicationsScreen,
   ApplicationDetailScreen,
   ProfileScreen,
@@ -32,27 +32,14 @@ import {
   ApplyToJobScreen,
 } from '../screens/jobseeker';
 
-// Placeholder screens for client (to be built)
-const ClientDashboard = () => (
-  <View style={styles.placeholder}>
-    <Text style={styles.placeholderText}>Client Dashboard</Text>
-    <Text style={styles.placeholderSubtext}>Coming soon...</Text>
-  </View>
-);
-
-const ClientMyJobs = () => (
-  <View style={styles.placeholder}>
-    <Text style={styles.placeholderText}>My Jobs</Text>
-    <Text style={styles.placeholderSubtext}>Coming soon...</Text>
-  </View>
-);
-
-const ClientProfile = () => (
-  <View style={styles.placeholder}>
-    <Text style={styles.placeholderText}>Company Profile</Text>
-    <Text style={styles.placeholderSubtext}>Coming soon...</Text>
-  </View>
-);
+// Client Screens
+import {
+  DashboardScreen,
+  MyJobsScreen,
+  CompanyProfileScreen,
+  CreateJobScreen,
+  ClientJobDetailScreen,
+} from '../screens/client';
 
 // Navigation theme
 const navigationTheme = {
@@ -140,19 +127,19 @@ function ClientTabNavigator() {
         ),
       })}
     >
-      <ClientTab.Screen 
-        name="Dashboard" 
-        component={ClientDashboard}
+      <ClientTab.Screen
+        name="Dashboard"
+        component={DashboardScreen}
         options={{ tabBarLabel: 'Dashboard' }}
       />
-      <ClientTab.Screen 
-        name="MyJobs" 
-        component={ClientMyJobs}
+      <ClientTab.Screen
+        name="MyJobs"
+        component={MyJobsScreen}
         options={{ tabBarLabel: 'My Jobs' }}
       />
-      <ClientTab.Screen 
-        name="CompanyProfile" 
-        component={ClientProfile}
+      <ClientTab.Screen
+        name="CompanyProfile"
+        component={CompanyProfileScreen}
         options={{ tabBarLabel: 'Profile' }}
       />
     </ClientTab.Navigator>
@@ -215,6 +202,12 @@ function ClientStack() {
       }}
     >
       <Stack.Screen name="ClientTabs" component={ClientTabNavigator} />
+      <Stack.Screen name="ClientJobDetail" component={ClientJobDetailScreen} />
+      <Stack.Screen
+        name="CreateJob"
+        component={CreateJobScreen}
+        options={{ presentation: 'modal' }}
+      />
     </Stack.Navigator>
   );
 }
@@ -258,25 +251,6 @@ const styles = StyleSheet.create({
   
   tabIconFocused: {
     transform: [{ scale: 1.1 }],
-  },
-  
-  placeholder: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  
-  placeholderText: {
-    color: colors.textPrimary,
-    fontSize: typography.fontSize.xl,
-    fontWeight: '700' as const,
-    marginBottom: 8,
-  },
-  
-  placeholderSubtext: {
-    color: colors.textSecondary,
-    fontSize: typography.fontSize.md,
   },
 });
 

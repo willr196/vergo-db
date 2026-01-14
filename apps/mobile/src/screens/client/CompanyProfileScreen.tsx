@@ -18,6 +18,7 @@ import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { useAuthStore } from '../../store';
+import { logger } from '../../utils/logger';
 import type { RootStackParamList, ClientTabParamList, ClientCompany } from '../../types';
 
 type Props = CompositeScreenProps<
@@ -45,7 +46,7 @@ export function CompanyProfileScreen({ navigation }: Props) {
             try {
               await logout();
             } catch (error) {
-              console.log('Logout error:', error);
+              logger.error('Logout error:', error);
             }
             setIsLoggingOut(false);
           },

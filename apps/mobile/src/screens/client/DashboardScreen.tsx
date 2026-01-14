@@ -18,6 +18,7 @@ import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { useAuthStore } from '../../store';
+import { logger } from '../../utils/logger';
 import type { RootStackParamList, ClientTabParamList } from '../../types';
 import { applicationsApi } from '../../api';
 
@@ -50,7 +51,7 @@ export function DashboardScreen({ navigation }: Props) {
       const data = await applicationsApi.getClientStats();
       setStats(data);
     } catch (error) {
-      console.log('Failed to fetch stats:', error);
+      logger.error('Failed to fetch stats:', error);
     }
   }, []);
 

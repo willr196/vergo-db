@@ -18,6 +18,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { LoadingScreen, Button } from '../../components';
 import { jobsApi, applicationsApi } from '../../api';
+import { logger } from '../../utils/logger';
 import type { RootStackParamList, Job, Application } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientJobDetail'>;
@@ -39,7 +40,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
       setJob(jobData);
       setApplications(appsData.applications || []);
     } catch (error) {
-      console.log('Failed to fetch job:', error);
+      logger.error('Failed to fetch job:', error);
       Alert.alert('Error', 'Failed to load job details');
     } finally {
       setIsLoading(false);

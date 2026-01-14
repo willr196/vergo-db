@@ -5,6 +5,7 @@
 
 import { create } from 'zustand';
 import { jobsApi } from '../api';
+import { logger } from '../utils/logger';
 import type { Job, JobFilters } from '../types';
 
 interface JobsState {
@@ -174,7 +175,7 @@ export const useJobsStore = create<JobsState>((set, get) => ({
       const savedJobs = await jobsApi.getSavedJobs();
       set({ savedJobs });
     } catch (error) {
-      console.warn('Failed to fetch saved jobs:', error);
+      logger.warn('Failed to fetch saved jobs:', error);
     }
   },
   

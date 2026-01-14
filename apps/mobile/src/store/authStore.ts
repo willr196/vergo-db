@@ -34,6 +34,45 @@ interface AuthState {
   setUser: (user: JobSeeker | ClientCompany) => void;
 }
 
+// Helper function to handle registration logic
+async function handleRegistration(
+  registrationFn: () => Promise<import('../api/auth').RegisterResponse>,
+  set: (state: Partial<AuthState>) => void
+): Promise<RegistrationResult | null> {
+  set({ isLoading: true, error: null });
+
+  try {
+    const response = await registrationFn();
+
+    // Check if email verification is required
+    if ('requiresVerification' in response && response.requiresVerification) {
+      set({
+        isAuthenticated: false,
+        isLoading: false,
+        userType: null,
+        user: null,
+        error: null,
+      });
+      return response;
+    }
+
+    // Otherwise, it's a successful login response
+    const loginResponse = response as import('../types').LoginResponse;
+    set({
+      isAuthenticated: true,
+      isLoading: false,
+      userType: loginResponse.userType,
+      user: loginResponse.user,
+      error: null,
+    });
+    return null;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Registration failed';
+    set({ isLoading: false, error: message });
+    throw error;
+  }
+}
+
 export const useAuthStore = create<AuthState>((set, get) => ({
   // Initial state
   isAuthenticated: false,
@@ -41,14 +80,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   userType: null,
   user: null,
   error: null,
-  
+
   // Actions
   login: async (credentials) => {
     set({ isLoading: true, error: null });
-    
+
     try {
       const response = await authApi.login(credentials);
-      
+
       set({
         isAuthenticated: true,
         isLoading: false,
@@ -62,69 +101,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       throw error;
     }
   },
-  
+
   registerJobSeeker: async (data) => {
-    set({ isLoading: true, error: null });
-    
-    try {
-      const response = await authApi.registerJobSeeker(data);
-      
-      if ('requiresVerification' in response && response.requiresVerification) {
-        set({
-          isAuthenticated: false,
-          isLoading: false,
-          userType: null,
-          user: null,
-          error: null,
-        });
-        return response;
-      }
-
-      set({
-        isAuthenticated: true,
-        isLoading: false,
-        userType: response.userType,
-        user: response.user,
-        error: null,
-      });
-      return null;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Registration failed';
-      set({ isLoading: false, error: message });
-      throw error;
-    }
+    return handleRegistration(
+      () => authApi.registerJobSeeker(data),
+      set
+    );
   },
-  
-  registerClient: async (data) => {
-    set({ isLoading: true, error: null });
-    
-    try {
-      const response = await authApi.registerClient(data);
-      
-      if ('requiresVerification' in response && response.requiresVerification) {
-        set({
-          isAuthenticated: false,
-          isLoading: false,
-          userType: null,
-          user: null,
-          error: null,
-        });
-        return response;
-      }
 
-      set({
-        isAuthenticated: true,
-        isLoading: false,
-        userType: response.userType,
-        user: response.user,
-        error: null,
-      });
-      return null;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Registration failed';
-      set({ isLoading: false, error: message });
-      throw error;
-    }
+  registerClient: async (data) => {
+    return handleRegistration(
+      () => authApi.registerClient(data),
+      set
+    );
   },
   
   logout: async () => {

@@ -211,32 +211,33 @@ export function ProfileScreen({ navigation }: Props) {
           </View>
         )}
         
-        {/* Menu Items */}
+        {/* Menu Items - TODO: Implement these screens before uncommenting
         <View style={styles.menuSection}>
           <TouchableOpacity style={styles.menuItem}>
             <Text style={styles.menuIcon}>📄</Text>
             <Text style={styles.menuLabel}>Documents</Text>
             <Text style={styles.menuArrow}>→</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.menuItem}>
             <Text style={styles.menuIcon}>🔔</Text>
             <Text style={styles.menuLabel}>Notifications</Text>
             <Text style={styles.menuArrow}>→</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.menuItem}>
             <Text style={styles.menuIcon}>🔒</Text>
             <Text style={styles.menuLabel}>Privacy & Security</Text>
             <Text style={styles.menuArrow}>→</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.menuItem}>
             <Text style={styles.menuIcon}>❓</Text>
             <Text style={styles.menuLabel}>Help & Support</Text>
             <Text style={styles.menuArrow}>→</Text>
           </TouchableOpacity>
         </View>
+        */}
         
         {/* Logout */}
         <Button

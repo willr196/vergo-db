@@ -104,7 +104,7 @@ export function ApplicationsScreen({ navigation }: Props) {
         message={message}
         actionTitle="Browse Jobs"
         onAction={() => {
-          // Navigate to jobs tab
+          navigation.navigate('Jobs');
         }}
       />
     );

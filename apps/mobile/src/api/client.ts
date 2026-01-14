@@ -5,6 +5,7 @@
 
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import { logger } from '../utils/logger';
 
 // VERGO Backend API
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://vergo-app.fly.dev';
@@ -36,7 +37,7 @@ apiClient.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (error) {
-      console.warn('Failed to get auth token:', error);
+      logger.warn('Failed to get auth token:', error);
     }
     return config;
   },
@@ -80,7 +81,7 @@ apiClient.interceptors.response.use(
           return apiClient(originalRequest);
         }
       } catch (refreshError) {
-        console.warn('Token refresh failed:', refreshError);
+        logger.warn('Token refresh failed:', refreshError);
         // Token refresh failed - clear tokens and redirect to login
         await clearAuthTokens();
         // The auth store will handle redirect

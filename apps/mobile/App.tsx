@@ -12,9 +12,7 @@ import { RootNavigator } from './src/navigation';
 import { LoadingScreen } from './src/components';
 import { useAuthStore } from './src/store';
 import { colors, typography, spacing } from './src/theme';
-
-// Auth initialization timeout (5 seconds)
-const AUTH_TIMEOUT = 5000;
+import { AUTH_TIMEOUT } from './src/constants';
 
 function AppContent() {
   const { checkAuth } = useAuthStore();

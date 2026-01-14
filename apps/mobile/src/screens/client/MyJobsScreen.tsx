@@ -20,6 +20,7 @@ import { colors, spacing, borderRadius, typography } from '../../theme';
 import { LoadingScreen, EmptyState } from '../../components';
 import { useAuthStore } from '../../store';
 import { jobsApi } from '../../api';
+import { logger } from '../../utils/logger';
 import type { RootStackParamList, ClientTabParamList, Job } from '../../types';
 
 type Props = CompositeScreenProps<
@@ -51,7 +52,7 @@ export function MyJobsScreen({ navigation }: Props) {
       const data = await jobsApi.getClientJobs(clientId, status);
       setJobs(data);
     } catch (error) {
-      console.log('Failed to fetch jobs:', error);
+      logger.error('Failed to fetch jobs:', error);
     } finally {
       setIsLoading(false);
     }

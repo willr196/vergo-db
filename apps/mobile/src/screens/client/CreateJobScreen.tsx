@@ -18,7 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { Button } from '../../components';
+import { Button, DateTimePickerInput } from '../../components';
 import { jobsApi } from '../../api';
 import type { RootStackParamList, JobRole } from '../../types';
 
@@ -38,6 +38,15 @@ const ROLES: { value: JobRole; label: string }[] = [
 
 export function CreateJobScreen({ navigation }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Initialize date fields with default values
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(18, 0, 0, 0);
+
+  const endTimeDefault = new Date(tomorrow);
+  endTimeDefault.setHours(23, 0, 0, 0);
+
   const [form, setForm] = useState({
     title: '',
     role: '' as JobRole | '',
@@ -45,16 +54,16 @@ export function CreateJobScreen({ navigation }: Props) {
     city: '',
     venue: '',
     address: '',
-    date: '',
-    startTime: '',
-    endTime: '',
+    date: tomorrow,
+    startTime: tomorrow,
+    endTime: endTimeDefault,
     hourlyRate: '',
     positions: '1',
     requirements: '',
     dbsRequired: false,
   });
 
-  const updateForm = (field: string, value: string | boolean) => {
+  const updateForm = (field: string, value: string | boolean | Date) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -64,9 +73,10 @@ export function CreateJobScreen({ navigation }: Props) {
     if (!form.description.trim()) return 'Description is required';
     if (!form.city.trim()) return 'City is required';
     if (!form.venue.trim()) return 'Venue name is required';
-    if (!form.date.trim()) return 'Date is required';
-    if (!form.startTime.trim()) return 'Start time is required';
-    if (!form.endTime.trim()) return 'End time is required';
+    if (!form.date) return 'Date is required';
+    if (!form.startTime) return 'Start time is required';
+    if (!form.endTime) return 'End time is required';
+    if (form.endTime <= form.startTime) return 'End time must be after start time';
     if (!form.hourlyRate.trim()) return 'Hourly rate is required';
     if (isNaN(Number(form.hourlyRate))) return 'Hourly rate must be a number';
     if (Number(form.hourlyRate) < 1) return 'Hourly rate must be at least £1';
@@ -83,6 +93,10 @@ export function CreateJobScreen({ navigation }: Props) {
     setIsSubmitting(true);
 
     try {
+      // Format dates to ISO 8601 format
+      const formatDate = (date: Date) => date.toISOString().split('T')[0];
+      const formatTime = (date: Date) => date.toTimeString().slice(0, 5);
+
       await jobsApi.createJob({
         title: form.title.trim(),
         role: form.role as JobRole,
@@ -90,9 +104,9 @@ export function CreateJobScreen({ navigation }: Props) {
         city: form.city.trim(),
         venue: form.venue.trim(),
         address: form.address.trim(),
-        date: form.date,
-        startTime: form.startTime,
-        endTime: form.endTime,
+        date: formatDate(form.date),
+        startTime: formatTime(form.startTime),
+        endTime: formatTime(form.endTime),
         hourlyRate: Number(form.hourlyRate),
         positions: Number(form.positions) || 1,
         requirements: form.requirements.trim(),
@@ -234,37 +248,30 @@ export function CreateJobScreen({ navigation }: Props) {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Date & Time</Text>
 
-            <View style={styles.field}>
-              <Text style={styles.label}>Date *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="DD/MM/YYYY"
-                placeholderTextColor={colors.textMuted}
-                value={form.date}
-                onChangeText={(v) => updateForm('date', v)}
-              />
-            </View>
+            <DateTimePickerInput
+              label="Date *"
+              value={form.date}
+              mode="date"
+              onChange={(date) => updateForm('date', date)}
+              minimumDate={new Date()}
+            />
 
             <View style={styles.row}>
-              <View style={[styles.field, styles.flex]}>
-                <Text style={styles.label}>Start Time *</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="e.g. 18:00"
-                  placeholderTextColor={colors.textMuted}
+              <View style={styles.flex}>
+                <DateTimePickerInput
+                  label="Start Time *"
                   value={form.startTime}
-                  onChangeText={(v) => updateForm('startTime', v)}
+                  mode="time"
+                  onChange={(date) => updateForm('startTime', date)}
                 />
               </View>
               <View style={styles.rowGap} />
-              <View style={[styles.field, styles.flex]}>
-                <Text style={styles.label}>End Time *</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="e.g. 23:00"
-                  placeholderTextColor={colors.textMuted}
+              <View style={styles.flex}>
+                <DateTimePickerInput
+                  label="End Time *"
                   value={form.endTime}
-                  onChangeText={(v) => updateForm('endTime', v)}
+                  mode="time"
+                  onChange={(date) => updateForm('endTime', date)}
                 />
               </View>
             </View>
