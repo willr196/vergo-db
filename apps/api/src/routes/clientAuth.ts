@@ -4,8 +4,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { z } from "zod";
 import { prisma } from "../prisma";
-// NOTE: Add these functions to your existing email.ts file
-// import { sendClientVerificationEmail, sendClientApprovalEmail, sendClientRejectionEmail } from "../services/email";
+import { sendClientVerificationEmail, sendClientPasswordResetEmail } from "../services/email";
 import { requireClientJwt } from "../middleware/jwtAuth";
 import { signAccessToken, signRefreshToken, verifyToken, getTokenExpiresAt, hashToken } from "../utils/jwt";
 
@@ -205,18 +204,17 @@ r.post("/register", registerLimiter, async (req, res) => {
       }
     });
     
-    // TODO: Send verification email
-    // sendClientVerificationEmail({
-    //   to: email,
-    //   name: contactName,
-    //   companyName,
-    //   token: verifyToken
-    // }).catch(err => {
-    //   console.error("[EMAIL] Failed to send client verification:", err);
-    // });
-    
+    // Send verification email
+    sendClientVerificationEmail({
+      to: email,
+      name: contactName,
+      companyName,
+      token: verifyToken
+    }).catch(err => {
+      console.error("[EMAIL] Failed to send client verification:", err);
+    });
+
     console.log(`[CLIENT] New registration: ${companyName} (${email})`);
-    console.log(`[CLIENT] Verify token: ${verifyToken}`); // Remove in production
     
     res.status(201).json({ 
       ok: true,
@@ -798,25 +796,33 @@ r.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
     
     const client = await prisma.client.findUnique({
       where: { email },
-      select: { id: true, contactName: true }
+      select: { id: true, contactName: true, companyName: true }
     });
-    
+
     if (!client) {
       return res.json(successResponse);
     }
-    
+
     const resetToken = generateToken();
     const resetTokenExp = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-    
+
     await prisma.client.update({
       where: { id: client.id },
       data: { resetToken, resetTokenExp }
     });
-    
-    // TODO: Send reset email
+
+    // Send password reset email
+    sendClientPasswordResetEmail({
+      to: email,
+      name: client.contactName,
+      companyName: client.companyName,
+      token: resetToken
+    }).catch(err => {
+      console.error("[EMAIL] Failed to send client password reset:", err);
+    });
+
     console.log(`[CLIENT] Password reset requested: ${email}`);
-    console.log(`[CLIENT] Reset token: ${resetToken}`); // Remove in production
-    
+
     res.json(successResponse);
     
   } catch (error) {

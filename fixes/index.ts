@@ -16,8 +16,8 @@ export { jobsApi } from './jobs';
 export { applicationsApi } from './applications';
 
 // NEW: Client API for quotes-based dashboard
-export {
-  clientApi,
+export { 
+  clientApi, 
   QUOTE_STATUS_CONFIG,
   getQuoteStatusConfig,
 } from './clientApi';

@@ -18,6 +18,7 @@ import adminClients from './routes/adminClients';
 import quotes from './routes/quotes';
 import mobileJobs from './routes/mobileJobs';
 import mobileJobApplications from './routes/mobileJobApplications';
+import mobileClient from './routes/mobileClient';
 
 const app = express();
 app.disable('x-powered-by');
@@ -117,6 +118,9 @@ app.use('/api/v1/quotes', quotes);
 
 app.use('/api/v1/client', clientAuthRoutes);
 app.use('/api/v1/clients', clientAuthRoutes);
+
+// Client mobile dashboard endpoints (JWT)
+app.use('/api/v1/client/mobile', mobileClient);
 
 // 404 handler (after static)
 app.use((req, res) => {

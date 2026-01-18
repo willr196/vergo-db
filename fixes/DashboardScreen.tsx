@@ -104,7 +104,7 @@ export function DashboardScreen({ navigation }: Props) {
         {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
-
+          
           <TouchableOpacity
             style={[styles.actionCard, styles.actionCardPrimary]}
             onPress={() => navigation.navigate('CreateJob')}

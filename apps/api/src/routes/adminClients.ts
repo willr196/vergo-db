@@ -2,8 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma";
 import { adminAuth } from "../middleware/adminAuth";
-// TODO: Add email functions when ready
-// import { sendClientApprovalEmail, sendClientRejectionEmail } from "../services/email";
+import { sendClientApprovalEmail, sendClientRejectionEmail } from "../services/email";
 
 const r = Router();
 
@@ -197,15 +196,15 @@ r.post("/:id/approve", async (req, res) => {
       }
     });
     
-    // TODO: Send approval email
-    // sendClientApprovalEmail({
-    //   to: client.email,
-    //   name: client.contactName,
-    //   companyName: client.companyName
-    // }).catch(err => {
-    //   console.error("[EMAIL] Failed to send client approval:", err);
-    // });
-    
+    // Send approval email
+    sendClientApprovalEmail({
+      to: client.email,
+      name: client.contactName,
+      companyName: client.companyName
+    }).catch(err => {
+      console.error("[EMAIL] Failed to send client approval:", err);
+    });
+
     console.log(`[ADMIN] Approved client: ${client.companyName} by ${adminUsername}`);
     
     res.json({ ok: true, message: "Client approved successfully", data: { message: "Client approved successfully" } });
@@ -253,16 +252,16 @@ r.post("/:id/reject", async (req, res) => {
       }
     });
     
-    // TODO: Send rejection email
-    // sendClientRejectionEmail({
-    //   to: client.email,
-    //   name: client.contactName,
-    //   companyName: client.companyName,
-    //   reason
-    // }).catch(err => {
-    //   console.error("[EMAIL] Failed to send client rejection:", err);
-    // });
-    
+    // Send rejection email
+    sendClientRejectionEmail({
+      to: client.email,
+      name: client.contactName,
+      companyName: client.companyName,
+      reason
+    }).catch(err => {
+      console.error("[EMAIL] Failed to send client rejection:", err);
+    });
+
     console.log(`[ADMIN] Rejected client: ${client.companyName}`);
     
     res.json({ ok: true, message: "Client rejected", data: { message: "Client rejected" } });

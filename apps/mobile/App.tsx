@@ -39,7 +39,7 @@ function AppContent() {
       try {
         await checkAuth();
       } catch (error) {
-        console.warn('Auth check failed:', error);
+        console.warn('Auth check failed:', error);1
         // Don't block app loading on auth failure
         if (isMounted) {
           setInitError('Failed to restore session');
