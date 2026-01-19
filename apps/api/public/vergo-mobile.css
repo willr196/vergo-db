@@ -9,29 +9,28 @@
  * ============================================ */
 
 @media (max-width: 900px) {
-  /* Hide desktop navigation */
   nav ul {
-    display: none;
-    flex-direction: column;
-    width: 100%;
-    background: #0a0a0a;
-    position: absolute;
-    top: 100%;
+    position: fixed;
+    top: calc(65px + env(safe-area-inset-top));
     left: 0;
+    right: 0;
+    flex-direction: column;
+    background: rgba(10, 10, 10, 0.98);
     padding: 20px;
     gap: 0;
-    border-top: 1px solid rgba(212, 175, 55, 0.2);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    max-height: calc(100vh - 65px - env(safe-area-inset-top));
+    overflow-y: auto;
   }
 
   /* Show menu when active */
   nav ul.active {
-    display: flex;
+    transform: translateX(0);
   }
 
   nav ul li {
-    width: 100%;
     border-bottom: 1px solid rgba(212, 175, 55, 0.1);
   }
 
@@ -41,8 +40,7 @@
 
   nav ul li a {
     display: block;
-    padding: 15px 20px;
-    width: 100%;
+    padding: 15px 10px;
   }
 
   /* Show hamburger button */
@@ -83,14 +81,10 @@
   }
 
   /* Header needs relative positioning for dropdown */
-  header {
-    position: relative;
-  }
+  header { padding: calc(12px + env(safe-area-inset-top)) 20px 12px; }
 
   /* Logo sizing */
-  .logo img {
-    max-height: 40px;
-  }
+  .logo img { height: 38px; }
 }
 
 /* ============================================
@@ -107,7 +101,7 @@
 
   .hero-title,
   .hero h1 {
-    font-size: 2.4rem;
+    font-size: clamp(2rem, 6vw, 2.5rem);
     line-height: 1.2;
   }
 
@@ -118,7 +112,7 @@
 
   .hero-tagline,
   .hero p {
-    font-size: 1.1rem;
+    font-size: clamp(1rem, 3.5vw, 1.15rem);
     line-height: 1.5;
   }
 }
@@ -132,7 +126,7 @@
 
   .hero-title,
   .hero h1 {
-    font-size: 2rem;
+    font-size: clamp(1.75rem, 7vw, 2.1rem);
   }
 
   .hero-badge {
@@ -147,16 +141,16 @@
 
 @media (max-width: 768px) {
   h1 {
-    font-size: 2.2rem !important;
+    font-size: clamp(2rem, 6vw, 2.3rem) !important;
     line-height: 1.2;
   }
 
   h2 {
-    font-size: 1.8rem !important;
+    font-size: clamp(1.6rem, 4.8vw, 2rem) !important;
   }
 
   h3 {
-    font-size: 1.4rem !important;
+    font-size: clamp(1.25rem, 4vw, 1.5rem) !important;
   }
 
   p, li {
@@ -165,25 +159,25 @@
   }
 
   .page-hero h1 {
-    font-size: 2.5rem !important;
+    font-size: clamp(2.1rem, 6.5vw, 2.6rem) !important;
   }
 }
 
 @media (max-width: 480px) {
   h1 {
-    font-size: 1.8rem !important;
+    font-size: clamp(1.7rem, 7vw, 1.95rem) !important;
   }
 
   h2 {
-    font-size: 1.5rem !important;
+    font-size: clamp(1.4rem, 5.5vw, 1.65rem) !important;
   }
 
   h3 {
-    font-size: 1.25rem !important;
+    font-size: clamp(1.15rem, 4.8vw, 1.35rem) !important;
   }
 
   .page-hero h1 {
-    font-size: 2rem !important;
+    font-size: clamp(1.9rem, 7.5vw, 2.2rem) !important;
   }
 }
 
@@ -195,7 +189,7 @@
   .container,
   .section,
   section {
-    padding: 60px 24px;
+    padding: 60px clamp(16px, 4vw, 28px);
   }
 
   .section,
@@ -208,7 +202,7 @@
   .container,
   .section,
   section {
-    padding: 50px 16px;
+    padding: 50px clamp(14px, 5vw, 20px);
   }
 
   .section,
@@ -228,9 +222,20 @@
 
 @media (max-width: 768px) {
   .services-grid,
+  .blog-grid,
+  .calc-grid,
+  .faq-grid,
+  .job-meta-grid,
+  .jobs-grid,
+  .related-grid,
   .roles-grid,
+  .staff-grid,
+  .standards-grid,
+  .stats-grid,
   .benefits-grid,
   .team-grid,
+  .testimonials-grid,
+  .tiers-grid,
   .features-grid,
   .cards-grid {
     grid-template-columns: 1fr !important;
@@ -358,6 +363,44 @@
 
   label {
     font-size: 0.9rem;
+  }
+}
+
+/* ============================================
+ * 12. MOBILE POLISH - Touch + Tables
+ * ============================================ */
+
+@media (max-width: 768px) {
+  .hero-cta-group,
+  .cta-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  button,
+  input[type="submit"],
+  .cta-button,
+  .btn-primary,
+  .submit-button {
+    min-height: 44px;
+  }
+
+  .table-wrapper,
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 600px;
+  }
+
+  img,
+  video,
+  iframe {
+    max-width: 100%;
+    height: auto;
   }
 }
 

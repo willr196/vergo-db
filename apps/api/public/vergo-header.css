@@ -2,6 +2,7 @@
  * VERGO Events - Header & Navigation Styles
  * Shared across all pages for consistency
  * Include AFTER vergo-styles.css
+ * Uses CSS variables from vergo-styles.css for consistency
  */
 
 /* ============================================
@@ -60,11 +61,11 @@ nav li {
 }
 
 nav a {
-  color: #ffffff;
+  color: var(--color-text-primary, #ffffff);
   text-decoration: none;
   font-size: 0.9rem;
-  font-weight: 500;
-  transition: color 0.3s ease;
+  font-weight: var(--font-weight-medium, 500);
+  transition: color var(--transition-speed, 0.3s) ease;
   position: relative;
   display: block;
   padding: 8px 0;
@@ -77,12 +78,12 @@ nav a::after {
   left: 0;
   width: 0;
   height: 2px;
-  background: #D4AF37;
-  transition: width 0.3s ease;
+  background: var(--color-gold, #D4AF37);
+  transition: width var(--transition-speed, 0.3s) ease;
 }
 
 nav a:hover {
-  color: #D4AF37;
+  color: var(--color-gold, #D4AF37);
 }
 
 nav a:hover::after {
@@ -90,7 +91,7 @@ nav a:hover::after {
 }
 
 nav a[aria-current="page"] {
-  color: #D4AF37;
+  color: var(--color-gold, #D4AF37);
 }
 
 nav a[aria-current="page"]::after {
@@ -175,8 +176,8 @@ nav a[aria-current="page"]::after {
 .menu-toggle span {
   width: 24px;
   height: 2px;
-  background: #D4AF37;
-  transition: all 0.3s ease;
+  background: var(--color-gold, #D4AF37);
+  transition: all var(--transition-speed, 0.3s) ease;
 }
 
 /* Hamburger animation when active */
@@ -282,10 +283,10 @@ footer {
 }
 
 .footer-column h3 {
-  color: #D4AF37;
+  color: var(--color-gold, #D4AF37);
   font-size: 1.1rem;
   margin-bottom: 20px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold, 600);
 }
 
 .footer-column p {
@@ -304,7 +305,7 @@ footer {
 }
 
 .footer-column a:hover {
-  color: #D4AF37;
+  color: var(--color-gold, #D4AF37);
 }
 
 .footer-bottom {

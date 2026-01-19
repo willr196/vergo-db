@@ -14,7 +14,12 @@
   <!-- Security Headers -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-  
+
+  <!-- Google Fonts - Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
   <!-- Accessibility -->
   <link rel="stylesheet" href="/vergo-a11y.css">
   <link rel="stylesheet" href="/vergo-styles.css">
@@ -300,6 +305,21 @@
     .hero-content {
       max-width: 900px;
     }
+
+    .hero-logo {
+      height: 180px;
+      width: auto;
+      max-width: 100%;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .hero-tagline {
+      color: #D4AF37;
+      font-size: 1.1rem;
+      margin: 20px 0 30px;
+      font-weight: 500;
+    }
     
     .hero-badge {
       display: inline-block;
@@ -416,6 +436,153 @@
       color: #999;
       line-height: 1.5;
     }
+
+    .seo-intro {
+      background: #000;
+      padding: 50px 20px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .seo-intro .seo-content {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+      color: #ccc;
+      line-height: 1.8;
+    }
+
+    .service-areas {
+      background: #0a0a0a;
+      padding: 50px 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .service-areas .service-areas-content {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .service-areas h2 {
+      color: #D4AF37;
+      font-size: 2rem;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    .service-areas p {
+      color: #cccccc;
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    .services-section {
+      background: #1a1a1a;
+      padding: 80px 20px;
+    }
+
+    .services-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .services-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .services-header h2 {
+      font-size: 2.5rem;
+      color: #D4AF37;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    .services-header p {
+      font-size: 1.2rem;
+      color: #999;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .service-card {
+      background: #0a0a0a;
+      padding: 40px 30px;
+      border-radius: 8px;
+      border-top: 3px solid #D4AF37;
+      transition: transform 0.3s ease;
+    }
+
+    .service-card h3 {
+      font-size: 1.5rem;
+      color: #D4AF37;
+      margin-bottom: 15px;
+    }
+
+    .service-card p {
+      color: #cccccc;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .service-card a {
+      color: #D4AF37;
+      text-decoration: none;
+      font-weight: 600;
+      display: block;
+      padding: 10px 0;
+    }
+
+    .cta-section {
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+      padding: 80px 20px;
+      text-align: center;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .cta-section .cta-content {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .cta-section h2 {
+      font-size: 2.5rem;
+      color: #D4AF37;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    .cta-section p {
+      font-size: 1.2rem;
+      color: #cccccc;
+      margin-bottom: 30px;
+      line-height: 1.7;
+    }
+
+    .cta-button-large {
+      display: inline-block;
+      padding: 18px 50px;
+      background: #D4AF37;
+      color: #1a1a1a;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      transition: all 0.3s ease;
+      border: 2px solid #D4AF37;
+    }
+
+    .cta-button-large:hover {
+      background: transparent;
+      color: #D4AF37;
+      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+    }
     
     /* Footer */
     footer {
@@ -529,10 +696,71 @@
       .hero-subtitle {
         font-size: 1.2rem;
       }
+
+      .hero-logo {
+        height: 130px;
+      }
+
+      .hero-tagline {
+        font-size: 1rem;
+      }
+
+      .seo-intro,
+      .service-areas {
+        padding: 40px 18px;
+      }
+
+      .services-section,
+      .cta-section {
+        padding: 60px 18px;
+      }
+
+      .services-header {
+        margin-bottom: 40px;
+      }
+
+      .services-header h2,
+      .cta-section h2 {
+        font-size: 2rem;
+      }
+
+      .services-header p,
+      .cta-section p {
+        font-size: 1.05rem;
+      }
+
+      .services-grid {
+        gap: 20px;
+      }
+
+      .service-card {
+        padding: 30px 22px;
+      }
+
+      .cta-button-large {
+        width: 100%;
+        max-width: 320px;
+        padding: 16px 28px;
+      }
       
       .credentials-container {
         grid-template-columns: 1fr;
         gap: 30px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-logo {
+        height: 110px;
+      }
+
+      .hero-section {
+        padding: 120px 16px 50px;
+      }
+
+      .services-header h2,
+      .cta-section h2 {
+        font-size: 1.8rem;
       }
     }
   </style>
@@ -550,10 +778,10 @@
     <div class="hero-content">
     <!-- Centered Logo -->
     <div style="text-align: center; margin-bottom: 40px;">
-    <img src="logo.png" alt="VERGO Events" style="height: 180px; width: auto; max-width: 100%; margin: 0 auto; display: block; border: none; background: transparent;">
+    <img src="logo.png" alt="VERGO Events" class="hero-logo">
     </div>
     <h1 class="hero-title">Event Chefs & Premium Event Staff in London</h1>
-    <p style="color: #D4AF37; font-size: 1.1rem; margin: 20px 0 30px 0; font-weight: 500;">DBS Checked • Fully Insured • 8+ Years Experience</p>
+    <p class="hero-tagline">DBS Checked • Fully Insured • 8+ Years Experience</p>
     <div class="hero-cta-group">
     <a href="contact.html" class="cta-button">Get Your Quote</a>
     <a href="hire-staff.html" class="cta-button cta-button-secondary">View Roles</a>
@@ -562,8 +790,8 @@
   </section>
 
   <!-- SEO Intro Section -->
-  <section style="background:#000; padding:50px 20px; border-bottom:1px solid rgba(212, 175, 55, 0.2);">
-    <div style="max-width:800px; margin:0 auto; text-align:center; color:#ccc; line-height:1.8;">
+  <section class="seo-intro">
+    <div class="seo-content">
       <p>
         VERGO is a London-based hospitality staffing agency supplying experienced
         <strong>event chefs, kitchen porters, bartenders, waiters and front of house teams</strong>
@@ -579,59 +807,59 @@
 
 
   <!-- Service Areas -->
-  <section style="background: #0a0a0a; padding: 50px 20px; text-align: center; border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
-    <div style="max-width: 700px; margin: 0 auto;">
-      <h2 style="color: #D4AF37; font-size: 2rem; margin-bottom: 15px; font-weight: 700;">Covering All of London</h2>
-      <p style="color: #cccccc; font-size: 1.1rem; line-height: 1.6;">
+  <section class="service-areas">
+    <div class="service-areas-content">
+      <h2>Covering All of London</h2>
+      <p>
         All boroughs • Greater London • Professional staff deployed across the capital
       </p>
     </div>
   </section>
 
   <!-- Services -->
-  <section style="background: #1a1a1a; padding: 80px 20px;">
-    <div style="max-width: 1100px; margin: 0 auto;">
-      <div style="text-align: center; margin-bottom: 60px;">
-        <h2 style="font-size: 2.5rem; color: #D4AF37; margin-bottom: 15px; font-weight: 700;">What We Do</h2>
-        <p style="font-size: 1.2rem; color: #999;">Three ways we can help your event succeed</p>
+  <section class="services-section">
+    <div class="services-inner">
+      <div class="services-header">
+        <h2>What We Do</h2>
+        <p>Three ways we can help your event succeed</p>
       </div>
       
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease;">
-          <h3 style="font-size: 1.5rem; color: #D4AF37; margin-bottom: 15px;">Hire Event Staff</h3>
-          <p style="color: #cccccc; line-height: 1.7; margin-bottom: 20px;">
+      <div class="services-grid">
+        <div class="service-card">
+          <h3>Hire Event Staff</h3>
+          <p>
             Bartenders, waiters, chefs, front of house. All DBS-checked and personally vetted.
           </p>
-          <a href="hire-staff.html" style="color: #D4AF37; text-decoration: none; font-weight: 600; display: block; padding: 10px 0;">View Roles →</a>
+          <a href="hire-staff.html">View Roles →</a>
         </div>
         
-        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease;">
-          <h3 style="font-size: 1.5rem; color: #D4AF37; margin-bottom: 15px;">Event Management</h3>
-          <p style="color: #cccccc; line-height: 1.7; margin-bottom: 20px;">
+        <div class="service-card">
+          <h3>Event Management</h3>
+          <p>
             Full-service planning and coordination from concept to execution.
           </p>
-          <a href="hire-us.html" style="color: #D4AF37; text-decoration: none; font-weight: 600; display: block; padding: 10px 0;">Learn More →</a>
+          <a href="hire-us.html">Learn More →</a>
         </div>
         
-        <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; border-top: 3px solid #D4AF37; transition: transform 0.3s ease;">
-          <h3 style="font-size: 1.5rem; color: #D4AF37; margin-bottom: 15px;">Join Our Team</h3>
-          <p style="color: #cccccc; line-height: 1.7; margin-bottom: 20px;">
+        <div class="service-card">
+          <h3>Join Our Team</h3>
+          <p>
             Experienced hospitality professional? Work with premium clients across London.
           </p>
-          <a href="apply.html" style="color: #D4AF37; text-decoration: none; font-weight: 600; display: block; padding: 10px 0;">Apply Now →</a>
+          <a href="apply.html">Apply Now →</a>
         </div>
       </div>
     </div>
   </section>
 
   <!-- CTA -->
-  <section style="background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%); padding: 80px 20px; text-align: center; border-top: 1px solid rgba(212, 175, 55, 0.2);">
-    <div style="max-width: 700px; margin: 0 auto;">
-      <h2 style="font-size: 2.5rem; color: #D4AF37; margin-bottom: 20px; font-weight: 700;">Ready to Staff Your Event?</h2>
-      <p style="font-size: 1.2rem; color: #cccccc; margin-bottom: 30px; line-height: 1.7;">
+  <section class="cta-section">
+    <div class="cta-content">
+      <h2>Ready to Staff Your Event?</h2>
+      <p>
         Get a quote within 24 hours. Direct access to our founder. Satisfaction guaranteed.
       </p>
-      <a href="contact.html" style="display: inline-block; padding: 18px 50px; background: #D4AF37; color: #1a1a1a; text-decoration: none; font-weight: 700; font-size: 1.1rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 1.5px; transition: all 0.3s ease;">Get Your Quote</a>
+      <a href="contact.html" class="cta-button-large">Get Your Quote</a>
     </div>
   </section>
 
