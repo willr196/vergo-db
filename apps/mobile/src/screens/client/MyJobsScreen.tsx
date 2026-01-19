@@ -17,7 +17,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { LoadingScreen, EmptyState } from '../../components';
+import { LoadingScreen, EmptyState, ErrorState } from '../../components';
 import { useAuthStore } from '../../store';
 import { jobsApi } from '../../api';
 import { logger } from '../../utils/logger';
@@ -42,17 +42,21 @@ export function MyJobsScreen({ navigation }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [statusFilter, setStatusFilter] = useState<JobStatus>('all');
+  const [error, setError] = useState<string | null>(null);
 
   const fetchJobs = useCallback(async () => {
     try {
+      setError(null);
       const clientId = (user as any)?.id;
       if (!clientId) return;
-      
+
       const status = statusFilter === 'all' ? undefined : statusFilter;
       const data = await jobsApi.getClientJobs(clientId, status);
       setJobs(data);
-    } catch (error) {
-      logger.error('Failed to fetch jobs:', error);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load jobs';
+      setError(message);
+      logger.error('Failed to fetch jobs:', err);
     } finally {
       setIsLoading(false);
     }
@@ -146,6 +150,21 @@ export function MyJobsScreen({ navigation }: Props) {
 
   if (isLoading) {
     return <LoadingScreen message="Loading your jobs..." />;
+  }
+
+  // Error state (only show if we have no data and there's an error)
+  if (error && jobs.length === 0 && !isRefreshing) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ErrorState
+          message={error}
+          onRetry={() => {
+            setIsLoading(true);
+            fetchJobs();
+          }}
+        />
+      </SafeAreaView>
+    );
   }
 
   return (

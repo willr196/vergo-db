@@ -51,6 +51,13 @@ const ROLE_OPTIONS = [
   'Security',
 ];
 
+// Track which fields have validation errors
+type FieldErrors = {
+  eventType?: boolean;
+  location?: boolean;
+  roles?: boolean;
+};
+
 export function CreateQuoteScreen({ navigation }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<CreateQuoteRequest>({
@@ -63,6 +70,7 @@ export function CreateQuoteScreen({ navigation }: Props) {
   });
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [showEventTypes, setShowEventTypes] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   const updateField = <K extends keyof CreateQuoteRequest>(
     field: K,
@@ -82,19 +90,34 @@ export function CreateQuoteScreen({ navigation }: Props) {
   };
 
   const validateForm = (): string | null => {
+    const errors: FieldErrors = {};
+
     if (!formData.eventType.trim()) {
-      return 'Please select an event type';
+      errors.eventType = true;
     }
     if (!formData.location.trim()) {
-      return 'Please enter a location';
-    }
-    if (formData.staffCount < 1) {
-      return 'Please enter the number of staff needed';
+      errors.location = true;
     }
     if (selectedRoles.length === 0) {
-      return 'Please select at least one role';
+      errors.roles = true;
     }
+
+    setFieldErrors(errors);
+
+    // Return error message for alert
+    if (errors.eventType) return 'Please select an event type';
+    if (errors.location) return 'Please enter a location';
+    if (formData.staffCount < 1) return 'Please enter the number of staff needed';
+    if (errors.roles) return 'Please select at least one role';
+
     return null;
+  };
+
+  // Clear field error when user starts typing
+  const clearFieldError = (field: keyof FieldErrors) => {
+    if (fieldErrors[field]) {
+      setFieldErrors(prev => ({ ...prev, [field]: false }));
+    }
   };
 
   const handleSubmit = async () => {
@@ -113,7 +136,7 @@ export function CreateQuoteScreen({ navigation }: Props) {
       });
 
       Alert.alert(
-        'Quote Request Submitted! 🎉',
+        'Quote Request Submitted!',
         "We'll review your request and get back to you within 24 hours with a quote.",
         [
           {
@@ -122,8 +145,11 @@ export function CreateQuoteScreen({ navigation }: Props) {
           },
         ]
       );
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to submit quote request');
+    } catch (err: any) {
+      Alert.alert(
+        'Unable to Submit',
+        err.message || 'Failed to submit quote request. Please check your connection and try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -147,10 +173,15 @@ export function CreateQuoteScreen({ navigation }: Props) {
 
           {/* Event Type */}
           <View style={styles.section}>
-            <Text style={styles.label}>Event Type *</Text>
+            <Text style={[styles.label, fieldErrors.eventType && styles.labelError]}>
+              Event Type *
+            </Text>
             <TouchableOpacity
-              style={styles.select}
-              onPress={() => setShowEventTypes(!showEventTypes)}
+              style={[styles.select, fieldErrors.eventType && styles.inputError]}
+              onPress={() => {
+                setShowEventTypes(!showEventTypes);
+                clearFieldError('eventType');
+              }}
             >
               <Text
                 style={[
@@ -162,6 +193,9 @@ export function CreateQuoteScreen({ navigation }: Props) {
               </Text>
               <Text style={styles.selectArrow}>{showEventTypes ? '▲' : '▼'}</Text>
             </TouchableOpacity>
+            {fieldErrors.eventType && (
+              <Text style={styles.errorText}>Please select an event type</Text>
+            )}
 
             {showEventTypes && (
               <View style={styles.dropdown}>
@@ -206,14 +240,22 @@ export function CreateQuoteScreen({ navigation }: Props) {
 
           {/* Location */}
           <View style={styles.section}>
-            <Text style={styles.label}>Location *</Text>
+            <Text style={[styles.label, fieldErrors.location && styles.labelError]}>
+              Location *
+            </Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, fieldErrors.location && styles.inputError]}
               placeholder="e.g., London, Manchester, Birmingham"
               placeholderTextColor={colors.textMuted}
               value={formData.location}
-              onChangeText={(text) => updateField('location', text)}
+              onChangeText={(text) => {
+                updateField('location', text);
+                clearFieldError('location');
+              }}
             />
+            {fieldErrors.location && (
+              <Text style={styles.errorText}>Please enter a location</Text>
+            )}
           </View>
 
           {/* Venue (optional) */}
@@ -252,9 +294,14 @@ export function CreateQuoteScreen({ navigation }: Props) {
 
           {/* Roles */}
           <View style={styles.section}>
-            <Text style={styles.label}>Roles Required *</Text>
+            <Text style={[styles.label, fieldErrors.roles && styles.labelError]}>
+              Roles Required *
+            </Text>
             <Text style={styles.hint}>Select all that apply</Text>
-            <View style={styles.rolesGrid}>
+            <View style={[
+              styles.rolesGrid,
+              fieldErrors.roles && styles.rolesGridError,
+            ]}>
               {ROLE_OPTIONS.map((role) => (
                 <TouchableOpacity
                   key={role}
@@ -262,7 +309,10 @@ export function CreateQuoteScreen({ navigation }: Props) {
                     styles.roleChip,
                     selectedRoles.includes(role) && styles.roleChipActive,
                   ]}
-                  onPress={() => toggleRole(role)}
+                  onPress={() => {
+                    toggleRole(role);
+                    clearFieldError('roles');
+                  }}
                 >
                   <Text
                     style={[
@@ -275,6 +325,9 @@ export function CreateQuoteScreen({ navigation }: Props) {
                 </TouchableOpacity>
               ))}
             </View>
+            {fieldErrors.roles && (
+              <Text style={styles.errorText}>Please select at least one role</Text>
+            )}
           </View>
 
           {/* Shift Times (optional) */}
@@ -332,9 +385,10 @@ export function CreateQuoteScreen({ navigation }: Props) {
           {/* Submit */}
           <View style={styles.submitSection}>
             <Button
-              title={isSubmitting ? 'Submitting...' : 'Submit Quote Request'}
+              title="Submit Quote Request"
               onPress={handleSubmit}
               disabled={isSubmitting}
+              loading={isSubmitting}
               variant="primary"
               size="lg"
               fullWidth
@@ -384,6 +438,9 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
     marginBottom: spacing.sm,
   },
+  labelError: {
+    color: colors.error,
+  },
   hint: {
     color: colors.textMuted,
     fontSize: typography.fontSize.sm,
@@ -397,6 +454,15 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
+  },
+  inputError: {
+    borderColor: colors.error,
+    borderWidth: 2,
+  },
+  errorText: {
+    color: colors.error,
+    fontSize: typography.fontSize.sm,
+    marginTop: spacing.xs,
   },
   textArea: {
     minHeight: 100,
@@ -479,6 +545,14 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: spacing.sm,
     marginTop: spacing.sm,
+    padding: spacing.sm,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  rolesGridError: {
+    borderColor: colors.error,
+    backgroundColor: 'rgba(255, 107, 107, 0.05)',
   },
   roleChip: {
     paddingHorizontal: spacing.md,

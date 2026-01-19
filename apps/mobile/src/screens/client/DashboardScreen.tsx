@@ -12,6 +12,7 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
@@ -19,6 +20,7 @@ import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { useAuthStore } from '../../store';
+import { ErrorState } from '../../components';
 import type { RootStackParamList, ClientTabParamList } from '../../types';
 import { clientApi, ClientStats } from '../../api/clientApi';
 
@@ -26,6 +28,42 @@ type Props = CompositeScreenProps<
   BottomTabScreenProps<ClientTabParamList, 'Dashboard'>,
   NativeStackScreenProps<RootStackParamList>
 >;
+
+// Skeleton placeholder component for loading state
+function SkeletonBox({ width, height, style }: { width: number | string; height: number; style?: any }) {
+  const animatedValue = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(animatedValue, { toValue: 1, duration: 1000, useNativeDriver: true }),
+        Animated.timing(animatedValue, { toValue: 0, duration: 1000, useNativeDriver: true }),
+      ])
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [animatedValue]);
+
+  const opacity = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 0.6],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        {
+          width,
+          height,
+          backgroundColor: colors.surfaceLight,
+          borderRadius: borderRadius.sm,
+          opacity,
+        },
+        style,
+      ]}
+    />
+  );
+}
 
 export function DashboardScreen({ navigation }: Props) {
   const { user } = useAuthStore();
@@ -39,13 +77,17 @@ export function DashboardScreen({ navigation }: Props) {
   });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchStats = useCallback(async () => {
     try {
+      setError(null);
       const data = await clientApi.getStats();
       setStats(data);
-    } catch (error) {
-      console.log('Failed to fetch stats:', error);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load dashboard';
+      setError(message);
+      console.log('Failed to fetch stats:', err);
     } finally {
       setIsLoading(false);
     }
@@ -62,6 +104,49 @@ export function DashboardScreen({ navigation }: Props) {
   };
 
   const company = user as any;
+
+  // Render loading skeleton for stats grid
+  const renderStatsSkeleton = () => (
+    <View style={styles.statsGrid}>
+      {[1, 2, 3, 4].map((i) => (
+        <View key={i} style={styles.statCard}>
+          <SkeletonBox width={60} height={32} style={{ marginBottom: spacing.xs }} />
+          <SkeletonBox width={80} height={16} />
+        </View>
+      ))}
+    </View>
+  );
+
+  // Render loading skeleton for quick actions
+  const renderActionsSkeleton = () => (
+    <View style={styles.section}>
+      <SkeletonBox width={120} height={20} style={{ marginBottom: spacing.md }} />
+      {[1, 2].map((i) => (
+        <View key={i} style={[styles.actionCard, { marginBottom: spacing.sm }]}>
+          <SkeletonBox width={44} height={44} style={{ borderRadius: borderRadius.md }} />
+          <View style={{ flex: 1, marginLeft: spacing.md }}>
+            <SkeletonBox width={140} height={18} style={{ marginBottom: spacing.xs }} />
+            <SkeletonBox width={100} height={14} />
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+
+  // Error state
+  if (error && !isRefreshing) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ErrorState
+          message={error}
+          onRetry={() => {
+            setIsLoading(true);
+            fetchStats();
+          }}
+        />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -81,95 +166,120 @@ export function DashboardScreen({ navigation }: Props) {
           <Text style={styles.companyName}>{company?.companyName || 'Company'}</Text>
         </View>
 
-        {/* Stats Grid */}
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{stats.totalQuotes}</Text>
-            <Text style={styles.statLabel}>Total Quotes</Text>
-          </View>
-          <View style={[styles.statCard, styles.statCardHighlight]}>
-            <Text style={[styles.statNumber, styles.statNumberHighlight]}>{stats.pending}</Text>
-            <Text style={[styles.statLabel, styles.statLabelHighlight]}>Pending</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{stats.quoted}</Text>
-            <Text style={styles.statLabel}>Quoted</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{stats.completed}</Text>
-            <Text style={styles.statLabel}>Completed</Text>
-          </View>
-        </View>
-
-        {/* Quick Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-
-          <TouchableOpacity
-            style={[styles.actionCard, styles.actionCardPrimary]}
-            onPress={() => navigation.navigate('CreateJob')}
-          >
-            <View style={[styles.actionIcon, styles.actionIconPrimary]}>
-              <Text style={styles.actionEmoji}>📝</Text>
+        {/* Stats Grid - show skeleton while loading */}
+        {isLoading ? (
+          renderStatsSkeleton()
+        ) : (
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>{stats.totalQuotes}</Text>
+              <Text style={styles.statLabel}>Total Quotes</Text>
             </View>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>Request a Quote</Text>
-              <Text style={styles.actionSubtitle}>Get staffing for your next event</Text>
+            <View style={[styles.statCard, styles.statCardHighlight]}>
+              <Text style={[styles.statNumber, styles.statNumberHighlight]}>{stats.pending}</Text>
+              <Text style={[styles.statLabel, styles.statLabelHighlight]}>Pending</Text>
             </View>
-            <Text style={styles.actionArrow}>›</Text>
-          </TouchableOpacity>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>{stats.quoted}</Text>
+              <Text style={styles.statLabel}>Quoted</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>{stats.completed}</Text>
+              <Text style={styles.statLabel}>Completed</Text>
+            </View>
+          </View>
+        )}
 
-          <TouchableOpacity
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('MyJobs' as any)}
-          >
-            <View style={styles.actionIcon}>
-              <Text style={styles.actionEmoji}>📋</Text>
-            </View>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>View My Quotes</Text>
-              <Text style={styles.actionSubtitle}>{stats.totalQuotes} quote{stats.totalQuotes !== 1 ? 's' : ''}</Text>
-            </View>
-            <Text style={styles.actionArrow}>›</Text>
-          </TouchableOpacity>
+        {/* Quick Actions - show skeleton while loading */}
+        {isLoading ? (
+          renderActionsSkeleton()
+        ) : (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Quick Actions</Text>
 
-          {stats.quoted > 0 && (
             <TouchableOpacity
-              style={[styles.actionCard, styles.actionCardUrgent]}
-              onPress={() => navigation.navigate('MyJobs' as any)}
+              style={[styles.actionCard, styles.actionCardPrimary]}
+              onPress={() => navigation.navigate('CreateJob')}
             >
-              <View style={[styles.actionIcon, styles.actionIconUrgent]}>
-                <Text style={styles.actionEmoji}>💰</Text>
+              <View style={[styles.actionIcon, styles.actionIconPrimary]}>
+                <Text style={styles.actionEmoji}>📝</Text>
               </View>
               <View style={styles.actionContent}>
-                <Text style={styles.actionTitle}>Review Quotes</Text>
-                <Text style={styles.actionSubtitle}>{stats.quoted} quote{stats.quoted !== 1 ? 's' : ''} waiting for your response</Text>
+                <Text style={styles.actionTitle}>Request a Quote</Text>
+                <Text style={styles.actionSubtitle}>Get staffing for your next event</Text>
               </View>
               <Text style={styles.actionArrow}>›</Text>
             </TouchableOpacity>
-          )}
-        </View>
 
-        {/* Summary */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Summary</Text>
-          <View style={styles.summaryCard}>
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Accepted Quotes</Text>
-              <Text style={styles.summaryValue}>{stats.accepted}</Text>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Completed Events</Text>
-              <Text style={styles.summaryValue}>{stats.completed}</Text>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Active Requests</Text>
-              <Text style={[styles.summaryValue, { color: colors.primary }]}>{stats.activeQuotes}</Text>
+            <TouchableOpacity
+              style={styles.actionCard}
+              onPress={() => navigation.navigate('MyJobs' as any)}
+            >
+              <View style={styles.actionIcon}>
+                <Text style={styles.actionEmoji}>📋</Text>
+              </View>
+              <View style={styles.actionContent}>
+                <Text style={styles.actionTitle}>View My Quotes</Text>
+                <Text style={styles.actionSubtitle}>{stats.totalQuotes} quote{stats.totalQuotes !== 1 ? 's' : ''}</Text>
+              </View>
+              <Text style={styles.actionArrow}>›</Text>
+            </TouchableOpacity>
+
+            {stats.quoted > 0 && (
+              <TouchableOpacity
+                style={[styles.actionCard, styles.actionCardUrgent]}
+                onPress={() => navigation.navigate('MyJobs' as any)}
+              >
+                <View style={[styles.actionIcon, styles.actionIconUrgent]}>
+                  <Text style={styles.actionEmoji}>💰</Text>
+                </View>
+                <View style={styles.actionContent}>
+                  <Text style={styles.actionTitle}>Review Quotes</Text>
+                  <Text style={styles.actionSubtitle}>{stats.quoted} quote{stats.quoted !== 1 ? 's' : ''} waiting for your response</Text>
+                </View>
+                <Text style={styles.actionArrow}>›</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
+        {/* Summary - show skeleton while loading */}
+        {isLoading ? (
+          <View style={styles.section}>
+            <SkeletonBox width={80} height={20} style={{ marginBottom: spacing.md }} />
+            <View style={styles.summaryCard}>
+              {[1, 2, 3].map((i) => (
+                <View key={i}>
+                  <View style={styles.summaryRow}>
+                    <SkeletonBox width={120} height={16} />
+                    <SkeletonBox width={30} height={20} />
+                  </View>
+                  {i < 3 && <View style={styles.divider} />}
+                </View>
+              ))}
             </View>
           </View>
-        </View>
+        ) : (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Summary</Text>
+            <View style={styles.summaryCard}>
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Accepted Quotes</Text>
+                <Text style={styles.summaryValue}>{stats.accepted}</Text>
+              </View>
+              <View style={styles.divider} />
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Completed Events</Text>
+                <Text style={styles.summaryValue}>{stats.completed}</Text>
+              </View>
+              <View style={styles.divider} />
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Active Requests</Text>
+                <Text style={[styles.summaryValue, { color: colors.primary }]}>{stats.activeQuotes}</Text>
+              </View>
+            </View>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

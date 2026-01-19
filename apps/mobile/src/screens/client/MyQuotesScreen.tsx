@@ -12,13 +12,14 @@ import {
   FlatList,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { LoadingScreen, EmptyState } from '../../components';
+import { LoadingScreen, EmptyState, ErrorState } from '../../components';
 import {
   clientApi,
   QuoteRequest,
@@ -46,12 +47,15 @@ export function MyQuotesScreen({ navigation }: Props) {
   const [quotes, setQuotes] = useState<QuoteRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [statusFilter, setStatusFilter] = useState<FilterStatus>('all');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchQuotes = useCallback(async (reset = false) => {
     try {
+      setError(null);
       const currentPage = reset ? 1 : page;
       const status = statusFilter === 'all' ? undefined : statusFilter;
 
@@ -65,10 +69,13 @@ export function MyQuotesScreen({ navigation }: Props) {
 
       setHasMore(response.pagination.hasMore);
       setPage(currentPage);
-    } catch (error) {
-      console.log('Failed to fetch quotes:', error);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load quotes';
+      setError(message);
+      console.log('Failed to fetch quotes:', err);
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
   }, [statusFilter, page]);
 
@@ -86,7 +93,8 @@ export function MyQuotesScreen({ navigation }: Props) {
   };
 
   const handleLoadMore = () => {
-    if (!hasMore || isLoading) return;
+    if (!hasMore || isLoading || isLoadingMore) return;
+    setIsLoadingMore(true);
     setPage(prev => prev + 1);
     fetchQuotes(false);
   };
@@ -169,6 +177,22 @@ export function MyQuotesScreen({ navigation }: Props) {
     return <LoadingScreen message="Loading quotes..." />;
   }
 
+  // Error state (only show if we have no data and there's an error)
+  if (error && quotes.length === 0 && !isRefreshing) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <ErrorState
+          message={error}
+          onRetry={() => {
+            setIsLoading(true);
+            setPage(1);
+            fetchQuotes(true);
+          }}
+        />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
@@ -236,8 +260,9 @@ export function MyQuotesScreen({ navigation }: Props) {
           />
         }
         ListFooterComponent={
-          hasMore ? (
+          isLoadingMore ? (
             <View style={styles.loadingMore}>
+              <ActivityIndicator size="small" color={colors.primary} />
               <Text style={styles.loadingMoreText}>Loading more...</Text>
             </View>
           ) : null
@@ -393,8 +418,11 @@ const styles = StyleSheet.create({
     fontWeight: '500' as const,
   },
   loadingMore: {
+    flexDirection: 'row',
     padding: spacing.lg,
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
   },
   loadingMoreText: {
     color: colors.textSecondary,
