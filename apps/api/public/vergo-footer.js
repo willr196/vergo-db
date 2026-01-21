@@ -21,10 +21,10 @@
             <img src="/logo.png" alt="VERGO Ltd" width="120" height="auto">
           </a>
           <p class="footer-tagline">
-            Premium event staffing for London and surrounding areas. Founder-led vetting. Trusted teams.
+            Premium event staffing for London and surrounding areas. Trusted teams.
           </p>
           <div class="footer-roles">
-            Event Chefs &middot; Bar Staff &middot; Front of House &middot; Baristas
+            Event Chefs &middot; Bar Staff &middot; Front of House &middot; Baristas &middot; Catering Assistants
           </div>
         </div>
 

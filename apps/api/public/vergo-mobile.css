@@ -496,3 +496,127 @@
     overflow-x: hidden;
   }
 }
+
+/* ============================================
+ * 13. MOBILE PLATFORM THEME ALIGNMENT
+ * ============================================ */
+
+@media (max-width: 960px) {
+  body {
+    background: var(--color-bg-primary) !important;
+    color: var(--color-text-primary) !important;
+    font-family: var(--font-primary) !important;
+  }
+
+  header {
+    background: rgba(250, 248, 245, 0.98) !important;
+    border-bottom: 1px solid var(--color-border) !important;
+    color: var(--color-text-primary) !important;
+  }
+
+  header nav a,
+  nav a {
+    color: var(--color-text-primary) !important;
+  }
+
+  nav a:hover,
+  nav a.active {
+    color: var(--color-gold) !important;
+  }
+
+  .menu-toggle span {
+    background: var(--color-text-primary) !important;
+  }
+
+  main {
+    color: var(--color-text-primary) !important;
+  }
+
+  .auth-box,
+  .stat-box,
+  .application-card,
+  .job-card,
+  .user-bar,
+  .filter-group select,
+  .detail-card,
+  .info-card,
+  .quote-card,
+  .form-card,
+  .dashboard-card {
+    background: var(--color-bg-white) !important;
+    border-color: var(--color-border) !important;
+    box-shadow: var(--shadow-sm) !important;
+  }
+
+  .auth-box h1,
+  .page-header h1,
+  .stat-number,
+  .job-role,
+  .page-title,
+  .section-title {
+    color: var(--color-gold) !important;
+  }
+
+  .subtitle,
+  .page-header p,
+  .user-info,
+  .application-meta,
+  .job-meta,
+  .detail-label,
+  .form-group label,
+  .filter-group label,
+  .auth-footer,
+  .resend-section p {
+    color: var(--color-text-muted) !important;
+  }
+
+  input,
+  textarea,
+  select {
+    background: var(--color-bg-white) !important;
+    color: var(--color-text-primary) !important;
+    border: 1px solid var(--color-border) !important;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: var(--color-gold) !important;
+  }
+
+  .btn,
+  .btn-primary,
+  .submit-button,
+  .cta-button {
+    background: var(--color-gold) !important;
+    color: var(--color-text-primary) !important;
+    border: 2px solid var(--color-gold) !important;
+  }
+
+  .btn-secondary,
+  .btn-outline {
+    background: transparent !important;
+    color: var(--color-text-primary) !important;
+    border: 2px solid var(--color-gold) !important;
+  }
+
+  .btn-danger {
+    color: var(--color-error) !important;
+    border: 2px solid var(--color-error) !important;
+    background: transparent !important;
+  }
+
+  .forgot-link,
+  .back-link,
+  .auth-footer a,
+  .btn-link,
+  .user-info strong {
+    color: var(--color-gold) !important;
+  }
+
+  footer {
+    background: var(--color-bg-secondary) !important;
+    color: var(--color-text-muted) !important;
+    border-top: 1px solid var(--color-border) !important;
+  }
+}

@@ -554,8 +554,9 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="/vergo-platform.css">
 </head>
-<body>
+<body class="platform">
   <a href="#main-content" class="skip-link">Skip to main content</a>
   <header></header>
 
@@ -744,7 +745,7 @@
         
         if (roles.length === 0) {
           // Fallback defaults
-          const defaults = ['Bartender', 'Waiter', 'Chef', 'Kitchen Porter', 'Front of House', 'Event Manager'];
+          const defaults = ['Bartender', 'Waiter', 'Chef', 'Kitchen Porter', 'Catering Assistant', 'Front of House', 'Event Manager'];
           defaults.forEach(name => {
             select.innerHTML += `<option value="${name.toLowerCase()}">${name}</option>`;
           });
