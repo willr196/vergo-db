@@ -1,5 +1,5 @@
 /**
- * VERGO Events - Navigation Menu Handler
+ * VERGO Ltd - Navigation Menu Handler
  * Handles mobile menu toggle, dropdowns, and accessibility
  * Include at the bottom of HTML files, before </body>
  */

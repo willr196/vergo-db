@@ -1,666 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-L4XRTDYMTZ');
-</script>
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="/logo.png">
-  <title>About Us - VERGO Events</title>
-  <meta name="description" content="Meet the founder of VERGO Events. 8+ years of hands-on experience in London's hospitality, film and music industries. Family heritage in event staffing. Personally vetted premium staff for your events.">
+  <link rel="icon" type="image/png" href="/logo-small.png">
+  <title>About VERGO Ltd | Event Staffing London</title>
+  <meta name="description" content="VERGO Ltd is a premium event staffing company supplying chefs, bar staff, front of house, and baristas across London & surrounding areas.">
+  <link rel="canonical" href="https://vergoltd.com/about.html">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="About VERGO Ltd">
+  <meta property="og:description" content="Premium event staffing across London & surrounding areas.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://vergoltd.com/about.html">
+  <meta property="og:image" content="https://vergoltd.com/logo.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-styles.css">
-  <link rel="stylesheet" href="/vergo-header.css">
   <link rel="stylesheet" href="/vergo-mobile.css">
 
   <style>
-    * { {
+    * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
-    /* Ensure all images have no borders or backgrounds */
-    img {
-      border: none;
-      background: transparent;
-      max-width: 100%;
-      height: auto;
+
+    :root {
+      --color-gold: #B8962E;
+      --color-text: #1a1a1a;
+      --color-text-muted: #666;
+      --color-bg: #ffffff;
+      --color-bg-warm: #f8f7f5;
+      --color-border: rgba(0, 0, 0, 0.08);
+      --font-primary: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
-    
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: #0a0a0a;
-      color: #ffffff;
-      line-height: 1.7;
+      font-family: var(--font-primary);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
     }
-    
-    /* Header Navigation */
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: rgba(10, 10, 10, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 1000;
-    }
-    
-    .logo {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #D4AF37;
-      letter-spacing: 2px;
-      text-decoration: none;
-    }
-    
-    .logo img {
-      height: 50px;
-      width: auto;
-      border: none !important;
-      background: transparent !important;
-      display: block;
-      transition: transform 0.3s ease;
-    }
-    
-    .logo:hover img {
-      transform: scale(1.05);
-    }
-    
-    nav ul {
-      display: flex;
-      gap: 35px;
-      list-style: none;
-    }
-    
-    nav a {
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 0.95rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
-      position: relative;
-    }
-    
-    nav a::after {
-      content: '';
-      position: absolute;
-      bottom: -5px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: #D4AF37;
-      transition: width 0.3s ease;
-    }
-    
-    nav a:hover {
-      color: #D4AF37;
-    }
-    
-    nav a:hover::after {
-      width: 100%;
-    }
-    
-    .menu-toggle {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-    }
-    
-    .menu-toggle span {
-      width: 25px;
-      height: 2px;
-      background: #D4AF37;
-    }
-    
-    /* Container */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 120px 40px 60px;
-    }
-    
-    /* Hero Section */
-    .page-hero {
+
+    .page-header {
+      padding: 150px 40px 70px;
+      background: var(--color-bg-warm);
+      border-bottom: 1px solid var(--color-border);
       text-align: center;
-      padding: 80px 20px;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-      margin-bottom: 80px;
     }
-    
-    .page-hero h1 {
-      font-size: 4rem;
-      margin-bottom: 20px;
-      color: #D4AF37;
-      font-weight: 700;
+
+    .page-header h1 {
+      font-size: 2.8rem;
+      margin-bottom: 12px;
     }
-    
-    .page-hero p {
-      font-size: 1.3rem;
-      color: #999;
-    }
-    
-    /* Intro Section */
-    .intro-section {
-      background: #1a1a1a;
-      padding: 60px 50px;
-      margin-bottom: 60px;
-      border-radius: 8px;
-      border-left: 4px solid #D4AF37;
-    }
-    
-    .intro-section h2 {
-      font-size: 2.5rem;
-      margin-bottom: 30px;
-      color: #D4AF37;
-    }
-    
-    .intro-section p {
+
+    .page-header p {
+      color: var(--color-text-muted);
       font-size: 1.1rem;
-      line-height: 1.8;
-      color: #cccccc;
-      margin-bottom: 20px;
+      max-width: 650px;
+      margin: 0 auto;
     }
-    
-    /* Category Section */
-    .category-section {
-      margin-bottom: 60px;
+
+    .section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 70px 40px;
     }
-    
-    .category-header {
-      font-size: 2.2rem;
-      color: #D4AF37;
+
+    .section-header {
+      text-align: center;
       margin-bottom: 40px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid #D4AF37;
-      display: flex;
-      align-items: center;
-      gap: 15px;
     }
-    
-    .services-grid {
+
+    .section-header h2 {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .section-header p {
+      color: var(--color-text-muted);
+    }
+
+    .content-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 30px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
     }
-    
-    .service-card {
-      background: #1a1a1a;
-      padding: 40px 30px;
-      border-radius: 8px;
-      border-top: 3px solid #D4AF37;
-      transition: transform 0.3s ease;
+
+    .content-card {
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 28px;
+      background: var(--color-bg);
     }
-    
-    .service-card:hover {
-      transform: translateY(-5px);
+
+    .content-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      font-weight: 600;
     }
-    
-    .service-card h3 {
-      font-size: 1.5rem;
-      margin-bottom: 15px;
-      color: #D4AF37;
+
+    .content-card p {
+      color: var(--color-text-muted);
+      font-size: 0.95rem;
     }
-    
-    .service-card p {
-      color: #999;
-      line-height: 1.7;
-      font-size: 1rem;
+
+    .roles-strip {
+      background: var(--color-bg-warm);
+      padding: 40px;
+      border-radius: 6px;
+      border-left: 3px solid var(--color-gold);
+      margin-top: 40px;
     }
-    
-    /* CTA Section */
+
+    .roles-strip p {
+      color: var(--color-text-muted);
+    }
+
     .cta-section {
       text-align: center;
-      padding: 80px 40px;
-      background: #1a1a1a;
-      border-radius: 8px;
-      margin: 60px 0;
-      border: 1px solid rgba(212, 175, 55, 0.2);
+      padding: 70px 40px 90px;
+      border-top: 1px solid var(--color-border);
     }
-    
+
     .cta-section h2 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-      color: #D4AF37;
+      font-size: 2rem;
+      margin-bottom: 12px;
     }
-    
+
     .cta-section p {
-      font-size: 1.2rem;
-      margin-bottom: 30px;
-      color: #999;
+      color: var(--color-text-muted);
+      margin-bottom: 26px;
     }
-    
+
     .cta-button {
       display: inline-block;
-      padding: 16px 45px;
-      background: #D4AF37;
-      color: #1a1a1a;
+      padding: 14px 32px;
+      background: var(--color-gold);
+      color: var(--color-text);
       text-decoration: none;
-      font-weight: 700;
-      font-size: 1rem;
+      font-weight: 600;
+      font-size: 0.95rem;
       border-radius: 4px;
       transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      border: 2px solid #D4AF37;
     }
-    
+
     .cta-button:hover {
-      background: transparent;
-      color: #D4AF37;
+      background: var(--color-text);
+      color: #ffffff;
       transform: translateY(-2px);
     }
-    
-    /* Footer */
-    footer {
-      background: #0a0a0a;
-      color: #D4AF37;
-      padding: 40px 30px 25px;
-      border-top: 1px solid rgba(212, 175, 55, 0.2);
-      margin-top: 80px;
-    }
-    
-    .footer-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    
-    .footer-links {
-      margin-bottom: 20px;
-    }
-    
-    .footer-links a {
-      color: #999;
-      text-decoration: none;
-      margin: 0 20px;
-      font-size: 0.9rem;
-      transition: color 0.3s ease;
-    }
-    
-    .footer-links a:hover {
-      color: #D4AF37;
-    }
-    
-    .footer-bottom {
-      color: #666;
-      font-size: 0.85rem;
-      margin-top: 15px;
-    }
-    
-    @media (max-width: 1024px) {
-      nav ul {
-        position: fixed;
-        top: 80px;
-        left: 0;
-        right: 0;
-        background: rgba(10, 10, 10, 0.98);
-        flex-direction: column;
-        padding: 30px;
-        gap: 20px;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-      }
-      
-      nav ul.active {
-        transform: translateX(0);
-      }
-      
-      .menu-toggle {
-        display: flex;
-      }
-    }
-    
-    @media (max-width: 768px) {
-      header {
-        padding: 15px 20px;
-      }
-      
-      .logo {
-        font-size: 1.5rem;
-      }
-      
-      .container {
-        padding: 100px 20px 40px;
-      }
-      
-      .page-hero h1 {
-        font-size: 2.5rem;
-      }
-      
-      .page-hero p {
-        font-size: 1.1rem;
-      }
-      
-      .intro-section {
-        padding: 40px 30px;
-      }
-      
-      .category-header {
-        font-size: 1.8rem;
-      }
-      
-      .services-grid {
+
+    @media (max-width: 900px) {
+      .content-grid {
         grid-template-columns: 1fr;
       }
-      
-      .footer-links a {
-        display: block;
-        margin: 12px 0;
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        padding: 120px 20px 50px;
+      }
+
+      .section,
+      .cta-section {
+        padding: 60px 20px;
       }
     }
-      /* Testimonials Section */
-  .testimonials-section {
-    background: #1a1a1a;
-    padding: 60px 40px;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-  }
-
-  .testimonials-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmin(350px, 1fr));
-    gap: 30px;
-    margin-top: 40px;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .testimonial-card {
-    background: #0a0a0a;
-    padding: 35px 30px;
-    border-radius: 8px;
-    border-left: 4px solid #D4AF37;
-    transition: transform 0.3s ease;
-  }
-
-  .testimonial-card:hover {
-    transform: translateY(-5px);
-  }
-
-  .testimonial-rating {
-    font-size: 1.1rem;
-    margin-bottom: 15px;
-    color: #D4AF37;
-  }
-
-  .testimonial-text {
-    font-size: 1.05rem;
-    line-height: 1.7;
-    color: #cccccc;
-    margin-bottom: 20px;
-    font-style: italic;
-  }
-
-  .testimonial-author {
-    padding-top: 15px;
-    border-top: 1px solid rgba(212, 175, 55, 0.2);
-  }
-
-  .testimonial-author strong {
-    color: #D4AF37;
-    font-size: 1.05rem;
-  }
-
-  .testimonial-author span {
-    color: #999;
-    font-size: 0.9rem;
-  }
-
-  /* Trust Badges Bar */
-  .trust-badges {
-    background: rgba(212, 175, 55, 0.05);
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    padding: 25px 40px;
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    flex-wrap: wrap;
-    margin: 40px 0;
-  }
-
-  .trust-badge {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #D4AF37;
-    font-weight: 600;
-    font-size: 0.95rem;
-  }
-
-  .trust-badge-icon {
-    font-size: 1.5rem;
-  }
   </style>
 </head>
 <body>
-  <!-- Skip Link for Accessibility -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
-  
-    <header role="banner">
-    <a href="index.html" class="logo" aria-label="VERGO Events Home">
-      <img src="/logo.png" alt="VERGO Events Logo">
-    </a>
-    
-    <button class="menu-toggle" onclick="toggleMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-    
-    <nav role="navigation" aria-label="Main navigation">
-      <ul id="nav-menu">
-        <li><a href="index.html">Home</a></li>
-        <li class="nav-dropdown" id="services-dropdown">
-          <a href="#" onclick="toggleDropdown(event, 'services-dropdown'); return false;" aria-haspopup="true" aria-expanded="false">Services</a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="hire-staff.html" role="menuitem">Hire Staff</a></li>
-            <li><a href="hire-us.html" role="menuitem">Event Management</a></li>
-          </ul>
-        </li>
-        <li><a href="jobs.html">Job Board</a></li>
-        <li><a href="apply.html">Join VERGO</a></li>
-        <li><a href="about.html" aria-current="page">About</a></li>
-        <li><a href="faq.html">FAQ</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
-  
+  <header></header>
+
   <main id="main-content">
-  <!-- Page Hero -->
-  <div class="page-hero">
-    <h1>About Us</h1>
-    <p>Industry Experience Meets Personal Service</p>
-  </div>
-  
-  <!-- Content -->
-  <div class="container">
-    <!-- Founder Story Section -->
-    <div class="intro-section" id="my-story">
-      <h2>My Story</h2>
-      <p class="founder-title" style="color: #D4AF37; font-weight: 600; margin-bottom: 20px;">William - Founder & CEO</p>
-      
-      <p>
-        "After 8 years working across every area of the events industry - from intimate private 
-        gatherings to large-scale corporate productions and film sets - I saw a gap in the market 
-        for a staffing agency that truly understood what clients need."
-      </p>
-      
-      <p>
-        "Growing up around my father's agency, which has been supplying kitchen porters to the 
-        film and music industries for over two decades, I learned what separates exceptional 
-        service from mediocre. It's about reliability, quality vetting, and building genuine 
-        relationships."
-      </p>
-      
-      <p style="font-weight: 600; color: #D4AF37; font-size: 1.15rem; margin-top: 25px;">
-        "I founded VERGO to bring that same standard of excellence to London's broader events sector. 
-        Every placement reflects my personal reputation - and I stake that on every staff member we provide."
-      </p>
-      
-      <div style="margin-top: 35px; padding: 25px; background: rgba(212, 175, 55, 0.05); border-radius: 6px;">
-        <h4 style="color: #D4AF37; margin-bottom: 15px; font-size: 1.2rem;">Experience & Background</h4>
-        <ul style="list-style-position: inside; color: #cccccc; line-height: 2;">
-          <li>8+ years hands-on event management experience</li>
-          <li>Worked across corporate, film, music, and private events</li>
-          <li>Raised in family business serving film & music industries</li>
-          <li>Deep network of industry-vetted professionals</li>
-          <li>Personally vets and interviews every VERGO team member</li>
-          <li>DBS checked • Fully insured • Industry certified</li>
-        </ul>
-      </div>
-      
-      <div style="margin-top: 30px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
-        <a href="tel:+447944505783" style="display: inline-block; padding: 12px 25px; background: #D4AF37; color: #1a1a1a; text-decoration: none; font-weight: 700; border-radius: 4px; transition: all 0.3s ease;">📞 Call Direct</a>
-        <a href="/cdn-cgi/l/email-protection#86f1f4e9e4e4c6f0e3f4e1e9eaf2e2a8e5e9eb" style="display: inline-block; padding: 12px 25px; background: transparent; color: #D4AF37; text-decoration: none; font-weight: 700; border-radius: 4px; border: 2px solid #D4AF37; transition: all 0.3s ease;">✉️ Email Me</a>
-        <a href="https://www.linkedin.com/company/109586221/admin/dashboard/" target="_blank" style="display: inline-block; padding: 12px 25px; background: transparent; color: #D4AF37; text-decoration: none; font-weight: 700; border-radius: 4px; border: 2px solid #D4AF37; transition: all 0.3s ease;">💼 LinkedIn</a>
-      </div>
+    <div class="page-header">
+      <h1>About VERGO Ltd</h1>
+      <p>Premium event staffing for London & surrounding areas, focused on reliable, well-presented hospitality teams.</p>
     </div>
-    
-    <!-- Corporate Events -->
-    <div class="category-section">
-      <h2 class="category-header">Corporate Events</h2>
-      <div class="services-grid">
-        <div class="service-card">
-          <h3>Conferences & Seminars</h3>
-          <p>Professional conference management, speaker coordination, and attendee experience.</p>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>What We Do</h2>
+        <p>Event staffing only. Four specialist roles, delivered with calm professionalism.</p>
+      </div>
+      <div class="content-grid">
+        <div class="content-card">
+          <h3>Event Staffing Focus</h3>
+          <p>We supply event chefs, bar staff, front of house, and baristas for corporate, private, and production events.</p>
         </div>
-        <div class="service-card">
-          <h3>Product Launches</h3>
-          <p>Make an impact with memorable product launch events that generate buzz.</p>
+        <div class="content-card">
+          <h3>Clear Booking Process</h3>
+          <p>Bookings are confirmed in writing. Staff are briefed before every event and invoicing is handled after delivery.</p>
         </div>
-        <div class="service-card">
-          <h3>Team Building</h3>
-          <p>Engaging team activities and corporate retreats that strengthen relationships.</p>
+        <div class="content-card">
+          <h3>Vetting & Onboarding</h3>
+          <p>Our onboarding includes interviews, right-to-work checks, standards briefings, and training if experience is limited.</p>
+        </div>
+        <div class="content-card">
+          <h3>Coverage</h3>
+          <p>We cover London & surrounding areas, with clear communication on travel and timing before each booking.</p>
         </div>
       </div>
-    </div>
-    
-    <!-- Social Events -->
-    <div class="category-section">
-      <h2 class="category-header">Social Events</h2>
-      <div class="services-grid">
-        <div class="service-card">
-          <h3>Weddings</h3>
-          <p>Your dream wedding, perfectly executed from start to finish.</p>
-        </div>
-        <div class="service-card">
-          <h3>Private Parties</h3>
-          <p>Celebrate in style with bespoke party planning and production.</p>
-        </div>
-        <div class="service-card">
-          <h3>Celebrations</h3>
-          <p>Birthdays, anniversaries, and milestone events made memorable.</p>
-        </div>
+
+      <div class="roles-strip">
+        <p><strong>Roles supplied:</strong> Event chefs / kitchen teams, bar staff (bartenders / barbacks), front of house (waiters / runners), baristas.</p>
       </div>
-    </div>
-    
-    <!-- Entertainment -->
-    <div class="category-section">
-      <h2 class="category-header">Entertainment Events</h2>
-      <div class="services-grid">
-        <div class="service-card">
-          <h3>Music Events</h3>
-          <p>Live music production from concerts to intimate performances.</p>
-        </div>
-        <div class="service-card">
-          <h3>Cultural Events</h3>
-          <p>Celebrate heritage and creativity with expertly managed experiences.</p>
-        </div>
-        <div class="service-card">
-          <h3>Festivals</h3>
-          <p>Complete festival management from planning to execution.</p>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Hospitality -->
-    <div class="category-section">
-      <h2 class="category-header">Hospitality Services</h2>
-      <div class="services-grid">
-        <div class="service-card">
-          <h3>Catering</h3>
-          <p>Bespoke menus and professional food service for every occasion.</p>
-        </div>
-        <div class="service-card">
-          <h3>Bar Services</h3>
-          <p>Premium drinks service with professional mixologists.</p>
-        </div>
-        <div class="service-card">
-          <h3>Equipment Hire</h3>
-          <p>Professional event equipment with technical support.</p>
-        </div>
-      </div>
-    </div>
-    
-    <div class="cta-section">
-      <h2>Ready to Get Started?</h2>
-      <p>Let's discuss your event and bring your vision to life.</p>
-      <a href="contact.html" class="cta-button">Get a Quote</a>
-    </div>
-  </div>
+    </section>
+
+    <section class="cta-section">
+      <h2>Plan your staffing with confidence</h2>
+      <p>Share your event details and we will respond within 24 hours.</p>
+      <a href="/contact.html" class="cta-button">Get a Quote</a>
+    </section>
   </main>
 
-  <!-- Footer -->
-  <footer role="contentinfo">
-    <div class="footer-content">
-      <div class="footer-column">
-        <h3>About Us</h3>
-        <p>
-          Premium event staffing solutions founded by industry veterans. Combining 8+ years 
-          of hands-on experience with decades of family business expertise in the film and music sectors.
-        </p>
-        <p style="margin-top: 20px; font-size: 0.85rem; color: #666;">
-          Fully Insured • DBS Checked
-        </p>
-      </div>
-      
-      <div class="footer-column">
-        <h3>Services</h3>
-        <a href="hire-staff.html">Event Staffing</a>
-        <a href="hire-us.html">Event Management</a>
-        <a href="apply.html">Join Our Team</a>
-        <a href="about.html">About Us</a>
-        <a href="contact.html">Get a Quote</a>
-      </div>
-      
-      <div class="footer-column">
-        <h3>Contact Founder</h3>
-        <p><strong>Direct:</strong> <a href="tel:+447944505783" style="color: #999;">+44 7944 505 783</a></p>
-        <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection#98efeaf7fafad8eefdeafff7f4ecfcb6fbf7f5" style="color: #999;"><span class="__cf_email__" data-cfemail="ec9b9e838e8eac9a899e8b83809888c28f8381">[email&#160;protected]</span></a></p>
-        <p><strong>Location:</strong> London, UK</p>
-      </div>
-    </div>
-    
-    <div class="footer-bottom">
-      <p>&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
-      <p style="margin-top: 5px;">
-        <a href="privacy.html" style="color: #666; text-decoration: none;">Privacy</a> | 
-        <a href="terms.html" style="color: #666; text-decoration: none;">Terms</a>
-      </p>
-    </div>
-  </footer>
-  
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
-  <script src="/vergo-menu.js"></script>
-  <script src="/vergo-utils.js"></script>
+  <footer role="contentinfo"></footer>
+
   <script src="/vergo-nav.js"></script>
   <script src="/vergo-footer.js"></script>
   <script src="/vergo-analytics.js"></script>

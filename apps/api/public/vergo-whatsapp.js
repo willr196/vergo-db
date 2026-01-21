@@ -1,5 +1,5 @@
 /**
- * VERGO Events - WhatsApp Floating Button
+ * VERGO Ltd - WhatsApp Floating Button
  * Add this script to any page to show a WhatsApp contact button
  * 
  * Usage: <script src="/js/vergo-whatsapp.js"></script>
@@ -21,7 +21,7 @@
   // Configuration with defaults
   const config = Object.assign({
     phone: '447000000000', // Replace with your actual WhatsApp number
-    message: 'Hi VERGO Events! I\'d like to enquire about your services.',
+    message: 'Hi VERGO Ltd! I\'d like to enquire about your services.',
     position: 'right',
     offset: 20,
     showAfter: 3000,

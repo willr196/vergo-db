@@ -97,6 +97,26 @@ app.use('/api/v1/user', userAuth);
 // Applications API
 app.use('/api/v1/applications', applications);
 
+// Canonical redirects + legacy cleanup (must be before static)
+app.get(['/apply', '/contact', '/pricing', '/hire-staff'], (req, res) => {
+  res.redirect(301, `${req.path}.html`);
+});
+
+app.get('/hire-us.html', (_req, res) => {
+  res.redirect(301, '/hire-staff.html');
+});
+
+app.get(['/event-management', '/event-management/*'], (_req, res) => {
+  res.redirect(301, '/hire-staff.html');
+});
+
+app.use((req, res, next) => {
+  if (req.path.endsWith('.bak')) {
+    return res.status(404).send('Not found');
+  }
+  return next();
+});
+
 // Redirect root to the home page
 app.get('/', (_, res) => res.redirect('/index.html'));
 

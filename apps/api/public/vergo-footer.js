@@ -1,7 +1,7 @@
 /**
- * VERGO Events - Shared Footer Component
- * Include this script on all pages for consistent footer
- * 
+ * VERGO Ltd - Premium Footer Component
+ * Modern, warm design with gold accents and clear navigation
+ *
  * Usage: Add before </body>:
  *   <script src="/vergo-footer.js"></script>
  */
@@ -10,109 +10,311 @@
   'use strict';
 
   const footerHTML = `
-    <div class="footer-content">
-      <div class="footer-column">
-        <h3>About Us</h3>
-        <p>
-          Premium event staffing solutions founded by industry veterans. Combining 8+ years 
-          of hands-on experience with decades of family business expertise in the film and music sectors.
-        </p>
-        <p style="margin-top: 20px; font-size: 0.85rem; color: #666;">
-          Fully Insured • DBS Checked
-        </p>
+    <div class="footer-inner">
+      <!-- Top section with gold divider -->
+      <div class="footer-divider"></div>
+
+      <div class="footer-content">
+        <!-- Brand Column -->
+        <div class="footer-brand">
+          <a href="/" class="footer-logo" aria-label="VERGO Ltd Home">
+            <img src="/logo.png" alt="VERGO Ltd" width="120" height="auto">
+          </a>
+          <p class="footer-tagline">
+            Premium event staffing for London and surrounding areas. Founder-led vetting. Trusted teams.
+          </p>
+          <div class="footer-roles">
+            Event Chefs &middot; Bar Staff &middot; Front of House &middot; Baristas
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="footer-column">
+          <h3>Services</h3>
+          <ul>
+            <li><a href="/hire-staff.html">Hire Staff</a></li>
+            <li><a href="/pricing.html">Pricing</a></li>
+            <li><a href="/quote.html">Get a Quote</a></li>
+            <li><a href="/jobs.html">Current Jobs</a></li>
+          </ul>
+        </div>
+
+        <!-- Work With Us -->
+        <div class="footer-column">
+          <h3>Work With Us</h3>
+          <ul>
+            <li><a href="/apply.html">Join the Team</a></li>
+            <li><a href="/jobs.html">View Openings</a></li>
+          </ul>
+        </div>
+
+        <!-- Company -->
+        <div class="footer-column">
+          <h3>Company</h3>
+          <ul>
+            <li><a href="/about.html">About VERGO</a></li>
+            <li><a href="/faq.html">FAQ</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Column -->
+        <div class="footer-column footer-contact">
+          <h3>Get in Touch</h3>
+          <a href="mailto:wrobb@vergoltd.com" class="footer-email">wrobb@vergoltd.com</a>
+          <p class="footer-response">Replies within 24 hours</p>
+          <p class="footer-coverage">London & surrounding areas</p>
+        </div>
       </div>
-      
-      <div class="footer-column">
-        <h3>Services</h3>
-        <a href="/hire-staff.html">Event Staffing</a>
-        <a href="/hire-us.html">Event Management</a>
-        <a href="/pricing.html">Pricing</a>
-        <a href="/jobs.html">Job Board</a>
-        <a href="/blog.html">Blog</a>
+
+      <!-- Bottom section -->
+      <div class="footer-bottom">
+        <div class="footer-bottom-content">
+          <p class="footer-copyright">
+            &copy; ${new Date().getFullYear()} VERGO Ltd. All rights reserved.
+          </p>
+          <div class="footer-legal">
+            <a href="/privacy.html">Privacy Policy</a>
+            <span class="footer-separator">&middot;</span>
+            <a href="/terms.html">Terms of Service</a>
+          </div>
+        </div>
       </div>
-      
-      <div class="footer-column">
-        <h3>Company</h3>
-        <a href="/about.html">About Us</a>
-        <a href="/apply.html">Join Our Team</a>
-        <a href="/contact.html">Get a Quote</a>
-        <a href="/faq.html">FAQ</a>
-      </div>
-      
-      <div class="footer-column">
-        <h3>Contact Founder</h3>
-        <p><strong>Direct:</strong> <a href="tel:+447944505783">+44 7944 505 783</a></p>
-        <p><strong>Email:</strong> <a href="mailto:will@vergoltd.com">will@vergoltd.com</a></p>
-        <p><strong>Location:</strong> London, UK</p>
-      </div>
-    </div>
-    
-    <div class="footer-bottom">
-      <p>&copy; ${new Date().getFullYear()} VERGO Events Ltd. All rights reserved.</p>
-      <p style="margin-top: 5px;">
-        <a href="/privacy.html">Privacy</a> | 
-        <a href="/terms.html">Terms</a>
-      </p>
     </div>
   `;
 
   const footerCSS = `
     <style id="vergo-footer-styles">
+      /* Footer Variables */
+      :root {
+        --footer-bg: #FFFFFF;
+        --footer-bg-alt: #FAF8F5;
+        --footer-text: #1C1C1C;
+        --footer-text-muted: #6B6B6B;
+        --footer-text-light: #8A8A8A;
+        --footer-gold: #C9A24D;
+        --footer-border: rgba(28, 28, 28, 0.08);
+        --footer-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+
       footer {
-        background: #0a0a0a;
-        color: #D4AF37;
-        padding: 60px 40px 30px;
-        border-top: 1px solid rgba(212, 175, 55, 0.2);
-        margin-top: 80px;
+        background: var(--footer-bg);
+        color: var(--footer-text);
+        font-family: var(--footer-font);
       }
-      
-      .footer-content {
-        max-width: 1200px;
+
+      .footer-inner {
+        max-width: 1400px;
         margin: 0 auto;
+      }
+
+      /* Gold Divider */
+      .footer-divider {
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          var(--footer-gold) 20%,
+          var(--footer-gold) 80%,
+          transparent 100%
+        );
+        opacity: 0.4;
+      }
+
+      /* Main Content Grid */
+      .footer-content {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 40px;
-        margin-bottom: 40px;
+        grid-template-columns: 1.5fr repeat(4, 1fr);
+        gap: 48px;
+        padding: 60px 48px 48px;
       }
-      
-      .footer-column h3 {
-        color: #D4AF37;
+
+      /* Brand Column */
+      .footer-brand {
+        padding-right: 24px;
+      }
+
+      .footer-logo {
+        display: inline-block;
         margin-bottom: 20px;
-        font-size: 1.1rem;
       }
-      
-      .footer-column p,
-      .footer-column a {
-        color: #999;
-        text-decoration: none;
+
+      .footer-logo img {
+        height: 36px;
+        width: auto;
         display: block;
-        margin-bottom: 10px;
-        font-size: 0.9rem;
+      }
+
+      .footer-tagline {
+        font-size: 0.95rem;
+        color: var(--footer-text-muted);
         line-height: 1.7;
-        transition: color 0.3s ease;
+        margin-bottom: 16px;
       }
-      
-      .footer-column a:hover { color: #D4AF37; }
-      
-      .footer-bottom {
-        text-align: center;
-        padding-top: 30px;
-        border-top: 1px solid rgba(212, 175, 55, 0.2);
-        color: #666;
+
+      .footer-roles {
         font-size: 0.85rem;
+        color: var(--footer-text-light);
+        letter-spacing: 0.01em;
       }
-      
-      .footer-bottom a {
-        color: #666;
+
+      /* Column Styling */
+      .footer-column h3 {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--footer-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 20px;
+      }
+
+      .footer-column ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .footer-column li {
+        margin-bottom: 12px;
+      }
+
+      .footer-column a {
+        color: var(--footer-text-muted);
         text-decoration: none;
-        transition: color 0.3s ease;
+        font-size: 0.9rem;
+        transition: color 0.25s ease;
+        display: inline-block;
       }
-      
-      .footer-bottom a:hover { color: #D4AF37; }
-      
+
+      .footer-column a:hover {
+        color: var(--footer-gold);
+      }
+
+      /* Contact Column */
+      .footer-contact .footer-email {
+        display: block;
+        color: var(--footer-text);
+        font-weight: 500;
+        font-size: 0.95rem;
+        margin-bottom: 12px;
+      }
+
+      .footer-contact .footer-email:hover {
+        color: var(--footer-gold);
+      }
+
+      .footer-contact .footer-response,
+      .footer-contact .footer-coverage {
+        font-size: 0.85rem;
+        color: var(--footer-text-light);
+        margin: 0 0 6px 0;
+      }
+
+      /* Bottom Section */
+      .footer-bottom {
+        background: var(--footer-bg-alt);
+        padding: 24px 48px;
+        border-top: 1px solid var(--footer-border);
+      }
+
+      .footer-bottom-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .footer-copyright {
+        font-size: 0.85rem;
+        color: var(--footer-text-muted);
+        margin: 0;
+      }
+
+      .footer-legal {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .footer-legal a {
+        color: var(--footer-text-muted);
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: color 0.25s ease;
+      }
+
+      .footer-legal a:hover {
+        color: var(--footer-gold);
+      }
+
+      .footer-separator {
+        color: var(--footer-text-light);
+      }
+
+      /* Responsive */
+      @media (max-width: 1024px) {
+        .footer-content {
+          grid-template-columns: 1fr 1fr;
+          gap: 40px;
+          padding: 48px 32px 40px;
+        }
+
+        .footer-brand {
+          grid-column: 1 / -1;
+          padding-right: 0;
+          text-align: center;
+        }
+
+        .footer-logo {
+          margin-bottom: 16px;
+        }
+
+        .footer-bottom {
+          padding: 20px 32px;
+        }
+      }
+
       @media (max-width: 768px) {
-        footer { padding: 40px 20px 25px; }
-        .footer-content { gap: 30px; }
+        .footer-content {
+          grid-template-columns: 1fr;
+          gap: 32px;
+          padding: 40px 24px;
+          text-align: center;
+        }
+
+        .footer-column h3 {
+          margin-bottom: 16px;
+        }
+
+        .footer-column li {
+          margin-bottom: 10px;
+        }
+
+        .footer-bottom {
+          padding: 20px 24px;
+        }
+
+        .footer-bottom-content {
+          flex-direction: column;
+          gap: 12px;
+          text-align: center;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .footer-content {
+          padding: 32px 20px;
+        }
+
+        .footer-bottom {
+          padding: 16px 20px;
+        }
+
+        .footer-legal {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
       }
     </style>
   `;

@@ -1,5 +1,5 @@
-# VERGO Events - robots.txt
-# https://vergoevents.com/robots.txt
+# VERGO Ltd - robots.txt
+# https://vergoltd.com/robots.txt
 
 User-agent: *
 Allow: /
@@ -19,7 +19,7 @@ Disallow: /reset-password.html
 Disallow: /forgot-password.html
 
 # Sitemap location
-Sitemap: https://vergoevents.com/sitemap.xml
+Sitemap: https://vergoltd.com/sitemap.xml
 
 # Crawl-delay (optional - be nice to server)
 Crawl-delay: 1

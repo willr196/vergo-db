@@ -1,5 +1,5 @@
 {
-  "name": "VERGO Events - Premium Event Staffing",
+  "name": "VERGO Ltd - Premium Event Staffing",
   "short_name": "VERGO",
   "description": "London's premium event staffing agency. Professional bartenders, waiters, and event staff.",
   "start_url": "/",
@@ -89,7 +89,7 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "VERGO Events Homepage"
+      "label": "VERGO Ltd Homepage"
     },
     {
       "src": "/images/screenshots/jobs.png",

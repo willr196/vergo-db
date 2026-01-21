@@ -3,560 +3,345 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FAQ - VERGO Staffing</title>
-  <meta name="description" content="Frequently asked questions about VERGO Staffing services. Learn about hiring staff, joining our team, pricing, and how our hospitality staffing works.">
+  <title>FAQ | VERGO Ltd</title>
+  <meta name="description" content="Answers to common questions about hiring event staff and joining the VERGO Ltd team in London & surrounding areas.">
+  <link rel="canonical" href="https://vergoltd.com/faq.html">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="FAQ | VERGO Ltd">
+  <meta property="og:description" content="Answers to common questions about event staffing and our onboarding process.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://vergoltd.com/faq.html">
+  <meta property="og:image" content="https://vergoltd.com/logo.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-styles.css">
   <link rel="stylesheet" href="/vergo-mobile.css">
 
   <style>
-    /* Header Styles */
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: rgba(10, 10, 10, 0.98);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-      padding: 15px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 1000;
-    }
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-    }
-    
-    .logo img {
-      height: 45px;
-      width: auto;
-      transition: transform 0.3s ease;
-      border: none !important;
-      background: transparent !important;
-      display: block;
-    }
-    
-    .logo:hover img {
-      transform: scale(1.05);
-    }
-    
-    nav ul {
-      display: flex;
-      gap: 30px;
-      list-style: none;
+    * {
       margin: 0;
       padding: 0;
-    }
-    
-    nav a {
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
-      position: relative;
-      display: block;
-      padding: 8px 0;
-    }
-    
-    nav a::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: #D4AF37;
-      transition: width 0.3s ease;
-    }
-    
-    nav a:hover {
-      color: #D4AF37;
-    }
-    
-    nav a:hover::after {
-      width: 100%;
-    }
-    
-    nav a[aria-current="page"] {
-      color: #D4AF37;
-    }
-    
-    nav a[aria-current="page"]::after {
-      width: 100%;
+      box-sizing: border-box;
     }
 
-    .menu-toggle {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 5px;
-    }
-    
-    .menu-toggle span {
-      width: 25px;
-      height: 2px;
-      background: #fff;
-      transition: all 0.3s ease;
+    :root {
+      --color-gold: #B8962E;
+      --color-text: #1a1a1a;
+      --color-text-muted: #666;
+      --color-bg: #ffffff;
+      --color-bg-warm: #f8f7f5;
+      --color-border: rgba(0, 0, 0, 0.08);
+      --font-primary: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
-    /* Page Content */
+    body {
+      font-family: var(--font-primary);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+    }
+
+    .page-header {
+      padding: 140px 40px 60px;
+      text-align: center;
+      background: var(--color-bg-warm);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .page-header h1 {
+      font-size: 2.6rem;
+      margin-bottom: 12px;
+    }
+
+    .page-header p {
+      color: var(--color-text-muted);
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
     .container {
       max-width: 900px;
       margin: 0 auto;
-      padding: 120px 20px 60px;
-    }
-    
-    .back-link {
-      color: #D4AF37;
-      text-decoration: none;
-      font-size: 0.9rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 30px;
-    }
-    
-    .back-link:hover {
-      text-decoration: underline;
-    }
-    
-    .back-link::before {
-      content: '←';
-    }
-    
-    .page-header {
-      text-align: center;
-      margin-bottom: 50px;
-    }
-    
-    .page-header h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.5rem;
-      color: #fff;
-      margin-bottom: 15px;
-    }
-    
-    .page-header p {
-      color: #999;
-      font-size: 1.1rem;
+      padding: 60px 40px 80px;
     }
 
-    /* FAQ Styles */
     .faq-section {
-      margin-bottom: 40px;
+      margin-bottom: 50px;
     }
-    
+
     .faq-section h2 {
-      color: #D4AF37;
-      font-size: 1.3rem;
+      font-size: 1.6rem;
       margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
     }
-    
+
+    .faq-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
     .faq-item {
-      background: rgba(20, 20, 20, 0.8);
-      border: 1px solid rgba(212, 175, 55, 0.2);
-      border-radius: 8px;
-      margin-bottom: 15px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
       overflow: hidden;
+      background: var(--color-bg);
     }
-    
+
     .faq-question {
       width: 100%;
-      padding: 20px;
-      background: none;
+      padding: 18px 22px;
       border: none;
-      color: #fff;
+      background: none;
+      text-align: left;
       font-size: 1rem;
       font-weight: 600;
-      text-align: left;
       cursor: pointer;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      transition: all 0.3s ease;
+      justify-content: space-between;
+      color: var(--color-text);
+      transition: background 0.3s ease;
     }
-    
+
     .faq-question:hover {
-      background: rgba(212, 175, 55, 0.1);
+      background: var(--color-bg-warm);
     }
-    
+
     .faq-question::after {
       content: '+';
-      font-size: 1.5rem;
-      color: #D4AF37;
+      font-size: 1.3rem;
+      color: var(--color-gold);
       transition: transform 0.3s ease;
     }
-    
+
     .faq-item.active .faq-question::after {
       transform: rotate(45deg);
     }
-    
+
     .faq-answer {
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s ease;
     }
-    
+
     .faq-item.active .faq-answer {
-      max-height: 500px;
-    }
-    
-    .faq-answer-content {
-      padding: 0 20px 20px;
-      color: #ccc;
-      line-height: 1.7;
-    }
-    
-    .faq-answer-content a {
-      color: #D4AF37;
+      max-height: 260px;
     }
 
-    /* Contact CTA */
-    .contact-cta {
-      background: rgba(212, 175, 55, 0.1);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      border-radius: 12px;
-      padding: 40px;
+    .faq-answer-content {
+      padding: 0 22px 18px;
+      color: var(--color-text-muted);
+    }
+
+    .cta-panel {
+      margin-top: 60px;
+      padding: 36px;
       text-align: center;
-      margin-top: 50px;
-    }
-    
-    .contact-cta h2 {
-      color: #fff;
-      margin-bottom: 15px;
-    }
-    
-    .contact-cta p {
-      color: #999;
-      margin-bottom: 25px;
-    }
-    
-    .contact-cta .btn {
-      display: inline-block;
-      padding: 14px 30px;
-      background: #D4AF37;
-      color: #0a0a0a;
-      text-decoration: none;
+      border: 1px solid var(--color-border);
       border-radius: 6px;
+      background: var(--color-bg-warm);
+    }
+
+    .cta-panel h2 {
+      font-size: 1.6rem;
+      margin-bottom: 12px;
+    }
+
+    .cta-panel p {
+      color: var(--color-text-muted);
+      margin-bottom: 24px;
+    }
+
+    .cta-button {
+      display: inline-block;
+      padding: 14px 32px;
+      background: var(--color-gold);
+      color: var(--color-text);
+      text-decoration: none;
       font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: 4px;
       transition: all 0.3s ease;
     }
-    
-    .contact-cta .btn:hover {
-      background: #e5c349;
+
+    .cta-button:hover {
+      background: var(--color-text);
+      color: #ffffff;
       transform: translateY(-2px);
     }
 
-    /* Footer */
-    footer {
-      background: #0a0a0a;
-      color: #666;
-      padding: 30px;
-      text-align: center;
-      border-top: 1px solid rgba(212, 175, 55, 0.2);
-      font-size: 0.85rem;
-    }
-    
-    footer a {
-      color: #D4AF37;
-      text-decoration: none;
-    }
-
-    /* Responsive */
     @media (max-width: 768px) {
-      header {
-        padding: 15px 20px;
+      .page-header {
+        padding: 120px 20px 40px;
       }
-      
-      nav ul {
-        position: fixed;
-        top: 70px;
-        left: 0;
-        right: 0;
-        background: rgba(10, 10, 10, 0.98);
-        flex-direction: column;
-        padding: 20px;
-        gap: 15px;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-      }
-      
-      nav ul.active {
-        transform: translateX(0);
-      }
-      
-      .menu-toggle {
-        display: flex;
-      }
-      
-      .container {
-        padding: 100px 15px 40px;
-      }
-      
+
       .page-header h1 {
-        font-size: 1.8rem;
+        font-size: 2rem;
+      }
+
+      .container {
+        padding: 50px 20px 70px;
       }
     }
   </style>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
-  
-  <header role="banner">
-    <a href="index.html" class="logo" aria-label="VERGO Staffing Home">
-      <img src="/logo.png" alt="VERGO Staffing Logo">
-    </a>
-    
-    <button class="menu-toggle" onclick="toggleMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-    
-    <nav role="navigation" aria-label="Main navigation">
-      <ul id="nav-menu">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="hire-staff.html">Hire Staff</a></li>
-        <li><a href="jobs.html">Job Board</a></li>
-        <li><a href="apply.html">Join VERGO</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="faq.html" aria-current="page">FAQ</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
-  
-  <main id="main-content" class="container">
-    <a href="index.html" class="back-link">Back to Home</a>
-    
+  <header></header>
+
+  <main id="main-content">
     <div class="page-header">
       <h1>Frequently Asked Questions</h1>
-      <p>Everything you need to know about working with VERGO Staffing</p>
+      <p>Clear answers for clients and staff working with VERGO Ltd.</p>
     </div>
-    
-    <!-- For Clients -->
-    <section class="faq-section">
-      <h2>For Clients</h2>
-      
-      <div class="faq-item">
-        <button class="faq-question" onclick="toggleFAQ(this)">
-          How does VERGO's staffing service work?
-        </button>
-        <div class="faq-answer">
-          <div class="faq-answer-content">
-            Simply tell us your requirements through our <a href="hire-staff.html">Hire Staff</a> page or contact us directly. We'll match you with vetted, experienced hospitality professionals from our roster. All our staff are personally interviewed and background-checked before being added to our team.
+
+    <div class="container">
+      <section class="faq-section">
+        <h2>For Clients</h2>
+        <div class="faq-grid">
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">What does VERGO Ltd do?</button>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                We provide event staffing only. Our team supplies event chefs, bar staff, front of house, and baristas for events across London & surrounding areas.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">How is my booking confirmed?</button>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                Once details are agreed, your booking is confirmed in writing with staff roles, timings, and clear next steps.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">When will I receive a response?</button>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                We reply within 24 hours with availability and pricing based on your event details.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">When is invoicing handled?</button>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                No upfront payment. An invoice is issued after the event, based on the confirmed hours and roles delivered.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">Can I make changes after booking?</button>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                Yes. Changes are handled case-by-case and confirmed based on availability.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">What happens if an issue arises?</button>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                We provide best-effort replacement support and handle each situation case-by-case with clear communication.
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div class="faq-item">
-        <button class="faq-question" onclick="toggleFAQ(this)">
-          What types of staff can you provide?
-        </button>
-        <div class="faq-answer">
-          <div class="faq-answer-content">
-            We provide experienced bartenders, waiters/waitresses, kitchen staff, barbacks, hosts, and general hospitality workers. All staff come with relevant experience in London's hospitality scene and can adapt to various venue types from casual bars to fine dining.
+      </section>
+
+      <section class="faq-section">
+        <h2>For Staff</h2>
+        <div class="faq-grid">
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">How do I join the team?</button>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                Apply via the Join the Team page. If there is a fit, we arrange an interview and confirm next steps.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">What is the onboarding process?</button>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                The process includes an interview, right-to-work checks, standards briefing, and training if experience is limited.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">Do I need experience?</button>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                Experience is preferred but not mandatory. A professional attitude and reliability are essential.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">Where are roles based?</button>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                Shifts are across London & surrounding areas, with locations confirmed in advance of each booking.
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div class="faq-item">
-        <button class="faq-question" onclick="toggleFAQ(this)">
-          How much notice do you need?
-        </button>
-        <div class="faq-answer">
-          <div class="faq-answer-content">
-            While we recommend booking at least 48-72 hours in advance for best availability, we understand hospitality moves fast. We can often accommodate last-minute requests depending on staff availability. Contact us and we'll do our best.
+      </section>
+
+      <section class="faq-section">
+        <h2>Coverage</h2>
+        <div class="faq-grid">
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">What areas do you cover?</button>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                We cover London & surrounding areas, including Greater London and nearby counties.
+              </div>
+            </div>
           </div>
         </div>
+      </section>
+
+      <div class="cta-panel">
+        <h2>Need more detail?</h2>
+        <p>Share your event details and we will respond within 24 hours.</p>
+        <a href="/contact.html" class="cta-button">Get a Quote</a>
       </div>
-      
-      <div class="faq-item">
-        <button class="faq-question" onclick="toggleFAQ(this)">
-          What are your rates?
-        </button>
-        <div class="faq-answer">
-          <div class="faq-answer-content">
-            Our rates start from competitive industry standards and vary based on the role, event type, and duration. We offer volume discounts for larger bookings and ongoing partnerships. <a href="contact.html">Contact us</a> for a personalised quote.
-          </div>
-        </div>
-      </div>
-      
-      <div class="faq-item">
-        <button class="faq-question" onclick="toggleFAQ(this)">
-          What if staff don't show up or underperform?
-        </button>
-        <div class="faq-answer">
-          <div class="faq-answer-content">
-            Reliability is our top priority. Every staff member is personally vetted and we maintain active communication before every shift. In the rare event of issues, we have contingency plans in place and will work to find immediate replacements or provide appropriate compensation.
-          </div>
-        </div>
-      </div>
-    </section>
-    
-    <!-- For Staff -->
-    <section class="faq-section">
-      <h2>For Staff</h2>
-      
-      <div class="faq-item">
-        <button class="faq-question" onclick="toggleFAQ(this)">
-          How do I join VERGO's roster?
-        </button>
-        <div class="faq-answer">
-          <div class="faq-answer-content">
-            Apply through our <a href="apply.html">Join VERGO</a> page. Submit your details and experience, and we'll review your application. Suitable candidates will be invited for a brief interview. We're looking for reliable professionals with genuine hospitality experience.
-          </div>
-        </div>
-      </div>
-      
-      <div class="faq-item">
-        <button class="faq-question" onclick="toggleFAQ(this)">
-          What experience do I need?
-        </button>
-        <div class="faq-answer">
-          <div class="faq-answer-content">
-            We require a minimum of 1 year's experience in hospitality roles. This could be bar work, waiting, kitchen experience, or similar. We value reliability and professionalism as much as technical skills. Relevant certifications (food hygiene, personal licence) are a plus.
-          </div>
-        </div>
-      </div>
-      
-      <div class="faq-item">
-        <button class="faq-question" onclick="toggleFAQ(this)">
-          How do I get shifts?
-        </button>
-        <div class="faq-answer">
-          <div class="faq-answer-content">
-            Once on our roster, you'll receive shift notifications based on your availability and skills. You can accept or decline shifts as they suit you - there's no minimum commitment. The more reliable you are, the more opportunities you'll receive.
-          </div>
-        </div>
-      </div>
-      
-      <div class="faq-item">
-        <button class="faq-question" onclick="toggleFAQ(this)">
-          When and how do I get paid?
-        </button>
-        <div class="faq-answer">
-          <div class="faq-answer-content">
-            We pay weekly via bank transfer for all completed shifts. Rates are competitive and clearly communicated before you accept any shift. You'll receive a breakdown of your hours and earnings with each payment.
-          </div>
-        </div>
-      </div>
-      
-      <div class="faq-item">
-        <button class="faq-question" onclick="toggleFAQ(this)">
-          Do I need a DBS check?
-        </button>
-        <div class="faq-answer">
-          <div class="faq-answer-content">
-            For most roles, a DBS check is not mandatory but may be required for certain venues or corporate clients. If needed, we can guide you through the process. Having an existing DBS certificate is always advantageous.
-          </div>
-        </div>
-      </div>
-    </section>
-    
-    <!-- General -->
-    <section class="faq-section">
-      <h2>General</h2>
-      
-      <div class="faq-item">
-        <button class="faq-question" onclick="toggleFAQ(this)">
-          Where does VERGO operate?
-        </button>
-        <div class="faq-answer">
-          <div class="faq-answer-content">
-            We're based in London and primarily serve venues and events across Greater London. We're expanding our coverage, so if you're just outside our current area, get in touch - we may still be able to help.
-          </div>
-        </div>
-      </div>
-      
-      <div class="faq-item">
-        <button class="faq-question" onclick="toggleFAQ(this)">
-          What makes VERGO different from other agencies?
-        </button>
-        <div class="faq-answer">
-          <div class="faq-answer-content">
-            Our founder has 8+ years of hands-on hospitality experience. Every team member is personally vetted - we don't just match CVs, we know our people. We focus on quality over quantity, building a reliable network of professionals rather than a faceless database.
-          </div>
-        </div>
-      </div>
-      
-      <div class="faq-item">
-        <button class="faq-question" onclick="toggleFAQ(this)">
-          How can I contact VERGO?
-        </button>
-        <div class="faq-answer">
-          <div class="faq-answer-content">
-            Visit our <a href="contact.html">Contact page</a> to send us a message, or reach out directly via email or phone. We aim to respond to all enquiries within 24 hours during business days.
-          </div>
-        </div>
-      </div>
-    </section>
-    
-    <div class="contact-cta">
-      <h2>Still have questions?</h2>
-      <p>We're here to help. Get in touch and we'll get back to you as soon as possible.</p>
-      <a href="contact.html" class="btn">Contact Us</a>
     </div>
   </main>
-  
-  <footer>
-    <p>&copy; 2025 VERGO Staffing Ltd. All rights reserved.</p>
-    <p><a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Service</a></p>
-  </footer>
-  
+
+  <footer role="contentinfo"></footer>
+
+  <script src="/vergo-nav.js"></script>
+  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-analytics.js"></script>
   <script>
-    function toggleMenu() {
-      const navMenu = document.getElementById('nav-menu');
-      const menuToggle = document.querySelector('.menu-toggle');
-      
-      if (navMenu && menuToggle) {
-        const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
-        menuToggle.setAttribute('aria-expanded', !isExpanded);
-        navMenu.classList.toggle('active');
-      }
-    }
-    
     function toggleFAQ(button) {
       const item = button.closest('.faq-item');
       const wasActive = item.classList.contains('active');
-      
-      // Close all other items
+
       document.querySelectorAll('.faq-item.active').forEach(el => {
         el.classList.remove('active');
       });
-      
-      // Toggle clicked item
+
       if (!wasActive) {
         item.classList.add('active');
       }
     }
-    
-    // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-      const navMenu = document.getElementById('nav-menu');
-      const menuToggle = document.querySelector('.menu-toggle');
-      
-      if (navMenu && menuToggle) {
-        if (!e.target.closest('nav') && !e.target.closest('.menu-toggle')) {
-          navMenu.classList.remove('active');
-          menuToggle.setAttribute('aria-expanded', 'false');
-        }
-      }
-    });
   </script>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
 </body>
 </html>

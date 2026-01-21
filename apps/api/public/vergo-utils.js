@@ -1,5 +1,5 @@
 /**
- * VERGO Events - JavaScript Utilities
+ * VERGO Ltd - JavaScript Utilities
  * Security, Form Handling, and Enhanced Features
  * Version: 2.0
  */

@@ -1,5 +1,5 @@
 /**
- * VERGO Events - Google Analytics 4 Integration
+ * VERGO Ltd - Google Analytics 4 Integration
  * 
  * SETUP:
  * 1. Replace 'G-XXXXXXXXXX' below with your actual GA4 Measurement ID

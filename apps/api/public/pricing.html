@@ -3,1022 +3,587 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pricing - VERGO Events | Premium Event Staffing London</title>
-  <meta name="description" content="Transparent event staffing rates in London. Bartenders, waiters, chefs from £18/hr. Volume discounts available. All rates include travel, insurance & vetting.">
-  <link rel="icon" type="image/png" href="/favicon.png">
+  <title>Pricing | VERGO Ltd - Event Staff London</title>
+  <meta name="description" content="Transparent event staffing rates in London & surrounding areas. Event chefs, bar staff, front of house, baristas. Invoice issued after event.">
+  <link rel="icon" type="image/png" href="/logo-small.png">
   <link rel="canonical" href="https://vergoltd.com/pricing.html">
+
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/vergo-styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/vergo-a11y.css">
   <link rel="stylesheet" href="/vergo-mobile.css">
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    /* Header */
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 40px;
-      background: rgba(10, 10, 10, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    
-    .logo img { height: 40px; }
-    
-    nav ul {
-      display: flex;
-      list-style: none;
-      gap: 30px;
+
+    :root {
+      --color-gold: #B8962E;
+      --color-text: #1a1a1a;
+      --color-text-muted: #666;
+      --color-bg: #ffffff;
+      --color-bg-warm: #f8f7f5;
+      --color-border: rgba(0, 0, 0, 0.08);
+      --font-primary: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
-    
-    nav a {
-      color: #fff;
-      text-decoration: none;
-      font-size: 0.95rem;
-      transition: color 0.3s;
+
+    body {
+      font-family: var(--font-primary);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
     }
-    
-    nav a:hover { color: #D4AF37; }
-    
-    /* Hero */
-    .page-hero {
-      padding: 160px 40px 80px;
+
+    /* Page Header */
+    .page-header {
+      padding: 140px 40px 60px;
       text-align: center;
-      background: linear-gradient(135deg, #0f0f0f 0%, #1a1410 50%, #0a0a0a 100%);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      background: var(--color-bg-warm);
+      border-bottom: 1px solid var(--color-border);
     }
-    
-    .hero-badge {
-      display: inline-block;
-      background: rgba(212, 175, 55, 0.1);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      color: #D4AF37;
-      padding: 8px 20px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 20px;
-    }
-    
-    .page-hero h1 {
-      font-size: 3.5rem;
-      margin-bottom: 20px;
-      color: #D4AF37;
+
+    .page-header h1 {
+      font-size: 2.5rem;
+      color: var(--color-text);
+      margin-bottom: 12px;
       font-weight: 700;
     }
-    
-    .page-hero p {
-      font-size: 1.2rem;
-      color: #999;
-      max-width: 700px;
-      margin: 0 auto;
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 80px 40px;
-    }
-    
-    /* What's Included Banner */
-    .included-banner {
-      background: rgba(212, 175, 55, 0.08);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      border-radius: 12px;
-      padding: 30px 40px;
-      margin-bottom: 60px;
-      text-align: center;
-    }
-    
-    .included-banner h3 {
-      color: #D4AF37;
+
+    .page-header p {
       font-size: 1.1rem;
-      margin-bottom: 15px;
+      color: var(--color-text-muted);
+      max-width: 600px;
+      margin: 0 auto;
     }
-    
+
+    /* Container */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 60px 40px;
+    }
+
+    /* What's Included */
+    .included-banner {
+      background: var(--color-bg-warm);
+      border-left: 3px solid var(--color-gold);
+      padding: 24px 30px;
+      margin-bottom: 50px;
+    }
+
+    .included-banner h3 {
+      font-size: 0.9rem;
+      color: var(--color-text);
+      margin-bottom: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
     .included-items {
       display: flex;
-      justify-content: center;
-      gap: 40px;
+      gap: 30px;
       flex-wrap: wrap;
     }
-    
+
     .included-item {
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #ccc;
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+    }
+
+    .included-item span {
+      color: var(--color-gold);
+    }
+
+    /* Section Styles */
+    .section-header {
+      margin-bottom: 30px;
+    }
+
+    .section-header h2 {
+      font-size: 1.5rem;
+      color: var(--color-text);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .section-header p {
+      color: var(--color-text-muted);
       font-size: 0.95rem;
     }
-    
-    .included-item span {
-      color: #D4AF37;
-    }
-    
-    /* Volume Tiers Section */
-    .tiers-section {
-      margin-bottom: 80px;
-    }
-    
-    .section-header {
-      text-align: center;
-      margin-bottom: 50px;
-    }
-    
-    .section-header h2 {
-      font-size: 2.5rem;
-      color: #D4AF37;
-      margin-bottom: 15px;
-    }
-    
-    .section-header p {
-      color: #999;
-      font-size: 1.1rem;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    
-    .tiers-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 25px;
-    }
-    
-    @media (max-width: 900px) {
-      .tiers-grid { grid-template-columns: 1fr; }
-    }
-    
-    .tier-card {
-      background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
-      border: 1px solid rgba(212, 175, 55, 0.2);
-      border-radius: 12px;
-      padding: 35px 30px;
-      text-align: center;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-    
-    .tier-card:hover {
-      transform: translateY(-5px);
-      border-color: rgba(212, 175, 55, 0.5);
-      box-shadow: 0 10px 40px rgba(212, 175, 55, 0.1);
-    }
-    
-    .tier-card.featured {
-      border-color: #D4AF37;
-      background: linear-gradient(135deg, #1f1a10 0%, #1a1a1a 100%);
-    }
-    
-    .tier-card.featured::before {
-      content: 'MOST POPULAR';
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #D4AF37;
-      color: #0a0a0a;
-      padding: 5px 15px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-    
-    .tier-name {
-      font-size: 1.4rem;
-      color: #D4AF37;
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
-    
-    .tier-hours {
-      color: #666;
-      font-size: 0.9rem;
-      margin-bottom: 25px;
-    }
-    
-    .tier-price {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 5px;
-    }
-    
-    .tier-price span {
-      font-size: 1rem;
-      font-weight: 400;
-      color: #999;
-    }
-    
-    .tier-savings {
-      color: #28a745;
-      font-size: 0.9rem;
-      margin-bottom: 25px;
-      min-height: 22px;
-    }
-    
-    .tier-features {
-      list-style: none;
-      margin-bottom: 30px;
-      text-align: left;
-    }
-    
-    .tier-features li {
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      color: #ccc;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .tier-features li:last-child {
-      border-bottom: none;
-    }
-    
-    .tier-features li::before {
-      content: '✓';
-      color: #D4AF37;
-      font-weight: bold;
-    }
-    
-    .tier-cta {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #D4AF37 0%, #c9a032 100%);
-      border: none;
-      border-radius: 6px;
-      color: #0a0a0a;
-      font-size: 1rem;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    
-    .tier-cta:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
-    }
-    
-    .tier-cta.secondary {
-      background: transparent;
-      border: 2px solid #D4AF37;
-      color: #D4AF37;
-    }
-    
-    .tier-cta.secondary:hover {
-      background: rgba(212, 175, 55, 0.1);
-    }
-    
-    /* Roles Section */
+
+    /* Roles Grid */
     .roles-section {
-      margin-bottom: 80px;
+      margin-bottom: 60px;
     }
-    
+
     .roles-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 25px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
     }
-    
+
     .role-card {
-      background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
-      border: 1px solid rgba(212, 175, 55, 0.2);
-      border-radius: 12px;
-      padding: 30px;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 28px;
       transition: all 0.3s ease;
     }
-    
+
     .role-card:hover {
-      transform: translateY(-5px);
-      border-color: rgba(212, 175, 55, 0.5);
-      box-shadow: 0 10px 40px rgba(212, 175, 55, 0.1);
+      border-color: var(--color-gold);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     }
-    
+
     .role-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
-    
+
     .role-name {
-      font-size: 1.3rem;
-      color: #D4AF37;
+      font-size: 1.1rem;
+      color: var(--color-text);
       font-weight: 600;
     }
-    
+
     .role-rate {
       text-align: right;
     }
-    
+
     .role-rate .from {
-      font-size: 0.8rem;
-      color: #666;
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
       display: block;
     }
-    
+
     .role-rate .price {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 700;
-      color: #fff;
+      color: var(--color-text);
     }
-    
+
     .role-rate .unit {
       font-size: 0.85rem;
-      color: #999;
+      color: var(--color-text-muted);
     }
-    
+
     .role-description {
-      color: #999;
+      color: var(--color-text-muted);
       font-size: 0.9rem;
-      margin-bottom: 20px;
-      line-height: 1.6;
+      line-height: 1.5;
     }
-    
-    .role-features {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-    
-    .role-feature {
-      background: rgba(212, 175, 55, 0.1);
-      border: 1px solid rgba(212, 175, 55, 0.2);
-      color: #D4AF37;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-    }
-    
-    .role-cta {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      background: transparent;
-      border: 1px solid #D4AF37;
-      border-radius: 6px;
-      color: #D4AF37;
-      font-size: 0.9rem;
-      font-weight: 600;
-      text-decoration: none;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    
-    .role-cta:hover {
-      background: rgba(212, 175, 55, 0.1);
-    }
-    
-    /* Calculator Section */
-    .calculator-section {
-      background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      border-radius: 16px;
+
+    /* How It Works */
+    .how-section {
+      background: var(--color-bg-warm);
       padding: 50px;
-      margin-bottom: 80px;
-    }
-    
-    .calculator-header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-    
-    .calculator-header h2 {
-      font-size: 2rem;
-      color: #D4AF37;
-      margin-bottom: 10px;
-    }
-    
-    .calculator-header p {
-      color: #999;
-    }
-    
-    .calc-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
-    }
-    
-    @media (max-width: 768px) {
-      .calc-grid { grid-template-columns: 1fr; }
-      .calculator-section { padding: 30px 20px; }
-    }
-    
-    .calc-inputs {
-      display: flex;
-      flex-direction: column;
-      gap: 25px;
-    }
-    
-    .calc-group label {
-      display: block;
-      color: #ccc;
-      margin-bottom: 8px;
-      font-size: 0.9rem;
-    }
-    
-    .calc-group select,
-    .calc-group input {
-      width: 100%;
-      padding: 14px;
-      background: #0a0a0a;
-      border: 1px solid #333;
       border-radius: 6px;
-      color: #fff;
-      font-size: 1rem;
+      margin-bottom: 60px;
     }
-    
-    .calc-group select:focus,
-    .calc-group input:focus {
-      outline: none;
-      border-color: #D4AF37;
-    }
-    
-    .calc-result {
-      background: rgba(212, 175, 55, 0.05);
-      border: 1px solid rgba(212, 175, 55, 0.2);
-      border-radius: 12px;
-      padding: 30px;
-      text-align: center;
-    }
-    
-    .calc-result h3 {
-      color: #999;
-      font-size: 1rem;
-      margin-bottom: 15px;
-    }
-    
-    .calc-total {
-      font-size: 3rem;
-      font-weight: 700;
-      color: #D4AF37;
-      margin-bottom: 10px;
-    }
-    
-    .calc-breakdown {
-      color: #666;
-      font-size: 0.9rem;
-      margin-bottom: 25px;
-    }
-    
-    .calc-tier-badge {
-      display: inline-block;
-      background: rgba(40, 167, 69, 0.2);
-      border: 1px solid #28a745;
-      color: #28a745;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      margin-bottom: 25px;
-    }
-    
-    .calc-cta {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #D4AF37 0%, #c9a032 100%);
-      border: none;
-      border-radius: 6px;
-      color: #0a0a0a;
-      font-size: 1rem;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    
-    .calc-cta:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
-    }
-    
-    /* Enterprise CTA */
-    .enterprise-section {
-      background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      border-radius: 16px;
-      padding: 60px;
-      text-align: center;
-      margin-bottom: 80px;
-    }
-    
-    .enterprise-section h2 {
-      font-size: 2rem;
-      color: #D4AF37;
-      margin-bottom: 15px;
-    }
-    
-    .enterprise-section p {
-      color: #999;
-      font-size: 1.1rem;
-      max-width: 600px;
-      margin: 0 auto 30px;
-    }
-    
-    .enterprise-benefits {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      flex-wrap: wrap;
+
+    .how-section h2 {
+      font-size: 1.3rem;
+      color: var(--color-text);
       margin-bottom: 30px;
-    }
-    
-    .enterprise-benefit {
-      color: #ccc;
-      font-size: 0.95rem;
-    }
-    
-    .enterprise-benefit span {
-      color: #D4AF37;
-      margin-right: 8px;
-    }
-    
-    .enterprise-cta {
-      display: inline-block;
-      padding: 16px 40px;
-      background: linear-gradient(135deg, #D4AF37 0%, #c9a032 100%);
-      border: none;
-      border-radius: 6px;
-      color: #0a0a0a;
-      font-size: 1.1rem;
       font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.3s;
+      text-align: center;
     }
-    
-    .enterprise-cta:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 25px rgba(212, 175, 55, 0.3);
+
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
     }
-    
+
+    .how-step {
+      text-align: center;
+    }
+
+    .how-step-number {
+      width: 40px;
+      height: 40px;
+      background: var(--color-bg);
+      border: 2px solid var(--color-gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-gold);
+      margin: 0 auto 16px;
+    }
+
+    .how-step h3 {
+      font-size: 1rem;
+      color: var(--color-text);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .how-step p {
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+    }
+
     /* FAQ Section */
     .faq-section {
-      margin-bottom: 80px;
+      margin-bottom: 60px;
     }
-    
+
     .faq-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
-    
-    @media (max-width: 768px) {
-      .faq-grid { grid-template-columns: 1fr; }
-    }
-    
+
     .faq-item {
-      background: #1a1a1a;
-      border-left: 4px solid #D4AF37;
-      border-radius: 8px;
-      padding: 25px;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      overflow: hidden;
     }
-    
-    .faq-item h3 {
-      color: #D4AF37;
-      font-size: 1.1rem;
-      margin-bottom: 10px;
+
+    .faq-question {
+      width: 100%;
+      padding: 20px 24px;
+      background: none;
+      border: none;
+      color: var(--color-text);
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s ease;
+      font-family: var(--font-primary);
     }
-    
-    .faq-item p {
-      color: #999;
+
+    .faq-question:hover {
+      background: var(--color-bg-warm);
+    }
+
+    .faq-question::after {
+      content: '+';
+      font-size: 1.3rem;
+      color: var(--color-gold);
+      transition: transform 0.3s ease;
+    }
+
+    .faq-item.active .faq-question::after {
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .faq-item.active .faq-answer {
+      max-height: 200px;
+    }
+
+    .faq-answer-content {
+      padding: 0 24px 20px;
+      color: var(--color-text-muted);
+      line-height: 1.7;
       font-size: 0.95rem;
-      line-height: 1.6;
     }
-    
-    /* Footer */
-    footer {
-      background: #0a0a0a;
-      border-top: 1px solid rgba(212, 175, 55, 0.2);
-      padding: 40px;
+
+    /* CTA Section */
+    .cta-section {
       text-align: center;
+      padding: 50px;
+      background: var(--color-bg-warm);
+      border-radius: 6px;
     }
-    
-    .footer-links {
-      margin-bottom: 20px;
+
+    .cta-section h2 {
+      font-size: 1.5rem;
+      color: var(--color-text);
+      margin-bottom: 12px;
+      font-weight: 600;
     }
-    
-    .footer-links a {
-      color: #999;
+
+    .cta-section p {
+      color: var(--color-text-muted);
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+    }
+
+    .cta-button {
+      display: inline-block;
+      padding: 14px 32px;
+      background: var(--color-gold);
+      color: var(--color-text);
       text-decoration: none;
-      margin: 0 15px;
-      font-size: 0.9rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: 4px;
+      transition: all 0.3s ease;
     }
-    
-    .footer-links a:hover { color: #D4AF37; }
-    
-    .footer-copy {
-      color: #666;
-      font-size: 0.85rem;
+
+    .cta-button:hover {
+      background: var(--color-text);
+      color: #ffffff;
+      transform: translateY(-2px);
     }
-    
+
+    /* Responsive */
     @media (max-width: 768px) {
-      header { padding: 15px 20px; }
-      nav ul { display: none; }
-      .page-hero { padding: 140px 20px 60px; }
-      .page-hero h1 { font-size: 2.5rem; }
-      .container { padding: 60px 20px; }
-      .included-items { gap: 20px; }
-      .enterprise-section { padding: 40px 20px; }
+      .page-header {
+        padding: 120px 20px 40px;
+      }
+
+      .page-header h1 {
+        font-size: 2rem;
+      }
+
+      .container {
+        padding: 40px 20px;
+      }
+
+      .included-items {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .roles-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .how-section {
+        padding: 30px 20px;
+      }
+
+      .how-steps {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .cta-section {
+        padding: 40px 20px;
+      }
     }
   </style>
-  <link rel="stylesheet" href="/vergo-mobile.css">
 </head>
 <body>
-  <!-- Header Navigation - Will be replaced by vergo-nav.js -->
-  <header></header>
-  
-  <div class="page-hero">
-    <h1>Pricing</h1>
-  </div>
-  
-  <main>
-    <div class="container">
-      
-      <!-- Volume Tiers -->
-      <section class="tiers-section">
-        <div class="section-header">
-          <h2>Volume Pricing</h2>
-          <p>The more you book, the more you save. Choose the tier that fits your needs.</p>
-        </div>
-        
-        <div class="tiers-grid">
-          <div class="tier-card">
-            <div class="tier-name">Standard</div>
-            <div class="tier-hours">Under 50 hours</div>
-            <div class="tier-price">From £22<span>/hr</span></div>
-            <div class="tier-savings">&nbsp;</div>
-            <ul class="tier-features">
-              <li>Perfect for one-off events</li>
-              <li>All roles available</li>
-              <li>24hr booking confirmation</li>
-              <li>Dedicated coordinator</li>
-              <li>Same-day quote</li>
-            </ul>
-            <a href="contact.html" class="tier-cta">Get a Quote</a>
-          </div>
-          
-          <div class="tier-card featured">
-            <div class="tier-name">Volume</div>
-            <div class="tier-hours">50 - 100 hours</div>
-            <div class="tier-price">From £20<span>/hr</span></div>
-            <div class="tier-savings">Save up to £2/hr</div>
-            <ul class="tier-features">
-              <li>Multi-event discounts</li>
-              <li>Priority staff allocation</li>
-              <li>Consistent team members</li>
-              <li>Flexible rescheduling</li>
-              <li>Monthly invoicing available</li>
-            </ul>
-            <a href="contact.html" class="tier-cta">Get a Quote</a>
-          </div>
-          
-          <div class="tier-card">
-            <div class="tier-name">Enterprise</div>
-            <div class="tier-hours">100+ hours</div>
-            <div class="tier-price">Bespoke</div>
-            <div class="tier-savings">Best rates available</div>
-            <ul class="tier-features">
-              <li>Custom rate negotiation</li>
-              <li>Dedicated account manager</li>
-              <li>Guaranteed availability</li>
-              <li>Net-30 payment terms</li>
-              <li>Quarterly reviews</li>
-            </ul>
-            <a href="contact.html" class="tier-cta secondary">Contact Us</a>
-          </div>
-        </div>
-      </section>
-      
-      <!-- Roles Section -->
-      <section class="roles-section">
-        <div class="section-header">
-          <h2>Staff Rates by Role</h2>
-          <p>Standard tier rates shown. Volume and Enterprise clients receive discounted rates.</p>
-        </div>
-        
-        <div class="roles-grid">
-          <div class="role-card">
-            <div class="role-header">
-              <div class="role-name">Bartender</div>
-              <div class="role-rate">
-                <span class="from">From</span>
-                <span class="price">£22</span>
-                <span class="unit">/hr</span>
-              </div>
-            </div>
-            <p class="role-description">Professional bar service with extensive cocktail knowledge. Experienced in high-volume service and premium events.</p>
-            <div class="role-features">
-              <span class="role-feature">DBS Checked</span>
-              <span class="role-feature">Speed Bar</span>
-              <span class="role-feature">Mixology</span>
-            </div>
-            <a href="#calculator" class="role-cta">Get Instant Estimate</a>
-          </div>
-          
-          <div class="role-card">
-            <div class="role-header">
-              <div class="role-name">Waiter / Waitress</div>
-              <div class="role-rate">
-                <span class="from">From</span>
-                <span class="price">£20</span>
-                <span class="unit">/hr</span>
-              </div>
-            </div>
-            <p class="role-description">Attentive table service for fine dining, corporate events, and private functions. Silver service trained.</p>
-            <div class="role-features">
-              <span class="role-feature">DBS Checked</span>
-              <span class="role-feature">Silver Service</span>
-              <span class="role-feature">Wine Knowledge</span>
-            </div>
-            <a href="#calculator" class="role-cta">Get Instant Estimate</a>
-          </div>
-          
-          <div class="role-card">
-            <div class="role-header">
-              <div class="role-name">Front of House</div>
-              <div class="role-rate">
-                <span class="from">From</span>
-                <span class="price">£20</span>
-                <span class="unit">/hr</span>
-              </div>
-            </div>
-            <p class="role-description">Professional hosts creating excellent first impressions. Guest management and service coordination.</p>
-            <div class="role-features">
-              <span class="role-feature">DBS Checked</span>
-              <span class="role-feature">Guest Relations</span>
-              <span class="role-feature">Presentation</span>
-            </div>
-            <a href="#calculator" class="role-cta">Get Instant Estimate</a>
-          </div>
-          
-          <div class="role-card">
-            <div class="role-header">
-              <div class="role-name">Barista</div>
-              <div class="role-rate">
-                <span class="from">From</span>
-                <span class="price">£20</span>
-                <span class="unit">/hr</span>
-              </div>
-            </div>
-            <p class="role-description">Skilled coffee professionals for corporate events, festivals, and private functions. Latte art specialists.</p>
-            <div class="role-features">
-              <span class="role-feature">DBS Checked</span>
-              <span class="role-feature">Espresso Expert</span>
-              <span class="role-feature">Latte Art</span>
-            </div>
-            <a href="#calculator" class="role-cta">Get Instant Estimate</a>
-          </div>
-          
-          <div class="role-card">
-            <div class="role-header">
-              <div class="role-name">Chef</div>
-              <div class="role-rate">
-                <span class="from">From</span>
-                <span class="price">£25</span>
-                <span class="unit">/hr</span>
-              </div>
-            </div>
-            <p class="role-description">Experienced culinary professionals for events of all sizes. Menu execution and kitchen management.</p>
-            <div class="role-features">
-              <span class="role-feature">DBS Checked</span>
-              <span class="role-feature">Level 2 Hygiene</span>
-              <span class="role-feature">Event Catering</span>
-            </div>
-            <a href="#calculator" class="role-cta">Get Instant Estimate</a>
-          </div>
-          
-          <div class="role-card">
-            <div class="role-header">
-              <div class="role-name">Kitchen Porter</div>
-              <div class="role-rate">
-                <span class="from">From</span>
-                <span class="price">£18</span>
-                <span class="unit">/hr</span>
-              </div>
-            </div>
-            <p class="role-description">Essential support staff maintaining cleanliness and organization. Reliable and hardworking.</p>
-            <div class="role-features">
-              <span class="role-feature">DBS Checked</span>
-              <span class="role-feature">Food Hygiene</span>
-              <span class="role-feature">Reliable</span>
-            </div>
-            <a href="#calculator" class="role-cta">Get Instant Estimate</a>
-          </div>
-          
-          <div class="role-card">
-            <div class="role-header">
-              <div class="role-name">Runner</div>
-              <div class="role-rate">
-                <span class="from">From</span>
-                <span class="price">£18</span>
-                <span class="unit">/hr</span>
-              </div>
-            </div>
-            <p class="role-description">Efficient food and beverage runners ensuring seamless service flow between kitchen and guests.</p>
-            <div class="role-features">
-              <span class="role-feature">DBS Checked</span>
-              <span class="role-feature">Fast-Paced</span>
-              <span class="role-feature">Team Player</span>
-            </div>
-            <a href="#calculator" class="role-cta">Get Instant Estimate</a>
-          </div>
-          
-          <div class="role-card">
-            <div class="role-header">
-              <div class="role-name">Event Manager</div>
-              <div class="role-rate">
-                <span class="from">From</span>
-                <span class="price">£30</span>
-                <span class="unit">/hr</span>
-              </div>
-            </div>
-            <p class="role-description">Experienced supervisors to oversee your event staff. Coordination, problem-solving, and quality control.</p>
-            <div class="role-features">
-              <span class="role-feature">DBS Checked</span>
-              <span class="role-feature">Leadership</span>
-              <span class="role-feature">5+ Years Exp</span>
-            </div>
-            <a href="#calculator" class="role-cta">Get Instant Estimate</a>
-          </div>
-        </div>
-      </section>
-      
-      <!-- Calculator -->
-      <section class="calculator-section" id="calculator">
-        <div class="calculator-header">
-          <h2>Quick Estimate Calculator</h2>
-          <p>Get an instant estimate for your event staffing needs</p>
-        </div>
-        
-        <div class="calc-grid">
-          <div class="calc-inputs">
-            <div class="calc-group">
-              <label for="calc-role">Select Role</label>
-              <select id="calc-role">
-                <option value="22">Bartender (from £22/hr)</option>
-                <option value="20">Waiter / Waitress (from £20/hr)</option>
-                <option value="20">Front of House (from £20/hr)</option>
-                <option value="20">Barista (from £20/hr)</option>
-                <option value="25">Chef (from £25/hr)</option>
-                <option value="18">Kitchen Porter (from £18/hr)</option>
-                <option value="18">Runner (from £18/hr)</option>
-                <option value="30">Event Manager (from £30/hr)</option>
-              </select>
-            </div>
-            
-            <div class="calc-group">
-              <label for="calc-staff">Number of Staff</label>
-              <input type="number" id="calc-staff" min="1" max="50" value="2">
-            </div>
-            
-            <div class="calc-group">
-              <label for="calc-hours">Hours per Person</label>
-              <input type="number" id="calc-hours" min="4" max="16" value="6">
-            </div>
-          </div>
-          
-          <div class="calc-result">
-            <h3>Estimated Total</h3>
-            <div class="calc-total" id="calc-total">£264</div>
-            <div class="calc-breakdown" id="calc-breakdown">2 staff × 6 hours × £22/hr</div>
-            <div class="calc-tier-badge" id="calc-tier">Standard Rate</div>
-            <a href="contact.html" class="calc-cta">Request Exact Quote</a>
-          </div>
-        </div>
-      </section>
-      
-      <!-- Enterprise CTA -->
-      <section class="enterprise-section">
-        <h2>Regular Events? Let's Talk.</h2>
-        <p>Venues, agencies, and businesses with ongoing staffing needs get preferential rates and dedicated account management.</p>
-        <div class="enterprise-benefits">
-          <div class="enterprise-benefit"><span>✓</span> Custom Rates</div>
-          <div class="enterprise-benefit"><span>✓</span> Priority Booking</div>
-          <div class="enterprise-benefit"><span>✓</span> Consistent Teams</div>
-          <div class="enterprise-benefit"><span>✓</span> Flexible Payment</div>
-        </div>
-        <a href="client-register.html" class="enterprise-cta">Register Your Company</a>
-      </section>
-      
-      <!-- FAQ -->
-      <section class="faq-section">
-        <div class="section-header">
-          <h2>Pricing FAQs</h2>
-        </div>
-        
-        <div class="faq-grid">
-          <div class="faq-item">
-            <h3>What's the minimum booking?</h3>
-            <p>We require a minimum of 1 staff member for 4-5 hours. This ensures quality service and makes the booking worthwhile for everyone.</p>
-          </div>
-          
-          <div class="faq-item">
-            <h3>Are there any hidden fees?</h3>
-            <p>None. The rates shown include everything: travel within London, insurance, uniform, and our vetting/coordination service.</p>
-          </div>
-          
-          <div class="faq-item">
-            <h3>Do rates increase for weekends?</h3>
-            <p>Standard rates apply 7 days a week. Peak dates (Bank Holidays, NYE) may have adjusted rates - we'll confirm in your quote.</p>
-          </div>
-          
-          <div class="faq-item">
-            <h3>What's your payment terms?</h3>
-            <p>25% deposit to secure booking, balance due 24 hours before event. Enterprise clients can arrange monthly invoicing.</p>
-          </div>
-          
-          <div class="faq-item">
-            <h3>Can I cancel or reschedule?</h3>
-            <p>Free cancellation with 48+ hours notice (full deposit refund). Less than 48 hours may forfeit deposit.</p>
-          </div>
-          
-          <div class="faq-item">
-            <h3>How do volume discounts work?</h3>
-            <p>Total hours across all your bookings count towards volume tiers. Book 50+ hours and automatically unlock Volume rates.</p>
-          </div>
-        </div>
-      </section>
-      
-    </div>
-  </main>
-  
-  <footer>
-    <div class="footer-links">
-      <a href="index.html">Home</a>
-      <a href="hire-staff.html">Hire Staff</a>
-      <a href="apply.html">Join Our Team</a>
-      <a href="contact.html">Contact</a>
-      <a href="terms.html">Terms</a>
-      <a href="privacy.html">Privacy</a>
-    </div>
-    <p class="footer-copy">&copy; 2025 VERGO Events Ltd. All rights reserved.</p>
-  </footer>
-  
-  <script>
-    // Calculator functionality
-    const roleSelect = document.getElementById('calc-role');
-    const staffInput = document.getElementById('calc-staff');
-    const hoursInput = document.getElementById('calc-hours');
-    const totalDisplay = document.getElementById('calc-total');
-    const breakdownDisplay = document.getElementById('calc-breakdown');
-    const tierDisplay = document.getElementById('calc-tier');
-    
-    function calculateEstimate() {
-      const rate = parseInt(roleSelect.value);
-      const staff = parseInt(staffInput.value) || 1;
-      const hours = parseInt(hoursInput.value) || 4;
-      
-      const totalHours = staff * hours;
-      let adjustedRate = rate;
-      let tierText = 'Standard Rate';
-      const MIN_RATE = 18; // Absolute minimum £18/hr
-      
-      // Apply volume discounts (but never go below £18)
-      if (totalHours >= 100) {
-        tierText = 'Enterprise Rate - Contact for Quote';
-        adjustedRate = Math.max(MIN_RATE, rate - 4);
-      } else if (totalHours >= 50) {
-        adjustedRate = Math.max(MIN_RATE, rate - 2);
-        tierText = 'Volume Discount Applied';
-      }
-      
-      const total = staff * hours * adjustedRate;
-      
-      totalDisplay.textContent = totalHours >= 100 ? 'Contact Us' : `£${total.toLocaleString()}`;
-      breakdownDisplay.textContent = `${staff} staff × ${hours} hours × £${adjustedRate}/hr`;
-      tierDisplay.textContent = tierText;
-      tierDisplay.style.borderColor = totalHours >= 50 ? '#28a745' : '#666';
-      tierDisplay.style.color = totalHours >= 50 ? '#28a745' : '#999';
-      tierDisplay.style.background = totalHours >= 50 ? 'rgba(40, 167, 69, 0.2)' : 'rgba(102, 102, 102, 0.2)';
-    }
-    
-    roleSelect.addEventListener('change', calculateEstimate);
-    staffInput.addEventListener('input', calculateEstimate);
-    hoursInput.addEventListener('input', calculateEstimate);
-    
-    // Initial calculation
-    calculateEstimate();
-  </script>
+  <!-- Skip Link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <!-- Shared Navigation -->
+  <!-- Header -->
+  <header></header>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Pricing</h1>
+    <p>Transparent rates for event staffing in London & surrounding areas</p>
+  </div>
+
+  <main id="main-content" class="container">
+
+    <!-- What's Included -->
+    <div class="included-banner">
+      <h3>All Rates Include</h3>
+      <div class="included-items">
+        <div class="included-item"><span>✓</span> Staff briefing</div>
+        <div class="included-item"><span>✓</span> Right-to-work checks</div>
+        <div class="included-item"><span>✓</span> Professional standards</div>
+        <div class="included-item"><span>✓</span> Coordination</div>
+      </div>
+    </div>
+
+    <!-- Staff Rates -->
+    <section class="roles-section">
+      <div class="section-header">
+        <h2>Staff Rates by Role</h2>
+        <p>Standard hourly rates for event staffing</p>
+      </div>
+
+      <div class="roles-grid">
+        <div class="role-card">
+          <div class="role-header">
+            <div class="role-name">Event Chefs / Kitchen</div>
+            <div class="role-rate">
+              <span class="from">From</span>
+              <span class="price">£25</span>
+              <span class="unit">/hr</span>
+            </div>
+          </div>
+          <p class="role-description">Experienced kitchen professionals for events of all sizes. Menu execution and kitchen coordination.</p>
+        </div>
+
+        <div class="role-card">
+          <div class="role-header">
+            <div class="role-name">Bar Staff</div>
+            <div class="role-rate">
+              <span class="from">From</span>
+              <span class="price">£22</span>
+              <span class="unit">/hr</span>
+            </div>
+          </div>
+          <p class="role-description">Bartenders and barbacks for professional bar service. Cocktail knowledge and high-volume experience.</p>
+        </div>
+
+        <div class="role-card">
+          <div class="role-header">
+            <div class="role-name">Front of House</div>
+            <div class="role-rate">
+              <span class="from">From</span>
+              <span class="price">£20</span>
+              <span class="unit">/hr</span>
+            </div>
+          </div>
+          <p class="role-description">Waiters and runners for attentive guest service. Table service, food runners, and hosting.</p>
+        </div>
+
+        <div class="role-card">
+          <div class="role-header">
+            <div class="role-name">Baristas</div>
+            <div class="role-rate">
+              <span class="from">From</span>
+              <span class="price">£20</span>
+              <span class="unit">/hr</span>
+            </div>
+          </div>
+          <p class="role-description">Skilled coffee professionals for events and functions. Espresso and specialty coffee service.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- How Pricing Works -->
+    <section class="how-section">
+      <h2>How Pricing Works</h2>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-step-number">1</div>
+          <h3>Request a Quote</h3>
+          <p>Share your event details and we'll provide pricing based on roles, duration, and requirements.</p>
+        </div>
+
+        <div class="how-step">
+          <div class="how-step-number">2</div>
+          <h3>Booking Confirmed</h3>
+          <p>Once agreed, your booking is confirmed in writing with all details and staff assignments.</p>
+        </div>
+
+        <div class="how-step">
+          <div class="how-step-number">3</div>
+          <h3>Invoice After Event</h3>
+          <p>An invoice is issued after the event based on actual hours worked. No upfront payment required.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section">
+      <div class="section-header">
+        <h2>Pricing FAQ</h2>
+      </div>
+
+      <div class="faq-grid">
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFAQ(this)">
+            Is there a minimum booking?
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              No. We handle bookings of all sizes. Whether you need one staff member or a full team, we can accommodate your requirements.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFAQ(this)">
+            Are there any hidden fees?
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              No. The quoted rate is inclusive. Staff briefing, right-to-work checks, and coordination are included in the hourly rate.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFAQ(this)">
+            Do rates vary for weekends or peak dates?
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              Standard rates apply most days. Peak dates such as Bank Holidays or New Year's Eve may have adjusted rates which we'll confirm in your quote.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFAQ(this)">
+            When do I pay?
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              An invoice is issued after the event based on actual hours worked. Payment terms are included with your booking confirmation.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFAQ(this)">
+            Do you offer volume pricing?
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              For regular bookings or larger events, we can discuss adjusted rates. Get in touch with your requirements.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <h2>Ready to get a quote?</h2>
+      <p>Share your event details and we'll respond within 24 hours with availability and pricing.</p>
+      <a href="/contact.html" class="cta-button">Get a Quote</a>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer role="contentinfo"></footer>
+
+  <!-- Scripts -->
   <script src="/vergo-nav.js"></script>
   <script src="/vergo-footer.js"></script>
+  <script src="/vergo-analytics.js"></script>
+
+  <script>
+    function toggleFAQ(button) {
+      const item = button.closest('.faq-item');
+      const wasActive = item.classList.contains('active');
+
+      document.querySelectorAll('.faq-item.active').forEach(el => {
+        el.classList.remove('active');
+      });
+
+      if (!wasActive) {
+        item.classList.add('active');
+      }
+    }
+  </script>
 </body>
 </html>

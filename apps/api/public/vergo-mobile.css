@@ -1,28 +1,39 @@
 /**
- * VERGO Events - Mobile Responsiveness Fixes
- * Based on mobile audit - fixes navigation, hero, typography, spacing, grids, buttons, footer
+ * VERGO Ltd - Mobile Responsiveness & Premium Design System
+ * Updated for warm ivory theme with muted gold accents
  * Add this AFTER your main stylesheet
  */
+
+/* ============================================
+ * PREMIUM DESIGN SYSTEM - MOBILE VARIABLES
+ * ============================================ */
+:root {
+  /* Mobile-specific overrides */
+  --mobile-nav-bg: rgba(250, 248, 245, 0.98);
+  --mobile-text: #1C1C1C;
+  --mobile-gold: #C9A24D;
+  --mobile-border: rgba(28, 28, 28, 0.08);
+}
 
 /* ============================================
  * 1. MOBILE NAVIGATION - Hamburger Menu
  * ============================================ */
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   nav ul {
     position: fixed;
-    top: calc(65px + env(safe-area-inset-top));
+    top: 0;
     left: 0;
     right: 0;
+    bottom: 0;
     flex-direction: column;
-    background: rgba(10, 10, 10, 0.98);
-    padding: 20px;
+    background: var(--mobile-nav-bg);
+    padding: calc(100px + env(safe-area-inset-top)) 32px 40px;
     gap: 0;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-    max-height: calc(100vh - 65px - env(safe-area-inset-top));
+    transform: translateX(100%);
+    transition: transform 0.35s ease;
     overflow-y: auto;
+    justify-content: flex-start;
   }
 
   /* Show menu when active */
@@ -31,16 +42,23 @@
   }
 
   nav ul li {
-    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+    border-bottom: 1px solid var(--mobile-border);
+    width: 100%;
   }
 
   nav ul li:last-child {
     border-bottom: none;
+    margin-top: 24px;
   }
 
   nav ul li a {
     display: block;
-    padding: 15px 10px;
+    padding: 18px 0;
+    font-size: 1.1rem;
+  }
+
+  nav ul li a::after {
+    display: none;
   }
 
   /* Show hamburger button */
@@ -52,19 +70,21 @@
     width: 44px;
     height: 44px;
     background: transparent;
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    border: none;
     border-radius: 4px;
     cursor: pointer;
     gap: 5px;
     padding: 10px;
+    z-index: 1001;
   }
 
   .menu-toggle span {
     display: block;
-    width: 22px;
+    width: 24px;
     height: 2px;
-    background: #D4AF37;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    background: var(--mobile-text);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    border-radius: 1px;
   }
 
   /* Hamburger animation when open */
@@ -74,17 +94,26 @@
 
   .menu-toggle.active span:nth-child(2) {
     opacity: 0;
+    transform: translateX(-10px);
   }
 
   .menu-toggle.active span:nth-child(3) {
     transform: rotate(-45deg) translate(5px, -5px);
   }
 
-  /* Header needs relative positioning for dropdown */
-  header { padding: calc(12px + env(safe-area-inset-top)) 20px 12px; }
+  /* Header mobile padding */
+  header {
+    padding: calc(14px + env(safe-area-inset-top)) 24px 14px;
+  }
+
+  .nav-container {
+    padding: 0;
+  }
 
   /* Logo sizing */
-  .logo img { height: 38px; }
+  .logo img {
+    height: 34px;
+  }
 }
 
 /* ============================================

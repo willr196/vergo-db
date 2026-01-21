@@ -1,5 +1,5 @@
 /**
- * VERGO Events - Header & Navigation Styles
+ * VERGO Ltd - Header & Navigation Styles
  * Shared across all pages for consistency
  * Include AFTER vergo-styles.css
  * Uses CSS variables from vergo-styles.css for consistency
@@ -13,9 +13,9 @@ header {
   top: 0;
   left: 0;
   right: 0;
-  background: rgba(10, 10, 10, 0.98);
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   padding: 15px 40px;
   display: flex;
   justify-content: space-between;
@@ -61,7 +61,7 @@ nav li {
 }
 
 nav a {
-  color: var(--color-text-primary, #ffffff);
+  color: var(--color-text-primary, #1a1a1a);
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: var(--font-weight-medium, 500);
@@ -78,12 +78,12 @@ nav a::after {
   left: 0;
   width: 0;
   height: 2px;
-  background: var(--color-gold, #D4AF37);
+  background: var(--color-gold, #B8962E);
   transition: width var(--transition-speed, 0.3s) ease;
 }
 
 nav a:hover {
-  color: var(--color-gold, #D4AF37);
+  color: var(--color-gold, #B8962E);
 }
 
 nav a:hover::after {
@@ -91,7 +91,7 @@ nav a:hover::after {
 }
 
 nav a[aria-current="page"] {
-  color: var(--color-gold, #D4AF37);
+  color: var(--color-gold, #B8962E);
 }
 
 nav a[aria-current="page"]::after {
@@ -115,8 +115,8 @@ nav a[aria-current="page"]::after {
   position: absolute;
   top: 100%;
   left: 0;
-  background: rgba(10, 10, 10, 0.98);
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 4px;
   min-width: 180px;
   opacity: 0;
@@ -124,7 +124,7 @@ nav a[aria-current="page"]::after {
   transform: translateY(-10px);
   transition: all 0.3s ease;
   margin-top: 5px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   padding: 0;
 }
 
@@ -142,8 +142,8 @@ nav a[aria-current="page"]::after {
 .dropdown-menu a {
   padding: 12px 18px;
   display: block;
-  color: #ffffff;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  color: #1a1a1a;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   font-size: 0.85rem;
 }
 
@@ -156,8 +156,8 @@ nav a[aria-current="page"]::after {
 }
 
 .dropdown-menu a:hover {
-  background: rgba(212, 175, 55, 0.1);
-  color: #D4AF37;
+  background: rgba(184, 150, 46, 0.12);
+  color: #B8962E;
 }
 
 /* ============================================
@@ -176,7 +176,7 @@ nav a[aria-current="page"]::after {
 .menu-toggle span {
   width: 24px;
   height: 2px;
-  background: var(--color-gold, #D4AF37);
+  background: var(--color-text-primary, #1a1a1a);
   transition: all var(--transition-speed, 0.3s) ease;
 }
 
@@ -210,13 +210,13 @@ nav a[aria-current="page"]::after {
     top: 65px;
     left: 0;
     right: 0;
-    background: rgba(10, 10, 10, 0.98);
+    background: rgba(255, 255, 255, 0.98);
     flex-direction: column;
     padding: 20px;
     gap: 0;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     max-height: calc(100vh - 65px);
     overflow-y: auto;
   }
@@ -226,7 +226,7 @@ nav a[aria-current="page"]::after {
   }
   
   nav li {
-    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   }
   
   nav li:last-child {
@@ -269,8 +269,8 @@ nav a[aria-current="page"]::after {
  * FOOTER
  * ============================================ */
 footer {
-  background: #0a0a0a;
-  border-top: 1px solid rgba(212, 175, 55, 0.2);
+  background: #ffffff;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
   padding: 60px 40px 30px;
 }
 
@@ -283,21 +283,21 @@ footer {
 }
 
 .footer-column h3 {
-  color: var(--color-gold, #D4AF37);
+  color: var(--color-gold, #B8962E);
   font-size: 1.1rem;
   margin-bottom: 20px;
   font-weight: var(--font-weight-semibold, 600);
 }
 
 .footer-column p {
-  color: #999;
+  color: #666;
   line-height: 1.7;
   font-size: 0.95rem;
 }
 
 .footer-column a {
   display: block;
-  color: #999;
+  color: #666;
   text-decoration: none;
   padding: 8px 0;
   transition: color 0.3s ease;
@@ -305,14 +305,14 @@ footer {
 }
 
 .footer-column a:hover {
-  color: var(--color-gold, #D4AF37);
+  color: var(--color-gold, #B8962E);
 }
 
 .footer-bottom {
   max-width: 1200px;
   margin: 40px auto 0;
   padding-top: 20px;
-  border-top: 1px solid rgba(212, 175, 55, 0.1);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
   text-align: center;
   color: #666;
   font-size: 0.85rem;
