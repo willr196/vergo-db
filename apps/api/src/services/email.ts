@@ -4,8 +4,9 @@ import { env } from '../env';
 const resend = new Resend(env.resendApiKey);
 
 // ✅ UPDATED: Using your verified domain
-const FROM_EMAIL = 'noreply@vergoltd.com';
-const TO_EMAIL = 'wrobb@vergoltd.com';
+// Exported for use in other modules (e.g., quotes route)
+export const FROM_EMAIL = 'noreply@vergoltd.com';
+export const TO_EMAIL = 'wrobb@vergoltd.com';
 
 export async function sendEventEnquiryEmail(data: {
   name: string;
@@ -75,7 +76,7 @@ export async function sendStaffRequestEmail(data: {
   phone?: string;
   company: string;
   roles: string[];
-  date: string;
+  date?: string;
   staffCount: number;
   message: string;
 }) {
@@ -103,7 +104,7 @@ export async function sendStaffRequestEmail(data: {
               <p><strong>Email:</strong> <a href="mailto:${data.email}">${data.email}</a></p>
               ${data.phone ? `<p><strong>Phone:</strong> ${data.phone}</p>` : ''}
               <p><strong>Company:</strong> ${data.company}</p>
-              <p><strong>Event Date:</strong> ${data.date}</p>
+              ${data.date ? `<p><strong>Event Date:</strong> ${data.date}</p>` : '<p><strong>Event Date:</strong> TBC / Flexible</p>'}
               <p><strong>Staff Needed:</strong> ${data.staffCount}</p>
             </div>
             

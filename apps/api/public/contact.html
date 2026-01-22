@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/logo-small.png">
-  <title>Get a Quote | VERGO Ltd - Event Staff London</title>
-  <meta name="description" content="Request a quote for event staffing in London & surrounding areas. Event chefs, bar staff, front of house, baristas, and catering assistants. Replies within 24 hours.">
+  <title>Contact Us | VERGO Ltd - Event Staff London</title>
+  <meta name="description" content="Contact VERGO Ltd for event staffing in London & surrounding areas. Request staff, enquire about events, or just say hello. Replies within 24 hours.">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -74,9 +74,49 @@
       gap: 60px;
     }
 
+    /* Tab Styles */
+    .form-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 12px 24px;
+      background: var(--color-bg-warm);
+      border: 2px solid var(--color-border);
+      border-radius: 4px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: var(--font-primary);
+    }
+
+    .tab-btn:hover {
+      border-color: var(--color-gold);
+      color: var(--color-text);
+    }
+
+    .tab-btn.active {
+      background: var(--color-gold);
+      border-color: var(--color-gold);
+      color: var(--color-text);
+    }
+
     /* Form Styles */
-    .quote-form {
+    .contact-form {
       background: var(--color-bg);
+    }
+
+    .form-panel {
+      display: none;
+    }
+
+    .form-panel.active {
+      display: block;
     }
 
     .form-group {
@@ -310,6 +350,14 @@
       .checkbox-group {
         grid-template-columns: 1fr;
       }
+
+      .form-tabs {
+        flex-direction: column;
+      }
+
+      .tab-btn {
+        text-align: center;
+      }
     }
   </style>
 </head>
@@ -322,136 +370,203 @@
 
   <!-- Page Header -->
   <div class="page-header">
-    <h1>Get a Quote</h1>
-    <p>Share your event details and we'll respond within 24 hours</p>
+    <h1>Contact Us</h1>
+    <p>Get in touch - we'll respond within 24 hours</p>
   </div>
 
   <main id="main-content" class="container">
     <div class="form-section">
-      <!-- Quote Form -->
-      <div class="quote-form">
-        <form id="quoteForm" action="/api/contact" method="POST">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="name">Your Name *</label>
-              <input type="text" id="name" name="name" required minlength="2">
+      <!-- Contact Forms -->
+      <div class="contact-form">
+        <!-- Tab Buttons -->
+        <div class="form-tabs">
+          <button type="button" class="tab-btn active" data-tab="staff">Request Staff</button>
+          <button type="button" class="tab-btn" data-tab="event">Event Enquiry</button>
+          <button type="button" class="tab-btn" data-tab="general">General Contact</button>
+        </div>
+
+        <!-- Staff Request Form -->
+        <div class="form-panel active" id="staffPanel">
+          <form id="staffForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="staff-name">Your Name *</label>
+                <input type="text" id="staff-name" name="name" required minlength="2">
+              </div>
+
+              <div class="form-group">
+                <label for="staff-email">Email Address *</label>
+                <input type="email" id="staff-email" name="email" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="staff-phone">Phone Number</label>
+                <input type="tel" id="staff-phone" name="phone">
+              </div>
+
+              <div class="form-group">
+                <label for="staff-company">Company / Organisation *</label>
+                <input type="text" id="staff-company" name="company" required minlength="2">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="staff-date">Event Date (optional)</label>
+                <input type="date" id="staff-date" name="date">
+              </div>
+
+              <div class="form-group">
+                <label for="staff-count">Number of Staff *</label>
+                <input type="number" id="staff-count" name="staffCount" min="1" max="100" required>
+              </div>
+            </div>
+
+            <div class="form-group-checkbox">
+              <label>Roles Required *</label>
+              <div class="checkbox-group">
+                <label class="checkbox-item">
+                  <input type="checkbox" name="roles" value="Event Chefs">
+                  <span>Event Chefs / Kitchen</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="roles" value="Bar Staff">
+                  <span>Bar Staff</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="roles" value="Front of House">
+                  <span>Front of House / Waiters</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="roles" value="Baristas">
+                  <span>Baristas</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="roles" value="Catering Assistants">
+                  <span>Catering Assistants</span>
+                </label>
+              </div>
             </div>
 
             <div class="form-group">
-              <label for="email">Email Address *</label>
-              <input type="email" id="email" name="email" required>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="phone">Phone Number</label>
-              <input type="tel" id="phone" name="phone">
+              <label for="staff-message">Additional Details *</label>
+              <textarea id="staff-message" name="message" placeholder="Tell us about your event, location, timings, and any specific requirements..." required minlength="10"></textarea>
             </div>
 
-            <div class="form-group">
-              <label for="company">Company / Organisation</label>
-              <input type="text" id="company" name="company" minlength="2">
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="date">Event Date *</label>
-              <input type="date" id="date" name="date" required minlength="2">
+            <!-- Honeypot field -->
+            <div class="hp-field">
+              <label for="staff-website">Website</label>
+              <input type="text" id="staff-website" name="website" tabindex="-1" autocomplete="off">
             </div>
 
-            <div class="form-group">
-              <label for="location">Location (Postcode) *</label>
-              <input type="text" id="location" name="location" placeholder="e.g. SW1A 1AA" required>
-            </div>
-          </div>
+            <button type="submit" class="submit-btn">Request Staff Quote</button>
+          </form>
+        </div>
 
-          <div class="form-group-checkbox">
-            <label>Roles Required *</label>
-            <div class="checkbox-group">
-              <label class="checkbox-item">
-                <input type="checkbox" name="roles" value="Event Chefs">
-                <span>Event Chefs / Kitchen</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="roles" value="Bar Staff">
-                <span>Bar Staff</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="roles" value="Front of House">
-                <span>Front of House / Waiters</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="roles" value="Baristas">
-                <span>Baristas</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="roles" value="Catering Assistants">
-                <span>Catering Assistants</span>
-              </label>
-            </div>
-          </div>
+        <!-- Event Enquiry Form -->
+        <div class="form-panel" id="eventPanel">
+          <form id="eventForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="event-name">Your Name *</label>
+                <input type="text" id="event-name" name="name" required minlength="2">
+              </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="staffCount">Number of Staff</label>
-              <select id="staffCount" name="staffCount">
-                <option value="">Select...</option>
-                <option value="1-2">1-2</option>
-                <option value="3-5">3-5</option>
-                <option value="6-10">6-10</option>
-                <option value="11-20">11-20</option>
-                <option value="20+">20+</option>
-              </select>
+              <div class="form-group">
+                <label for="event-email">Email Address *</label>
+                <input type="email" id="event-email" name="email" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="event-phone">Phone Number</label>
+                <input type="tel" id="event-phone" name="phone">
+              </div>
+
+              <div class="form-group">
+                <label for="event-type">Type of Event *</label>
+                <select id="event-type" name="eventType" required>
+                  <option value="">Select...</option>
+                  <option value="corporate">Corporate Event</option>
+                  <option value="wedding">Wedding</option>
+                  <option value="private">Private Party</option>
+                  <option value="music">Music / Concert</option>
+                  <option value="charity">Charity Event</option>
+                  <option value="festival">Festival / Outdoor</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="event-date">Event Date (optional)</label>
+                <input type="date" id="event-date" name="date">
+              </div>
+
+              <div class="form-group">
+                <label for="event-guests">Expected Guests</label>
+                <input type="number" id="event-guests" name="guests" min="1">
+              </div>
             </div>
 
             <div class="form-group">
-              <label for="duration">Event Duration</label>
-              <select id="duration" name="duration">
-                <option value="">Select...</option>
-                <option value="4-6 hours">4-6 hours</option>
-                <option value="6-8 hours">6-8 hours</option>
-                <option value="8-10 hours">8-10 hours</option>
-                <option value="10+ hours">10+ hours</option>
-                <option value="Multiple days">Multiple days</option>
-              </select>
+              <label for="event-message">Tell Us About Your Event *</label>
+              <textarea id="event-message" name="message" placeholder="Describe your event, what you're looking for, and any questions you have..." required minlength="10"></textarea>
             </div>
-          </div>
 
-          <div class="form-group">
-            <label for="eventType">Type of Event</label>
-            <select id="eventType" name="eventType">
-              <option value="">Select...</option>
-              <option value="Corporate event">Corporate event</option>
-              <option value="Private party">Private party</option>
-              <option value="Wedding">Wedding</option>
-              <option value="Festival / Outdoor">Festival / Outdoor</option>
-              <option value="Conference">Conference</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
+            <!-- Honeypot field -->
+            <div class="hp-field">
+              <label for="event-website">Website</label>
+              <input type="text" id="event-website" name="website" tabindex="-1" autocomplete="off">
+            </div>
 
-          <div class="form-group">
-            <label for="message">Additional Details</label>
-            <textarea id="message" name="message" placeholder="Any other information about your event or specific requirements..." minlength="10"></textarea>
-          </div>
+            <button type="submit" class="submit-btn">Submit Event Enquiry</button>
+          </form>
+        </div>
 
-          <!-- Honeypot field -->
-          <div class="hp-field">
-            <label for="website">Website</label>
-            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
-          </div>
+        <!-- General Contact Form -->
+        <div class="form-panel" id="generalPanel">
+          <form id="generalForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="general-name">Your Name *</label>
+                <input type="text" id="general-name" name="name" required minlength="2">
+              </div>
 
-          <input type="hidden" name="type" value="quote">
+              <div class="form-group">
+                <label for="general-email">Email Address *</label>
+                <input type="email" id="general-email" name="email" required>
+              </div>
+            </div>
 
-          <button type="submit" class="submit-btn">Submit Enquiry</button>
-        </form>
+            <div class="form-group">
+              <label for="general-subject">Subject *</label>
+              <input type="text" id="general-subject" name="subject" required minlength="3" placeholder="What's this about?">
+            </div>
+
+            <div class="form-group">
+              <label for="general-message">Your Message *</label>
+              <textarea id="general-message" name="message" placeholder="How can we help you?" required minlength="10"></textarea>
+            </div>
+
+            <!-- Honeypot field -->
+            <div class="hp-field">
+              <label for="general-website">Website</label>
+              <input type="text" id="general-website" name="website" tabindex="-1" autocomplete="off">
+            </div>
+
+            <button type="submit" class="submit-btn">Send Message</button>
+          </form>
+        </div>
 
         <!-- Success Message -->
         <div class="form-success" id="formSuccess">
-          <h2>Enquiry Received</h2>
-          <p>Thank you for your enquiry. We'll respond within 24 hours with availability and pricing.</p>
+          <h2>Message Received</h2>
+          <p>Thank you for getting in touch. We'll respond within 24 hours.</p>
         </div>
       </div>
 
@@ -460,22 +575,22 @@
         <div class="sidebar-card">
           <h3>What to Expect</h3>
           <ul>
-            <li><span>✓</span> Reply within 24 hours</li>
-            <li><span>✓</span> Booking confirmed in writing</li>
-            <li><span>✓</span> Staff briefed before event</li>
-            <li><span>✓</span> Invoice issued after event</li>
-            <li><span>✓</span> Clear communication throughout</li>
+            <li><span>&#10003;</span> Reply within 24 hours</li>
+            <li><span>&#10003;</span> Booking confirmed in writing</li>
+            <li><span>&#10003;</span> Staff briefed before event</li>
+            <li><span>&#10003;</span> Invoice issued after event</li>
+            <li><span>&#10003;</span> Clear communication throughout</li>
           </ul>
         </div>
 
         <div class="sidebar-card">
           <h3>Roles We Supply</h3>
           <ul>
-            <li><span>•</span> Event Chefs / Kitchen Teams</li>
-            <li><span>•</span> Bar Staff (Bartenders / Barbacks)</li>
-            <li><span>•</span> Front of House (Waiters / Runners)</li>
-            <li><span>•</span> Baristas</li>
-            <li><span>•</span> Catering Assistants</li>
+            <li><span>&#8226;</span> Event Chefs / Kitchen Teams</li>
+            <li><span>&#8226;</span> Bar Staff (Bartenders / Barbacks)</li>
+            <li><span>&#8226;</span> Front of House (Waiters / Runners)</li>
+            <li><span>&#8226;</span> Baristas</li>
+            <li><span>&#8226;</span> Catering Assistants</li>
           </ul>
         </div>
 
@@ -498,62 +613,153 @@
   <script src="/vergo-analytics.js"></script>
 
   <script>
-    // Form submission handling
-    document.getElementById('quoteForm').addEventListener('submit', async function(e) {
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        // Update active tab button
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        // Show corresponding panel
+        const tabName = this.dataset.tab;
+        document.querySelectorAll('.form-panel').forEach(panel => panel.classList.remove('active'));
+        document.getElementById(tabName + 'Panel').classList.add('active');
+
+        // Hide success message if visible
+        document.getElementById('formSuccess').classList.remove('active');
+      });
+    });
+
+    // Staff Request Form submission
+    document.getElementById('staffForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
       // Honeypot check
-      if (document.getElementById('website').value) {
-        return;
-      }
+      if (document.getElementById('staff-website').value) return;
 
       const form = e.target;
       const formData = new FormData(form);
 
       // Collect checkbox values
       const roles = [];
-      document.querySelectorAll('input[name="roles"]:checked').forEach(cb => {
+      form.querySelectorAll('input[name="roles"]:checked').forEach(cb => {
         roles.push(cb.value);
       });
+
+      if (roles.length === 0) {
+        alert('Please select at least one role.');
+        return;
+      }
 
       const data = {
         name: formData.get('name'),
         email: formData.get('email'),
-        phone: formData.get('phone'),
+        phone: formData.get('phone') || undefined,
         company: formData.get('company'),
-        date: formData.get('date'),
-        location: formData.get('location'),
-        roles: roles.join(', '),
-        staffCount: formData.get('staffCount'),
-        duration: formData.get('duration'),
-        eventType: formData.get('eventType'),
-        message: formData.get('message'),
-        type: 'quote'
+        roles: roles,
+        date: formData.get('date') || undefined,
+        staffCount: parseInt(formData.get('staffCount')),
+        message: formData.get('message')
       };
 
       try {
-        const response = await fetch('/api/contact', {
+        const response = await fetch('/api/v1/contact/staff-request', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
 
         if (response.ok) {
-          form.style.display = 'none';
+          document.getElementById('staffPanel').style.display = 'none';
           document.getElementById('formSuccess').classList.add('active');
         } else {
-          alert('There was a problem submitting your enquiry. Please try again or email us directly.');
+          const result = await response.json();
+          alert(result.error || 'There was a problem submitting your request. Please try again or email us directly.');
+        }
+      } catch (error) {
+        alert('There was a problem submitting your request. Please try again or email us directly.');
+      }
+    });
+
+    // Event Enquiry Form submission
+    document.getElementById('eventForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Honeypot check
+      if (document.getElementById('event-website').value) return;
+
+      const form = e.target;
+      const formData = new FormData(form);
+
+      const data = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone') || undefined,
+        eventType: formData.get('eventType'),
+        date: formData.get('date') || undefined,
+        guests: formData.get('guests') ? parseInt(formData.get('guests')) : undefined,
+        message: formData.get('message')
+      };
+
+      try {
+        const response = await fetch('/api/v1/contact/event-enquiry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          document.getElementById('eventPanel').style.display = 'none';
+          document.getElementById('formSuccess').classList.add('active');
+        } else {
+          const result = await response.json();
+          alert(result.error || 'There was a problem submitting your enquiry. Please try again or email us directly.');
         }
       } catch (error) {
         alert('There was a problem submitting your enquiry. Please try again or email us directly.');
       }
     });
 
-    // Set minimum date to today
+    // General Contact Form submission
+    document.getElementById('generalForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Honeypot check
+      if (document.getElementById('general-website').value) return;
+
+      const form = e.target;
+      const formData = new FormData(form);
+
+      const data = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        subject: formData.get('subject'),
+        message: formData.get('message')
+      };
+
+      try {
+        const response = await fetch('/api/v1/contact/general', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          document.getElementById('generalPanel').style.display = 'none';
+          document.getElementById('formSuccess').classList.add('active');
+        } else {
+          const result = await response.json();
+          alert(result.error || 'There was a problem sending your message. Please try again or email us directly.');
+        }
+      } catch (error) {
+        alert('There was a problem sending your message. Please try again or email us directly.');
+      }
+    });
+
+    // Set minimum date to today for date fields
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('date').setAttribute('min', today);
+    document.getElementById('staff-date').setAttribute('min', today);
+    document.getElementById('event-date').setAttribute('min', today);
   </script>
 </body>
 </html>

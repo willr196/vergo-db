@@ -349,6 +349,60 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* File Upload Styles */
+    .file-help {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin-top: 8px;
+    }
+
+    .upload-status {
+      margin-top: 12px;
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .upload-status.uploading {
+      display: block;
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      color: #856404;
+    }
+
+    .upload-status.success {
+      display: block;
+      background: #d4edda;
+      border: 1px solid #28a745;
+      color: #155724;
+    }
+
+    .upload-status.error {
+      display: block;
+      background: #f8d7da;
+      border: 1px solid #dc3545;
+      color: #721c24;
+    }
+
+    input[type="file"] {
+      padding: 12px;
+      border: 2px dashed var(--color-border);
+      border-radius: 4px;
+      width: 100%;
+      cursor: pointer;
+      transition: border-color 0.3s ease;
+    }
+
+    input[type="file"]:hover {
+      border-color: var(--color-gold);
+    }
+
+    input[type="file"]:focus {
+      outline: none;
+      border-color: var(--color-gold);
+    }
   </style>
   <link rel="stylesheet" href="/vergo-platform.css">
 </head>
@@ -438,25 +492,25 @@
           <h3>Personal Details</h3>
           <div class="form-row">
             <div class="form-group">
-              <label for="fullName">Full Name *</label>
-              <input type="text" id="fullName" name="fullName" required>
+              <label for="firstName">First Name *</label>
+              <input type="text" id="firstName" name="firstName" required>
             </div>
 
             <div class="form-group">
-              <label for="email">Email Address *</label>
-              <input type="email" id="email" name="email" required>
+              <label for="lastName">Last Name *</label>
+              <input type="text" id="lastName" name="lastName" required>
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="phone">Phone Number *</label>
-              <input type="tel" id="phone" name="phone" required>
+              <label for="email">Email Address *</label>
+              <input type="email" id="email" name="email" required>
             </div>
 
             <div class="form-group">
-              <label for="location">Your Location (Area/Postcode) *</label>
-              <input type="text" id="location" name="location" placeholder="e.g. East London, SW1" required>
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone">
             </div>
           </div>
         </div>
@@ -516,6 +570,16 @@
         </div>
 
         <div class="form-block">
+          <h3>Upload Your CV *</h3>
+          <div class="form-group">
+            <label for="cvFile">CV / Resume</label>
+            <input type="file" id="cvFile" name="cvFile" accept=".pdf,.doc,.docx" required>
+            <p class="file-help">Accepted formats: PDF, DOC, DOCX. Maximum size: 10MB</p>
+            <div id="uploadStatus" class="upload-status"></div>
+          </div>
+        </div>
+
+        <div class="form-block">
           <h3>Right-to-Work</h3>
           <div class="form-note">
             Right-to-work documentation is required before any booking. If you're invited to interview, we'll confirm the next step and how to provide your documents.
@@ -562,11 +626,121 @@
   <script src="/vergo-analytics.js"></script>
 
   <script>
+    // CV Upload state
+    let uploadedCvData = null;
+
+    // Helper to show upload status
+    function showUploadStatus(message, type) {
+      const statusEl = document.getElementById('uploadStatus');
+      statusEl.textContent = message;
+      statusEl.className = 'upload-status ' + type;
+    }
+
+    // Handle CV file selection and upload
+    document.getElementById('cvFile').addEventListener('change', async function(e) {
+      const file = e.target.files[0];
+      if (!file) {
+        uploadedCvData = null;
+        return;
+      }
+
+      // Validate file size (10MB max)
+      const maxSize = 10 * 1024 * 1024;
+      if (file.size > maxSize) {
+        showUploadStatus('File is too large. Maximum size is 10MB.', 'error');
+        e.target.value = '';
+        uploadedCvData = null;
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = ['.pdf', '.doc', '.docx'];
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      if (!allowedTypes.includes(ext)) {
+        showUploadStatus('Invalid file type. Please upload a PDF, DOC, or DOCX file.', 'error');
+        e.target.value = '';
+        uploadedCvData = null;
+        return;
+      }
+
+      try {
+        // Step 1: Get presigned URL
+        showUploadStatus('Preparing upload...', 'uploading');
+
+        const presignRes = await fetch('/api/v1/applications/presign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileName: file.name,
+            fileType: file.type || 'application/octet-stream'
+          })
+        });
+
+        if (!presignRes.ok) {
+          const err = await presignRes.json();
+          throw new Error(err.error || 'Failed to prepare upload');
+        }
+
+        const { url, key, applicantId } = await presignRes.json();
+
+        // Step 2: Upload file to S3
+        showUploadStatus('Uploading CV...', 'uploading');
+
+        const uploadRes = await fetch(url, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type || 'application/octet-stream'
+          }
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error('Failed to upload file');
+        }
+
+        // Step 3: Verify the upload
+        showUploadStatus('Verifying file...', 'uploading');
+
+        const verifyRes = await fetch('/api/v1/applications/verify-upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key })
+        });
+
+        if (!verifyRes.ok) {
+          const err = await verifyRes.json();
+          throw new Error(err.error || 'File verification failed');
+        }
+
+        // Success!
+        uploadedCvData = {
+          cvKey: key,
+          applicantId: applicantId,
+          cvOriginalName: file.name
+        };
+
+        showUploadStatus('CV uploaded successfully!', 'success');
+
+      } catch (error) {
+        console.error('CV upload error:', error);
+        showUploadStatus(error.message || 'Failed to upload CV. Please try again.', 'error');
+        e.target.value = '';
+        uploadedCvData = null;
+      }
+    });
+
+    // Form submission
     document.getElementById('applyForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
       // Honeypot check
       if (document.getElementById('website').value) {
+        return;
+      }
+
+      // Check CV upload
+      if (!uploadedCvData) {
+        alert('Please upload your CV before submitting.');
         return;
       }
 
@@ -579,19 +753,25 @@
         roles.push(cb.value);
       });
 
+      if (roles.length === 0) {
+        alert('Please select at least one role you are applying for.');
+        return;
+      }
+
       const data = {
-        fullName: formData.get('fullName'),
+        applicantId: uploadedCvData.applicantId,
+        firstName: formData.get('firstName'),
+        lastName: formData.get('lastName'),
         email: formData.get('email'),
-        phone: formData.get('phone'),
-        location: formData.get('location'),
-        roles: roles.join(', '),
-        experience: formData.get('experience'),
-        availability: formData.get('availability'),
-        about: formData.get('about')
+        phone: formData.get('phone') || undefined,
+        roles: roles,
+        cvKey: uploadedCvData.cvKey,
+        cvOriginalName: uploadedCvData.cvOriginalName,
+        source: 'website'
       };
 
       try {
-        const response = await fetch('/api/applications', {
+        const response = await fetch('/api/v1/applications', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -603,7 +783,8 @@
           form.style.display = 'none';
           document.getElementById('formSuccess').classList.add('active');
         } else {
-          alert('There was a problem submitting your application. Please try again or email us directly at wrobb@vergoltd.com');
+          const err = await response.json();
+          alert(err.error || 'There was a problem submitting your application. Please try again or email us directly at wrobb@vergoltd.com');
         }
       } catch (error) {
         alert('There was a problem submitting your application. Please try again or email us directly at wrobb@vergoltd.com');

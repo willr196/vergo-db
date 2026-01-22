@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma";
 import { Resend } from "resend";
+import { FROM_EMAIL, TO_EMAIL } from "../services/email";
 
 const r = Router();
 
@@ -120,11 +121,11 @@ r.post("/", async (req, res, next) => {
     console.log(`[AUDIT] Quote request received:`, JSON.stringify(quoteDetails, null, 2));
     
     // Send notification email to VERGO team
-    if (resend && process.env.VERGO_NOTIFY_EMAIL) {
+    if (resend) {
       try {
         await resend.emails.send({
-          from: process.env.RESEND_FROM_EMAIL || "noreply@vergoevents.com",
-          to: process.env.VERGO_NOTIFY_EMAIL,
+          from: FROM_EMAIL,
+          to: TO_EMAIL,
           subject: `New Quote Request: ${data.eventType} - ${data.staffNeeded} staff`,
           html: `
             <h2>New Quote Request</h2>
@@ -147,7 +148,7 @@ r.post("/", async (req, res, next) => {
             <p style="margin-top: 20px; color: #666; font-size: 12px;">Submitted: ${quoteDetails.submittedAt}</p>
           `
         });
-        console.log(`[EMAIL] Quote notification sent to ${process.env.VERGO_NOTIFY_EMAIL}`);
+        console.log(`[EMAIL] Quote notification sent to ${TO_EMAIL}`);
       } catch (emailErr) {
         console.error(`[EMAIL] Failed to send quote notification:`, emailErr);
         // Don't fail the request if email fails
@@ -158,7 +159,7 @@ r.post("/", async (req, res, next) => {
     if (resend) {
       try {
         await resend.emails.send({
-          from: process.env.RESEND_FROM_EMAIL || "noreply@vergoevents.com",
+          from: FROM_EMAIL,
           to: data.email,
           subject: "Quote Request Received - VERGO Events",
           html: `

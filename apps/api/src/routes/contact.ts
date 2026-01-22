@@ -62,7 +62,7 @@ const staffRequestSchema = z.object({
   phone: z.string().max(20).optional(),
   company: z.string().min(2).max(100).trim(),
   roles: z.array(z.string()).min(1).max(10),
-  date: z.string().min(1),
+  date: z.string().optional(), // Made optional - event date is no longer required
   staffCount: z.number().min(1).max(100),
   message: z.string().min(10).max(2000).trim(),
   // Honeypot fields

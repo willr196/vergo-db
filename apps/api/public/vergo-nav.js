@@ -35,9 +35,12 @@
           <li><a href="/index.html"${isActive('index.html') ? ' aria-current="page"' : ''}>Home</a></li>
           <li><a href="/hire-staff.html"${isActive('hire-staff.html') ? ' aria-current="page"' : ''}>Hire Staff</a></li>
           <li><a href="/pricing.html"${isActive('pricing.html') ? ' aria-current="page"' : ''}>Pricing</a></li>
-          <li><a href="/jobs.html"${isActive('jobs.html') ? ' aria-current="page"' : ''}>Jobs</a></li>
-          <li><a href="/apply.html"${isActive('apply.html') ? ' aria-current="page"' : ''}>Join the Team</a></li>
-          <li class="nav-cta-wrapper"><a href="/quote.html"${isActive('quote.html') ? ' aria-current="page"' : ''} class="nav-cta">Get a Quote</a></li>
+          <li><a href="/jobs.html"${isActive('jobs.html') ? ' aria-current="page"' : ''}>Job Board</a></li>
+          <li><a href="/blog.html"${isActive('blog.html') ? ' aria-current="page"' : ''}>Blog</a></li>
+          <li><a href="/apply.html"${isActive('apply.html') ? ' aria-current="page"' : ''}>Join VERGO</a></li>
+          <li><a href="/about.html"${isActive('about.html') ? ' aria-current="page"' : ''}>About</a></li>
+          <li><a href="/faq.html"${isActive('faq.html') ? ' aria-current="page"' : ''}>FAQ</a></li>
+          <li class="nav-cta-wrapper"><a href="/contact.html"${isActive('contact.html') ? ' aria-current="page"' : ''} class="nav-cta">Contact</a></li>
         </ul>
       </nav>
     </div>
