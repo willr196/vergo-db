@@ -600,7 +600,7 @@
       <a href="admin-job-applications.html">Applications</a>
       <a href="admin-clients.html">Clients</a>
       <a href="index.html">View Site</a>
-      <button onclick="logout()" class="btn logout-btn">Logout</button>
+      <button id="logout" class="btn logout-btn">Logout</button>
     </div>
   </div>
 
@@ -1518,7 +1518,7 @@
           `;
         }
         
-        // Load events (optional - will show empty if not available)
+        // Load events (optional - hide tab if endpoint not available)
         try {
           await loadEvents();
         } catch (e) {
@@ -1531,6 +1531,14 @@
               </td>
             </tr>
           `;
+          const eventsTab = document.querySelector('.tab[data-tab="events"]');
+          const eventsPanel = document.getElementById('events-tab');
+          if (eventsTab) eventsTab.style.display = 'none';
+          if (eventsPanel) eventsPanel.style.display = 'none';
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          document.querySelector('.tab[data-tab="applications"]')?.classList.add('active');
+          document.getElementById('applications-tab')?.classList.add('active');
         }
         
         notify('Dashboard loaded successfully', 'success');

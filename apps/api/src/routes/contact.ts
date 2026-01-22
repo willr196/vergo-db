@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
 import { sendEventEnquiryEmail, sendStaffRequestEmail, sendGeneralEnquiryEmail } from '../services/email';
+import { prisma } from '../prisma';
 
 const r = Router();
 
@@ -100,6 +101,20 @@ r.post('/event-enquiry', contactLimiter, async (req, res, next) => {
     
     // Send email notification
     await sendEventEnquiryEmail(data);
+
+    await prisma.contact.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || null,
+        type: 'EVENT_ENQUIRY',
+        eventType: data.eventType,
+        eventDate: data.date ? new Date(data.date) : null,
+        guests: data.guests || null,
+        message: data.message,
+        status: 'NEW'
+      }
+    });
     
     console.log('[EVENT ENQUIRY]', {
       from: data.email,
@@ -152,6 +167,21 @@ r.post('/staff-request', contactLimiter, async (req, res, next) => {
     
     // Send email notification
     await sendStaffRequestEmail(data);
+
+    await prisma.contact.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || null,
+        company: data.company,
+        type: 'STAFF_REQUEST',
+        eventDate: data.date ? new Date(data.date) : null,
+        staffCount: data.staffCount,
+        roles: JSON.stringify(data.roles),
+        message: data.message,
+        status: 'NEW'
+      }
+    });
     
     console.log('[STAFF REQUEST]', {
       from: data.email,
@@ -204,6 +234,17 @@ r.post('/general', contactLimiter, async (req, res, next) => {
     
     // Send email notification
     await sendGeneralEnquiryEmail(data);
+
+    await prisma.contact.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        type: 'GENERAL',
+        subject: data.subject,
+        message: data.message,
+        status: 'NEW'
+      }
+    });
     
     console.log('[GENERAL ENQUIRY]', {
       from: data.email,

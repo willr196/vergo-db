@@ -7,9 +7,10 @@ import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import { env } from './env';
 import applications from './routes/applications';
-import { adminAuth } from './middleware/adminAuth';
+import { adminAuth, adminPageAuth } from './middleware/adminAuth';
 import auth from './routes/auth';
 import contact from './routes/contact';
+import contacts from './routes/contacts';
 import userAuth from './routes/userAuth';
 import jobs from './routes/jobs';
 import jobApplications from './routes/jobApplications';
@@ -83,11 +84,12 @@ app.use('/api/v1/auth', auth);
 
 // Contact form endpoints
 app.use('/api/v1/contact', contact);
+app.use('/api/v1/contacts', contacts);
 
 app.use('/api/v1/jobs', jobs);
 
 // Protect admin.html BEFORE static middleware
-app.get('/admin.html', adminAuth, (req, res) => {
+app.get('/admin.html', adminPageAuth, (req, res) => {
   const pub = path.join(process.cwd(), 'public');
   res.sendFile(path.join(pub, 'admin.html'));
 });
@@ -96,6 +98,8 @@ app.use('/api/v1/user', userAuth);
 
 // Applications API
 app.use('/api/v1/applications', applications);
+// Legacy join-our-team form endpoint
+app.use('/api/applications', applications);
 
 // Canonical redirects + legacy cleanup (must be before static)
 app.get(['/apply', '/contact', '/pricing', '/hire-staff'], (req, res) => {

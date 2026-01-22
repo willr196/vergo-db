@@ -169,6 +169,50 @@ model QuoteRequest {
   @@index([createdAt])
 }
 
+model Contact {
+  id          String        @id @default(cuid())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  // Contact info
+  name        String
+  email       String
+  phone       String?
+  company     String?
+  
+  // Enquiry details
+  type        ContactType
+  eventType   String?
+  eventDate   DateTime?
+  guests      Int?
+  staffCount  Int?
+  roles       String?       // JSON array or comma-separated
+  subject     String?
+  message     String        @db.Text
+  
+  // Status tracking
+  status      ContactStatus @default(NEW)
+  adminNotes  String?       @db.Text
+  
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+}
+
+enum ContactType {
+  EVENT_ENQUIRY
+  STAFF_REQUEST
+  GENERAL
+}
+
+enum ContactStatus {
+  NEW
+  CONTACTED
+  QUOTED
+  BOOKED
+  LOST
+}
+
 enum ClientStatus {
   PENDING     // Awaiting admin approval
   APPROVED    // Can log in and use platform
