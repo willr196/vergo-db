@@ -20,11 +20,15 @@ export function signAccessToken(payload: Omit<AuthTokenPayload, 'tokenType'>) {
 }
 
 export function signRefreshToken(payload: Omit<AuthTokenPayload, 'tokenType'>) {
-  return jwt.sign({ ...payload, tokenType: 'refresh' }, env.jwt, { expiresIn: REFRESH_EXPIRES_IN });
+  return jwt.sign({ ...payload, tokenType: 'refresh' }, env.jwtRefresh, { expiresIn: REFRESH_EXPIRES_IN });
 }
 
-export function verifyToken(token: string): AuthTokenPayload {
+export function verifyAccessToken(token: string): AuthTokenPayload {
   return jwt.verify(token, env.jwt) as AuthTokenPayload;
+}
+
+export function verifyRefreshToken(token: string): AuthTokenPayload {
+  return jwt.verify(token, env.jwtRefresh) as AuthTokenPayload;
 }
 
 export function getTokenExpiresAt(token: string): Date {

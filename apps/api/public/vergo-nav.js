@@ -24,7 +24,7 @@
         <img src="/logo.png" alt="VERGO Ltd">
       </a>
 
-      <button class="menu-toggle" onclick="window.vergoNav.toggleMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">
+      <button class="menu-toggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">
         <span></span>
         <span></span>
         <span></span>
@@ -33,7 +33,7 @@
       <nav role="navigation" aria-label="Main navigation">
         <ul id="nav-menu">
           <li><a href="/index.html"${isActive('index.html') ? ' aria-current="page"' : ''}>Home</a></li>
-          <li><a href="/hire-staff.html"${isActive('hire-staff.html') ? ' aria-current="page"' : ''}>Hire Staff</a></li>
+          <li><a href="/hire-staff.html"${isActive('hire-staff.html') ? ' aria-current="page"' : ''}>Hire Event Staff</a></li>
           <li><a href="/pricing.html"${isActive('pricing.html') ? ' aria-current="page"' : ''}>Pricing</a></li>
           <li><a href="/jobs.html"${isActive('jobs.html') ? ' aria-current="page"' : ''}>Job Board</a></li>
           <li><a href="/blog.html"${isActive('blog.html') ? ' aria-current="page"' : ''}>Blog</a></li>
@@ -67,16 +67,25 @@
         left: 0;
         right: 0;
         background: var(--nav-bg);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
         border-bottom: 1px solid var(--nav-border);
         z-index: 1000;
+      }
+
+      /* backdrop-filter on a pseudo so it doesn't create a containing block
+         for fixed-position children (which would trap the mobile menu) */
+      header::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        z-index: -1;
       }
 
       .nav-container {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 16px 40px;
+        padding: calc(16px + env(safe-area-inset-top, 0px)) 40px 16px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -200,7 +209,8 @@
         border: none;
         background: transparent;
         padding: 8px;
-        z-index: 1001;
+        z-index: 1002;
+        position: relative;
       }
 
       .menu-toggle span {
@@ -227,7 +237,7 @@
       /* Mobile styles */
       @media (max-width: 960px) {
         .nav-container {
-          padding: 14px 24px;
+          padding: calc(14px + env(safe-area-inset-top, 0px)) 24px 14px;
         }
 
         .logo img {
@@ -242,16 +252,21 @@
           bottom: 0;
           background: var(--nav-bg);
           flex-direction: column;
-          padding: 100px 32px 40px;
+          padding: calc(100px + env(safe-area-inset-top, 0px)) 32px 40px;
           gap: 0;
           justify-content: flex-start;
           transform: translateX(100%);
           transition: transform 0.35s ease;
           overflow-y: auto;
+          z-index: 1001;
+          pointer-events: none;
+          visibility: hidden;
         }
 
         nav ul.active {
           transform: translateX(0);
+          pointer-events: auto;
+          visibility: visible;
         }
 
         nav li {
@@ -295,7 +310,7 @@
 
       @media (max-width: 480px) {
         .nav-container {
-          padding: 12px 16px;
+          padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px;
         }
 
         .logo img {
@@ -303,7 +318,7 @@
         }
 
         nav ul {
-          padding: 90px 24px 32px;
+          padding: calc(90px + env(safe-area-inset-top, 0px)) 24px 32px;
         }
 
         nav a {
@@ -362,6 +377,17 @@
     }
   };
 
+  const menuToggle = document.querySelector('.menu-toggle');
+  if (menuToggle) {
+    const handleToggle = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      window.vergoNav.toggleMenu();
+    };
+    menuToggle.addEventListener('click', handleToggle);
+    menuToggle.addEventListener('touchstart', handleToggle, { passive: false });
+  }
+
   // Close menu when clicking outside
   document.addEventListener('click', function(event) {
     const header = document.querySelector('header');
@@ -387,6 +413,17 @@
         window.vergoNav.closeMenu();
       }
     });
+  });
+
+  // Close menu on resize/orientation change to avoid stuck overlays
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 960) {
+      window.vergoNav.closeMenu();
+    }
+  });
+
+  window.addEventListener('orientationchange', () => {
+    window.vergoNav.closeMenu();
   });
 
 })();

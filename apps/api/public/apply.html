@@ -350,6 +350,37 @@
       }
     }
 
+    /* Role + Experience Rows */
+    .roles-with-experience { display: flex; flex-direction: column; gap: 12px; }
+    .role-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 12px 15px;
+      background: var(--color-bg-warm);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      flex-wrap: wrap;
+      transition: border-color 0.3s ease;
+    }
+    .role-row:has(input:checked) { border-color: var(--color-gold); background: #fff; }
+    .role-checkbox { display: flex; align-items: center; gap: 10px; min-width: 160px; cursor: pointer; }
+    .role-checkbox input { width: 18px; height: 18px; accent-color: var(--color-gold); cursor: pointer; }
+    .role-checkbox span { color: var(--color-text); }
+    .experience-select {
+      flex: 1;
+      min-width: 180px;
+      padding: 10px 12px;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      color: var(--color-text);
+      font-size: 0.9rem;
+      font-family: var(--font-primary);
+    }
+    .experience-select:disabled { opacity: 0.4; cursor: not-allowed; }
+    .experience-select:not(:disabled) { border-color: var(--color-gold); }
+
     /* File Upload Styles */
     .file-help {
       font-size: 0.85rem;
@@ -517,54 +548,111 @@
 
         <div class="form-block">
           <h3>Role & Experience</h3>
+
+          <!-- Role Selection with Experience -->
           <div class="form-group">
-            <label>Roles You're Applying For *</label>
-            <div class="checkbox-group">
-              <label class="checkbox-item">
-                <input type="checkbox" name="roles" value="Event Chef / Kitchen">
-                <span>Event Chef / Kitchen</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="roles" value="Bar Staff">
-                <span>Bar Staff (Bartender / Barback)</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="roles" value="Front of House">
-                <span>Front of House (Waiter / Runner)</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="roles" value="Barista">
-                <span>Barista</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="roles" value="Catering Assistant">
-                <span>Catering Assistant</span>
-              </label>
-            </div>
-          </div>
+            <label>Select Roles & Experience <span style="color: var(--color-gold);">*</span></label>
+            <p style="color: var(--color-text-muted); font-size: 0.85rem; margin-bottom: 15px;">Tick the roles you can do, then select your experience level for each</p>
+            <div id="roles-error" class="field-error-message" style="display: none;" role="alert"></div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="experience">Experience Level *</label>
-              <select id="experience" name="experience" required>
-                <option value="">Select...</option>
-                <option value="None - looking to start">None - looking to start</option>
-                <option value="Less than 1 year">Less than 1 year</option>
-                <option value="1-2 years">1-2 years</option>
-                <option value="3-5 years">3-5 years</option>
-                <option value="5+ years">5+ years</option>
-              </select>
-            </div>
+            <div class="roles-with-experience" id="roles-container">
+              <div class="role-row">
+                <label class="role-checkbox">
+                  <input type="checkbox" name="roles" value="Bartender" onchange="toggleExperience(this)" />
+                  <span>Bartender</span>
+                </label>
+                <select class="experience-select" data-role="Bartender" disabled>
+                  <option value="">Select experience...</option>
+                  <option value="Entry level">Entry level (0-1 years)</option>
+                  <option value="1-2 years">1-2 years</option>
+                  <option value="3-5 years">3-5 years</option>
+                  <option value="5+ years">5+ years</option>
+                </select>
+              </div>
 
-            <div class="form-group">
-              <label for="availability">Availability *</label>
-              <select id="availability" name="availability" required>
-                <option value="">Select...</option>
-                <option value="Weekdays only">Weekdays only</option>
-                <option value="Weekends only">Weekends only</option>
-                <option value="Both weekdays and weekends">Both weekdays and weekends</option>
-                <option value="Flexible">Flexible</option>
-              </select>
+              <div class="role-row">
+                <label class="role-checkbox">
+                  <input type="checkbox" name="roles" value="Barista" onchange="toggleExperience(this)" />
+                  <span>Barista</span>
+                </label>
+                <select class="experience-select" data-role="Barista" disabled>
+                  <option value="">Select experience...</option>
+                  <option value="Entry level">Entry level (0-1 years)</option>
+                  <option value="1-2 years">1-2 years</option>
+                  <option value="3-5 years">3-5 years</option>
+                  <option value="5+ years">5+ years</option>
+                </select>
+              </div>
+
+              <div class="role-row">
+                <label class="role-checkbox">
+                  <input type="checkbox" name="roles" value="Front of House" onchange="toggleExperience(this)" />
+                  <span>Front of House</span>
+                </label>
+                <select class="experience-select" data-role="Front of House" disabled>
+                  <option value="">Select experience...</option>
+                  <option value="Entry level">Entry level (0-1 years)</option>
+                  <option value="1-2 years">1-2 years</option>
+                  <option value="3-5 years">3-5 years</option>
+                  <option value="5+ years">5+ years</option>
+                </select>
+              </div>
+
+              <div class="role-row">
+                <label class="role-checkbox">
+                  <input type="checkbox" name="roles" value="Waiter" onchange="toggleExperience(this)" />
+                  <span>Waiter</span>
+                </label>
+                <select class="experience-select" data-role="Waiter" disabled>
+                  <option value="">Select experience...</option>
+                  <option value="Entry level">Entry level (0-1 years)</option>
+                  <option value="1-2 years">1-2 years</option>
+                  <option value="3-5 years">3-5 years</option>
+                  <option value="5+ years">5+ years</option>
+                </select>
+              </div>
+
+              <div class="role-row">
+                <label class="role-checkbox">
+                  <input type="checkbox" name="roles" value="Chef" onchange="toggleExperience(this)" />
+                  <span>Chef</span>
+                </label>
+                <select class="experience-select" data-role="Chef" disabled>
+                  <option value="">Select experience...</option>
+                  <option value="Entry level">Entry level (0-1 years)</option>
+                  <option value="1-2 years">1-2 years</option>
+                  <option value="3-5 years">3-5 years</option>
+                  <option value="5+ years">5+ years</option>
+                </select>
+              </div>
+
+              <div class="role-row">
+                <label class="role-checkbox">
+                  <input type="checkbox" name="roles" value="Kitchen Porter" onchange="toggleExperience(this)" />
+                  <span>Kitchen Porter</span>
+                </label>
+                <select class="experience-select" data-role="Kitchen Porter" disabled>
+                  <option value="">Select experience...</option>
+                  <option value="Entry level">Entry level (0-1 years)</option>
+                  <option value="1-2 years">1-2 years</option>
+                  <option value="3-5 years">3-5 years</option>
+                  <option value="5+ years">5+ years</option>
+                </select>
+              </div>
+
+              <div class="role-row">
+                <label class="role-checkbox">
+                  <input type="checkbox" name="roles" value="Runner" onchange="toggleExperience(this)" />
+                  <span>Runner</span>
+                </label>
+                <select class="experience-select" data-role="Runner" disabled>
+                  <option value="">Select experience...</option>
+                  <option value="Entry level">Entry level (0-1 years)</option>
+                  <option value="1-2 years">1-2 years</option>
+                  <option value="3-5 years">3-5 years</option>
+                  <option value="5+ years">5+ years</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -626,6 +714,29 @@
   <script src="/vergo-analytics.js"></script>
 
   <script>
+    // Toggle experience dropdown when role checkbox is ticked
+    function toggleExperience(checkbox) {
+      const row = checkbox.closest('.role-row');
+      const select = row.querySelector('.experience-select');
+      if (checkbox.checked) {
+        select.disabled = false;
+      } else {
+        select.disabled = true;
+        select.value = '';
+      }
+    }
+
+    function getRolesWithExperience() {
+      const roles = [];
+      document.querySelectorAll('input[name="roles"]:checked').forEach(checkbox => {
+        const roleName = checkbox.value;
+        const select = document.querySelector(`.experience-select[data-role="${roleName}"]`);
+        const experience = select ? select.value : '';
+        roles.push({ role: roleName, experienceLevel: experience });
+      });
+      return roles;
+    }
+
     // CV Upload state
     let uploadedCvData = null;
 
@@ -716,7 +827,9 @@
         uploadedCvData = {
           cvKey: key,
           applicantId: applicantId,
-          cvOriginalName: file.name
+          cvOriginalName: file.name,
+          cvFileSize: file.size,
+          cvMimeType: file.type
         };
 
         showUploadStatus('CV uploaded successfully!', 'success');
@@ -747,15 +860,21 @@
       const form = e.target;
       const formData = new FormData(form);
 
-      // Collect checkbox values
-      const roles = [];
-      document.querySelectorAll('input[name="roles"]:checked').forEach(cb => {
-        roles.push(cb.value);
-      });
-
-      if (roles.length === 0) {
+      // Collect roles with experience
+      const selectedRoles = document.querySelectorAll('input[name="roles"]:checked');
+      if (selectedRoles.length === 0) {
         alert('Please select at least one role you are applying for.');
         return;
+      }
+
+      const rolesWithExp = getRolesWithExperience();
+
+      // Validate experience is selected for each ticked role
+      for (const r of rolesWithExp) {
+        if (!r.experienceLevel) {
+          alert(`Please select experience level for ${r.role}`);
+          return;
+        }
       }
 
       const data = {
@@ -764,9 +883,11 @@
         lastName: formData.get('lastName'),
         email: formData.get('email'),
         phone: formData.get('phone') || undefined,
-        roles: roles,
+        roles: rolesWithExp,
         cvKey: uploadedCvData.cvKey,
         cvOriginalName: uploadedCvData.cvOriginalName,
+        cvFileSize: uploadedCvData.cvFileSize,
+        cvMimeType: uploadedCvData.cvMimeType,
         source: 'website'
       };
 

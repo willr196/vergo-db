@@ -36,11 +36,12 @@ model Role {
 }
 
 model ApplicationRole {
-  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  applicationId String
-  role          Role        @relation(fields: [roleId], references: [id])
-  roleId        String
-  
+  application     Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId   String
+  role            Role        @relation(fields: [roleId], references: [id])
+  roleId          String
+  experienceLevel String?
+
   @@id([applicationId, roleId])
   @@map("ApplicationRole")
 }
@@ -51,6 +52,9 @@ model Application {
   status         ApplicationStatus @default(RECEIVED)
   cvKey          String
   cvOriginalName String?
+  cvFileSize     Int?              // file size in bytes
+  cvMimeType     String?           // e.g. "application/pdf"
+  cvUploadedAt   DateTime?         // when the CV was uploaded
   notes          String?
   source         String?
   applicant      Applicant         @relation(fields: [applicantId], references: [id])
@@ -434,4 +438,133 @@ enum JobApplicationStatus {
 enum UserType {
   JOB_SEEKER
   CLIENT
+}
+
+// ============================================
+// EMAIL TRACKING MODELS (Phase 3)
+// ============================================
+
+// Track sent emails and their delivery status
+model Email {
+  id        String      @id @default(cuid())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  // Resend tracking
+  resendId  String      @unique
+
+  // Email details
+  to        String
+  subject   String
+  emailType String      // e.g. "user-verification", "job-application-confirmation"
+
+  // Status tracking
+  status    EmailStatus @default(QUEUED)
+
+  // Optional associations
+  userId    String?
+  clientId  String?
+
+  // Events
+  events    EmailEvent[]
+
+  @@index([resendId])
+  @@index([userId])
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Individual email events (sent, delivered, opened, clicked, etc.)
+model EmailEvent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // Event details
+  eventType String   // e.g. "email.sent", "email.delivered", "email.opened"
+  payload   Json?    // Full webhook payload for debugging
+
+  // Relation
+  emailId   String
+  email     Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
+
+  @@index([emailId])
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+enum EmailStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  BOUNCED
+  COMPLAINED
+  FAILED
+}
+
+// ============================================
+// EMAIL PREFERENCES (Phase 4)
+// ============================================
+
+// User/client email preferences for unsubscribe management
+model EmailPreferences {
+  id               String   @id @default(cuid())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // One of these will be set
+  userId           String?  @unique
+  clientId         String?  @unique
+
+  // Preference categories
+  marketing        Boolean  @default(true)
+  notifications    Boolean  @default(true)
+  jobAlerts        Boolean  @default(true)
+  quoteUpdates     Boolean  @default(true)
+
+  // Unsubscribe token for one-click unsubscribe
+  unsubscribeToken String   @unique @default(cuid())
+
+  @@index([unsubscribeToken])
+}
+
+// ============================================
+// SCHEDULED EMAILS (Phase 5)
+// ============================================
+
+// Track scheduled/delayed emails
+model ScheduledEmail {
+  id           String               @id @default(cuid())
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  // BullMQ job reference
+  jobId        String               @unique
+
+  // Schedule details
+  scheduledFor DateTime
+
+  // Status
+  status       ScheduledEmailStatus @default(SCHEDULED)
+
+  // Email details
+  emailType    String               // e.g. "quote-followup", "shift-reminder"
+  recipientId  String               // User or client ID
+  subject      String
+
+  // Optional metadata
+  metadata     Json?
+
+  @@index([status])
+  @@index([scheduledFor])
+  @@index([recipientId])
+}
+
+enum ScheduledEmailStatus {
+  SCHEDULED
+  SENT
+  CANCELLED
+  FAILED
 }

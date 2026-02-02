@@ -117,7 +117,7 @@ r.post('/event-enquiry', contactLimiter, async (req, res, next) => {
     });
     
     console.log('[EVENT ENQUIRY]', {
-      from: data.email,
+      from: data.email.slice(0, 2) + '***',
       name: data.name,
       eventType: data.eventType,
       date: data.date,
@@ -184,7 +184,7 @@ r.post('/staff-request', contactLimiter, async (req, res, next) => {
     });
     
     console.log('[STAFF REQUEST]', {
-      from: data.email,
+      from: data.email.slice(0, 2) + '***',
       name: data.name,
       company: data.company,
       roles: data.roles,
@@ -247,7 +247,7 @@ r.post('/general', contactLimiter, async (req, res, next) => {
     });
     
     console.log('[GENERAL ENQUIRY]', {
-      from: data.email,
+      from: data.email.slice(0, 2) + '***',
       name: data.name,
       subject: data.subject
     });

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthSubjectType, verifyToken } from '../utils/jwt';
+import { AuthSubjectType, verifyAccessToken } from '../utils/jwt';
 
 type AuthInfo = {
   userId: string;
@@ -28,7 +28,7 @@ function requireJwt(req: Request, res: Response, next: NextFunction, expectedTyp
   }
 
   try {
-    const payload = verifyToken(token);
+    const payload = verifyAccessToken(token);
     if (payload.tokenType !== 'access' || payload.type !== expectedType) {
       return res.status(401).json({ ok: false, error: 'Invalid authorization token' });
     }

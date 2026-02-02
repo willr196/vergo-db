@@ -9,6 +9,7 @@ import { Readable } from 'stream';
 import rateLimit from 'express-rate-limit';
 import { env } from '../env';
 import { sendApplicationNotificationEmail, sendApplicationConfirmationToApplicant } from '../services/email';
+import { authLogger } from '../services/logger';
 
 const r = Router();
 
@@ -245,6 +246,11 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
 // ============================================
 // CREATE APPLICATION WITH EMAIL NOTIFICATIONS
 // ============================================
+const roleWithExperience = z.object({
+  role: z.string().min(1).max(50),
+  experienceLevel: z.string().min(1).max(50)
+});
+
 const createBody = z.object({
   applicantId: z.string().uuid(),
   firstName: z.string().min(1).max(100).trim(),
@@ -252,13 +258,21 @@ const createBody = z.object({
   email: z.string().email().max(255).toLowerCase(),
   phone: z.string().max(20).optional(),
   rightToWorkUk: z.boolean().optional(),
-  roles: z.array(z.string().max(50)).min(1).max(10),
+  roles: z.array(roleWithExperience).min(1).max(10),
   cvKey: z.string().min(1).max(500),
   cvOriginalName: z.string().max(255).optional(),
+  cvFileSize: z.number().int().positive().max(10485760).optional(),
+  cvMimeType: z.string().max(100).optional(),
   source: z.string().max(100).optional()
 });
 
-r.post('/', async (req, res, next) => {
+const applicationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  message: { error: 'Too many application submissions. Please try again later.' }
+});
+
+r.post('/', applicationLimiter, async (req, res, next) => {
   try {
     const d = createBody.parse(req.body);
 
@@ -295,13 +309,17 @@ r.post('/', async (req, res, next) => {
         },
         cvKey: d.cvKey,
         cvOriginalName: d.cvOriginalName ?? null,
+        cvFileSize: d.cvFileSize ?? null,
+        cvMimeType: d.cvMimeType ?? null,
+        cvUploadedAt: new Date(),
         source: d.source ?? 'website',
         roles: {
-          create: d.roles.map(roleName => ({
+          create: d.roles.map(r => ({
+            experienceLevel: r.experienceLevel,
             role: {
               connectOrCreate: {
-                where: { name: roleName },
-                create: { name: roleName }
+                where: { name: r.role },
+                create: { name: r.role }
               }
             }
           }))
@@ -319,11 +337,13 @@ r.post('/', async (req, res, next) => {
 
     // Send email notifications (async, don't wait)
     // Send to admin
+    const roleStrings = d.roles.map(r => `${r.role} (${r.experienceLevel})`);
+
     sendApplicationNotificationEmail({
       applicantName: `${d.firstName} ${d.lastName}`,
       email: d.email,
       phone: d.phone,
-      roles: d.roles,
+      roles: roleStrings,
       cvOriginalName: d.cvOriginalName,
       applicationId: app.id
     }).catch(err => {
@@ -334,13 +354,13 @@ r.post('/', async (req, res, next) => {
     sendApplicationConfirmationToApplicant({
       to: d.email,
       name: d.firstName,
-      roles: d.roles,
+      roles: roleStrings,
       applicationId: app.id
     }).catch(err => {
       console.error('[EMAIL] Failed to send applicant confirmation:', err);
     });
 
-    console.log(`[APPLICATION] New application: ${app.id} from ${d.email}`);
+    console.log(`[APPLICATION] New application: ${app.id}`);
     res.status(201).json({ ok: true, id: app.id, data: { id: app.id } });
   } catch (e) { next(e); }
 });
@@ -348,21 +368,33 @@ r.post('/', async (req, res, next) => {
 // ============================================
 // LIST APPLICATIONS (ADMIN)
 // ============================================
+const listQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(50).default(50)
+});
+
 r.get('/', adminAuth, async (req, res, next) => {
   try {
-    const apps = await prisma.application.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 200,
-      include: {
-        applicant: true,
-        roles: {
-          include: {
-            role: true
+    const query = listQuerySchema.parse(req.query);
+    const skip = (query.page - 1) * query.limit;
+
+    const [apps, total] = await Promise.all([
+      prisma.application.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: query.limit,
+        include: {
+          applicant: true,
+          roles: {
+            include: {
+              role: true
+            }
           }
         }
-      }
-    });
-    
+      }),
+      prisma.application.count()
+    ]);
+
     // 🔧 FIX: Return cvUrl instead of cvKey for frontend compatibility
     const shaped = apps.map(a => ({
       id: a.id,
@@ -371,15 +403,26 @@ r.get('/', adminAuth, async (req, res, next) => {
       lastName: a.applicant.lastName,
       email: a.applicant.email,
       phone: a.applicant.phone ?? '',
-      roles: a.roles.map(r => r.role.name),
-      cvUrl: a.cvKey,  // ← FIXED: Changed from cvKey to cvUrl
-      cvKey: a.cvKey,  // Keep cvKey for backward compatibility
+      roles: a.roles.map(r => ({
+        name: r.role.name,
+        experienceLevel: r.experienceLevel ?? null
+      })),
+      cvUrl: a.cvKey,
+      cvKey: a.cvKey,
       cvOriginalName: a.cvOriginalName ?? null,
+      cvFileSize: a.cvFileSize ?? null,
+      cvMimeType: a.cvMimeType ?? null,
+      cvUploadedAt: a.cvUploadedAt ?? null,
       source: a.source,
       status: a.status
     }));
-    
-    res.json({ ok: true, applications: shaped, data: shaped });
+
+    const payload = {
+      applications: shaped,
+      pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) }
+    };
+
+    res.json({ ok: true, ...payload, data: payload });
   } catch (e) { next(e); }
 });
 
@@ -388,14 +431,27 @@ r.get('/', adminAuth, async (req, res, next) => {
 // ============================================
 r.get('/:id/cv', adminAuth, async (req, res, next) => {
   try {
-    const app = await prisma.application.findUnique({ where: { id: req.params.id } });
-    if (!app?.cvKey) return res.status(404).json({ error: 'No CV on file' });
+    const appId = req.params.id;
+    if (!appId || appId === 'undefined' || appId === 'null') {
+      return res.status(400).json({ error: 'Invalid application ID' });
+    }
+
+    const app = await prisma.application.findUnique({ where: { id: appId } });
+    if (!app) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+    if (!app.cvKey) {
+      return res.status(404).json({ error: 'No CV on file for this application' });
+    }
 
     const url = await presignDownload(app.cvKey);
-    
+
     // Return as signedUrl for consistency with frontend expectations
     res.json({ ok: true, signedUrl: url, url, data: { signedUrl: url, url } });
-  } catch (e) { next(e); }
+  } catch (e) {
+    console.error('[CV] Error fetching CV:', e);
+    next(e);
+  }
 });
 
 // ============================================
@@ -436,6 +492,10 @@ r.patch('/:id/status', adminAuth, async (req, res, next) => {
       where: { id: req.params.id },
       data: { status: parsed.data.status as any }
     });
+
+    const adminUsername = (req.session as any)?.username || "admin";
+    authLogger.info({ action: 'application_status_changed', admin: adminUsername, applicationId: req.params.id, status: parsed.data.status }, 'Admin changed application status');
+
     res.json({ ok: true, id: app.id, status: app.status, data: { id: app.id, status: app.status } });
   } catch (e) { next(e); }
 });

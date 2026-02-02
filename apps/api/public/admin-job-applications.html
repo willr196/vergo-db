@@ -521,7 +521,6 @@
       .filters select, .filters input { width: 100%; }
     }
   </style>
-  <link rel="stylesheet" href="/vergo-mobile.css">
   <link rel="stylesheet" href="/vergo-platform.css">
 </head>
 <body class="platform">
@@ -620,24 +619,11 @@
     </div>
   </div>
   
+  <script src="/js/admin-core.js"></script>
   <script>
     let applications = [];
     let jobs = [];
     let currentApplication = null;
-    
-    // Check auth
-    async function checkAuth() {
-      try {
-        const res = await fetch('/api/v1/auth/session');
-        const payload = await res.json();
-        const data = payload.data ?? payload;
-        if (!data.authenticated) {
-          window.location.href = 'login.html';
-        }
-      } catch (err) {
-        window.location.href = 'login.html';
-      }
-    }
     
     // Load jobs for filter dropdown
     async function loadJobs() {
@@ -672,6 +658,7 @@
         const res = await fetch(`/api/v1/job-applications?${params}`);
         const payload = await res.json();
         const data = payload.data ?? payload;
+        console.log('[ADMIN] Job applications response:', data);
         applications = data.applications || [];
         updateStats();
         renderTable();
@@ -868,12 +855,12 @@
         <button class="btn btn-secondary" onclick="closeModal()">Close</button>
       `;
       
-      document.getElementById('detail-modal').style.display = 'flex';
+      AdminCore.openModal('detail-modal');
     }
     
     // Close modal
     function closeModal() {
-      document.getElementById('detail-modal').style.display = 'none';
+      AdminCore.closeModal('detail-modal');
       currentApplication = null;
     }
     
@@ -935,37 +922,21 @@
       }
     }
     
-    // Show alert
-    function showAlert(message, type) {
-      const container = document.getElementById('alert-container');
-      container.innerHTML = `<div class="alert alert-${type}">${escapeHtml(message)}</div>`;
-      setTimeout(() => { container.innerHTML = ''; }, 4000);
-    }
+    // Aliases for AdminCore
+    const escapeHtml = AdminCore.escapeHtml;
+    const showAlert = AdminCore.showAlert;
+    const logout = AdminCore.logout;
     
-    // Logout
-    async function logout() {
-      await fetch('/api/v1/auth/logout', { method: 'POST' });
-      window.location.href = 'login.html';
-    }
-    
-    // Escape HTML
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-    
-    // Close modal on backdrop click
+    // Modal backdrop + Escape behavior (uses local closeModal to reset currentApplication)
     document.getElementById('detail-modal').addEventListener('click', (e) => {
       if (e.target.classList.contains('modal-backdrop')) closeModal();
     });
-    
-    // Close modal on Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeModal();
     });
-    
+
     // Init
-    checkAuth();
+    AdminCore.checkAuth();
     loadJobs();
     loadApplications();
   </script>

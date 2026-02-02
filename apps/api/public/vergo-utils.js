@@ -667,10 +667,12 @@ class UserAuth {
     if (!authLinks) return;
     
     if (this.user) {
+      const safeFirst = (this.user.firstName || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      const safeLast = (this.user.lastName || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
       authLinks.innerHTML = `
         <div class="user-menu">
           <button class="user-menu-toggle" aria-expanded="false">
-            ${this.user.firstName} ${this.user.lastName}
+            ${safeFirst} ${safeLast}
           </button>
           <ul class="user-dropdown" role="menu">
             <li><a href="/dashboard" role="menuitem">Dashboard</a></li>
@@ -711,9 +713,10 @@ class UserAuth {
         this.user = data.user;
         notification.show('Login successful!', 'success');
         
-        // Redirect to intended page or dashboard
+        // Redirect to intended page or dashboard (validate same-origin)
         const params = new URLSearchParams(window.location.search);
-        const redirect = params.get('redirect') || '/dashboard';
+        let redirect = params.get('redirect') || '/dashboard';
+        if (!/^\/[^\/\\]/.test(redirect) && redirect !== '/') redirect = '/dashboard';
         window.location.href = redirect;
       } else {
         const payload = await response.json();

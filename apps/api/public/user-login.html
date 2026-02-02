@@ -226,7 +226,6 @@
       .auth-box { padding: 30px 20px; }
     }
   </style>
-  <link rel="stylesheet" href="/vergo-mobile.css">
   <link rel="stylesheet" href="/vergo-platform.css">
 </head>
 <body class="platform">
@@ -283,9 +282,11 @@
     const msgBox = document.getElementById('message');
     const resendSection = document.getElementById('resend-section');
     
-    // Get redirect URL and check for verified param
+    // Get redirect URL and check for verified param (validate same-origin)
     const params = new URLSearchParams(window.location.search);
-    const redirect = params.get('redirect') || 'jobs.html';
+    let redirect = params.get('redirect') || 'jobs.html';
+    // Block absolute URLs and protocol-relative URLs to prevent open redirect
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(redirect) || redirect.startsWith('//')) redirect = 'jobs.html';
     
     // Show success if just verified
     if (params.get('verified') === 'true') {

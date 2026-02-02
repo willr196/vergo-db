@@ -6,7 +6,7 @@ import { z } from "zod";
 import { prisma } from "../prisma";
 import { sendUserVerificationEmail, sendPasswordResetEmail } from "../services/email";
 import { requireUserJwt } from "../middleware/jwtAuth";
-import { signAccessToken, signRefreshToken, verifyToken, getTokenExpiresAt, hashToken } from "../utils/jwt";
+import { signAccessToken, signRefreshToken, verifyRefreshToken, getTokenExpiresAt, hashToken } from "../utils/jwt";
 
 const r = Router();
 
@@ -80,6 +80,12 @@ const forgotPasswordLimiter = rateLimit({
   message: { error: "Too many reset requests. Try again later." }
 });
 
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30, // 30 refresh attempts per 15 min
+  message: { ok: false, error: "Too many refresh attempts. Try again later." }
+});
+
 // ============================================
 // HELPERS
 // ============================================
@@ -87,6 +93,12 @@ const DUMMY_HASH = "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.G0G0G0G0G0G0G0
 
 function generateToken(): string {
   return crypto.randomBytes(32).toString("hex");
+}
+
+function redactEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!domain) return "***";
+  return local.slice(0, 2) + "***@" + domain;
 }
 
 function shapeMobileUser(user: {
@@ -151,6 +163,7 @@ r.post("/register", registerLimiter, async (req, res) => {
         lastName,
         phone: phone || null,
         verifyToken,
+        verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000),
         emailVerified: false
       }
     });
@@ -164,7 +177,7 @@ r.post("/register", registerLimiter, async (req, res) => {
       console.error("[EMAIL] Failed to send verification:", err);
     });
     
-    console.log(`[USER] New registration: ${email}`);
+    console.log(`[USER] New registration: ${redactEmail(email)}`);
     
     res.status(201).json({ 
       ok: true,
@@ -189,7 +202,7 @@ r.get("/verify-email", async (req, res) => {
     }
     
     const user = await prisma.user.findFirst({
-      where: { verifyToken: token },
+      where: { verifyToken: token, verifyTokenExp: { gt: new Date() } },
       select: { id: true, emailVerified: true }
     });
     
@@ -203,9 +216,10 @@ r.get("/verify-email", async (req, res) => {
     
     await prisma.user.update({
       where: { id: user.id },
-      data: { 
+      data: {
         emailVerified: true,
-        verifyToken: null
+        verifyToken: null,
+        verifyTokenExp: null
       }
     });
     
@@ -328,7 +342,7 @@ r.post("/login", loginLimiter, async (req, res) => {
           return res.status(500).json({ error: "Login failed" });
         }
         
-        console.log(`[USER] Login: ${email}`);
+        console.log(`[USER] Login: ${redactEmail(email)}`);
         
         res.json({ 
           ok: true,
@@ -480,6 +494,7 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
         lastName,
         phone: phone || null,
         verifyToken,
+        verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000),
         emailVerified: false
       }
     });
@@ -514,14 +529,14 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
 // ============================================
 // POST /api/v1/user/mobile/refresh
 // ============================================
-r.post("/mobile/refresh", async (req, res) => {
+r.post("/mobile/refresh", refreshLimiter, async (req, res) => {
   try {
     const parsed = refreshSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ ok: false, error: "Invalid input" });
     }
 
-    const payload = verifyToken(parsed.data.refreshToken);
+    const payload = verifyRefreshToken(parsed.data.refreshToken);
     if (payload.tokenType !== 'refresh' || payload.type !== 'user') {
       return res.status(401).json({ ok: false, error: "Invalid refresh token" });
     }
@@ -669,7 +684,7 @@ r.post("/logout", (req, res) => {
     });
     
     if (email) {
-      console.log(`[USER] Logout: ${email}`);
+      console.log(`[USER] Logout: ${redactEmail(email)}`);
     }
     
     res.json({ ok: true });
@@ -766,7 +781,7 @@ r.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
       console.error("[EMAIL] Failed to send password reset:", err);
     });
     
-    console.log(`[USER] Password reset requested: ${email}`);
+    console.log(`[USER] Password reset requested: ${redactEmail(email)}`);
     
     res.json(successResponse);
     
@@ -814,7 +829,7 @@ r.post("/reset-password", async (req, res) => {
       }
     });
     
-    console.log(`[USER] Password reset complete: ${user.email}`);
+    console.log(`[USER] Password reset complete: ${redactEmail(user.email)}`);
     
     res.json({ ok: true, message: "Password reset successful. You can now log in." });
     
@@ -853,9 +868,9 @@ r.post("/resend-verification", forgotPasswordLimiter, async (req, res) => {
     
     await prisma.user.update({
       where: { id: user.id },
-      data: { verifyToken }
+      data: { verifyToken, verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000) }
     });
-    
+
     sendUserVerificationEmail({
       to: email,
       name: user.firstName,

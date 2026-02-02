@@ -6,7 +6,7 @@ import { z } from "zod";
 import { prisma } from "../prisma";
 import { sendClientVerificationEmail, sendClientPasswordResetEmail } from "../services/email";
 import { requireClientJwt } from "../middleware/jwtAuth";
-import { signAccessToken, signRefreshToken, verifyToken, getTokenExpiresAt, hashToken } from "../utils/jwt";
+import { signAccessToken, signRefreshToken, verifyRefreshToken, getTokenExpiresAt, hashToken } from "../utils/jwt";
 
 const r = Router();
 
@@ -73,10 +73,22 @@ const forgotPasswordLimiter = rateLimit({
   message: { error: "Too many reset requests. Try again later." }
 });
 
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: { ok: false, error: "Too many refresh attempts. Try again later." }
+});
+
 // ============================================
 // HELPERS
 // ============================================
 const DUMMY_HASH = "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.G0G0G0G0G0G0G0";
+
+function redactEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!domain) return "***";
+  return local.slice(0, 2) + "***@" + domain;
+}
 const CLIENT_IDLE_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours
 const CLIENT_MAX_SESSION_AGE = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -214,7 +226,7 @@ r.post("/register", registerLimiter, async (req, res) => {
       console.error("[EMAIL] Failed to send client verification:", err);
     });
 
-    console.log(`[CLIENT] New registration: ${companyName} (${email})`);
+    console.log(`[CLIENT] New registration: ${companyName} (${redactEmail(email)})`);
     
     res.status(201).json({ 
       ok: true,
@@ -271,6 +283,62 @@ r.get("/verify-email", async (req, res) => {
   } catch (error) {
     console.error("[ERROR] Client email verification failed:", error);
     res.status(500).json({ error: "Verification failed" });
+  }
+});
+
+// ============================================
+// POST /api/v1/clients/resend-verification
+// ============================================
+r.post("/resend-verification", forgotPasswordLimiter, async (req, res) => {
+  try {
+    const parsed = loginSchema.pick({ email: true }).safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid email" });
+    }
+
+    const { email } = parsed.data;
+
+    const client = await prisma.client.findUnique({
+      where: { email },
+      select: { id: true, contactName: true, companyName: true, emailVerified: true }
+    });
+
+    // Don't reveal if email exists
+    const successResponse = {
+      ok: true,
+      message: "If the email exists and is unverified, a new verification link has been sent."
+    };
+
+    if (!client || client.emailVerified) {
+      return res.json(successResponse);
+    }
+
+    const verifyToken = generateToken();
+
+    await prisma.client.update({
+      where: { id: client.id },
+      data: {
+        verifyToken,
+        verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+      }
+    });
+
+    sendClientVerificationEmail({
+      to: email,
+      name: client.contactName,
+      companyName: client.companyName,
+      token: verifyToken
+    }).catch(err => {
+      console.error("[EMAIL] Failed to resend client verification:", err);
+    });
+
+    console.log(`[CLIENT] Resent verification email: ${redactEmail(email)}`);
+    res.json(successResponse);
+
+  } catch (error) {
+    console.error("[ERROR] Client resend verification failed:", error);
+    res.status(500).json({ error: "Request failed" });
   }
 });
 
@@ -589,6 +657,18 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
       }
     });
 
+    // Send verification email
+    sendClientVerificationEmail({
+      to: email,
+      name: contactName,
+      companyName,
+      token: verifyToken
+    }).catch(err => {
+      console.error("[EMAIL] Failed to send mobile client verification:", err);
+    });
+
+    console.log(`[CLIENT] New mobile registration: ${companyName} (${redactEmail(email)})`);
+
     res.status(201).json({
       ok: true,
       message: "Registration successful. Please check your email to verify your account. Once verified, your account will be reviewed by our team.",
@@ -604,14 +684,14 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
 // ============================================
 // POST /api/v1/client/mobile/refresh
 // ============================================
-r.post("/mobile/refresh", async (req, res) => {
+r.post("/mobile/refresh", refreshLimiter, async (req, res) => {
   try {
     const parsed = refreshSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ ok: false, error: "Invalid input" });
     }
 
-    const payload = verifyToken(parsed.data.refreshToken);
+    const payload = verifyRefreshToken(parsed.data.refreshToken);
     if (payload.tokenType !== 'refresh' || payload.type !== 'client') {
       return res.status(401).json({ ok: false, error: "Invalid refresh token" });
     }
@@ -821,7 +901,7 @@ r.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
       console.error("[EMAIL] Failed to send client password reset:", err);
     });
 
-    console.log(`[CLIENT] Password reset requested: ${email}`);
+    console.log(`[CLIENT] Password reset requested: ${redactEmail(email)}`);
 
     res.json(successResponse);
     
@@ -869,7 +949,7 @@ r.post("/reset-password", async (req, res) => {
       }
     });
     
-    console.log(`[CLIENT] Password reset complete: ${client.email}`);
+    console.log(`[CLIENT] Password reset complete: ${redactEmail(client.email)}`);
     
     res.json({ ok: true, message: "Password reset successful. You can now log in." });
     

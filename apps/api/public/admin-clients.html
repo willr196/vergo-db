@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manage Clients - VERGO Admin</title>
-  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="icon" type="image/png" href="/logo-small.png">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -312,7 +312,7 @@
     <a href="admin.html" class="logo">VERGO Admin</a>
     <nav>
       <a href="admin.html">Dashboard</a>
-      <a href="admin-applicants.html">Applicants</a>
+      <a href="admin-job-applications.html">Applications</a>
       <a href="admin-jobs.html">Jobs</a>
       <a href="admin-clients.html" class="active">Clients</a>
     </nav>
@@ -409,26 +409,13 @@
     </div>
   </div>
   
+  <script src="/js/admin-core.js"></script>
   <script>
     let clients = [];
     let currentPage = 1;
     let totalPages = 1;
-    let searchTimeout = null;
     let pendingRejectId = null;
-    
-    // Check admin auth
-    async function checkAuth() {
-      try {
-        const res = await fetch('/api/v1/auth/session');
-        const payload = await res.json();
-        const data = payload.data ?? payload;
-        if (!data.authenticated) {
-          window.location.href = 'login.html';
-        }
-      } catch (err) {
-        window.location.href = 'login.html';
-      }
-    }
+    var debounceSearch = AdminCore.debounce(() => loadClients(1), 300);
     
     // Load stats
     async function loadStats() {
@@ -457,7 +444,7 @@
       if (search) params.append('search', search);
       
       const tbody = document.getElementById('clients-table');
-      tbody.innerHTML = '<tr><td colspan="5" class="loading">Loading...</td></tr>';
+      tbody.innerHTML = AdminCore.renderLoadingState(5);
       
       try {
         const res = await fetch(`/api/v1/admin/clients?${params}`);
@@ -468,7 +455,7 @@
         totalPages = data.pagination.pages;
         
         if (clients.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No clients found</td></tr>';
+          tbody.innerHTML = AdminCore.renderEmptyState(5, 'No clients found');
           updatePagination();
           return;
         }
@@ -476,22 +463,22 @@
         tbody.innerHTML = clients.map(client => `
           <tr>
             <td class="company-cell">
-              <div class="company-name">${escapeHtml(client.companyName)}</div>
-              <div class="company-industry">${escapeHtml(client.industry || 'Not specified')}</div>
+              <div class="company-name">${AdminCore.escapeHtml(client.companyName)}</div>
+              <div class="company-industry">${AdminCore.escapeHtml(client.industry || 'Not specified')}</div>
             </td>
             <td class="contact-cell">
               <div class="contact-name">
-                ${escapeHtml(client.contactName)}
+                ${AdminCore.escapeHtml(client.contactName)}
                 ${client.emailVerified 
                   ? '<span class="verified-badge" title="Email verified">✓</span>' 
                   : '<span class="unverified-badge" title="Email not verified">✗</span>'}
               </div>
-              <div class="contact-email">${escapeHtml(client.email)}</div>
+              <div class="contact-email">${AdminCore.escapeHtml(client.email)}</div>
             </td>
             <td>
               <span class="status-badge status-${client.status}">${client.status}</span>
             </td>
-            <td>${formatDate(client.createdAt)}</td>
+            <td>${AdminCore.formatDate(client.createdAt)}</td>
             <td class="actions">
               ${getActionButtons(client)}
             </td>
@@ -532,11 +519,6 @@
       `;
     }
     
-    function debounceSearch() {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => loadClients(1), 300);
-    }
-    
     // View client details
     async function viewClient(id) {
       try {
@@ -556,34 +538,34 @@
           </div>
           <div class="detail-row">
             <span class="detail-label">Industry:</span>
-            <span class="detail-value">${escapeHtml(client.industry || 'Not specified')}</span>
+            <span class="detail-value">${AdminCore.escapeHtml(client.industry || 'Not specified')}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Company Size:</span>
-            <span class="detail-value">${escapeHtml(client.companySize || 'Not specified')}</span>
+            <span class="detail-value">${AdminCore.escapeHtml(client.companySize || 'Not specified')}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Website:</span>
-            <span class="detail-value">${client.website ? `<a href="${escapeHtml(client.website)}" target="_blank" style="color: #D4AF37;">${escapeHtml(client.website)}</a>` : 'Not specified'}</span>
+            <span class="detail-value">${client.website && /^https?:\/\//i.test(client.website) ? `<a href="${AdminCore.escapeHtml(client.website)}" target="_blank" rel="noopener noreferrer" style="color: #D4AF37;">${AdminCore.escapeHtml(client.website)}</a>` : AdminCore.escapeHtml(client.website || 'Not specified')}</span>
           </div>
           
           <div class="modal-section">
             <h3>Contact Details</h3>
             <div class="detail-row">
               <span class="detail-label">Name:</span>
-              <span class="detail-value">${escapeHtml(client.contactName)}</span>
+              <span class="detail-value">${AdminCore.escapeHtml(client.contactName)}</span>
             </div>
             <div class="detail-row">
               <span class="detail-label">Email:</span>
-              <span class="detail-value">${escapeHtml(client.email)}</span>
+              <span class="detail-value">${AdminCore.escapeHtml(client.email)}</span>
             </div>
             <div class="detail-row">
               <span class="detail-label">Phone:</span>
-              <span class="detail-value">${escapeHtml(client.phone || 'Not specified')}</span>
+              <span class="detail-value">${AdminCore.escapeHtml(client.phone || 'Not specified')}</span>
             </div>
             <div class="detail-row">
               <span class="detail-label">Job Title:</span>
-              <span class="detail-value">${escapeHtml(client.jobTitle || 'Not specified')}</span>
+              <span class="detail-value">${AdminCore.escapeHtml(client.jobTitle || 'Not specified')}</span>
             </div>
           </div>
           
@@ -591,44 +573,44 @@
             <h3>Account Info</h3>
             <div class="detail-row">
               <span class="detail-label">Registered:</span>
-              <span class="detail-value">${formatDate(client.createdAt)}</span>
+              <span class="detail-value">${AdminCore.formatDate(client.createdAt)}</span>
             </div>
             ${client.approvedAt ? `
             <div class="detail-row">
               <span class="detail-label">Approved:</span>
-              <span class="detail-value">${formatDate(client.approvedAt)} by ${escapeHtml(client.approvedBy || 'Admin')}</span>
+              <span class="detail-value">${AdminCore.formatDate(client.approvedAt)} by ${AdminCore.escapeHtml(client.approvedBy || 'Admin')}</span>
             </div>
             ` : ''}
             ${client.rejectionReason ? `
             <div class="detail-row">
               <span class="detail-label">Rejection Reason:</span>
-              <span class="detail-value">${escapeHtml(client.rejectionReason)}</span>
+              <span class="detail-value">${AdminCore.escapeHtml(client.rejectionReason)}</span>
             </div>
             ` : ''}
             ${client.lastLoginAt ? `
             <div class="detail-row">
               <span class="detail-label">Last Login:</span>
-              <span class="detail-value">${formatDate(client.lastLoginAt)}</span>
+              <span class="detail-value">${AdminCore.formatDate(client.lastLoginAt)}</span>
             </div>
             ` : ''}
           </div>
           
           <div class="modal-section">
             <h3>Admin Notes</h3>
-            <textarea id="admin-notes-${client.id}" placeholder="Add notes about this client...">${escapeHtml(client.adminNotes || '')}</textarea>
+            <textarea id="admin-notes-${client.id}" placeholder="Add notes about this client...">${AdminCore.escapeHtml(client.adminNotes || '')}</textarea>
             <button class="btn btn-view" style="margin-top: 10px;" onclick="saveNotes('${client.id}')">Save Notes</button>
           </div>
         `;
         
-        document.getElementById('client-modal').style.display = 'flex';
+        AdminCore.openModal('client-modal');
         
       } catch (err) {
-        showAlert('Failed to load client details', 'error');
+        AdminCore.showAlert('Failed to load client details', 'error');
       }
     }
     
     function closeModal() {
-      document.getElementById('client-modal').style.display = 'none';
+      AdminCore.closeModal('client-modal');
     }
     
     // Client actions
@@ -642,24 +624,24 @@
         
         if (!res.ok) throw new Error(data.error);
         
-        showAlert('Client approved successfully', 'success');
+        AdminCore.showAlert('Client approved successfully', 'success');
         loadClients(currentPage);
         loadStats();
         
       } catch (err) {
-        showAlert(err.message || 'Failed to approve client', 'error');
+        AdminCore.showAlert(err.message || 'Failed to approve client', 'error');
       }
     }
     
     function openRejectModal(id) {
       pendingRejectId = id;
       document.getElementById('reject-reason').value = '';
-      document.getElementById('reject-modal').style.display = 'flex';
+      AdminCore.openModal('reject-modal');
     }
     
     function closeRejectModal() {
       pendingRejectId = null;
-      document.getElementById('reject-modal').style.display = 'none';
+      AdminCore.closeModal('reject-modal');
     }
     
     async function confirmReject() {
@@ -678,13 +660,13 @@
         const data = payload.data ?? payload;
         if (!res.ok) throw new Error(data.error);
         
-        showAlert('Client rejected', 'success');
+        AdminCore.showAlert('Client rejected', 'success');
         closeRejectModal();
         loadClients(currentPage);
         loadStats();
         
       } catch (err) {
-        showAlert(err.message || 'Failed to reject client', 'error');
+        AdminCore.showAlert(err.message || 'Failed to reject client', 'error');
       }
     }
     
@@ -698,12 +680,12 @@
         
         if (!res.ok) throw new Error(data.error);
         
-        showAlert('Client suspended', 'success');
+        AdminCore.showAlert('Client suspended', 'success');
         loadClients(currentPage);
         loadStats();
         
       } catch (err) {
-        showAlert(err.message || 'Failed to suspend client', 'error');
+        AdminCore.showAlert(err.message || 'Failed to suspend client', 'error');
       }
     }
     
@@ -717,12 +699,12 @@
         
         if (!res.ok) throw new Error(data.error);
         
-        showAlert('Client reinstated', 'success');
+        AdminCore.showAlert('Client reinstated', 'success');
         loadClients(currentPage);
         loadStats();
         
       } catch (err) {
-        showAlert(err.message || 'Failed to reinstate client', 'error');
+        AdminCore.showAlert(err.message || 'Failed to reinstate client', 'error');
       }
     }
     
@@ -740,36 +722,15 @@
         const data = payload.data ?? payload;
         if (!res.ok) throw new Error(data.error);
         
-        showAlert('Notes saved', 'success');
+        AdminCore.showAlert('Notes saved', 'success');
         
       } catch (err) {
-        showAlert(err.message || 'Failed to save notes', 'error');
+        AdminCore.showAlert(err.message || 'Failed to save notes', 'error');
       }
     }
     
-    // Helpers
-    function showAlert(message, type) {
-      const container = document.getElementById('alert-container');
-      container.innerHTML = `<div class="alert alert-${type}">${escapeHtml(message)}</div>`;
-      setTimeout(() => container.innerHTML = '', 5000);
-    }
-    
-    function formatDate(dateStr) {
-      if (!dateStr) return '-';
-      return new Date(dateStr).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-      });
-    }
-    
-    function escapeHtml(str) {
-      if (!str) return '';
-      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-    
     // Initialize
-    checkAuth();
+    AdminCore.checkAuth();
     loadStats();
     loadClients();
   </script>

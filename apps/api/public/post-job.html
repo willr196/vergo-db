@@ -712,7 +712,7 @@
       </div>
       <div>
         <h4>Services</h4>
-        <a href="hire-staff.html">Hire Staff</a>
+        <a href="hire-staff.html">Hire Event Staff</a>
         <a href="pricing.html">Pricing</a>
       </div>
       <div>
@@ -732,7 +732,6 @@
     </div>
   </footer>
 
-  <script src="/vergo-menu.js"></script>
   <script>
     // Load roles
     async function loadRoles() {
@@ -747,11 +746,17 @@
           // Fallback defaults
           const defaults = ['Bartender', 'Waiter', 'Chef', 'Kitchen Porter', 'Catering Assistant', 'Front of House', 'Event Manager'];
           defaults.forEach(name => {
-            select.innerHTML += `<option value="${name.toLowerCase()}">${name}</option>`;
+            const opt = document.createElement('option');
+            opt.value = name.toLowerCase();
+            opt.textContent = name;
+            select.appendChild(opt);
           });
         } else {
           roles.forEach(role => {
-            select.innerHTML += `<option value="${role.id}">${role.name}</option>`;
+            const opt = document.createElement('option');
+            opt.value = role.id;
+            opt.textContent = role.name;
+            select.appendChild(opt);
           });
         }
       } catch (err) {

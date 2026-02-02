@@ -462,7 +462,6 @@
       .actions { flex-direction: column; }
     }
   </style>
-  <link rel="stylesheet" href="/vergo-mobile.css">
   <link rel="stylesheet" href="/vergo-platform.css">
 </head>
 <body class="platform">
@@ -656,25 +655,12 @@
     </div>
   </div>
   
+  <script src="/js/admin-core.js"></script>
   <script>
     let jobs = [];
     let roles = [];
     let editingId = null;
     let pendingCount = 0;
-    
-    // Check admin auth
-    async function checkAuth() {
-      try {
-        const res = await fetch('/api/v1/auth/session');
-        const payload = await res.json();
-        const data = payload.data ?? payload;
-        if (!data.authenticated) {
-          window.location.href = 'login.html';
-        }
-      } catch (err) {
-        window.location.href = 'login.html';
-      }
-    }
     
     // Load roles
     async function loadRoles() {
@@ -806,7 +792,7 @@
       document.getElementById('modal-title').textContent = 'Add New Job';
       document.getElementById('job-form').reset();
       document.getElementById('form-alert').innerHTML = '';
-      document.getElementById('job-modal').style.display = 'flex';
+      AdminCore.openModal('job-modal');
     }
     
     // Edit job
@@ -836,12 +822,12 @@
       form.requirements.value = job.requirements || '';
       form.closingDate.value = job.closingDate ? job.closingDate.split('T')[0] : '';
       
-      document.getElementById('job-modal').style.display = 'flex';
+      AdminCore.openModal('job-modal');
     }
     
     // Close modal
     function closeModal() {
-      document.getElementById('job-modal').style.display = 'none';
+      AdminCore.closeModal('job-modal');
       editingId = null;
     }
     
@@ -972,37 +958,21 @@
       }
     }
     
-    // Show alert
-    function showAlert(message, type) {
-      const container = document.getElementById('alert-container');
-      container.innerHTML = `<div class="alert alert-${type}">${escapeHtml(message)}</div>`;
-      setTimeout(() => { container.innerHTML = ''; }, 5000);
-    }
+    // Aliases for AdminCore
+    const escapeHtml = AdminCore.escapeHtml;
+    const showAlert = AdminCore.showAlert;
+    const logout = AdminCore.logout;
     
-    // Logout
-    async function logout() {
-      await fetch('/api/v1/auth/logout', { method: 'POST' });
-      window.location.href = 'login.html';
-    }
-    
-    // Escape HTML
-    function escapeHtml(str) {
-      if (!str) return '';
-      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-    
-    // Close modal on backdrop click
+    // Modal backdrop + Escape behavior (uses local closeModal to reset editingId)
     document.getElementById('job-modal').addEventListener('click', (e) => {
       if (e.target.classList.contains('modal-backdrop')) closeModal();
     });
-    
-    // Close modal on Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeModal();
     });
-    
+
     // Init
-    checkAuth();
+    AdminCore.checkAuth();
     loadRoles();
     loadJobs();
   </script>

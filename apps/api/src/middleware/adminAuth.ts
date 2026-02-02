@@ -25,23 +25,25 @@ export function adminAuth(req: Request, res: Response, next: NextFunction) {
   // Check idle timeout
   if (lastActivity && (now - lastActivity > MAX_IDLE_TIME)) {
     console.warn(`[SECURITY] Session expired (idle): ${req.session.username}`);
-    req.session.destroy(() => {});
     res.clearCookie("vergo.sid");
-    return res.status(401).json({ 
-      error: 'Session expired due to inactivity. Please log in again.' 
+    return req.session.destroy(() => {
+      res.status(401).json({
+        error: 'Session expired due to inactivity. Please log in again.'
+      });
     });
   }
-  
+
   // Check absolute session age
   if (loginTime && (now - loginTime > MAX_SESSION_AGE)) {
     console.warn(`[SECURITY] Session expired (age): ${req.session.username}`);
-    req.session.destroy(() => {});
     res.clearCookie("vergo.sid");
-    return res.status(401).json({ 
-      error: 'Session expired. Please log in again.' 
+    return req.session.destroy(() => {
+      res.status(401).json({
+        error: 'Session expired. Please log in again.'
+      });
     });
   }
-  
+
   req.session.lastActivity = now;
   return next();
 }
@@ -52,7 +54,8 @@ export function adminPageAuth(req: Request, res: Response, next: NextFunction) {
     const wantsHTML = typeof accept === 'string' && accept.includes('text/html');
     
     if (wantsHTML) {
-      return res.redirect('/login.html?redirect=' + encodeURIComponent(req.originalUrl));
+      const redirectPath = req.originalUrl.startsWith('/') && !req.originalUrl.startsWith('//') ? req.originalUrl : '/admin.html';
+      return res.redirect('/login.html?redirect=' + encodeURIComponent(redirectPath));
     }
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -62,17 +65,17 @@ export function adminPageAuth(req: Request, res: Response, next: NextFunction) {
   const loginTime = req.session.loginTime || 0;
   
   if (lastActivity && (now - lastActivity > MAX_IDLE_TIME)) {
+    res.clearCookie("vergo.sid");
     req.session.destroy(() => {
-      res.clearCookie("vergo.sid");
-      return res.redirect('/login.html?timeout=idle');
+      res.redirect('/login.html?timeout=idle');
     });
     return;
   }
-  
+
   if (loginTime && (now - loginTime > MAX_SESSION_AGE)) {
+    res.clearCookie("vergo.sid");
     req.session.destroy(() => {
-      res.clearCookie("vergo.sid");
-      return res.redirect('/login.html?timeout=expired');
+      res.redirect('/login.html?timeout=expired');
     });
     return;
   }

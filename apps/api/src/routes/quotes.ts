@@ -1,10 +1,28 @@
 import { Router } from "express";
 import { z } from "zod";
+import rateLimit from "express-rate-limit";
 import { prisma } from "../prisma";
 import { Resend } from "resend";
 import { FROM_EMAIL, TO_EMAIL } from "../services/email";
 
 const r = Router();
+
+const quoteLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  message: { error: "Too many quote submissions. Please try again later." }
+});
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const safe = (value: string | number | null | undefined) =>
+  escapeHtml(String(value ?? ''));
 
 // Initialize Resend (optional - graceful degradation if not configured)
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
@@ -46,7 +64,7 @@ const quoteRequestSchema = z.object({
 // ============================================
 // POST /api/v1/quotes - Submit quote request (PUBLIC)
 // ============================================
-r.post("/", async (req, res, next) => {
+r.post("/", quoteLimiter, async (req, res, next) => {
   try {
     const data = quoteRequestSchema.parse(req.body);
     
@@ -129,23 +147,23 @@ r.post("/", async (req, res, next) => {
           subject: `New Quote Request: ${data.eventType} - ${data.staffNeeded} staff`,
           html: `
             <h2>New Quote Request</h2>
-            ${savedQuote ? `<p style="color: green;"><strong>✅ Saved to database:</strong> ${savedQuote.id}</p>` : '<p style="color: orange;"><strong>⚠️ Email only</strong> (no linked client account)</p>'}
+            ${savedQuote ? `<p style="color: green;"><strong>✅ Saved to database:</strong> ${safe(savedQuote.id)}</p>` : '<p style="color: orange;"><strong>⚠️ Email only</strong> (no linked client account)</p>'}
             <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
-              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Name</td><td style="padding: 8px; border: 1px solid #ddd;">${quoteDetails.name}</td></tr>
-              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Email</td><td style="padding: 8px; border: 1px solid #ddd;"><a href="mailto:${data.email}">${data.email}</a></td></tr>
-              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Phone</td><td style="padding: 8px; border: 1px solid #ddd;">${quoteDetails.phone}</td></tr>
-              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Company</td><td style="padding: 8px; border: 1px solid #ddd;">${quoteDetails.company}</td></tr>
-              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Event Type</td><td style="padding: 8px; border: 1px solid #ddd;">${quoteDetails.eventType}</td></tr>
-              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Event Date</td><td style="padding: 8px; border: 1px solid #ddd;">${quoteDetails.eventDate}</td></tr>
-              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Duration</td><td style="padding: 8px; border: 1px solid #ddd;">${quoteDetails.duration}</td></tr>
-              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Location</td><td style="padding: 8px; border: 1px solid #ddd;">${quoteDetails.location}</td></tr>
-              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Guest Count</td><td style="padding: 8px; border: 1px solid #ddd;">${quoteDetails.guestCount}</td></tr>
-              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Staff Needed</td><td style="padding: 8px; border: 1px solid #ddd;">${quoteDetails.staffNeeded}</td></tr>
-              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Roles</td><td style="padding: 8px; border: 1px solid #ddd;">${quoteDetails.roles}</td></tr>
-              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Estimated Total</td><td style="padding: 8px; border: 1px solid #ddd;">${quoteDetails.estimatedTotal}</td></tr>
-              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Message</td><td style="padding: 8px; border: 1px solid #ddd;">${quoteDetails.message}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Name</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.name)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Email</td><td style="padding: 8px; border: 1px solid #ddd;"><a href="mailto:${safe(data.email)}">${safe(data.email)}</a></td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Phone</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.phone)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Company</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.company)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Event Type</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.eventType)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Event Date</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.eventDate)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Duration</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.duration)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Location</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.location)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Guest Count</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.guestCount)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Staff Needed</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.staffNeeded)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Roles</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.roles)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Estimated Total</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.estimatedTotal)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Message</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.message)}</td></tr>
             </table>
-            <p style="margin-top: 20px; color: #666; font-size: 12px;">Submitted: ${quoteDetails.submittedAt}</p>
+            <p style="margin-top: 20px; color: #666; font-size: 12px;">Submitted: ${safe(quoteDetails.submittedAt)}</p>
           `
         });
         console.log(`[EMAIL] Quote notification sent to ${TO_EMAIL}`);
@@ -170,17 +188,17 @@ r.post("/", async (req, res, next) => {
               
               <div style="padding: 30px; background: #f9f9f9;">
                 <h2 style="color: #2c3e2f; margin-top: 0;">Thank You for Your Quote Request</h2>
-                <p>Hi ${data.name},</p>
-                <p>We've received your quote request for <strong>${data.eventType}</strong> and our team will be in touch within 24 hours.</p>
+                <p>Hi ${safe(data.name)},</p>
+                <p>We've received your quote request for <strong>${safe(data.eventType)}</strong> and our team will be in touch within 24 hours.</p>
                 
                 <div style="background: #fff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #D4AF37;">
                   <h3 style="margin-top: 0; color: #2c3e2f;">Your Request Summary</h3>
-                  <p><strong>Event Type:</strong> ${data.eventType}</p>
-                  <p><strong>Staff Needed:</strong> ${data.staffNeeded}</p>
-                  ${data.eventDate ? `<p><strong>Date:</strong> ${data.eventDate}</p>` : ''}
-                  ${data.location ? `<p><strong>Location:</strong> ${data.location}</p>` : ''}
-                  ${data.estimatedTotal ? `<p><strong>Estimated Budget:</strong> £${data.estimatedTotal.toLocaleString()}</p>` : ''}
-                  ${savedQuote ? `<p style="color: #666; font-size: 12px;"><strong>Reference:</strong> ${savedQuote.id}</p>` : ''}
+                  <p><strong>Event Type:</strong> ${safe(data.eventType)}</p>
+                  <p><strong>Staff Needed:</strong> ${safe(data.staffNeeded)}</p>
+                  ${data.eventDate ? `<p><strong>Date:</strong> ${safe(data.eventDate)}</p>` : ''}
+                  ${data.location ? `<p><strong>Location:</strong> ${safe(data.location)}</p>` : ''}
+                  ${data.estimatedTotal ? `<p><strong>Estimated Budget:</strong> £${safe(data.estimatedTotal.toLocaleString())}</p>` : ''}
+                  ${savedQuote ? `<p style="color: #666; font-size: 12px;"><strong>Reference:</strong> ${safe(savedQuote.id)}</p>` : ''}
                 </div>
                 
                 <p>If you have any urgent questions, please call us directly or reply to this email.</p>

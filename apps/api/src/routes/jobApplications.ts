@@ -136,17 +136,19 @@ r.post("/:id/withdraw", requireUser, async (req, res, next) => {
 // ADMIN: List all
 r.get("/", adminAuth, async (req, res, next) => {
   try {
-    const { status, jobId, page = "1", limit = "50" } = req.query;
+    const { status, jobId } = req.query;
+    const page = Math.max(1, Math.floor(Number(req.query.page) || 1));
+    const limit = Math.min(50, Math.max(1, Math.floor(Number(req.query.limit) || 50)));
     const where: any = {};
-    if (status) where.status = status;
-    if (jobId) where.jobId = jobId;
-    
+    if (status && typeof status === 'string') where.status = status;
+    if (jobId && typeof jobId === 'string') where.jobId = jobId;
+
     const [applications, total] = await Promise.all([
       prisma.jobApplication.findMany({
         where,
         orderBy: { createdAt: "desc" },
-        skip: (Number(page) - 1) * Number(limit),
-        take: Number(limit),
+        skip: (page - 1) * limit,
+        take: limit,
         include: {
           user: { select: { id: true, firstName: true, lastName: true, email: true, phone: true, applicantId: true } },
           job: { select: { id: true, title: true, eventDate: true, location: true, role: { select: { name: true } } } }
@@ -155,7 +157,7 @@ r.get("/", adminAuth, async (req, res, next) => {
       prisma.jobApplication.count({ where })
     ]);
     
-    const payload = { applications, pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / Number(limit)) } };
+    const payload = { applications, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } };
     res.json({ ok: true, ...payload, data: payload });
   } catch (error) { next(error); }
 });
@@ -228,7 +230,7 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
 // ADMIN: Update notes
 r.patch("/:id/notes", adminAuth, async (req, res, next) => {
   try {
-    const { notes } = z.object({ notes: z.string().max(2000) }).parse(req.body);
+    const { notes } = z.object({ notes: z.string().max(2000).transform(v => v.replace(/<[^>]*>/g, '')) }).parse(req.body);
     const application = await prisma.jobApplication.update({
       where: { id: req.params.id },
       data: { adminNotes: notes || null }

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../prisma";
 import { adminAuth } from "../middleware/adminAuth";
 import { sendClientApprovalEmail, sendClientRejectionEmail } from "../services/email";
+import { authLogger } from "../services/logger";
 
 const r = Router();
 
@@ -205,7 +206,7 @@ r.post("/:id/approve", async (req, res) => {
       console.error("[EMAIL] Failed to send client approval:", err);
     });
 
-    console.log(`[ADMIN] Approved client: ${client.companyName} by ${adminUsername}`);
+    authLogger.info({ action: 'client_approved', admin: adminUsername, clientId: req.params.id, company: client.companyName }, 'Admin approved client');
     
     res.json({ ok: true, message: "Client approved successfully", data: { message: "Client approved successfully" } });
     
@@ -262,7 +263,8 @@ r.post("/:id/reject", async (req, res) => {
       console.error("[EMAIL] Failed to send client rejection:", err);
     });
 
-    console.log(`[ADMIN] Rejected client: ${client.companyName}`);
+    const adminUsername = (req.session as any)?.username || "admin";
+    authLogger.info({ action: 'client_rejected', admin: adminUsername, clientId: req.params.id, company: client.companyName, reason }, 'Admin rejected client');
     
     res.json({ ok: true, message: "Client rejected", data: { message: "Client rejected" } });
     
@@ -291,7 +293,8 @@ r.post("/:id/suspend", async (req, res) => {
       data: { status: "SUSPENDED" }
     });
     
-    console.log(`[ADMIN] Suspended client: ${client.companyName}`);
+    const adminUsername = (req.session as any)?.username || "admin";
+    authLogger.info({ action: 'client_suspended', admin: adminUsername, clientId: req.params.id, company: client.companyName }, 'Admin suspended client');
     
     res.json({ ok: true, message: "Client suspended", data: { message: "Client suspended" } });
     
@@ -327,7 +330,8 @@ r.post("/:id/reinstate", async (req, res) => {
       }
     });
     
-    console.log(`[ADMIN] Reinstated client: ${client.companyName}`);
+    const adminUsername = (req.session as any)?.username || "admin";
+    authLogger.info({ action: 'client_reinstated', admin: adminUsername, clientId: req.params.id, company: client.companyName }, 'Admin reinstated client');
     
     res.json({ ok: true, message: "Client reinstated", data: { message: "Client reinstated" } });
     
@@ -340,8 +344,10 @@ r.post("/:id/reinstate", async (req, res) => {
 // ============================================
 // PUT /api/v1/admin/clients/:id/notes
 // ============================================
+const stripHtml = (str: string) => str.replace(/<[^>]*>/g, '');
+
 const notesSchema = z.object({
-  notes: z.string().max(2000).optional()
+  notes: z.string().max(2000).transform(stripHtml).optional()
 });
 
 r.put("/:id/notes", async (req, res) => {
@@ -383,7 +389,8 @@ r.delete("/:id", async (req, res) => {
       where: { id: req.params.id }
     });
     
-    console.log(`[ADMIN] Deleted client: ${client.companyName}`);
+    const adminUsername = (req.session as any)?.username || "admin";
+    authLogger.info({ action: 'client_deleted', admin: adminUsername, clientId: req.params.id, company: client.companyName }, 'Admin deleted client');
     
     res.json({ ok: true, message: "Client deleted", data: { message: "Client deleted" } });
     

@@ -393,7 +393,6 @@
       .job-meta-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
-  <link rel="stylesheet" href="/vergo-mobile.css">
   <link rel="stylesheet" href="/vergo-platform.css">
 </head>
 <body class="platform">
@@ -566,11 +565,11 @@
       if (!box) return;
       
       // External job - redirect
-      if (currentJob.type === 'EXTERNAL' && currentJob.externalUrl) {
+      if (currentJob.type === 'EXTERNAL' && currentJob.externalUrl && /^https?:\/\//i.test(currentJob.externalUrl)) {
         box.innerHTML = `
           <h3>Apply for this position</h3>
           <p style="color: #999; margin-bottom: 20px;">This is an external opportunity. Click below to apply on the employer's website.</p>
-          <a href="${escapeHtml(currentJob.externalUrl)}" target="_blank" rel="noopener" class="btn btn-primary btn-block">Apply on External Site →</a>
+          <a href="${escapeHtml(currentJob.externalUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block">Apply on External Site →</a>
         `;
         return;
       }

@@ -226,7 +226,6 @@
       .auth-box { padding: 30px 20px; }
     }
   </style>
-  <link rel="stylesheet" href="/vergo-mobile.css">
   <link rel="stylesheet" href="/vergo-platform.css">
 </head>
 <body class="platform">
@@ -275,7 +274,7 @@
         </div>
       </div>
       
-      <a href="hire-staff.html" class="back-link">← Back to Hire Staff</a>
+      <a href="hire-staff.html" class="back-link">← Back to Hire Event Staff</a>
     </div>
   </main>
   
@@ -289,7 +288,9 @@
     const resendSection = document.getElementById('resend-section');
     
     const params = new URLSearchParams(window.location.search);
-    const redirect = params.get('redirect') || 'client-dashboard.html';
+    // Block absolute URLs and protocol-relative URLs to prevent open redirect
+    let redirect = params.get('redirect') || 'client-dashboard.html';
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(redirect) || redirect.startsWith('//')) redirect = 'client-dashboard.html';
     
     // Show success if just verified
     if (params.get('verified') === 'true') {

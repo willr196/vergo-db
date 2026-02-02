@@ -583,7 +583,6 @@
   color: #D4AF37;
 }
   </style>
-  <link rel="stylesheet" href="/vergo-mobile.css">
   <link rel="stylesheet" href="/vergo-platform.css">
 </head>
 <body class="platform">
@@ -662,11 +661,13 @@
           <label>Role</label>
           <select id="filter-role">
             <option value="">All Roles</option>
-            <option value="Event Chef / Kitchen">Event Chef / Kitchen</option>
-            <option value="Bar Staff">Bar Staff</option>
-            <option value="Front of House">Front of House</option>
+            <option value="Bartender">Bartender</option>
             <option value="Barista">Barista</option>
-            <option value="Catering Assistant">Catering Assistant</option>
+            <option value="Front of House">Front of House</option>
+            <option value="Waiter">Waiter</option>
+            <option value="Chef">Chef</option>
+            <option value="Kitchen Porter">Kitchen Porter</option>
+            <option value="Runner">Runner</option>
           </select>
         </div>
         <div class="filter-group">
@@ -850,7 +851,15 @@
     </div>
   </div>
 
+  <script src="/js/admin-core.js"></script>
   <script>
+    // Aliases for AdminCore
+    const escapeHtml = AdminCore.escapeHtml;
+    const fetchJSON = AdminCore.fetchJSON;
+    const notify = AdminCore.notify;
+    const formatDate = AdminCore.formatDateTime;
+    const formatDateOnly = AdminCore.formatDate;
+
     // Global State
     let allApplications = [];
     let allContacts = [];
@@ -858,44 +867,6 @@
     let currentSort = { column: 'createdAt', direction: 'desc' };
     let currentContactSort = { column: 'createdAt', direction: 'desc' };
     let currentEventSort = { column: 'eventDate', direction: 'asc' };
-
-    // Utility Functions
-    async function fetchJSON(url, opts = {}) {
-      const res = await fetch(url, { credentials: 'include', ...opts });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: res.statusText }));
-        throw new Error(err.error || res.statusText);
-      }
-      const payload = await res.json();
-      return payload && payload.data !== undefined ? payload.data : payload;
-    }
-
-    function notify(message, type = 'success') {
-      const notif = document.getElementById('notification');
-      notif.textContent = message;
-      notif.className = `notification ${type} show`;
-      setTimeout(() => {
-        notif.classList.remove('show');
-      }, 3000);
-    }
-
-    function formatDate(dateString) {
-      return new Date(dateString).toLocaleDateString('en-GB', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    }
-
-    function formatDateOnly(dateString) {
-      return new Date(dateString).toLocaleDateString('en-GB', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    }
 
     // Tab Switching
     document.querySelectorAll('.tab').forEach(tab => {
@@ -916,14 +887,6 @@
         const data = await fetchJSON('/api/v1/applications');
         // Handle both formats: {applications: [...]} or [...]
         allApplications = Array.isArray(data) ? data : (data.applications || []);
-        
-        // DEBUG: Log the first application to see what fields are available
-        if (allApplications.length > 0) {
-          console.log('=== APPLICATION DATA STRUCTURE ===');
-          console.log('First application:', allApplications[0]);
-          console.log('Available fields:', Object.keys(allApplications[0]));
-          console.log('CV field value:', allApplications[0].cvUrl || allApplications[0].cv_url || allApplications[0].cvPath || allApplications[0].resumeUrl || 'NOT FOUND');
-        }
         
         updateStats();
         renderApplications();
@@ -991,8 +954,10 @@
       }
 
       if (roleFilter) {
-        filtered = filtered.filter(app => 
-          app.roles && app.roles.includes(roleFilter)
+        filtered = filtered.filter(app =>
+          app.roles && app.roles.some(role =>
+            (typeof role === 'string' ? role : role.name) === roleFilter
+          )
         );
       }
 
@@ -1058,8 +1023,8 @@
           aVal = new Date(a.createdAt);
           bVal = new Date(b.createdAt);
         } else if (currentSort.column === 'roles') {
-          aVal = (a.roles || []).join(', ');
-          bVal = (b.roles || []).join(', ');
+          aVal = (a.roles || []).map(r => typeof r === 'string' ? r : r.name).join(', ');
+          bVal = (b.roles || []).map(r => typeof r === 'string' ? r : r.name).join(', ');
         } else {
           aVal = a[currentSort.column];
           bVal = b[currentSort.column];
@@ -1072,42 +1037,46 @@
 
       tbody.innerHTML = sorted.map(app => `
         <tr>
-          <td><strong>${app.firstName} ${app.lastName}</strong></td>
-          <td>${app.email}</td>
-          <td>${app.phone || 'N/A'}</td>
+          <td><strong>${escapeHtml(app.firstName)} ${escapeHtml(app.lastName)}</strong></td>
+          <td>${escapeHtml(app.email)}</td>
+          <td>${escapeHtml(app.phone || 'N/A')}</td>
           <td>
-            ${(app.roles || []).map(role => 
-              `<span class="role-pill">${role.replace('_', ' ')}</span>`
-            ).join('')}
+            ${(app.roles || []).map(role => {
+              if (typeof role === 'string') {
+                return `<span class="role-pill">${escapeHtml(role)}</span>`;
+              }
+              const exp = role.experienceLevel ? ` (${escapeHtml(role.experienceLevel)})` : '';
+              return `<span class="role-pill" title="${escapeHtml(role.experienceLevel || 'No experience specified')}">${escapeHtml(role.name)}${exp}</span>`;
+            }).join('')}
           </td>
           <td>
-            <span class="status-pill status-${app.status}">
-              ${app.status}
+            <span class="status-pill status-${escapeHtml(app.status)}">
+              ${escapeHtml(app.status)}
             </span>
           </td>
           <td>${formatDate(app.createdAt)}</td>
           <td>
             <div class="action-buttons">
-              <button class="btn-action btn-view" onclick="openCV('${app.id}', '${app.cvUrl || app.cv_url || app.cvPath || app.resumeUrl || ''}')">
+              <button class="btn-action btn-view" onclick="openCV('${escapeHtml(app.id)}', '${escapeHtml(app.cvUrl || app.cvKey || '')}')">
                 View CV
               </button>
               ${app.status !== 'REVIEWING' ? `
-                <button class="btn-action btn-reviewing" onclick="updateStatus('${app.id}', 'REVIEWING')">
+                <button class="btn-action btn-reviewing" onclick="updateStatus('${escapeHtml(app.id)}', 'REVIEWING')">
                   Review
                 </button>
               ` : ''}
               ${app.status !== 'SHORTLISTED' ? `
-                <button class="btn-action btn-shortlist" onclick="updateStatus('${app.id}', 'SHORTLISTED')">
+                <button class="btn-action btn-shortlist" onclick="updateStatus('${escapeHtml(app.id)}', 'SHORTLISTED')">
                   Shortlist
                 </button>
               ` : ''}
               ${app.status !== 'REJECTED' ? `
-                <button class="btn-action btn-reject" onclick="updateStatus('${app.id}', 'REJECTED')">
+                <button class="btn-action btn-reject" onclick="updateStatus('${escapeHtml(app.id)}', 'REJECTED')">
                   Reject
                 </button>
               ` : ''}
               ${app.status !== 'HIRED' ? `
-                <button class="btn-action btn-hire" onclick="updateStatus('${app.id}', 'HIRED')">
+                <button class="btn-action btn-hire" onclick="updateStatus('${escapeHtml(app.id)}', 'HIRED')">
                   Hire
                 </button>
               ` : ''}
@@ -1133,7 +1102,7 @@
         // If it's already a full URL (starts with http), open directly
         if (cvUrl.startsWith('http://') || cvUrl.startsWith('https://')) {
           console.log('Opening URL directly:', cvUrl);
-          window.open(cvUrl, '_blank');
+          window.open(cvUrl, '_blank', 'noopener,noreferrer');
           return;
         }
 
@@ -1289,12 +1258,12 @@
 
       tbody.innerHTML = sorted.map(contact => `
         <tr>
-          <td><strong>${contact.name}</strong></td>
-          <td>${contact.email}</td>
-          <td>${contact.type}</td>
+          <td><strong>${escapeHtml(contact.name)}</strong></td>
+          <td>${escapeHtml(contact.email)}</td>
+          <td>${escapeHtml(contact.type)}</td>
           <td>
-            <span class="status-pill status-${contact.status}">
-              ${contact.status}
+            <span class="status-pill status-${escapeHtml(contact.status)}">
+              ${escapeHtml(contact.status)}
             </span>
           </td>
           <td>${formatDate(contact.createdAt)}</td>
@@ -1436,12 +1405,12 @@
 
       tbody.innerHTML = sorted.map(event => `
         <tr>
-          <td><strong>${event.eventName}</strong></td>
+          <td><strong>${escapeHtml(event.eventName)}</strong></td>
           <td>${formatDateOnly(event.eventDate)}</td>
-          <td>${event.clientName}</td>
+          <td>${escapeHtml(event.clientName)}</td>
           <td>
-            <span class="status-pill status-${event.status}">
-              ${event.status}
+            <span class="status-pill status-${escapeHtml(event.status)}">
+              ${escapeHtml(event.status)}
             </span>
           </td>
           <td>
@@ -1480,25 +1449,16 @@
     }
 
     // Logout
-    document.getElementById('logout').addEventListener('click', async () => {
-      try {
-        await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'include' });
-        window.location.href = '/login.html';
-      } catch (e) {
-        notify('Logout failed', 'error');
-      }
-    });
+    document.getElementById('logout').addEventListener('click', () => AdminCore.logout());
 
     // Initialize
     async function init() {
       try {
-        const session = await fetchJSON('/api/v1/auth/session');
-        if (!session.authenticated) {
-          window.location.href = '/login.html';
-          return;
-        }
+        const session = await AdminCore.checkAuth();
+        if (!session) return;
 
-        document.getElementById('admin-name').textContent = session.username;
+        const adminNameEl = document.getElementById('admin-name');
+        if (adminNameEl) adminNameEl.textContent = session.username;
         
         // Load applications (always available)
         await loadApplications();

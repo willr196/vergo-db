@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - VERGO Ltd</title>
-  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="icon" type="image/png" href="/logo-small.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -676,7 +676,7 @@
                 <h3 style="margin-bottom: 15px;">Company Details</h3>
                 <p style="color: #999; margin-bottom: 8px;"><strong style="color: #ccc;">Company:</strong> ${escapeHtml(profile.companyName)}</p>
                 <p style="color: #999; margin-bottom: 8px;"><strong style="color: #ccc;">Industry:</strong> ${escapeHtml(profile.industry || 'Not specified')}</p>
-                <p style="color: #999; margin-bottom: 8px;"><strong style="color: #ccc;">Website:</strong> ${profile.website ? `<a href="${escapeHtml(profile.website)}" target="_blank" style="color: #D4AF37;">${escapeHtml(profile.website)}</a>` : 'Not specified'}</p>
+                <p style="color: #999; margin-bottom: 8px;"><strong style="color: #ccc;">Website:</strong> ${profile.website && /^https?:\/\//i.test(profile.website) ? `<a href="${escapeHtml(profile.website)}" target="_blank" rel="noopener noreferrer" style="color: #D4AF37;">${escapeHtml(profile.website)}</a>` : escapeHtml(profile.website || 'Not specified')}</p>
               </div>
               <div>
                 <h3 style="margin-bottom: 15px;">Contact Details</h3>

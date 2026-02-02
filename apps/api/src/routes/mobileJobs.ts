@@ -5,9 +5,9 @@ import { prisma } from '../prisma';
 const r = Router();
 
 const listJobsQuerySchema = z.object({
-  role: z.string().optional(),
-  city: z.string().optional(),
-  search: z.string().optional(),
+  role: z.string().max(100).optional(),
+  city: z.string().max(100).optional(),
+  search: z.string().max(100).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(20)
 });

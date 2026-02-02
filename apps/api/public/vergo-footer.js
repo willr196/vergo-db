@@ -32,7 +32,7 @@
         <div class="footer-column">
           <h3>Services</h3>
           <ul>
-            <li><a href="/hire-staff.html">Hire Staff</a></li>
+            <li><a href="/hire-staff.html">Hire Event Staff</a></li>
             <li><a href="/pricing.html">Pricing</a></li>
             <li><a href="/quote.html">Get a Quote</a></li>
             <li><a href="/jobs.html">Current Jobs</a></li>
