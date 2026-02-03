@@ -111,7 +111,7 @@ function renderPage(message: string, type: 'success' | 'error'): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Email Preferences - VERGO Events</title>
+  <title>Email Preferences - VERGO</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
     .container { max-width: 500px; margin: 50px auto; background: white; border-radius: 12px; padding: 40px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -126,7 +126,7 @@ function renderPage(message: string, type: 'success' | 'error'): string {
 <body>
   <div class="container">
     <div class="icon">${icon}</div>
-    <h1><span class="brand">VERGO Events</span></h1>
+    <h1><span class="brand">VERGO</span></h1>
     <p>${safe(message)}</p>
     <p><a href="${safe(env.webOrigin)}">Return to website</a></p>
   </div>
@@ -147,7 +147,7 @@ function renderPreferencesPage(token: string, prefs: {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Email Preferences - VERGO Events</title>
+  <title>Email Preferences - VERGO</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
     .container { max-width: 500px; margin: 50px auto; background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -169,7 +169,7 @@ function renderPreferencesPage(token: string, prefs: {
 </head>
 <body>
   <div class="container">
-    <h1><span class="brand">VERGO Events</span> - Email Preferences</h1>
+    <h1><span class="brand">VERGO</span> - Email Preferences</h1>
     <p>Choose which emails you'd like to receive:</p>
 
     <form method="POST" action="/api/v1/unsubscribe">

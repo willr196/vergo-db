@@ -1,6 +1,6 @@
-# VERGO Events Mobile App
+# VERGO Mobile App
 
-A premium React Native mobile app for VERGO Events - London's premier event staffing agency.
+A premium React Native mobile app for VERGO - London's premier event staffing agency.
 
 ## Overview
 
@@ -181,4 +181,4 @@ eas build --platform ios --profile production
 
 ## License
 
-Private - VERGO Events Ltd.
+Private - VERGO Ltd.

@@ -2,11 +2,10 @@
 
 import { Router, raw } from 'express';
 import crypto from 'crypto';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../prisma';
 import { env } from '../env';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // Resend webhook signature verification
 function verifyResendSignature(
@@ -21,10 +20,14 @@ function verifyResendSignature(
     .update(signedPayload)
     .digest('hex');
 
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  );
+  const signatureBuf = Buffer.from(signature);
+  const expectedBuf = Buffer.from(expectedSignature);
+
+  if (signatureBuf.length !== expectedBuf.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(signatureBuf, expectedBuf);
 }
 
 // Resend webhook event types
@@ -86,6 +89,19 @@ router.post('/resend', raw({ type: 'application/json' }), async (req, res) => {
 
     const timestamp = timestampPart.slice(2);
     const sig = signaturePart.slice(3);
+
+    const parsedTimestamp = Number(timestamp);
+    if (!Number.isFinite(parsedTimestamp)) {
+      console.warn('[WEBHOOK] Invalid signature timestamp');
+      return res.status(401).json({ error: 'Invalid signature timestamp' });
+    }
+
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const maxAgeSeconds = 5 * 60;
+    if (Math.abs(nowSeconds - parsedTimestamp) > maxAgeSeconds) {
+      console.warn('[WEBHOOK] Signature timestamp expired');
+      return res.status(401).json({ error: 'Signature timestamp expired' });
+    }
 
     // Verify webhook signature
     if (!env.resendWebhookSecret) {

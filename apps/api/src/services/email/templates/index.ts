@@ -29,7 +29,7 @@ export const userVerificationEmail = (data: EmailTemplateData): string => {
   return composeEmail({
     body: emailBody(`
       ${sectionHeading(`Welcome, ${data.recipientName}!`)}
-      ${paragraph('Thanks for creating an account with VERGO Events. Please verify your email address to get started.')}
+      ${paragraph('Thanks for creating an account with VERGO. Please verify your email address to get started.')}
       ${primaryButton('Verify Email Address', verifyUrl)}
       ${linkDisplay(verifyUrl, 'Or copy this link into your browser:')}
       ${infoBox('<p style="margin: 0; font-size: 14px;">This link will expire in 24 hours. If you didn\'t create an account, you can ignore this email.</p>', 'warning')}
@@ -65,7 +65,7 @@ export const clientVerificationEmail = (data: EmailTemplateData): string => {
   return composeEmail({
     body: emailBody(`
       ${sectionHeading(`Welcome, ${data.recipientName}!`)}
-      <p>Thanks for registering <strong>${safe(data.companyName)}</strong> with VERGO Events.</p>
+      <p>Thanks for registering <strong>${safe(data.companyName)}</strong> with VERGO.</p>
       ${paragraph('Please verify your email address to continue with your registration.')}
       ${primaryButton('Verify Email Address', verifyUrl)}
       ${linkDisplay(verifyUrl, 'Or copy this link into your browser:')}
@@ -75,7 +75,7 @@ export const clientVerificationEmail = (data: EmailTemplateData): string => {
           'Click the button above to verify your email',
           'Our team will review your registration',
           'Once approved, you\'ll receive an email confirmation',
-          'Log in and start requesting quotes for your events!',
+          'Log in and start requesting staffing quotes!',
         ])}
       `, 'info')}
       ${infoBox(`
@@ -110,22 +110,22 @@ export const clientApprovalEmail = (data: EmailTemplateData): string => {
 
   return composeEmail({
     body: emailBody(`
-      ${sectionHeading('Welcome to VERGO Events!', '🎉')}
+      ${sectionHeading('Welcome to VERGO!', '🎉')}
       <p>Hi ${safe(data.recipientName)},</p>
       <p>Great news! Your business account for <strong>${safe(data.companyName)}</strong> has been approved.</p>
-      ${paragraph('You can now log in to your client dashboard and start requesting quotes for your events.')}
+      ${paragraph('You can now log in to your client dashboard and start requesting staffing quotes.')}
       ${primaryButton('Log In to Dashboard', loginUrl)}
       ${contentCard(`
         <h4 style="margin: 0 0 15px 0; color: #2c3e2f;">What you can do:</h4>
         ${listItems([
-          'Request quotes for event staffing',
+          'Request staffing quotes',
           'Track your quote requests',
-          'View your event history',
+          'View your booking history',
           'Manage your company profile',
         ])}
       `)}
       ${paragraph('If you have any questions, feel free to reply to this email or contact us directly.')}
-      <p>Best regards,<br><strong>The VERGO Events Team</strong></p>
+      <p>Best regards,<br><strong>The VERGO Team</strong></p>
     `),
   });
 };
@@ -135,11 +135,11 @@ export const clientRejectionEmail = (data: EmailTemplateData): string => {
     body: emailBody(`
       ${sectionHeading('Account Registration Update')}
       <p>Hi ${safe(data.recipientName)},</p>
-      <p>Thank you for your interest in registering <strong>${safe(data.companyName)}</strong> with VERGO Events.</p>
+      <p>Thank you for your interest in registering <strong>${safe(data.companyName)}</strong> with VERGO.</p>
       ${paragraph('After reviewing your application, we\'re unable to approve your business account at this time.')}
       ${data.reason ? infoBox(`<p style="margin: 0; color: #333;"><strong>Reason:</strong> ${safe(data.reason)}</p>`, 'info') : ''}
       ${paragraph('If you believe this was a mistake or would like more information, please reply to this email and we\'ll be happy to discuss further.')}
-      <p>Best regards,<br><strong>The VERGO Events Team</strong></p>
+      <p>Best regards,<br><strong>The VERGO Team</strong></p>
     `),
   });
 };
@@ -175,7 +175,7 @@ export const applicationConfirmationEmail = (data: EmailTemplateData): string =>
     body: emailBody(`
       ${sectionHeading('Application Received', '✅')}
       <p>Hi ${safe(data.recipientName)},</p>
-      ${paragraph('Thank you for applying to join our team at VERGO Events!')}
+      ${paragraph('Thank you for applying to join our team at VERGO!')}
       ${contentCard(`
         <p style="margin-top: 0;"><strong>You applied for:</strong></p>
         ${listItems(data.roles || [])}
@@ -189,8 +189,8 @@ export const applicationConfirmationEmail = (data: EmailTemplateData): string =>
           'Successful candidates will be invited for an interview',
         ])}
       `, 'success')}
-      ${paragraph('We appreciate your interest in VERGO Events. If you have any questions, feel free to reply to this email.')}
-      <p style="margin-bottom: 0;">Best regards,<br><strong>The VERGO Events Team</strong></p>
+      ${paragraph('We appreciate your interest in VERGO. If you have any questions, feel free to reply to this email.')}
+      <p style="margin-bottom: 0;">Best regards,<br><strong>The VERGO Team</strong></p>
     `),
   });
 };
@@ -233,27 +233,6 @@ export const jobApplicationConfirmationEmail = (data: EmailTemplateData): string
 // ============================================
 // ENQUIRY EMAILS
 // ============================================
-
-export const eventEnquiryEmail = (data: EmailTemplateData): string => {
-  return composeEmail({
-    body: emailBody(`
-      ${sectionHeading('New Event Enquiry', '🎉')}
-      ${contentCard(`
-        ${detailRow('From', data.name)}
-        <p><strong>Email:</strong> ${emailLink(data.email || '')}</p>
-        ${data.phone ? detailRow('Phone', data.phone) : ''}
-        ${detailRow('Event Type', data.eventType)}
-        ${data.date ? detailRow('Preferred Date', data.date) : ''}
-        ${data.guests ? detailRow('Expected Guests', data.guests) : ''}
-      `)}
-      ${contentCard(`
-        <h3 style="margin-top: 0; color: #2c3e2f;">Message:</h3>
-        <p style="white-space: pre-wrap;">${safe(data.message)}</p>
-      `)}
-      ${infoBox('<p style="margin: 0;"><strong>⏰ Action Required:</strong> Respond within 24 hours</p>', 'warning')}
-    `),
-  });
-};
 
 export const staffRequestEmail = (data: EmailTemplateData): string => {
   return composeEmail({
@@ -312,7 +291,7 @@ export const quoteFollowupEmail = (data: EmailTemplateData): string => {
         ${detailRow('Date', data.date)}
       `)}
       ${paragraph('Please reply to this email if you\'d like to discuss the quote or proceed with booking.')}
-      <p>Best regards,<br><strong>The VERGO Events Team</strong></p>
+      <p>Best regards,<br><strong>The VERGO Team</strong></p>
     `),
     footer: { showUnsubscribe: true, unsubscribeUrl: data.unsubscribeUrl },
   });
@@ -351,7 +330,7 @@ export const shiftReminderEmail = (data: EmailTemplateData): string => {
         <p style="margin: 5px 0 0; color: #666;">📅 ${safe(dateStr)}</p>
       `)}
       ${paragraph('Please arrive 15 minutes before your shift start time.')}
-      <p>See you there!<br><strong>The VERGO Events Team</strong></p>
+      <p>See you there!<br><strong>The VERGO Team</strong></p>
     `),
     footer: { showUnsubscribe: true, unsubscribeUrl: data.unsubscribeUrl },
   });

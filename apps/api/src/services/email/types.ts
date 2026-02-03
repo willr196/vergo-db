@@ -36,7 +36,6 @@ export type EmailType =
   | 'job-application-notification'  // To admin
   | 'job-application-confirmation'  // To user
   // Enquiry emails
-  | 'event-enquiry'
   | 'staff-request'
   | 'general-enquiry'
   // Reminders

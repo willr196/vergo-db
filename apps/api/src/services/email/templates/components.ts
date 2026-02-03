@@ -40,7 +40,7 @@ export const emailWrapper = (content: string): string => `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VERGO Events</title>
+  <title>VERGO</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f0f0f0;">
   <div style="max-width: 600px; margin: 0 auto;">
@@ -53,7 +53,7 @@ export const emailWrapper = (content: string): string => `
 // Gold branded header
 export const emailHeader = (): string => `
 <div style="background: ${COLORS.gold}; padding: 20px; text-align: center;">
-  <h1 style="color: white; margin: 0; font-size: 24px;">VERGO Events</h1>
+  <h1 style="color: white; margin: 0; font-size: 24px;">VERGO</h1>
 </div>
 `;
 
@@ -63,7 +63,7 @@ export const emailFooter = (options: FooterOptions = {}): string => {
 
   return `
 <div style="padding: 20px; text-align: center; color: ${COLORS.mediumGray}; font-size: 12px; background: #f0f0f0;">
-  <p style="margin: 0 0 10px 0;">VERGO Events Ltd | London, United Kingdom</p>
+  <p style="margin: 0 0 10px 0;">VERGO Ltd | London, United Kingdom</p>
   <p style="margin: 0;">
     <a href="https://vergoltd.com" style="color: ${COLORS.gold}; text-decoration: none;">www.vergoltd.com</a>
   </p>

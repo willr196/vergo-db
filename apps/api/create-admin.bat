@@ -1,9 +1,9 @@
 @echo off
-REM VERGO Events - Create Admin User Script (Windows)
-REM This script helps you create an admin user for the VERGO Events system
+REM VERGO - Create Admin User Script (Windows)
+REM This script helps you create an admin user for the VERGO system
 
 echo.
-echo VERGO Events - Admin User Setup
+echo VERGO - Admin User Setup
 echo ====================================
 echo.
 

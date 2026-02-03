@@ -25,7 +25,7 @@ export async function sendUserVerificationEmail(data: {
 
   return sendEmailOrThrow({
     to: data.to,
-    subject: 'Verify your VERGO Events account',
+    subject: 'Verify your VERGO account',
     html,
     emailType: 'user-verification',
     userId: data.userId,
@@ -49,7 +49,7 @@ export async function sendPasswordResetEmail(data: {
 
   return sendEmailOrThrow({
     to: data.to,
-    subject: 'Reset your VERGO Events password',
+    subject: 'Reset your VERGO password',
     html,
     emailType: 'user-password-reset',
     userId: data.userId,
@@ -79,7 +79,7 @@ export async function sendClientVerificationEmail(data: {
 
   return sendEmailOrThrow({
     to: data.to,
-    subject: 'Verify your VERGO Events business account',
+    subject: 'Verify your VERGO business account',
     html,
     emailType: 'client-verification',
     clientId: data.clientId,
@@ -105,7 +105,7 @@ export async function sendClientPasswordResetEmail(data: {
 
   return sendEmailOrThrow({
     to: data.to,
-    subject: 'Reset your VERGO Events business account password',
+    subject: 'Reset your VERGO business account password',
     html,
     emailType: 'client-password-reset',
     clientId: data.clientId,
@@ -129,7 +129,7 @@ export async function sendClientApprovalEmail(data: {
 
   return sendEmailOrThrow({
     to: data.to,
-    subject: 'Your VERGO Events business account has been approved!',
+    subject: 'Your VERGO business account has been approved!',
     html,
     emailType: 'client-approval',
     clientId: data.clientId,
@@ -155,7 +155,7 @@ export async function sendClientRejectionEmail(data: {
 
   return sendEmailOrThrow({
     to: data.to,
-    subject: 'VERGO Events - Account Registration Update',
+    subject: 'VERGO - Account Registration Update',
     html,
     emailType: 'client-rejection',
     clientId: data.clientId,
@@ -214,7 +214,7 @@ export async function sendApplicationConfirmationToApplicant(data: {
   // Use silent send - don't fail the application if confirmation fails
   return sendEmailSilent({
     to: data.to,
-    subject: 'Application Received - VERGO Events',
+    subject: 'Application Received - VERGO',
     html,
     emailType: 'application-confirmation',
     tags: [
@@ -279,38 +279,6 @@ export async function sendJobApplicationConfirmation(data: {
 // ============================================
 // ENQUIRY EMAILS
 // ============================================
-
-export async function sendEventEnquiryEmail(data: {
-  name: string;
-  email: string;
-  phone?: string;
-  eventType: string;
-  date?: string;
-  guests?: number;
-  message: string;
-}): Promise<EmailResult> {
-  const html = templates.eventEnquiryEmail({
-    name: data.name,
-    email: data.email,
-    phone: data.phone,
-    eventType: data.eventType,
-    date: data.date,
-    guests: data.guests,
-    message: data.message,
-  });
-
-  return sendEmailOrThrow({
-    to: TO_EMAIL,
-    replyTo: data.email,
-    subject: `New Event Enquiry - ${data.eventType}`,
-    html,
-    emailType: 'event-enquiry',
-    tags: [
-      { name: 'category', value: 'event-enquiry' },
-      { name: 'source', value: 'website' },
-    ],
-  });
-}
 
 export async function sendStaffRequestEmail(data: {
   name: string;
@@ -393,7 +361,7 @@ export async function sendQuoteFollowupEmail(data: {
 
   return sendEmail({
     to: data.to,
-    subject: 'Following up on your VERGO Events quote',
+    subject: 'Following up on your VERGO quote',
     html,
     emailType: 'quote-followup',
     clientId: data.clientId,

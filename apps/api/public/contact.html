@@ -381,7 +381,6 @@
         <!-- Tab Buttons -->
         <div class="form-tabs">
           <button type="button" class="tab-btn active" data-tab="staff">Request Staff</button>
-          <button type="button" class="tab-btn" data-tab="event">Event Enquiry</button>
           <button type="button" class="tab-btn" data-tab="general">General Contact</button>
         </div>
 
@@ -462,69 +461,6 @@
             </div>
 
             <button type="submit" class="submit-btn">Request Staff Quote</button>
-          </form>
-        </div>
-
-        <!-- Event Enquiry Form -->
-        <div class="form-panel" id="eventPanel">
-          <form id="eventForm">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="event-name">Your Name *</label>
-                <input type="text" id="event-name" name="name" required minlength="2">
-              </div>
-
-              <div class="form-group">
-                <label for="event-email">Email Address *</label>
-                <input type="email" id="event-email" name="email" required>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="event-phone">Phone Number</label>
-                <input type="tel" id="event-phone" name="phone">
-              </div>
-
-              <div class="form-group">
-                <label for="event-type">Type of Event *</label>
-                <select id="event-type" name="eventType" required>
-                  <option value="">Select...</option>
-                  <option value="corporate">Corporate Event</option>
-                  <option value="wedding">Wedding</option>
-                  <option value="private">Private Party</option>
-                  <option value="music">Music / Concert</option>
-                  <option value="charity">Charity Event</option>
-                  <option value="festival">Festival / Outdoor</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="event-date">Event Date (optional)</label>
-                <input type="date" id="event-date" name="date">
-              </div>
-
-              <div class="form-group">
-                <label for="event-guests">Expected Guests</label>
-                <input type="number" id="event-guests" name="guests" min="1">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="event-message">Tell Us About Your Event *</label>
-              <textarea id="event-message" name="message" placeholder="Describe your event, what you're looking for, and any questions you have..." required minlength="10"></textarea>
-            </div>
-
-            <!-- Honeypot field -->
-            <div class="hp-field">
-              <label for="event-website">Website</label>
-              <input type="text" id="event-website" name="website" tabindex="-1" autocomplete="off">
-            </div>
-
-            <button type="submit" class="submit-btn">Submit Event Enquiry</button>
           </form>
         </div>
 
@@ -681,45 +617,6 @@
       }
     });
 
-    // Event Enquiry Form submission
-    document.getElementById('eventForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-
-      // Honeypot check
-      if (document.getElementById('event-website').value) return;
-
-      const form = e.target;
-      const formData = new FormData(form);
-
-      const data = {
-        name: formData.get('name'),
-        email: formData.get('email'),
-        phone: formData.get('phone') || undefined,
-        eventType: formData.get('eventType'),
-        date: formData.get('date') || undefined,
-        guests: formData.get('guests') ? parseInt(formData.get('guests')) : undefined,
-        message: formData.get('message')
-      };
-
-      try {
-        const response = await fetch('/api/v1/contact/event-enquiry', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-
-        if (response.ok) {
-          document.getElementById('eventPanel').style.display = 'none';
-          document.getElementById('formSuccess').classList.add('active');
-        } else {
-          const result = await response.json();
-          alert(result.error || 'There was a problem submitting your enquiry. Please try again or email us directly.');
-        }
-      } catch (error) {
-        alert('There was a problem submitting your enquiry. Please try again or email us directly.');
-      }
-    });
-
     // General Contact Form submission
     document.getElementById('generalForm').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -759,7 +656,6 @@
     // Set minimum date to today for date fields
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('staff-date').setAttribute('min', today);
-    document.getElementById('event-date').setAttribute('min', today);
   </script>
 </body>
 </html>

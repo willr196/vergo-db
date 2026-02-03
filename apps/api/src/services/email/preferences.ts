@@ -26,7 +26,6 @@ const EMAIL_TYPE_CATEGORY: Record<string, { category: EmailCategory; field: stri
 
   // Marketing - can unsubscribe
   'quote-followup': { category: 'marketing', field: 'quoteUpdates' },
-  'event-enquiry': { category: 'notification', field: 'notifications' },
   'staff-request': { category: 'notification', field: 'notifications' },
   'general-enquiry': { category: 'notification', field: 'notifications' },
 };

@@ -76,6 +76,9 @@ app.use(cors({
   credentials: true
 }));
 
+// Webhooks must receive the raw body for signature verification
+app.use('/api/v1/webhooks', webhooks);
+
 // Body parsing
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -175,9 +178,6 @@ app.use('/api/v1/mobile/jobs', mobileJobs);
 app.use('/api/v1/mobile/job-applications', mobileJobApplications);
 app.use('/api/v1/client/mobile', mobileClient);
 
-// Webhooks (Resend email tracking)
-app.use('/api/v1/webhooks', webhooks);
-
 // Unsubscribe management
 app.use('/api/v1/unsubscribe', unsubscribe);
 
@@ -187,10 +187,6 @@ app.use('/api/v1/admin/scheduled-emails', adminScheduledEmails);
 // Legacy cleanup (must be before static)
 
 app.get('/hire-us.html', (_req, res) => {
-  res.redirect(301, '/hire-staff.html');
-});
-
-app.get(['/event-management', '/event-management/*'], (_req, res) => {
   res.redirect(301, '/hire-staff.html');
 });
 

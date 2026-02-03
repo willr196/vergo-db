@@ -1,6 +1,6 @@
 # Admin User Setup Guide
 
-This guide explains how to create an admin user for the VERGO Events system.
+This guide explains how to create an admin user for the VERGO system.
 
 ## Quick Setup
 

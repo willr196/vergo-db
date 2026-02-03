@@ -153,7 +153,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Email</td><td style="padding: 8px; border: 1px solid #ddd;"><a href="mailto:${safe(data.email)}">${safe(data.email)}</a></td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Phone</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.phone)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Company</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.company)}</td></tr>
-              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Event Type</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.eventType)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Occasion Type</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.eventType)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Event Date</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.eventDate)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Duration</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.duration)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Location</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.location)}</td></tr>
@@ -179,11 +179,11 @@ r.post("/", quoteLimiter, async (req, res, next) => {
         await resend.emails.send({
           from: FROM_EMAIL,
           to: data.email,
-          subject: "Quote Request Received - VERGO Events",
+          subject: "Quote Request Received - VERGO",
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: #D4AF37; padding: 20px; text-align: center;">
-                <h1 style="color: white; margin: 0;">VERGO Events</h1>
+                <h1 style="color: white; margin: 0;">VERGO</h1>
               </div>
               
               <div style="padding: 30px; background: #f9f9f9;">
@@ -193,7 +193,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
                 
                 <div style="background: #fff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #D4AF37;">
                   <h3 style="margin-top: 0; color: #2c3e2f;">Your Request Summary</h3>
-                  <p><strong>Event Type:</strong> ${safe(data.eventType)}</p>
+                  <p><strong>Occasion Type:</strong> ${safe(data.eventType)}</p>
                   <p><strong>Staff Needed:</strong> ${safe(data.staffNeeded)}</p>
                   ${data.eventDate ? `<p><strong>Date:</strong> ${safe(data.eventDate)}</p>` : ''}
                   ${data.location ? `<p><strong>Location:</strong> ${safe(data.location)}</p>` : ''}
@@ -203,11 +203,11 @@ r.post("/", quoteLimiter, async (req, res, next) => {
                 
                 <p>If you have any urgent questions, please call us directly or reply to this email.</p>
                 
-                <p>Best regards,<br>The VERGO Events Team</p>
+                <p>Best regards,<br>The VERGO Team</p>
               </div>
               
               <div style="padding: 20px; text-align: center; color: #666; font-size: 12px; background: #f0f0f0;">
-                <p style="margin: 0;">VERGO Events Ltd | London, United Kingdom</p>
+                <p style="margin: 0;">VERGO Ltd | London, United Kingdom</p>
               </div>
             </div>
           `

@@ -25,7 +25,7 @@ import type { RootStackParamList } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CreateJob'>;
 
-const EVENT_TYPES = [
+const OCCASION_TYPES = [
   'Corporate Event',
   'Wedding',
   'Private Party',
@@ -43,7 +43,6 @@ const ROLE_OPTIONS = [
   'Waiter/Waitress',
   'Chef',
   'Kitchen Porter',
-  'Event Manager',
   'Front of House',
   'Runner',
   'Barista',
@@ -105,7 +104,7 @@ export function CreateQuoteScreen({ navigation }: Props) {
     setFieldErrors(errors);
 
     // Return error message for alert
-    if (errors.eventType) return 'Please select an event type';
+    if (errors.eventType) return 'Please select an occasion type';
     if (errors.location) return 'Please enter a location';
     if (formData.staffCount < 1) return 'Please enter the number of staff needed';
     if (errors.roles) return 'Please select at least one role';
@@ -168,13 +167,13 @@ export function CreateQuoteScreen({ navigation }: Props) {
         >
           <Text style={styles.title}>Request a Quote</Text>
           <Text style={styles.subtitle}>
-            Tell us about your event and we'll provide a competitive quote
+            Tell us about your staffing needs and we'll provide a competitive quote
           </Text>
 
           {/* Event Type */}
           <View style={styles.section}>
             <Text style={[styles.label, fieldErrors.eventType && styles.labelError]}>
-              Event Type *
+              Occasion Type *
             </Text>
             <TouchableOpacity
               style={[styles.select, fieldErrors.eventType && styles.inputError]}
@@ -189,17 +188,17 @@ export function CreateQuoteScreen({ navigation }: Props) {
                   !formData.eventType && styles.selectPlaceholder,
                 ]}
               >
-                {formData.eventType || 'Select event type'}
+                {formData.eventType || 'Select occasion type'}
               </Text>
               <Text style={styles.selectArrow}>{showEventTypes ? '▲' : '▼'}</Text>
             </TouchableOpacity>
             {fieldErrors.eventType && (
-              <Text style={styles.errorText}>Please select an event type</Text>
+              <Text style={styles.errorText}>Please select an occasion type</Text>
             )}
 
             {showEventTypes && (
               <View style={styles.dropdown}>
-                {EVENT_TYPES.map((type) => (
+                {OCCASION_TYPES.map((type) => (
                   <TouchableOpacity
                     key={type}
                     style={[

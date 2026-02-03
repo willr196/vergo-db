@@ -254,7 +254,7 @@ export function MyQuotesScreen({ navigation }: Props) {
           <EmptyState
             icon="📋"
             title="No Quotes Yet"
-            message="Submit a quote request to get staffing for your next event."
+            message="Submit a quote request to get staffing for your next occasion."
             actionTitle="Request a Quote"
             onAction={() => navigation.navigate('CreateJob')}
           />

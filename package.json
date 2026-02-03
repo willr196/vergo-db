@@ -5,6 +5,7 @@
     "csrf-csrf": "^4.0.3",
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
+    "gitleaks": "^1.0.0",
     "resend": "^6.1.3"
   },
   "devDependencies": {

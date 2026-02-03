@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
-import { sendEventEnquiryEmail, sendStaffRequestEmail, sendGeneralEnquiryEmail } from '../services/email';
+import { sendStaffRequestEmail, sendGeneralEnquiryEmail } from '../services/email';
 import { prisma } from '../prisma';
 
 const r = Router();
@@ -35,28 +35,6 @@ const honeypotCheck = (data: any) => {
 // VALIDATION SCHEMAS
 // ============================================
 
-const eventEnquirySchema = z.object({
-  name: z.string().min(2).max(100).trim(),
-  email: z.string().email().max(255).toLowerCase(),
-  phone: z.string().max(20).optional(),
-  eventType: z.enum(['corporate', 'wedding', 'private', 'music', 'charity', 'festival', 'other']),
-  date: z.string().refine(
-    (date) => {
-      if (!date) return true; // Allow empty dates
-      const eventDate = new Date(date);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // Reset time to start of day
-      return eventDate >= today;
-    }, 
-    { message: "Event date must be today or in the future" }
-  ).optional(),
-  guests: z.number().min(1).optional(),
-  message: z.string().min(10).max(2000).trim(),
-  // Honeypot fields (should remain empty)
-  website: z.string().optional(),
-  url: z.string().optional()
-});
-
 const staffRequestSchema = z.object({
   name: z.string().min(2).max(100).trim(),
   email: z.string().email().max(255).toLowerCase(),
@@ -79,73 +57,6 @@ const generalEnquirySchema = z.object({
   // Honeypot fields
   website: z.string().optional(),
   url: z.string().optional()
-});
-
-// ============================================
-// POST /api/v1/contact/event-enquiry
-// ============================================
-r.post('/event-enquiry', contactLimiter, async (req, res, next) => {
-  try {
-    const data = eventEnquirySchema.parse(req.body);
-    
-    // Check honeypot
-    if (honeypotCheck(data)) {
-      // Return success to bot but don't send email
-      return res.status(200).json({
-        ok: true,
-        success: true,
-        message: 'Event enquiry received.',
-        data: { success: true, message: 'Event enquiry received.' }
-      });
-    }
-    
-    // Send email notification
-    await sendEventEnquiryEmail(data);
-
-    await prisma.contact.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        phone: data.phone || null,
-        type: 'EVENT_ENQUIRY',
-        eventType: data.eventType,
-        eventDate: data.date ? new Date(data.date) : null,
-        guests: data.guests || null,
-        message: data.message,
-        status: 'NEW'
-      }
-    });
-    
-    console.log('[EVENT ENQUIRY]', {
-      from: data.email.slice(0, 2) + '***',
-      name: data.name,
-      eventType: data.eventType,
-      date: data.date,
-      guests: data.guests
-    });
-    
-    res.status(200).json({
-      ok: true,
-      success: true,
-      message: 'Event enquiry received. We\'ll be in touch within 24 hours!',
-      data: { success: true, message: 'Event enquiry received. We\'ll be in touch within 24 hours!' }
-    });
-    
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
-        error: 'Invalid form data', 
-        details: error.errors 
-      });
-    }
-    
-    console.error('[ERROR] Event enquiry failed:', error);
-    
-    // Don't expose internal errors to client
-    res.status(500).json({ 
-      error: 'Unable to process your enquiry. Please try again or email us directly at wrobb@vergoltd.com' 
-    });
-  }
 });
 
 // ============================================

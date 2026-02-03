@@ -18,7 +18,6 @@ export {
   sendJobApplicationNotification,
   sendJobApplicationConfirmation,
   // Enquiry emails
-  sendEventEnquiryEmail,
   sendStaffRequestEmail,
   sendGeneralEnquiryEmail,
   // Reminder emails

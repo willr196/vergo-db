@@ -196,22 +196,84 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
     const previousStatus = application.status;
     
     if (status === "CONFIRMED" && application.status !== "CONFIRMED") {
-      await prisma.$transaction([
-        prisma.jobApplication.update({ where: { id: req.params.id }, data: { status } }),
-        prisma.job.update({ where: { id: application.jobId }, data: { staffConfirmed: { increment: 1 } } })
-      ]);
-      
-      const updatedJob = await prisma.job.findUnique({ where: { id: application.jobId } });
-      if (updatedJob && updatedJob.staffConfirmed >= updatedJob.staffNeeded) {
-        await prisma.job.update({ where: { id: application.jobId }, data: { status: "FILLED" } });
+      try {
+        await prisma.$transaction(async (tx) => {
+          const job = await tx.job.findUnique({
+            where: { id: application.jobId },
+            select: { staffConfirmed: true, staffNeeded: true, status: true }
+          });
+          if (!job) {
+            throw new Error("JOB_NOT_FOUND");
+          }
+          if (job.staffConfirmed >= job.staffNeeded) {
+            throw new Error("JOB_FILLED");
+          }
+
+          await tx.jobApplication.update({
+            where: { id: req.params.id },
+            data: { status }
+          });
+
+          await tx.job.update({
+            where: { id: application.jobId },
+            data: { staffConfirmed: { increment: 1 } }
+          });
+
+          if (job.staffConfirmed + 1 >= job.staffNeeded) {
+            await tx.job.update({
+              where: { id: application.jobId },
+              data: { status: "FILLED" }
+            });
+          }
+        });
+      } catch (err) {
+        if (err instanceof Error && err.message === "JOB_FILLED") {
+          return res.status(400).json({ error: "Job has been filled" });
+        }
+        if (err instanceof Error && err.message === "JOB_NOT_FOUND") {
+          return res.status(404).json({ error: "Job not found" });
+        }
+        throw err;
       }
     } else if (application.status === "CONFIRMED" && status !== "CONFIRMED") {
-      await prisma.$transaction([
-        prisma.jobApplication.update({ where: { id: req.params.id }, data: { status } }),
-        prisma.job.update({ where: { id: application.jobId }, data: { staffConfirmed: { decrement: 1 } } })
-      ]);
-      if (application.job.status === "FILLED") {
-        await prisma.job.update({ where: { id: application.jobId }, data: { status: "OPEN" } });
+      try {
+        await prisma.$transaction(async (tx) => {
+          const job = await tx.job.findUnique({
+            where: { id: application.jobId },
+            select: { staffConfirmed: true, staffNeeded: true, status: true }
+          });
+          if (!job) {
+            throw new Error("JOB_NOT_FOUND");
+          }
+          if (job.staffConfirmed <= 0) {
+            throw new Error("JOB_STAFF_COUNT_INVALID");
+          }
+
+          await tx.jobApplication.update({
+            where: { id: req.params.id },
+            data: { status }
+          });
+
+          await tx.job.update({
+            where: { id: application.jobId },
+            data: { staffConfirmed: { decrement: 1 } }
+          });
+
+          if (job.status === "FILLED") {
+            await tx.job.update({
+              where: { id: application.jobId },
+              data: { status: "OPEN" }
+            });
+          }
+        });
+      } catch (err) {
+        if (err instanceof Error && err.message === "JOB_NOT_FOUND") {
+          return res.status(404).json({ error: "Job not found" });
+        }
+        if (err instanceof Error && err.message === "JOB_STAFF_COUNT_INVALID") {
+          return res.status(409).json({ error: "Job staff count out of sync" });
+        }
+        throw err;
       }
     } else {
       await prisma.jobApplication.update({ where: { id: req.params.id }, data: { status } });

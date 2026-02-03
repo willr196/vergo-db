@@ -16,7 +16,7 @@ export async function sendClientVerificationEmail(data: {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: data.to,
-      subject: '✅ Verify your VERGO Events business account',
+      subject: '✅ Verify your VERGO business account',
       tags: [
         { name: 'category', value: 'client-verification' },
         { name: 'source', value: 'website' }
@@ -24,13 +24,13 @@ export async function sendClientVerificationEmail(data: {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #D4AF37; padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">VERGO Events</h1>
+            <h1 style="color: white; margin: 0;">VERGO</h1>
           </div>
           
           <div style="padding: 30px; background: #f9f9f9;">
             <h2 style="color: #2c3e2f; margin-top: 0;">Welcome, ${data.name}!</h2>
             
-            <p>Thanks for registering <strong>${data.companyName}</strong> with VERGO Events.</p>
+            <p>Thanks for registering <strong>${data.companyName}</strong> with VERGO.</p>
             <p>Please verify your email address to continue with your registration.</p>
             
             <div style="text-align: center; margin: 30px 0;">
@@ -48,7 +48,7 @@ export async function sendClientVerificationEmail(data: {
                 <li style="margin-bottom: 8px;">Click the button above to verify your email</li>
                 <li style="margin-bottom: 8px;">Our team will review your registration</li>
                 <li style="margin-bottom: 8px;">Once approved, you'll receive an email confirmation</li>
-                <li>Log in and start requesting quotes for your events!</li>
+                <li>Log in and start requesting staffing quotes!</li>
               </ol>
             </div>
             
@@ -59,7 +59,7 @@ export async function sendClientVerificationEmail(data: {
           </div>
           
           <div style="padding: 20px; text-align: center; color: #666; font-size: 12px; background: #f0f0f0;">
-            <p style="margin: 0 0 10px 0;">VERGO Events Ltd | London, United Kingdom</p>
+            <p style="margin: 0 0 10px 0;">VERGO Ltd | London, United Kingdom</p>
             <p style="margin: 0;">
               <a href="${env.webOrigin}" style="color: #D4AF37; text-decoration: none;">www.vergoltd.com</a>
             </p>
@@ -89,7 +89,7 @@ export async function sendClientPasswordResetEmail(data: {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: data.to,
-      subject: '🔐 Reset your VERGO Events business account password',
+      subject: '🔐 Reset your VERGO business account password',
       tags: [
         { name: 'category', value: 'client-password-reset' },
         { name: 'source', value: 'website' }
@@ -97,7 +97,7 @@ export async function sendClientPasswordResetEmail(data: {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #D4AF37; padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">VERGO Events</h1>
+            <h1 style="color: white; margin: 0;">VERGO</h1>
           </div>
           
           <div style="padding: 30px; background: #f9f9f9;">
@@ -124,7 +124,7 @@ export async function sendClientPasswordResetEmail(data: {
           </div>
           
           <div style="padding: 20px; text-align: center; color: #666; font-size: 12px; background: #f0f0f0;">
-            <p style="margin: 0;">VERGO Events Ltd | London, United Kingdom</p>
+            <p style="margin: 0;">VERGO Ltd | London, United Kingdom</p>
           </div>
         </div>
       `
@@ -150,7 +150,7 @@ export async function sendClientApprovalEmail(data: {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: data.to,
-      subject: '🎉 Your VERGO Events business account has been approved!',
+      subject: '🎉 Your VERGO business account has been approved!',
       tags: [
         { name: 'category', value: 'client-approval' },
         { name: 'source', value: 'admin' }
@@ -158,16 +158,16 @@ export async function sendClientApprovalEmail(data: {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #D4AF37; padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">VERGO Events</h1>
+            <h1 style="color: white; margin: 0;">VERGO</h1>
           </div>
           
           <div style="padding: 30px; background: #f9f9f9;">
-            <h2 style="color: #2c3e2f; margin-top: 0;">🎉 Welcome to VERGO Events!</h2>
+            <h2 style="color: #2c3e2f; margin-top: 0;">🎉 Welcome to VERGO!</h2>
             
             <p>Hi ${data.name},</p>
             
             <p>Great news! Your business account for <strong>${data.companyName}</strong> has been approved.</p>
-            <p>You can now log in to your client dashboard and start requesting quotes for your events.</p>
+            <p>You can now log in to your client dashboard and start requesting staffing quotes.</p>
             
             <div style="text-align: center; margin: 30px 0;">
               <a href="${loginUrl}" style="display: inline-block; padding: 15px 40px; background: #D4AF37; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
@@ -178,20 +178,20 @@ export async function sendClientApprovalEmail(data: {
             <div style="background: #fff; padding: 20px; border-radius: 8px; border-left: 4px solid #D4AF37;">
               <h4 style="margin: 0 0 15px 0; color: #2c3e2f;">What you can do:</h4>
               <ul style="margin: 0; padding-left: 20px;">
-                <li style="margin-bottom: 8px;">Request quotes for event staffing</li>
+                <li style="margin-bottom: 8px;">Request staffing quotes</li>
                 <li style="margin-bottom: 8px;">Track your quote requests</li>
-                <li style="margin-bottom: 8px;">View your event history</li>
+                <li style="margin-bottom: 8px;">View your booking history</li>
                 <li>Manage your company profile</li>
               </ul>
             </div>
             
             <p style="margin-top: 30px;">If you have any questions, feel free to reply to this email or contact us directly.</p>
             
-            <p>Best regards,<br><strong>The VERGO Events Team</strong></p>
+            <p>Best regards,<br><strong>The VERGO Team</strong></p>
           </div>
           
           <div style="padding: 20px; text-align: center; color: #666; font-size: 12px; background: #f0f0f0;">
-            <p style="margin: 0 0 10px 0;">VERGO Events Ltd | London, United Kingdom</p>
+            <p style="margin: 0 0 10px 0;">VERGO Ltd | London, United Kingdom</p>
             <p style="margin: 0;">
               <a href="${env.webOrigin}" style="color: #D4AF37; text-decoration: none;">www.vergoltd.com</a>
             </p>
@@ -219,7 +219,7 @@ export async function sendClientRejectionEmail(data: {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: data.to,
-      subject: 'VERGO Events - Account Registration Update',
+      subject: 'VERGO - Account Registration Update',
       tags: [
         { name: 'category', value: 'client-rejection' },
         { name: 'source', value: 'admin' }
@@ -227,7 +227,7 @@ export async function sendClientRejectionEmail(data: {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #D4AF37; padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">VERGO Events</h1>
+            <h1 style="color: white; margin: 0;">VERGO</h1>
           </div>
           
           <div style="padding: 30px; background: #f9f9f9;">
@@ -235,7 +235,7 @@ export async function sendClientRejectionEmail(data: {
             
             <p>Hi ${data.name},</p>
             
-            <p>Thank you for your interest in registering <strong>${data.companyName}</strong> with VERGO Events.</p>
+            <p>Thank you for your interest in registering <strong>${data.companyName}</strong> with VERGO.</p>
             
             <p>After reviewing your application, we're unable to approve your business account at this time.</p>
             
@@ -247,11 +247,11 @@ export async function sendClientRejectionEmail(data: {
             
             <p>If you believe this was a mistake or would like more information, please reply to this email and we'll be happy to discuss further.</p>
             
-            <p>Best regards,<br><strong>The VERGO Events Team</strong></p>
+            <p>Best regards,<br><strong>The VERGO Team</strong></p>
           </div>
           
           <div style="padding: 20px; text-align: center; color: #666; font-size: 12px; background: #f0f0f0;">
-            <p style="margin: 0;">VERGO Events Ltd | London, United Kingdom</p>
+            <p style="margin: 0;">VERGO Ltd | London, United Kingdom</p>
           </div>
         </div>
       `
