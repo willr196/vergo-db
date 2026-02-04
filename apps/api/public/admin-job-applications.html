@@ -526,15 +526,15 @@
 <body class="platform">
   <header></header>
   <div class="admin-header">
-    <a href="index.html" class="logo">
+    <a href="index" class="logo">
       <img src="/logo.png" alt="VERGO Ltd">
     </a>
     <div class="header-nav">
-      <a href="admin.html">Roster</a>
-      <a href="admin-jobs.html">Jobs</a>
-      <a href="admin-job-applications.html" class="active">Applications</a>
-      <a href="admin-clients.html">Clients</a>
-      <a href="index.html">View Site</a>
+      <a href="admin">Roster</a>
+      <a href="admin-jobs">Jobs</a>
+      <a href="admin-job-applications" class="active">Applications</a>
+      <a href="admin-clients">Clients</a>
+      <a href="index">View Site</a>
       <button onclick="logout()" class="btn btn-secondary btn-small">Logout</button>
     </div>
   </div>
@@ -729,7 +729,7 @@
             </td>
             <td>
               <div class="job-info">
-                <span class="job-title"><a href="admin-jobs.html">${escapeHtml(app.job.title)}</a></span>
+                <span class="job-title"><a href="admin-jobs">${escapeHtml(app.job.title)}</a></span>
                 <span class="job-meta">${escapeHtml(app.job.location)} • ${eventDate}</span>
                 <span class="job-type ${app.job.type === 'INTERNAL' ? 'internal' : 'external'}">
                   ${app.job.type === 'INTERNAL' ? 'VERGO' : 'External'}

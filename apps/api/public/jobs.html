@@ -394,8 +394,8 @@
     <!-- User Bar -->
     <div id="user-bar" class="user-bar logged-out">
       <div class="user-actions">
-        <a href="user-login.html" class="btn btn-secondary btn-small">Log In</a>
-        <a href="user-register.html" class="btn btn-primary btn-small">Create Account</a>
+        <a href="user-login" class="btn btn-secondary btn-small">Log In</a>
+        <a href="user-register" class="btn btn-primary btn-small">Create Account</a>
       </div>
     </div>
     
@@ -466,7 +466,7 @@
             Welcome, <strong>${currentUser.firstName}</strong>
           </div>
           <div class="user-actions">
-            <a href="user-dashboard.html" class="btn btn-secondary btn-small">My Applications</a>
+            <a href="user-dashboard" class="btn btn-secondary btn-small">My Applications</a>
             <button onclick="logout()" class="btn btn-small" style="background: #333; color: #fff;">Log Out</button>
           </div>
         `;
@@ -474,8 +474,8 @@
         bar.className = 'user-bar logged-out';
         bar.innerHTML = `
           <div class="user-actions">
-            <a href="user-login.html" class="btn btn-secondary btn-small">Log In</a>
-            <a href="user-register.html" class="btn btn-primary btn-small">Create Account</a>
+            <a href="user-login" class="btn btn-secondary btn-small">Log In</a>
+            <a href="user-register" class="btn btn-primary btn-small">Create Account</a>
           </div>
         `;
       }

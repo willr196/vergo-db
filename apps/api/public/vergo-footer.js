@@ -21,7 +21,7 @@
             <img src="/logo.png" alt="VERGO Ltd" width="120" height="auto">
           </a>
           <p class="footer-tagline">
-            Premium event staffing for London and surrounding areas. Trusted teams.
+            Event staffing shaped by experience on film sets, TV productions, and live events. London &amp; surrounding areas.
           </p>
           <div class="footer-roles">
             Event Chefs &middot; Bar Staff &middot; Front of House &middot; Baristas &middot; Catering Assistants
@@ -32,10 +32,10 @@
         <div class="footer-column">
           <h3>Services</h3>
           <ul>
-            <li><a href="/hire-staff.html">Hire Event Staff</a></li>
-            <li><a href="/pricing.html">Pricing</a></li>
-            <li><a href="/quote.html">Get a Quote</a></li>
-            <li><a href="/jobs.html">Current Jobs</a></li>
+            <li><a href="/hire-staff">Hire Event Staff</a></li>
+            <li><a href="/pricing">Pricing</a></li>
+            <li><a href="/quote">Get a Quote</a></li>
+            <li><a href="/jobs">Current Jobs</a></li>
           </ul>
         </div>
 
@@ -43,8 +43,8 @@
         <div class="footer-column">
           <h3>Work With Us</h3>
           <ul>
-            <li><a href="/apply.html">Join the Team</a></li>
-            <li><a href="/jobs.html">View Openings</a></li>
+            <li><a href="/apply">Join the Team</a></li>
+            <li><a href="/jobs">View Openings</a></li>
           </ul>
         </div>
 
@@ -52,9 +52,9 @@
         <div class="footer-column">
           <h3>Company</h3>
           <ul>
-            <li><a href="/about.html">About VERGO</a></li>
-            <li><a href="/faq.html">FAQ</a></li>
-            <li><a href="/contact.html">Contact</a></li>
+            <li><a href="/about">About VERGO</a></li>
+            <li><a href="/faq">FAQ</a></li>
+            <li><a href="/contact">Contact</a></li>
           </ul>
         </div>
 
@@ -62,7 +62,8 @@
         <div class="footer-column footer-contact">
           <h3>Get in Touch</h3>
           <a href="mailto:wrobb@vergoltd.com" class="footer-email">wrobb@vergoltd.com</a>
-          <p class="footer-response">Replies within 24 hours</p>
+          <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" class="footer-whatsapp" target="_blank" rel="noopener">WhatsApp: 07944 505783</a>
+          <p class="footer-response">Same-day response guaranteed</p>
           <p class="footer-coverage">London & surrounding areas</p>
         </div>
       </div>
@@ -74,9 +75,9 @@
             &copy; ${new Date().getFullYear()} VERGO Ltd. All rights reserved.
           </p>
           <div class="footer-legal">
-            <a href="/privacy.html">Privacy Policy</a>
+            <a href="/privacy">Privacy Policy</a>
             <span class="footer-separator">&middot;</span>
-            <a href="/terms.html">Terms of Service</a>
+            <a href="/terms">Terms of Service</a>
           </div>
         </div>
       </div>
@@ -200,6 +201,18 @@
       }
 
       .footer-contact .footer-email:hover {
+        color: var(--footer-gold);
+      }
+
+      .footer-contact .footer-whatsapp {
+        display: block;
+        color: var(--footer-text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+        text-decoration: none;
+      }
+
+      .footer-contact .footer-whatsapp:hover {
         color: var(--footer-gold);
       }
 

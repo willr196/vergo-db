@@ -117,6 +117,52 @@
       min-width: 160px;
     }
 
+    /* Launched Badge */
+    .hero-badge {
+      display: inline-block;
+      padding: 6px 18px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-gold);
+      border: 1px solid var(--color-gold);
+      border-radius: 50px;
+      margin-bottom: 20px;
+      opacity: 0.85;
+    }
+
+    /* Experience line */
+    .hero-experience {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      margin-top: -8px;
+      margin-bottom: 32px;
+      line-height: 1.6;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Same-day response indicator */
+    .response-promise {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    .response-promise svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--color-gold);
+      stroke-width: 2;
+      fill: none;
+    }
+
     /* Services Section */
     .services-section {
       background: var(--color-bg-white);
@@ -641,13 +687,21 @@
       <div class="hero-overlay"></div>
 
       <div class="hero-content fade-in">
-        <h1 class="hero-title">VERGO</h1>
+        <span class="hero-badge">Est. 2026</span>
+        <h1 class="hero-title">From Film Sets to Five-Star Events</h1>
         <p class="hero-subtitle">
-          Fast confirmations. Trusted teams for London's finest events.
+          Hospitality staff shaped by experience on major film productions, Netflix series, BBC broadcasts, and arena-scale concerts. Now available for your event.
+        </p>
+        <p class="hero-experience">
+          Event chefs, bar staff, front of house, baristas, and catering assistants across London &amp; surrounding areas.
         </p>
         <div class="hero-ctas">
-          <a href="/quote.html" class="btn btn-primary btn-lg">Get a Quote</a>
-          <a href="/apply.html" class="btn btn-secondary btn-lg">Join the Team</a>
+          <a href="/quote" class="btn btn-primary btn-lg">Get a Quote</a>
+          <a href="/apply" class="btn btn-secondary btn-lg">Join the Team</a>
+        </div>
+        <div class="response-promise">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Same-day response guaranteed
         </div>
       </div>
     </section>
@@ -657,7 +711,7 @@
       <div class="section-header fade-in">
         <h2>What We Provide</h2>
         <div class="divider-gold"></div>
-        <p>Professional hospitality staff for events of all sizes</p>
+        <p>Professional hospitality staff for film sets, corporate events, weddings, and more</p>
       </div>
 
       <div class="services-grid">
@@ -830,7 +884,7 @@
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </span>
-          <p>Experience across corporate and private events</p>
+          <p>Experience across film productions, concerts, corporate, and private events</p>
         </div>
       </div>
     </section>
@@ -864,7 +918,7 @@
       </div>
 
       <div class="process-cta fade-in">
-        <a href="/quote.html" class="btn btn-primary btn-lg">Get a Quote</a>
+        <a href="/quote" class="btn btn-primary btn-lg">Get a Quote</a>
       </div>
     </section>
 
@@ -902,7 +956,7 @@
             </div>
           </div>
 
-          <a href="/apply.html" class="btn btn-secondary">Apply Now</a>
+          <a href="/apply" class="btn btn-secondary">Apply Now</a>
         </div>
 
         <div class="candidate-image">
@@ -980,8 +1034,15 @@
     <section class="final-cta">
       <div class="fade-in">
         <h2>Ready to staff your event?</h2>
-        <p>Get in touch with your event details. We'll respond within 24 hours with availability and pricing.</p>
-        <a href="/quote.html" class="btn btn-primary btn-lg">Get a Quote</a>
+        <p>Get in touch with your event details. We respond same-day with availability and pricing.</p>
+        <div class="hero-ctas">
+          <a href="/quote" class="btn btn-primary btn-lg">Get a Quote</a>
+          <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" class="btn btn-secondary btn-lg" target="_blank" rel="noopener">WhatsApp Us</a>
+        </div>
+        <div class="response-promise">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Same-day response guaranteed
+        </div>
       </div>
     </section>
   </main>
