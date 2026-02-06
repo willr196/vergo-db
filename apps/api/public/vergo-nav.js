@@ -22,7 +22,7 @@
   const navHTML = `
     <div class="nav-container">
       <a href="/" class="logo" aria-label="VERGO Ltd Home">
-        <img src="/logo.png" alt="VERGO Ltd">
+        <img src="/logo.png" alt="VERGO Ltd" decoding="async">
       </a>
 
       <button class="menu-toggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">

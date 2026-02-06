@@ -18,7 +18,7 @@
         <!-- Brand Column -->
         <div class="footer-brand">
           <a href="/" class="footer-logo" aria-label="VERGO Ltd Home">
-            <img src="/logo.png" alt="VERGO Ltd" width="120" height="auto">
+            <img src="/logo.png" alt="VERGO Ltd" width="120" height="auto" loading="lazy" decoding="async">
           </a>
           <p class="footer-tagline">
             Event staffing shaped by experience on film sets, TV productions, and live events. London &amp; surrounding areas.

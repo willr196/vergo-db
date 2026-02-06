@@ -1,0 +1,350 @@
+/**
+ * VERGO Ltd - Blog Article Styles
+ * Shared across all blog posts for consistent typography and layout
+ * Include AFTER vergo-styles.css
+ */
+
+/* ============================================
+ * ARTICLE LAYOUT
+ * ============================================ */
+article {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+/* ============================================
+ * BREADCRUMB
+ * ============================================ */
+.breadcrumb {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 30px;
+}
+
+.breadcrumb a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  color: var(--color-gold);
+}
+
+/* ============================================
+ * ARTICLE META & CATEGORY
+ * ============================================ */
+.article-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.category {
+  color: var(--color-gold);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+/* ============================================
+ * ARTICLE TYPOGRAPHY
+ * ============================================ */
+article h1 {
+  font-size: 2.5rem;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  color: var(--color-text-primary);
+}
+
+.lead {
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 40px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+article h2 {
+  font-size: 1.6rem;
+  color: var(--color-gold);
+  margin: 50px 0 20px;
+}
+
+article h3 {
+  font-size: 1.3rem;
+  color: var(--color-text-primary);
+  margin: 35px 0 15px;
+}
+
+article p {
+  margin-bottom: 20px;
+  color: var(--color-text-secondary);
+}
+
+article ul,
+article ol {
+  margin: 20px 0;
+  padding-left: 25px;
+  color: var(--color-text-secondary);
+}
+
+article li {
+  margin-bottom: 10px;
+}
+
+article strong {
+  color: var(--color-text-primary);
+}
+
+/* ============================================
+ * CALLOUT BOXES
+ * ============================================ */
+.callout {
+  background: var(--color-bg-secondary);
+  border-left: 4px solid var(--color-gold);
+  padding: 25px;
+  margin: 30px 0;
+  border-radius: 0 8px 8px 0;
+}
+
+.callout-title {
+  color: var(--color-gold);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.callout p:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================
+ * TABLES
+ * ============================================ */
+.table-wrapper {
+  overflow-x: auto;
+  margin: 30px 0;
+}
+
+article table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-bg-secondary);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+article th,
+article td {
+  padding: 15px 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+article th {
+  background: var(--color-bg-tertiary);
+  color: var(--color-gold);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+article td {
+  color: var(--color-text-secondary);
+}
+
+article tr:last-child td {
+  border-bottom: none;
+}
+
+/* ============================================
+ * PRICE HIGHLIGHT (used in cost articles)
+ * ============================================ */
+.price-highlight {
+  background: rgba(201, 162, 77, 0.1);
+  border: 1px solid rgba(201, 162, 77, 0.3);
+  border-radius: 8px;
+  padding: 25px;
+  margin: 30px 0;
+  text-align: center;
+}
+
+.price-highlight .price {
+  font-size: 2.5rem;
+  color: var(--color-gold);
+  font-weight: 700;
+}
+
+.price-highlight .label {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+/* ============================================
+ * CTA BOX
+ * ============================================ */
+.cta-box {
+  background: linear-gradient(135deg, var(--color-bg-secondary) 0%, var(--color-bg-tertiary) 100%);
+  border: 1px solid var(--color-gold);
+  border-radius: 12px;
+  padding: 40px;
+  margin: 50px 0;
+  text-align: center;
+}
+
+.cta-box h3 {
+  color: var(--color-gold);
+  margin: 0 0 15px;
+}
+
+.cta-box p {
+  margin-bottom: 25px;
+}
+
+/* ============================================
+ * AUTHOR BOX
+ * ============================================ */
+.author-box {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  background: var(--color-bg-secondary);
+  padding: 30px;
+  border-radius: 10px;
+  margin-top: 50px;
+  border: 1px solid var(--color-border);
+}
+
+.author-avatar {
+  width: 70px;
+  height: 70px;
+  background: var(--color-gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-bg-white);
+  flex-shrink: 0;
+}
+
+.author-info h4 {
+  color: var(--color-text-primary);
+  margin-bottom: 5px;
+}
+
+.author-info p {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* ============================================
+ * SHARE SECTION
+ * ============================================ */
+.share-section {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid var(--color-border);
+}
+
+.share-section h4 {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
+
+.share-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.share-btn {
+  padding: 10px 20px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.share-btn:hover {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+
+/* ============================================
+ * RELATED POSTS
+ * ============================================ */
+.related-posts {
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 1px solid var(--color-border);
+}
+
+.related-posts h3 {
+  color: var(--color-gold);
+  margin-bottom: 25px;
+}
+
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.related-card {
+  background: var(--color-bg-secondary);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  transition: border-color 0.2s;
+}
+
+.related-card:hover {
+  border-color: var(--color-gold);
+}
+
+.related-card h4 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+.related-card h4 a {
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.related-card h4 a:hover {
+  color: var(--color-gold);
+}
+
+.related-card p {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ============================================
+ * RESPONSIVE
+ * ============================================ */
+@media (max-width: 600px) {
+  article h1 {
+    font-size: 1.8rem;
+  }
+
+  article h2 {
+    font-size: 1.4rem;
+  }
+
+  .author-box {
+    flex-direction: column;
+    text-align: center;
+  }
+}
