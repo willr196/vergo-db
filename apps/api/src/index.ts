@@ -1,6 +1,7 @@
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
 import Redis from 'ioredis';
@@ -65,6 +66,13 @@ app.use(helmet({
   xFrameOptions: { action: 'deny' }
 }));
 
+// Performance headers
+app.use((_req, res, next) => {
+  res.setHeader('X-DNS-Prefetch-Control', 'on');
+  res.setHeader('Connection', 'keep-alive');
+  next();
+});
+
 // CORS — must include your frontend origin + localhost for dev
 app.use(cors({
   origin: [
@@ -75,6 +83,9 @@ app.use(cors({
   ],
   credentials: true
 }));
+
+// Gzip compression for all responses
+app.use(compression());
 
 // Webhooks must receive the raw body for signature verification
 app.use('/api/v1/webhooks', webhooks);
@@ -218,7 +229,19 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(pub, { extensions: ['html'] }));
+app.use(express.static(pub, {
+  extensions: ['html'],
+  maxAge: '7d',
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    } else if (filePath.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|webp|woff|woff2)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+    }
+  }
+}));
 
 // 404 handler (after static)
 app.use((_req, res) => {

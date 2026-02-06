@@ -3,3 +3,8 @@ npm-debug.log
 dist
 .git
 .env
+
+# Dev/backup files
+*.bak
+fix-vergo-files.py
+blog/social-proof-components.html

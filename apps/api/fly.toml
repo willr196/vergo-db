@@ -14,3 +14,21 @@ primary_region = "lhr"
 
 [deploy]
   release_command = "npm run prisma:deploy"
+
+# Serve static assets from Fly's edge CDN (bypasses Node)
+[[statics]]
+  guest_path = "/app/public"
+  url_prefix = "/images"
+
+[[statics]]
+  guest_path = "/app/public"
+  url_prefix = "/vergo-"
+
+# Health checks
+[[services.http_checks]]
+  interval = 10000
+  grace_period = "10s"
+  method = "get"
+  path = "/health"
+  protocol = "http"
+  timeout = 2000

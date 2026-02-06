@@ -1,17 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-L4XRTDYMTZ');
-</script>
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/logo-small.png">
@@ -212,7 +201,7 @@
 <body class="platform">
   <header>
     <a href="index" class="logo">
-      <img src="/logo.png" alt="VERGO Ltd">
+      <img src="/logo.png" alt="VERGO Ltd" loading="lazy" decoding="async">
     </a>
   </header>
   
@@ -343,5 +332,14 @@
   </script>
   <script src="/vergo-nav.js"></script>
   <script src="/vergo-footer.js"></script>
+<!-- Google Analytics (non-blocking) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L4XRTDYMTZ');
+</script>
 </body>
 </html>

@@ -6,6 +6,20 @@
  */
 
 /* ============================================
+ * CSS Variables for nav consistency
+ * ============================================ */
+:root {
+  --nav-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --nav-bg: rgba(250, 248, 245, 0.98);
+  --nav-text: #1C1C1C;
+  --nav-text-muted: #6B6B6B;
+  --nav-gold: #C9A24D;
+  --nav-gold-hover: #B8963D;
+  --nav-border: rgba(28, 28, 28, 0.08);
+  --nav-transition: 0.25s ease;
+}
+
+/* ============================================
  * HEADER
  * ============================================ */
 header {
@@ -13,14 +27,29 @@ header {
   top: 0;
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  padding: 15px 40px;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-border);
+  z-index: 1000;
+}
+
+/* backdrop-filter on a pseudo so it doesn't create a containing block
+   for fixed-position children (which would trap the mobile menu) */
+header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: -1;
+}
+
+.nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 40px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 1000;
 }
 
 /* ============================================
@@ -30,19 +59,20 @@ header {
   display: flex;
   align-items: center;
   text-decoration: none;
+  flex-shrink: 0;
 }
 
 .logo img {
-  height: 45px;
+  height: 38px;
   width: auto;
-  transition: transform 0.3s ease;
+  transition: transform var(--nav-transition);
   border: none !important;
   background: transparent !important;
   display: block;
 }
 
 .logo:hover img {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 /* ============================================
@@ -50,10 +80,11 @@ header {
  * ============================================ */
 nav ul {
   display: flex;
-  gap: 30px;
+  gap: 36px;
   list-style: none;
   margin: 0;
   padding: 0;
+  align-items: center;
 }
 
 nav li {
@@ -61,11 +92,13 @@ nav li {
 }
 
 nav a {
-  color: var(--color-text-primary, #1a1a1a);
+  color: var(--nav-text);
   text-decoration: none;
+  font-family: var(--nav-font);
   font-size: 0.9rem;
-  font-weight: var(--font-weight-medium, 500);
-  transition: color var(--transition-speed, 0.3s) ease;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition: color var(--nav-transition);
   position: relative;
   display: block;
   padding: 8px 0;
@@ -78,12 +111,12 @@ nav a::after {
   left: 0;
   width: 0;
   height: 2px;
-  background: var(--color-gold, #B8962E);
-  transition: width var(--transition-speed, 0.3s) ease;
+  background: var(--nav-gold);
+  transition: width var(--nav-transition);
 }
 
 nav a:hover {
-  color: var(--color-gold, #B8962E);
+  color: var(--nav-gold);
 }
 
 nav a:hover::after {
@@ -91,11 +124,47 @@ nav a:hover::after {
 }
 
 nav a[aria-current="page"] {
-  color: var(--color-gold, #B8962E);
+  color: var(--nav-gold);
 }
 
 nav a[aria-current="page"]::after {
   width: 100%;
+}
+
+/* ============================================
+ * CTA Button in Nav
+ * ============================================ */
+.nav-cta-wrapper {
+  margin-left: 8px;
+}
+
+nav a.nav-cta {
+  background: var(--nav-gold);
+  color: var(--nav-text);
+  padding: 12px 28px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0;
+  transition: all var(--nav-transition);
+  border: 2px solid var(--nav-gold);
+}
+
+nav a.nav-cta::after {
+  display: none;
+}
+
+nav a.nav-cta:hover {
+  background: var(--nav-gold-hover);
+  border-color: var(--nav-gold-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(201, 162, 77, 0.25);
+}
+
+nav a.nav-cta[aria-current="page"] {
+  background: var(--nav-text);
+  border-color: var(--nav-text);
+  color: #fff;
 }
 
 /* ============================================
@@ -168,16 +237,19 @@ nav a[aria-current="page"]::after {
   flex-direction: column;
   gap: 5px;
   cursor: pointer;
-  background: none;
   border: none;
+  background: transparent;
   padding: 8px;
+  z-index: 1002;
+  position: relative;
 }
 
 .menu-toggle span {
   width: 24px;
   height: 2px;
-  background: var(--color-text-primary, #1a1a1a);
-  transition: all var(--transition-speed, 0.3s) ease;
+  background: var(--nav-text);
+  transition: all var(--nav-transition);
+  border-radius: 1px;
 }
 
 /* Hamburger animation when active */
@@ -187,6 +259,7 @@ nav a[aria-current="page"]::after {
 
 .menu-toggle.active span:nth-child(2) {
   opacity: 0;
+  transform: translateX(-10px);
 }
 
 .menu-toggle.active span:nth-child(3) {
@@ -194,53 +267,80 @@ nav a[aria-current="page"]::after {
 }
 
 /* ============================================
- * MOBILE RESPONSIVE (max-width: 900px)
+ * MOBILE RESPONSIVE (max-width: 960px)
  * ============================================ */
-@media (max-width: 900px) {
-  header {
-    padding: 12px 20px;
+@media (max-width: 960px) {
+  .nav-container {
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 24px 14px;
   }
-  
+
   .logo img {
-    height: 38px;
+    height: 34px;
   }
-  
+
   nav ul {
     position: fixed;
-    top: 65px;
+    top: 0;
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.98);
+    bottom: 0;
+    background: var(--nav-bg);
     flex-direction: column;
-    padding: 20px;
+    padding: calc(100px + env(safe-area-inset-top, 0px)) 32px 40px;
     gap: 0;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    max-height: calc(100vh - 65px);
+    justify-content: flex-start;
+    transform: translateX(100%);
+    transition: transform 0.35s ease;
     overflow-y: auto;
+    z-index: 1001;
+    pointer-events: none;
+    visibility: hidden;
   }
-  
+
   nav ul.active {
     transform: translateX(0);
+    pointer-events: auto;
+    visibility: visible;
   }
-  
+
   nav li {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    width: 100%;
+    border-bottom: 1px solid var(--nav-border);
   }
-  
+
   nav li:last-child {
     border-bottom: none;
+    margin-top: 24px;
   }
-  
+
   nav a {
-    padding: 15px 10px;
+    padding: 18px 0;
+    font-size: 1.1rem;
   }
-  
+
+  nav a::after {
+    display: none;
+  }
+
+  nav a[aria-current="page"] {
+    color: var(--nav-gold);
+  }
+
+  .nav-cta-wrapper {
+    margin-left: 0;
+  }
+
+  nav a.nav-cta {
+    text-align: center;
+    display: block;
+    padding: 16px 28px;
+    font-size: 1rem;
+  }
+
   .menu-toggle {
     display: flex;
   }
-  
+
   /* Mobile dropdown */
   .dropdown-menu {
     position: static;
@@ -254,14 +354,33 @@ nav a[aria-current="page"]::after {
     box-shadow: none;
     background: transparent;
   }
-  
+
   .nav-dropdown.active .dropdown-menu {
     display: block;
   }
-  
+
   .dropdown-menu a {
     padding: 12px 10px;
     border-bottom: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-container {
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px;
+  }
+
+  .logo img {
+    height: 30px;
+  }
+
+  nav ul {
+    padding: calc(90px + env(safe-area-inset-top, 0px)) 24px 32px;
+  }
+
+  nav a {
+    padding: 16px 0;
+    font-size: 1rem;
   }
 }
 
@@ -283,10 +402,10 @@ footer {
 }
 
 .footer-column h3 {
-  color: var(--color-gold, #B8962E);
+  color: var(--nav-gold, #B8962E);
   font-size: 1.1rem;
   margin-bottom: 20px;
-  font-weight: var(--font-weight-semibold, 600);
+  font-weight: 600;
 }
 
 .footer-column p {
@@ -305,7 +424,7 @@ footer {
 }
 
 .footer-column a:hover {
-  color: var(--color-gold, #B8962E);
+  color: var(--nav-gold, #B8962E);
 }
 
 .footer-bottom {
@@ -322,13 +441,13 @@ footer {
   footer {
     padding: 40px 20px 20px;
   }
-  
+
   .footer-content {
     grid-template-columns: 1fr;
     gap: 30px;
     text-align: center;
   }
-  
+
   .footer-column a {
     padding: 6px 0;
   }
