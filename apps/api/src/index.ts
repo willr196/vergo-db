@@ -7,6 +7,7 @@ import RedisStore from 'rate-limit-redis';
 import Redis from 'ioredis';
 import fs from 'fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import { env } from './env';
@@ -50,7 +51,16 @@ app.use(helmet({
       frameAncestors: ["'none'"],
       objectSrc: ["'none'"],
       imgSrc: ["'self'", "data:", "https:"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com"],
+      // No 'unsafe-inline' scripts. Allow JSON-LD blocks via hashes.
+      scriptSrc: ["'self'",
+	        "https://www.googletagmanager.com",
+	        "'sha256-bYytdQbt4/RDWWhFZmVRLpcyvC82eYWvpNUL1GqOmqE='",
+	        "'sha256-Bn+PE8Z6MGdFRklio4cKmi1JCSXUfz56nBQZLmeph0U='",
+	        "'sha256-nqsLh/2P2ZU7HPCu0Sht5GNB/ztTQLYANu6e5xW4O8U='",
+        "'sha256-MNpgalLYls/mwbvq0t4xLhxlPnzbVTrnG1EVJY3HmW4='",
+        "'sha256-C58y46wO9ZLZzQa6g9ANd1WgrzmFfOHl08yigZgAhmw='",
+        "'sha256-AntLn2RJoFEZbGoR3UNyOQ3MzbhEVnaevh2KT7O/CVI='",
+      ],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
       connectSrc: ["'self'", "https://www.google-analytics.com", "https://www.googletagmanager.com", "https://stats.g.doubleclick.net"]
@@ -122,7 +132,18 @@ if (env.nodeEnv === 'production' && !process.env.SESSION_SECRET) {
   throw new Error('SESSION_SECRET required in production');
 }
 
-const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-only-secret-change-in-production';
+let SESSION_SECRET = process.env.SESSION_SECRET;
+if (!SESSION_SECRET) {
+  if (env.nodeEnv === 'test') {
+    // Stable value for deterministic tests.
+    SESSION_SECRET = 'test-only-secret';
+  } else {
+    // Avoid a predictable default in non-production environments that might still be internet-accessible.
+    SESSION_SECRET = crypto.randomBytes(32).toString('hex');
+    console.warn('[SECURITY] SESSION_SECRET not set; using ephemeral random secret (sessions will reset on restart)');
+  }
+}
+
 const PgSession = connectPgSimple(session);
 const dbUsesSsl = /sslmode=require/i.test(env.dbUrl);
 
@@ -131,12 +152,14 @@ app.use(session({
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: new PgSession({
-    conString: env.dbUrl,
-    tableName: 'user_sessions',
-    createTableIfMissing: true,
-    ssl: dbUsesSsl ? { rejectUnauthorized: false } : false
-  }),
+  store: env.nodeEnv === 'test'
+    ? new session.MemoryStore()
+    : new PgSession({
+      conString: env.dbUrl,
+      tableName: 'user_sessions',
+      createTableIfMissing: true,
+      ssl: dbUsesSsl ? { rejectUnauthorized: false } : false
+    }),
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -222,7 +245,12 @@ app.use((req, res, next) => {
   }
 
   // Check if .html file exists for this path
-  const htmlPath = path.join(pub, req.path + '.html');
+  const relPath = req.path.replace(/^\//, '');
+  // Defensive: do not allow path traversal in the clean-URL resolver.
+  if (relPath.includes('..') || relPath.includes('\\')) {
+    return next();
+  }
+  const htmlPath = path.join(pub, relPath + '.html');
   if (fs.existsSync(htmlPath)) {
     req.url = req.path + '.html';
   }
@@ -294,9 +322,11 @@ async function startServer() {
   process.on('SIGINT', () => shutdown('SIGINT'));
 }
 
-startServer().catch((err) => {
-  console.error('Failed to start server:', err);
-  process.exit(1);
-});
+if (env.nodeEnv !== 'test') {
+  startServer().catch((err) => {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  });
+}
 
 export default app;

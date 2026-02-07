@@ -14,21 +14,30 @@ export interface AuthTokenPayload {
 
 const ACCESS_EXPIRES_IN = '15m';
 const REFRESH_EXPIRES_IN = '30d';
+const JWT_ALGORITHM: jwt.Algorithm = 'HS256';
 
 export function signAccessToken(payload: Omit<AuthTokenPayload, 'tokenType'>) {
-  return jwt.sign({ ...payload, tokenType: 'access' }, env.jwt, { expiresIn: ACCESS_EXPIRES_IN });
+  return jwt.sign(
+    { ...payload, tokenType: 'access' },
+    env.jwt,
+    { expiresIn: ACCESS_EXPIRES_IN, algorithm: JWT_ALGORITHM }
+  );
 }
 
 export function signRefreshToken(payload: Omit<AuthTokenPayload, 'tokenType'>) {
-  return jwt.sign({ ...payload, tokenType: 'refresh' }, env.jwtRefresh, { expiresIn: REFRESH_EXPIRES_IN });
+  return jwt.sign(
+    { ...payload, tokenType: 'refresh' },
+    env.jwtRefresh,
+    { expiresIn: REFRESH_EXPIRES_IN, algorithm: JWT_ALGORITHM }
+  );
 }
 
 export function verifyAccessToken(token: string): AuthTokenPayload {
-  return jwt.verify(token, env.jwt) as AuthTokenPayload;
+  return jwt.verify(token, env.jwt, { algorithms: [JWT_ALGORITHM] }) as AuthTokenPayload;
 }
 
 export function verifyRefreshToken(token: string): AuthTokenPayload {
-  return jwt.verify(token, env.jwtRefresh) as AuthTokenPayload;
+  return jwt.verify(token, env.jwtRefresh, { algorithms: [JWT_ALGORITHM] }) as AuthTokenPayload;
 }
 
 export function getTokenExpiresAt(token: string): Date {

@@ -6,13 +6,14 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc -p .",
     "start": "node dist/src/index.js",
+    "test": "npm run build && node --test dist/src/__tests__/*.test.js",
     "prisma": "prisma",
     "prisma:deploy": "prisma migrate deploy",
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.654.0",
-    "@aws-sdk/s3-request-presigner": "^3.654.0",
+    "@aws-sdk/client-s3": "^3.985.0",
+    "@aws-sdk/s3-request-presigner": "^3.985.0",
     "@prisma/client": "^6.16.3",
     "@sentry/node": "^8.55.0",
     "bcrypt": "^6.0.0",

@@ -7,8 +7,18 @@ const prisma_1 = require("../src/prisma");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 async function main() {
     const username = process.env.ADMIN_USERNAME || 'admin';
-    const password = process.env.ADMIN_PASSWORD || 'arsenal';
-    const hash = await bcrypt_1.default.hash(password, 10);
+    const password = process.env.ADMIN_PASSWORD;
+    if (!password) {
+        console.error('\n❌ ERROR: ADMIN_PASSWORD environment variable is required\n');
+        console.error('To create an admin user, run:');
+        console.error('  ADMIN_PASSWORD=your_secure_password npm run seed\n');
+        process.exit(1);
+    }
+    if (password.length < 8) {
+        console.error('❌ ERROR: Password must be at least 8 characters long');
+        process.exit(1);
+    }
+    const hash = await bcrypt_1.default.hash(password, 12);
     await prisma_1.prisma.adminUser.upsert({
         where: { username },
         update: { password: hash },

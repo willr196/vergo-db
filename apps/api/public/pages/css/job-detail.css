@@ -1,0 +1,366 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-primary);
+      background: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      min-height: 100vh;
+    }
+    
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .logo img { height: 50px; }
+    
+    nav ul {
+      display: flex;
+      gap: 35px;
+      list-style: none;
+    }
+    
+    nav a {
+      color: var(--color-text-primary);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    
+    nav a:hover { color: var(--color-gold); }
+    
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .menu-toggle span {
+      width: 25px;
+      height: 2px;
+      background: var(--color-text-primary);
+    }
+    
+    main {
+      padding: 120px 20px 60px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--color-gold);
+      text-decoration: none;
+      margin-bottom: 30px;
+      font-size: 0.95rem;
+    }
+    
+    .back-link:hover { text-decoration: underline; }
+    
+    .job-container {
+      background: var(--color-bg-white);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .job-header {
+      padding: 30px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    
+    .job-badges {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .badge-role {
+      background: rgba(212, 175, 55, 0.1);
+      color: var(--color-gold);
+    }
+    
+    .badge-internal {
+      background: rgba(40, 167, 69, 0.2);
+      color: var(--color-success);
+    }
+    
+    .badge-external {
+      background: rgba(0, 123, 255, 0.2);
+      color: var(--color-info);
+    }
+    
+    .job-title {
+      font-size: 2rem;
+      color: var(--color-text-primary);
+      margin-bottom: 10px;
+    }
+    
+    .job-company {
+      color: var(--color-text-muted);
+      font-size: 1.1rem;
+    }
+    
+    .job-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 30px;
+      background: var(--color-bg-secondary);
+    }
+    
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .meta-label {
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .meta-value {
+      color: var(--color-text-primary);
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+    
+    .meta-value.highlight {
+      color: var(--color-gold);
+      font-size: 1.3rem;
+    }
+    
+    .job-body {
+      padding: 30px;
+    }
+    
+    .section {
+      margin-bottom: 30px;
+    }
+    
+    .section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .section h3 {
+      color: var(--color-text-primary);
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    
+    .section p, .section li {
+      color: var(--color-text-muted);
+      line-height: 1.7;
+    }
+    
+    .section ul {
+      padding-left: 20px;
+    }
+    
+    .section li {
+      margin-bottom: 8px;
+    }
+    
+    /* Apply Section */
+    .apply-section {
+      padding: 30px;
+      background: var(--color-bg-secondary);
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    
+    .apply-box {
+      background: var(--color-bg-white);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 8px;
+      padding: 25px;
+    }
+    
+    .apply-box h3 {
+      color: var(--color-text-primary);
+      margin-bottom: 15px;
+    }
+    
+    .apply-status {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .apply-status.applied {
+      background: rgba(40, 167, 69, 0.1);
+      border: 1px solid rgba(40, 167, 69, 0.3);
+      color: var(--color-success);
+    }
+    
+    .apply-status.login-required {
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: var(--color-gold);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+    
+    .form-group textarea {
+      width: 100%;
+      padding: 15px;
+      background: var(--color-bg-white);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 4px;
+      color: var(--color-text-primary);
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--color-gold);
+    }
+    
+    .btn {
+      padding: 14px 30px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+    
+    .btn-primary {
+      background: var(--color-gold);
+      color: var(--color-text-primary);
+    }
+    
+    .btn-primary:hover {
+      background: var(--color-gold-hover);
+    }
+    
+    .btn-primary:disabled {
+      background: var(--color-text-muted);
+      cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      color: var(--color-gold);
+      border: 1px solid var(--color-gold);
+    }
+    
+    .btn-block {
+      display: block;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .error-msg {
+      background: rgba(220, 53, 69, 0.1);
+      border: 1px solid rgba(220, 53, 69, 0.3);
+      color: var(--color-error);
+      padding: 12px 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    
+    .success-msg {
+      background: rgba(40, 167, 69, 0.1);
+      border: 1px solid rgba(40, 167, 69, 0.3);
+      color: var(--color-success);
+      padding: 12px 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 100px 20px;
+      color: var(--color-text-muted);
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(212, 175, 55, 0.2);
+      border-top-color: var(--color-gold);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    footer {
+      background: var(--color-bg-white);
+      color: var(--color-text-muted);
+      padding: 30px;
+      text-align: center;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      font-size: 0.85rem;
+    }
+    
+    footer a { color: var(--color-gold-hover); text-decoration: none; }
+    
+    @media (max-width: 768px) {
+      header { padding: 15px 20px; }
+      
+      nav ul {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.98);
+        flex-direction: column;
+        padding: 20px;
+        gap: 15px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      nav ul.active { transform: translateX(0); }
+      .menu-toggle { display: flex; }
+      
+      main { padding: 100px 15px 40px; }
+      .job-title { font-size: 1.5rem; }
+      .job-meta-grid { grid-template-columns: 1fr 1fr; }
+    }

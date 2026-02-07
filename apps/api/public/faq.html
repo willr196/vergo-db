@@ -25,155 +25,8 @@
   <link rel="stylesheet" href="/vergo-a11y.css">
   <link rel="stylesheet" href="/vergo-mobile.css">
 
-  <style>
-    /* ============================================
-     * FAQ PAGE SPECIFIC STYLES
-     * ============================================ */
 
-    .page-header {
-      padding: 140px 40px 60px;
-      text-align: center;
-      background: var(--color-bg-warm);
-      border-bottom: 1px solid var(--color-border);
-    }
-
-    .page-header h1 {
-      font-size: 2.6rem;
-      margin-bottom: 12px;
-    }
-
-    .page-header p {
-      color: var(--color-text-muted);
-      font-size: 1.05rem;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 60px 40px 80px;
-    }
-
-    .faq-section {
-      margin-bottom: 50px;
-    }
-
-    .faq-section h2 {
-      font-size: 1.6rem;
-      margin-bottom: 20px;
-    }
-
-    .faq-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .faq-item {
-      border: 1px solid var(--color-border);
-      border-radius: 6px;
-      overflow: hidden;
-      background: var(--color-bg);
-    }
-
-    .faq-question {
-      width: 100%;
-      padding: 18px 22px;
-      border: none;
-      background: none;
-      text-align: left;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: var(--color-text);
-      transition: background 0.3s ease;
-    }
-
-    .faq-question:hover {
-      background: var(--color-bg-warm);
-    }
-
-    .faq-question::after {
-      content: '+';
-      font-size: 1.3rem;
-      color: var(--color-gold);
-      transition: transform 0.3s ease;
-    }
-
-    .faq-item.active .faq-question::after {
-      transform: rotate(45deg);
-    }
-
-    .faq-answer {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-    }
-
-    .faq-item.active .faq-answer {
-      max-height: 260px;
-    }
-
-    .faq-answer-content {
-      padding: 0 22px 18px;
-      color: var(--color-text-muted);
-    }
-
-    .cta-panel {
-      margin-top: 60px;
-      padding: 36px;
-      text-align: center;
-      border: 1px solid var(--color-border);
-      border-radius: 6px;
-      background: var(--color-bg-warm);
-    }
-
-    .cta-panel h2 {
-      font-size: 1.6rem;
-      margin-bottom: 12px;
-    }
-
-    .cta-panel p {
-      color: var(--color-text-muted);
-      margin-bottom: 24px;
-    }
-
-    .cta-button {
-      display: inline-block;
-      padding: 14px 32px;
-      background: var(--color-gold);
-      color: var(--color-text);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.95rem;
-      border-radius: 4px;
-      transition: all 0.3s ease;
-    }
-
-    .cta-button:hover {
-      background: var(--color-text);
-      color: var(--color-bg-white);
-      transform: translateY(-2px);
-    }
-
-    @media (max-width: 768px) {
-      .page-header {
-        padding: 120px 20px 40px;
-      }
-
-      .page-header h1 {
-        font-size: 2rem;
-      }
-
-      .container {
-        padding: 50px 20px 70px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="/pages/css/faq.css">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -190,7 +43,7 @@
         <h2>For Clients</h2>
         <div class="faq-grid">
           <div class="faq-item">
-            <button class="faq-question" onclick="toggleFAQ(this)">What does VERGO Ltd do?</button>
+            <button class="faq-question">What does VERGO Ltd do?</button>
             <div class="faq-answer">
               <div class="faq-answer-content">
                 We provide event staffing only. Our team supplies event chefs, bar staff, front of house, baristas, and catering assistants for events across London & surrounding areas.
@@ -199,7 +52,7 @@
           </div>
 
           <div class="faq-item">
-            <button class="faq-question" onclick="toggleFAQ(this)">How is my booking confirmed?</button>
+            <button class="faq-question">How is my booking confirmed?</button>
             <div class="faq-answer">
               <div class="faq-answer-content">
                 Once details are agreed, your booking is confirmed in writing with staff roles, timings, and clear next steps.
@@ -208,7 +61,7 @@
           </div>
 
           <div class="faq-item">
-            <button class="faq-question" onclick="toggleFAQ(this)">When will I receive a response?</button>
+            <button class="faq-question">When will I receive a response?</button>
             <div class="faq-answer">
               <div class="faq-answer-content">
                 We reply within 24 hours with availability and pricing based on your event details.
@@ -217,7 +70,7 @@
           </div>
 
           <div class="faq-item">
-            <button class="faq-question" onclick="toggleFAQ(this)">When is invoicing handled?</button>
+            <button class="faq-question">When is invoicing handled?</button>
             <div class="faq-answer">
               <div class="faq-answer-content">
                 No upfront payment. An invoice is issued after the event, based on the confirmed hours and roles delivered.
@@ -226,7 +79,7 @@
           </div>
 
           <div class="faq-item">
-            <button class="faq-question" onclick="toggleFAQ(this)">Can I make changes after booking?</button>
+            <button class="faq-question">Can I make changes after booking?</button>
             <div class="faq-answer">
               <div class="faq-answer-content">
                 Yes. Changes are handled case-by-case and confirmed based on availability.
@@ -235,7 +88,7 @@
           </div>
 
           <div class="faq-item">
-            <button class="faq-question" onclick="toggleFAQ(this)">What happens if an issue arises?</button>
+            <button class="faq-question">What happens if an issue arises?</button>
             <div class="faq-answer">
               <div class="faq-answer-content">
                 We provide best-effort replacement support and handle each situation case-by-case with clear communication.
@@ -249,7 +102,7 @@
         <h2>For Staff</h2>
         <div class="faq-grid">
           <div class="faq-item">
-            <button class="faq-question" onclick="toggleFAQ(this)">How do I join the team?</button>
+            <button class="faq-question">How do I join the team?</button>
             <div class="faq-answer">
               <div class="faq-answer-content">
                 Apply via the Join the Team page. If there is a fit, we arrange an interview and confirm next steps.
@@ -258,7 +111,7 @@
           </div>
 
           <div class="faq-item">
-            <button class="faq-question" onclick="toggleFAQ(this)">What is the onboarding process?</button>
+            <button class="faq-question">What is the onboarding process?</button>
             <div class="faq-answer">
               <div class="faq-answer-content">
                 The process includes an interview, right-to-work checks, standards briefing, and training if experience is limited.
@@ -267,7 +120,7 @@
           </div>
 
           <div class="faq-item">
-            <button class="faq-question" onclick="toggleFAQ(this)">Do I need experience?</button>
+            <button class="faq-question">Do I need experience?</button>
             <div class="faq-answer">
               <div class="faq-answer-content">
                 Experience is preferred but not mandatory. A professional attitude and reliability are essential.
@@ -276,7 +129,7 @@
           </div>
 
           <div class="faq-item">
-            <button class="faq-question" onclick="toggleFAQ(this)">Where are roles based?</button>
+            <button class="faq-question">Where are roles based?</button>
             <div class="faq-answer">
               <div class="faq-answer-content">
                 Shifts are across London & surrounding areas, with locations confirmed in advance of each booking.
@@ -290,7 +143,7 @@
         <h2>Coverage</h2>
         <div class="faq-grid">
           <div class="faq-item">
-            <button class="faq-question" onclick="toggleFAQ(this)">What areas do you cover?</button>
+            <button class="faq-question">What areas do you cover?</button>
             <div class="faq-answer">
               <div class="faq-answer-content">
                 We cover London & surrounding areas, including Greater London and nearby counties.
@@ -316,19 +169,7 @@
   <script src="/vergo-nav.js"></script>
   <script src="/vergo-footer.js"></script>
   <script src="/vergo-analytics.js"></script>
-  <script>
-    function toggleFAQ(button) {
-      const item = button.closest('.faq-item');
-      const wasActive = item.classList.contains('active');
 
-      document.querySelectorAll('.faq-item.active').forEach(el => {
-        el.classList.remove('active');
-      });
-
-      if (!wasActive) {
-        item.classList.add('active');
-      }
-    }
-  </script>
+  <script src="/pages/js/faq.js"></script>
 </body>
 </html>

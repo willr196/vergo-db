@@ -28,7 +28,7 @@ export function requireUser(req: Request, res: Response, next: NextFunction) {
   
   // Check absolute session age (24 hours max)
   if (loginTime && (now - loginTime > USER_MAX_SESSION_AGE)) {
-    console.warn(`[SECURITY] User session expired (age): ${req.session.userEmail}`);
+    console.warn(`[SECURITY] User session expired (age): userId=${req.session.userId || 'unknown'}`);
     req.session.destroy(() => {});
     res.clearCookie('vergo.sid');
     return res.status(401).json({ 
@@ -39,7 +39,7 @@ export function requireUser(req: Request, res: Response, next: NextFunction) {
   
   // Check idle timeout (2 hours)
   if (lastActivity && (now - lastActivity > USER_IDLE_TIMEOUT)) {
-    console.warn(`[SECURITY] User session expired (idle): ${req.session.userEmail}`);
+    console.warn(`[SECURITY] User session expired (idle): userId=${req.session.userId || 'unknown'}`);
     req.session.destroy(() => {});
     res.clearCookie('vergo.sid');
     return res.status(401).json({ 

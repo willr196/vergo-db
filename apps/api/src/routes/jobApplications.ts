@@ -50,7 +50,7 @@ r.post("/", requireUser, async (req, res, next) => {
       include: { job: { select: { id: true, title: true, eventDate: true, location: true } } }
     });
     
-    console.log(`[JOB APPLICATION] New | User: ${user.email} | Job: ${job.title} | ID: ${application.id}`);
+    console.log(`[JOB APPLICATION] New | userId=${userId} jobId=${job.id} applicationId=${application.id}`);
     
     sendJobApplicationNotification({
       jobTitle: job.title,
@@ -117,7 +117,7 @@ r.post("/:id/withdraw", requireUser, async (req, res, next) => {
   try {
     const application = await prisma.jobApplication.findUnique({
       where: { id: req.params.id },
-      select: { id: true, userId: true, status: true, job: { select: { title: true } } }
+      select: { id: true, userId: true, jobId: true, status: true, job: { select: { title: true } } }
     });
     
     if (!application) return res.status(404).json({ error: "Not found" });
@@ -127,7 +127,7 @@ r.post("/:id/withdraw", requireUser, async (req, res, next) => {
     
     await prisma.jobApplication.update({ where: { id: req.params.id }, data: { status: "WITHDRAWN" } });
     
-    console.log(`[JOB APPLICATION] Withdrawn | ID: ${req.params.id} | User: ${req.session.userEmail} | Job: ${application.job.title}`);
+    console.log(`[JOB APPLICATION] Withdrawn | applicationId=${req.params.id} userId=${req.session.userId} jobId=${application.jobId}`);
     
     res.json({ ok: true, status: "WITHDRAWN", data: { status: "WITHDRAWN" } });
   } catch (error) { next(error); }
@@ -189,7 +189,7 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
     
     const application = await prisma.jobApplication.findUnique({
       where: { id: req.params.id },
-      include: { job: true, user: { select: { email: true } } }
+      include: { job: true, user: { select: { id: true } } }
     });
     if (!application) return res.status(404).json({ error: "Not found" });
     
@@ -280,7 +280,7 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
     }
     
     // AUDIT LOG
-    console.log(`[AUDIT] Application status changed | ID: ${req.params.id} | User: ${application.user.email} | Job: ${application.job.title} | From: ${previousStatus} | To: ${status} | Admin: ${req.session.username}`);
+    console.log(`[AUDIT] Application status changed | applicationId=${req.params.id} userId=${application.user.id} jobId=${application.jobId} from=${previousStatus} to=${status} admin=${req.session.username}`);
     
     res.json({ ok: true, id: req.params.id, status, data: { id: req.params.id, status } });
   } catch (error) {

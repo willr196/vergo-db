@@ -1,6 +1,7 @@
 // Unsubscribe management routes
 
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import {
   getPreferencesByToken,
   updatePreferences,
@@ -11,11 +12,27 @@ import { env } from '../env';
 
 const router = Router();
 
+const viewLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests. Please try again later.',
+});
+
+const updateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests. Please try again later.',
+});
+
 /**
  * GET /api/v1/unsubscribe?token=xxx
  * One-click unsubscribe page
  */
-router.get('/', async (req, res) => {
+router.get('/', viewLimiter, async (req, res) => {
   const { token } = req.query;
 
   if (!token || typeof token !== 'string') {
@@ -40,7 +57,7 @@ router.get('/', async (req, res) => {
  * POST /api/v1/unsubscribe
  * Update email preferences
  */
-router.post('/', async (req, res) => {
+router.post('/', updateLimiter, async (req, res) => {
   const { token, action, marketing, notifications, jobAlerts, quoteUpdates } = req.body;
 
   if (!token || typeof token !== 'string') {
@@ -80,7 +97,7 @@ router.post('/', async (req, res) => {
  * POST /api/v1/unsubscribe/one-click
  * RFC 8058 one-click unsubscribe (for List-Unsubscribe-Post header)
  */
-router.post('/one-click', async (req, res) => {
+router.post('/one-click', updateLimiter, async (req, res) => {
   const { token } = req.query;
 
   if (!token || typeof token !== 'string') {

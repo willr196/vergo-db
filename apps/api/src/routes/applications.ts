@@ -54,7 +54,7 @@ async function getFileType(buffer: Buffer) {
 // ============================================
 // CLEANUP JOB - Delete expired verifications every 15 minutes
 // ============================================
-setInterval(async () => {
+const cleanupInterval = setInterval(async () => {
   try {
     const result = await prisma.fileUploadVerification.deleteMany({
       where: {
@@ -70,6 +70,8 @@ setInterval(async () => {
     console.error('[CLEANUP] Failed to delete expired verifications:', error);
   }
 }, 15 * 60 * 1000);
+// Allow the process to exit naturally (important for tests/one-off scripts).
+cleanupInterval.unref?.();
 
 // ============================================
 // RATE LIMITERS
@@ -282,19 +284,25 @@ r.post('/', applicationLimiter, async (req, res, next) => {
     }
 
     // ✅ Verify the file was properly verified
-    const verification = await prisma.fileUploadVerification.findUnique({
-      where: { key: d.cvKey }
-    });
+	    const verification = await prisma.fileUploadVerification.findUnique({
+	      where: { key: d.cvKey }
+	    });
 
-    if (!verification || !verification.verified) {
-      return res.status(400).json({ 
-        error: 'CV must be verified before creating application' 
-      });
-    }
+	    if (!verification || !verification.verified) {
+	      return res.status(400).json({ 
+	        error: 'CV must be verified before creating application' 
+	      });
+	    }
+	    if (verification.applicantId !== d.applicantId) {
+	      // Prevent mixing a verified CV key with a different applicantId payload.
+	      return res.status(400).json({
+	        error: 'CV verification mismatch. Please upload and verify your CV again.'
+	      });
+	    }
 
-    const app = await prisma.application.create({
-      data: {
-        applicant: {
+	    const app = await prisma.application.create({
+	      data: {
+	        applicant: {
           connectOrCreate: {
             where: { email: d.email },
             create: {
@@ -351,19 +359,22 @@ r.post('/', applicationLimiter, async (req, res, next) => {
     });
 
     // Send confirmation to applicant
-    sendApplicationConfirmationToApplicant({
-      to: d.email,
-      name: d.firstName,
-      roles: roleStrings,
-      applicationId: app.id
-    }).catch(err => {
-      console.error('[EMAIL] Failed to send applicant confirmation:', err);
-    });
+	    sendApplicationConfirmationToApplicant({
+	      to: d.email,
+	      name: d.firstName,
+	      roles: roleStrings,
+	      applicationId: app.id
+	    }).catch(err => {
+	      console.error('[EMAIL] Failed to send applicant confirmation:', err);
+	    });
 
-    console.log(`[APPLICATION] New application: ${app.id}`);
-    res.status(201).json({ ok: true, id: app.id, data: { id: app.id } });
-  } catch (e) { next(e); }
-});
+	    // One-time use: reduce the risk of reusing the same verified key in multiple submissions.
+	    prisma.fileUploadVerification.delete({ where: { key: d.cvKey } }).catch(() => {});
+
+	    console.log(`[APPLICATION] New application: ${app.id}`);
+	    res.status(201).json({ ok: true, id: app.id, data: { id: app.id } });
+	  } catch (e) { next(e); }
+	});
 
 // ============================================
 // LIST APPLICATIONS (ADMIN)

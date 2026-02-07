@@ -1,10 +1,8 @@
 // Email preferences and unsubscribe management
 
-import { PrismaClient } from '@prisma/client';
 import { env } from '../../env';
+import { prisma } from '../../prisma';
 import type { EmailCategory } from './types';
-
-const prisma = new PrismaClient();
 
 // Map email types to preference categories
 const EMAIL_TYPE_CATEGORY: Record<string, { category: EmailCategory; field: string }> = {

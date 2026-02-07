@@ -95,6 +95,11 @@ function generateToken(): string {
   return crypto.randomBytes(32).toString("hex");
 }
 
+function hashDbToken(token: string): string {
+  // Prefix prevents accepting the stored hash itself as a bearer token.
+  return `sha256:${hashToken(token)}`;
+}
+
 function redactEmail(email: string): string {
   const [local, domain] = email.split("@");
   if (!domain) return "***";
@@ -153,6 +158,7 @@ r.post("/register", registerLimiter, async (req, res) => {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
     const verifyToken = generateToken();
+    const verifyTokenHash = hashDbToken(verifyToken);
     
     // Create user
     const user = await prisma.user.create({
@@ -162,7 +168,9 @@ r.post("/register", registerLimiter, async (req, res) => {
         firstName,
         lastName,
         phone: phone || null,
-        verifyToken,
+        // Store only a hash so DB read access doesn't immediately enable account verification.
+        // Backwards-compatible: verify endpoint accepts both legacy raw tokens and the new hashed format.
+        verifyToken: verifyTokenHash,
         verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000),
         emailVerified: false
       }
@@ -201,8 +209,12 @@ r.get("/verify-email", async (req, res) => {
       return res.status(400).json({ error: "Invalid verification link" });
     }
     
+    const tokenHash = hashDbToken(token);
     const user = await prisma.user.findFirst({
-      where: { verifyToken: token, verifyTokenExp: { gt: new Date() } },
+      where: {
+        verifyTokenExp: { gt: new Date() },
+        OR: [{ verifyToken: token }, { verifyToken: tokenHash }],
+      },
       select: { id: true, emailVerified: true }
     });
     
@@ -485,6 +497,7 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 12);
     const verifyToken = generateToken();
+    const verifyTokenHash = hashDbToken(verifyToken);
 
     const user = await prisma.user.create({
       data: {
@@ -493,7 +506,7 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
         firstName,
         lastName,
         phone: phone || null,
-        verifyToken,
+        verifyToken: verifyTokenHash,
         verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000),
         emailVerified: false
       }
@@ -765,11 +778,14 @@ r.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
     }
     
     const resetToken = generateToken();
+    const resetTokenHash = hashDbToken(resetToken);
     const resetTokenExp = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     
     await prisma.user.update({
       where: { id: user.id },
-      data: { resetToken, resetTokenExp }
+      // Store only a hash so DB read access doesn't immediately enable password reset.
+      // Backwards-compatible: reset endpoint accepts both raw and hashed tokens.
+      data: { resetToken: resetTokenHash, resetTokenExp }
     });
     
     // Send reset email
@@ -804,10 +820,11 @@ r.post("/reset-password", async (req, res) => {
     
     const { token, password } = parsed.data;
     
+    const tokenHash = hashDbToken(token);
     const user = await prisma.user.findFirst({
-      where: { 
-        resetToken: token,
-        resetTokenExp: { gt: new Date() }
+      where: {
+        resetTokenExp: { gt: new Date() },
+        OR: [{ resetToken: token }, { resetToken: tokenHash }],
       },
       select: { id: true, email: true }
     });
@@ -865,10 +882,11 @@ r.post("/resend-verification", forgotPasswordLimiter, async (req, res) => {
     }
     
     const verifyToken = generateToken();
+    const verifyTokenHash = hashDbToken(verifyToken);
     
     await prisma.user.update({
       where: { id: user.id },
-      data: { verifyToken, verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000) }
+      data: { verifyToken: verifyTokenHash, verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000) }
     });
 
     sendUserVerificationEmail({

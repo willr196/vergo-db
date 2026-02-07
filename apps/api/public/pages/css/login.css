@@ -1,0 +1,174 @@
+* {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-primary);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
+    }
+    
+    .login-container {
+      background: var(--color-bg-white);
+      padding: 40px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    h1 {
+      margin: 0 0 10px;
+      color: var(--color-text-primary);
+      text-align: center;
+      font-size: 1.8rem;
+    }
+    
+    .subtitle {
+      text-align: center;
+      color: var(--color-text-muted);
+      margin-bottom: 30px;
+      font-size: 0.9em;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      font-size: 0.95rem;
+    }
+    
+    label .required {
+      color: var(--color-error);
+      margin-left: 2px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      transition: border-color 0.3s;
+      font-family: inherit;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: var(--color-gold);
+    }
+    
+    /* Accessible error state */
+    input.field-error {
+      border-color: var(--color-error);
+      background-color: rgba(197, 48, 48, 0.08);
+    }
+    
+    .field-error-message {
+      display: block;
+      color: var(--color-error);
+      font-size: 0.875rem;
+      margin-top: 6px;
+      padding: 6px 10px;
+      background: rgba(197, 48, 48, 0.1);
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--color-error);
+    }
+    
+    button {
+      width: 100%;
+      padding: 14px;
+      background: var(--color-gold);
+      color: var(--color-text-primary);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+      position: relative;
+    }
+    
+    button:hover:not(:disabled) {
+      background: var(--color-gold-hover);
+    }
+    
+    button:focus-visible {
+      outline: 3px solid var(--color-text-primary);
+      outline-offset: 2px;
+    }
+    
+    button:disabled {
+      background: var(--color-border);
+      cursor: not-allowed;
+    }
+    
+    button .spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--color-bg-white);
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    
+    button:disabled .spinner {
+      display: inline-block;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .security-notice {
+      margin-top: 20px;
+      padding: 12px;
+      background: var(--color-bg-secondary);
+      border-left: 4px solid var(--color-gold);
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+    }
+    
+    .security-notice strong {
+      color: var(--color-text-primary);
+    }
+    
+    /* Rate limit warning */
+    .rate-limit-warning {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      background: rgba(183, 121, 31, 0.1);
+      border-left: 4px solid var(--color-warning);
+      border-radius: var(--radius-sm);
+      color: var(--color-text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    .rate-limit-warning.show {
+      display: block;
+    }
+    
+    @media (max-width: 480px) {
+      .login-container {
+        margin: 20px;
+        padding: 30px 20px;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+    }

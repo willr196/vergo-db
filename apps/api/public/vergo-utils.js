@@ -509,7 +509,7 @@ class JobBoard {
         </p>
         
         <div class="job-actions">
-          <button onclick="jobBoard.saveJob('${job.id}')" class="btn-save" aria-label="Save job">
+          <button type="button" class="btn-save" data-action="save-job" data-job-id="${job.id}" aria-label="Save job">
             ${job.saved ? '❤️' : '🤍'} Save
           </button>
           <a href="/jobs/${job.id}" class="btn-apply">View Details</a>
@@ -526,6 +526,15 @@ class JobBoard {
         }
       });
     });
+
+    // CSP-safe: handle "save" buttons without inline onclick.
+    container.querySelectorAll('[data-action="save-job"]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const jobId = btn.getAttribute('data-job-id');
+        if (jobId) this.saveJob(jobId);
+      });
+    });
   }
   
   renderPagination() {
@@ -537,8 +546,10 @@ class JobBoard {
     
     // Previous button
     pages.push(`
-      <button 
-        onclick="jobBoard.goToPage(${this.currentPage - 1})"
+      <button
+        type="button"
+        data-action="goto-page"
+        data-page="${this.currentPage - 1}"
         ${this.currentPage === 1 ? 'disabled' : ''}
         aria-label="Previous page"
       >
@@ -549,8 +560,10 @@ class JobBoard {
     // Page numbers
     for (let i = 1; i <= Math.min(this.totalPages, maxVisible); i++) {
       pages.push(`
-        <button 
-          onclick="jobBoard.goToPage(${i})"
+        <button
+          type="button"
+          data-action="goto-page"
+          data-page="${i}"
           class="${i === this.currentPage ? 'active' : ''}"
           aria-label="Go to page ${i}"
           ${i === this.currentPage ? 'aria-current="page"' : ''}
@@ -562,8 +575,10 @@ class JobBoard {
     
     // Next button
     pages.push(`
-      <button 
-        onclick="jobBoard.goToPage(${this.currentPage + 1})"
+      <button
+        type="button"
+        data-action="goto-page"
+        data-page="${this.currentPage + 1}"
         ${this.currentPage === this.totalPages ? 'disabled' : ''}
         aria-label="Next page"
       >
@@ -572,6 +587,15 @@ class JobBoard {
     `);
     
     container.innerHTML = pages.join('');
+
+    // CSP-safe: wire pagination without inline onclick.
+    container.querySelectorAll('[data-action="goto-page"]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const page = Number(btn.getAttribute('data-page'));
+        if (Number.isFinite(page)) this.goToPage(page);
+      });
+    });
   }
   
   async saveJob(jobId) {
@@ -680,7 +704,7 @@ class UserAuth {
             <li><a href="/dashboard/applications" role="menuitem">My Applications</a></li>
             <li><a href="/dashboard/saved" role="menuitem">Saved Jobs</a></li>
             <li><hr></li>
-            <li><button onclick="userAuth.logout()" role="menuitem">Logout</button></li>
+            <li><button type="button" data-action="logout" role="menuitem">Logout</button></li>
           </ul>
         </div>
       `;
@@ -690,6 +714,12 @@ class UserAuth {
       toggle.addEventListener('click', () => {
         const expanded = toggle.getAttribute('aria-expanded') === 'true';
         toggle.setAttribute('aria-expanded', !expanded);
+      });
+
+      const logoutBtn = authLinks.querySelector('[data-action="logout"]');
+      logoutBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.logout();
       });
     } else {
       authLinks.innerHTML = `
@@ -776,8 +806,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize global instances
   window.userAuth = new UserAuth();
   
-  // Initialize job board if on jobs page
-  if (window.location.pathname.includes('/jobs')) {
+  // Initialize job board only if its expected container exists.
+  if (document.getElementById('job-list')) {
     window.jobBoard = new JobBoard();
     window.jobBoard.loadJobs();
   }

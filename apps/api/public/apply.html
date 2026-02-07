@@ -18,374 +18,8 @@
   <link rel="stylesheet" href="/vergo-a11y.css">
   <link rel="stylesheet" href="/vergo-mobile.css">
 
-  <style>
-    /* ============================================
-     * APPLY PAGE SPECIFIC STYLES
-     * ============================================ */
 
-    /* Page Header */
-    .page-header {
-      padding: 140px 40px 60px;
-      text-align: center;
-      background: var(--color-bg-warm);
-      border-bottom: 1px solid var(--color-border);
-    }
-
-    .page-header h1 {
-      font-size: 2.5rem;
-      color: var(--color-text);
-      margin-bottom: 12px;
-      font-weight: 700;
-    }
-
-    .page-header p {
-      font-size: 1.1rem;
-      color: var(--color-text-muted);
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    /* Container */
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 60px 40px;
-    }
-
-    /* Roles Section */
-    .roles-section {
-      margin-bottom: 50px;
-    }
-
-    .section-header {
-      margin-bottom: 24px;
-    }
-
-    .section-header h2 {
-      font-size: 1.3rem;
-      color: var(--color-text);
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-
-    .section-header p {
-      color: var(--color-text-muted);
-      font-size: 0.95rem;
-    }
-
-    .roles-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-
-    .role-tag {
-      background: var(--color-bg-warm);
-      padding: 16px;
-      border-radius: 6px;
-      text-align: center;
-      border: 1px solid var(--color-border);
-      font-size: 0.9rem;
-      color: var(--color-text);
-      font-weight: 500;
-    }
-
-    /* Onboarding Section */
-    .onboarding-section {
-      background: var(--color-bg-warm);
-      padding: 40px;
-      border-radius: 6px;
-      margin-bottom: 50px;
-      border-left: 3px solid var(--color-gold);
-    }
-
-    .onboarding-section h2 {
-      font-size: 1.2rem;
-      color: var(--color-text);
-      margin-bottom: 20px;
-      font-weight: 600;
-    }
-
-    .onboarding-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .onboarding-step {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-    }
-
-    .step-number {
-      width: 28px;
-      height: 28px;
-      min-width: 28px;
-      background: var(--color-bg);
-      border: 2px solid var(--color-gold);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--color-gold);
-    }
-
-    .step-content h3 {
-      font-size: 1rem;
-      color: var(--color-text);
-      margin-bottom: 4px;
-      font-weight: 600;
-    }
-
-    .step-content p {
-      color: var(--color-text-muted);
-      font-size: 0.9rem;
-    }
-
-    /* Application Form */
-    .form-section {
-      margin-bottom: 50px;
-    }
-
-    .form-section h2 {
-      font-size: 1.3rem;
-      color: var(--color-text);
-      margin-bottom: 24px;
-      font-weight: 600;
-    }
-
-    .form-block {
-      border: 1px solid var(--color-border);
-      border-radius: 6px;
-      padding: 20px;
-      margin-bottom: 24px;
-      background: var(--color-bg);
-    }
-
-    .form-block h3 {
-      font-size: 1rem;
-      margin-bottom: 16px;
-      color: var(--color-text);
-      font-weight: 600;
-    }
-
-    .form-group textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    .checkbox-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .checkbox-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .checkbox-item input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--color-gold);
-    }
-
-    .checkbox-item span {
-      font-size: 0.9rem;
-      color: var(--color-text);
-    }
-
-    .form-note {
-      background: var(--color-bg-warm);
-      padding: 16px 20px;
-      border-radius: 4px;
-      margin-bottom: 24px;
-      font-size: 0.9rem;
-      color: var(--color-text-muted);
-      border-left: 3px solid var(--color-gold);
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 16px;
-      background: var(--color-gold);
-      color: var(--color-text);
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .submit-btn:hover {
-      background: var(--color-text);
-      color: var(--color-bg-white);
-      transform: translateY(-2px);
-    }
-
-    /* Success Message */
-    .form-success {
-      display: none;
-      text-align: center;
-      padding: 40px;
-      background: var(--color-bg-warm);
-      border-radius: 6px;
-      border: 1px solid var(--color-border);
-    }
-
-    .form-success.active {
-      display: block;
-    }
-
-    .form-success h2 {
-      color: var(--color-text);
-      margin-bottom: 12px;
-    }
-
-    .form-success p {
-      color: var(--color-text-muted);
-    }
-
-    /* Honeypot */
-    .hp-field {
-      position: absolute;
-      left: -9999px;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .page-header {
-        padding: 120px 20px 40px;
-      }
-
-      .page-header h1 {
-        font-size: 2rem;
-      }
-
-      .container {
-        padding: 40px 20px;
-      }
-
-      .roles-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .onboarding-section {
-        padding: 30px 20px;
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-
-      .checkbox-group {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .roles-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Role + Experience Rows */
-    .roles-with-experience { display: flex; flex-direction: column; gap: 12px; }
-    .role-row {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      padding: 12px 15px;
-      background: var(--color-bg-warm);
-      border: 1px solid var(--color-border);
-      border-radius: 6px;
-      flex-wrap: wrap;
-      transition: border-color 0.3s ease;
-    }
-    .role-row:has(input:checked) { border-color: var(--color-gold); background: var(--color-bg-white); }
-    .role-checkbox { display: flex; align-items: center; gap: 10px; min-width: 160px; cursor: pointer; }
-    .role-checkbox input { width: 18px; height: 18px; accent-color: var(--color-gold); cursor: pointer; }
-    .role-checkbox span { color: var(--color-text); }
-    .experience-select {
-      flex: 1;
-      min-width: 180px;
-      padding: 10px 12px;
-      background: var(--color-bg);
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      color: var(--color-text);
-      font-size: 0.9rem;
-      font-family: var(--font-primary);
-    }
-    .experience-select:disabled { opacity: 0.4; cursor: not-allowed; }
-    .experience-select:not(:disabled) { border-color: var(--color-gold); }
-
-    /* File Upload Styles */
-    .file-help {
-      font-size: 0.85rem;
-      color: var(--color-text-muted);
-      margin-top: 8px;
-    }
-
-    .upload-status {
-      margin-top: 12px;
-      padding: 12px 16px;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      display: none;
-    }
-
-    .upload-status.uploading {
-      display: block;
-      background: var(--color-warning-bg);
-      border: 1px solid rgba(183, 121, 31, 0.3);
-      color: var(--color-warning);
-    }
-
-    .upload-status.success {
-      display: block;
-      background: var(--color-success-bg);
-      border: 1px solid rgba(45, 138, 78, 0.3);
-      color: var(--color-success);
-    }
-
-    .upload-status.error {
-      display: block;
-      background: var(--color-error-bg);
-      border: 1px solid rgba(197, 48, 48, 0.3);
-      color: var(--color-error);
-    }
-
-    input[type="file"] {
-      padding: 12px;
-      border: 2px dashed var(--color-border);
-      border-radius: 4px;
-      width: 100%;
-      cursor: pointer;
-      transition: border-color 0.3s ease;
-    }
-
-    input[type="file"]:hover {
-      border-color: var(--color-gold);
-    }
-
-    input[type="file"]:focus {
-      outline: none;
-      border-color: var(--color-gold);
-    }
-  </style>
+  <link rel="stylesheet" href="/pages/css/apply.css">
   <link rel="stylesheet" href="/vergo-platform.css">
 </head>
 <body class="platform">
@@ -509,7 +143,7 @@
             <div class="roles-with-experience" id="roles-container">
               <div class="role-row">
                 <label class="role-checkbox">
-                  <input type="checkbox" name="roles" value="Bartender" onchange="toggleExperience(this)" />
+                  <input type="checkbox" name="roles" value="Bartender" />
                   <span>Bartender</span>
                 </label>
                 <select class="experience-select" data-role="Bartender" disabled>
@@ -523,7 +157,7 @@
 
               <div class="role-row">
                 <label class="role-checkbox">
-                  <input type="checkbox" name="roles" value="Barista" onchange="toggleExperience(this)" />
+                  <input type="checkbox" name="roles" value="Barista" />
                   <span>Barista</span>
                 </label>
                 <select class="experience-select" data-role="Barista" disabled>
@@ -537,7 +171,7 @@
 
               <div class="role-row">
                 <label class="role-checkbox">
-                  <input type="checkbox" name="roles" value="Front of House" onchange="toggleExperience(this)" />
+                  <input type="checkbox" name="roles" value="Front of House" />
                   <span>Front of House</span>
                 </label>
                 <select class="experience-select" data-role="Front of House" disabled>
@@ -551,7 +185,7 @@
 
               <div class="role-row">
                 <label class="role-checkbox">
-                  <input type="checkbox" name="roles" value="Waiter" onchange="toggleExperience(this)" />
+                  <input type="checkbox" name="roles" value="Waiter" />
                   <span>Waiter</span>
                 </label>
                 <select class="experience-select" data-role="Waiter" disabled>
@@ -565,7 +199,7 @@
 
               <div class="role-row">
                 <label class="role-checkbox">
-                  <input type="checkbox" name="roles" value="Chef" onchange="toggleExperience(this)" />
+                  <input type="checkbox" name="roles" value="Chef" />
                   <span>Chef</span>
                 </label>
                 <select class="experience-select" data-role="Chef" disabled>
@@ -579,7 +213,7 @@
 
               <div class="role-row">
                 <label class="role-checkbox">
-                  <input type="checkbox" name="roles" value="Kitchen Porter" onchange="toggleExperience(this)" />
+                  <input type="checkbox" name="roles" value="Kitchen Porter" />
                   <span>Kitchen Porter</span>
                 </label>
                 <select class="experience-select" data-role="Kitchen Porter" disabled>
@@ -593,7 +227,7 @@
 
               <div class="role-row">
                 <label class="role-checkbox">
-                  <input type="checkbox" name="roles" value="Runner" onchange="toggleExperience(this)" />
+                  <input type="checkbox" name="roles" value="Runner" />
                   <span>Runner</span>
                 </label>
                 <select class="experience-select" data-role="Runner" disabled>
@@ -664,204 +298,7 @@
   <script src="/vergo-footer.js"></script>
   <script src="/vergo-analytics.js"></script>
 
-  <script>
-    // Toggle experience dropdown when role checkbox is ticked
-    function toggleExperience(checkbox) {
-      const row = checkbox.closest('.role-row');
-      const select = row.querySelector('.experience-select');
-      if (checkbox.checked) {
-        select.disabled = false;
-      } else {
-        select.disabled = true;
-        select.value = '';
-      }
-    }
 
-    function getRolesWithExperience() {
-      const roles = [];
-      document.querySelectorAll('input[name="roles"]:checked').forEach(checkbox => {
-        const roleName = checkbox.value;
-        const select = document.querySelector(`.experience-select[data-role="${roleName}"]`);
-        const experience = select ? select.value : '';
-        roles.push({ role: roleName, experienceLevel: experience });
-      });
-      return roles;
-    }
-
-    // CV Upload state
-    let uploadedCvData = null;
-
-    // Helper to show upload status
-    function showUploadStatus(message, type) {
-      const statusEl = document.getElementById('uploadStatus');
-      statusEl.textContent = message;
-      statusEl.className = 'upload-status ' + type;
-    }
-
-    // Handle CV file selection and upload
-    document.getElementById('cvFile').addEventListener('change', async function(e) {
-      const file = e.target.files[0];
-      if (!file) {
-        uploadedCvData = null;
-        return;
-      }
-
-      // Validate file size (10MB max)
-      const maxSize = 10 * 1024 * 1024;
-      if (file.size > maxSize) {
-        showUploadStatus('File is too large. Maximum size is 10MB.', 'error');
-        e.target.value = '';
-        uploadedCvData = null;
-        return;
-      }
-
-      // Validate file type
-      const allowedTypes = ['.pdf', '.doc', '.docx'];
-      const ext = '.' + file.name.split('.').pop().toLowerCase();
-      if (!allowedTypes.includes(ext)) {
-        showUploadStatus('Invalid file type. Please upload a PDF, DOC, or DOCX file.', 'error');
-        e.target.value = '';
-        uploadedCvData = null;
-        return;
-      }
-
-      try {
-        // Step 1: Get presigned URL
-        showUploadStatus('Preparing upload...', 'uploading');
-
-        const presignRes = await fetch('/api/v1/applications/presign', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fileName: file.name,
-            fileType: file.type || 'application/octet-stream'
-          })
-        });
-
-        if (!presignRes.ok) {
-          const err = await presignRes.json();
-          throw new Error(err.error || 'Failed to prepare upload');
-        }
-
-        const { url, key, applicantId } = await presignRes.json();
-
-        // Step 2: Upload file to S3
-        showUploadStatus('Uploading CV...', 'uploading');
-
-        const uploadRes = await fetch(url, {
-          method: 'PUT',
-          body: file,
-          headers: {
-            'Content-Type': file.type || 'application/octet-stream'
-          }
-        });
-
-        if (!uploadRes.ok) {
-          throw new Error('Failed to upload file');
-        }
-
-        // Step 3: Verify the upload
-        showUploadStatus('Verifying file...', 'uploading');
-
-        const verifyRes = await fetch('/api/v1/applications/verify-upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ key })
-        });
-
-        if (!verifyRes.ok) {
-          const err = await verifyRes.json();
-          throw new Error(err.error || 'File verification failed');
-        }
-
-        // Success!
-        uploadedCvData = {
-          cvKey: key,
-          applicantId: applicantId,
-          cvOriginalName: file.name,
-          cvFileSize: file.size,
-          cvMimeType: file.type
-        };
-
-        showUploadStatus('CV uploaded successfully!', 'success');
-
-      } catch (error) {
-        console.error('CV upload error:', error);
-        showUploadStatus(error.message || 'Failed to upload CV. Please try again.', 'error');
-        e.target.value = '';
-        uploadedCvData = null;
-      }
-    });
-
-    // Form submission
-    document.getElementById('applyForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-
-      // Honeypot check
-      if (document.getElementById('website').value) {
-        return;
-      }
-
-      // Check CV upload
-      if (!uploadedCvData) {
-        alert('Please upload your CV before submitting.');
-        return;
-      }
-
-      const form = e.target;
-      const formData = new FormData(form);
-
-      // Collect roles with experience
-      const selectedRoles = document.querySelectorAll('input[name="roles"]:checked');
-      if (selectedRoles.length === 0) {
-        alert('Please select at least one role you are applying for.');
-        return;
-      }
-
-      const rolesWithExp = getRolesWithExperience();
-
-      // Validate experience is selected for each ticked role
-      for (const r of rolesWithExp) {
-        if (!r.experienceLevel) {
-          alert(`Please select experience level for ${r.role}`);
-          return;
-        }
-      }
-
-      const data = {
-        applicantId: uploadedCvData.applicantId,
-        firstName: formData.get('firstName'),
-        lastName: formData.get('lastName'),
-        email: formData.get('email'),
-        phone: formData.get('phone') || undefined,
-        roles: rolesWithExp,
-        cvKey: uploadedCvData.cvKey,
-        cvOriginalName: uploadedCvData.cvOriginalName,
-        cvFileSize: uploadedCvData.cvFileSize,
-        cvMimeType: uploadedCvData.cvMimeType,
-        source: 'website'
-      };
-
-      try {
-        const response = await fetch('/api/v1/applications', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        });
-
-        if (response.ok) {
-          form.style.display = 'none';
-          document.getElementById('formSuccess').classList.add('active');
-        } else {
-          const err = await response.json();
-          alert(err.error || 'There was a problem submitting your application. Please try again or email us directly at wrobb@vergoltd.com');
-        }
-      } catch (error) {
-        alert('There was a problem submitting your application. Please try again or email us directly at wrobb@vergoltd.com');
-      }
-    });
-  </script>
+  <script src="/pages/js/apply.js"></script>
 </body>
 </html>

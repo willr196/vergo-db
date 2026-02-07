@@ -63,9 +63,12 @@ export function requestLogger() {
 
     res.on('finish', () => {
       const duration = Date.now() - start;
+      // Avoid logging query strings, which may contain tokens (verify/reset links) or PII.
+      const rawUrl = (req.originalUrl || req.url || '') as string;
+      const sanitizedUrl = typeof rawUrl === 'string' ? rawUrl.split('?')[0] : '';
       const logData = {
         method: req.method,
-        url: req.url,
+        url: sanitizedUrl,
         statusCode: res.statusCode,
         duration,
         ip: req.ip,
@@ -76,7 +79,7 @@ export function requestLogger() {
         logger.error(logData, 'Request error');
       } else if (res.statusCode >= 400) {
         logger.warn(logData, 'Request warning');
-      } else if (req.url !== '/health') {
+      } else if (sanitizedUrl !== '/health') {
         // Skip logging health checks to reduce noise
         logger.info(logData, 'Request completed');
       }

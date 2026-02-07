@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 import { prisma } from "../prisma";
 import { Resend } from "resend";
 import { FROM_EMAIL, TO_EMAIL } from "../services/email";
+import { logger, maskEmail } from "../services/logger";
 
 const r = Router();
 
@@ -71,7 +72,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
     // Check honeypot (spam prevention)
     if (data.honeypot && data.honeypot.length > 0) {
       // Silently reject spam
-      console.log(`[SPAM] Quote request honeypot triggered | Email: ${data.email}`);
+      logger.warn({ event: 'quote_honeypot', ip: req.ip }, 'Quote request honeypot triggered');
       return res.status(201).json({ ok: true, message: "Quote request received" });
     }
     
@@ -111,9 +112,9 @@ r.post("/", quoteLimiter, async (req, res, next) => {
           clientId: clientId
         }
       });
-      console.log(`[QUOTE] Saved to database: ${savedQuote.id} for client ${clientId}`);
+      logger.info({ quoteId: savedQuote.id, clientId }, 'Quote saved to database');
     } else {
-      console.log(`[QUOTE] Not saved to DB (no linked client) - email only for: ${data.email}`);
+      logger.info({ email: maskEmail(data.email) }, 'Quote not saved to DB (no linked client)');
     }
     
     // Build the quote details for logging/email
@@ -136,7 +137,15 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       savedToDb: !!savedQuote
     };
     
-    console.log(`[AUDIT] Quote request received:`, JSON.stringify(quoteDetails, null, 2));
+    logger.info(
+      {
+        quoteId: savedQuote?.id || null,
+        eventType: data.eventType,
+        staffNeeded: data.staffNeeded,
+        hasLinkedClient: !!clientId,
+      },
+      'Quote request received'
+    );
     
     // Send notification email to VERGO team
     if (resend) {
@@ -212,7 +221,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
             </div>
           `
         });
-        console.log(`[EMAIL] Quote confirmation sent to ${data.email}`);
+        console.log(`[EMAIL] Quote confirmation sent to ${maskEmail(data.email)}`);
       } catch (emailErr) {
         console.error(`[EMAIL] Failed to send quote confirmation:`, emailErr);
       }

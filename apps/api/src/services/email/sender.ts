@@ -1,15 +1,14 @@
 // Low-level Resend email sender wrapper
 
 import { Resend } from 'resend';
-import { PrismaClient } from '@prisma/client';
 import { env } from '../../env';
+import { prisma } from '../../prisma';
 import type { SendEmailOptions, EmailResult, EmailType } from './types';
 
 const resend = new Resend(env.resendApiKey);
-const prisma = new PrismaClient();
 
-export const FROM_EMAIL = 'noreply@vergoltd.com';
-export const TO_EMAIL = 'wrobb@vergoltd.com';
+export const FROM_EMAIL = env.resendFromEmail || 'noreply@vergoltd.com';
+export const TO_EMAIL = env.resendToEmail || 'wrobb@vergoltd.com';
 
 interface SendOptions extends SendEmailOptions {
   from?: string;

@@ -6,18 +6,26 @@ const requireEnv = (k: string) => {
   return v
 }
 
+const jwt = requireEnv('JWT_SECRET')
+const jwtRefresh = process.env.JWT_REFRESH_SECRET || jwt
+if ((process.env.NODE_ENV ?? 'development') === 'production' && !process.env.JWT_REFRESH_SECRET) {
+  console.warn('[SECURITY] JWT_REFRESH_SECRET not set; falling back to JWT_SECRET')
+}
+
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
   port: Number(process.env.PORT ?? 8080),
   dbUrl: requireEnv('DATABASE_URL'),
-  jwt: requireEnv('JWT_SECRET'),
-  jwtRefresh: process.env.JWT_REFRESH_SECRET || requireEnv('JWT_SECRET'),
+  jwt,
+  jwtRefresh,
   s3Region: requireEnv('S3_REGION'),
   s3Bucket: requireEnv('S3_BUCKET'),
   awsKey: requireEnv('AWS_ACCESS_KEY_ID'),
   awsSecret: requireEnv('AWS_SECRET_ACCESS_KEY'),
   webOrigin: process.env.WEB_ORIGIN ?? 'http://localhost:8080',
   resendApiKey: requireEnv('RESEND_API_KEY'),
+  resendFromEmail: process.env.RESEND_FROM_EMAIL ?? 'noreply@vergoltd.com',
+  resendToEmail: process.env.RESEND_TO_EMAIL ?? 'wrobb@vergoltd.com',
 
   // Email Queue (Phase 2)
   redisUrl: process.env.REDIS_URL,

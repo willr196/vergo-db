@@ -1,0 +1,1702 @@
+diff --git a/apps/api/.dockerignore b/apps/api/.dockerignore
+index 98d3f2d..ae148db 100644
+--- a/apps/api/.dockerignore
++++ b/apps/api/.dockerignore
+@@ -3,6 +3,8 @@ npm-debug.log
+ dist
+ .git
+ .env
++.env.*
++.claude
+ 
+ # Dev/backup files
+ *.bak
+diff --git a/apps/api/.gitignore b/apps/api/.gitignore
+index db243e6..30ac5c6 100644
+--- a/apps/api/.gitignore
++++ b/apps/api/.gitignore
+@@ -1,6 +1,9 @@
+ .env
++.env.*
++!.env.example
+ *.log
+ node_modules/
+ dist/
+ build/
+ coverage/
++.claude/
+diff --git a/apps/api/package.json b/apps/api/package.json
+index 7931085..3dd1648 100644
+--- a/apps/api/package.json
++++ b/apps/api/package.json
+@@ -6,6 +6,7 @@
+     "dev": "tsx watch src/index.ts",
+     "build": "tsc -p .",
+     "start": "node dist/src/index.js",
++    "test": "npm run build && node --test dist/src/__tests__/*.test.js",
+     "prisma": "prisma",
+     "prisma:deploy": "prisma migrate deploy",
+     "seed": "tsx prisma/seed.ts"
+diff --git a/apps/api/prisma/seed.js b/apps/api/prisma/seed.js
+index 6668c36..c594e7c 100644
+--- a/apps/api/prisma/seed.js
++++ b/apps/api/prisma/seed.js
+@@ -7,8 +7,18 @@ const prisma_1 = require("../src/prisma");
+ const bcrypt_1 = __importDefault(require("bcrypt"));
+ async function main() {
+     const username = process.env.ADMIN_USERNAME || 'admin';
+-    const password = process.env.ADMIN_PASSWORD || 'arsenal';
+-    const hash = await bcrypt_1.default.hash(password, 10);
++    const password = process.env.ADMIN_PASSWORD;
++    if (!password) {
++        console.error('\n❌ ERROR: ADMIN_PASSWORD environment variable is required\n');
++        console.error('To create an admin user, run:');
++        console.error('  ADMIN_PASSWORD=your_secure_password npm run seed\n');
++        process.exit(1);
++    }
++    if (password.length < 8) {
++        console.error('❌ ERROR: Password must be at least 8 characters long');
++        process.exit(1);
++    }
++    const hash = await bcrypt_1.default.hash(password, 12);
+     await prisma_1.prisma.adminUser.upsert({
+         where: { username },
+         update: { password: hash },
+diff --git a/apps/api/public/admin-jobs.html b/apps/api/public/admin-jobs.html
+index e3cb3d4..951611a 100644
+--- a/apps/api/public/admin-jobs.html
++++ b/apps/api/public/admin-jobs.html
+@@ -969,14 +969,5 @@
+   <footer></footer>
+   <script src="/vergo-nav.js"></script>
+   <script src="/vergo-footer.js"></script>
+-<!-- Google Analytics (non-blocking) -->
+-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+-<script>
+-  window.dataLayer = window.dataLayer || [];
+-  function gtag(){dataLayer.push(arguments);}
+-  gtag('js', new Date());
+-
+-  gtag('config', 'G-L4XRTDYMTZ');
+-</script>
+ </body>
+ </html>
+diff --git a/apps/api/public/blog.html b/apps/api/public/blog.html
+index 5f0de28..e1c70a0 100644
+--- a/apps/api/public/blog.html
++++ b/apps/api/public/blog.html
+@@ -445,14 +445,5 @@
+   <script src="/vergo-nav.js"></script>
+   <script src="/vergo-footer.js"></script>
+   <script src="/vergo-analytics.js"></script>
+-<!-- Google Analytics (non-blocking) -->
+-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+-<script>
+-  window.dataLayer = window.dataLayer || [];
+-  function gtag(){dataLayer.push(arguments);}
+-  gtag('js', new Date());
+-
+-  gtag('config', 'G-L4XRTDYMTZ');
+-</script>
+ </body>
+ </html>
+diff --git a/apps/api/public/client-login.html b/apps/api/public/client-login.html
+index faf76bc..d435551 100644
+--- a/apps/api/public/client-login.html
++++ b/apps/api/public/client-login.html
+@@ -289,9 +289,19 @@
+     const resendSection = document.getElementById('resend-section');
+     
+     const params = new URLSearchParams(window.location.search);
+-    // Block absolute URLs and protocol-relative URLs to prevent open redirect
+-    let redirect = params.get('redirect') || 'client-dashboard.html';
+-    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(redirect) || redirect.startsWith('//')) redirect = 'client-dashboard.html';
++    const defaultRedirect = '/client-dashboard.html';
++    let redirect = defaultRedirect;
++    const redirectParam = params.get('redirect');
++    if (redirectParam) {
++      try {
++        const url = new URL(redirectParam, window.location.origin);
++        if (url.origin === window.location.origin) {
++          redirect = url.pathname + url.search + url.hash;
++        }
++      } catch {
++        redirect = defaultRedirect;
++      }
++    }
+     
+     // Show success if just verified
+     if (params.get('verified') === 'true') {
+diff --git a/apps/api/public/job-detail.html b/apps/api/public/job-detail.html
+index 395866a..9f54dc7 100644
+--- a/apps/api/public/job-detail.html
++++ b/apps/api/public/job-detail.html
+@@ -661,14 +661,5 @@
+   <script src="/vergo-nav.js"></script>
+   <script src="/vergo-footer.js"></script>
+   <script src="/vergo-analytics.js"></script>
+-<!-- Google Analytics (non-blocking) -->
+-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+-<script>
+-  window.dataLayer = window.dataLayer || [];
+-  function gtag(){dataLayer.push(arguments);}
+-  gtag('js', new Date());
+-
+-  gtag('config', 'G-L4XRTDYMTZ');
+-</script>
+ </body>
+ </html>
+diff --git a/apps/api/public/jobs.html b/apps/api/public/jobs.html
+index e14725a..59b075e 100644
+--- a/apps/api/public/jobs.html
++++ b/apps/api/public/jobs.html
+@@ -397,30 +397,30 @@
+     }
+     
+     // Render user bar
+-    function renderUserBar() {
+-      const bar = document.getElementById('user-bar');
+-      
+-      if (currentUser) {
+-        bar.className = 'user-bar';
+-        bar.innerHTML = `
+-          <div class="user-info">
+-            Welcome, <strong>${currentUser.firstName}</strong>
+-          </div>
+-          <div class="user-actions">
+-            <a href="user-dashboard" class="btn btn-secondary btn-small">My Applications</a>
+-            <button onclick="logout()" class="btn btn-small" style="background: var(--color-text-muted); color: var(--color-bg-white);">Log Out</button>
+-          </div>
+-        `;
+-      } else {
+-        bar.className = 'user-bar logged-out';
+-        bar.innerHTML = `
+-          <div class="user-actions">
+-            <a href="user-login" class="btn btn-secondary btn-small">Log In</a>
+-            <a href="user-register" class="btn btn-primary btn-small">Create Account</a>
+-          </div>
+-        `;
+-      }
+-    }
++	    function renderUserBar() {
++	      const bar = document.getElementById('user-bar');
++	      
++	      if (currentUser) {
++	        bar.className = 'user-bar';
++	        bar.innerHTML = `
++	          <div class="user-info">
++	            Welcome, <strong>${escapeHtml(currentUser.firstName)}</strong>
++	          </div>
++	          <div class="user-actions">
++	            <a href="user-dashboard" class="btn btn-secondary btn-small">My Applications</a>
++	            <button onclick="logout()" class="btn btn-small" style="background: var(--color-text-muted); color: var(--color-bg-white);">Log Out</button>
++	          </div>
++	        `;
++	      } else {
++	        bar.className = 'user-bar logged-out';
++	        bar.innerHTML = `
++	          <div class="user-actions">
++	            <a href="user-login" class="btn btn-secondary btn-small">Log In</a>
++	            <a href="user-register" class="btn btn-primary btn-small">Create Account</a>
++	          </div>
++	        `;
++	      }
++	    }
+     
+     // Logout
+     async function logout() {
+@@ -579,14 +579,5 @@
+   <script src="/vergo-nav.js"></script>
+   <script src="/vergo-footer.js"></script>
+   <script src="/vergo-analytics.js"></script>
+-<!-- Google Analytics (non-blocking) -->
+-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+-<script>
+-  window.dataLayer = window.dataLayer || [];
+-  function gtag(){dataLayer.push(arguments);}
+-  gtag('js', new Date());
+-
+-  gtag('config', 'G-L4XRTDYMTZ');
+-</script>
+ </body>
+ </html>
+diff --git a/apps/api/public/login.html b/apps/api/public/login.html
+index bf922ab..4cdd8c8 100644
+--- a/apps/api/public/login.html
++++ b/apps/api/public/login.html
+@@ -601,14 +601,5 @@
+   <footer></footer>
+   <script src="/vergo-nav.js"></script>
+   <script src="/vergo-footer.js"></script>
+-<!-- Google Analytics (non-blocking) -->
+-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+-<script>
+-  window.dataLayer = window.dataLayer || [];
+-  function gtag(){dataLayer.push(arguments);}
+-  gtag('js', new Date());
+-
+-  gtag('config', 'G-L4XRTDYMTZ');
+-</script>
+ </body>
+ </html>
+diff --git a/apps/api/public/post-job.html b/apps/api/public/post-job.html
+index e82a45f..a2252ab 100644
+--- a/apps/api/public/post-job.html
++++ b/apps/api/public/post-job.html
+@@ -899,14 +899,5 @@
+   <script src="/vergo-nav.js"></script>
+   <script src="/vergo-footer.js"></script>
+   <script src="/vergo-analytics.js"></script>
+-<!-- Google Analytics (non-blocking) -->
+-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+-<script>
+-  window.dataLayer = window.dataLayer || [];
+-  function gtag(){dataLayer.push(arguments);}
+-  gtag('js', new Date());
+-
+-  gtag('config', 'G-L4XRTDYMTZ');
+-</script>
+ </body>
+ </html>
+diff --git a/apps/api/public/privacy.html b/apps/api/public/privacy.html
+index 15f1425..39cf1e7 100644
+--- a/apps/api/public/privacy.html
++++ b/apps/api/public/privacy.html
+@@ -137,12 +137,18 @@
+       </section>
+ 
+       <section class="section">
+-        <h2>5. Your Rights</h2>
++        <h2>5. Cookies & Analytics</h2>
++        <p>We may use optional analytics to understand how our website is used (for example, which pages are visited). Analytics is only enabled if you choose to accept analytics cookies in the on-site banner. If you reject, analytics will not be loaded.</p>
++        <p>You can also enable "Do Not Track" in your browser to help limit tracking.</p>
++      </section>
++
++      <section class="section">
++        <h2>6. Your Rights</h2>
+         <p>You may request access, correction, or deletion of your data. To make a request, contact us at <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>.</p>
+       </section>
+ 
+       <section class="section">
+-        <h2>6. Contact</h2>
++        <h2>7. Contact</h2>
+         <p>VERGO Ltd<br>Email: <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a></p>
+       </section>
+     </div>
+diff --git a/apps/api/public/reset-password.html b/apps/api/public/reset-password.html
+index 43570fa..fbb8dda 100644
+--- a/apps/api/public/reset-password.html
++++ b/apps/api/public/reset-password.html
+@@ -238,36 +238,33 @@
+           const payload = await res.json();
+           const data = payload.data ?? payload;
+           
+-          if (!res.ok) {
+-            throw new Error(data.error || 'Reset failed');
+-          }
+-          
+-          document.getElementById('content').innerHTML = `
+-            <div style="text-align: center;">
+-              <h1 style="color: var(--color-success); margin-bottom: 15px;">✓ Password Reset</h1>
+-              <p style="color: var(--color-text-muted); margin-bottom: 30px;">Your password has been successfully reset.</p>
+-              <a href="user-login" class="btn">Log In</a>
+-            </div>
+-          `;
+-          
+-        } catch (err) {
+-          msgBox.innerHTML = `<div class="error-msg">${err.message}</div>`;
+-          btn.disabled = false;
+-          btn.textContent = 'Reset Password';
+-        }
+-      });
+-    }
+-  </script>
++	          if (!res.ok) {
++	            throw new Error(data.error || 'Reset failed');
++	          }
++	          
++	          document.getElementById('content').innerHTML = `
++	            <div style="text-align: center;">
++	              <h1 style="color: var(--color-success); margin-bottom: 15px;">✓ Password Reset</h1>
++	              <p style="color: var(--color-text-muted); margin-bottom: 30px;">Your password has been successfully reset.</p>
++	              <a href="user-login" class="btn">Log In</a>
++	            </div>
++	          `;
++	          
++	        } catch (err) {
++	          const message = (err && err.message) ? err.message : 'Reset failed';
++	          msgBox.innerHTML = '';
++	          const el = document.createElement('div');
++	          el.className = 'error-msg';
++	          el.textContent = message;
++	          msgBox.appendChild(el);
++	          btn.disabled = false;
++	          btn.textContent = 'Reset Password';
++	        }
++	      });
++	    }
++	  </script>
+   <script src="/vergo-nav.js"></script>
+   <script src="/vergo-footer.js"></script>
+-<!-- Google Analytics (non-blocking) -->
+-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+-<script>
+-  window.dataLayer = window.dataLayer || [];
+-  function gtag(){dataLayer.push(arguments);}
+-  gtag('js', new Date());
+-
+-  gtag('config', 'G-L4XRTDYMTZ');
+-</script>
++  <script src="/vergo-analytics.js"></script>
+ </body>
+ </html>
+diff --git a/apps/api/public/user-login.html b/apps/api/public/user-login.html
+index 192dfa2..c0320a2 100644
+--- a/apps/api/public/user-login.html
++++ b/apps/api/public/user-login.html
+@@ -272,11 +272,21 @@
+     const msgBox = document.getElementById('message');
+     const resendSection = document.getElementById('resend-section');
+     
+-    // Get redirect URL and check for verified param (validate same-origin)
++    // Get redirect URL (allow same-origin only)
+     const params = new URLSearchParams(window.location.search);
+-    let redirect = params.get('redirect') || 'jobs.html';
+-    // Block absolute URLs and protocol-relative URLs to prevent open redirect
+-    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(redirect) || redirect.startsWith('//')) redirect = 'jobs.html';
++    const defaultRedirect = '/jobs.html';
++    let redirect = defaultRedirect;
++    const redirectParam = params.get('redirect');
++    if (redirectParam) {
++      try {
++        const url = new URL(redirectParam, window.location.origin);
++        if (url.origin === window.location.origin) {
++          redirect = url.pathname + url.search + url.hash;
++        }
++      } catch {
++        redirect = defaultRedirect;
++      }
++    }
+     
+     // Show success if just verified
+     if (params.get('verified') === 'true') {
+@@ -354,14 +364,5 @@
+   </script>
+   <script src="/vergo-nav.js"></script>
+   <script src="/vergo-footer.js"></script>
+-<!-- Google Analytics (non-blocking) -->
+-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+-<script>
+-  window.dataLayer = window.dataLayer || [];
+-  function gtag(){dataLayer.push(arguments);}
+-  gtag('js', new Date());
+-
+-  gtag('config', 'G-L4XRTDYMTZ');
+-</script>
+ </body>
+ </html>
+diff --git a/apps/api/public/user-register.html b/apps/api/public/user-register.html
+index d0be86a..3437f2f 100644
+--- a/apps/api/public/user-register.html
++++ b/apps/api/public/user-register.html
+@@ -333,14 +333,6 @@
+   </script>
+   <script src="/vergo-nav.js"></script>
+   <script src="/vergo-footer.js"></script>
+-<!-- Google Analytics (non-blocking) -->
+-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4XRTDYMTZ"></script>
+-<script>
+-  window.dataLayer = window.dataLayer || [];
+-  function gtag(){dataLayer.push(arguments);}
+-  gtag('js', new Date());
+-
+-  gtag('config', 'G-L4XRTDYMTZ');
+-</script>
++  <script src="/vergo-analytics.js"></script>
+ </body>
+ </html>
+diff --git a/apps/api/public/vergo-analytics.js b/apps/api/public/vergo-analytics.js
+index d265730..8ac56ea 100644
+--- a/apps/api/public/vergo-analytics.js
++++ b/apps/api/public/vergo-analytics.js
+@@ -1,217 +1,337 @@
+ /**
+  * VERGO Ltd - Google Analytics 4 Integration
+- * 
+- * SETUP:
+- * 1. Replace 'G-XXXXXXXXXX' below with your actual GA4 Measurement ID
+- * 2. Add this to all pages before </body>:
+- *    <script src="/vergo-analytics.js"></script>
++ *
++ * Privacy/Security:
++ * - Loads GA only after user consent (localStorage: "vergo_cookie_consent" = "accepted").
++ * - Never sends full URLs with query strings (avoids leaking tokens like reset links).
++ * - Avoids sending PII (email addresses / phone numbers) as event labels.
+  */
+ 
+-(function() {
++(function () {
+   'use strict';
+ 
+   // ========================================
+-  // CONFIGURATION - UPDATE THIS!
+-  // ========================================
+-  const GA_MEASUREMENT_ID = 'G-L4XRTDYMTZ'; 
++  // CONFIGURATION
+   // ========================================
++  const GA_MEASUREMENT_ID = 'G-L4XRTDYMTZ';
++  const CONSENT_KEY = 'vergo_cookie_consent'; // "accepted" | "rejected"
++
++  // Don't run on admin pages or login flows.
++  const pathname = String(window.location.pathname || '');
++  if (pathname.includes('admin') || pathname.includes('login')) return;
++
++  // Respect Do Not Track.
++  const dnt = (navigator.doNotTrack === '1' || window.doNotTrack === '1');
++  if (dnt) return;
+ 
+-  // Don't run on admin pages
+-  if (window.location.pathname.includes('admin') || window.location.pathname.includes('login')) {
+-    return;
++  function readConsent() {
++    try {
++      return localStorage.getItem(CONSENT_KEY);
++    } catch {
++      return null;
++    }
+   }
+ 
+-  // Load Google Analytics
+-  const script = document.createElement('script');
+-  script.async = true;
+-  script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_MEASUREMENT_ID;
+-  document.head.appendChild(script);
+-
+-  // Initialize gtag
+-  window.dataLayer = window.dataLayer || [];
+-  function gtag() { dataLayer.push(arguments); }
+-  window.gtag = gtag;
+-  gtag('js', new Date());
+-  gtag('config', GA_MEASUREMENT_ID, {
+-    page_title: document.title,
+-    page_location: window.location.href
+-  });
+-
+-  // Wait for DOM
+-  document.addEventListener('DOMContentLoaded', function() {
+-
+-    // ========================================
+-    // FORM TRACKING
+-    // ========================================
+-    
+-    // Track all form submissions
+-    document.querySelectorAll('form').forEach(function(form) {
+-      form.addEventListener('submit', function() {
+-        const formId = form.id || form.getAttribute('name') || 'unknown_form';
+-        gtag('event', 'form_submission', {
+-          event_category: 'forms',
+-          event_label: formId
+-        });
++  function writeConsent(value) {
++    try {
++      localStorage.setItem(CONSENT_KEY, value);
++    } catch {
++      // Ignore storage failures (private mode, etc.)
++    }
++  }
+ 
+-        // Track specific conversion types
+-        if (formId.includes('quote') || formId.includes('event')) {
+-          gtag('event', 'quote_request', { event_category: 'conversion' });
+-        }
+-        if (formId.includes('staff') || formId.includes('hire')) {
+-          gtag('event', 'staff_request', { event_category: 'conversion' });
+-        }
+-        if (formId.includes('apply') || formId.includes('application')) {
+-          gtag('event', 'job_application', { event_category: 'conversion' });
+-        }
+-        if (formId.includes('contact') || formId.includes('general')) {
+-          gtag('event', 'contact_form', { event_category: 'conversion' });
+-        }
+-      });
++  function onReady(fn) {
++    if (document.readyState === 'loading') {
++      document.addEventListener('DOMContentLoaded', fn);
++    } else {
++      fn();
++    }
++  }
++
++  function getSanitizedPageLocation() {
++    // Never include query params or hash fragments (may contain tokens/PII).
++    return window.location.origin + window.location.pathname;
++  }
++
++  // Provide a safe no-op API even when analytics is disabled.
++  window.vergoAnalytics = window.vergoAnalytics || {
++    track: function () {},
++    conversion: function () {},
++    pageView: function () {},
++  };
++
++  function ensureGtagScript() {
++    const src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_MEASUREMENT_ID;
++    const existing = document.querySelector('script[src="' + src + '"]');
++    if (existing) return;
++
++    const script = document.createElement('script');
++    script.async = true;
++    script.src = src;
++    document.head.appendChild(script);
++  }
++
++  function initGtag() {
++    // Initialize gtag (queue until the GA script loads)
++    window.dataLayer = window.dataLayer || [];
++    function gtag() {
++      window.dataLayer.push(arguments);
++    }
++    window.gtag = gtag;
++
++    gtag('js', new Date());
++    gtag('config', GA_MEASUREMENT_ID, {
++      page_title: document.title,
++      page_location: getSanitizedPageLocation(),
+     });
+ 
+-    // ========================================
+-    // CLICK TRACKING
+-    // ========================================
++    return gtag;
++  }
++
++  function initTracking(gtag) {
++    onReady(function () {
++      // ========================================
++      // FORM TRACKING
++      // ========================================
++      document.querySelectorAll('form').forEach(function (form) {
++        form.addEventListener('submit', function () {
++          const formId = form.id || form.getAttribute('name') || 'unknown_form';
++          gtag('event', 'form_submission', {
++            event_category: 'forms',
++            event_label: formId,
++          });
+ 
+-    // Phone clicks
+-    document.querySelectorAll('a[href^="tel:"]').forEach(function(link) {
+-      link.addEventListener('click', function() {
+-        gtag('event', 'phone_click', {
+-          event_category: 'contact',
+-          event_label: link.href
++          // Track specific conversion types
++          if (formId.includes('quote') || formId.includes('event')) {
++            gtag('event', 'quote_request', { event_category: 'conversion' });
++          }
++          if (formId.includes('staff') || formId.includes('hire')) {
++            gtag('event', 'staff_request', { event_category: 'conversion' });
++          }
++          if (formId.includes('apply') || formId.includes('application')) {
++            gtag('event', 'job_application', { event_category: 'conversion' });
++          }
++          if (formId.includes('contact') || formId.includes('general')) {
++            gtag('event', 'contact_form', { event_category: 'conversion' });
++          }
+         });
+       });
+-    });
+ 
+-    // Email clicks
+-    document.querySelectorAll('a[href^="mailto:"]').forEach(function(link) {
+-      link.addEventListener('click', function() {
+-        gtag('event', 'email_click', {
+-          event_category: 'contact',
+-          event_label: link.href
++      // ========================================
++      // CLICK TRACKING (no PII)
++      // ========================================
++      document.querySelectorAll('a[href^="tel:"]').forEach(function (link) {
++        link.addEventListener('click', function () {
++          gtag('event', 'phone_click', {
++            event_category: 'contact',
++            event_label: 'tel',
++          });
+         });
+       });
+-    });
+ 
+-    // WhatsApp clicks
+-    document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"]').forEach(function(link) {
+-      link.addEventListener('click', function() {
+-        gtag('event', 'whatsapp_click', {
+-          event_category: 'contact',
+-          event_label: 'whatsapp'
++      document.querySelectorAll('a[href^="mailto:"]').forEach(function (link) {
++        link.addEventListener('click', function () {
++          gtag('event', 'email_click', {
++            event_category: 'contact',
++            event_label: 'mailto',
++          });
+         });
+       });
+-    });
+ 
+-    // CTA button clicks
+-    document.querySelectorAll('.cta-button, .btn-primary, [class*="cta"]').forEach(function(btn) {
+-      btn.addEventListener('click', function() {
+-        gtag('event', 'cta_click', {
+-          event_category: 'engagement',
+-          event_label: btn.textContent.trim().substring(0, 50)
++      document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"]').forEach(function (link) {
++        link.addEventListener('click', function () {
++          gtag('event', 'whatsapp_click', {
++            event_category: 'contact',
++            event_label: 'whatsapp',
++          });
+         });
+       });
+-    });
+ 
+-    // ========================================
+-    // CALCULATOR TRACKING
+-    // ========================================
+-
+-    // Track calculator interactions
+-    const calculator = document.querySelector('#calculator, .calculator, [class*="calculator"]');
+-    if (calculator) {
+-      let calculatorUsed = false;
+-      calculator.addEventListener('input', function() {
+-        if (!calculatorUsed) {
+-          calculatorUsed = true;
+-          gtag('event', 'calculator_started', {
++      document.querySelectorAll('.cta-button, .btn-primary, [class*="cta"]').forEach(function (btn) {
++        btn.addEventListener('click', function () {
++          gtag('event', 'cta_click', {
+             event_category: 'engagement',
+-            event_label: 'pricing_calculator'
++            event_label: String(btn.textContent || '').trim().substring(0, 50),
+           });
+-        }
++        });
+       });
+ 
+-      // Track calculate button click
+-      const calcBtn = calculator.querySelector('button, [type="submit"]');
+-      if (calcBtn) {
+-        calcBtn.addEventListener('click', function() {
+-          gtag('event', 'calculator_used', {
+-            event_category: 'engagement',
+-            event_label: 'pricing_calculator'
+-          });
++      // ========================================
++      // CALCULATOR TRACKING
++      // ========================================
++      const calculator = document.querySelector('#calculator, .calculator, [class*="calculator"]');
++      if (calculator) {
++        let calculatorUsed = false;
++        calculator.addEventListener('input', function () {
++          if (!calculatorUsed) {
++            calculatorUsed = true;
++            gtag('event', 'calculator_started', {
++              event_category: 'engagement',
++              event_label: 'pricing_calculator',
++            });
++          }
+         });
++
++        const calcBtn = calculator.querySelector('button, [type="submit"]');
++        if (calcBtn) {
++          calcBtn.addEventListener('click', function () {
++            gtag('event', 'calculator_used', {
++              event_category: 'engagement',
++              event_label: 'pricing_calculator',
++            });
++          });
++        }
+       }
+-    }
+ 
+-    // ========================================
+-    // JOB BOARD TRACKING
+-    // ========================================
+-
+-    // Track job views
+-    if (window.location.pathname.includes('job')) {
+-      const jobTitle = document.querySelector('h1, .job-title');
+-      if (jobTitle) {
+-        gtag('event', 'job_view', {
+-          event_category: 'jobs',
+-          event_label: jobTitle.textContent.trim()
+-        });
++      // ========================================
++      // JOB BOARD TRACKING
++      // ========================================
++      if (window.location.pathname.includes('job')) {
++        const jobTitle = document.querySelector('h1, .job-title');
++        if (jobTitle) {
++          gtag('event', 'job_view', {
++            event_category: 'jobs',
++            event_label: String(jobTitle.textContent || '').trim().substring(0, 120),
++          });
++        }
+       }
+-    }
+ 
+-    // Track job card clicks
+-    document.querySelectorAll('.job-card, [class*="job-item"]').forEach(function(card) {
+-      card.addEventListener('click', function() {
+-        const title = card.querySelector('h2, h3, .title');
+-        gtag('event', 'job_click', {
+-          event_category: 'jobs',
+-          event_label: title ? title.textContent.trim() : 'unknown'
++      document.querySelectorAll('.job-card, [class*="job-item"]').forEach(function (card) {
++        card.addEventListener('click', function () {
++          const title = card.querySelector('h2, h3, .title');
++          gtag('event', 'job_click', {
++            event_category: 'jobs',
++            event_label: title ? String(title.textContent || '').trim().substring(0, 120) : 'unknown',
++          });
+         });
+       });
+-    });
+ 
+-    // ========================================
+-    // BLOG TRACKING
+-    // ========================================
++      // ========================================
++      // BLOG TRACKING
++      // ========================================
++      if (window.location.pathname.includes('blog')) {
++        setTimeout(function () {
++          gtag('event', 'article_read', {
++            event_category: 'blog',
++            event_label: document.title,
++          });
++        }, 30000);
++      }
++
++      // ========================================
++      // SCROLL DEPTH TRACKING
++      // ========================================
++      let scrollMarks = {};
++      window.addEventListener(
++        'scroll',
++        throttle(function () {
++          const denom = (document.body.scrollHeight - window.innerHeight) || 1;
++          const scrollPercent = Math.round((window.scrollY / denom) * 100);
+ 
+-    // Track blog article reads (30 seconds on page)
+-    if (window.location.pathname.includes('blog')) {
+-      setTimeout(function() {
+-        gtag('event', 'article_read', {
+-          event_category: 'blog',
+-          event_label: document.title
++          [25, 50, 75, 90].forEach(function (mark) {
++            if (scrollPercent >= mark && !scrollMarks[mark]) {
++              scrollMarks[mark] = true;
++              gtag('event', 'scroll_depth', {
++                event_category: 'engagement',
++                event_label: mark + '%',
++                non_interaction: true,
++              });
++            }
++          });
++        }, 500),
++        { passive: true }
++      );
++    });
++
++    // Public API
++    window.vergoAnalytics = {
++      track: function (eventName, params) {
++        gtag('event', eventName, params || {});
++      },
++      conversion: function (eventName, value) {
++        gtag('event', eventName, {
++          event_category: 'conversion',
++          value: value || 1,
++          currency: 'GBP',
+         });
+-      }, 30000);
+-    }
++      },
++      pageView: function (path, title) {
++        const safePath = String(path || '').startsWith('/') ? path : '/';
++        gtag('config', GA_MEASUREMENT_ID, {
++          page_path: safePath,
++          page_title: title || document.title,
++          page_location: window.location.origin + safePath,
++        });
++      },
++    };
++  }
+ 
+-    // ========================================
+-    // SCROLL DEPTH TRACKING
+-    // ========================================
++  function initAnalytics() {
++    ensureGtagScript();
++    const gtag = initGtag();
++    initTracking(gtag);
++  }
+ 
+-    let scrollMarks = {};
+-    window.addEventListener('scroll', throttle(function() {
+-      const scrollPercent = Math.round(
+-        (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
+-      );
++  function showConsentBanner() {
++    onReady(function () {
++      if (document.getElementById('vergo-cookie-banner')) return;
+ 
+-      [25, 50, 75, 90].forEach(function(mark) {
+-        if (scrollPercent >= mark && !scrollMarks[mark]) {
+-          scrollMarks[mark] = true;
+-          gtag('event', 'scroll_depth', {
+-            event_category: 'engagement',
+-            event_label: mark + '%',
+-            non_interaction: true
+-          });
+-        }
+-      });
+-    }, 500));
++      const banner = document.createElement('div');
++      banner.id = 'vergo-cookie-banner';
++      banner.setAttribute('role', 'dialog');
++      banner.setAttribute('aria-live', 'polite');
++      banner.style.position = 'fixed';
++      banner.style.left = '16px';
++      banner.style.right = '16px';
++      banner.style.bottom = '16px';
++      banner.style.zIndex = '9999';
++      banner.style.background = '#1c1c1c';
++      banner.style.color = '#fff';
++      banner.style.borderRadius = '12px';
++      banner.style.padding = '14px 16px';
++      banner.style.boxShadow = '0 10px 30px rgba(0,0,0,0.35)';
++      banner.style.fontFamily = 'Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
++      banner.style.display = 'flex';
++      banner.style.gap = '12px';
++      banner.style.alignItems = 'center';
++      banner.style.justifyContent = 'space-between';
++
++      banner.innerHTML =
++        '<div style="line-height:1.35; font-size:13px; max-width: 880px;">' +
++        'We use optional analytics cookies to understand site usage. ' +
++        '<a href="/privacy.html" style="color:#D4AF37; text-decoration:none;">Privacy Policy</a>' +
++        '</div>' +
++        '<div style="display:flex; gap:8px; flex-shrink:0;">' +
++        '<button id="vergo-cookie-reject" style="border:1px solid rgba(255,255,255,0.25); background:transparent; color:#fff; border-radius:10px; padding:10px 12px; font-size:13px; cursor:pointer;">Reject</button>' +
++        '<button id="vergo-cookie-accept" style="border:0; background:#D4AF37; color:#111; border-radius:10px; padding:10px 12px; font-size:13px; cursor:pointer; font-weight:700;">Accept</button>' +
++        '</div>';
++
++      document.body.appendChild(banner);
+ 
+-    console.log('VERGO Analytics loaded - ID:', GA_MEASUREMENT_ID);
+-  });
++      const acceptBtn = document.getElementById('vergo-cookie-accept');
++      const rejectBtn = document.getElementById('vergo-cookie-reject');
++
++      if (acceptBtn) {
++        acceptBtn.addEventListener('click', function () {
++          writeConsent('accepted');
++          banner.remove();
++          initAnalytics();
++        });
++      }
++
++      if (rejectBtn) {
++        rejectBtn.addEventListener('click', function () {
++          writeConsent('rejected');
++          banner.remove();
++        });
++      }
++    });
++  }
+ 
+   // Throttle helper
+   function throttle(fn, wait) {
+     let lastTime = 0;
+-    return function() {
++    return function () {
+       const now = Date.now();
+       if (now - lastTime >= wait) {
+         lastTime = now;
+@@ -220,32 +340,12 @@
+     };
+   }
+ 
+-  // ========================================
+-  // PUBLIC API (optional use)
+-  // ========================================
+-
+-  window.vergoAnalytics = {
+-    // Track custom event
+-    track: function(eventName, params) {
+-      gtag('event', eventName, params || {});
+-    },
+-
+-    // Track conversion with value
+-    conversion: function(eventName, value) {
+-      gtag('event', eventName, {
+-        event_category: 'conversion',
+-        value: value || 1,
+-        currency: 'GBP'
+-      });
+-    },
+-
+-    // Manual page view (for SPAs)
+-    pageView: function(path, title) {
+-      gtag('config', GA_MEASUREMENT_ID, {
+-        page_path: path,
+-        page_title: title
+-      });
+-    }
+-  };
+-
++  const consent = readConsent();
++  if (consent === 'accepted') {
++    initAnalytics();
++  } else if (consent === 'rejected') {
++    // Do nothing.
++  } else {
++    showConsentBanner();
++  }
+ })();
+diff --git a/apps/api/src/env.ts b/apps/api/src/env.ts
+index 37fa6c4..ecba193 100644
+--- a/apps/api/src/env.ts
++++ b/apps/api/src/env.ts
+@@ -6,18 +6,26 @@ const requireEnv = (k: string) => {
+   return v
+ }
+ 
++const jwt = requireEnv('JWT_SECRET')
++const jwtRefresh = process.env.JWT_REFRESH_SECRET || jwt
++if ((process.env.NODE_ENV ?? 'development') === 'production' && !process.env.JWT_REFRESH_SECRET) {
++  console.warn('[SECURITY] JWT_REFRESH_SECRET not set; falling back to JWT_SECRET')
++}
++
+ export const env = {
+   nodeEnv: process.env.NODE_ENV ?? 'development',
+   port: Number(process.env.PORT ?? 8080),
+   dbUrl: requireEnv('DATABASE_URL'),
+-  jwt: requireEnv('JWT_SECRET'),
+-  jwtRefresh: process.env.JWT_REFRESH_SECRET || requireEnv('JWT_SECRET'),
++  jwt,
++  jwtRefresh,
+   s3Region: requireEnv('S3_REGION'),
+   s3Bucket: requireEnv('S3_BUCKET'),
+   awsKey: requireEnv('AWS_ACCESS_KEY_ID'),
+   awsSecret: requireEnv('AWS_SECRET_ACCESS_KEY'),
+   webOrigin: process.env.WEB_ORIGIN ?? 'http://localhost:8080',
+   resendApiKey: requireEnv('RESEND_API_KEY'),
++  resendFromEmail: process.env.RESEND_FROM_EMAIL ?? 'noreply@vergoltd.com',
++  resendToEmail: process.env.RESEND_TO_EMAIL ?? 'wrobb@vergoltd.com',
+ 
+   // Email Queue (Phase 2)
+   redisUrl: process.env.REDIS_URL,
+@@ -29,4 +37,4 @@ export const env = {
+   // Monitoring (Phase 6)
+   sentryDsn: process.env.SENTRY_DSN,
+   logLevel: process.env.LOG_LEVEL ?? 'info',
+-}
+\ No newline at end of file
++}
+diff --git a/apps/api/src/index.ts b/apps/api/src/index.ts
+index c6203a4..17948a8 100644
+--- a/apps/api/src/index.ts
++++ b/apps/api/src/index.ts
+@@ -7,6 +7,7 @@ import RedisStore from 'rate-limit-redis';
+ import Redis from 'ioredis';
+ import fs from 'fs';
+ import path from 'node:path';
++import crypto from 'node:crypto';
+ import session from 'express-session';
+ import connectPgSimple from 'connect-pg-simple';
+ import { env } from './env';
+@@ -122,7 +123,18 @@ if (env.nodeEnv === 'production' && !process.env.SESSION_SECRET) {
+   throw new Error('SESSION_SECRET required in production');
+ }
+ 
+-const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-only-secret-change-in-production';
++let SESSION_SECRET = process.env.SESSION_SECRET;
++if (!SESSION_SECRET) {
++  if (env.nodeEnv === 'test') {
++    // Stable value for deterministic tests.
++    SESSION_SECRET = 'test-only-secret';
++  } else {
++    // Avoid a predictable default in non-production environments that might still be internet-accessible.
++    SESSION_SECRET = crypto.randomBytes(32).toString('hex');
++    console.warn('[SECURITY] SESSION_SECRET not set; using ephemeral random secret (sessions will reset on restart)');
++  }
++}
++
+ const PgSession = connectPgSimple(session);
+ const dbUsesSsl = /sslmode=require/i.test(env.dbUrl);
+ 
+@@ -131,12 +143,14 @@ app.use(session({
+   secret: SESSION_SECRET,
+   resave: false,
+   saveUninitialized: false,
+-  store: new PgSession({
+-    conString: env.dbUrl,
+-    tableName: 'user_sessions',
+-    createTableIfMissing: true,
+-    ssl: dbUsesSsl ? { rejectUnauthorized: false } : false
+-  }),
++  store: env.nodeEnv === 'test'
++    ? new session.MemoryStore()
++    : new PgSession({
++      conString: env.dbUrl,
++      tableName: 'user_sessions',
++      createTableIfMissing: true,
++      ssl: dbUsesSsl ? { rejectUnauthorized: false } : false
++    }),
+   cookie: {
+     httpOnly: true,
+     secure: process.env.NODE_ENV === 'production',
+@@ -222,7 +236,12 @@ app.use((req, res, next) => {
+   }
+ 
+   // Check if .html file exists for this path
+-  const htmlPath = path.join(pub, req.path + '.html');
++  const relPath = req.path.replace(/^\//, '');
++  // Defensive: do not allow path traversal in the clean-URL resolver.
++  if (relPath.includes('..') || relPath.includes('\\')) {
++    return next();
++  }
++  const htmlPath = path.join(pub, relPath + '.html');
+   if (fs.existsSync(htmlPath)) {
+     req.url = req.path + '.html';
+   }
+@@ -294,9 +313,11 @@ async function startServer() {
+   process.on('SIGINT', () => shutdown('SIGINT'));
+ }
+ 
+-startServer().catch((err) => {
+-  console.error('Failed to start server:', err);
+-  process.exit(1);
+-});
++if (env.nodeEnv !== 'test') {
++  startServer().catch((err) => {
++    console.error('Failed to start server:', err);
++    process.exit(1);
++  });
++}
+ 
+ export default app;
+diff --git a/apps/api/src/middleware/userAuth.ts b/apps/api/src/middleware/userAuth.ts
+index dd5ff32..0d2a033 100644
+--- a/apps/api/src/middleware/userAuth.ts
++++ b/apps/api/src/middleware/userAuth.ts
+@@ -28,7 +28,7 @@ export function requireUser(req: Request, res: Response, next: NextFunction) {
+   
+   // Check absolute session age (24 hours max)
+   if (loginTime && (now - loginTime > USER_MAX_SESSION_AGE)) {
+-    console.warn(`[SECURITY] User session expired (age): ${req.session.userEmail}`);
++    console.warn(`[SECURITY] User session expired (age): userId=${req.session.userId || 'unknown'}`);
+     req.session.destroy(() => {});
+     res.clearCookie('vergo.sid');
+     return res.status(401).json({ 
+@@ -39,7 +39,7 @@ export function requireUser(req: Request, res: Response, next: NextFunction) {
+   
+   // Check idle timeout (2 hours)
+   if (lastActivity && (now - lastActivity > USER_IDLE_TIMEOUT)) {
+-    console.warn(`[SECURITY] User session expired (idle): ${req.session.userEmail}`);
++    console.warn(`[SECURITY] User session expired (idle): userId=${req.session.userId || 'unknown'}`);
+     req.session.destroy(() => {});
+     res.clearCookie('vergo.sid');
+     return res.status(401).json({ 
+diff --git a/apps/api/src/routes/applications.ts b/apps/api/src/routes/applications.ts
+index ee46724..f8c87ad 100644
+--- a/apps/api/src/routes/applications.ts
++++ b/apps/api/src/routes/applications.ts
+@@ -54,7 +54,7 @@ async function getFileType(buffer: Buffer) {
+ // ============================================
+ // CLEANUP JOB - Delete expired verifications every 15 minutes
+ // ============================================
+-setInterval(async () => {
++const cleanupInterval = setInterval(async () => {
+   try {
+     const result = await prisma.fileUploadVerification.deleteMany({
+       where: {
+@@ -70,6 +70,8 @@ setInterval(async () => {
+     console.error('[CLEANUP] Failed to delete expired verifications:', error);
+   }
+ }, 15 * 60 * 1000);
++// Allow the process to exit naturally (important for tests/one-off scripts).
++cleanupInterval.unref?.();
+ 
+ // ============================================
+ // RATE LIMITERS
+@@ -282,19 +284,25 @@ r.post('/', applicationLimiter, async (req, res, next) => {
+     }
+ 
+     // ✅ Verify the file was properly verified
+-    const verification = await prisma.fileUploadVerification.findUnique({
+-      where: { key: d.cvKey }
+-    });
+-
+-    if (!verification || !verification.verified) {
+-      return res.status(400).json({ 
+-        error: 'CV must be verified before creating application' 
+-      });
+-    }
+-
+-    const app = await prisma.application.create({
+-      data: {
+-        applicant: {
++	    const verification = await prisma.fileUploadVerification.findUnique({
++	      where: { key: d.cvKey }
++	    });
++
++	    if (!verification || !verification.verified) {
++	      return res.status(400).json({ 
++	        error: 'CV must be verified before creating application' 
++	      });
++	    }
++	    if (verification.applicantId !== d.applicantId) {
++	      // Prevent mixing a verified CV key with a different applicantId payload.
++	      return res.status(400).json({
++	        error: 'CV verification mismatch. Please upload and verify your CV again.'
++	      });
++	    }
++
++	    const app = await prisma.application.create({
++	      data: {
++	        applicant: {
+           connectOrCreate: {
+             where: { email: d.email },
+             create: {
+@@ -351,19 +359,22 @@ r.post('/', applicationLimiter, async (req, res, next) => {
+     });
+ 
+     // Send confirmation to applicant
+-    sendApplicationConfirmationToApplicant({
+-      to: d.email,
+-      name: d.firstName,
+-      roles: roleStrings,
+-      applicationId: app.id
+-    }).catch(err => {
+-      console.error('[EMAIL] Failed to send applicant confirmation:', err);
+-    });
+-
+-    console.log(`[APPLICATION] New application: ${app.id}`);
+-    res.status(201).json({ ok: true, id: app.id, data: { id: app.id } });
+-  } catch (e) { next(e); }
+-});
++	    sendApplicationConfirmationToApplicant({
++	      to: d.email,
++	      name: d.firstName,
++	      roles: roleStrings,
++	      applicationId: app.id
++	    }).catch(err => {
++	      console.error('[EMAIL] Failed to send applicant confirmation:', err);
++	    });
++
++	    // One-time use: reduce the risk of reusing the same verified key in multiple submissions.
++	    prisma.fileUploadVerification.delete({ where: { key: d.cvKey } }).catch(() => {});
++
++	    console.log(`[APPLICATION] New application: ${app.id}`);
++	    res.status(201).json({ ok: true, id: app.id, data: { id: app.id } });
++	  } catch (e) { next(e); }
++	});
+ 
+ // ============================================
+ // LIST APPLICATIONS (ADMIN)
+diff --git a/apps/api/src/routes/clientAuth.ts b/apps/api/src/routes/clientAuth.ts
+index fee49a6..9c6fbde 100644
+--- a/apps/api/src/routes/clientAuth.ts
++++ b/apps/api/src/routes/clientAuth.ts
+@@ -137,6 +137,11 @@ function generateToken(): string {
+   return crypto.randomBytes(32).toString("hex");
+ }
+ 
++function hashDbToken(token: string): string {
++  // Prefix prevents accepting the stored hash itself as a bearer token.
++  return `sha256:${hashToken(token)}`;
++}
++
+ function shapeMobileClient(client: {
+   id: string;
+   email: string;
+@@ -195,6 +200,7 @@ r.post("/register", registerLimiter, async (req, res) => {
+     // Hash password
+     const passwordHash = await bcrypt.hash(password, 12);
+     const verifyToken = generateToken();
++    const verifyTokenHash = hashDbToken(verifyToken);
+     const verifyTokenExp = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+     
+     // Create client
+@@ -209,7 +215,9 @@ r.post("/register", registerLimiter, async (req, res) => {
+         passwordHash,
+         phone: phone || null,
+         jobTitle: jobTitle || null,
+-        verifyToken,
++        // Store only a hash so DB read access doesn't immediately enable account verification.
++        // Backwards-compatible: verify endpoint accepts both raw and hashed tokens.
++        verifyToken: verifyTokenHash,
+         verifyTokenExp,
+         emailVerified: false,
+         status: "PENDING"
+@@ -250,10 +258,11 @@ r.get("/verify-email", async (req, res) => {
+       return res.status(400).json({ error: "Invalid verification link" });
+     }
+     
++    const tokenHash = hashDbToken(token);
+     const client = await prisma.client.findFirst({
+-      where: { 
+-        verifyToken: token,
+-        verifyTokenExp: { gt: new Date() }
++      where: {
++        verifyTokenExp: { gt: new Date() },
++        OR: [{ verifyToken: token }, { verifyToken: tokenHash }],
+       },
+       select: { id: true, emailVerified: true, companyName: true }
+     });
+@@ -315,11 +324,12 @@ r.post("/resend-verification", forgotPasswordLimiter, async (req, res) => {
+     }
+ 
+     const verifyToken = generateToken();
++    const verifyTokenHash = hashDbToken(verifyToken);
+ 
+     await prisma.client.update({
+       where: { id: client.id },
+       data: {
+-        verifyToken,
++        verifyToken: verifyTokenHash,
+         verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+       }
+     });
+@@ -637,6 +647,7 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
+ 
+     const passwordHash = await bcrypt.hash(password, 12);
+     const verifyToken = generateToken();
++    const verifyTokenHash = hashDbToken(verifyToken);
+     const verifyTokenExp = new Date(Date.now() + 24 * 60 * 60 * 1000);
+ 
+     const client = await prisma.client.create({
+@@ -650,7 +661,7 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
+         passwordHash,
+         phone: phone || null,
+         jobTitle: jobTitle || null,
+-        verifyToken,
++        verifyToken: verifyTokenHash,
+         verifyTokenExp,
+         emailVerified: false,
+         status: "PENDING"
+@@ -884,11 +895,14 @@ r.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
+     }
+ 
+     const resetToken = generateToken();
++    const resetTokenHash = hashDbToken(resetToken);
+     const resetTokenExp = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+ 
+     await prisma.client.update({
+       where: { id: client.id },
+-      data: { resetToken, resetTokenExp }
++      // Store only a hash so DB read access doesn't immediately enable password reset.
++      // Backwards-compatible: reset endpoint accepts both raw and hashed tokens.
++      data: { resetToken: resetTokenHash, resetTokenExp }
+     });
+ 
+     // Send password reset email
+@@ -924,10 +938,11 @@ r.post("/reset-password", async (req, res) => {
+     
+     const { token, password } = parsed.data;
+     
++    const tokenHash = hashDbToken(token);
+     const client = await prisma.client.findFirst({
+-      where: { 
+-        resetToken: token,
+-        resetTokenExp: { gt: new Date() }
++      where: {
++        resetTokenExp: { gt: new Date() },
++        OR: [{ resetToken: token }, { resetToken: tokenHash }],
+       },
+       select: { id: true, email: true }
+     });
+diff --git a/apps/api/src/routes/jobApplications.ts b/apps/api/src/routes/jobApplications.ts
+index 3b0f08f..199fea7 100644
+--- a/apps/api/src/routes/jobApplications.ts
++++ b/apps/api/src/routes/jobApplications.ts
+@@ -50,7 +50,7 @@ r.post("/", requireUser, async (req, res, next) => {
+       include: { job: { select: { id: true, title: true, eventDate: true, location: true } } }
+     });
+     
+-    console.log(`[JOB APPLICATION] New | User: ${user.email} | Job: ${job.title} | ID: ${application.id}`);
++    console.log(`[JOB APPLICATION] New | userId=${userId} jobId=${job.id} applicationId=${application.id}`);
+     
+     sendJobApplicationNotification({
+       jobTitle: job.title,
+@@ -117,7 +117,7 @@ r.post("/:id/withdraw", requireUser, async (req, res, next) => {
+   try {
+     const application = await prisma.jobApplication.findUnique({
+       where: { id: req.params.id },
+-      select: { id: true, userId: true, status: true, job: { select: { title: true } } }
++      select: { id: true, userId: true, jobId: true, status: true, job: { select: { title: true } } }
+     });
+     
+     if (!application) return res.status(404).json({ error: "Not found" });
+@@ -127,7 +127,7 @@ r.post("/:id/withdraw", requireUser, async (req, res, next) => {
+     
+     await prisma.jobApplication.update({ where: { id: req.params.id }, data: { status: "WITHDRAWN" } });
+     
+-    console.log(`[JOB APPLICATION] Withdrawn | ID: ${req.params.id} | User: ${req.session.userEmail} | Job: ${application.job.title}`);
++    console.log(`[JOB APPLICATION] Withdrawn | applicationId=${req.params.id} userId=${req.session.userId} jobId=${application.jobId}`);
+     
+     res.json({ ok: true, status: "WITHDRAWN", data: { status: "WITHDRAWN" } });
+   } catch (error) { next(error); }
+@@ -189,7 +189,7 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
+     
+     const application = await prisma.jobApplication.findUnique({
+       where: { id: req.params.id },
+-      include: { job: true, user: { select: { email: true } } }
++      include: { job: true, user: { select: { id: true } } }
+     });
+     if (!application) return res.status(404).json({ error: "Not found" });
+     
+@@ -280,7 +280,7 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
+     }
+     
+     // AUDIT LOG
+-    console.log(`[AUDIT] Application status changed | ID: ${req.params.id} | User: ${application.user.email} | Job: ${application.job.title} | From: ${previousStatus} | To: ${status} | Admin: ${req.session.username}`);
++    console.log(`[AUDIT] Application status changed | applicationId=${req.params.id} userId=${application.user.id} jobId=${application.jobId} from=${previousStatus} to=${status} admin=${req.session.username}`);
+     
+     res.json({ ok: true, id: req.params.id, status, data: { id: req.params.id, status } });
+   } catch (error) {
+diff --git a/apps/api/src/routes/quotes.ts b/apps/api/src/routes/quotes.ts
+index 6e51a59..4c2de67 100644
+--- a/apps/api/src/routes/quotes.ts
++++ b/apps/api/src/routes/quotes.ts
+@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
+ import { prisma } from "../prisma";
+ import { Resend } from "resend";
+ import { FROM_EMAIL, TO_EMAIL } from "../services/email";
++import { logger, maskEmail } from "../services/logger";
+ 
+ const r = Router();
+ 
+@@ -71,7 +72,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
+     // Check honeypot (spam prevention)
+     if (data.honeypot && data.honeypot.length > 0) {
+       // Silently reject spam
+-      console.log(`[SPAM] Quote request honeypot triggered | Email: ${data.email}`);
++      logger.warn({ event: 'quote_honeypot', ip: req.ip }, 'Quote request honeypot triggered');
+       return res.status(201).json({ ok: true, message: "Quote request received" });
+     }
+     
+@@ -111,9 +112,9 @@ r.post("/", quoteLimiter, async (req, res, next) => {
+           clientId: clientId
+         }
+       });
+-      console.log(`[QUOTE] Saved to database: ${savedQuote.id} for client ${clientId}`);
++      logger.info({ quoteId: savedQuote.id, clientId }, 'Quote saved to database');
+     } else {
+-      console.log(`[QUOTE] Not saved to DB (no linked client) - email only for: ${data.email}`);
++      logger.info({ email: maskEmail(data.email) }, 'Quote not saved to DB (no linked client)');
+     }
+     
+     // Build the quote details for logging/email
+@@ -136,7 +137,15 @@ r.post("/", quoteLimiter, async (req, res, next) => {
+       savedToDb: !!savedQuote
+     };
+     
+-    console.log(`[AUDIT] Quote request received:`, JSON.stringify(quoteDetails, null, 2));
++    logger.info(
++      {
++        quoteId: savedQuote?.id || null,
++        eventType: data.eventType,
++        staffNeeded: data.staffNeeded,
++        hasLinkedClient: !!clientId,
++      },
++      'Quote request received'
++    );
+     
+     // Send notification email to VERGO team
+     if (resend) {
+@@ -212,7 +221,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
+             </div>
+           `
+         });
+-        console.log(`[EMAIL] Quote confirmation sent to ${data.email}`);
++        console.log(`[EMAIL] Quote confirmation sent to ${maskEmail(data.email)}`);
+       } catch (emailErr) {
+         console.error(`[EMAIL] Failed to send quote confirmation:`, emailErr);
+       }
+diff --git a/apps/api/src/routes/unsubscribe.ts b/apps/api/src/routes/unsubscribe.ts
+index 02348a4..153bae5 100644
+--- a/apps/api/src/routes/unsubscribe.ts
++++ b/apps/api/src/routes/unsubscribe.ts
+@@ -1,6 +1,7 @@
+ // Unsubscribe management routes
+ 
+ import { Router } from 'express';
++import rateLimit from 'express-rate-limit';
+ import {
+   getPreferencesByToken,
+   updatePreferences,
+@@ -11,11 +12,27 @@ import { env } from '../env';
+ 
+ const router = Router();
+ 
++const viewLimiter = rateLimit({
++  windowMs: 15 * 60 * 1000,
++  max: 60,
++  standardHeaders: true,
++  legacyHeaders: false,
++  message: 'Too many requests. Please try again later.',
++});
++
++const updateLimiter = rateLimit({
++  windowMs: 15 * 60 * 1000,
++  max: 20,
++  standardHeaders: true,
++  legacyHeaders: false,
++  message: 'Too many requests. Please try again later.',
++});
++
+ /**
+  * GET /api/v1/unsubscribe?token=xxx
+  * One-click unsubscribe page
+  */
+-router.get('/', async (req, res) => {
++router.get('/', viewLimiter, async (req, res) => {
+   const { token } = req.query;
+ 
+   if (!token || typeof token !== 'string') {
+@@ -40,7 +57,7 @@ router.get('/', async (req, res) => {
+  * POST /api/v1/unsubscribe
+  * Update email preferences
+  */
+-router.post('/', async (req, res) => {
++router.post('/', updateLimiter, async (req, res) => {
+   const { token, action, marketing, notifications, jobAlerts, quoteUpdates } = req.body;
+ 
+   if (!token || typeof token !== 'string') {
+@@ -80,7 +97,7 @@ router.post('/', async (req, res) => {
+  * POST /api/v1/unsubscribe/one-click
+  * RFC 8058 one-click unsubscribe (for List-Unsubscribe-Post header)
+  */
+-router.post('/one-click', async (req, res) => {
++router.post('/one-click', updateLimiter, async (req, res) => {
+   const { token } = req.query;
+ 
+   if (!token || typeof token !== 'string') {
+diff --git a/apps/api/src/routes/userAuth.ts b/apps/api/src/routes/userAuth.ts
+index 6d9394f..46e0953 100644
+--- a/apps/api/src/routes/userAuth.ts
++++ b/apps/api/src/routes/userAuth.ts
+@@ -95,6 +95,11 @@ function generateToken(): string {
+   return crypto.randomBytes(32).toString("hex");
+ }
+ 
++function hashDbToken(token: string): string {
++  // Prefix prevents accepting the stored hash itself as a bearer token.
++  return `sha256:${hashToken(token)}`;
++}
++
+ function redactEmail(email: string): string {
+   const [local, domain] = email.split("@");
+   if (!domain) return "***";
+@@ -153,6 +158,7 @@ r.post("/register", registerLimiter, async (req, res) => {
+     // Hash password
+     const passwordHash = await bcrypt.hash(password, 12);
+     const verifyToken = generateToken();
++    const verifyTokenHash = hashDbToken(verifyToken);
+     
+     // Create user
+     const user = await prisma.user.create({
+@@ -162,7 +168,9 @@ r.post("/register", registerLimiter, async (req, res) => {
+         firstName,
+         lastName,
+         phone: phone || null,
+-        verifyToken,
++        // Store only a hash so DB read access doesn't immediately enable account verification.
++        // Backwards-compatible: verify endpoint accepts both legacy raw tokens and the new hashed format.
++        verifyToken: verifyTokenHash,
+         verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000),
+         emailVerified: false
+       }
+@@ -201,8 +209,12 @@ r.get("/verify-email", async (req, res) => {
+       return res.status(400).json({ error: "Invalid verification link" });
+     }
+     
++    const tokenHash = hashDbToken(token);
+     const user = await prisma.user.findFirst({
+-      where: { verifyToken: token, verifyTokenExp: { gt: new Date() } },
++      where: {
++        verifyTokenExp: { gt: new Date() },
++        OR: [{ verifyToken: token }, { verifyToken: tokenHash }],
++      },
+       select: { id: true, emailVerified: true }
+     });
+     
+@@ -485,6 +497,7 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
+ 
+     const passwordHash = await bcrypt.hash(password, 12);
+     const verifyToken = generateToken();
++    const verifyTokenHash = hashDbToken(verifyToken);
+ 
+     const user = await prisma.user.create({
+       data: {
+@@ -493,7 +506,7 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
+         firstName,
+         lastName,
+         phone: phone || null,
+-        verifyToken,
++        verifyToken: verifyTokenHash,
+         verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000),
+         emailVerified: false
+       }
+@@ -765,11 +778,14 @@ r.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
+     }
+     
+     const resetToken = generateToken();
++    const resetTokenHash = hashDbToken(resetToken);
+     const resetTokenExp = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+     
+     await prisma.user.update({
+       where: { id: user.id },
+-      data: { resetToken, resetTokenExp }
++      // Store only a hash so DB read access doesn't immediately enable password reset.
++      // Backwards-compatible: reset endpoint accepts both raw and hashed tokens.
++      data: { resetToken: resetTokenHash, resetTokenExp }
+     });
+     
+     // Send reset email
+@@ -804,10 +820,11 @@ r.post("/reset-password", async (req, res) => {
+     
+     const { token, password } = parsed.data;
+     
++    const tokenHash = hashDbToken(token);
+     const user = await prisma.user.findFirst({
+-      where: { 
+-        resetToken: token,
+-        resetTokenExp: { gt: new Date() }
++      where: {
++        resetTokenExp: { gt: new Date() },
++        OR: [{ resetToken: token }, { resetToken: tokenHash }],
+       },
+       select: { id: true, email: true }
+     });
+@@ -865,10 +882,11 @@ r.post("/resend-verification", forgotPasswordLimiter, async (req, res) => {
+     }
+     
+     const verifyToken = generateToken();
++    const verifyTokenHash = hashDbToken(verifyToken);
+     
+     await prisma.user.update({
+       where: { id: user.id },
+-      data: { verifyToken, verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000) }
++      data: { verifyToken: verifyTokenHash, verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000) }
+     });
+ 
+     sendUserVerificationEmail({
+diff --git a/apps/api/src/services/email/preferences.ts b/apps/api/src/services/email/preferences.ts
+index ee8e7fa..839c579 100644
+--- a/apps/api/src/services/email/preferences.ts
++++ b/apps/api/src/services/email/preferences.ts
+@@ -1,11 +1,9 @@
+ // Email preferences and unsubscribe management
+ 
+-import { PrismaClient } from '@prisma/client';
+ import { env } from '../../env';
++import { prisma } from '../../prisma';
+ import type { EmailCategory } from './types';
+ 
+-const prisma = new PrismaClient();
+-
+ // Map email types to preference categories
+ const EMAIL_TYPE_CATEGORY: Record<string, { category: EmailCategory; field: string }> = {
+   // Transactional - always sent
+diff --git a/apps/api/src/services/email/sender.ts b/apps/api/src/services/email/sender.ts
+index 9c068a6..9a8f2ef 100644
+--- a/apps/api/src/services/email/sender.ts
++++ b/apps/api/src/services/email/sender.ts
+@@ -1,15 +1,14 @@
+ // Low-level Resend email sender wrapper
+ 
+ import { Resend } from 'resend';
+-import { PrismaClient } from '@prisma/client';
+ import { env } from '../../env';
++import { prisma } from '../../prisma';
+ import type { SendEmailOptions, EmailResult, EmailType } from './types';
+ 
+ const resend = new Resend(env.resendApiKey);
+-const prisma = new PrismaClient();
+ 
+-export const FROM_EMAIL = 'noreply@vergoltd.com';
+-export const TO_EMAIL = 'wrobb@vergoltd.com';
++export const FROM_EMAIL = env.resendFromEmail || 'noreply@vergoltd.com';
++export const TO_EMAIL = env.resendToEmail || 'wrobb@vergoltd.com';
+ 
+ interface SendOptions extends SendEmailOptions {
+   from?: string;
+diff --git a/apps/api/src/services/logger.ts b/apps/api/src/services/logger.ts
+index 09ce4f2..abf06f9 100644
+--- a/apps/api/src/services/logger.ts
++++ b/apps/api/src/services/logger.ts
+@@ -63,9 +63,12 @@ export function requestLogger() {
+ 
+     res.on('finish', () => {
+       const duration = Date.now() - start;
++      // Avoid logging query strings, which may contain tokens (verify/reset links) or PII.
++      const rawUrl = (req.originalUrl || req.url || '') as string;
++      const sanitizedUrl = typeof rawUrl === 'string' ? rawUrl.split('?')[0] : '';
+       const logData = {
+         method: req.method,
+-        url: req.url,
++        url: sanitizedUrl,
+         statusCode: res.statusCode,
+         duration,
+         ip: req.ip,
+@@ -76,7 +79,7 @@ export function requestLogger() {
+         logger.error(logData, 'Request error');
+       } else if (res.statusCode >= 400) {
+         logger.warn(logData, 'Request warning');
+-      } else if (req.url !== '/health') {
++      } else if (sanitizedUrl !== '/health') {
+         // Skip logging health checks to reduce noise
+         logger.info(logData, 'Request completed');
+       }
+diff --git a/apps/api/src/utils/jwt.ts b/apps/api/src/utils/jwt.ts
+index dea0325..fbef11d 100644
+--- a/apps/api/src/utils/jwt.ts
++++ b/apps/api/src/utils/jwt.ts
+@@ -14,21 +14,30 @@ export interface AuthTokenPayload {
+ 
+ const ACCESS_EXPIRES_IN = '15m';
+ const REFRESH_EXPIRES_IN = '30d';
++const JWT_ALGORITHM: jwt.Algorithm = 'HS256';
+ 
+ export function signAccessToken(payload: Omit<AuthTokenPayload, 'tokenType'>) {
+-  return jwt.sign({ ...payload, tokenType: 'access' }, env.jwt, { expiresIn: ACCESS_EXPIRES_IN });
++  return jwt.sign(
++    { ...payload, tokenType: 'access' },
++    env.jwt,
++    { expiresIn: ACCESS_EXPIRES_IN, algorithm: JWT_ALGORITHM }
++  );
+ }
+ 
+ export function signRefreshToken(payload: Omit<AuthTokenPayload, 'tokenType'>) {
+-  return jwt.sign({ ...payload, tokenType: 'refresh' }, env.jwtRefresh, { expiresIn: REFRESH_EXPIRES_IN });
++  return jwt.sign(
++    { ...payload, tokenType: 'refresh' },
++    env.jwtRefresh,
++    { expiresIn: REFRESH_EXPIRES_IN, algorithm: JWT_ALGORITHM }
++  );
+ }
+ 
+ export function verifyAccessToken(token: string): AuthTokenPayload {
+-  return jwt.verify(token, env.jwt) as AuthTokenPayload;
++  return jwt.verify(token, env.jwt, { algorithms: [JWT_ALGORITHM] }) as AuthTokenPayload;
+ }
+ 
+ export function verifyRefreshToken(token: string): AuthTokenPayload {
+-  return jwt.verify(token, env.jwtRefresh) as AuthTokenPayload;
++  return jwt.verify(token, env.jwtRefresh, { algorithms: [JWT_ALGORITHM] }) as AuthTokenPayload;
+ }
+ 
+ export function getTokenExpiresAt(token: string): Date {

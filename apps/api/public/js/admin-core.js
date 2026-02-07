@@ -108,12 +108,12 @@
   // ── Modal helpers ─────────────────────────────────────────────────────
   AdminCore.openModal = function (id) {
     var el = document.getElementById(id);
-    if (el) el.style.display = 'flex';
+    if (el) el.classList.remove('d-none');
   };
 
   AdminCore.closeModal = function (id) {
     var el = document.getElementById(id);
-    if (el) el.style.display = 'none';
+    if (el) el.classList.add('d-none');
   };
 
   /**
@@ -131,7 +131,7 @@
     });
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && el.style.display !== 'none') {
+      if (e.key === 'Escape' && !el.classList.contains('d-none')) {
         AdminCore.closeModal(id);
       }
     });
