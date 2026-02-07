@@ -38,12 +38,12 @@
     
     .page-header h1 {
       font-size: 2.5rem;
-      color: #1a1a1a;
+      color: var(--color-text-primary);
       margin-bottom: 10px;
     }
     
     .page-header p {
-      color: #666;
+      color: var(--color-text-muted);
       font-size: 1.1rem;
     }
     
@@ -54,7 +54,7 @@
       align-items: center;
       margin-bottom: 30px;
       padding: 15px 20px;
-      background: #f8f7f5;
+      background: var(--color-bg-secondary);
       border-radius: 8px;
       border: 1px solid rgba(0, 0, 0, 0.08);
     }
@@ -64,11 +64,11 @@
     }
     
     .user-info {
-      color: #666;
+      color: var(--color-text-muted);
     }
     
     .user-info strong {
-      color: #D4AF37;
+      color: var(--color-gold);
     }
     
     .user-actions {
@@ -96,7 +96,7 @@
     
     .filter-group label {
       display: block;
-      color: #666;
+      color: var(--color-text-muted);
       font-size: 0.85rem;
       margin-bottom: 5px;
     }
@@ -104,17 +104,17 @@
     .filter-group select {
       width: 100%;
       padding: 12px 15px;
-      background: #ffffff;
+      background: var(--color-bg-white);
       border: 1px solid rgba(0, 0, 0, 0.12);
       border-radius: 4px;
-      color: #1a1a1a;
+      color: var(--color-text-primary);
       font-size: 0.95rem;
       cursor: pointer;
     }
     
     .filter-group select:focus {
       outline: none;
-      border-color: #D4AF37;
+      border-color: var(--color-gold);
     }
     
     /* Jobs Grid */
@@ -124,7 +124,7 @@
     }
     
     .job-card {
-      background: #ffffff;
+      background: var(--color-bg-white);
       border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: 8px;
       padding: 25px;
@@ -132,7 +132,7 @@
     }
     
     .job-card:hover {
-      border-color: #D4AF37;
+      border-color: var(--color-gold);
       transform: translateY(-2px);
     }
     
@@ -146,14 +146,14 @@
     
     .job-title {
       font-size: 1.3rem;
-      color: #1a1a1a;
+      color: var(--color-text-primary);
       margin-bottom: 5px;
     }
     
     .job-role {
       display: inline-block;
       background: rgba(212, 175, 55, 0.1);
-      color: #D4AF37;
+      color: var(--color-gold);
       padding: 4px 12px;
       border-radius: 20px;
       font-size: 0.8rem;
@@ -170,12 +170,12 @@
     
     .job-type.internal {
       background: rgba(40, 167, 69, 0.2);
-      color: #28a745;
+      color: var(--color-success);
     }
     
     .job-type.external {
       background: rgba(0, 123, 255, 0.2);
-      color: #007bff;
+      color: var(--color-info);
     }
     
     .job-meta {
@@ -183,7 +183,7 @@
       flex-wrap: wrap;
       gap: 20px;
       margin-bottom: 15px;
-      color: #666;
+      color: var(--color-text-muted);
       font-size: 0.9rem;
     }
     
@@ -194,7 +194,7 @@
     }
     
     .job-description {
-      color: #666;
+      color: var(--color-text-muted);
       line-height: 1.6;
       margin-bottom: 20px;
       display: -webkit-box;
@@ -213,31 +213,31 @@
     
     .job-pay {
       font-size: 1.1rem;
-      color: #D4AF37;
+      color: var(--color-gold);
       font-weight: 600;
     }
     
     .spots-left {
-      color: #666;
+      color: var(--color-text-muted);
       font-size: 0.85rem;
     }
     
     .spots-left.urgent {
-      color: #ff6b6b;
+      color: var(--color-error);
     }
     
     /* Loading & Empty States */
     .loading, .empty-state {
       text-align: center;
       padding: 60px 20px;
-      color: #666;
+      color: var(--color-text-muted);
     }
     
     .loading-spinner {
       width: 40px;
       height: 40px;
       border: 3px solid rgba(212, 175, 55, 0.2);
-      border-top-color: #D4AF37;
+      border-top-color: var(--color-gold);
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin: 0 auto 20px;
@@ -248,7 +248,7 @@
     }
     
     .empty-state h3 {
-      color: #1a1a1a;
+      color: var(--color-text-primary);
       margin-bottom: 10px;
     }
     
@@ -262,17 +262,17 @@
     
     .pagination button {
       padding: 10px 20px;
-      background: #ffffff;
+      background: var(--color-bg-white);
       border: 1px solid rgba(0, 0, 0, 0.12);
-      color: #1a1a1a;
+      color: var(--color-text-primary);
       border-radius: 4px;
       cursor: pointer;
       transition: all 0.3s ease;
     }
     
     .pagination button:hover:not(:disabled) {
-      border-color: #B8962E;
-      background: #f8f7f5;
+      border-color: var(--color-gold-hover);
+      background: var(--color-bg-secondary);
     }
     
     .pagination button:disabled {
@@ -281,7 +281,7 @@
     }
     
     .pagination .current {
-      color: #D4AF37;
+      color: var(--color-gold);
     }
     
     /* Responsive */
@@ -408,7 +408,7 @@
           </div>
           <div class="user-actions">
             <a href="user-dashboard" class="btn btn-secondary btn-small">My Applications</a>
-            <button onclick="logout()" class="btn btn-small" style="background: #333; color: #fff;">Log Out</button>
+            <button onclick="logout()" class="btn btn-small" style="background: var(--color-text-muted); color: var(--color-bg-white);">Log Out</button>
           </div>
         `;
       } else {

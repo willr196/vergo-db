@@ -8,14 +8,18 @@
   <link rel="icon" type="image/png" href="/logo-small.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/vergo-styles.css">
+  <link rel="stylesheet" href="/vergo-a11y.css">
+  <link rel="stylesheet" href="/vergo-mobile.css">
+  <link rel="stylesheet" href="/vergo-platform.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
-      font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0a0a0a;
-      color: #ffffff;
+      font-family: var(--font-primary);
+      background: var(--color-bg-primary);
+      color: var(--color-text-primary);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -42,7 +46,7 @@
     }
     
     .auth-box {
-      background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
+      background: linear-gradient(135deg, var(--color-bg-white) 0%, var(--color-bg-secondary) 100%);
       border: 1px solid rgba(212, 175, 55, 0.3);
       border-radius: 12px;
       padding: 40px;
@@ -50,13 +54,13 @@
     
     h1 {
       font-size: 1.8rem;
-      color: #D4AF37;
+      color: var(--color-gold);
       margin-bottom: 10px;
       text-align: center;
     }
     
     .subtitle {
-      color: #999;
+      color: var(--color-text-muted);
       text-align: center;
       margin-bottom: 30px;
       font-size: 0.95rem;
@@ -69,7 +73,7 @@
     label {
       display: block;
       margin-bottom: 6px;
-      color: #ccc;
+      color: var(--color-text-secondary);
       font-size: 0.9rem;
       font-weight: 500;
     }
@@ -77,24 +81,24 @@
     input {
       width: 100%;
       padding: 12px 15px;
-      background: #0a0a0a;
-      border: 1px solid #333;
+      background: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
       border-radius: 6px;
-      color: #fff;
+      color: var(--color-text-primary);
       font-size: 1rem;
       transition: border-color 0.2s;
     }
     
     input:focus {
       outline: none;
-      border-color: #D4AF37;
+      border-color: var(--color-gold);
     }
     
     .forgot-link {
       display: block;
       text-align: right;
       margin-bottom: 20px;
-      color: #D4AF37;
+      color: var(--color-gold);
       text-decoration: none;
       font-size: 0.85rem;
     }
@@ -104,10 +108,10 @@
     .btn {
       width: 100%;
       padding: 14px;
-      background: linear-gradient(135deg, #D4AF37 0%, #c9a032 100%);
+      background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-hover) 100%);
       border: none;
       border-radius: 6px;
-      color: #0a0a0a;
+      color: var(--color-bg-primary);
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
@@ -131,8 +135,8 @@
     
     .success-msg {
       background: rgba(40, 167, 69, 0.15);
-      border: 1px solid #28a745;
-      color: #28a745;
+      border: 1px solid var(--color-success);
+      color: var(--color-success);
       padding: 15px;
       border-radius: 6px;
       font-size: 0.9rem;
@@ -140,8 +144,8 @@
     
     .error-msg {
       background: rgba(220, 53, 69, 0.15);
-      border: 1px solid #dc3545;
-      color: #dc3545;
+      border: 1px solid var(--color-error);
+      color: var(--color-error);
       padding: 15px;
       border-radius: 6px;
       font-size: 0.9rem;
@@ -149,8 +153,8 @@
     
     .info-msg {
       background: rgba(212, 175, 55, 0.15);
-      border: 1px solid #D4AF37;
-      color: #D4AF37;
+      border: 1px solid var(--color-gold);
+      color: var(--color-gold);
       padding: 15px;
       border-radius: 6px;
       font-size: 0.9rem;
@@ -161,12 +165,12 @@
       margin-top: 25px;
       padding-top: 20px;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
-      color: #999;
+      color: var(--color-text-muted);
       font-size: 0.9rem;
     }
     
     .auth-footer a {
-      color: #D4AF37;
+      color: var(--color-gold);
       text-decoration: none;
     }
     
@@ -176,18 +180,18 @@
       display: block;
       text-align: center;
       margin-top: 20px;
-      color: #999;
+      color: var(--color-text-muted);
       text-decoration: none;
       font-size: 0.9rem;
     }
     
-    .back-link:hover { color: #D4AF37; }
+    .back-link:hover { color: var(--color-gold); }
     
     .divider {
       display: flex;
       align-items: center;
       margin: 25px 0;
-      color: #666;
+      color: var(--color-text-muted);
       font-size: 0.85rem;
     }
     
@@ -211,15 +215,15 @@
     }
     
     .alt-links a {
-      color: #999;
+      color: var(--color-text-muted);
       text-decoration: none;
     }
     
-    .alt-links a:hover { color: #D4AF37; }
+    .alt-links a:hover { color: var(--color-gold); }
     
     footer {
-      background: #0a0a0a;
-      color: #666;
+      background: var(--color-bg-primary);
+      color: var(--color-text-muted);
       padding: 20px;
       text-align: center;
       border-top: 1px solid rgba(212, 175, 55, 0.2);
@@ -227,7 +231,7 @@
     }
   </style>
 </head>
-<body>
+<body class="platform">
   <header>
     <a href="index" class="logo">
       <img src="/logo.png" alt="VERGO Ltd" loading="lazy" decoding="async">
@@ -266,7 +270,7 @@
         
         <div class="alt-links">
           <a href="user-login">Staff Login</a>
-          <span style="color: #333;">|</span>
+          <span style="color: var(--color-text-muted);">|</span>
           <a href="pricing">View Pricing</a>
         </div>
       </div>

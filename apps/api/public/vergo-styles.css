@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 /**
  * VERGO Ltd - Premium Design System
  * Modern, warm, and professional styling
@@ -124,6 +126,28 @@
   /* Legacy compatibility */
   --border-radius: 8px;
   --transition-speed: 0.3s;
+
+  /* Nav consistency (used by vergo-header.css) */
+  --nav-bg: rgba(250, 248, 245, 0.98);
+  --nav-text: var(--color-text-primary);
+  --nav-text-muted: var(--color-text-muted);
+  --nav-gold: var(--color-gold);
+  --nav-gold-hover: var(--color-gold-hover);
+  --nav-border: var(--color-border);
+  --nav-transition: var(--transition-base);
+
+  /* Legacy vars used in platform pages */
+  --color-bg: var(--color-bg-primary);
+  --color-bg-warm: var(--color-bg-secondary);
+  --color-text: var(--color-text-primary);
+  --primary-gold: var(--color-gold);
+  --bg-dark: var(--color-bg-primary);
+  --bg-card: var(--color-bg-white);
+  --bg-hover: var(--color-bg-secondary);
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+  --border-color: var(--color-border);
 }
 
 /* ============================================

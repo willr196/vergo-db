@@ -43,22 +43,22 @@
     .hero {
       text-align: center;
       padding: 80px 20px 60px;
-      background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+      background: linear-gradient(180deg, var(--color-bg-secondary) 0%, var(--color-bg-primary) 100%);
     }
     
     .hero h1 {
       font-size: 3rem;
       font-weight: 700;
       margin-bottom: 15px;
-      color: var(--text-primary);
+      color: var(--color-text-primary);
     }
     
     .hero h1 span {
-      color: var(--gold);
+      color: var(--color-gold);
     }
     
     .hero p {
-      color: var(--text-secondary);
+      color: var(--color-text-secondary);
       font-size: 1.2rem;
       max-width: 600px;
       margin: 0 auto;
@@ -76,10 +76,10 @@
     
     .category-tag {
       padding: 8px 20px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border);
+      background: var(--color-bg-tertiary);
+      border: 1px solid var(--color-border);
       border-radius: 25px;
-      color: var(--text-secondary);
+      color: var(--color-text-secondary);
       text-decoration: none;
       font-size: 0.9rem;
       transition: all 0.2s;
@@ -87,8 +87,8 @@
     
     .category-tag:hover, .category-tag.active {
       background: rgba(184, 150, 46, 0.15);
-      border-color: var(--gold);
-      color: var(--gold);
+      border-color: var(--color-gold);
+      color: var(--color-gold);
     }
     
     /* Main */
@@ -104,16 +104,16 @@
       grid-template-columns: 1.2fr 1fr;
       gap: 40px;
       margin-bottom: 60px;
-      background: var(--bg-secondary);
+      background: var(--color-bg-secondary);
       border-radius: 12px;
       overflow: hidden;
-      border: 1px solid var(--border);
+      border: 1px solid var(--color-border);
     }
     
     .featured-image {
       height: 100%;
       min-height: 350px;
-      background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+      background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-bg-secondary) 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -129,8 +129,8 @@
     
     .featured-badge {
       display: inline-block;
-      background: var(--gold);
-      color: var(--bg-primary);
+      background: var(--color-gold);
+      color: var(--color-bg-primary);
       padding: 4px 12px;
       border-radius: 4px;
       font-size: 0.75rem;
@@ -147,17 +147,17 @@
     }
     
     .featured-content h2 a {
-      color: var(--text-primary);
+      color: var(--color-text-primary);
       text-decoration: none;
       transition: color 0.2s;
     }
     
     .featured-content h2 a:hover {
-      color: var(--gold);
+      color: var(--color-gold);
     }
     
     .featured-content p {
-      color: var(--text-secondary);
+      color: var(--color-text-secondary);
       margin-bottom: 20px;
       font-size: 1rem;
     }
@@ -165,17 +165,17 @@
     .post-meta {
       display: flex;
       gap: 20px;
-      color: var(--text-muted);
+      color: var(--color-text-muted);
       font-size: 0.85rem;
     }
     
     /* Blog Grid */
     .section-title {
       font-size: 1.5rem;
-      color: var(--gold);
+      color: var(--color-gold);
       margin-bottom: 30px;
       padding-bottom: 15px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--color-border);
     }
     
     .blog-grid {
@@ -185,21 +185,21 @@
     }
     
     .blog-card {
-      background: var(--bg-secondary);
+      background: var(--color-bg-secondary);
       border-radius: 10px;
       overflow: hidden;
-      border: 1px solid var(--border);
+      border: 1px solid var(--color-border);
       transition: all 0.3s;
     }
     
     .blog-card:hover {
-      border-color: var(--gold);
+      border-color: var(--color-gold);
       transform: translateY(-5px);
     }
     
     .blog-card-image {
       height: 200px;
-      background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+      background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-bg-secondary) 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -212,7 +212,7 @@
     
     .blog-card-category {
       display: inline-block;
-      color: var(--gold);
+      color: var(--color-gold);
       font-size: 0.8rem;
       font-weight: 600;
       text-transform: uppercase;
@@ -226,23 +226,23 @@
     }
     
     .blog-card h3 a {
-      color: var(--text-primary);
+      color: var(--color-text-primary);
       text-decoration: none;
       transition: color 0.2s;
     }
     
     .blog-card h3 a:hover {
-      color: var(--gold);
+      color: var(--color-gold);
     }
     
     .blog-card p {
-      color: var(--text-secondary);
+      color: var(--color-text-secondary);
       font-size: 0.95rem;
       margin-bottom: 15px;
     }
     
     .read-more {
-      color: var(--gold);
+      color: var(--color-gold);
       text-decoration: none;
       font-size: 0.9rem;
       font-weight: 500;
@@ -258,22 +258,22 @@
     
     /* Newsletter */
     .newsletter {
-      background: var(--bg-secondary);
+      background: var(--color-bg-secondary);
       border-radius: 12px;
       padding: 50px;
       margin-top: 60px;
       text-align: center;
-      border: 1px solid var(--border);
+      border: 1px solid var(--color-border);
     }
     
     .newsletter h2 {
-      color: var(--gold);
+      color: var(--color-gold);
       font-size: 1.8rem;
       margin-bottom: 10px;
     }
     
     .newsletter p {
-      color: var(--text-secondary);
+      color: var(--color-text-secondary);
       margin-bottom: 25px;
     }
     
@@ -287,22 +287,22 @@
     .newsletter-form input {
       flex: 1;
       padding: 14px 18px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border);
+      background: var(--color-bg-tertiary);
+      border: 1px solid var(--color-border);
       border-radius: 6px;
-      color: var(--text-primary);
+      color: var(--color-text-primary);
       font-size: 1rem;
     }
     
     .newsletter-form input:focus {
       outline: none;
-      border-color: var(--gold);
+      border-color: var(--color-gold);
     }
     
     .newsletter-form button {
       padding: 14px 30px;
-      background: var(--gold);
-      color: var(--bg-primary);
+      background: var(--color-gold);
+      color: var(--color-bg-primary);
       border: none;
       border-radius: 6px;
       font-weight: 600;
@@ -311,7 +311,7 @@
     }
     
     .newsletter-form button:hover {
-      background: var(--gold-light);
+      background: var(--color-gold-light);
     }
     
     /* Mobile */
@@ -437,7 +437,7 @@
       e.preventDefault();
       const email = this.querySelector('input').value;
       // TODO: Submit to your email service
-      this.innerHTML = '<p style="color: var(--gold);">✓ Thanks for subscribing!</p>';
+      this.innerHTML = '<p style="color: var(--color-gold);">✓ Thanks for subscribing!</p>';
     });
     
   </script>

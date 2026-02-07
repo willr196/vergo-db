@@ -231,7 +231,7 @@
 
     .submit-btn:hover {
       background: var(--color-text);
-      color: #ffffff;
+      color: var(--color-bg-white);
       transform: translateY(-2px);
     }
 
@@ -314,7 +314,7 @@
       flex-wrap: wrap;
       transition: border-color 0.3s ease;
     }
-    .role-row:has(input:checked) { border-color: var(--color-gold); background: #fff; }
+    .role-row:has(input:checked) { border-color: var(--color-gold); background: var(--color-bg-white); }
     .role-checkbox { display: flex; align-items: center; gap: 10px; min-width: 160px; cursor: pointer; }
     .role-checkbox input { width: 18px; height: 18px; accent-color: var(--color-gold); cursor: pointer; }
     .role-checkbox span { color: var(--color-text); }
@@ -349,23 +349,23 @@
 
     .upload-status.uploading {
       display: block;
-      background: #fff3cd;
-      border: 1px solid #ffc107;
-      color: #856404;
+      background: var(--color-warning-bg);
+      border: 1px solid rgba(183, 121, 31, 0.3);
+      color: var(--color-warning);
     }
 
     .upload-status.success {
       display: block;
-      background: #d4edda;
-      border: 1px solid #28a745;
-      color: #155724;
+      background: var(--color-success-bg);
+      border: 1px solid rgba(45, 138, 78, 0.3);
+      color: var(--color-success);
     }
 
     .upload-status.error {
       display: block;
-      background: #f8d7da;
-      border: 1px solid #dc3545;
-      color: #721c24;
+      background: var(--color-error-bg);
+      border: 1px solid rgba(197, 48, 48, 0.3);
+      color: var(--color-error);
     }
 
     input[type="file"] {

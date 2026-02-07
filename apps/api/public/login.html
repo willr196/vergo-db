@@ -12,10 +12,15 @@
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com;">
 
-  <!-- Google Fonts - Source Sans 3 -->
+  <!-- Google Fonts - Inter (primary brand font) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/vergo-styles.css">
+  <link rel="stylesheet" href="/vergo-a11y.css">
+  <link rel="stylesheet" href="/vergo-mobile.css">
+  <link rel="stylesheet" href="/vergo-platform.css">
 
   <style>
     * {
@@ -23,34 +28,34 @@
     }
 
     body {
-      font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      font-family: var(--font-primary);
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       margin: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
     }
     
     .login-container {
-      background: white;
+      background: var(--color-bg-white);
       padding: 40px;
-      border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
       width: 100%;
       max-width: 400px;
     }
     
     h1 {
       margin: 0 0 10px;
-      color: #333;
+      color: var(--color-text-primary);
       text-align: center;
       font-size: 1.8rem;
     }
     
     .subtitle {
       text-align: center;
-      color: #666;
+      color: var(--color-text-muted);
       margin-bottom: 30px;
       font-size: 0.9em;
     }
@@ -63,20 +68,20 @@
       display: block;
       margin-bottom: 8px;
       font-weight: 500;
-      color: #333;
+      color: var(--color-text-primary);
       font-size: 0.95rem;
     }
     
     label .required {
-      color: #dc3545;
+      color: var(--color-error);
       margin-left: 2px;
     }
     
     input {
       width: 100%;
       padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 4px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
       font-size: 16px;
       transition: border-color 0.3s;
       font-family: inherit;
@@ -84,33 +89,33 @@
     
     input:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: var(--color-gold);
     }
     
     /* Accessible error state */
     input.field-error {
-      border-color: #dc3545;
-      background-color: #fff5f5;
+      border-color: var(--color-error);
+      background-color: rgba(197, 48, 48, 0.08);
     }
     
     .field-error-message {
       display: block;
-      color: #dc3545;
+      color: var(--color-error);
       font-size: 0.875rem;
       margin-top: 6px;
       padding: 6px 10px;
-      background: rgba(220, 53, 69, 0.1);
-      border-radius: 4px;
-      border-left: 3px solid #dc3545;
+      background: rgba(197, 48, 48, 0.1);
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--color-error);
     }
     
     button {
       width: 100%;
       padding: 14px;
-      background: #667eea;
-      color: white;
+      background: var(--color-gold);
+      color: var(--color-text-primary);
       border: none;
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
@@ -119,16 +124,16 @@
     }
     
     button:hover:not(:disabled) {
-      background: #5568d3;
+      background: var(--color-gold-hover);
     }
     
     button:focus-visible {
-      outline: 3px solid #333;
+      outline: 3px solid var(--color-text-primary);
       outline-offset: 2px;
     }
     
     button:disabled {
-      background: #ccc;
+      background: var(--color-border);
       cursor: not-allowed;
     }
     
@@ -138,7 +143,7 @@
       height: 16px;
       border: 2px solid rgba(255, 255, 255, 0.3);
       border-radius: 50%;
-      border-top-color: #fff;
+      border-top-color: var(--color-bg-white);
       animation: spin 0.8s linear infinite;
       margin-right: 8px;
       vertical-align: middle;
@@ -155,15 +160,15 @@
     .security-notice {
       margin-top: 20px;
       padding: 12px;
-      background: #f8f9fa;
-      border-left: 4px solid #667eea;
-      border-radius: 4px;
+      background: var(--color-bg-secondary);
+      border-left: 4px solid var(--color-gold);
+      border-radius: var(--radius-sm);
       font-size: 0.85rem;
-      color: #666;
+      color: var(--color-text-muted);
     }
     
     .security-notice strong {
-      color: #333;
+      color: var(--color-text-primary);
     }
     
     /* Rate limit warning */
@@ -171,10 +176,10 @@
       display: none;
       margin-top: 15px;
       padding: 12px;
-      background: #fff3cd;
-      border-left: 4px solid #ffc107;
-      border-radius: 4px;
-      color: #856404;
+      background: rgba(183, 121, 31, 0.1);
+      border-left: 4px solid var(--color-warning);
+      border-radius: var(--radius-sm);
+      color: var(--color-text-secondary);
       font-size: 0.9rem;
     }
     
@@ -194,11 +199,8 @@
     }
   </style>
   
-  <!-- Load accessibility utilities -->
-  <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
 </head>
-<body>
+<body class="platform">
   <header></header>
   <!-- Skip link for accessibility -->
   <a href="#login-form" class="skip-link">Skip to login form</a>

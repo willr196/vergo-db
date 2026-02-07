@@ -6,19 +6,20 @@
   <link rel="icon" type="image/png" href="/logo.png">
   <title>My Applications - VERGO Ltd</title>
 
-  <!-- Google Fonts - Source Sans 3 -->
+  <!-- Google Fonts - Inter (primary brand font) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-styles.css">
+  <link rel="stylesheet" href="/vergo-a11y.css">
   <link rel="stylesheet" href="/vergo-mobile.css">
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #0a0a0a;
-      color: #ffffff;
+      background: var(--color-bg-primary);
+      color: var(--color-text-primary);
       min-height: 100vh;
     }
     
@@ -27,9 +28,9 @@
       top: 0;
       left: 0;
       right: 0;
-      background: rgba(10, 10, 10, 0.95);
+      background: var(--nav-bg);
       backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      border-bottom: 1px solid var(--color-border);
       padding: 20px 40px;
       display: flex;
       justify-content: space-between;
@@ -40,8 +41,8 @@
     .logo img { height: 50px; }
     
     nav ul { display: flex; gap: 35px; list-style: none; }
-    nav a { color: #fff; text-decoration: none; font-weight: 500; }
-    nav a:hover { color: #D4AF37; }
+    nav a { color: var(--color-text-primary); text-decoration: none; font-weight: 500; }
+    nav a:hover { color: var(--color-gold); }
     
     .menu-toggle {
       display: none;
@@ -51,7 +52,7 @@
       border: none;
       cursor: pointer;
     }
-    .menu-toggle span { width: 25px; height: 2px; background: #D4AF37; }
+    .menu-toggle span { width: 25px; height: 2px; background: var(--color-gold); }
     
     main {
       padding: 120px 20px 60px;
@@ -69,7 +70,7 @@
     }
     
     .page-header h1 {
-      color: #D4AF37;
+      color: var(--color-gold);
       font-size: 2rem;
     }
     
@@ -80,11 +81,11 @@
     }
     
     .user-info span {
-      color: #999;
+      color: var(--color-text-muted);
     }
     
     .user-info strong {
-      color: #fff;
+      color: var(--color-text-primary);
     }
     
     .btn {
@@ -99,26 +100,26 @@
     }
     
     .btn-primary {
-      background: #D4AF37;
-      color: #1a1a1a;
+      background: var(--color-gold);
+      color: var(--color-text-primary);
     }
     
-    .btn-primary:hover { background: #e5c349; }
+    .btn-primary:hover { background: var(--color-gold-hover); }
     
     .btn-secondary {
       background: transparent;
-      color: #D4AF37;
-      border: 1px solid #D4AF37;
+      color: var(--color-gold);
+      border: 1px solid var(--color-gold);
     }
     
     .btn-danger {
       background: transparent;
-      color: #dc3545;
-      border: 1px solid #dc3545;
+      color: var(--color-error);
+      border: 1px solid var(--color-error);
     }
     
     .btn-danger:hover {
-      background: rgba(220, 53, 69, 0.1);
+      background: var(--color-error-bg);
     }
     
     .btn-small {
@@ -135,8 +136,8 @@
     }
     
     .stat-box {
-      background: #1a1a1a;
-      border: 1px solid rgba(212, 175, 55, 0.2);
+      background: var(--color-bg-white);
+      border: 1px solid var(--color-border);
       border-radius: 8px;
       padding: 20px;
       text-align: center;
@@ -144,12 +145,12 @@
     
     .stat-number {
       font-size: 2rem;
-      color: #D4AF37;
+      color: var(--color-gold);
       font-weight: 700;
     }
     
     .stat-label {
-      color: #999;
+      color: var(--color-text-muted);
       font-size: 0.85rem;
       margin-top: 5px;
     }
@@ -162,8 +163,8 @@
     }
     
     .application-card {
-      background: #1a1a1a;
-      border: 1px solid rgba(212, 175, 55, 0.2);
+      background: var(--color-bg-white);
+      border: 1px solid var(--color-border);
       border-radius: 8px;
       padding: 20px;
       display: flex;
@@ -180,12 +181,12 @@
     
     .application-title {
       font-size: 1.1rem;
-      color: #fff;
+      color: var(--color-text-primary);
       margin-bottom: 5px;
     }
     
     .application-meta {
-      color: #999;
+      color: var(--color-text-muted);
       font-size: 0.85rem;
       display: flex;
       flex-wrap: wrap;
@@ -208,52 +209,52 @@
     }
     
     .status-pending {
-      background: rgba(212, 175, 55, 0.1);
-      color: #D4AF37;
+      background: var(--color-gold-bg);
+      color: var(--color-gold);
     }
     
     .status-reviewed {
-      background: rgba(0, 123, 255, 0.1);
-      color: #007bff;
+      background: var(--color-info-bg);
+      color: var(--color-info);
     }
     
     .status-shortlisted {
-      background: rgba(40, 167, 69, 0.1);
-      color: #28a745;
+      background: var(--color-success-bg);
+      color: var(--color-success);
     }
     
     .status-confirmed {
-      background: rgba(40, 167, 69, 0.2);
-      color: #28a745;
-      border: 1px solid rgba(40, 167, 69, 0.5);
+      background: var(--color-success-bg);
+      color: var(--color-success);
+      border: 1px solid rgba(45, 138, 78, 0.5);
     }
     
     .status-rejected {
-      background: rgba(220, 53, 69, 0.1);
-      color: #dc3545;
+      background: var(--color-error-bg);
+      color: var(--color-error);
     }
     
     .status-withdrawn {
       background: rgba(108, 117, 125, 0.1);
-      color: #6c757d;
+      color: var(--color-text-muted);
     }
     
     /* Empty state */
     .empty-state {
       text-align: center;
       padding: 60px 20px;
-      background: #1a1a1a;
-      border: 1px solid rgba(212, 175, 55, 0.2);
+      background: var(--color-bg-white);
+      border: 1px solid var(--color-border);
       border-radius: 8px;
     }
     
     .empty-state h3 {
-      color: #fff;
+      color: var(--color-text-primary);
       margin-bottom: 10px;
     }
     
     .empty-state p {
-      color: #999;
+      color: var(--color-text-muted);
       margin-bottom: 20px;
     }
     
@@ -261,14 +262,14 @@
     .loading {
       text-align: center;
       padding: 60px 20px;
-      color: #999;
+      color: var(--color-text-muted);
     }
     
     .loading-spinner {
       width: 40px;
       height: 40px;
-      border: 3px solid rgba(212, 175, 55, 0.2);
-      border-top-color: #D4AF37;
+      border: 3px solid var(--color-border-gold);
+      border-top-color: var(--color-gold);
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin: 0 auto 20px;
@@ -283,12 +284,12 @@
     }
     
     .login-required h2 {
-      color: #D4AF37;
+      color: var(--color-gold);
       margin-bottom: 15px;
     }
     
     .login-required p {
-      color: #999;
+      color: var(--color-text-muted);
       margin-bottom: 30px;
     }
     
@@ -297,11 +298,11 @@
     }
     
     footer {
-      background: #0a0a0a;
-      color: #666;
+      background: var(--color-bg-primary);
+      color: var(--color-text-muted);
       padding: 30px;
       text-align: center;
-      border-top: 1px solid rgba(212, 175, 55, 0.2);
+      border-top: 1px solid var(--color-border);
       font-size: 0.85rem;
     }
     
@@ -312,7 +313,7 @@
         top: 70px;
         left: 0;
         right: 0;
-        background: rgba(10, 10, 10, 0.98);
+        background: var(--nav-bg);
         flex-direction: column;
         padding: 20px;
         gap: 15px;

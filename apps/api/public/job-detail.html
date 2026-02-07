@@ -10,17 +10,18 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-styles.css">
+  <link rel="stylesheet" href="/vergo-a11y.css">
   <link rel="stylesheet" href="/vergo-mobile.css">
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #ffffff;
-      color: #1a1a1a;
+      font-family: var(--font-primary);
+      background: var(--color-bg-primary);
+      color: var(--color-text-primary);
       min-height: 100vh;
     }
     
@@ -48,13 +49,13 @@
     }
     
     nav a {
-      color: #1a1a1a;
+      color: var(--color-text-primary);
       text-decoration: none;
       font-size: 0.95rem;
       font-weight: 500;
     }
     
-    nav a:hover { color: #D4AF37; }
+    nav a:hover { color: var(--color-gold); }
     
     .menu-toggle {
       display: none;
@@ -68,7 +69,7 @@
     .menu-toggle span {
       width: 25px;
       height: 2px;
-      background: #1a1a1a;
+      background: var(--color-text-primary);
     }
     
     main {
@@ -81,7 +82,7 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      color: #D4AF37;
+      color: var(--color-gold);
       text-decoration: none;
       margin-bottom: 30px;
       font-size: 0.95rem;
@@ -90,7 +91,7 @@
     .back-link:hover { text-decoration: underline; }
     
     .job-container {
-      background: #ffffff;
+      background: var(--color-bg-white);
       border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: 12px;
       overflow: hidden;
@@ -117,27 +118,27 @@
     
     .badge-role {
       background: rgba(212, 175, 55, 0.1);
-      color: #D4AF37;
+      color: var(--color-gold);
     }
     
     .badge-internal {
       background: rgba(40, 167, 69, 0.2);
-      color: #28a745;
+      color: var(--color-success);
     }
     
     .badge-external {
       background: rgba(0, 123, 255, 0.2);
-      color: #007bff;
+      color: var(--color-info);
     }
     
     .job-title {
       font-size: 2rem;
-      color: #1a1a1a;
+      color: var(--color-text-primary);
       margin-bottom: 10px;
     }
     
     .job-company {
-      color: #666;
+      color: var(--color-text-muted);
       font-size: 1.1rem;
     }
     
@@ -146,7 +147,7 @@
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
       padding: 30px;
-      background: #f8f7f5;
+      background: var(--color-bg-secondary);
     }
     
     .meta-item {
@@ -156,20 +157,20 @@
     }
     
     .meta-label {
-      color: #666;
+      color: var(--color-text-muted);
       font-size: 0.85rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     
     .meta-value {
-      color: #1a1a1a;
+      color: var(--color-text-primary);
       font-size: 1.1rem;
       font-weight: 500;
     }
     
     .meta-value.highlight {
-      color: #D4AF37;
+      color: var(--color-gold);
       font-size: 1.3rem;
     }
     
@@ -186,7 +187,7 @@
     }
     
     .section h3 {
-      color: #1a1a1a;
+      color: var(--color-text-primary);
       font-size: 1.1rem;
       margin-bottom: 15px;
       padding-bottom: 10px;
@@ -194,7 +195,7 @@
     }
     
     .section p, .section li {
-      color: #666;
+      color: var(--color-text-muted);
       line-height: 1.7;
     }
     
@@ -209,19 +210,19 @@
     /* Apply Section */
     .apply-section {
       padding: 30px;
-      background: #f8f7f5;
+      background: var(--color-bg-secondary);
       border-top: 1px solid rgba(0, 0, 0, 0.08);
     }
     
     .apply-box {
-      background: #ffffff;
+      background: var(--color-bg-white);
       border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: 8px;
       padding: 25px;
     }
     
     .apply-box h3 {
-      color: #1a1a1a;
+      color: var(--color-text-primary);
       margin-bottom: 15px;
     }
     
@@ -234,13 +235,13 @@
     .apply-status.applied {
       background: rgba(40, 167, 69, 0.1);
       border: 1px solid rgba(40, 167, 69, 0.3);
-      color: #28a745;
+      color: var(--color-success);
     }
     
     .apply-status.login-required {
       background: rgba(212, 175, 55, 0.1);
       border: 1px solid rgba(212, 175, 55, 0.3);
-      color: #D4AF37;
+      color: var(--color-gold);
     }
     
     .form-group {
@@ -249,7 +250,7 @@
     
     .form-group label {
       display: block;
-      color: #999;
+      color: var(--color-text-muted);
       font-size: 0.9rem;
       margin-bottom: 8px;
     }
@@ -257,10 +258,10 @@
     .form-group textarea {
       width: 100%;
       padding: 15px;
-      background: #0a0a0a;
+      background: var(--color-bg-white);
       border: 1px solid rgba(212, 175, 55, 0.3);
       border-radius: 4px;
-      color: #fff;
+      color: var(--color-text-primary);
       font-size: 1rem;
       font-family: inherit;
       resize: vertical;
@@ -269,7 +270,7 @@
     
     .form-group textarea:focus {
       outline: none;
-      border-color: #D4AF37;
+      border-color: var(--color-gold);
     }
     
     .btn {
@@ -285,23 +286,23 @@
     }
     
     .btn-primary {
-      background: #D4AF37;
-      color: #1a1a1a;
+      background: var(--color-gold);
+      color: var(--color-text-primary);
     }
     
     .btn-primary:hover {
-      background: #e5c349;
+      background: var(--color-gold-hover);
     }
     
     .btn-primary:disabled {
-      background: #666;
+      background: var(--color-text-muted);
       cursor: not-allowed;
     }
     
     .btn-secondary {
       background: transparent;
-      color: #D4AF37;
-      border: 1px solid #D4AF37;
+      color: var(--color-gold);
+      border: 1px solid var(--color-gold);
     }
     
     .btn-block {
@@ -313,7 +314,7 @@
     .error-msg {
       background: rgba(220, 53, 69, 0.1);
       border: 1px solid rgba(220, 53, 69, 0.3);
-      color: #dc3545;
+      color: var(--color-error);
       padding: 12px 15px;
       border-radius: 4px;
       margin-bottom: 15px;
@@ -322,7 +323,7 @@
     .success-msg {
       background: rgba(40, 167, 69, 0.1);
       border: 1px solid rgba(40, 167, 69, 0.3);
-      color: #28a745;
+      color: var(--color-success);
       padding: 12px 15px;
       border-radius: 4px;
       margin-bottom: 15px;
@@ -332,14 +333,14 @@
     .loading {
       text-align: center;
       padding: 100px 20px;
-      color: #999;
+      color: var(--color-text-muted);
     }
     
     .loading-spinner {
       width: 40px;
       height: 40px;
       border: 3px solid rgba(212, 175, 55, 0.2);
-      border-top-color: #D4AF37;
+      border-top-color: var(--color-gold);
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin: 0 auto 20px;
@@ -348,15 +349,15 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     
     footer {
-      background: #ffffff;
-      color: #666;
+      background: var(--color-bg-white);
+      color: var(--color-text-muted);
       padding: 30px;
       text-align: center;
       border-top: 1px solid rgba(0, 0, 0, 0.08);
       font-size: 0.85rem;
     }
     
-    footer a { color: #B8962E; text-decoration: none; }
+    footer a { color: var(--color-gold-hover); text-decoration: none; }
     
     @media (max-width: 768px) {
       header { padding: 15px 20px; }
@@ -557,7 +558,7 @@
       if (currentJob.type === 'EXTERNAL' && currentJob.externalUrl && /^https?:\/\//i.test(currentJob.externalUrl)) {
         box.innerHTML = `
           <h3>Apply for this position</h3>
-          <p style="color: #999; margin-bottom: 20px;">This is an external opportunity. Click below to apply on the employer's website.</p>
+          <p style="color: var(--color-text-muted); margin-bottom: 20px;">This is an external opportunity. Click below to apply on the employer's website.</p>
           <a href="${escapeHtml(currentJob.externalUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block">Apply on External Site →</a>
         `;
         return;

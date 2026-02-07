@@ -1,45 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 /**
  * VERGO Ltd - Platform Vibe Alignment
  * Apply to platform pages to match main site styling.
  */
 
 :root {
-  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-
-  --color-bg-primary: #FAF8F5;
-  --color-bg-secondary: #F7F4EF;
-  --color-bg-tertiary: #F0EDE6;
-  --color-bg-white: #FFFFFF;
-
-  --color-text-primary: #1C1C1C;
-  --color-text-secondary: #3D3D3D;
-  --color-text-muted: #6B6B6B;
-  --color-text-light: #8A8A8A;
-
-  --color-gold: #C9A24D;
-  --color-gold-hover: #B8963D;
-  --color-gold-light: #D4B366;
-  --color-gold-dark: #A88A3A;
-  --color-gold-bg: rgba(201, 162, 77, 0.1);
-  --color-gold-bg-hover: rgba(201, 162, 77, 0.15);
-
-  --color-border: rgba(28, 28, 28, 0.08);
-  --color-border-hover: rgba(28, 28, 28, 0.15);
-
-  --color-success: #2D8A4E;
-  --color-error: #C53030;
-  --color-warning: #B7791F;
-  --color-info: #2B6CB0;
-
-  --shadow-sm: 0 2px 8px rgba(28, 28, 28, 0.06);
-  --shadow-md: 0 4px 16px rgba(28, 28, 28, 0.08);
-  --shadow-lg: 0 8px 32px rgba(28, 28, 28, 0.10);
-
-  --transition-base: 0.25s ease;
-
   /* Legacy vars used in platform pages */
   --color-bg: var(--color-bg-primary);
   --color-bg-warm: var(--color-bg-secondary);

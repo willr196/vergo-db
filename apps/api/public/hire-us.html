@@ -11,14 +11,16 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/vergo-styles.css">
+  <link rel="stylesheet" href="/vergo-a11y.css">
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f8f7f5;
-      color: #1a1a1a;
+      font-family: var(--font-primary);
+      background: var(--color-bg-primary);
+      color: var(--color-text-primary);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -31,19 +33,19 @@
       margin-bottom: 12px;
     }
     p {
-      color: #666;
+      color: var(--color-text-muted);
       margin-bottom: 24px;
     }
     a {
       display: inline-block;
       padding: 12px 28px;
-      background: #B8962E;
-      color: #1a1a1a;
+      background: var(--color-gold);
+      color: var(--color-text-primary);
       text-decoration: none;
       border-radius: 4px;
       font-weight: 600;
     }
-    a:hover { background: #1a1a1a; color: #ffffff; }
+    a:hover { background: var(--color-gold-hover); color: var(--color-text-primary); }
   </style>
 </head>
 <body>

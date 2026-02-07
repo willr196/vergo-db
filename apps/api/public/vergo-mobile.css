@@ -5,17 +5,6 @@
  */
 
 /* ============================================
- * PREMIUM DESIGN SYSTEM - MOBILE VARIABLES
- * ============================================ */
-:root {
-  /* Mobile-specific overrides */
-  --mobile-nav-bg: rgba(250, 248, 245, 0.98);
-  --mobile-text: #1C1C1C;
-  --mobile-gold: #C9A24D;
-  --mobile-border: rgba(28, 28, 28, 0.08);
-}
-
-/* ============================================
  * 1. MOBILE NAVIGATION - Handled by vergo-nav.js
  * Only supplementary touch-target sizing here
  * ============================================ */

@@ -6,20 +6,6 @@
  */
 
 /* ============================================
- * CSS Variables for nav consistency
- * ============================================ */
-:root {
-  --nav-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --nav-bg: rgba(250, 248, 245, 0.98);
-  --nav-text: #1C1C1C;
-  --nav-text-muted: #6B6B6B;
-  --nav-gold: #C9A24D;
-  --nav-gold-hover: #B8963D;
-  --nav-border: rgba(28, 28, 28, 0.08);
-  --nav-transition: 0.25s ease;
-}
-
-/* ============================================
  * HEADER
  * ============================================ */
 header {
@@ -94,7 +80,7 @@ nav li {
 nav a {
   color: var(--nav-text);
   text-decoration: none;
-  font-family: var(--nav-font);
+  font-family: var(--font-primary);
   font-size: 0.9rem;
   font-weight: 500;
   letter-spacing: -0.01em;

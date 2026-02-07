@@ -7,14 +7,18 @@
   <link rel="icon" type="image/png" href="/logo-small.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/vergo-styles.css">
+  <link rel="stylesheet" href="/vergo-a11y.css">
+  <link rel="stylesheet" href="/vergo-mobile.css">
+  <link rel="stylesheet" href="/vergo-platform.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
-      font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0a0a0a;
-      color: #ffffff;
+      font-family: var(--font-primary);
+      background: var(--color-bg-primary);
+      color: var(--color-text-primary);
       min-height: 100vh;
       padding-top: 80px;
     }
@@ -25,8 +29,8 @@
       justify-content: space-between;
       align-items: center;
       padding: 15px 40px;
-      background: #0a0a0a;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      background: var(--color-bg-primary);
+      border-bottom: 1px solid var(--color-border);
       position: sticky;
       top: 80px;
       z-index: 900;
@@ -41,15 +45,15 @@
     }
     
     .company-name {
-      color: #D4AF37;
+      color: var(--color-gold);
       font-weight: 600;
     }
     
     .btn-logout {
       padding: 8px 16px;
       background: transparent;
-      border: 1px solid #dc3545;
-      color: #dc3545;
+      border: 1px solid var(--color-error);
+      color: var(--color-error);
       border-radius: 4px;
       cursor: pointer;
       font-size: 0.85rem;
@@ -57,8 +61,8 @@
     }
     
     .btn-logout:hover {
-      background: #dc3545;
-      color: #fff;
+      background: var(--color-error);
+      color: var(--color-bg-white);
     }
     
     /* Main Layout */
@@ -70,8 +74,8 @@
     /* Sidebar */
     .sidebar {
       width: 240px;
-      background: #111;
-      border-right: 1px solid rgba(212, 175, 55, 0.1);
+      background: var(--color-bg-secondary);
+      border-right: 1px solid var(--color-border);
       padding: 20px 0;
     }
     
@@ -82,7 +86,7 @@
     
     .sidebar a {
       padding: 12px 25px;
-      color: #999;
+      color: var(--color-text-muted);
       text-decoration: none;
       font-size: 0.95rem;
       display: flex;
@@ -93,14 +97,14 @@
     }
     
     .sidebar a:hover {
-      color: #fff;
-      background: rgba(212, 175, 55, 0.05);
+      color: var(--color-text-primary);
+      background: var(--color-gold-bg);
     }
     
     .sidebar a.active {
-      color: #D4AF37;
-      background: rgba(212, 175, 55, 0.1);
-      border-left-color: #D4AF37;
+      color: var(--color-gold);
+      background: var(--color-gold-bg);
+      border-left-color: var(--color-gold);
     }
     
     .sidebar-icon { font-size: 1.1rem; }
@@ -113,7 +117,7 @@
     
     .page-title {
       font-size: 1.8rem;
-      color: #fff;
+      color: var(--color-text-primary);
       margin-bottom: 30px;
     }
     
@@ -126,14 +130,14 @@
     }
     
     .stat-card {
-      background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
-      border: 1px solid rgba(212, 175, 55, 0.2);
+      background: var(--color-bg-white);
+      border: 1px solid var(--color-border);
       border-radius: 10px;
       padding: 25px;
     }
     
     .stat-card h3 {
-      color: #999;
+      color: var(--color-text-muted);
       font-size: 0.85rem;
       font-weight: 500;
       margin-bottom: 10px;
@@ -144,7 +148,7 @@
     .stat-card .value {
       font-size: 2rem;
       font-weight: 700;
-      color: #D4AF37;
+      color: var(--color-gold);
     }
     
     /* Actions Section */
@@ -153,7 +157,7 @@
     }
     
     .actions-section h2 {
-      color: #fff;
+      color: var(--color-text-primary);
       font-size: 1.2rem;
       margin-bottom: 20px;
     }
@@ -165,8 +169,8 @@
     }
     
     .action-card {
-      background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
-      border: 1px solid rgba(212, 175, 55, 0.2);
+      background: var(--color-bg-white);
+      border: 1px solid var(--color-border);
       border-radius: 10px;
       padding: 25px;
       display: flex;
@@ -176,7 +180,7 @@
     }
     
     .action-card:hover {
-      border-color: #D4AF37;
+      border-color: var(--color-gold);
       transform: translateY(-2px);
     }
     
@@ -186,34 +190,34 @@
     }
     
     .action-content h3 {
-      color: #D4AF37;
+      color: var(--color-gold);
       font-size: 1rem;
       margin-bottom: 8px;
     }
     
     .action-content p {
-      color: #999;
+      color: var(--color-text-muted);
       font-size: 0.9rem;
       line-height: 1.5;
     }
     
     /* Recent Activity */
     .activity-section h2 {
-      color: #fff;
+      color: var(--color-text-primary);
       font-size: 1.2rem;
       margin-bottom: 20px;
     }
     
     .activity-list {
-      background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
-      border: 1px solid rgba(212, 175, 55, 0.2);
+      background: var(--color-bg-white);
+      border: 1px solid var(--color-border);
       border-radius: 10px;
       overflow: hidden;
     }
     
     .activity-item {
       padding: 20px 25px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid var(--color-border);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -222,13 +226,13 @@
     .activity-item:last-child { border-bottom: none; }
     
     .activity-info h4 {
-      color: #fff;
+      color: var(--color-text-primary);
       font-size: 0.95rem;
       margin-bottom: 5px;
     }
     
     .activity-info p {
-      color: #666;
+      color: var(--color-text-muted);
       font-size: 0.85rem;
     }
     
@@ -240,19 +244,19 @@
     }
     
     .status-new {
-      background: rgba(212, 175, 55, 0.2);
-      color: #D4AF37;
+      background: var(--color-gold-bg);
+      color: var(--color-gold);
     }
     
     .status-quoted {
-      background: rgba(40, 167, 69, 0.2);
-      color: #28a745;
+      background: var(--color-success-bg);
+      color: var(--color-success);
     }
     
     .empty-state {
       padding: 40px;
       text-align: center;
-      color: #666;
+      color: var(--color-text-muted);
     }
     
     .empty-state p {
@@ -260,7 +264,7 @@
     }
     
     .empty-state a {
-      color: #D4AF37;
+      color: var(--color-gold);
       text-decoration: none;
     }
     
@@ -270,7 +274,7 @@
       justify-content: center;
       align-items: center;
       min-height: 200px;
-      color: #666;
+      color: var(--color-text-muted);
     }
     
     /* Quote Request Modal */
@@ -280,7 +284,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(28, 28, 28, 0.5);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -289,8 +293,8 @@
     }
     
     .modal {
-      background: #1a1a1a;
-      border: 1px solid rgba(212, 175, 55, 0.3);
+      background: var(--color-bg-white);
+      border: 1px solid var(--color-border);
       border-radius: 12px;
       width: 100%;
       max-width: 600px;
@@ -303,23 +307,23 @@
       justify-content: space-between;
       align-items: center;
       padding: 20px 25px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid var(--color-border);
     }
     
     .modal-header h2 {
-      color: #D4AF37;
+      color: var(--color-gold);
       font-size: 1.3rem;
     }
     
     .modal-close {
       background: none;
       border: none;
-      color: #999;
+      color: var(--color-text-muted);
       font-size: 1.5rem;
       cursor: pointer;
     }
     
-    .modal-close:hover { color: #fff; }
+    .modal-close:hover { color: var(--color-text-primary); }
     
     .modal-body {
       padding: 25px;
@@ -341,7 +345,7 @@
     
     .form-group label {
       display: block;
-      color: #ccc;
+      color: var(--color-text-secondary);
       margin-bottom: 6px;
       font-size: 0.9rem;
     }
@@ -351,10 +355,10 @@
     .form-group textarea {
       width: 100%;
       padding: 12px;
-      background: #0a0a0a;
-      border: 1px solid #333;
+      background: var(--color-bg-white);
+      border: 1px solid var(--color-border);
       border-radius: 6px;
-      color: #fff;
+      color: var(--color-text-primary);
       font-size: 0.95rem;
     }
     
@@ -362,7 +366,7 @@
     .form-group select:focus,
     .form-group textarea:focus {
       outline: none;
-      border-color: #D4AF37;
+      border-color: var(--color-gold);
     }
     
     .form-group textarea {
@@ -372,7 +376,7 @@
     
     .modal-footer {
       padding: 20px 25px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid var(--color-border);
       display: flex;
       justify-content: flex-end;
       gap: 10px;
@@ -388,9 +392,9 @@
     }
     
     .btn-primary {
-      background: linear-gradient(135deg, #D4AF37 0%, #c9a032 100%);
+      background: var(--color-gold);
       border: none;
-      color: #0a0a0a;
+      color: var(--color-text-primary);
     }
     
     .btn-primary:hover {
@@ -400,13 +404,13 @@
     
     .btn-secondary {
       background: transparent;
-      border: 1px solid #333;
-      color: #999;
+      border: 1px solid var(--color-border);
+      color: var(--color-text-muted);
     }
     
     .btn-secondary:hover {
-      border-color: #666;
-      color: #fff;
+      border-color: var(--color-text-muted);
+      color: var(--color-text-primary);
     }
     
     @media (max-width: 768px) {
@@ -417,7 +421,7 @@
     }
   </style>
 </head>
-<body>
+<body class="platform">
   <header></header>
   <div class="dashboard-header">
     <a href="index" class="logo">
@@ -674,16 +678,16 @@
             <div class="action-content" style="width: 100%;">
               <div style="margin-bottom: 20px;">
                 <h3 style="margin-bottom: 15px;">Company Details</h3>
-                <p style="color: #999; margin-bottom: 8px;"><strong style="color: #ccc;">Company:</strong> ${escapeHtml(profile.companyName)}</p>
-                <p style="color: #999; margin-bottom: 8px;"><strong style="color: #ccc;">Industry:</strong> ${escapeHtml(profile.industry || 'Not specified')}</p>
-                <p style="color: #999; margin-bottom: 8px;"><strong style="color: #ccc;">Website:</strong> ${profile.website && /^https?:\/\//i.test(profile.website) ? `<a href="${escapeHtml(profile.website)}" target="_blank" rel="noopener noreferrer" style="color: #D4AF37;">${escapeHtml(profile.website)}</a>` : escapeHtml(profile.website || 'Not specified')}</p>
+                <p style="color: var(--color-text-muted); margin-bottom: 8px;"><strong style="color: var(--color-text-secondary);">Company:</strong> ${escapeHtml(profile.companyName)}</p>
+                <p style="color: var(--color-text-muted); margin-bottom: 8px;"><strong style="color: var(--color-text-secondary);">Industry:</strong> ${escapeHtml(profile.industry || 'Not specified')}</p>
+                <p style="color: var(--color-text-muted); margin-bottom: 8px;"><strong style="color: var(--color-text-secondary);">Website:</strong> ${profile.website && /^https?:\/\//i.test(profile.website) ? `<a href="${escapeHtml(profile.website)}" target="_blank" rel="noopener noreferrer" style="color: var(--color-gold);">${escapeHtml(profile.website)}</a>` : escapeHtml(profile.website || 'Not specified')}</p>
               </div>
               <div>
                 <h3 style="margin-bottom: 15px;">Contact Details</h3>
-                <p style="color: #999; margin-bottom: 8px;"><strong style="color: #ccc;">Name:</strong> ${escapeHtml(profile.contactName)}</p>
-                <p style="color: #999; margin-bottom: 8px;"><strong style="color: #ccc;">Email:</strong> ${escapeHtml(profile.email)}</p>
-                <p style="color: #999; margin-bottom: 8px;"><strong style="color: #ccc;">Phone:</strong> ${escapeHtml(profile.phone || 'Not specified')}</p>
-                <p style="color: #999;"><strong style="color: #ccc;">Job Title:</strong> ${escapeHtml(profile.jobTitle || 'Not specified')}</p>
+                <p style="color: var(--color-text-muted); margin-bottom: 8px;"><strong style="color: var(--color-text-secondary);">Name:</strong> ${escapeHtml(profile.contactName)}</p>
+                <p style="color: var(--color-text-muted); margin-bottom: 8px;"><strong style="color: var(--color-text-secondary);">Email:</strong> ${escapeHtml(profile.email)}</p>
+                <p style="color: var(--color-text-muted); margin-bottom: 8px;"><strong style="color: var(--color-text-secondary);">Phone:</strong> ${escapeHtml(profile.phone || 'Not specified')}</p>
+                <p style="color: var(--color-text-muted);"><strong style="color: var(--color-text-secondary);">Job Title:</strong> ${escapeHtml(profile.jobTitle || 'Not specified')}</p>
               </div>
             </div>
           </div>
