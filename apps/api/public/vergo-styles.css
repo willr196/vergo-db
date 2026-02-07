@@ -50,27 +50,27 @@
   /* PREMIUM COLOR PALETTE */
   /* Background colors - Warm off-white/ivory */
   --color-bg-primary: #FAF8F5;
-  --color-bg-secondary: #F7F4EF;
-  --color-bg-tertiary: #F0EDE6;
-  --color-bg-warm: #F7F4EF;
+  --color-bg-secondary: #F5F0E8;
+  --color-bg-tertiary: #FFFFFF;
+  --color-bg-warm: #F5F0E8;
   --color-bg-white: #FFFFFF;
 
   /* Text colors - Warm charcoal */
-  --color-text-primary: #1C1C1C;
-  --color-text-secondary: #3D3D3D;
-  --color-text-muted: #6B6B6B;
-  --color-text-light: #8A8A8A;
+  --color-text-primary: #2C2C2C;
+  --color-text-secondary: #666666;
+  --color-text-muted: #999999;
+  --color-text-light: #999999;
 
-  /* Accent gold - Muted metallic */
-  --color-gold: #C9A24D;
-  --color-gold-hover: #B8963D;
-  --color-gold-light: #D4B366;
-  --color-gold-dark: #A88A3A;
-  --color-gold-bg: rgba(201, 162, 77, 0.1);
-  --color-gold-bg-hover: rgba(201, 162, 77, 0.15);
+  /* Accent gold */
+  --color-gold: #D4AF37;
+  --color-gold-hover: #B8962E;
+  --color-gold-light: #D4AF37;
+  --color-gold-dark: #B8962E;
+  --color-gold-bg: rgba(212, 175, 55, 0.1);
+  --color-gold-bg-hover: rgba(212, 175, 55, 0.15);
 
   /* Secondary neutral - Soft gray-beige */
-  --color-neutral: #E7E1D8;
+  --color-neutral: #E8E0D0;
   --color-neutral-dark: #D4CCC0;
   --color-neutral-light: #F0EBE3;
 
@@ -128,12 +128,12 @@
   --transition-speed: 0.3s;
 
   /* Nav consistency (used by vergo-header.css) */
-  --nav-bg: rgba(250, 248, 245, 0.98);
-  --nav-text: var(--color-text-primary);
+  --nav-bg: rgba(255, 255, 255, 0.98);
+  --nav-text: #2C2C2C;
   --nav-text-muted: var(--color-text-muted);
-  --nav-gold: var(--color-gold);
-  --nav-gold-hover: var(--color-gold-hover);
-  --nav-border: var(--color-border);
+  --nav-gold: #D4AF37;
+  --nav-gold-hover: #B8962E;
+  --nav-border: #E8E0D0;
   --nav-transition: var(--transition-base);
 
   /* Legacy vars used in platform pages */
@@ -870,7 +870,7 @@ img {
 }
 
 .no-results h3 {
-  color: var(--color-gold);
+  color: #1a1a1a;
   margin-bottom: 12px;
   font-size: 1.5rem;
 }
@@ -1059,7 +1059,7 @@ img {
 }
 
 .form-title {
-  color: var(--color-gold);
+  color: #1a1a1a;
   font-size: 2rem;
   margin-bottom: 8px;
   text-align: center;
@@ -1253,7 +1253,7 @@ img {
 }
 
 .dashboard-title {
-  color: var(--color-gold);
+  color: #1a1a1a;
   font-size: 2rem;
   margin-bottom: 8px;
 }
@@ -1344,7 +1344,7 @@ img {
 }
 
 .modal-title {
-  color: var(--color-gold);
+  color: #1a1a1a;
   font-size: 1.5rem;
   font-weight: 600;
 }

@@ -350,17 +350,7 @@ a:hover {
   text-decoration-thickness: 2px;
 }
 
-/* Dark mode contrast adjustments */
-@media (prefers-color-scheme: dark) {
-  body {
-    background: #0a0a0a;
-    color: #f0f0f0;
-  }
-  
-  .text-muted {
-    color: #b0b0b0;
-  }
-}
+/* Light theme - no dark mode override */
 
 /* ============================================
  * 9. LOADING STATES
@@ -477,8 +467,8 @@ table {
 }
 
 th {
-  background: #1a1a1a;
-  color: #D4AF37;
+  background: #F5F0E8;
+  color: #1a1a1a;
   font-weight: bold;
   text-align: left;
   padding: 1rem;
@@ -511,8 +501,8 @@ tr:hover {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #1a1a1a;
-  border: 2px solid #D4AF37;
+  background: #FFFFFF;
+  border: 1px solid #E8E0D0;
   border-radius: 8px;
   padding: 2rem;
   z-index: 9999;

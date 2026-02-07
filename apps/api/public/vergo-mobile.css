@@ -410,8 +410,8 @@
   }
 
   header {
-    background: rgba(250, 248, 245, 0.98) !important;
-    border-bottom: 1px solid var(--color-border) !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-bottom: 1px solid #E8E0D0 !important;
     color: var(--color-text-primary) !important;
   }
 
@@ -451,10 +451,13 @@
 
   .auth-box h1,
   .page-header h1,
-  .stat-number,
-  .job-role,
   .page-title,
   .section-title {
+    color: #1a1a1a !important;
+  }
+
+  .stat-number,
+  .job-role {
     color: var(--color-gold) !important;
   }
 
@@ -516,8 +519,8 @@
   }
 
   footer {
-    background: var(--color-bg-secondary) !important;
-    color: var(--color-text-muted) !important;
-    border-top: 1px solid var(--color-border) !important;
+    background: #1a1a1a !important;
+    color: #999999 !important;
+    border-top: none !important;
   }
 }

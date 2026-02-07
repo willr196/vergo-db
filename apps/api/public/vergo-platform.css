@@ -57,10 +57,13 @@ body.platform h3 {
 }
 
 body.platform .page-header h1,
+body.platform .section-title {
+  color: #1a1a1a;
+}
+
 body.platform .stat-number,
 body.platform .role-price,
-body.platform .job-role,
-body.platform .section-title {
+body.platform .job-role {
   color: var(--color-gold);
 }
 
