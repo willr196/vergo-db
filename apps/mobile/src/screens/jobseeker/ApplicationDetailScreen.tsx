@@ -42,8 +42,8 @@ const ROLE_LABELS: Record<JobRole, string> = {
 };
 
 const STATUS_MESSAGES: Record<ApplicationStatus, { title: string; message: string; icon: string }> = {
-  received: {
-    title: 'Application Received',
+  pending: {
+    title: 'Application Submitted',
     message: 'Your application has been submitted and is awaiting review.',
     icon: '📬',
   },
@@ -159,7 +159,7 @@ export function ApplicationDetailScreen({ navigation, route }: Props) {
   const application = selectedApplication;
   const job = application.job;
   const statusInfo = STATUS_MESSAGES[application.status];
-  const canWithdraw = ['received', 'reviewing'].includes(application.status);
+  const canWithdraw = ['pending', 'reviewing'].includes(application.status);
   
   return (
     <SafeAreaView style={styles.container}>

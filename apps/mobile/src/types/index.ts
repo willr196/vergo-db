@@ -165,7 +165,6 @@ export interface JobFilters {
 
 export type ApplicationStatus = 
   | 'pending'
-  | 'received'
   | 'reviewing'
   | 'shortlisted'
   | 'hired'

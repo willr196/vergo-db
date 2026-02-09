@@ -111,7 +111,9 @@ export function JobDetailScreen({ navigation, route }: Props) {
   }
   
   const job = selectedJob;
-  const spotsLeft = job.positionsAvailable - job.positionsFilled;
+  const positionsAvailable = job.positionsAvailable ?? job.positions ?? 1;
+  const positionsFilled = job.positionsFilled ?? 0;
+  const spotsLeft = positionsAvailable - positionsFilled;
   const isFilled = spotsLeft <= 0;
   
   return (
@@ -227,7 +229,7 @@ export function JobDetailScreen({ navigation, route }: Props) {
             <View style={styles.detailItem}>
               <Text style={styles.detailLabel}>Experience</Text>
               <Text style={styles.detailValue}>
-                {job.experienceRequired > 0 
+                {(job.experienceRequired ?? 0) > 0
                   ? `${job.experienceRequired}+ years` 
                   : 'Entry level'}
               </Text>
@@ -238,7 +240,7 @@ export function JobDetailScreen({ navigation, route }: Props) {
                 styles.detailValue,
                 spotsLeft <= 2 && styles.urgentText
               ]}>
-                {spotsLeft} / {job.positionsAvailable}
+                {spotsLeft} / {positionsAvailable}
               </Text>
             </View>
           </View>

@@ -66,7 +66,7 @@ apiClient.interceptors.response.use(
             : `${API_BASE_URL}/api/v1/user/mobile/refresh`;
           const response = await axios.post(refreshEndpoint, {
             refreshToken,
-          });
+          }, { timeout: 10000 });
           
           const { token: newToken, refreshToken: newRefreshToken } = response.data as { token: string; refreshToken?: string };
           await SecureStore.setItemAsync(STORAGE_KEYS.ACCESS_TOKEN, newToken);

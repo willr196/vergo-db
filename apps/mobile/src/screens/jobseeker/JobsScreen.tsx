@@ -3,7 +3,7 @@
  * Main job board for job seekers to browse and search jobs
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
   TextInput,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
@@ -32,6 +33,7 @@ export function JobsScreen({ navigation }: Props) {
     jobs,
     isLoading,
     isRefreshing,
+    isLoadingMore,
     hasMore,
     filters,
     fetchJobs,
@@ -39,49 +41,90 @@ export function JobsScreen({ navigation }: Props) {
     setFilters,
     clearFilters,
   } = useJobsStore();
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearSearchTimer = useCallback(() => {
+    if (searchTimer.current) {
+      clearTimeout(searchTimer.current);
+      searchTimer.current = null;
+    }
+  }, []);
+
+  const commitSearch = useCallback(
+    (query: string) => {
+      setFilters({ search: query.trim() || undefined });
+    },
+    [setFilters]
+  );
+
+  const handleSearchChange = useCallback(
+    (text: string) => {
+      setSearchQuery(text);
+      clearSearchTimer();
+      searchTimer.current = setTimeout(() => {
+        commitSearch(text);
+      }, 400);
+    },
+    [clearSearchTimer, commitSearch]
+  );
+
+  const handleSearchSubmit = useCallback(() => {
+    clearSearchTimer();
+    commitSearch(searchQuery);
+  }, [clearSearchTimer, commitSearch, searchQuery]);
+
+  const handleClearSearch = useCallback(() => {
+    clearSearchTimer();
+    setSearchQuery('');
+    commitSearch('');
+  }, [clearSearchTimer, commitSearch]);
+
   useEffect(() => {
     fetchJobs();
   }, [fetchJobs]);
-  
-  const handleSearch = useCallback(() => {
-    setFilters({ search: searchQuery.trim() || undefined });
-  }, [searchQuery, setFilters]);
-  
+
+  useEffect(() => {
+    return () => {
+      clearSearchTimer();
+    };
+  }, [clearSearchTimer]);
+
   const handleRefresh = useCallback(() => {
     fetchJobs(true);
   }, [fetchJobs]);
-  
+
   const handleLoadMore = useCallback(() => {
-    if (hasMore && !isLoading) {
+    if (hasMore && !isLoading && !isRefreshing && !isLoadingMore) {
       fetchMoreJobs();
     }
-  }, [hasMore, isLoading, fetchMoreJobs]);
-  
+  }, [hasMore, isLoading, isRefreshing, isLoadingMore, fetchMoreJobs]);
+
   const handleJobPress = (job: Job) => {
     navigation.navigate('JobDetail', { jobId: job.id });
   };
-  
+
   const applyFilters = (newFilters: JobFilters) => {
+    clearSearchTimer();
     setFilters(newFilters);
     setShowFilters(false);
   };
 
   const resetFilters = () => {
+    clearSearchTimer();
     clearFilters();
     setSearchQuery('');
     setShowFilters(false);
   };
-  
+
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
-  
+
   const renderJob = ({ item }: { item: Job }) => (
     <JobCard job={item} onPress={() => handleJobPress(item)} />
   );
-  
+
   const renderHeader = () => (
     <View style={styles.listHeader}>
       <Text style={styles.resultsText}>
@@ -89,10 +132,10 @@ export function JobsScreen({ navigation }: Props) {
       </Text>
     </View>
   );
-  
+
   const renderEmpty = () => {
     if (isLoading) return null;
-    
+
     return (
       <EmptyState
         icon="🔍"
@@ -103,18 +146,18 @@ export function JobsScreen({ navigation }: Props) {
       />
     );
   };
-  
+
   if (isLoading && jobs.length === 0) {
     return <LoadingScreen message="Loading jobs..." />;
   }
-  
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Jobs</Text>
       </View>
-      
+
       {/* Search & Filter */}
       <View style={styles.searchContainer}>
         <View style={styles.searchInputContainer}>
@@ -124,17 +167,17 @@ export function JobsScreen({ navigation }: Props) {
             placeholder="Search jobs..."
             placeholderTextColor={colors.textMuted}
             value={searchQuery}
-            onChangeText={setSearchQuery}
-            onSubmitEditing={handleSearch}
+            onChangeText={handleSearchChange}
+            onSubmitEditing={handleSearchSubmit}
             returnKeyType="search"
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
+            <TouchableOpacity onPress={handleClearSearch}>
               <Text style={styles.clearIcon}>✕</Text>
             </TouchableOpacity>
           )}
         </View>
-        
+
         <TouchableOpacity
           style={[
             styles.filterButton,
@@ -150,7 +193,7 @@ export function JobsScreen({ navigation }: Props) {
           )}
         </TouchableOpacity>
       </View>
-      
+
       {/* Job List */}
       <FlatList
         data={jobs}
@@ -159,6 +202,11 @@ export function JobsScreen({ navigation }: Props) {
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={jobs.length > 0 ? renderHeader : null}
         ListEmptyComponent={renderEmpty}
+        ListFooterComponent={
+          isLoadingMore ? (
+            <ActivityIndicator color={colors.primary} style={{ padding: 16 }} />
+          ) : null
+        }
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
@@ -168,9 +216,10 @@ export function JobsScreen({ navigation }: Props) {
         }
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
+        keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
       />
-      
+
       {/* Filter Modal */}
       <JobFiltersModal
         visible={showFilters}
@@ -188,26 +237,26 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  
+
   header: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.sm,
   },
-  
+
   headerTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxl,
     fontWeight: '700' as const,
   },
-  
+
   searchContainer: {
     flexDirection: 'row',
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.md,
     gap: spacing.sm,
   },
-  
+
   searchInputContainer: {
     flex: 1,
     flexDirection: 'row',
@@ -217,24 +266,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     height: 44,
   },
-  
+
   searchIcon: {
     fontSize: 16,
     marginRight: spacing.sm,
   },
-  
+
   searchInput: {
     flex: 1,
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
   },
-  
+
   clearIcon: {
     color: colors.textMuted,
     fontSize: 14,
     padding: spacing.xs,
   },
-  
+
   filterButton: {
     width: 44,
     height: 44,
@@ -243,15 +292,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  
+
   filterButtonActive: {
     backgroundColor: colors.primary,
   },
-  
+
   filterIcon: {
     fontSize: 18,
   },
-  
+
   filterBadge: {
     position: 'absolute',
     top: -4,
@@ -263,22 +312,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  
+
   filterBadgeText: {
     color: colors.white,
     fontSize: 10,
     fontWeight: '700' as const,
   },
-  
+
   listContent: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xl,
   },
-  
+
   listHeader: {
     paddingVertical: spacing.sm,
   },
-  
+
   resultsText: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.sm,

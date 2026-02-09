@@ -63,7 +63,7 @@ const mockJobs = [
 describe('MyJobsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useAuthStore as jest.Mock).mockReturnValue({
+    (useAuthStore as unknown as jest.Mock).mockReturnValue({
       user: { id: 'client-1', companyName: 'Test Company' },
     });
   });

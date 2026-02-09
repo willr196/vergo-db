@@ -25,7 +25,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export function LoginScreen({ navigation, route }: Props) {
   const { userType } = route.params;
-  const { login, isLoading, error, clearError } = useAuthStore();
+  const { login, isLoading, clearError } = useAuthStore();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -71,14 +71,13 @@ export function LoginScreen({ navigation, route }: Props) {
         userType,
       });
       // Navigation will be handled by the root navigator based on auth state
-    } catch {
-      // Error is already set in the store
-      Alert.alert(
-        'Login Failed',
-        error || 'Please check your credentials and try again.'
-      );
+    } catch (err: unknown) {
+      const message = err instanceof Error
+        ? err.message
+        : 'Please check your credentials and try again.';
+      Alert.alert('Login Failed', message);
     }
-  };
+};
   
   const handleForgotPassword = () => {
     navigation.navigate('ForgotPassword');

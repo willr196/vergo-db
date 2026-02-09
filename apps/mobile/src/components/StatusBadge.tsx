@@ -14,18 +14,13 @@ interface StatusBadgeProps {
   size?: 'sm' | 'md';
 }
 
-const STATUS_CONFIG: Record<ApplicationStatus, { 
-  label: string; 
-  color: string; 
+const STATUS_CONFIG: Record<ApplicationStatus, {
+  label: string;
+  color: string;
   bgColor: string;
 }> = {
   pending: {
     label: 'Pending',
-    color: colors.statusReviewing,
-    bgColor: `${colors.statusReviewing}20`,
-  },
-  received: {
-    label: 'Received',
     color: colors.statusReceived,
     bgColor: `${colors.statusReceived}20`,
   },
@@ -58,7 +53,7 @@ const STATUS_CONFIG: Record<ApplicationStatus, {
 
 export function StatusBadge({ status, style, size = 'md' }: StatusBadgeProps) {
   const config = STATUS_CONFIG[status];
-  
+
   return (
     <View
       style={[
@@ -92,23 +87,23 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     alignSelf: 'flex-start',
   },
-  
+
   badgeSm: {
     paddingHorizontal: spacing.xs,
     paddingVertical: 2,
   },
-  
+
   dot: {
     width: 6,
     height: 6,
     borderRadius: 3,
   },
-  
+
   text: {
     fontSize: typography.fontSize.sm,
     fontWeight: '500' as const,
   },
-  
+
   textSm: {
     fontSize: typography.fontSize.xs,
   },

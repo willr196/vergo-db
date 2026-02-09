@@ -3,7 +3,7 @@
  * Coerce backend payloads into expected runtime types
  */
 
-import type { ClientCompany, Job, JobRole, JobSeeker } from '../types';
+import type { ApplicationStatus, ClientCompany, Job, JobRole, JobSeeker } from '../types';
 
 const TRUE_STRING = 'true';
 const FALSE_STRING = 'false';
@@ -224,7 +224,7 @@ export function normalizeStoredUser(user: JobSeeker | ClientCompany): JobSeeker 
   // This handles cases where old persisted data may have string booleans
   const sanitized = { ...user };
 
-  if (user.type === 'jobseeker') {
+  if ('type' in user && user.type === 'jobseeker') {
     const jobSeeker = sanitized as JobSeeker;
     return normalizeJobSeeker({
       ...jobSeeker,
@@ -238,4 +238,65 @@ export function normalizeStoredUser(user: JobSeeker | ClientCompany): JobSeeker 
     ...client,
     isApproved: coerceBoolean(client.isApproved) ?? false,
   });
+}
+// ============================================
+// Application status normalizers (JobApplicationStatus)
+// ============================================
+
+export type BackendJobApplicationStatus =
+  | 'PENDING'
+  | 'REVIEWED'
+  | 'SHORTLISTED'
+  | 'CONFIRMED'
+  | 'REJECTED'
+  | 'WITHDRAWN';
+
+const BACKEND_TO_FRONTEND_APPLICATION_STATUS: Record<BackendJobApplicationStatus, ApplicationStatus> = {
+  PENDING: 'pending',
+  REVIEWED: 'reviewing',
+  SHORTLISTED: 'shortlisted',
+  CONFIRMED: 'hired',
+  REJECTED: 'rejected',
+  WITHDRAWN: 'withdrawn',
+};
+
+const FRONTEND_TO_BACKEND_APPLICATION_STATUS: Record<ApplicationStatus, BackendJobApplicationStatus> = {
+  pending: 'PENDING',
+  reviewing: 'REVIEWED',
+  shortlisted: 'SHORTLISTED',
+  hired: 'CONFIRMED',
+  rejected: 'REJECTED',
+  withdrawn: 'WITHDRAWN',
+};
+
+export function normalizeApplicationStatus(status: unknown): ApplicationStatus {
+  const raw = typeof status === 'string' ? status.trim() : '';
+  if (!raw) return 'pending';
+
+  const lower = raw.toLowerCase();
+
+  // Back-compat: older app used 'received' to mean "pending".
+  if (lower === 'received') return 'pending';
+
+  if (
+    lower === 'pending' ||
+    lower === 'reviewing' ||
+    lower === 'shortlisted' ||
+    lower === 'hired' ||
+    lower === 'rejected' ||
+    lower === 'withdrawn'
+  ) {
+    return lower as ApplicationStatus;
+  }
+
+  const upper = raw.toUpperCase() as BackendJobApplicationStatus;
+  if (upper in BACKEND_TO_FRONTEND_APPLICATION_STATUS) {
+    return BACKEND_TO_FRONTEND_APPLICATION_STATUS[upper];
+  }
+
+  return 'pending';
+}
+
+export function toBackendApplicationStatus(status: ApplicationStatus): BackendJobApplicationStatus {
+  return FRONTEND_TO_BACKEND_APPLICATION_STATUS[status];
 }

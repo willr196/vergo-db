@@ -12,6 +12,8 @@ interface ApplicationsState {
   applications: Application[];
   selectedApplication: Application | null;
   isLoading: boolean;
+  isRefreshing: boolean;
+  isLoadingMore: boolean;
   isSubmitting: boolean;
   error: string | null;
   
@@ -39,6 +41,8 @@ export const useApplicationsStore = create<ApplicationsState>((set, get) => ({
   applications: [],
   selectedApplication: null,
   isLoading: false,
+  isRefreshing: false,
+  isLoadingMore: false,
   isSubmitting: false,
   error: null,
   
@@ -52,7 +56,7 @@ export const useApplicationsStore = create<ApplicationsState>((set, get) => ({
   fetchApplications: async (refresh = false) => {
     const { statusFilter } = get();
     
-    set({ isLoading: !refresh, error: null });
+    set({ isLoading: !refresh, isRefreshing: refresh, isLoadingMore: false, error: null });
     
     try {
       const response = await applicationsApi.getUserApplications(
@@ -64,22 +68,24 @@ export const useApplicationsStore = create<ApplicationsState>((set, get) => ({
       set({
         applications: response.applications || [],
         isLoading: false,
+        isRefreshing: false,
+        isLoadingMore: false,
         currentPage: response.pagination?.page || 1,
         totalPages: response.pagination?.totalPages || 1,
         hasMore: response.pagination?.hasMore || false,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to fetch applications';
-      set({ isLoading: false, error: message });
+      set({ isLoading: false, isRefreshing: false, isLoadingMore: false, error: message });
     }
   },
   
   fetchMoreApplications: async () => {
-    const { currentPage, hasMore, statusFilter, applications, isLoading } = get();
+    const { currentPage, hasMore, statusFilter, applications, isLoading, isRefreshing, isLoadingMore } = get();
     
-    if (!hasMore || isLoading) return;
+    if (!hasMore || isLoading || isRefreshing || isLoadingMore) return;
     
-    set({ isLoading: true });
+    set({ isLoadingMore: true });
     
     try {
       const response = await applicationsApi.getUserApplications(
@@ -91,13 +97,14 @@ export const useApplicationsStore = create<ApplicationsState>((set, get) => ({
       set({
         applications: [...applications, ...(response.applications || [])],
         isLoading: false,
+        isLoadingMore: false,
         currentPage: response.pagination?.page || currentPage + 1,
         totalPages: response.pagination?.totalPages || 1,
         hasMore: response.pagination?.hasMore || false,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to fetch more applications';
-      set({ isLoading: false, error: message });
+      set({ isLoading: false, isLoadingMore: false, error: message });
     }
   },
   
@@ -110,7 +117,7 @@ export const useApplicationsStore = create<ApplicationsState>((set, get) => ({
       return application;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to fetch application';
-      set({ isLoading: false, error: message });
+      set({ isLoading: false, isRefreshing: false, isLoadingMore: false, error: message });
       throw error;
     }
   },
@@ -182,7 +189,7 @@ export const selectApplicationsByStatus = (status: ApplicationStatus) => (state:
 
 export const selectPendingApplicationsCount = (state: ApplicationsState) =>
   state.applications.filter(a => 
-    a.status === 'received' || a.status === 'reviewing'
+    a.status === 'pending' || a.status === 'reviewing'
   ).length;
 
 export default useApplicationsStore;

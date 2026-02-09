@@ -79,12 +79,12 @@ export const jobsApi = {
     const response = await apiClient.get<BackendResponse<Job>>(`/api/v1/mobile/jobs/${jobId}`);
     
     if (response.data.ok && response.data.job) {
-      return normalizeJob(response.data.job);
+      return normalizeJob(response.data.job as any);
     }
     
     // Try alternate response formats
     if (response.data.ok && response.data.data) {
-      return normalizeJob(response.data.data);
+      return normalizeJob(response.data.data as any);
     }
     
     throw new Error(response.data.error || 'Job not found');
@@ -98,7 +98,7 @@ export const jobsApi = {
     const response = await apiClient.get<BackendResponse<Job>>(`/api/v1/jobs/client/${clientId}${params}`);
     
     if (response.data.ok && response.data.jobs) {
-      return response.data.jobs.map(normalizeJob);
+      return response.data.jobs.map((job) => normalizeJob(job as any));
     }
     
     return [];
@@ -111,7 +111,7 @@ export const jobsApi = {
     const response = await apiClient.post<BackendResponse<Job>>('/api/v1/jobs', jobData);
     
     if (response.data.ok && (response.data.job || response.data.data)) {
-      return normalizeJob((response.data.job || response.data.data!) as Job);
+      return normalizeJob((response.data.job || response.data.data!) as any);
     }
     
     throw new Error(response.data.error || 'Failed to create job');
@@ -124,7 +124,7 @@ export const jobsApi = {
     const response = await apiClient.put<BackendResponse<Job>>(`/api/v1/jobs/${jobId}`, jobData);
     
     if (response.data.ok && (response.data.job || response.data.data)) {
-      return normalizeJob((response.data.job || response.data.data!) as Job);
+      return normalizeJob((response.data.job || response.data.data!) as any);
     }
     
     throw new Error(response.data.error || 'Failed to update job');
@@ -137,7 +137,7 @@ export const jobsApi = {
     const response = await apiClient.put<BackendResponse<Job>>(`/api/v1/jobs/${jobId}/close`);
     
     if (response.data.ok && (response.data.job || response.data.data)) {
-      return normalizeJob((response.data.job || response.data.data!) as Job);
+      return normalizeJob((response.data.job || response.data.data!) as any);
     }
     
     throw new Error(response.data.error || 'Failed to close job');
@@ -164,7 +164,7 @@ export const jobsApi = {
       const response = await apiClient.get<BackendResponse<Job>>(`/api/v1/jobs/recommended?limit=${limit}`);
       
       if (response.data.ok && response.data.jobs) {
-        return response.data.jobs.map(normalizeJob);
+        return response.data.jobs.map((job) => normalizeJob(job as any));
       }
     } catch {
       // Recommended jobs is optional

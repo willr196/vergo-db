@@ -43,7 +43,7 @@ const mockStats = {
 describe('DashboardScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useAuthStore as jest.Mock).mockReturnValue({
+    (useAuthStore as unknown as jest.Mock).mockReturnValue({
       user: { id: '1', companyName: 'Test Company' },
     });
   });

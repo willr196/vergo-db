@@ -4,7 +4,7 @@
  */
 
 import apiClient from './client';
-import { normalizeJob } from './normalizers';
+import { normalizeApplicationStatus, normalizeJob, toBackendApplicationStatus } from './normalizers';
 import type { Application, ApplicationStatus } from '../types';
 
 // Backend response types
@@ -41,21 +41,10 @@ export const applicationsApi = {
    * Normalize application payloads
    */
   normalizeApplication(application: Application): Application {
-    const statusMap: Record<string, ApplicationStatus> = {
-      PENDING: 'received',
-      REVIEWED: 'reviewing',
-      SHORTLISTED: 'shortlisted',
-      CONFIRMED: 'hired',
-      REJECTED: 'rejected',
-      WITHDRAWN: 'withdrawn',
-    };
-
-    const normalizedStatus = statusMap[String((application as any).status).toUpperCase()] || application.status;
-
     return {
       ...application,
-      status: normalizedStatus,
-      job: application.job ? normalizeJob(application.job) : application.job,
+      status: normalizeApplicationStatus((application as any).status),
+      job: application.job ? normalizeJob(application.job as any) : application.job,
     };
   },
 
@@ -88,7 +77,7 @@ export const applicationsApi = {
     const params = new URLSearchParams();
     params.append('page', page.toString());
     params.append('limit', limit.toString());
-    if (status) params.append('status', status);
+    if (status) params.append('status', toBackendApplicationStatus(status));
     
     const response = await apiClient.get<PaginatedApplicationsResponse>(
       `/api/v1/mobile/job-applications/mine?${params.toString()}`
@@ -177,7 +166,7 @@ export const applicationsApi = {
     const params = new URLSearchParams();
     params.append('page', page.toString());
     params.append('limit', limit.toString());
-    if (status) params.append('status', status);
+    if (status) params.append('status', toBackendApplicationStatus(status));
     
     const response = await apiClient.get<PaginatedApplicationsResponse>(
       `/api/v1/applications/job/${jobId}?${params.toString()}`
@@ -211,7 +200,7 @@ export const applicationsApi = {
     const response = await apiClient.put<BackendResponse<Application>>(
       `/api/v1/applications/${applicationId}/status`,
       {
-        status,
+        status: toBackendApplicationStatus(status),
         clientNotes: notes,
         rejectionReason,
       }

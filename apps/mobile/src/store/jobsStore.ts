@@ -15,6 +15,7 @@ interface JobsState {
   savedJobs: Job[];
   isLoading: boolean;
   isRefreshing: boolean;
+  isLoadingMore: boolean;
   error: string | null;
   
   // Pagination
@@ -46,6 +47,7 @@ export const useJobsStore = create<JobsState>((set, get) => ({
   savedJobs: [],
   isLoading: false,
   isRefreshing: false,
+  isLoadingMore: false,
   error: null,
   
   currentPage: 1,
@@ -58,10 +60,11 @@ export const useJobsStore = create<JobsState>((set, get) => ({
   fetchJobs: async (refresh = false) => {
     const { filters } = get();
     
-    set({ 
-      isLoading: !refresh, 
-      isRefreshing: refresh, 
-      error: null 
+    set({
+      isLoading: !refresh,
+      isRefreshing: refresh,
+      isLoadingMore: false,
+      error: null
     });
     
     try {
@@ -71,26 +74,28 @@ export const useJobsStore = create<JobsState>((set, get) => ({
         jobs: response.jobs || [],
         isLoading: false,
         isRefreshing: false,
+        isLoadingMore: false,
         currentPage: response.pagination?.page || 1,
         totalPages: response.pagination?.totalPages || 1,
         hasMore: response.pagination?.hasMore || false,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to fetch jobs';
-      set({ 
-        isLoading: false, 
-        isRefreshing: false, 
-        error: message 
+      set({
+        isLoading: false,
+        isRefreshing: false,
+        isLoadingMore: false,
+        error: message
       });
     }
   },
   
   fetchMoreJobs: async () => {
-    const { currentPage, hasMore, filters, jobs, isLoading } = get();
+    const { currentPage, hasMore, filters, jobs, isLoading, isRefreshing, isLoadingMore } = get();
     
-    if (!hasMore || isLoading) return;
+    if (!hasMore || isLoading || isRefreshing || isLoadingMore) return;
     
-    set({ isLoading: true });
+    set({ isLoadingMore: true });
     
     try {
       const response = await jobsApi.getJobs(filters, currentPage + 1, 20);
@@ -98,13 +103,14 @@ export const useJobsStore = create<JobsState>((set, get) => ({
       set({
         jobs: [...jobs, ...(response.jobs || [])],
         isLoading: false,
+        isLoadingMore: false,
         currentPage: response.pagination?.page || currentPage + 1,
         totalPages: response.pagination?.totalPages || 1,
         hasMore: response.pagination?.hasMore || false,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to fetch more jobs';
-      set({ isLoading: false, error: message });
+      set({ isLoading: false, isLoadingMore: false, error: message });
     }
   },
   
@@ -117,7 +123,7 @@ export const useJobsStore = create<JobsState>((set, get) => ({
       return job;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to fetch job';
-      set({ isLoading: false, error: message });
+      set({ isLoading: false, isLoadingMore: false, error: message });
       throw error;
     }
   },

@@ -11,6 +11,7 @@ import {
   FlatList,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
@@ -28,7 +29,7 @@ type Props = CompositeScreenProps<
 
 const STATUS_FILTERS: { value: ApplicationStatus | null; label: string }[] = [
   { value: null, label: 'All' },
-  { value: 'received', label: 'Pending' },
+  { value: 'pending', label: 'Pending' },
   { value: 'reviewing', label: 'Reviewing' },
   { value: 'shortlisted', label: 'Shortlisted' },
   { value: 'hired', label: 'Hired' },
@@ -39,27 +40,37 @@ export function ApplicationsScreen({ navigation }: Props) {
   const {
     applications,
     isLoading,
+    isRefreshing,
+    isLoadingMore,
+    hasMore,
     statusFilter,
     fetchApplications,
+    fetchMoreApplications,
     setStatusFilter,
   } = useApplicationsStore();
-  
+
   useEffect(() => {
     fetchApplications();
   }, [fetchApplications]);
-  
+
   const handleRefresh = useCallback(() => {
     fetchApplications(true);
   }, [fetchApplications]);
-  
+
+  const handleLoadMore = useCallback(() => {
+    if (hasMore && !isLoading && !isRefreshing && !isLoadingMore) {
+      fetchMoreApplications();
+    }
+  }, [hasMore, isLoading, isRefreshing, isLoadingMore, fetchMoreApplications]);
+
   const handleApplicationPress = (application: Application) => {
     navigation.navigate('ApplicationDetail', { applicationId: application.id });
   };
-  
+
   const renderApplication = ({ item }: { item: Application }) => {
     const job = item.job;
     if (!job) return null;
-    
+
     return (
       <TouchableOpacity
         style={styles.applicationCard}
@@ -72,13 +83,13 @@ export function ApplicationsScreen({ navigation }: Props) {
             Applied {formatRelativeDate(item.createdAt)}
           </Text>
         </View>
-        
+
         <Text style={styles.jobTitle} numberOfLines={2}>{job.title}</Text>
-        
+
         {job.clientCompany && (
           <Text style={styles.companyName}>{job.clientCompany.companyName}</Text>
         )}
-        
+
         <View style={styles.cardFooter}>
           <View style={styles.jobMeta}>
             <Text style={styles.metaText}>📅 {formatDate(job.date)}</Text>
@@ -89,14 +100,14 @@ export function ApplicationsScreen({ navigation }: Props) {
       </TouchableOpacity>
     );
   };
-  
+
   const renderEmpty = () => {
     if (isLoading) return null;
-    
+
     const message = statusFilter
       ? `No ${STATUS_FILTERS.find(f => f.value === statusFilter)?.label.toLowerCase()} applications`
       : "You haven't applied to any jobs yet";
-    
+
     return (
       <EmptyState
         icon="📋"
@@ -109,11 +120,11 @@ export function ApplicationsScreen({ navigation }: Props) {
       />
     );
   };
-  
+
   if (isLoading && applications.length === 0) {
     return <LoadingScreen message="Loading applications..." />;
   }
-  
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -123,7 +134,7 @@ export function ApplicationsScreen({ navigation }: Props) {
           {applications.length} total
         </Text>
       </View>
-      
+
       {/* Status Filter */}
       <View style={styles.filterContainer}>
         <FlatList
@@ -136,14 +147,14 @@ export function ApplicationsScreen({ navigation }: Props) {
             <TouchableOpacity
               style={[
                 styles.filterChip,
-                (statusFilter === item.value || (!statusFilter && !item.value)) 
+                (statusFilter === item.value || (!statusFilter && !item.value))
                   && styles.filterChipActive
               ]}
               onPress={() => setStatusFilter(item.value)}
             >
               <Text style={[
                 styles.filterChipText,
-                (statusFilter === item.value || (!statusFilter && !item.value)) 
+                (statusFilter === item.value || (!statusFilter && !item.value))
                   && styles.filterChipTextActive
               ]}>
                 {item.label}
@@ -152,7 +163,7 @@ export function ApplicationsScreen({ navigation }: Props) {
           )}
         />
       </View>
-      
+
       {/* Applications List */}
       <FlatList
         data={applications}
@@ -160,13 +171,21 @@ export function ApplicationsScreen({ navigation }: Props) {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={renderEmpty}
+        ListFooterComponent={
+          isLoadingMore ? (
+            <ActivityIndicator color={colors.primary} style={{ padding: 16 }} />
+          ) : null
+        }
         refreshControl={
           <RefreshControl
-            refreshing={isLoading}
+            refreshing={isRefreshing}
             onRefresh={handleRefresh}
             tintColor={colors.primary}
+            colors={[colors.primary]}
           />
         }
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
@@ -187,7 +206,7 @@ function formatRelativeDate(dateString: string): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  
+
   if (diffDays === 0) return 'today';
   if (diffDays === 1) return 'yesterday';
   if (diffDays < 7) return `${diffDays} days ago`;
@@ -200,36 +219,36 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  
+
   header: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.sm,
   },
-  
+
   headerTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxl,
     fontWeight: '700' as const,
   },
-  
+
   headerSubtitle: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.sm,
     marginTop: spacing.xs,
   },
-  
+
   filterContainer: {
     borderBottomWidth: 1,
     borderBottomColor: colors.surfaceBorder,
   },
-  
+
   filterList: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
   },
-  
+
   filterChip: {
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
@@ -237,58 +256,58 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.full,
     marginRight: spacing.sm,
   },
-  
+
   filterChipActive: {
     backgroundColor: colors.primary,
   },
-  
+
   filterChipText: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.sm,
     fontWeight: '500' as const,
   },
-  
+
   filterChipTextActive: {
     color: colors.textInverse,
   },
-  
+
   listContent: {
     padding: spacing.lg,
     paddingTop: spacing.md,
   },
-  
+
   applicationCard: {
     backgroundColor: colors.surface,
     borderRadius: borderRadius.lg,
     padding: spacing.md,
     marginBottom: spacing.md,
   },
-  
+
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: spacing.sm,
   },
-  
+
   appliedDate: {
     color: colors.textMuted,
     fontSize: typography.fontSize.xs,
   },
-  
+
   jobTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
     fontWeight: '600' as const,
     marginBottom: spacing.xs,
   },
-  
+
   companyName: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.sm,
     marginBottom: spacing.md,
   },
-  
+
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -297,17 +316,17 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.surfaceBorder,
   },
-  
+
   jobMeta: {
     flexDirection: 'row',
     gap: spacing.md,
   },
-  
+
   metaText: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.sm,
   },
-  
+
   viewDetails: {
     color: colors.primary,
     fontSize: typography.fontSize.sm,

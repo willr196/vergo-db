@@ -121,6 +121,8 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
     switch (status) {
       case 'pending':
         return colors.warning;
+      case 'reviewing':
+        return colors.warning;
       case 'shortlisted':
         return colors.info;
       case 'hired':
@@ -264,7 +266,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
                     </View>
                   )}
 
-                  {(app.status === 'pending' || app.status === 'received') && (
+                  {(app.status === 'pending' || app.status === 'reviewing') && (
                     <View style={styles.actionButtons}>
                       <TouchableOpacity
                         style={[styles.actionButton, styles.shortlistButton]}

@@ -39,6 +39,9 @@ import {
   CompanyProfileScreen,
   CreateJobScreen,
   ClientJobDetailScreen,
+  ApplicantListScreen,
+  ApplicantDetailScreen,
+  EditJobScreen,
 } from '../screens/client';
 
 // Navigation theme
@@ -203,9 +206,16 @@ function ClientStack() {
     >
       <Stack.Screen name="ClientTabs" component={ClientTabNavigator} />
       <Stack.Screen name="ClientJobDetail" component={ClientJobDetailScreen} />
+      <Stack.Screen name="ApplicantList" component={ApplicantListScreen} />
+      <Stack.Screen name="ApplicantDetail" component={ApplicantDetailScreen} />
       <Stack.Screen
         name="CreateJob"
         component={CreateJobScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen
+        name="EditJob"
+        component={EditJobScreen}
         options={{ presentation: 'modal' }}
       />
     </Stack.Navigator>
