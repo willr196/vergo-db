@@ -5,21 +5,28 @@ User-agent: *
 Allow: /
 
 # Disallow admin and private areas
+Disallow: /api
 Disallow: /admin
-Disallow: /admin.html
-Disallow: /admin-jobs.html
-Disallow: /login.html
-Disallow: /api/
+Disallow: /login
 
 # Disallow user account pages (not useful for search)
-Disallow: /user-login.html
-Disallow: /user-register.html
-Disallow: /user-dashboard.html
-Disallow: /reset-password.html
-Disallow: /forgot-password.html
+Disallow: /user-login
+Disallow: /user-register
+Disallow: /user-dashboard
+Disallow: /reset-password
+Disallow: /forgot-password
+
+# Disallow client account pages (not useful for search)
+Disallow: /client-login
+Disallow: /client-register
+Disallow: /client-dashboard
+
+# Disallow thin templates (non-canonical pages)
+Disallow: /job-detail
 
 # Sitemap location
 Sitemap: https://vergoltd.com/sitemap.xml
+Sitemap: https://vergoltd.com/sitemap-jobs.xml
 
 # Crawl-delay (optional - be nice to server)
 Crawl-delay: 1

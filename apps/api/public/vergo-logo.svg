@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="96" viewBox="0 0 320 96" role="img" aria-label="VERGO">
+  <rect width="320" height="96" fill="#FFFFFF"/>
+  <text x="16" y="62" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="700" fill="#1C1C1C">VERGO</text>
+  <rect x="16" y="74" width="132" height="6" fill="#C9A24D" opacity="0.9"/>
+</svg>

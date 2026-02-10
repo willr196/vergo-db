@@ -3,6 +3,7 @@
     let currentPage = 1;
     let totalPages = 1;
     let filters = { roleId: '', type: '' };
+    let ssrInitialRender = true;
     
     // Check auth status
     async function checkAuth() {
@@ -79,7 +80,12 @@
     // Load jobs
     async function loadJobs(page = 1) {
       const container = document.getElementById('jobs-container');
-      container.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Loading jobs...</p></div>';
+      const hasSSR = container && container.dataset && container.dataset.ssr === '1';
+      const isInitial = ssrInitialRender && page === 1 && !filters.roleId && !filters.type;
+      if (!hasSSR || !isInitial) {
+        container.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Loading jobs...</p></div>';
+      }
+      ssrInitialRender = false;
       
       try {
         const params = new URLSearchParams({ page, limit: 20 });
@@ -154,7 +160,7 @@
               <span class="job-pay">${pay}</span>
               <span class="spots-left ${spotsClass}"> · ${job.spotsLeft} spot${job.spotsLeft !== 1 ? 's' : ''} left</span>
             </div>
-            <a href="job-detail.html?id=${job.id}" class="btn btn-primary btn-small">View & Apply</a>
+            <a href="/jobs/${job.id}" class="btn btn-primary btn-small">View & Apply</a>
           </div>
         </div>
       `;

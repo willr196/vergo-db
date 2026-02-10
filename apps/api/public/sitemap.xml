@@ -1,97 +1,142 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <!-- Main Pages -->
   <url>
     <loc>https://vergoltd.com/</loc>
-    <lastmod>2024-12-15</lastmod>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   
   <url>
-    <loc>https://vergoltd.com/about.html</loc>
-    <lastmod>2024-12-15</lastmod>
+    <loc>https://vergoltd.com/about</loc>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://vergoltd.com/hire-staff.html</loc>
-    <lastmod>2024-12-15</lastmod>
+    <loc>https://vergoltd.com/hire-staff</loc>
+    <lastmod>2026-02-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://vergoltd.com/quote</loc>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   
   <url>
-    <loc>https://vergoltd.com/jobs.html</loc>
-    <lastmod>2024-12-15</lastmod>
+    <loc>https://vergoltd.com/jobs</loc>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   
   <url>
-    <loc>https://vergoltd.com/pricing.html</loc>
-    <lastmod>2024-12-15</lastmod>
+    <loc>https://vergoltd.com/pricing</loc>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   
   <url>
-    <loc>https://vergoltd.com/contact.html</loc>
-    <lastmod>2024-12-15</lastmod>
+    <loc>https://vergoltd.com/contact</loc>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://vergoltd.com/apply.html</loc>
-    <lastmod>2024-12-15</lastmod>
+    <loc>https://vergoltd.com/faq</loc>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
-    <loc>https://vergoltd.com/post-job.html</loc>
-    <lastmod>2024-12-15</lastmod>
+    <loc>https://vergoltd.com/apply</loc>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://vergoltd.com/post-job</loc>
+    <lastmod>2026-02-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Role/Service Landing Pages -->
+  <url>
+    <loc>https://vergoltd.com/event-chefs-london</loc>
+    <lastmod>2026-02-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://vergoltd.com/temporary-bar-staff-london</loc>
+    <lastmod>2026-02-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://vergoltd.com/front-of-house-staff-london</loc>
+    <lastmod>2026-02-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://vergoltd.com/kitchen-porters-london</loc>
+    <lastmod>2026-02-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
   </url>
   
   <!-- Blog -->
   <url>
-    <loc>https://vergoltd.com/blog.html</loc>
-    <lastmod>2024-12-15</lastmod>
+    <loc>https://vergoltd.com/blog</loc>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://vergoltd.com/blog/how-to-hire-bartenders-london.html</loc>
-    <lastmod>2024-12-15</lastmod>
+    <loc>https://vergoltd.com/blog/how-to-hire-bartenders-london</loc>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
-    <loc>https://vergoltd.com/blog/event-staffing-costs-london-2024.html</loc>
-    <lastmod>2024-12-15</lastmod>
+    <loc>https://vergoltd.com/blog/event-staffing-costs-london-2024</loc>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
+
+  <!-- Jobs -->
+  <!-- Individual job listing URLs are served dynamically in /sitemap-jobs.xml -->
+
   <!-- Legal -->
   <url>
-    <loc>https://vergoltd.com/privacy.html</loc>
-    <lastmod>2024-12-01</lastmod>
+    <loc>https://vergoltd.com/privacy</loc>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   
   <url>
-    <loc>https://vergoltd.com/terms.html</loc>
-    <lastmod>2024-12-01</lastmod>
+    <loc>https://vergoltd.com/terms</loc>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
