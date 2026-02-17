@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type NextFunction, type Request, type Response } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma";
 import { adminAuth } from "../middleware/adminAuth";
@@ -11,32 +11,33 @@ const r = Router();
 const createJobSchema = z.object({
   title: z.string().min(3).max(200).trim(),
   description: z.string().min(10).max(5000).trim(),
-  requirements: z.string().max(2000).optional(),
+  requirements: z.string().max(2000).trim().nullable().optional(),
   type: z.enum(["INTERNAL", "EXTERNAL"]).default("INTERNAL"),
   status: z.enum(["DRAFT", "OPEN", "FILLED", "CLOSED"]).default("DRAFT"),
   location: z.string().min(2).max(200).trim(),
-  venue: z.string().max(200).optional(),
-  payRate: z.number().positive().max(1000).optional(),
+  venue: z.string().max(200).trim().nullable().optional(),
+  payRate: z.number().positive().max(1000).nullable().optional(),
   payType: z.enum(["HOURLY", "DAILY", "FIXED"]).default("HOURLY"),
-  eventDate: z.string().optional(), // ISO date string
-  eventEndDate: z.string().optional(),
-  shiftStart: z.string().max(10).optional(), // "18:00"
-  shiftEnd: z.string().max(10).optional(),
+  eventDate: z.string().nullable().optional(), // ISO date string
+  eventEndDate: z.string().nullable().optional(),
+  shiftStart: z.string().max(10).trim().nullable().optional(), // "18:00"
+  shiftEnd: z.string().max(10).trim().nullable().optional(),
   staffNeeded: z.number().int().min(1).max(100).default(1),
-  companyName: z.string().max(200).optional(), // For external jobs
-  externalUrl: z.string().url().max(500).optional(),
-  closingDate: z.string().optional(),
+  companyName: z.string().max(200).trim().nullable().optional(), // For external jobs
+  externalUrl: z.string().url().max(500).trim().nullable().optional(),
+  closingDate: z.string().nullable().optional(),
   roleId: z.string().min(1)
 });
 
 const updateJobSchema = createJobSchema.partial();
 
 const listJobsQuerySchema = z.object({
-  status: z.enum(["DRAFT", "OPEN", "FILLED", "CLOSED"]).optional(),
+  // Support legacy "PENDING" from older admin UI; map it to DRAFT server-side.
+  status: z.enum(["PENDING", "DRAFT", "OPEN", "FILLED", "CLOSED"]).optional(),
   type: z.enum(["INTERNAL", "EXTERNAL"]).optional(),
   roleId: z.string().optional(),
   page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(50).default(20)
+  limit: z.coerce.number().int().min(1).max(100).default(20)
 });
 
 // ============================================
@@ -195,13 +196,13 @@ r.get("/:id", async (req, res, next) => {
 // ============================================
 // ADMIN: GET /api/v1/jobs/admin/all - List ALL jobs (including drafts)
 // ============================================
-r.get("/admin/all", adminAuth, async (req, res, next) => {
+async function listAdminJobs(req: Request, res: Response, next: NextFunction) {
   try {
     const query = listJobsQuerySchema.parse(req.query);
     const skip = (query.page - 1) * query.limit;
     
     const where: any = {};
-    if (query.status) where.status = query.status;
+    if (query.status) where.status = query.status === 'PENDING' ? 'DRAFT' : query.status;
     if (query.type) where.type = query.type;
     if (query.roleId) where.roleId = query.roleId;
     
@@ -238,7 +239,12 @@ r.get("/admin/all", adminAuth, async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-});
+}
+
+r.get("/admin/all", adminAuth, listAdminJobs);
+
+// Legacy alias used by older admin UI.
+r.get("/admin/list", adminAuth, listAdminJobs);
 
 // ============================================
 // ADMIN: GET /api/v1/jobs/admin/:id - Get any job (including drafts)

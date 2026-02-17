@@ -47,12 +47,10 @@ export function MyJobsScreen({ navigation }: Props) {
   const fetchJobs = useCallback(async () => {
     try {
       setError(null);
-      const clientId = (user as any)?.id;
-      if (!clientId) return;
 
       const status = statusFilter === 'all' ? undefined : statusFilter;
-      const data = await jobsApi.getClientJobs(clientId, status);
-      setJobs(data);
+      const result = await jobsApi.getClientJobs(status);
+      setJobs(result.jobs);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load jobs';
       setError(message);
@@ -60,7 +58,7 @@ export function MyJobsScreen({ navigation }: Props) {
     } finally {
       setIsLoading(false);
     }
-  }, [user, statusFilter]);
+  }, [statusFilter]);
 
   useEffect(() => {
     fetchJobs();

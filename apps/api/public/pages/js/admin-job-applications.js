@@ -5,7 +5,7 @@ let applications = [];
     // Load jobs for filter dropdown
     async function loadJobs() {
       try {
-        const res = await fetch('/api/v1/jobs/admin/all?limit=100');
+        const res = await fetch('/api/v1/jobs/admin/all?limit=100', { credentials: 'include' });
         const payload = await res.json();
         const data = payload.data ?? payload;
         jobs = data.jobs || [];
@@ -32,7 +32,7 @@ let applications = [];
       if (jobId) params.append('jobId', jobId);
       
       try {
-        const res = await fetch(`/api/v1/job-applications?${params}`);
+        const res = await fetch(`/api/v1/job-applications?${params}`, { credentials: 'include' });
         const payload = await res.json();
         const data = payload.data ?? payload;
         console.log('[ADMIN] Job applications response:', data);
@@ -251,6 +251,7 @@ let applications = [];
       try {
         const res = await fetch(`/api/v1/job-applications/${id}/status`, {
           method: 'PATCH',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status })
         });
@@ -280,6 +281,7 @@ let applications = [];
       try {
         const res = await fetch(`/api/v1/job-applications/${id}/notes`, {
           method: 'PATCH',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ notes })
         });
@@ -337,6 +339,9 @@ let applications = [];
     });
 
     // Init
-    AdminCore.checkAuth();
-    loadJobs();
-    loadApplications();
+    (async () => {
+      const session = await AdminCore.checkAuth();
+      if (!session) return;
+      await loadJobs();
+      await loadApplications();
+    })();

@@ -91,29 +91,39 @@ export const jobsApi = {
   },
 
   /**
-   * Get jobs for a specific client company
+   * Get jobs for the authenticated client company
    */
-  async getClientJobs(clientId: string, status?: string): Promise<Job[]> {
-    const params = status ? `?status=${status}` : '';
-    const response = await apiClient.get<BackendResponse<Job>>(`/api/v1/jobs/client/${clientId}${params}`);
-    
-    if (response.data.ok && response.data.jobs) {
-      return response.data.jobs.map((job) => normalizeJob(job as any));
-    }
-    
-    return [];
+  async getClientJobs(status?: string, page = 1, limit = 20): Promise<PaginatedJobsResponse> {
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    params.append('limit', limit.toString());
+    if (status) params.append('status', status);
+
+    const response = await apiClient.get<any>(`/api/v1/client/mobile/jobs?${params.toString()}`);
+
+    return {
+      ok: true,
+      jobs: (response.data.jobs || []).map((job: any) => normalizeJob(job)),
+      pagination: response.data.pagination || {
+        page,
+        limit,
+        total: 0,
+        totalPages: 1,
+        hasMore: false,
+      },
+    };
   },
 
   /**
    * Create a new job (client only)
    */
   async createJob(jobData: Partial<Job>): Promise<Job> {
-    const response = await apiClient.post<BackendResponse<Job>>('/api/v1/jobs', jobData);
-    
+    const response = await apiClient.post<BackendResponse<Job>>('/api/v1/client/mobile/jobs', jobData);
+
     if (response.data.ok && (response.data.job || response.data.data)) {
       return normalizeJob((response.data.job || response.data.data!) as any);
     }
-    
+
     throw new Error(response.data.error || 'Failed to create job');
   },
 
@@ -121,12 +131,12 @@ export const jobsApi = {
    * Update an existing job (client only)
    */
   async updateJob(jobId: string, jobData: Partial<Job>): Promise<Job> {
-    const response = await apiClient.put<BackendResponse<Job>>(`/api/v1/jobs/${jobId}`, jobData);
-    
+    const response = await apiClient.put<BackendResponse<Job>>(`/api/v1/client/mobile/jobs/${jobId}`, jobData);
+
     if (response.data.ok && (response.data.job || response.data.data)) {
       return normalizeJob((response.data.job || response.data.data!) as any);
     }
-    
+
     throw new Error(response.data.error || 'Failed to update job');
   },
 
@@ -134,12 +144,12 @@ export const jobsApi = {
    * Close a job (stop accepting applications)
    */
   async closeJob(jobId: string): Promise<Job> {
-    const response = await apiClient.put<BackendResponse<Job>>(`/api/v1/jobs/${jobId}/close`);
-    
+    const response = await apiClient.post<BackendResponse<Job>>(`/api/v1/client/mobile/jobs/${jobId}/close`);
+
     if (response.data.ok && (response.data.job || response.data.data)) {
       return normalizeJob((response.data.job || response.data.data!) as any);
     }
-    
+
     throw new Error(response.data.error || 'Failed to close job');
   },
 

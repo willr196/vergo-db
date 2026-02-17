@@ -13,6 +13,7 @@ import connectPgSimple from 'connect-pg-simple';
 import { env } from './env';
 import { prisma } from './prisma';
 import applications from './routes/applications';
+import events from './routes/events';
 import { adminAuth, adminPageAuth } from './middleware/adminAuth';
 import auth from './routes/auth';
 import contact from './routes/contact';
@@ -32,6 +33,7 @@ import unsubscribe from './routes/unsubscribe';
 import adminScheduledEmails from './routes/adminScheduledEmails';
 import { logger, requestLogger } from './services/logger';
 import { initSentry, sentryErrorHandler, flushSentry } from './services/sentry';
+import { ZodError } from 'zod';
 
 // Initialize Sentry early (before Express app)
 initSentry();
@@ -40,6 +42,15 @@ const app = express();
 app.disable('x-powered-by');
 
 const publicDir = path.join(process.cwd(), 'public');
+const publicDirResolved = path.resolve(publicDir);
+
+function resolvePublicFile(relPath: string) {
+  // Prevent directory traversal and absolute-path resolution.
+  if (!relPath || relPath.startsWith('/') || relPath.includes('\\') || relPath.includes('\0')) return null;
+  const resolved = path.resolve(publicDirResolved, relPath);
+  if (!resolved.startsWith(publicDirResolved + path.sep)) return null;
+  return resolved;
+}
 
 function escapeHtml(input: string) {
   return input
@@ -627,23 +638,15 @@ app.use('/api/v1/jobs', jobs);
 // Protect admin.html BEFORE static middleware
 app.get([
   '/admin',
-  '/admin.html',
   '/admin-clients',
-  '/admin-clients.html',
   '/admin-jobs',
-  '/admin-jobs.html',
   '/admin-job-applications',
-  '/admin-job-applications.html',
 ], adminPageAuth, (req, res) => {
   const fileByPath: Record<string, string> = {
     '/admin': 'admin.html',
-    '/admin.html': 'admin.html',
     '/admin-clients': 'admin-clients.html',
-    '/admin-clients.html': 'admin-clients.html',
     '/admin-jobs': 'admin-jobs.html',
-    '/admin-jobs.html': 'admin-jobs.html',
     '/admin-job-applications': 'admin-job-applications.html',
-    '/admin-job-applications.html': 'admin-job-applications.html',
   };
   const file = fileByPath[req.path] ?? 'admin.html';
   res.sendFile(path.join(publicDir, file));
@@ -655,6 +658,9 @@ app.use('/api/v1/user', userAuth);
 app.use('/api/v1/applications', applications);
 // Legacy join-our-team form endpoint
 app.use('/api/applications', applications);
+
+// Admin "Events" tab API
+app.use('/api/v1/events', events);
 
 // Job applications (must be before static)
 app.use('/api/v1/job-applications', jobApplications);
@@ -694,32 +700,14 @@ app.use((req, res, next) => {
 });
 
 // Canonicalise SEO pages: redirect .html -> clean URLs (keep querystring).
-const htmlRedirectAllowlist = new Set([
-  '/index.html',
-  '/about.html',
-  '/hire-staff.html',
-  '/pricing.html',
-  '/contact.html',
-  '/faq.html',
-  '/quote.html',
-  '/jobs.html',
-  '/blog.html',
-  '/apply.html',
-  '/post-job.html',
-  '/privacy.html',
-  '/terms.html',
-  '/event-chefs-london.html',
-  '/temporary-bar-staff-london.html',
-  '/front-of-house-staff-london.html',
-  '/kitchen-porters-london.html',
-]);
-
 app.use((req, res, next) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') return next();
   if (!req.path.endsWith('.html')) return next();
 
-  const isBlogPost = req.path.startsWith('/blog/');
-  if (!isBlogPost && !htmlRedirectAllowlist.has(req.path)) return next();
+  // Only redirect known static HTML pages from the public directory.
+  const relPath = req.path.replace(/^\//, '');
+  const filePath = resolvePublicFile(relPath);
+  if (!filePath || !fs.existsSync(filePath)) return next();
 
   const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
   if (req.path === '/index.html') {
@@ -742,20 +730,23 @@ app.get('/', (_req, res) => {
 // Static frontend (last)
 // Clean URLs - serve .html files without extension
 app.use((req, res, next) => {
-  // Skip API routes, files with extensions, and root
-  if (req.path.startsWith('/api') || req.path.includes('.') || req.path === '/') {
+  // Skip API routes and root
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+  if (req.path.startsWith('/api') || req.path === '/') {
     return next();
   }
 
   // Check if .html file exists for this path
   const relPath = req.path.replace(/^\//, '');
-  // Defensive: do not allow path traversal in the clean-URL resolver.
-  if (relPath.includes('..') || relPath.includes('\\')) {
-    return next();
-  }
-  const htmlPath = path.join(publicDir, relPath + '.html');
+  if (!relPath || relPath.endsWith('/')) return next();
+
+  const htmlRelPath = relPath + '.html';
+  const htmlPath = resolvePublicFile(htmlRelPath);
+  if (!htmlPath) return next();
+
   if (fs.existsSync(htmlPath)) {
-    req.url = req.path + '.html';
+    const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+    req.url = req.path + '.html' + qs;
   }
   next();
 });
@@ -784,6 +775,13 @@ app.use(sentryErrorHandler());
 
 // Error handler (must be last)
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  if (err instanceof ZodError) {
+    logger.warn({ err }, 'Request validation failed');
+    return res.status(400).json({
+      error: 'Invalid request',
+      details: err.issues,
+    });
+  }
   logger.error({ err }, 'Unhandled error');
   res.status(500).json({ error: 'Internal server error' });
 });

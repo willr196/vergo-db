@@ -6,7 +6,7 @@ let jobs = [];
     // Load roles
     async function loadRoles() {
       try {
-        const res = await fetch('/api/v1/jobs/meta/roles');
+        const res = await fetch('/api/v1/jobs/meta/roles', { credentials: 'include' });
         const payload = await res.json();
         roles = payload.data ?? payload;
         
@@ -34,7 +34,7 @@ let jobs = [];
       if (type) params.append('type', type);
       
       try {
-        const res = await fetch(`/api/v1/jobs/admin/list?${params}`);
+        const res = await fetch(`/api/v1/jobs/admin/list?${params}`, { credentials: 'include' });
         const payload = await res.json();
         const data = payload.data ?? payload;
         jobs = data.jobs || [];
@@ -208,6 +208,7 @@ let jobs = [];
         
         const res = await fetch(url, {
           method,
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
@@ -237,7 +238,7 @@ let jobs = [];
       if (!confirm(`Approve "${job?.title}"?\n\nThis will make it visible to job seekers.`)) return;
       
       try {
-        const res = await fetch(`/api/v1/jobs/${id}/approve`, { method: 'POST' });
+        const res = await fetch(`/api/v1/jobs/${id}/approve`, { method: 'POST', credentials: 'include' });
         
         if (!res.ok) {
           const payload = await res.json();
@@ -262,6 +263,7 @@ let jobs = [];
       try {
         const res = await fetch(`/api/v1/jobs/${id}/reject`, { 
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ reason: reason || undefined })
         });
@@ -284,7 +286,7 @@ let jobs = [];
       if (!confirm('Are you sure you want to delete this job? This cannot be undone.')) return;
       
       try {
-        const res = await fetch(`/api/v1/jobs/${id}`, { method: 'DELETE' });
+        const res = await fetch(`/api/v1/jobs/${id}`, { method: 'DELETE', credentials: 'include' });
         
         if (!res.ok) {
           const payload = await res.json();
@@ -335,6 +337,9 @@ let jobs = [];
     });
 
     // Init
-    AdminCore.checkAuth();
-    loadRoles();
-    loadJobs();
+    (async () => {
+      const session = await AdminCore.checkAuth();
+      if (!session) return;
+      await loadRoles();
+      await loadJobs();
+    })();

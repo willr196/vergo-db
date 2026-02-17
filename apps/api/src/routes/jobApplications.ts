@@ -138,7 +138,7 @@ r.get("/", adminAuth, async (req, res, next) => {
   try {
     const { status, jobId } = req.query;
     const page = Math.max(1, Math.floor(Number(req.query.page) || 1));
-    const limit = Math.min(50, Math.max(1, Math.floor(Number(req.query.limit) || 50)));
+    const limit = Math.min(100, Math.max(1, Math.floor(Number(req.query.limit) || 50)));
     const where: any = {};
     if (status && typeof status === 'string') where.status = status;
     if (jobId && typeof jobId === 'string') where.jobId = jobId;

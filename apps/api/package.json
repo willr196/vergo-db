@@ -7,6 +7,7 @@
     "build": "tsc -p .",
     "start": "node dist/src/index.js",
     "test": "npm run build && node --test dist/src/__tests__/*.test.js",
+    "validate:seo": "node scripts/validate-seo.js",
     "prisma": "prisma",
     "prisma:deploy": "prisma migrate deploy",
     "seed": "tsx prisma/seed.ts"

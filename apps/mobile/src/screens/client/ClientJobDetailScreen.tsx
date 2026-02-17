@@ -88,11 +88,11 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
       let updatedApp: Application;
       
       if (action === 'shortlist') {
-        updatedApp = await applicationsApi.shortlistApplicant(applicationId);
+        updatedApp = await applicationsApi.shortlistApplicant(applicationId, jobId);
       } else if (action === 'hire') {
-        updatedApp = await applicationsApi.hireApplicant(applicationId);
+        updatedApp = await applicationsApi.hireApplicant(applicationId, jobId);
       } else {
-        updatedApp = await applicationsApi.rejectApplicant(applicationId);
+        updatedApp = await applicationsApi.rejectApplicant(applicationId, jobId);
       }
 
       setApplications((prev) =>

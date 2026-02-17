@@ -7,7 +7,7 @@ let clients = [];
     // Load stats
     async function loadStats() {
       try {
-        const res = await fetch('/api/v1/admin/clients/stats');
+        const res = await fetch('/api/v1/admin/clients/stats', { credentials: 'include' });
         const payload = await res.json();
         const stats = payload.data ?? payload;
         
@@ -34,7 +34,7 @@ let clients = [];
       tbody.innerHTML = AdminCore.renderLoadingState(5);
       
       try {
-        const res = await fetch(`/api/v1/admin/clients?${params}`);
+        const res = await fetch(`/api/v1/admin/clients?${params}`, { credentials: 'include' });
         const payload = await res.json();
         const data = payload.data ?? payload;
         
@@ -109,7 +109,7 @@ let clients = [];
     // View client details
     async function viewClient(id) {
       try {
-        const res = await fetch(`/api/v1/admin/clients/${id}`);
+        const res = await fetch(`/api/v1/admin/clients/${id}`, { credentials: 'include' });
         const payload = await res.json();
         const client = payload.data ?? payload;
         
@@ -205,7 +205,7 @@ let clients = [];
       if (!confirm('Approve this client? They will be able to log in and request quotes.')) return;
       
       try {
-        const res = await fetch(`/api/v1/admin/clients/${id}/approve`, { method: 'POST' });
+        const res = await fetch(`/api/v1/admin/clients/${id}/approve`, { method: 'POST', credentials: 'include' });
         const payload = await res.json();
         const data = payload.data ?? payload;
         
@@ -239,6 +239,7 @@ let clients = [];
       try {
         const res = await fetch(`/api/v1/admin/clients/${pendingRejectId}/reject`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ reason })
         });
@@ -261,7 +262,7 @@ let clients = [];
       if (!confirm('Suspend this client? They will no longer be able to log in.')) return;
       
       try {
-        const res = await fetch(`/api/v1/admin/clients/${id}/suspend`, { method: 'POST' });
+        const res = await fetch(`/api/v1/admin/clients/${id}/suspend`, { method: 'POST', credentials: 'include' });
         const payload = await res.json();
         const data = payload.data ?? payload;
         
@@ -280,7 +281,7 @@ let clients = [];
       if (!confirm('Reinstate this client? They will be able to log in again.')) return;
       
       try {
-        const res = await fetch(`/api/v1/admin/clients/${id}/reinstate`, { method: 'POST' });
+        const res = await fetch(`/api/v1/admin/clients/${id}/reinstate`, { method: 'POST', credentials: 'include' });
         const payload = await res.json();
         const data = payload.data ?? payload;
         
@@ -301,6 +302,7 @@ let clients = [];
       try {
         const res = await fetch(`/api/v1/admin/clients/${id}/notes`, {
           method: 'PUT',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ notes })
         });
@@ -349,6 +351,9 @@ let clients = [];
     document.getElementById('filter-search')?.addEventListener('input', debounceSearch);
 
     // Initialize
-    AdminCore.checkAuth();
-    loadStats();
-    loadClients();
+    (async () => {
+      const session = await AdminCore.checkAuth();
+      if (!session) return;
+      await loadStats();
+      await loadClients();
+    })();

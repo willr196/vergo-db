@@ -1,11 +1,10 @@
 /**
  * Client Screens Barrel Export
- * UPDATED: Quotes-based screens for MVP
  */
 
 export { DashboardScreen } from './DashboardScreen';
-export { MyQuotesScreen, MyQuotesScreen as MyJobsScreen } from './MyQuotesScreen';
-export { CreateQuoteScreen, CreateQuoteScreen as CreateJobScreen } from './CreateQuoteScreen';
+export { MyJobsScreen } from './MyJobsScreen';
+export { CreateJobScreen } from './CreateJobScreen';
 export { ClientJobDetailScreen } from './ClientJobDetailScreen';
 export { CompanyProfileScreen } from './CompanyProfileScreen';
 

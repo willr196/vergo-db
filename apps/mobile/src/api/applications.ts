@@ -167,11 +167,11 @@ export const applicationsApi = {
     params.append('page', page.toString());
     params.append('limit', limit.toString());
     if (status) params.append('status', toBackendApplicationStatus(status));
-    
+
     const response = await apiClient.get<PaginatedApplicationsResponse>(
-      `/api/v1/applications/job/${jobId}?${params.toString()}`
+      `/api/v1/client/mobile/jobs/${jobId}/applications?${params.toString()}`
     );
-    
+
     if (response.data.ok !== undefined) {
       return {
         ...response.data,
@@ -180,7 +180,7 @@ export const applicationsApi = {
         ),
       };
     }
-    
+
     return {
       ok: true,
       applications: [],
@@ -190,43 +190,49 @@ export const applicationsApi = {
 
   /**
    * Update application status (client only)
+   * Requires jobId to route through the client mobile endpoint
    */
   async updateApplicationStatus(
     applicationId: string,
     status: ApplicationStatus,
     notes?: string,
-    rejectionReason?: string
+    rejectionReason?: string,
+    jobId?: string
   ): Promise<Application> {
+    // Use the client mobile route when jobId is provided
+    const url = jobId
+      ? `/api/v1/client/mobile/jobs/${jobId}/applications/${applicationId}/status`
+      : `/api/v1/client/mobile/jobs/_/applications/${applicationId}/status`;
+
     const response = await apiClient.put<BackendResponse<Application>>(
-      `/api/v1/applications/${applicationId}/status`,
+      url,
       {
         status: toBackendApplicationStatus(status),
-        clientNotes: notes,
-        rejectionReason,
+        adminNotes: notes,
       }
     );
-    
+
     if (response.data.ok && (response.data.application || response.data.data)) {
       return applicationsApi.normalizeApplication(
         (response.data.application || response.data.data!) as Application
       );
     }
-    
+
     throw new Error(response.data.error || 'Failed to update application');
   },
 
   /**
    * Shortlist an applicant
    */
-  async shortlistApplicant(applicationId: string, notes?: string): Promise<Application> {
-    return this.updateApplicationStatus(applicationId, 'shortlisted', notes);
+  async shortlistApplicant(applicationId: string, jobId: string, notes?: string): Promise<Application> {
+    return this.updateApplicationStatus(applicationId, 'shortlisted', notes, undefined, jobId);
   },
 
   /**
    * Hire an applicant
    */
-  async hireApplicant(applicationId: string, notes?: string): Promise<Application> {
-    return this.updateApplicationStatus(applicationId, 'hired', notes);
+  async hireApplicant(applicationId: string, jobId: string, notes?: string): Promise<Application> {
+    return this.updateApplicationStatus(applicationId, 'hired', notes, undefined, jobId);
   },
 
   /**
@@ -234,10 +240,11 @@ export const applicationsApi = {
    */
   async rejectApplicant(
     applicationId: string,
+    jobId: string,
     rejectionReason?: string,
     notes?: string
   ): Promise<Application> {
-    return this.updateApplicationStatus(applicationId, 'rejected', notes, rejectionReason);
+    return this.updateApplicationStatus(applicationId, 'rejected', notes, rejectionReason, jobId);
   },
 
   /**
@@ -257,7 +264,7 @@ export const applicationsApi = {
         shortlisted: number;
         hired: number;
         activeJobs: number;
-      }>>('/api/v1/applications/stats');
+      }>>('/api/v1/client/mobile/stats');
       
       if (response.data.ok && response.data.data) {
         return response.data.data;

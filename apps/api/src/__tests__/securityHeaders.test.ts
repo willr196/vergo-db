@@ -118,3 +118,17 @@ test('CORS Does Not Reflect Arbitrary Origins', async () => {
   assert.equal(res2.headers['access-control-allow-origin'], allowedOrigin);
   assert.equal(res2.headers['access-control-allow-credentials'], 'true');
 });
+
+test('Zod Validation Errors Return 400 (Not 500)', async () => {
+  setRequiredEnv();
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { default: app } = require('../index');
+
+  // limit is capped at 100 in jobs list query validation.
+  const res = await inject(app, { method: 'GET', url: '/api/v1/jobs?limit=101' });
+  assert.equal(res.statusCode, 400);
+
+  const body = JSON.parse(res.body.split('\r\n\r\n').pop() || '{}');
+  assert.equal(body.error, 'Invalid request');
+  assert.ok(Array.isArray(body.details));
+});

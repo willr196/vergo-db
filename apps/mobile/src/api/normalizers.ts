@@ -45,11 +45,15 @@ type BackendJob = {
   payRate?: number | null;
   payType?: string | null;
   eventDate?: string | null;
+  eventEndDate?: string | null;
   shiftStart?: string | null;
   shiftEnd?: string | null;
   staffNeeded?: number | null;
   staffConfirmed?: number | null;
   companyName?: string | null;
+  externalUrl?: string | null;
+  closingDate?: string | null;
+  publishedAt?: string | null;
   role?: { name: string } | null;
   applicationCount?: number | null;
   createdAt?: string | null;
@@ -158,7 +162,7 @@ export function normalizeJob(job: BackendJob): Job {
     status: mapStatus(job.status),
     createdAt: job.createdAt || new Date().toISOString(),
     updatedAt: job.updatedAt || new Date().toISOString(),
-    applicationDeadline: undefined,
+    applicationDeadline: job.closingDate ?? undefined,
   };
 }
 

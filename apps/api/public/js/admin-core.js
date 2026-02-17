@@ -21,7 +21,7 @@
   // ── Auth ──────────────────────────────────────────────────────────────
   AdminCore.checkAuth = async function () {
     try {
-      const res = await fetch('/api/v1/auth/session');
+      const res = await fetch('/api/v1/auth/session', { credentials: 'include' });
       const payload = await res.json();
       const data = payload.data ?? payload;
       if (!data.authenticated) {
