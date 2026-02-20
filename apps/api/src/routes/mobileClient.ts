@@ -403,6 +403,81 @@ function shapeJob(job: any) {
 }
 
 // ============================================
+// GET /api/v1/client/mobile/dashboard - Dashboard stats + recent activity
+// ============================================
+r.get('/dashboard', async (req, res) => {
+  try {
+    const clientId = req.auth!.userId;
+    const companyName = await getClientCompanyName(clientId);
+
+    if (!companyName) {
+      return res.status(400).json({ ok: false, error: 'Client company not found' });
+    }
+
+    // Aggregate stats from all jobs
+    const jobs = await prisma.job.findMany({
+      where: { companyName },
+      select: {
+        id: true,
+        status: true,
+        staffConfirmed: true,
+        _count: { select: { applications: true } }
+      }
+    });
+
+    const activeJobs = jobs.filter(j => j.status === 'OPEN').length;
+    const totalApplicants = jobs.reduce((sum, j) => sum + (j._count?.applications ?? 0), 0);
+    const staffConfirmed = jobs.reduce((sum, j) => sum + (j.staffConfirmed ?? 0), 0);
+    const jobIds = jobs.map(j => j.id);
+
+    // Count applications pending review (not yet actioned)
+    const pendingReview = jobIds.length > 0 ? await prisma.jobApplication.count({
+      where: {
+        jobId: { in: jobIds },
+        status: 'PENDING'
+      }
+    }) : 0;
+
+    // Last 5 applications received across all client jobs
+    const recentApplications = jobIds.length > 0 ? await prisma.jobApplication.findMany({
+      where: { jobId: { in: jobIds } },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      include: {
+        user: {
+          select: { id: true, firstName: true, lastName: true, email: true }
+        },
+        job: {
+          select: { id: true, title: true }
+        }
+      }
+    }) : [];
+
+    const shapedRecent = recentApplications.map(app => ({
+      id: app.id,
+      jobId: app.jobId,
+      userId: app.userId,
+      status: app.status.toLowerCase(),
+      coverNote: app.coverNote,
+      user: app.user,
+      jobSeeker: app.user,
+      job: app.job,
+      createdAt: app.createdAt.toISOString(),
+      updatedAt: app.updatedAt.toISOString()
+    }));
+
+    res.json({
+      ok: true,
+      stats: { activeJobs, totalApplicants, pendingReview, staffConfirmed },
+      recentApplications: shapedRecent
+    });
+  } catch (error) {
+    console.error('[ERROR] Get dashboard failed:', error);
+    res.status(500).json({ ok: false, error: 'Failed to fetch dashboard' });
+  }
+});
+
+// ============================================
 // GET /api/v1/client/mobile/jobs - List client's own jobs
 // ============================================
 r.get('/jobs', async (req, res) => {
@@ -726,13 +801,13 @@ r.get('/jobs/:id/applications', async (req, res) => {
       id: app.id,
       jobId: app.jobId,
       userId: app.userId,
-      status: app.status,
+      status: app.status.toLowerCase(),
       coverNote: app.coverNote,
       user: app.user,
       jobSeeker: app.user,
       job: app.job,
-      createdAt: app.createdAt,
-      updatedAt: app.updatedAt
+      createdAt: app.createdAt.toISOString(),
+      updatedAt: app.updatedAt.toISOString()
     }));
 
     const totalPages = Math.ceil(total / query.limit);
@@ -825,19 +900,76 @@ r.put('/jobs/:jobId/applications/:appId/status', async (req, res) => {
       id: application.id,
       jobId: application.jobId,
       userId: application.userId,
-      status: application.status,
+      status: application.status.toLowerCase(),
       coverNote: application.coverNote,
       user: application.user,
       jobSeeker: application.user,
       job: application.job,
-      createdAt: application.createdAt,
-      updatedAt: application.updatedAt
+      createdAt: application.createdAt.toISOString(),
+      updatedAt: application.updatedAt.toISOString()
     };
 
     res.json({ ok: true, application: shaped, data: shaped });
   } catch (error) {
     console.error('[ERROR] Update application status failed:', error);
     res.status(500).json({ ok: false, error: 'Failed to update application' });
+  }
+});
+
+// ============================================
+// GET /api/v1/client/mobile/applications/:appId - Get single application for a client-owned job
+// ============================================
+r.get('/applications/:appId', async (req, res) => {
+  try {
+    const clientId = req.auth!.userId;
+    const companyName = await getClientCompanyName(clientId);
+
+    if (!companyName) {
+      return res.status(400).json({ ok: false, error: 'Client company not found' });
+    }
+
+    const application = await prisma.jobApplication.findFirst({
+      where: {
+        id: req.params.appId,
+        job: { companyName }
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true
+          }
+        },
+        job: {
+          select: { id: true, title: true }
+        }
+      }
+    });
+
+    if (!application) {
+      return res.status(404).json({ ok: false, error: 'Application not found' });
+    }
+
+    const shaped = {
+      id: application.id,
+      jobId: application.jobId,
+      userId: application.userId,
+      status: application.status.toLowerCase(),
+      coverNote: application.coverNote,
+      user: application.user,
+      jobSeeker: application.user,
+      job: application.job,
+      createdAt: application.createdAt.toISOString(),
+      updatedAt: application.updatedAt.toISOString()
+    };
+
+    res.json({ ok: true, application: shaped, data: shaped });
+  } catch (error) {
+    console.error('[ERROR] Get client application failed:', error);
+    res.status(500).json({ ok: false, error: 'Failed to fetch application' });
   }
 });
 

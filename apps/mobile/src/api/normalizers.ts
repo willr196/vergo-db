@@ -121,6 +121,12 @@ export function normalizeJob(job: BackendJob): Job {
   const staffNeeded = job.staffNeeded ?? 0;
   const staffConfirmed = job.staffConfirmed ?? 0;
 
+  const payType = ((): 'HOURLY' | 'DAILY' | 'FIXED' | undefined => {
+    const pt = (job.payType || '').toUpperCase();
+    if (pt === 'HOURLY' || pt === 'DAILY' || pt === 'FIXED') return pt;
+    return undefined;
+  })();
+
   return {
     id: job.id,
     clientCompanyId: job.companyName ? job.companyName : '',
@@ -149,6 +155,7 @@ export function normalizeJob(job: BackendJob): Job {
     endTime: job.shiftEnd || '00:00',
     breakDuration: undefined,
     hourlyRate: payRate,
+    payType,
     totalHours: totalHours || undefined,
     estimatedPay: estimatedPay || undefined,
     uniformRequired: false,
@@ -249,17 +256,23 @@ export function normalizeStoredUser(user: JobSeeker | ClientCompany): JobSeeker 
 
 export type BackendJobApplicationStatus =
   | 'PENDING'
+  | 'RECEIVED'
   | 'REVIEWED'
+  | 'REVIEWING'
   | 'SHORTLISTED'
   | 'CONFIRMED'
+  | 'HIRED'
   | 'REJECTED'
   | 'WITHDRAWN';
 
 const BACKEND_TO_FRONTEND_APPLICATION_STATUS: Record<BackendJobApplicationStatus, ApplicationStatus> = {
   PENDING: 'pending',
+  RECEIVED: 'pending',
   REVIEWED: 'reviewing',
+  REVIEWING: 'reviewing',
   SHORTLISTED: 'shortlisted',
   CONFIRMED: 'hired',
+  HIRED: 'hired',
   REJECTED: 'rejected',
   WITHDRAWN: 'withdrawn',
 };
@@ -279,9 +292,13 @@ export function normalizeApplicationStatus(status: unknown): ApplicationStatus {
 
   const lower = raw.toLowerCase();
 
-  // Back-compat: older app used 'received' to mean "pending".
-  if (lower === 'received') return 'pending';
+  // Check backend uppercase statuses first (covers both endpoint schemas)
+  const upper = raw.toUpperCase() as BackendJobApplicationStatus;
+  if (upper in BACKEND_TO_FRONTEND_APPLICATION_STATUS) {
+    return BACKEND_TO_FRONTEND_APPLICATION_STATUS[upper];
+  }
 
+  // Accept already-normalized frontend values
   if (
     lower === 'pending' ||
     lower === 'reviewing' ||
@@ -291,11 +308,6 @@ export function normalizeApplicationStatus(status: unknown): ApplicationStatus {
     lower === 'withdrawn'
   ) {
     return lower as ApplicationStatus;
-  }
-
-  const upper = raw.toUpperCase() as BackendJobApplicationStatus;
-  if (upper in BACKEND_TO_FRONTEND_APPLICATION_STATUS) {
-    return BACKEND_TO_FRONTEND_APPLICATION_STATUS[upper];
   }
 
   return 'pending';

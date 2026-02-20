@@ -4,13 +4,14 @@
  */
 
 import React from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { colors, typography } from '../theme';
 import { useAuthStore } from '../store';
+import { Toast } from '../components';
 import type { RootStackParamList, JobSeekerTabParamList, ClientTabParamList } from '../types';
 
 // Auth Screens
@@ -42,6 +43,7 @@ import {
   ApplicantListScreen,
   ApplicantDetailScreen,
   EditJobScreen,
+  EditClientProfileScreen,
 } from '../screens/client';
 
 // Navigation theme
@@ -218,6 +220,11 @@ function ClientStack() {
         component={EditJobScreen}
         options={{ presentation: 'modal' }}
       />
+      <Stack.Screen
+        name="EditClientProfile"
+        component={EditClientProfileScreen}
+        options={{ presentation: 'modal' }}
+      />
     </Stack.Navigator>
   );
 }
@@ -225,17 +232,20 @@ function ClientStack() {
 // Root Navigator
 export function RootNavigator() {
   const { isAuthenticated, userType } = useAuthStore();
-  
+
   return (
-    <NavigationContainer theme={navigationTheme}>
-      {!isAuthenticated ? (
-        <AuthStack />
-      ) : userType === 'jobseeker' ? (
-        <JobSeekerStack />
-      ) : (
-        <ClientStack />
-      )}
-    </NavigationContainer>
+    <View style={{ flex: 1 }}>
+      <NavigationContainer theme={navigationTheme}>
+        {!isAuthenticated ? (
+          <AuthStack />
+        ) : userType === 'jobseeker' ? (
+          <JobSeekerStack />
+        ) : (
+          <ClientStack />
+        )}
+      </NavigationContainer>
+      <Toast />
+    </View>
   );
 }
 

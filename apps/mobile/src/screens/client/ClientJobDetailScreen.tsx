@@ -18,6 +18,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { LoadingScreen, Button } from '../../components';
 import { jobsApi, applicationsApi } from '../../api';
+import { useUIStore } from '../../store';
 import { logger } from '../../utils/logger';
 import type { RootStackParamList, Job, Application } from '../../types';
 
@@ -25,6 +26,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'ClientJobDetail'>;
 
 export function ClientJobDetailScreen({ route, navigation }: Props) {
   const { jobId } = route.params;
+  const { showToast } = useUIStore();
   const [job, setJob] = useState<Job | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,14 +36,14 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
   const fetchData = useCallback(async () => {
     try {
       const [jobData, appsData] = await Promise.all([
-        jobsApi.getJob(jobId),
+        jobsApi.getClientJob(jobId),
         applicationsApi.getJobApplications(jobId),
       ]);
       setJob(jobData);
       setApplications(appsData.applications || []);
     } catch (error) {
       logger.error('Failed to fetch job:', error);
-      Alert.alert('Error', 'Failed to load job details');
+      showToast('Failed to load job details', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -70,9 +72,9 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
             try {
               await jobsApi.closeJob(jobId);
               setJob((prev) => (prev ? { ...prev, status: 'closed' } : null));
-              Alert.alert('Success', 'Job has been closed');
+              showToast('Job has been closed', 'success');
             } catch {
-              Alert.alert('Error', 'Failed to close job');
+              showToast('Failed to close job', 'error');
             }
           },
         },
@@ -101,9 +103,10 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
         )
       );
 
-      Alert.alert('Success', `Applicant ${action === 'hire' ? 'hired' : action === 'shortlist' ? 'shortlisted' : 'rejected'}`);
+      const actionLabel = action === 'hire' ? 'hired' : action === 'shortlist' ? 'shortlisted' : 'rejected';
+      showToast(`Applicant ${actionLabel}`, 'success');
     } catch {
-      Alert.alert('Error', 'Failed to update application');
+      showToast('Failed to update application', 'error');
     }
   };
 
@@ -156,11 +159,21 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
-        {job.status !== 'closed' && (
-          <TouchableOpacity onPress={handleCloseJob}>
-            <Text style={styles.closeText}>Close Job</Text>
-          </TouchableOpacity>
-        )}
+        <View style={styles.headerActions}>
+          {job.status !== 'closed' && (
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => navigation.navigate('EditJob', { jobId: job.id })}
+            >
+              <Text style={styles.editText}>Edit</Text>
+            </TouchableOpacity>
+          )}
+          {job.status !== 'closed' && (
+            <TouchableOpacity onPress={handleCloseJob}>
+              <Text style={styles.closeText}>Close</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {/* Job Title */}
@@ -367,6 +380,23 @@ const styles = StyleSheet.create({
   backText: {
     color: colors.primary,
     fontSize: typography.fontSize.md,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  editButton: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.sm,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  editText: {
+    color: colors.primary,
+    fontSize: typography.fontSize.sm,
+    fontWeight: '500' as const,
   },
   closeText: {
     color: colors.error,

@@ -12,13 +12,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, typography } from '../../theme';
 import { Button, Input } from '../../components';
-import { useAuthStore } from '../../store';
+import { useAuthStore, useUIStore } from '../../store';
 import type { RootStackParamList } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
@@ -26,6 +25,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 export function LoginScreen({ navigation, route }: Props) {
   const { userType } = route.params;
   const { login, isLoading, clearError } = useAuthStore();
+  const { showToast } = useUIStore();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -75,7 +75,7 @@ export function LoginScreen({ navigation, route }: Props) {
       const message = err instanceof Error
         ? err.message
         : 'Please check your credentials and try again.';
-      Alert.alert('Login Failed', message);
+      showToast(message, 'error');
     }
 };
   

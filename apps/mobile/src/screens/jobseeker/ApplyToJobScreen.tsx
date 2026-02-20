@@ -11,7 +11,6 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -19,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Button } from '../../components';
-import { useApplicationsStore, useAuthStore, selectJobSeeker } from '../../store';
+import { useApplicationsStore, useAuthStore, useUIStore, selectJobSeeker } from '../../store';
 import type { RootStackParamList } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ApplyToJob'>;
@@ -28,6 +27,7 @@ export function ApplyToJobScreen({ navigation, route }: Props) {
   const { job } = route.params;
   const { applyToJob, isSubmitting, error } = useApplicationsStore();
   const user = useAuthStore(selectJobSeeker);
+  const { showToast } = useUIStore();
   
   const [coverNote, setCoverNote] = useState('');
   const [step, setStep] = useState<'review' | 'note' | 'confirm'>('review');
@@ -35,19 +35,10 @@ export function ApplyToJobScreen({ navigation, route }: Props) {
   const handleSubmit = async () => {
     try {
       await applyToJob(job.id, coverNote.trim() || undefined);
-      
-      Alert.alert(
-        'Application Submitted! 🎉',
-        'Your application has been sent. You can track its status in the Applications tab.',
-        [
-          {
-            text: 'View Applications',
-            onPress: () => navigation.navigate('JobSeekerTabs'),
-          },
-        ]
-      );
+      showToast('Application submitted! Track it in the Applications tab', 'success');
+      navigation.navigate('JobSeekerTabs');
     } catch {
-      Alert.alert('Error', error || 'Failed to submit application. Please try again.');
+      showToast(error || 'Failed to submit application. Please try again.', 'error');
     }
   };
   

@@ -18,6 +18,31 @@ export interface ClientStats {
   activeQuotes: number;
 }
 
+export interface ClientDashboardStats {
+  activeJobs: number;
+  totalApplicants: number;
+  pendingReview: number;
+  staffConfirmed: number;
+}
+
+export interface DashboardApplication {
+  id: string;
+  jobId: string;
+  userId: string;
+  status: string;
+  coverNote: string | null;
+  user: { id: string; firstName: string; lastName: string; email: string } | null;
+  jobSeeker: { id: string; firstName: string; lastName: string; email: string } | null;
+  job: { id: string; title: string } | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ClientDashboard {
+  stats: ClientDashboardStats;
+  recentApplications: DashboardApplication[];
+}
+
 export interface QuoteRequest {
   id: string;
   eventType: string;
@@ -83,6 +108,30 @@ export interface PaginatedQuotesResponse {
 // ============================================
 
 export const clientApi = {
+  /**
+   * Get dashboard stats and recent activity (jobs-based)
+   */
+  async getDashboard(): Promise<ClientDashboard> {
+    const response = await apiClient.get<{
+      ok: boolean;
+      stats?: ClientDashboardStats;
+      recentApplications?: DashboardApplication[];
+      error?: string;
+    }>('/api/v1/client/mobile/dashboard');
+
+    if (response.data.ok) {
+      return {
+        stats: response.data.stats ?? { activeJobs: 0, totalApplicants: 0, pendingReview: 0, staffConfirmed: 0 },
+        recentApplications: response.data.recentApplications ?? [],
+      };
+    }
+
+    return {
+      stats: { activeJobs: 0, totalApplicants: 0, pendingReview: 0, staffConfirmed: 0 },
+      recentApplications: [],
+    };
+  },
+
   /**
    * Get dashboard statistics
    */

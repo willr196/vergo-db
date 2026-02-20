@@ -124,6 +124,7 @@ export interface Job {
   
   // Compensation
   hourlyRate: number;
+  payType?: 'HOURLY' | 'DAILY' | 'FIXED';
   totalHours?: number;
   estimatedPay?: number;
   
@@ -274,6 +275,7 @@ export type RootStackParamList = {
   EditJob: { jobId: string };
   ApplicantDetail: { applicationId: string };
   ApplicantList: { jobId: string };
+  EditClientProfile: undefined;
 };
 
 export type JobSeekerTabParamList = {
@@ -284,7 +286,7 @@ export type JobSeekerTabParamList = {
 
 export type ClientTabParamList = {
   Dashboard: undefined;
-  MyJobs: undefined;
+  MyJobs: { initialFilter?: 'all' | 'active' | 'closed' } | undefined;
   CompanyProfile: undefined;
 };
 

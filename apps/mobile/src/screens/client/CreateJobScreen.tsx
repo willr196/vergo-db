@@ -1,9 +1,9 @@
 /**
  * Create Job Screen
- * Form for clients to post new jobs
+ * Form for clients to post new job listings
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,46 +11,44 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Button, DateTimePickerInput } from '../../components';
 import { jobsApi } from '../../api';
-import type { RootStackParamList, JobRole } from '../../types';
+import { useUIStore } from '../../store';
+import type { RootStackParamList } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CreateJob'>;
 
-const ROLES: { value: JobRole; label: string }[] = [
-  { value: 'bartender', label: 'Bartender' },
-  { value: 'server', label: 'Server' },
-  { value: 'chef', label: 'Chef' },
-  { value: 'sous_chef', label: 'Sous Chef' },
-  { value: 'kitchen_porter', label: 'Kitchen Porter' },
-  { value: 'event_manager', label: 'Event Manager' },
-  { value: 'front_of_house', label: 'Front of House' },
-  { value: 'barista', label: 'Barista' },
-  { value: 'runner', label: 'Runner' },
+type PayType = 'HOURLY' | 'DAILY' | 'FIXED';
+
+const PAY_TYPES: { value: PayType; label: string }[] = [
+  { value: 'HOURLY', label: 'Hourly' },
+  { value: 'DAILY', label: 'Daily' },
+  { value: 'FIXED', label: 'Fixed' },
 ];
 
-// Track which fields have validation errors
 type FieldErrors = {
   title?: boolean;
-  role?: boolean;
+  roleId?: boolean;
   description?: boolean;
-  city?: boolean;
-  venue?: boolean;
-  hourlyRate?: boolean;
+  location?: boolean;
+  payRate?: boolean;
+  staffNeeded?: boolean;
 };
 
 export function CreateJobScreen({ navigation }: Props) {
+  const { showToast } = useUIStore();
+  const [isLoadingRoles, setIsLoadingRoles] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
-  // Initialize date fields with default values
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(18, 0, 0, 0);
@@ -60,109 +58,98 @@ export function CreateJobScreen({ navigation }: Props) {
 
   const [form, setForm] = useState({
     title: '',
-    role: '' as JobRole | '',
+    roleId: '',
     description: '',
-    city: '',
-    venue: '',
-    address: '',
-    date: tomorrow,
-    startTime: tomorrow,
-    endTime: endTimeDefault,
-    hourlyRate: '',
-    positions: '1',
     requirements: '',
-    dbsRequired: false,
+    location: '',
+    venue: '',
+    payRate: '',
+    payType: 'HOURLY' as PayType,
+    eventDate: tomorrow,
+    eventEndDate: tomorrow,
+    shiftStart: tomorrow,
+    shiftEnd: endTimeDefault,
+    staffNeeded: '1',
   });
 
-  const updateForm = (field: string, value: string | boolean | Date) => {
+  useEffect(() => {
+    jobsApi
+      .getRoles()
+      .then((data) => setRoles(data))
+      .catch(() => {})
+      .finally(() => setIsLoadingRoles(false));
+  }, []);
+
+  const updateForm = (field: string, value: string | Date | PayType) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const clearFieldError = (field: keyof FieldErrors) => {
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => ({ ...prev, [field]: false }));
+    }
   };
 
   const validateForm = (): string | null => {
     const errors: FieldErrors = {};
 
     if (!form.title.trim()) errors.title = true;
-    if (!form.role) errors.role = true;
+    if (!form.roleId) errors.roleId = true;
     if (!form.description.trim()) errors.description = true;
-    if (!form.city.trim()) errors.city = true;
-    if (!form.venue.trim()) errors.venue = true;
-    if (!form.hourlyRate.trim() || isNaN(Number(form.hourlyRate)) || Number(form.hourlyRate) < 1) {
-      errors.hourlyRate = true;
+    if (!form.location.trim()) errors.location = true;
+    if (!form.payRate.trim() || isNaN(Number(form.payRate)) || Number(form.payRate) <= 0) {
+      errors.payRate = true;
+    }
+    const staffNum = parseInt(form.staffNeeded, 10);
+    if (!form.staffNeeded.trim() || isNaN(staffNum) || staffNum < 1) {
+      errors.staffNeeded = true;
     }
 
     setFieldErrors(errors);
 
-    // Return error message for alert
     if (errors.title) return 'Job title is required';
-    if (errors.role) return 'Please select a role';
+    if (errors.roleId) return 'Please select a role';
     if (errors.description) return 'Description is required';
-    if (errors.city) return 'City is required';
-    if (errors.venue) return 'Venue name is required';
-    if (!form.date) return 'Date is required';
-    if (!form.startTime) return 'Start time is required';
-    if (!form.endTime) return 'End time is required';
-    if (form.endTime <= form.startTime) return 'End time must be after start time';
-    if (errors.hourlyRate) {
-      if (!form.hourlyRate.trim()) return 'Hourly rate is required';
-      if (isNaN(Number(form.hourlyRate))) return 'Hourly rate must be a number';
-      return 'Hourly rate must be at least £1';
-    }
+    if (errors.location) return 'Location is required';
+    if (errors.payRate) return 'A valid pay rate is required';
+    if (errors.staffNeeded) return 'Staff needed must be at least 1';
     return null;
-  };
-
-  // Clear field error when user starts typing
-  const clearFieldError = (field: keyof FieldErrors) => {
-    if (fieldErrors[field]) {
-      setFieldErrors(prev => ({ ...prev, [field]: false }));
-    }
   };
 
   const handleSubmit = async () => {
     const error = validateForm();
     if (error) {
-      Alert.alert('Missing Information', error);
+      showToast(error, 'error');
       return;
     }
 
     setIsSubmitting(true);
-
     try {
-      // Format dates to ISO 8601 format
-      const formatDate = (date: Date) => date.toISOString().split('T')[0];
-      const formatTime = (date: Date) => date.toTimeString().slice(0, 5);
+      const formatDate = (d: Date) => d.toISOString().split('T')[0];
+      const formatTime = (d: Date) => d.toTimeString().slice(0, 5);
 
-      await jobsApi.createJob({
+      await jobsApi.createClientJob({
         title: form.title.trim(),
-        role: form.role as JobRole,
         description: form.description.trim(),
-        city: form.city.trim(),
-        venue: form.venue.trim(),
-        address: form.address.trim(),
-        date: formatDate(form.date),
-        startTime: formatTime(form.startTime),
-        endTime: formatTime(form.endTime),
-        hourlyRate: Number(form.hourlyRate),
-        positions: Number(form.positions) || 1,
-        requirements: form.requirements.trim(),
-        dbsRequired: form.dbsRequired,
+        requirements: form.requirements.trim() || undefined,
+        location: form.location.trim(),
+        venue: form.venue.trim() || undefined,
+        payRate: Number(form.payRate),
+        payType: form.payType,
+        eventDate: formatDate(form.eventDate),
+        eventEndDate: formatDate(form.eventEndDate),
+        shiftStart: formatTime(form.shiftStart),
+        shiftEnd: formatTime(form.shiftEnd),
+        staffNeeded: parseInt(form.staffNeeded, 10),
+        roleId: form.roleId,
+        status: 'OPEN',
       });
 
-      Alert.alert(
-        'Job Posted!',
-        'Your job has been posted successfully. Candidates can now apply.',
-        [
-          {
-            text: 'View My Jobs',
-            onPress: () => navigation.goBack(),
-          },
-        ]
-      );
+      showToast('Job posted! Your listing is now live', 'success');
+      navigation.goBack();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to post job';
-      Alert.alert(
-        'Unable to Post Job',
-        message + '. Please check your connection and try again.'
-      );
+      showToast(message, 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -187,6 +174,7 @@ export function CreateJobScreen({ navigation }: Props) {
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           {/* Basic Info */}
           <View style={styles.section}>
@@ -211,35 +199,43 @@ export function CreateJobScreen({ navigation }: Props) {
               )}
             </View>
 
+            {/* Role selector — populated from API */}
             <View style={styles.field}>
-              <Text style={[styles.label, fieldErrors.role && styles.labelError]}>
+              <Text style={[styles.label, fieldErrors.roleId && styles.labelError]}>
                 Role *
               </Text>
-              <View style={[styles.roleGrid, fieldErrors.role && styles.roleGridError]}>
-                {ROLES.map((role) => (
-                  <TouchableOpacity
-                    key={role.value}
-                    style={[
-                      styles.roleChip,
-                      form.role === role.value && styles.roleChipActive,
-                    ]}
-                    onPress={() => {
-                      updateForm('role', role.value);
-                      clearFieldError('role');
-                    }}
-                  >
-                    <Text
+              {isLoadingRoles ? (
+                <View style={styles.rolesLoading}>
+                  <ActivityIndicator size="small" color={colors.primary} />
+                  <Text style={styles.rolesLoadingText}>Loading roles…</Text>
+                </View>
+              ) : (
+                <View style={[styles.roleGrid, fieldErrors.roleId && styles.roleGridError]}>
+                  {roles.map((role) => (
+                    <TouchableOpacity
+                      key={role.id}
                       style={[
-                        styles.roleChipText,
-                        form.role === role.value && styles.roleChipTextActive,
+                        styles.roleChip,
+                        form.roleId === role.id && styles.roleChipActive,
                       ]}
+                      onPress={() => {
+                        updateForm('roleId', role.id);
+                        clearFieldError('roleId');
+                      }}
                     >
-                      {role.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-              {fieldErrors.role && (
+                      <Text
+                        style={[
+                          styles.roleChipText,
+                          form.roleId === role.id && styles.roleChipTextActive,
+                        ]}
+                      >
+                        {role.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+              {fieldErrors.roleId && (
                 <Text style={styles.errorText}>Please select a role</Text>
               )}
             </View>
@@ -250,7 +246,7 @@ export function CreateJobScreen({ navigation }: Props) {
               </Text>
               <TextInput
                 style={[styles.input, styles.textArea, fieldErrors.description && styles.inputError]}
-                placeholder="Describe the job, responsibilities, and what you're looking for..."
+                placeholder="Describe the job, responsibilities, and what you're looking for…"
                 placeholderTextColor={colors.textMuted}
                 value={form.description}
                 onChangeText={(v) => {
@@ -265,6 +261,20 @@ export function CreateJobScreen({ navigation }: Props) {
                 <Text style={styles.errorText}>Description is required</Text>
               )}
             </View>
+
+            <View style={styles.field}>
+              <Text style={styles.label}>Requirements (Optional)</Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder="List any specific requirements or experience needed…"
+                placeholderTextColor={colors.textMuted}
+                value={form.requirements}
+                onChangeText={(v) => updateForm('requirements', v)}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+            </View>
           </View>
 
           {/* Location */}
@@ -272,51 +282,32 @@ export function CreateJobScreen({ navigation }: Props) {
             <Text style={styles.sectionTitle}>Location</Text>
 
             <View style={styles.field}>
-              <Text style={[styles.label, fieldErrors.city && styles.labelError]}>
-                City *
+              <Text style={[styles.label, fieldErrors.location && styles.labelError]}>
+                Location / City *
               </Text>
               <TextInput
-                style={[styles.input, fieldErrors.city && styles.inputError]}
+                style={[styles.input, fieldErrors.location && styles.inputError]}
                 placeholder="e.g. London"
                 placeholderTextColor={colors.textMuted}
-                value={form.city}
+                value={form.location}
                 onChangeText={(v) => {
-                  updateForm('city', v);
-                  clearFieldError('city');
+                  updateForm('location', v);
+                  clearFieldError('location');
                 }}
               />
-              {fieldErrors.city && (
-                <Text style={styles.errorText}>City is required</Text>
+              {fieldErrors.location && (
+                <Text style={styles.errorText}>Location is required</Text>
               )}
             </View>
 
             <View style={styles.field}>
-              <Text style={[styles.label, fieldErrors.venue && styles.labelError]}>
-                Venue Name *
-              </Text>
+              <Text style={styles.label}>Venue Name (Optional)</Text>
               <TextInput
-                style={[styles.input, fieldErrors.venue && styles.inputError]}
+                style={styles.input}
                 placeholder="e.g. The Grand Hotel"
                 placeholderTextColor={colors.textMuted}
                 value={form.venue}
-                onChangeText={(v) => {
-                  updateForm('venue', v);
-                  clearFieldError('venue');
-                }}
-              />
-              {fieldErrors.venue && (
-                <Text style={styles.errorText}>Venue name is required</Text>
-              )}
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>Address (Optional)</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Full address"
-                placeholderTextColor={colors.textMuted}
-                value={form.address}
-                onChangeText={(v) => updateForm('address', v)}
+                onChangeText={(v) => updateForm('venue', v)}
               />
             </View>
           </View>
@@ -326,29 +317,37 @@ export function CreateJobScreen({ navigation }: Props) {
             <Text style={styles.sectionTitle}>Date & Time</Text>
 
             <DateTimePickerInput
-              label="Date *"
-              value={form.date}
+              label="Event Start Date *"
+              value={form.eventDate}
               mode="date"
-              onChange={(date) => updateForm('date', date)}
+              onChange={(date) => updateForm('eventDate', date)}
               minimumDate={new Date()}
+            />
+
+            <DateTimePickerInput
+              label="Event End Date (Optional)"
+              value={form.eventEndDate}
+              mode="date"
+              onChange={(date) => updateForm('eventEndDate', date)}
+              minimumDate={form.eventDate}
             />
 
             <View style={styles.row}>
               <View style={styles.flex}>
                 <DateTimePickerInput
-                  label="Start Time *"
-                  value={form.startTime}
+                  label="Shift Start *"
+                  value={form.shiftStart}
                   mode="time"
-                  onChange={(date) => updateForm('startTime', date)}
+                  onChange={(date) => updateForm('shiftStart', date)}
                 />
               </View>
               <View style={styles.rowGap} />
               <View style={styles.flex}>
                 <DateTimePickerInput
-                  label="End Time *"
-                  value={form.endTime}
+                  label="Shift End *"
+                  value={form.shiftEnd}
                   mode="time"
-                  onChange={(date) => updateForm('endTime', date)}
+                  onChange={(date) => updateForm('shiftEnd', date)}
                 />
               </View>
             </View>
@@ -358,82 +357,82 @@ export function CreateJobScreen({ navigation }: Props) {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Pay & Positions</Text>
 
+            {/* Pay Type */}
+            <View style={styles.field}>
+              <Text style={styles.label}>Pay Type</Text>
+              <View style={styles.segmentedControl}>
+                {PAY_TYPES.map((pt) => (
+                  <TouchableOpacity
+                    key={pt.value}
+                    style={[
+                      styles.segment,
+                      form.payType === pt.value && styles.segmentActive,
+                    ]}
+                    onPress={() => updateForm('payType', pt.value)}
+                  >
+                    <Text
+                      style={[
+                        styles.segmentText,
+                        form.payType === pt.value && styles.segmentTextActive,
+                      ]}
+                    >
+                      {pt.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
             <View style={styles.row}>
               <View style={[styles.field, styles.flex]}>
-                <Text style={[styles.label, fieldErrors.hourlyRate && styles.labelError]}>
-                  Hourly Rate (£) *
+                <Text style={[styles.label, fieldErrors.payRate && styles.labelError]}>
+                  Pay Rate (£) *
                 </Text>
                 <TextInput
-                  style={[styles.input, fieldErrors.hourlyRate && styles.inputError]}
+                  style={[styles.input, fieldErrors.payRate && styles.inputError]}
                   placeholder="e.g. 15"
                   placeholderTextColor={colors.textMuted}
-                  value={form.hourlyRate}
+                  value={form.payRate}
                   onChangeText={(v) => {
-                    updateForm('hourlyRate', v);
-                    clearFieldError('hourlyRate');
+                    updateForm('payRate', v);
+                    clearFieldError('payRate');
                   }}
                   keyboardType="numeric"
                 />
-                {fieldErrors.hourlyRate && (
-                  <Text style={styles.errorText}>Valid hourly rate required</Text>
+                {fieldErrors.payRate && (
+                  <Text style={styles.errorText}>Valid pay rate required</Text>
                 )}
               </View>
               <View style={styles.rowGap} />
               <View style={[styles.field, styles.flex]}>
-                <Text style={styles.label}>Positions</Text>
+                <Text style={[styles.label, fieldErrors.staffNeeded && styles.labelError]}>
+                  Staff Needed *
+                </Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, fieldErrors.staffNeeded && styles.inputError]}
                   placeholder="1"
                   placeholderTextColor={colors.textMuted}
-                  value={form.positions}
-                  onChangeText={(v) => updateForm('positions', v)}
+                  value={form.staffNeeded}
+                  onChangeText={(v) => {
+                    updateForm('staffNeeded', v);
+                    clearFieldError('staffNeeded');
+                  }}
                   keyboardType="numeric"
                 />
+                {fieldErrors.staffNeeded && (
+                  <Text style={styles.errorText}>At least 1 required</Text>
+                )}
               </View>
             </View>
-          </View>
-
-          {/* Requirements */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Requirements</Text>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>Requirements (Optional)</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                placeholder="List any specific requirements or experience needed..."
-                placeholderTextColor={colors.textMuted}
-                value={form.requirements}
-                onChangeText={(v) => updateForm('requirements', v)}
-                multiline
-                numberOfLines={3}
-                textAlignVertical="top"
-              />
-            </View>
-
-            <TouchableOpacity
-              style={styles.checkboxRow}
-              onPress={() => updateForm('dbsRequired', !form.dbsRequired)}
-            >
-              <View
-                style={[
-                  styles.checkbox,
-                  form.dbsRequired && styles.checkboxActive,
-                ]}
-              >
-                {form.dbsRequired && <Text style={styles.checkmark}>✓</Text>}
-              </View>
-              <Text style={styles.checkboxLabel}>DBS check required</Text>
-            </TouchableOpacity>
           </View>
 
           {/* Submit */}
           <View style={styles.submitSection}>
             <Button
-              title={isSubmitting ? 'Posting...' : 'Post Job'}
+              title={isSubmitting ? 'Posting…' : 'Post Job'}
               onPress={handleSubmit}
               loading={isSubmitting}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isLoadingRoles}
             />
           </View>
         </ScrollView>
@@ -525,6 +524,20 @@ const styles = StyleSheet.create({
   rowGap: {
     width: spacing.md,
   },
+  rolesLoading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    padding: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
+  },
+  rolesLoadingText: {
+    color: colors.textMuted,
+    fontSize: typography.fontSize.sm,
+  },
   roleGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -557,32 +570,29 @@ const styles = StyleSheet.create({
   roleChipTextActive: {
     color: colors.textInverse,
   },
-  checkboxRow: {
+  segmentedControl: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-    borderWidth: 2,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
     borderColor: colors.surfaceBorder,
+    overflow: 'hidden',
+  },
+  segment: {
+    flex: 1,
+    paddingVertical: spacing.sm,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  checkboxActive: {
+  segmentActive: {
     backgroundColor: colors.primary,
-    borderColor: colors.primary,
   },
-  checkmark: {
+  segmentText: {
+    color: colors.textSecondary,
+    fontSize: typography.fontSize.sm,
+    fontWeight: '500' as const,
+  },
+  segmentTextActive: {
     color: colors.textInverse,
-    fontSize: 14,
-    fontWeight: '700' as const,
-  },
-  checkboxLabel: {
-    color: colors.textPrimary,
-    fontSize: typography.fontSize.md,
   },
   submitSection: {
     paddingHorizontal: spacing.lg,

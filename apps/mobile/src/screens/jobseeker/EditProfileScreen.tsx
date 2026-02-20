@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Input } from '../../components';
-import { useAuthStore, selectJobSeeker } from '../../store';
+import { useAuthStore, useUIStore, selectJobSeeker } from '../../store';
 import type { RootStackParamList, JobSeeker, JobRole, AvailabilityStatus } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EditProfile'>;
@@ -45,6 +45,7 @@ const AVAILABILITY_OPTIONS: { value: AvailabilityStatus; label: string }[] = [
 export function EditProfileScreen({ navigation }: Props) {
   const { updateProfile, isLoading, error } = useAuthStore();
   const user = useAuthStore(selectJobSeeker);
+  const { showToast } = useUIStore();
   
   // Form state
   const [firstName, setFirstName] = useState('');
@@ -127,12 +128,10 @@ export function EditProfileScreen({ navigation }: Props) {
       };
       
       await updateProfile(updates);
-      
-      Alert.alert('Success', 'Your profile has been updated.', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      showToast('Profile updated', 'success');
+      navigation.goBack();
     } catch {
-      Alert.alert('Error', error || 'Failed to update profile. Please try again.');
+      showToast(error || 'Failed to update profile. Please try again.', 'error');
     }
   };
   

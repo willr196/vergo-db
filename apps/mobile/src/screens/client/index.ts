@@ -11,3 +11,4 @@ export { CompanyProfileScreen } from './CompanyProfileScreen';
 export { ApplicantListScreen } from './ApplicantListScreen';
 export { ApplicantDetailScreen } from './ApplicantDetailScreen';
 export { EditJobScreen } from './EditJobScreen';
+export { EditClientProfileScreen } from './EditClientProfileScreen';

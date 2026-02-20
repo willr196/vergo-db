@@ -155,6 +155,23 @@ export const applicationsApi = {
   // ============================================
 
   /**
+   * Get a single application by ID (client only — verifies job ownership server-side)
+   */
+  async getClientApplication(applicationId: string): Promise<Application> {
+    const response = await apiClient.get<BackendResponse<Application>>(
+      `/api/v1/client/mobile/applications/${applicationId}`
+    );
+
+    if (response.data.ok && (response.data.application || response.data.data)) {
+      return applicationsApi.normalizeApplication(
+        (response.data.application || response.data.data!) as Application
+      );
+    }
+
+    throw new Error(response.data.error || 'Application not found');
+  },
+
+  /**
    * Get all applications for a job (client only)
    */
   async getJobApplications(

@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Button, StatusBadge, LoadingScreen, ErrorState } from '../../components';
-import { useApplicationsStore } from '../../store';
+import { useApplicationsStore, useUIStore } from '../../store';
 import { formatDate, formatTime, formatRelativeDate } from '../../utils';
 import type { RootStackParamList, ApplicationStatus, JobRole } from '../../types';
 
@@ -84,6 +84,7 @@ export function ApplicationDetailScreen({ navigation, route }: Props) {
     withdrawApplication 
   } = useApplicationsStore();
   
+  const { showToast } = useUIStore();
   const [refreshing, setRefreshing] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
   
@@ -110,10 +111,10 @@ export function ApplicationDetailScreen({ navigation, route }: Props) {
             setWithdrawing(true);
             try {
               await withdrawApplication(applicationId);
-              Alert.alert('Withdrawn', 'Your application has been withdrawn.');
+              showToast('Application withdrawn', 'success');
               navigation.goBack();
             } catch {
-              Alert.alert('Error', 'Failed to withdraw application.');
+              showToast('Failed to withdraw application.', 'error');
             } finally {
               setWithdrawing(false);
             }

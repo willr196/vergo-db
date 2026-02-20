@@ -3,7 +3,7 @@
  * Client company profile management
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,15 +11,22 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { useAuthStore } from '../../store';
+import { useAuthStore, useUIStore } from '../../store';
+import { jobsApi } from '../../api/jobs';
 import { logger } from '../../utils/logger';
 import type { RootStackParamList, ClientTabParamList, ClientCompany } from '../../types';
+
+interface JobStats {
+  jobsPosted: number;
+  staffHired: number;
+}
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<ClientTabParamList, 'CompanyProfile'>,
@@ -28,9 +35,35 @@ type Props = CompositeScreenProps<
 
 export function CompanyProfileScreen({ navigation }: Props) {
   const { user, logout } = useAuthStore();
+  const { showToast } = useUIStore();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [stats, setStats] = useState<JobStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
 
   const company = user as ClientCompany | null;
+
+  const fetchStats = useCallback(async () => {
+    try {
+      setStatsLoading(true);
+      const result = await jobsApi.getClientJobs(undefined, 1, 200);
+      const staffHired = result.jobs.reduce(
+        (sum, job) => sum + (job.positionsFilled ?? 0),
+        0
+      );
+      setStats({
+        jobsPosted: result.pagination.total,
+        staffHired,
+      });
+    } catch (error) {
+      logger.error('Failed to fetch client stats:', error);
+    } finally {
+      setStatsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   const handleLogout = () => {
     Alert.alert(
@@ -60,37 +93,37 @@ export function CompanyProfileScreen({ navigation }: Props) {
       icon: '🏢',
       title: 'Company Information',
       subtitle: 'Edit company details',
-      onPress: () => Alert.alert('Coming Soon', 'Edit company info feature coming soon'),
+      onPress: () => navigation.navigate('EditClientProfile'),
     },
     {
       icon: '👥',
       title: 'Team Members',
       subtitle: 'Manage team access',
-      onPress: () => Alert.alert('Coming Soon', 'Team management feature coming soon'),
+      onPress: () => showToast('Team management coming soon', 'info'),
     },
     {
       icon: '💳',
       title: 'Billing & Payments',
       subtitle: 'View invoices and payment methods',
-      onPress: () => Alert.alert('Coming Soon', 'Billing feature coming soon'),
+      onPress: () => showToast('Billing feature coming soon', 'info'),
     },
     {
       icon: '🔔',
       title: 'Notifications',
       subtitle: 'Manage notification preferences',
-      onPress: () => Alert.alert('Coming Soon', 'Notification settings coming soon'),
+      onPress: () => showToast('Notification settings coming soon', 'info'),
     },
     {
       icon: '🔒',
       title: 'Privacy & Security',
       subtitle: 'Password and security settings',
-      onPress: () => Alert.alert('Coming Soon', 'Security settings coming soon'),
+      onPress: () => showToast('Security settings coming soon', 'info'),
     },
     {
       icon: '❓',
       title: 'Help & Support',
       subtitle: 'Get help with VERGO',
-      onPress: () => Alert.alert('Coming Soon', 'Help center coming soon'),
+      onPress: () => showToast('Help center coming soon', 'info'),
     },
   ];
 
@@ -118,7 +151,7 @@ export function CompanyProfileScreen({ navigation }: Props) {
           </View>
           <TouchableOpacity
             style={styles.editButton}
-            onPress={() => Alert.alert('Coming Soon', 'Edit profile feature coming soon')}
+            onPress={() => navigation.navigate('EditClientProfile')}
           >
             <Text style={styles.editButtonText}>Edit</Text>
           </TouchableOpacity>
@@ -127,17 +160,29 @@ export function CompanyProfileScreen({ navigation }: Props) {
         {/* Stats Row */}
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>0</Text>
+            {statsLoading ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <Text style={styles.statNumber}>{stats?.jobsPosted ?? 0}</Text>
+            )}
             <Text style={styles.statLabel}>Jobs Posted</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>0</Text>
+            {statsLoading ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <Text style={styles.statNumber}>{stats?.staffHired ?? 0}</Text>
+            )}
             <Text style={styles.statLabel}>Staff Hired</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>⭐ 0</Text>
+            {statsLoading ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <Text style={styles.statNumber}>⭐ —</Text>
+            )}
             <Text style={styles.statLabel}>Rating</Text>
           </View>
         </View>

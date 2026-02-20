@@ -3,7 +3,7 @@
  * List of jobs posted by the client company
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,10 +11,11 @@ import {
   FlatList,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import type { CompositeScreenProps } from '@react-navigation/native';
+import { useFocusEffect, type CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { LoadingScreen, EmptyState, ErrorState } from '../../components';
@@ -28,29 +29,42 @@ type Props = CompositeScreenProps<
   NativeStackScreenProps<RootStackParamList>
 >;
 
-type JobStatus = 'all' | 'active' | 'closed';
+type JobStatusFilter = 'all' | 'active' | 'closed';
 
-const STATUS_FILTERS: { value: JobStatus; label: string }[] = [
+const STATUS_FILTERS: { value: JobStatusFilter; label: string }[] = [
   { value: 'all', label: 'All' },
   { value: 'active', label: 'Active' },
   { value: 'closed', label: 'Closed' },
 ];
 
-export function MyJobsScreen({ navigation }: Props) {
+// Map frontend filter values to backend enum values
+function toApiStatus(filter: JobStatusFilter): string | undefined {
+  if (filter === 'all') return undefined;
+  if (filter === 'active') return 'OPEN';
+  if (filter === 'closed') return 'CLOSED';
+  return undefined;
+}
+
+export function MyJobsScreen({ navigation, route }: Props) {
   const { user } = useAuthStore();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<JobStatus>('all');
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState<JobStatusFilter>(
+    route.params?.initialFilter ?? 'all'
+  );
   const [error, setError] = useState<string | null>(null);
 
   const fetchJobs = useCallback(async () => {
     try {
       setError(null);
-
-      const status = statusFilter === 'all' ? undefined : statusFilter;
-      const result = await jobsApi.getClientJobs(status);
+      const result = await jobsApi.getClientJobs(toApiStatus(statusFilter), 1);
       setJobs(result.jobs);
+      setCurrentPage(1);
+      setHasMore(result.pagination.hasMore);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load jobs';
       setError(message);
@@ -60,15 +74,39 @@ export function MyJobsScreen({ navigation }: Props) {
     }
   }, [statusFilter]);
 
-  useEffect(() => {
-    fetchJobs();
-  }, [fetchJobs]);
+  const fetchMoreJobs = useCallback(async () => {
+    if (!hasMore || isLoadingMore) return;
+    setIsLoadingMore(true);
+    try {
+      const result = await jobsApi.getClientJobs(toApiStatus(statusFilter), currentPage + 1);
+      setJobs(prev => [...prev, ...result.jobs]);
+      setCurrentPage(result.pagination.page);
+      setHasMore(result.pagination.hasMore);
+    } catch (err) {
+      logger.error('Failed to load more jobs:', err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [hasMore, isLoadingMore, statusFilter, currentPage]);
 
-  const handleRefresh = async () => {
+  // Refetch whenever the screen gains focus (e.g. returning from CreateJob modal)
+  useFocusEffect(
+    useCallback(() => {
+      fetchJobs();
+    }, [fetchJobs])
+  );
+
+  const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
     await fetchJobs();
     setIsRefreshing(false);
-  };
+  }, [fetchJobs]);
+
+  const handleLoadMore = useCallback(() => {
+    if (hasMore && !isLoading && !isRefreshing && !isLoadingMore) {
+      fetchMoreJobs();
+    }
+  }, [hasMore, isLoading, isRefreshing, isLoadingMore, fetchMoreJobs]);
 
   const handleJobPress = (job: Job) => {
     navigation.navigate('ClientJobDetail', { jobId: job.id });
@@ -85,10 +123,13 @@ export function MyJobsScreen({ navigation }: Props) {
 
   const getStatusStyle = (status: string) => {
     switch (status) {
+      case 'published': // OPEN jobs after normalization
       case 'active':
         return { bg: colors.success + '20', text: colors.success };
       case 'closed':
         return { bg: colors.textMuted + '20', text: colors.textMuted };
+      case 'filled':
+        return { bg: colors.primary + '20', text: colors.primary };
       case 'draft':
         return { bg: colors.warning + '20', text: colors.warning };
       default:
@@ -108,7 +149,7 @@ export function MyJobsScreen({ navigation }: Props) {
           <Text style={styles.jobTitle}>{item.title}</Text>
           <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
             <Text style={[styles.statusText, { color: statusStyle.text }]}>
-              {item.status || 'Active'}
+              {item.status === 'published' ? 'Active' : item.status || 'Active'}
             </Text>
           </View>
         </View>
@@ -208,6 +249,11 @@ export function MyJobsScreen({ navigation }: Props) {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={renderEmpty}
+        ListFooterComponent={
+          isLoadingMore ? (
+            <ActivityIndicator color={colors.primary} style={{ padding: 16 }} />
+          ) : null
+        }
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
@@ -215,6 +261,8 @@ export function MyJobsScreen({ navigation }: Props) {
             tintColor={colors.primary}
           />
         }
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>

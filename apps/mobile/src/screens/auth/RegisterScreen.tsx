@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, typography } from '../../theme';
 import { Button, Input } from '../../components';
-import { useAuthStore } from '../../store';
+import { useAuthStore, useUIStore } from '../../store';
 import type { RootStackParamList } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
@@ -26,6 +26,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 export function RegisterScreen({ navigation, route }: Props) {
   const { userType } = route.params;
   const { registerJobSeeker, registerClient, isLoading, error, clearError } = useAuthStore();
+  const { showToast } = useUIStore();
   
   const isJobSeeker = userType === 'jobseeker';
   
@@ -120,10 +121,7 @@ export function RegisterScreen({ navigation, route }: Props) {
       }
       // Navigation handled by root navigator
     } catch {
-      Alert.alert(
-        'Registration Failed',
-        error || 'Please check your information and try again.'
-      );
+      showToast(error || 'Please check your information and try again.', 'error');
     }
   };
   
