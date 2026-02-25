@@ -5,7 +5,12 @@
 
 import apiClient from './client';
 import { normalizeApplicationStatus, normalizeJob, toBackendApplicationStatus } from './normalizers';
-import type { Application, ApplicationStatus } from '../types';
+import type { Application, ApplicationStatus, Job } from '../types';
+
+type BackendApplication = Omit<Application, 'status' | 'job'> & {
+  status?: unknown;
+  job?: Parameters<typeof normalizeJob>[0];
+};
 
 // Backend response types
 interface BackendResponse<T> {
@@ -40,11 +45,19 @@ export const applicationsApi = {
   /**
    * Normalize application payloads
    */
-  normalizeApplication(application: Application): Application {
+  normalizeApplication(application: Application | BackendApplication): Application {
+    const normalizedJob: Job | undefined = (() => {
+      if (!application.job) return undefined;
+      if ('clientCompanyId' in application.job) {
+        return application.job;
+      }
+      return normalizeJob(application.job);
+    })();
+
     return {
       ...application,
-      status: normalizeApplicationStatus((application as any).status),
-      job: application.job ? normalizeJob(application.job as any) : application.job,
+      status: normalizeApplicationStatus(application.status),
+      job: normalizedJob,
     };
   },
 
@@ -52,14 +65,14 @@ export const applicationsApi = {
    * Apply to a job
    */
   async applyToJob(jobId: string, coverNote?: string): Promise<Application> {
-    const response = await apiClient.post<BackendResponse<Application>>('/api/v1/mobile/job-applications', {
+    const response = await apiClient.post<BackendResponse<BackendApplication>>('/api/v1/mobile/job-applications', {
       jobId,
       coverNote,
     });
     
     if (response.data.ok && (response.data.application || response.data.data)) {
       return applicationsApi.normalizeApplication(
-        (response.data.application || response.data.data!) as Application
+        response.data.application || response.data.data!
       );
     }
     
@@ -105,13 +118,13 @@ export const applicationsApi = {
    * Get a single application by ID
    */
   async getApplication(applicationId: string): Promise<Application> {
-    const response = await apiClient.get<BackendResponse<Application>>(
+    const response = await apiClient.get<BackendResponse<BackendApplication>>(
       `/api/v1/mobile/job-applications/${applicationId}`
     );
     
     if (response.data.ok && (response.data.application || response.data.data)) {
       return applicationsApi.normalizeApplication(
-        (response.data.application || response.data.data!) as Application
+        response.data.application || response.data.data!
       );
     }
     
@@ -122,13 +135,13 @@ export const applicationsApi = {
    * Withdraw an application
    */
   async withdrawApplication(applicationId: string): Promise<Application> {
-    const response = await apiClient.post<BackendResponse<Application>>(
+    const response = await apiClient.post<BackendResponse<BackendApplication>>(
       `/api/v1/mobile/job-applications/${applicationId}/withdraw`
     );
     
     if (response.data.ok && (response.data.application || response.data.data)) {
       return applicationsApi.normalizeApplication(
-        (response.data.application || response.data.data!) as Application
+        response.data.application || response.data.data!
       );
     }
     
@@ -140,11 +153,11 @@ export const applicationsApi = {
    */
   async hasApplied(jobId: string): Promise<boolean> {
     try {
-      const response = await apiClient.get<BackendResponse<{ hasApplied: boolean }>>(
+      const response = await apiClient.get<BackendResponse<{ hasApplied: boolean }> & { applied?: boolean }>(
         `/api/v1/mobile/job-applications/check/${jobId}`
       );
-      
-      return (response.data as any).applied ?? response.data.hasApplied ?? false;
+
+      return response.data.applied ?? response.data.hasApplied ?? false;
     } catch {
       return false;
     }
@@ -158,13 +171,13 @@ export const applicationsApi = {
    * Get a single application by ID (client only — verifies job ownership server-side)
    */
   async getClientApplication(applicationId: string): Promise<Application> {
-    const response = await apiClient.get<BackendResponse<Application>>(
+    const response = await apiClient.get<BackendResponse<BackendApplication>>(
       `/api/v1/client/mobile/applications/${applicationId}`
     );
 
     if (response.data.ok && (response.data.application || response.data.data)) {
       return applicationsApi.normalizeApplication(
-        (response.data.application || response.data.data!) as Application
+        response.data.application || response.data.data!
       );
     }
 
@@ -221,7 +234,7 @@ export const applicationsApi = {
       ? `/api/v1/client/mobile/jobs/${jobId}/applications/${applicationId}/status`
       : `/api/v1/client/mobile/jobs/_/applications/${applicationId}/status`;
 
-    const response = await apiClient.put<BackendResponse<Application>>(
+    const response = await apiClient.put<BackendResponse<BackendApplication>>(
       url,
       {
         status: toBackendApplicationStatus(status),
@@ -231,7 +244,7 @@ export const applicationsApi = {
 
     if (response.data.ok && (response.data.application || response.data.data)) {
       return applicationsApi.normalizeApplication(
-        (response.data.application || response.data.data!) as Application
+        response.data.application || response.data.data!
       );
     }
 

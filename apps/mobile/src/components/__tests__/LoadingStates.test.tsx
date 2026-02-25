@@ -108,7 +108,7 @@ describe('EmptyState', () => {
   });
 
   it('should not render action button when onAction is not provided', () => {
-    const { queryByTestId } = render(
+    render(
       <EmptyState
         title="Empty"
         message="Nothing here"

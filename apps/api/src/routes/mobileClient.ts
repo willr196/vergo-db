@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../prisma';
 import { requireClientJwt } from '../middleware/jwtAuth';
+import { sendPushToUser } from '../services/notifications';
 
 const r = Router();
 
@@ -373,6 +374,25 @@ async function getClientCompanyName(clientId: string): Promise<string | null> {
   return client?.companyName ?? null;
 }
 
+// Fire-and-forget: notify seekers who have previously applied to jobs with the same role
+async function notifyInterestedSeekers(roleId: string, roleName: string, jobTitle: string, newJobId: string): Promise<void> {
+  const prior = await prisma.jobApplication.findMany({
+    where: { job: { roleId }, NOT: { jobId: newJobId } },
+    select: { userId: true },
+    distinct: ['userId']
+  });
+  await Promise.all(
+    prior.map(({ userId }) =>
+      sendPushToUser(
+        userId,
+        'New Job Available',
+        `New ${roleName} job: ${jobTitle}`,
+        { type: 'new_job', jobId: newJobId }
+      ).catch(err => console.error('[PUSH]', err))
+    )
+  );
+}
+
 // Helper to shape a job record for mobile response
 function shapeJob(job: any) {
   return {
@@ -619,6 +639,12 @@ r.post('/jobs', async (req, res) => {
 
     console.log(`[JOB] Client ${clientId} created job ${job.id}: ${job.title}`);
 
+    // Push notification: notify seekers interested in this role when job is published
+    if (job.status === 'OPEN') {
+      notifyInterestedSeekers(job.roleId, job.role.name, job.title, job.id)
+        .catch(err => console.error('[PUSH]', err));
+    }
+
     const shaped = shapeJob(job);
     res.status(201).json({ ok: true, job: shaped, data: shaped });
   } catch (error) {
@@ -696,6 +722,12 @@ r.put('/jobs/:id', async (req, res) => {
     });
 
     console.log(`[JOB] Client ${clientId} updated job ${job.id}`);
+
+    // Push notification: notify seekers when a draft job is published
+    if (data.status === 'OPEN' && existing.status !== 'OPEN') {
+      notifyInterestedSeekers(job.roleId, job.role.name, job.title, job.id)
+        .catch(err => console.error('[PUSH]', err));
+    }
 
     const shaped = shapeJob(job);
     res.json({ ok: true, job: shaped, data: shaped });
@@ -892,6 +924,22 @@ r.put('/jobs/:jobId/applications/:appId/status', async (req, res) => {
         where: { id: req.params.jobId },
         data: { staffConfirmed: { increment: 1 } }
       });
+    }
+
+    // Push notification: inform seeker of status changes they care about
+    const seekerNotifyStatuses: Record<string, string> = {
+      SHORTLISTED: 'shortlisted',
+      CONFIRMED: 'hired',
+      REJECTED: 'rejected'
+    };
+    const statusLabel = seekerNotifyStatuses[parsed.data.status];
+    if (statusLabel) {
+      sendPushToUser(
+        application.userId,
+        'Application Update',
+        `Your application for ${application.job.title} has been ${statusLabel}`,
+        { type: 'application_update', applicationId: application.id }
+      ).catch(err => console.error('[PUSH]', err));
     }
 
     console.log(`[JOB] Client ${clientId} updated application ${application.id} to ${parsed.data.status}`);

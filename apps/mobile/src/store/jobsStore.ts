@@ -6,6 +6,8 @@
 import { create } from 'zustand';
 import { jobsApi } from '../api';
 import { logger } from '../utils/logger';
+import { saveCache, loadCache, CACHE_KEYS } from '../utils/network';
+import { useNetworkStore } from './networkStore';
 import type { Job, JobFilters } from '../types';
 
 interface JobsState {
@@ -59,19 +61,36 @@ export const useJobsStore = create<JobsState>((set, get) => ({
   // Actions
   fetchJobs: async (refresh = false) => {
     const { filters } = get();
-    
+    const { isConnected } = useNetworkStore.getState();
+
     set({
       isLoading: !refresh,
       isRefreshing: refresh,
       isLoadingMore: false,
-      error: null
+      error: null,
     });
-    
+
+    // Offline — serve cached data immediately
+    if (!isConnected) {
+      const cached = await loadCache<Job[]>(CACHE_KEYS.JOBS);
+      set({
+        jobs: cached || [],
+        isLoading: false,
+        isRefreshing: false,
+        isLoadingMore: false,
+      });
+      return;
+    }
+
     try {
       const response = await jobsApi.getJobs(filters, 1, 20);
-      
+      const jobs = response.jobs || [];
+
+      // Persist to cache for offline use
+      await saveCache(CACHE_KEYS.JOBS, jobs);
+
       set({
-        jobs: response.jobs || [],
+        jobs,
         isLoading: false,
         isRefreshing: false,
         isLoadingMore: false,
@@ -80,13 +99,14 @@ export const useJobsStore = create<JobsState>((set, get) => ({
         hasMore: response.pagination?.hasMore || false,
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to fetch jobs';
-      set({
-        isLoading: false,
-        isRefreshing: false,
-        isLoadingMore: false,
-        error: message
-      });
+      // Network error — try cache fallback
+      const cached = await loadCache<Job[]>(CACHE_KEYS.JOBS);
+      if (cached) {
+        set({ jobs: cached, isLoading: false, isRefreshing: false, isLoadingMore: false });
+      } else {
+        const message = error instanceof Error ? error.message : 'Failed to fetch jobs';
+        set({ isLoading: false, isRefreshing: false, isLoadingMore: false, error: message });
+      }
     }
   },
   

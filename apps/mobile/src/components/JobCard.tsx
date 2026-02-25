@@ -3,7 +3,7 @@
  * Displays a job listing in a card format
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import {
   View,
   Text,
@@ -40,7 +40,7 @@ const ROLE_LABELS: Record<JobRole, string> = {
   other: 'Other',
 };
 
-export function JobCard({ job, onPress, style, compact = false }: JobCardProps) {
+export const JobCard = memo(function JobCard({ job, onPress, style, compact = false }: JobCardProps) {
   const formattedDate = formatDate(job.date);
   const formattedTime = `${formatTime(job.startTime)} - ${formatTime(job.endTime)}`;
   const spotsLeft = (job.positionsAvailable || 0) - (job.positionsFilled || 0);
@@ -132,7 +132,7 @@ export function JobCard({ job, onPress, style, compact = false }: JobCardProps) 
       </View>
     </TouchableOpacity>
   );
-}
+});
 
 // Helper functions
 function formatDate(dateString: string): string {

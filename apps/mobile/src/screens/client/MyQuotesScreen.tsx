@@ -53,13 +53,18 @@ export function MyQuotesScreen({ navigation }: Props) {
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchQuotes = useCallback(async (reset = false) => {
+  const fetchQuotes = useCallback(async ({
+    reset = false,
+    pageNumber = 1,
+  }: {
+    reset?: boolean;
+    pageNumber?: number;
+  } = {}) => {
     try {
       setError(null);
-      const currentPage = reset ? 1 : page;
       const status = statusFilter === 'all' ? undefined : statusFilter;
 
-      const response = await clientApi.getQuotes(status, currentPage, 20);
+      const response = await clientApi.getQuotes(status, pageNumber, 20);
 
       if (reset) {
         setQuotes(response.quotes);
@@ -68,40 +73,36 @@ export function MyQuotesScreen({ navigation }: Props) {
       }
 
       setHasMore(response.pagination.hasMore);
-      setPage(currentPage);
+      setPage(pageNumber);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load quotes';
       setError(message);
-      console.log('Failed to fetch quotes:', err);
+      // error state already set above
     } finally {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [statusFilter, page]);
+  }, [statusFilter]);
 
   useEffect(() => {
     setIsLoading(true);
-    setPage(1);
-    fetchQuotes(true);
-  }, [statusFilter]);
+    fetchQuotes({ reset: true, pageNumber: 1 });
+  }, [statusFilter, fetchQuotes]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    setPage(1);
-    await fetchQuotes(true);
+    await fetchQuotes({ reset: true, pageNumber: 1 });
     setIsRefreshing(false);
   };
 
   const handleLoadMore = () => {
     if (!hasMore || isLoading || isLoadingMore) return;
     setIsLoadingMore(true);
-    setPage(prev => prev + 1);
-    fetchQuotes(false);
+    const nextPage = page + 1;
+    fetchQuotes({ pageNumber: nextPage });
   };
 
   const handleQuotePress = (quote: QuoteRequest) => {
-    // Navigate to quote detail (can use ClientJobDetail or create new screen)
-    // For now, we'll just show an alert or navigate to a detail view
     navigation.navigate('ClientJobDetail', { jobId: quote.id });
   };
 
@@ -185,8 +186,7 @@ export function MyQuotesScreen({ navigation }: Props) {
           message={error}
           onRetry={() => {
             setIsLoading(true);
-            setPage(1);
-            fetchQuotes(true);
+            fetchQuotes({ reset: true, pageNumber: 1 });
           }}
         />
       </SafeAreaView>
@@ -214,6 +214,7 @@ export function MyQuotesScreen({ navigation }: Props) {
           data={STATUS_FILTERS}
           keyExtractor={(item) => item.value}
           contentContainerStyle={styles.filtersList}
+          ListEmptyComponent={<View />}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={[

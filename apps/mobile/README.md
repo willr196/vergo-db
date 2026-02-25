@@ -1,184 +1,165 @@
-# VERGO Mobile App
+# VERGO Mobile App (`apps/mobile`)
 
-A premium React Native mobile app for VERGO - London's premier event staffing agency.
+React Native (Expo) mobile client for VERGO job seekers and client companies.
 
-## Overview
+## Current Scope
 
-VERGO connects:
-- **Job seekers** (bartenders, servers, chefs, event staff) with event work opportunities
-- **Client companies** (venues, corporate clients, production companies) with premium event staff
+The app supports two authenticated user journeys:
+- Job seeker: browse jobs, apply, track application status, manage profile.
+- Client: post/manage jobs, review applicants, hire/reject, manage company profile.
+
+## MVP Status
+
+All MVP features are complete:
+- [x] JWT authentication for job seekers and clients
+- [x] Job board with search/filter support
+- [x] Job detail and apply flow
+- [x] Application tracking with status timeline
+- [x] Client dashboard (stats + recent applications)
+- [x] Client job creation/edit/close flow
+- [x] Applicant shortlist/hire/reject actions
+- [x] Job seeker + client profile management
+- [x] Avatar/logo upload
+- [x] Push notification registration and deep-link routing
+- [x] Offline-aware caching/queue support for core actions
 
 ## Tech Stack
 
-- **Framework**: React Native (Expo managed workflow)
-- **Language**: TypeScript
-- **Navigation**: React Navigation v7
-- **State Management**: Zustand
-- **API Client**: Axios
-- **Storage**: Expo SecureStore
-- **Notifications**: Expo Notifications + FCM
+- Expo SDK 54
+- React Native 0.81
+- TypeScript
+- React Navigation v7
+- Zustand (auth/jobs/applications/network/ui/notifications stores)
+- Axios (JWT bearer token interceptors)
+- Expo SecureStore / Expo Notifications / Expo Image Picker / Expo Local Authentication
 
-## Getting Started
+## Setup
 
 ### Prerequisites
 
 - Node.js 18+
-- npm or yarn
-- Expo CLI (`npm install -g expo-cli`)
-- Expo Go app on your phone (for testing)
+- npm
+- Expo-compatible simulator or physical device
+- EAS CLI (for cloud builds): `npm i -g eas-cli`
 
-### Installation
+### Install
 
 ```bash
-# Clone the repo
-git clone <repository-url>
-cd vergo-app
-
-# Install dependencies
+cd apps/mobile
 npm install
-
-# Create environment file
 cp .env.example .env
-# Edit .env with your API URL
-
-# Start the development server
-npm start
 ```
 
-### Running on Device
+### Environment Variables
 
-1. Install the **Expo Go** app on your Android/iOS device
-2. Run `npm start` in the project directory
-3. Scan the QR code with Expo Go (Android) or Camera app (iOS)
+Required:
+- `EXPO_PUBLIC_API_URL` (example: `https://vergo-app.fly.dev`)
 
-### Running on Emulator
+Optional (for Firebase push setup if used in your environment):
+- `EXPO_PUBLIC_FIREBASE_API_KEY`
+- `EXPO_PUBLIC_FIREBASE_PROJECT_ID`
+
+## Run Locally
+
+From `apps/mobile`:
 
 ```bash
-# Android
+npm run start
+```
+
+### On a Physical Device
+
+1. Install Expo Go (or use a development client build).
+2. Run `npm run start`.
+3. Scan the QR code shown in the terminal/browser.
+
+### On Simulators
+
+```bash
+# Android emulator
 npm run android
 
-# iOS (macOS only)
+# iOS simulator (macOS + Xcode)
 npm run ios
 ```
 
+Other useful commands:
+
+```bash
+npm run web
+npm run tunnel
+npm run clear
+```
+
+## Quality Checks
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+```
+
+## Build Profiles (EAS)
+
+`eas.json` contains these primary profiles:
+- `dev`: internal distribution, development client, Android debug APK.
+- `preview`: internal distribution preview builds (Android APK / iOS device build).
+- `production`: store-ready builds (Android AAB / iOS production build, auto-increment enabled).
+
+Also present:
+- `development`: legacy alias profile matching development-client behavior.
+
+Example build commands:
+
+```bash
+# Development client build
+EAS_NO_VCS=1 eas build --platform android --profile dev
+
+# Preview build
+EAS_NO_VCS=1 eas build --platform ios --profile preview
+
+# Production build
+EAS_NO_VCS=1 eas build --platform android --profile production
+```
+
+## App Configuration Notes
+
+- `app.json` is configured for dark brand defaults:
+  - `expo.userInterfaceStyle = "dark"`
+  - `expo.splash.backgroundColor = "#0a0a0a"`
+- Bundle/package identifiers are set:
+  - iOS: `com.vergoevents.app`
+  - Android: `com.vergoevents.app`
+
 ## Project Structure
 
-```
-vergo-app/
-├── App.tsx                 # Entry point
+```text
+apps/mobile/
+├── App.tsx
+├── app.json
+├── eas.json
 ├── src/
-│   ├── api/               # API client and services
-│   │   ├── client.ts      # Axios instance with interceptors
-│   │   ├── auth.ts        # Auth endpoints
-│   │   ├── jobs.ts        # Jobs endpoints
-│   │   └── applications.ts # Applications endpoints
-│   ├── components/        # Reusable UI components
-│   │   ├── Button.tsx
-│   │   ├── Input.tsx
-│   │   ├── JobCard.tsx
-│   │   ├── StatusBadge.tsx
-│   │   └── LoadingStates.tsx
-│   ├── navigation/        # Navigation configuration
-│   │   └── RootNavigator.tsx
-│   ├── screens/           # Screen components
-│   │   ├── auth/          # Login, Register, Welcome
-│   │   ├── jobseeker/     # Job seeker screens
-│   │   └── client/        # Client screens (TBD)
-│   ├── store/             # Zustand stores
-│   │   ├── authStore.ts
-│   │   ├── jobsStore.ts
-│   │   └── applicationsStore.ts
-│   ├── theme/             # Design system
-│   │   └── index.ts
-│   ├── types/             # TypeScript types
-│   │   └── index.ts
-│   └── utils/             # Utility functions
-├── assets/                # Images, fonts
-└── .env                   # Environment variables
+│   ├── api/                    # auth/jobs/applications/client APIs + normalizers
+│   ├── components/             # shared UI components + loading/error/empty states
+│   ├── constants/
+│   ├── navigation/             # RootNavigator + typed navigation ref
+│   ├── screens/
+│   │   ├── auth/
+│   │   ├── client/
+│   │   └── jobseeker/
+│   ├── store/                  # Zustand stores + typed selectors
+│   ├── theme/
+│   ├── types/                  # app/domain/navigation types
+│   └── utils/                  # logger, notifications, network, biometrics, date helpers
+├── assets/
+└── README.md
 ```
 
-## Design System
+## API Contract (Mobile)
 
-### Colors
+Mobile app calls JWT-based mobile endpoints only:
+- `/api/v1/mobile/*`
+- `/api/v1/user/mobile/*`
+- `/api/v1/client/mobile/*`
 
-| Name | Hex | Usage |
-|------|-----|-------|
-| Background | `#0a0a0a` | Main app background |
-| Surface | `#1a1a1a` | Cards, inputs |
-| Primary | `#D4AF37` | Gold accent, CTAs |
-| Text Primary | `#ffffff` | Main text |
-| Text Secondary | `#999999` | Muted text |
-| Success | `#28a745` | Positive status |
-| Error | `#ff6b6b` | Errors, warnings |
-
-### Typography
-
-- Uses system fonts for native feel
-- Consistent font sizes: xs(12), sm(14), md(16), lg(18), xl(20), xxl(24)
-
-## Features
-
-### MVP Features (v1.0)
-
-- [x] User authentication (login/register)
-- [x] Job seeker and client user types
-- [x] Job board with search and filters
-- [x] Job detail view
-- [x] Application submission
-- [x] Application tracking
-- [x] Profile management
-- [ ] Push notifications
-- [ ] Client dashboard
-- [ ] Job posting (clients)
-
-### Future Features
-
-- In-app messaging
-- Payment processing
-- Staff scheduling
-- Reviews and ratings
-- Offline support
-
-## API Integration
-
-The app connects to an existing Express.js backend. Key endpoints:
-
-```
-POST /api/auth/login
-POST /api/auth/register
-GET  /api/jobs
-GET  /api/jobs/:id
-POST /api/applications
-GET  /api/applications/me
-```
-
-## Building for Production
-
-### Android
-
-```bash
-# Build APK
-eas build --platform android --profile preview
-
-# Build AAB (for Play Store)
-eas build --platform android --profile production
-```
-
-### iOS
-
-Requires macOS with Xcode:
-
-```bash
-eas build --platform ios --profile production
-```
-
-## Contributing
-
-1. Create a feature branch from `main`
-2. Make your changes
-3. Run type checking: `npm run typecheck`
-4. Submit a pull request
-
-## License
-
-Private - VERGO Ltd.
+No cookie-session web endpoints are used in the mobile API layer.

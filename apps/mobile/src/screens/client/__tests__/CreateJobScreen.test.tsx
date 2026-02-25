@@ -60,7 +60,7 @@ describe('CreateJobScreen', () => {
   describe('Form Rendering', () => {
     it('should render form header', () => {
       const { getByText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       expect(getByText('Post a Job')).toBeTruthy();
@@ -69,7 +69,7 @@ describe('CreateJobScreen', () => {
 
     it('should render all section titles', () => {
       const { getByText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       expect(getByText('Basic Information')).toBeTruthy();
@@ -80,8 +80,8 @@ describe('CreateJobScreen', () => {
     });
 
     it('should render all required form fields', () => {
-      const { getByText, getByPlaceholderText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+      const { getByText } = render(
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       expect(getByText('Job Title *')).toBeTruthy();
@@ -94,7 +94,7 @@ describe('CreateJobScreen', () => {
 
     it('should render submit button', () => {
       const { getByText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       expect(getByText('Post Job')).toBeTruthy();
@@ -102,7 +102,7 @@ describe('CreateJobScreen', () => {
 
     it('should render role options', () => {
       const { getByText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       expect(getByText('Bartender')).toBeTruthy();
@@ -114,7 +114,7 @@ describe('CreateJobScreen', () => {
 
     it('should render DBS checkbox', () => {
       const { getByText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       expect(getByText('DBS check required')).toBeTruthy();
@@ -124,7 +124,7 @@ describe('CreateJobScreen', () => {
   describe('Form Validation', () => {
     it('should show error when submitting without job title', async () => {
       const { getByText, getByPlaceholderText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       // Fill some fields but not title
@@ -146,7 +146,7 @@ describe('CreateJobScreen', () => {
 
     it('should show error when submitting without role', async () => {
       const { getByText, getByPlaceholderText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       // Fill title but not role
@@ -167,7 +167,7 @@ describe('CreateJobScreen', () => {
 
     it('should show error when submitting without description', async () => {
       const { getByText, getByPlaceholderText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fireEvent.changeText(
@@ -188,7 +188,7 @@ describe('CreateJobScreen', () => {
 
     it('should show error when submitting without city', async () => {
       const { getByText, getByPlaceholderText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fireEvent.changeText(
@@ -213,7 +213,7 @@ describe('CreateJobScreen', () => {
 
     it('should show error when submitting without venue', async () => {
       const { getByText, getByPlaceholderText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fireEvent.changeText(
@@ -239,7 +239,7 @@ describe('CreateJobScreen', () => {
 
     it('should show error when hourly rate is invalid', async () => {
       const { getByText, getByPlaceholderText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       // Fill all required fields except hourly rate
@@ -268,7 +268,7 @@ describe('CreateJobScreen', () => {
 
     it('should show inline error messages for invalid fields', async () => {
       const { getByText, queryByText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fireEvent.press(getByText('Post Job'));
@@ -280,7 +280,7 @@ describe('CreateJobScreen', () => {
 
     it('should clear error when field is corrected', async () => {
       const { getByText, getByPlaceholderText, queryByText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       // Trigger validation error
@@ -304,7 +304,7 @@ describe('CreateJobScreen', () => {
   describe('Role Selection', () => {
     it('should select role when pressed', () => {
       const { getByText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fireEvent.press(getByText('Bartender'));
@@ -315,7 +315,7 @@ describe('CreateJobScreen', () => {
 
     it('should only allow one role to be selected', () => {
       const { getByText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fireEvent.press(getByText('Bartender'));
@@ -330,7 +330,7 @@ describe('CreateJobScreen', () => {
   describe('DBS Checkbox', () => {
     it('should toggle DBS checkbox when pressed', () => {
       const { getByText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fireEvent.press(getByText('DBS check required'));
@@ -343,7 +343,7 @@ describe('CreateJobScreen', () => {
   describe('Navigation', () => {
     it('should go back when cancel is pressed', () => {
       const { getByText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fireEvent.press(getByText('Cancel'));
@@ -371,7 +371,7 @@ describe('CreateJobScreen', () => {
       (jobsApi.createJob as jest.Mock).mockResolvedValue({ id: '1' });
 
       const { getByText, getByPlaceholderText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fillValidForm(getByText, getByPlaceholderText);
@@ -396,7 +396,7 @@ describe('CreateJobScreen', () => {
       (jobsApi.createJob as jest.Mock).mockResolvedValue({ id: '1' });
 
       const { getByText, getByPlaceholderText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fillValidForm(getByText, getByPlaceholderText);
@@ -416,7 +416,7 @@ describe('CreateJobScreen', () => {
       (jobsApi.createJob as jest.Mock).mockRejectedValue(new Error('Network error'));
 
       const { getByText, getByPlaceholderText } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fillValidForm(getByText, getByPlaceholderText);
@@ -436,8 +436,8 @@ describe('CreateJobScreen', () => {
         () => new Promise((resolve) => setTimeout(resolve, 1000))
       );
 
-      const { getByText, getByPlaceholderText, getByTestId } = render(
-        <CreateJobScreen navigation={mockNavigation as any} route={mockRoute as any} />
+      const { getByText, getByPlaceholderText } = render(
+        <CreateJobScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fillValidForm(getByText, getByPlaceholderText);

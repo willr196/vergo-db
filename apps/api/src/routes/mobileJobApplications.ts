@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../prisma';
 import { requireUserJwt } from '../middleware/jwtAuth';
 import { sendJobApplicationNotification, sendJobApplicationConfirmation } from '../services/email';
+import { sendPushToClient } from '../services/notifications';
 
 const r = Router();
 
@@ -81,6 +82,22 @@ r.post('/', async (req, res, next) => {
       eventDate: job.eventDate,
       location: job.location
     }).catch(err => console.error('[EMAIL]', err));
+
+    // Push notification: notify the client of the new application
+    if (job.companyName) {
+      prisma.client.findFirst({ where: { companyName: job.companyName } })
+        .then(client => {
+          if (client) {
+            return sendPushToClient(
+              client.id,
+              'New Application',
+              `New application for ${job.title}`,
+              { type: 'new_applicant', jobId: data.jobId }
+            );
+          }
+        })
+        .catch(err => console.error('[PUSH]', err));
+    }
 
     res.status(201).json({ ok: true, application, data: application });
   } catch (error) {

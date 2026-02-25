@@ -1,30 +1,97 @@
 {
   "expo": {
-    "name": "vergo-app",
+    "name": "VERGO",
     "slug": "vergo-app",
     "version": "1.0.0",
+    "scheme": "vergo",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0a0a0a"
     },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "color": "#D4AF37",
+          "defaultChannel": "default"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "VERGO needs access to your photos to set your profile picture.",
+          "cameraPermission": "VERGO needs access to your camera to take a profile photo."
+        }
+      ],
+      "expo-local-authentication"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.vergoevents.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "VERGO needs access to your camera to take a profile photo.",
+        "NSPhotoLibraryUsageDescription": "VERGO needs access to your photos to set your profile picture.",
+        "NSUserNotificationsUsageDescription": "VERGO sends push notifications for job updates and application status changes.",
+        "NSFaceIDUsageDescription": "VERGO uses Face ID to securely unlock your account."
+      },
+      "entitlements": {
+        "aps-environment": "production"
+      },
+      "associatedDomains": [
+        "applinks:vergoevents.com",
+        "applinks:vergo-app.fly.dev"
+      ]
     },
     "android": {
+      "package": "com.vergoevents.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#0a0a0a"
       },
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "POST_NOTIFICATIONS"
+      ],
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "vergoevents.com",
+              "pathPrefix": "/app"
+            },
+            {
+              "scheme": "https",
+              "host": "vergo-app.fly.dev",
+              "pathPrefix": "/app"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
     }
   }
 }

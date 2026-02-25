@@ -18,7 +18,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { StatusBadge, LoadingScreen, EmptyState } from '../../components';
+import { StatusBadge, LoadingScreen, EmptyState, ErrorState } from '../../components';
 import { useApplicationsStore } from '../../store';
 import type { RootStackParamList, JobSeekerTabParamList, Application, ApplicationStatus } from '../../types';
 
@@ -44,6 +44,7 @@ export function ApplicationsScreen({ navigation }: Props) {
     isLoadingMore,
     hasMore,
     statusFilter,
+    error,
     fetchApplications,
     fetchMoreApplications,
     setStatusFilter,
@@ -63,11 +64,11 @@ export function ApplicationsScreen({ navigation }: Props) {
     }
   }, [hasMore, isLoading, isRefreshing, isLoadingMore, fetchMoreApplications]);
 
-  const handleApplicationPress = (application: Application) => {
+  const handleApplicationPress = useCallback((application: Application) => {
     navigation.navigate('ApplicationDetail', { applicationId: application.id });
-  };
+  }, [navigation]);
 
-  const renderApplication = ({ item }: { item: Application }) => {
+  const renderApplication = useCallback(({ item }: { item: Application }) => {
     const job = item.job;
     if (!job) return null;
 
@@ -99,7 +100,7 @@ export function ApplicationsScreen({ navigation }: Props) {
         </View>
       </TouchableOpacity>
     );
-  };
+  }, [handleApplicationPress]);
 
   const renderEmpty = () => {
     if (isLoading) return null;
@@ -125,6 +126,17 @@ export function ApplicationsScreen({ navigation }: Props) {
     return <LoadingScreen message="Loading applications..." />;
   }
 
+  if (error && applications.length === 0 && !isRefreshing) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ErrorState
+          message={error}
+          onRetry={() => fetchApplications(true)}
+        />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -143,6 +155,7 @@ export function ApplicationsScreen({ navigation }: Props) {
           keyExtractor={(item) => item.value || 'all'}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filterList}
+          ListEmptyComponent={<View />}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={[
@@ -187,6 +200,9 @@ export function ApplicationsScreen({ navigation }: Props) {
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
         showsVerticalScrollIndicator={false}
+        windowSize={5}
+        maxToRenderPerBatch={10}
+        initialNumToRender={10}
       />
     </SafeAreaView>
   );

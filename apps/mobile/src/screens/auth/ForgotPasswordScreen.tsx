@@ -136,6 +136,10 @@ export function ForgotPasswordScreen({ navigation }: Props) {
                 setEmail(text);
                 setError('');
               }}
+              onBlur={() => {
+                if (!email.trim()) setError('Email is required');
+                else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) setError('Please enter a valid email address');
+              }}
               error={error}
               keyboardType="email-address"
               autoCapitalize="none"

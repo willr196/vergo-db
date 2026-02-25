@@ -5,7 +5,9 @@
 
 import { create } from 'zustand';
 import { authApi } from '../api';
+import { isClientCompanyUser, isJobSeekerUser } from '../types';
 import type {
+  AuthUser,
   JobSeeker,
   ClientCompany,
   UserType,
@@ -20,7 +22,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   userType: UserType | null;
-  user: JobSeeker | ClientCompany | null;
+  user: AuthUser | null;
   error: string | null;
   
   // Actions
@@ -29,9 +31,9 @@ interface AuthState {
   registerClient: (data: RegisterClientRequest) => Promise<RegistrationResult | null>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
-  updateProfile: (data: Partial<JobSeeker | ClientCompany>) => Promise<void>;
+  updateProfile: (data: Partial<AuthUser>) => Promise<void>;
   clearError: () => void;
-  setUser: (user: JobSeeker | ClientCompany) => void;
+  setUser: (user: AuthUser) => void;
 }
 
 // Helper function to handle registration logic
@@ -56,13 +58,15 @@ async function handleRegistration(
       return response;
     }
 
-    // Otherwise, it's a successful login response
-    const loginResponse = response as import('../types').LoginResponse;
+    if (!('token' in response) || !('user' in response) || !('userType' in response)) {
+      throw new Error('Unexpected registration response');
+    }
+
     set({
       isAuthenticated: true,
       isLoading: false,
-      userType: loginResponse.userType,
-      user: loginResponse.user,
+      userType: response.userType,
+      user: response.user,
       error: null,
     });
     return null;
@@ -186,12 +190,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      let updatedUser: JobSeeker | ClientCompany;
-      
-      if (userType === 'jobseeker') {
+      let updatedUser: AuthUser;
+
+      if (userType === 'jobseeker' && isJobSeekerUser(user)) {
         updatedUser = await authApi.updateJobSeekerProfile(data as Partial<JobSeeker>);
-      } else {
+      } else if (userType === 'client' && isClientCompanyUser(user)) {
         updatedUser = await authApi.updateClientProfile(data as Partial<ClientCompany>);
+      } else {
+        throw new Error('Authenticated user type mismatch');
       }
       
       set({
@@ -218,8 +224,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 export const selectIsJobSeeker = (state: AuthState) => state.userType === 'jobseeker';
 export const selectIsClient = (state: AuthState) => state.userType === 'client';
 export const selectJobSeeker = (state: AuthState) => 
-  state.userType === 'jobseeker' ? state.user as JobSeeker : null;
+  state.user && isJobSeekerUser(state.user) ? state.user : null;
 export const selectClient = (state: AuthState) => 
-  state.userType === 'client' ? state.user as ClientCompany : null;
+  state.user && isClientCompanyUser(state.user) ? state.user : null;
 
 export default useAuthStore;

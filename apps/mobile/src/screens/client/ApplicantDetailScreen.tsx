@@ -21,12 +21,15 @@ import { LoadingScreen, Button } from '../../components';
 import { applicationsApi } from '../../api';
 import { useUIStore } from '../../store';
 import { logger } from '../../utils/logger';
+import { isApplicationStatus, normalizeApplicationStatus } from '../../api/normalizers';
+import { isJobSeekerUser } from '../../types';
 import type { RootStackParamList, Application, ApplicationStatus } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ApplicantDetail'>;
 
 function getStatusColor(status: ApplicationStatus): string {
-  switch (status) {
+  const normalizedStatus = normalizeApplicationStatus(status);
+  switch (normalizedStatus) {
     case 'pending':
     case 'reviewing':
       return colors.warning;
@@ -42,7 +45,8 @@ function getStatusColor(status: ApplicationStatus): string {
 }
 
 function getStatusLabel(status: ApplicationStatus): string {
-  switch (status) {
+  const normalizedStatus = normalizeApplicationStatus(status);
+  switch (normalizedStatus) {
     case 'pending':
       return 'New Application';
     case 'reviewing':
@@ -87,7 +91,7 @@ export function ApplicantDetailScreen({ route, navigation }: Props) {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [applicationId]);
+  }, [applicationId, showToast]);
 
   useEffect(() => {
     fetchApplication();
@@ -126,10 +130,20 @@ export function ApplicantDetailScreen({ route, navigation }: Props) {
     if (!application) return;
     const js = application.jobSeeker || application.user;
     if (type === 'phone' && js?.phone) {
+      // Validate phone contains only safe characters before constructing tel: URI
+      if (!/^[+\d\s\-().]+$/.test(js.phone)) {
+        showToast('Invalid phone number', 'error');
+        return;
+      }
       Linking.openURL(`tel:${js.phone}`).catch(() =>
         showToast('Could not open phone dialer', 'error')
       );
     } else if (type === 'email' && js?.email) {
+      // Validate email format before constructing mailto: URI
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(js.email)) {
+        showToast('Invalid email address', 'error');
+        return;
+      }
       Linking.openURL(`mailto:${js.email}`).catch(() =>
         showToast('Could not open email app', 'error')
       );
@@ -178,9 +192,8 @@ export function ApplicantDetailScreen({ route, navigation }: Props) {
   const name = applicantName();
   const initial = name[0]?.toUpperCase() || '?';
   const statusColor = getStatusColor(application.status);
-  const canAct =
-    application.status === 'pending' || application.status === 'reviewing';
-  const canHire = application.status === 'shortlisted';
+  const canAct = isApplicationStatus(application.status, 'pending', 'reviewing');
+  const canHire = isApplicationStatus(application.status, 'shortlisted');
 
   return (
     <SafeAreaView style={styles.container}>
@@ -277,45 +290,41 @@ export function ApplicantDetailScreen({ route, navigation }: Props) {
         ) : null}
 
         {/* Candidate Profile */}
-        {'yearsExperience' in (js || {}) ? (
+        {js && isJobSeekerUser(js) ? (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Candidate Profile</Text>
             <View style={styles.infoCard}>
-              {'yearsExperience' in (js || {}) && (js as any).yearsExperience !== undefined ? (
+              {js.yearsExperience !== undefined ? (
                 <View style={styles.infoRow}>
                   <Text style={styles.infoLabel}>Experience</Text>
                   <Text style={styles.infoValue}>
-                    {(js as any).yearsExperience} yr{(js as any).yearsExperience !== 1 ? 's' : ''}
+                    {js.yearsExperience} yr{js.yearsExperience !== 1 ? 's' : ''}
                   </Text>
                 </View>
               ) : null}
-              {'city' in (js || {}) && (js as any).city ? (
+              {js.city ? (
                 <View style={styles.infoRow}>
                   <Text style={styles.infoLabel}>Location</Text>
-                  <Text style={styles.infoValue}>{(js as any).city}</Text>
+                  <Text style={styles.infoValue}>{js.city}</Text>
                 </View>
               ) : null}
-              {'hasDBSCheck' in (js || {}) ? (
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>DBS Check</Text>
-                  <Text style={styles.infoValue}>
-                    {(js as any).hasDBSCheck ? '✓ Verified' : 'No'}
-                  </Text>
-                </View>
-              ) : null}
-              {'rightToWork' in (js || {}) ? (
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Right to Work</Text>
-                  <Text style={styles.infoValue}>
-                    {(js as any).rightToWork ? '✓ Confirmed' : 'No'}
-                  </Text>
-                </View>
-              ) : null}
-              {'skills' in (js || {}) && Array.isArray((js as any).skills) && (js as any).skills.length > 0 ? (
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>DBS Check</Text>
+                <Text style={styles.infoValue}>
+                  {js.hasDBSCheck ? '✓ Verified' : 'No'}
+                </Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Right to Work</Text>
+                <Text style={styles.infoValue}>
+                  {js.rightToWork ? '✓ Confirmed' : 'No'}
+                </Text>
+              </View>
+              {js.skills.length > 0 ? (
                 <View style={styles.infoRowColumn}>
                   <Text style={styles.infoLabel}>Skills</Text>
                   <View style={styles.skillsRow}>
-                    {((js as any).skills as string[]).map((skill) => (
+                    {js.skills.map((skill) => (
                       <View key={skill} style={styles.skillChip}>
                         <Text style={styles.skillText}>{skill}</Text>
                       </View>
@@ -323,10 +332,10 @@ export function ApplicantDetailScreen({ route, navigation }: Props) {
                   </View>
                 </View>
               ) : null}
-              {'bio' in (js || {}) && (js as any).bio ? (
+              {js.bio ? (
                 <View style={styles.infoRowColumn}>
                   <Text style={styles.infoLabel}>Bio</Text>
-                  <Text style={styles.bioText}>{(js as any).bio}</Text>
+                  <Text style={styles.bioText}>{js.bio}</Text>
                 </View>
               ) : null}
             </View>

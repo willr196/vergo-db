@@ -9,7 +9,6 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,7 +16,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { Button } from '../../components';
+import { Button, Avatar } from '../../components';
 import { useAuthStore, selectJobSeeker } from '../../store';
 import type { RootStackParamList, JobSeekerTabParamList, AvailabilityStatus } from '../../types';
 
@@ -76,11 +75,11 @@ export function ProfileScreen({ navigation }: Props) {
         {/* Profile Card */}
         <View style={styles.profileCard}>
           <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {user.firstName.charAt(0)}{user.lastName.charAt(0)}
-              </Text>
-            </View>
+            <Avatar
+              imageUri={user.profileImage}
+              name={`${user.firstName} ${user.lastName}`}
+              size={80}
+            />
             <View style={[
               styles.availabilityDot,
               { backgroundColor: availabilityConfig.color }
@@ -211,34 +210,6 @@ export function ProfileScreen({ navigation }: Props) {
           </View>
         )}
         
-        {/* Menu Items - TODO: Implement these screens before uncommenting
-        <View style={styles.menuSection}>
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuIcon}>📄</Text>
-            <Text style={styles.menuLabel}>Documents</Text>
-            <Text style={styles.menuArrow}>→</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuIcon}>🔔</Text>
-            <Text style={styles.menuLabel}>Notifications</Text>
-            <Text style={styles.menuArrow}>→</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuIcon}>🔒</Text>
-            <Text style={styles.menuLabel}>Privacy & Security</Text>
-            <Text style={styles.menuArrow}>→</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuIcon}>❓</Text>
-            <Text style={styles.menuLabel}>Help & Support</Text>
-            <Text style={styles.menuArrow}>→</Text>
-          </TouchableOpacity>
-        </View>
-        */}
-        
         {/* Logout */}
         <Button
           title="Sign Out"
@@ -258,7 +229,7 @@ export function ProfileScreen({ navigation }: Props) {
 }
 
 // Helper functions
-function calculateProfileCompletion(user: any): number {
+function calculateProfileCompletion(user: import('../../types').JobSeeker): number {
   const fields = [
     user.firstName,
     user.lastName,
@@ -325,21 +296,6 @@ const styles = StyleSheet.create({
   avatarContainer: {
     position: 'relative',
     marginBottom: spacing.md,
-  },
-  
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  
-  avatarText: {
-    color: colors.textInverse,
-    fontSize: typography.fontSize.xxl,
-    fontWeight: '700' as const,
   },
   
   availabilityDot: {

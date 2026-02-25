@@ -51,6 +51,7 @@ export interface JobSeeker extends User {
 }
 
 export interface ClientCompany {
+  type: 'client';
   id: string;
   email: string;
   companyName: string;
@@ -72,6 +73,16 @@ export interface ClientCompany {
   
   createdAt: string;
   updatedAt: string;
+}
+
+export type AuthUser = JobSeeker | ClientCompany;
+
+export function isJobSeekerUser(user: AuthUser | null | undefined): user is JobSeeker {
+  return Boolean(user && user.type === 'jobseeker');
+}
+
+export function isClientCompanyUser(user: AuthUser | null | undefined): user is ClientCompany {
+  return Boolean(user && user.type === 'client');
 }
 
 export type AvailabilityStatus = 'available' | 'limited' | 'unavailable';
@@ -270,7 +281,7 @@ export type RootStackParamList = {
   
   // Client
   ClientTabs: undefined;
-  ClientJobDetail: { jobId: string };
+  ClientJobDetail: { jobId: string; initialTab?: 'applications' | 'details' };
   CreateJob: undefined;
   EditJob: { jobId: string };
   ApplicantDetail: { applicationId: string };

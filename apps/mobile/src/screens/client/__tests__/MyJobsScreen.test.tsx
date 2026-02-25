@@ -75,7 +75,7 @@ describe('MyJobsScreen', () => {
       );
 
       const { getByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       expect(getByText('Loading your jobs...')).toBeTruthy();
@@ -87,7 +87,7 @@ describe('MyJobsScreen', () => {
       (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
 
       const { getByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -100,7 +100,7 @@ describe('MyJobsScreen', () => {
       (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
 
       const { getByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -116,7 +116,7 @@ describe('MyJobsScreen', () => {
       ]);
 
       const { getByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -128,7 +128,7 @@ describe('MyJobsScreen', () => {
       (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
 
       const { getByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -141,7 +141,7 @@ describe('MyJobsScreen', () => {
       (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
 
       const { getByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -156,7 +156,7 @@ describe('MyJobsScreen', () => {
       (jobsApi.getClientJobs as jest.Mock).mockResolvedValue([]);
 
       const { getByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -169,7 +169,7 @@ describe('MyJobsScreen', () => {
       (jobsApi.getClientJobs as jest.Mock).mockResolvedValue([]);
 
       const { getByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -186,7 +186,7 @@ describe('MyJobsScreen', () => {
       (jobsApi.getClientJobs as jest.Mock).mockRejectedValue(new Error('Network error'));
 
       const { getByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -199,7 +199,7 @@ describe('MyJobsScreen', () => {
       (jobsApi.getClientJobs as jest.Mock).mockRejectedValue(new Error('Failed'));
 
       const { getByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -213,7 +213,7 @@ describe('MyJobsScreen', () => {
         .mockResolvedValueOnce(mockJobs);
 
       const { getByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -233,7 +233,7 @@ describe('MyJobsScreen', () => {
       (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
 
       const { getByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -246,8 +246,8 @@ describe('MyJobsScreen', () => {
     it('should fetch filtered jobs when filter is changed', async () => {
       (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
 
-      const { getByText, getAllByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+      const { getAllByText } = render(
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -271,7 +271,7 @@ describe('MyJobsScreen', () => {
       (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
 
       const { getByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -286,7 +286,7 @@ describe('MyJobsScreen', () => {
       (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
 
       const { getByText } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -302,8 +302,8 @@ describe('MyJobsScreen', () => {
     it('should call fetchJobs on refresh', async () => {
       (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
 
-      const { getByText, UNSAFE_getByType } = render(
-        <MyJobsScreen navigation={mockNavigation as any} route={mockRoute as any} />
+      const { getByText } = render(
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {

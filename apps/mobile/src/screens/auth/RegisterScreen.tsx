@@ -134,6 +134,42 @@ export function RegisterScreen({ navigation, route }: Props) {
       });
     }
   };
+
+  const validateField = (field: string, value: string) => {
+    let error: string | undefined;
+    switch (field) {
+      case 'email':
+        if (!value.trim()) error = 'Email is required';
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) error = 'Please enter a valid email';
+        break;
+      case 'password':
+        if (!value) error = 'Password is required';
+        else if (value.length < 8) error = 'Password must be at least 8 characters';
+        else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value)) error = 'Include uppercase, lowercase, and number';
+        break;
+      case 'confirmPassword':
+        if (value !== password) error = 'Passwords do not match';
+        break;
+      case 'firstName':
+        if (!value.trim()) error = 'First name is required';
+        break;
+      case 'lastName':
+        if (!value.trim()) error = 'Last name is required';
+        break;
+      case 'companyName':
+        if (!value.trim()) error = 'Company name is required';
+        break;
+      case 'contactFirstName':
+        if (!value.trim()) error = 'First name is required';
+        break;
+      case 'contactLastName':
+        if (!value.trim()) error = 'Last name is required';
+        break;
+    }
+    if (error) {
+      setValidationErrors(prev => ({ ...prev, [field]: error as string }));
+    }
+  };
   
   return (
     <SafeAreaView style={styles.container}>
@@ -180,10 +216,8 @@ export function RegisterScreen({ navigation, route }: Props) {
                       placeholder="John"
                       autoCapitalize="words"
                       value={firstName}
-                      onChangeText={(text) => {
-                        setFirstName(text);
-                        clearFieldError('firstName');
-                      }}
+                      onChangeText={(text) => { setFirstName(text); clearFieldError('firstName'); }}
+                      onBlur={() => validateField('firstName', firstName)}
                       error={validationErrors.firstName}
                     />
                   </View>
@@ -193,10 +227,8 @@ export function RegisterScreen({ navigation, route }: Props) {
                       placeholder="Smith"
                       autoCapitalize="words"
                       value={lastName}
-                      onChangeText={(text) => {
-                        setLastName(text);
-                        clearFieldError('lastName');
-                      }}
+                      onChangeText={(text) => { setLastName(text); clearFieldError('lastName'); }}
+                      onBlur={() => validateField('lastName', lastName)}
                       error={validationErrors.lastName}
                     />
                   </View>
@@ -210,13 +242,11 @@ export function RegisterScreen({ navigation, route }: Props) {
                   placeholder="Your Company Ltd"
                   autoCapitalize="words"
                   value={companyName}
-                  onChangeText={(text) => {
-                    setCompanyName(text);
-                    clearFieldError('companyName');
-                  }}
+                  onChangeText={(text) => { setCompanyName(text); clearFieldError('companyName'); }}
+                  onBlur={() => validateField('companyName', companyName)}
                   error={validationErrors.companyName}
                 />
-                
+
                 <View style={styles.row}>
                   <View style={styles.halfInput}>
                     <Input
@@ -224,10 +254,8 @@ export function RegisterScreen({ navigation, route }: Props) {
                       placeholder="John"
                       autoCapitalize="words"
                       value={contactFirstName}
-                      onChangeText={(text) => {
-                        setContactFirstName(text);
-                        clearFieldError('contactFirstName');
-                      }}
+                      onChangeText={(text) => { setContactFirstName(text); clearFieldError('contactFirstName'); }}
+                      onBlur={() => validateField('contactFirstName', contactFirstName)}
                       error={validationErrors.contactFirstName}
                     />
                   </View>
@@ -237,10 +265,8 @@ export function RegisterScreen({ navigation, route }: Props) {
                       placeholder="Smith"
                       autoCapitalize="words"
                       value={contactLastName}
-                      onChangeText={(text) => {
-                        setContactLastName(text);
-                        clearFieldError('contactLastName');
-                      }}
+                      onChangeText={(text) => { setContactLastName(text); clearFieldError('contactLastName'); }}
+                      onBlur={() => validateField('contactLastName', contactLastName)}
                       error={validationErrors.contactLastName}
                     />
                   </View>
@@ -256,13 +282,11 @@ export function RegisterScreen({ navigation, route }: Props) {
               autoCapitalize="none"
               autoCorrect={false}
               value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                clearFieldError('email');
-              }}
+              onChangeText={(text) => { setEmail(text); clearFieldError('email'); }}
+              onBlur={() => validateField('email', email)}
               error={validationErrors.email}
             />
-            
+
             <Input
               label="Phone (Optional)"
               placeholder="+44 7123 456789"
@@ -270,29 +294,25 @@ export function RegisterScreen({ navigation, route }: Props) {
               value={phone}
               onChangeText={setPhone}
             />
-            
+
             <Input
               label="Password"
               placeholder="Create a strong password"
               secureTextEntry
               value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                clearFieldError('password');
-              }}
+              onChangeText={(text) => { setPassword(text); clearFieldError('password'); }}
+              onBlur={() => validateField('password', password)}
               error={validationErrors.password}
               hint="Min 8 chars with uppercase, lowercase & number"
             />
-            
+
             <Input
               label="Confirm Password"
               placeholder="Confirm your password"
               secureTextEntry
               value={confirmPassword}
-              onChangeText={(text) => {
-                setConfirmPassword(text);
-                clearFieldError('confirmPassword');
-              }}
+              onChangeText={(text) => { setConfirmPassword(text); clearFieldError('confirmPassword'); }}
+              onBlur={() => validateField('confirmPassword', confirmPassword)}
               error={validationErrors.confirmPassword}
             />
             

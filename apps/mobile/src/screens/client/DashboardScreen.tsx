@@ -18,7 +18,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { useAuthStore } from '../../store';
+import { useAuthStore, selectClient } from '../../store';
 import { ErrorState } from '../../components';
 import type { RootStackParamList, ClientTabParamList } from '../../types';
 import { clientApi, type ClientDashboard, type DashboardApplication } from '../../api/clientApi';
@@ -66,7 +66,7 @@ function timeAgo(dateString: string): string {
 }
 
 function getApplicationStatusColor(status: string): string {
-  switch (status) {
+  switch (status.toLowerCase()) {
     case 'received':
     case 'pending':
       return colors.primary;
@@ -86,7 +86,7 @@ function getApplicationStatusColor(status: string): string {
 }
 
 function getApplicationStatusLabel(status: string): string {
-  switch (status) {
+  switch (status.toLowerCase()) {
     case 'received':
     case 'pending':
       return 'New';
@@ -106,7 +106,7 @@ function getApplicationStatusLabel(status: string): string {
 }
 
 export function DashboardScreen({ navigation }: Props) {
-  const { user } = useAuthStore();
+  const company = useAuthStore(selectClient);
   const [dashboard, setDashboard] = useState<ClientDashboard>({
     stats: { activeJobs: 0, totalApplicants: 0, pendingReview: 0, staffConfirmed: 0 },
     recentApplications: [],
@@ -138,7 +138,6 @@ export function DashboardScreen({ navigation }: Props) {
     setIsRefreshing(false);
   };
 
-  const company = user as any;
   const { stats, recentApplications } = dashboard;
 
   if (error && !isRefreshing) {
@@ -261,7 +260,7 @@ export function DashboardScreen({ navigation }: Props) {
 
               <TouchableOpacity
                 style={styles.actionCard}
-                onPress={() => navigation.navigate('MyJobs' as any, {})}
+                onPress={() => navigation.navigate('MyJobs')}
               >
                 <View style={styles.actionIcon}>
                   <Text style={styles.actionEmoji}>📋</Text>
@@ -278,7 +277,7 @@ export function DashboardScreen({ navigation }: Props) {
               {stats.pendingReview > 0 && (
                 <TouchableOpacity
                   style={[styles.actionCard, styles.actionCardUrgent]}
-                  onPress={() => navigation.navigate('MyJobs' as any, { initialFilter: 'active' })}
+                  onPress={() => navigation.navigate('MyJobs', { initialFilter: 'active' })}
                 >
                   <View style={[styles.actionIcon, styles.actionIconUrgent]}>
                     <Text style={styles.actionEmoji}>👥</Text>

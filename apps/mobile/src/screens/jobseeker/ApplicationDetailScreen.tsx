@@ -19,6 +19,7 @@ import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Button, StatusBadge, LoadingScreen, ErrorState } from '../../components';
 import { useApplicationsStore, useUIStore } from '../../store';
 import { formatDate, formatTime, formatRelativeDate } from '../../utils';
+import { isApplicationStatus, normalizeApplicationStatus } from '../../api/normalizers';
 import type { RootStackParamList, ApplicationStatus, JobRole } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ApplicationDetail'>;
@@ -159,8 +160,9 @@ export function ApplicationDetailScreen({ navigation, route }: Props) {
   
   const application = selectedApplication;
   const job = application.job;
-  const statusInfo = STATUS_MESSAGES[application.status];
-  const canWithdraw = ['pending', 'reviewing'].includes(application.status);
+  const normalizedStatus = normalizeApplicationStatus(application.status);
+  const statusInfo = STATUS_MESSAGES[normalizedStatus];
+  const canWithdraw = isApplicationStatus(application.status, 'pending', 'reviewing');
   
   return (
     <SafeAreaView style={styles.container}>
@@ -196,7 +198,7 @@ export function ApplicationDetailScreen({ navigation, route }: Props) {
         </View>
         
         {/* Rejection Reason */}
-        {application.status === 'rejected' && application.rejectionReason && (
+        {isApplicationStatus(application.status, 'rejected') && application.rejectionReason && (
           <View style={styles.reasonCard}>
             <Text style={styles.reasonTitle}>Feedback</Text>
             <Text style={styles.reasonText}>{application.rejectionReason}</Text>
@@ -275,7 +277,7 @@ export function ApplicationDetailScreen({ navigation, route }: Props) {
             )}
             {application.decidedAt && (
               <TimelineItem
-                label={application.status === 'hired' ? 'Hired' : 'Decision Made'}
+                label={isApplicationStatus(application.status, 'hired') ? 'Hired' : 'Decision Made'}
                 date={application.decidedAt}
                 isActive
                 isLast

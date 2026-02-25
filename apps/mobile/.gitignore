@@ -12,3 +12,6 @@ yarn-error.log*
 Thumbs.db
 .vscode/
 .idea/
+google-services-key.json
+google-services.json
+GoogleService-Info.plist

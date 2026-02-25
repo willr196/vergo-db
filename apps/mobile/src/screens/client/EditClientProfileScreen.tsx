@@ -12,21 +12,26 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { colors, spacing, borderRadius, typography } from '../../theme';
-import { useAuthStore, useUIStore } from '../../store';
-import { Input } from '../../components/Input';
+import * as ImagePicker from 'expo-image-picker';
+import { colors, spacing, typography } from '../../theme';
+import { useAuthStore, useUIStore, selectClient } from '../../store';
+import { Input, Avatar } from '../../components';
+import { authApi } from '../../api';
 import { logger } from '../../utils/logger';
-import type { RootStackParamList, ClientCompany } from '../../types';
+import type { RootStackParamList } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EditClientProfile'>;
 
 export function EditClientProfileScreen({ navigation }: Props) {
-  const { user, updateProfile } = useAuthStore();
+  const company = useAuthStore(selectClient);
+  const updateProfile = useAuthStore((state) => state.updateProfile);
+  const setUser = useAuthStore((state) => state.setUser);
   const { showToast } = useUIStore();
-  const company = user as ClientCompany | null;
 
   const [companyName, setCompanyName] = useState(company?.companyName ?? '');
   const [contactFirstName, setContactFirstName] = useState(company?.contactFirstName ?? '');
@@ -38,12 +43,55 @@ export function EditClientProfileScreen({ navigation }: Props) {
   const [city, setCity] = useState(company?.city ?? '');
   const [postcode, setPostcode] = useState(company?.postcode ?? '');
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
-  const handleSave = async () => {
-    if (!companyName.trim()) {
-      showToast('Company name is required', 'error');
+  const clearFieldError = (field: string) => {
+    if (validationErrors[field]) {
+      setValidationErrors(prev => { const updated = { ...prev }; delete updated[field]; return updated; });
+    }
+  };
+
+  const handlePickLogo = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Required', 'Please allow photo access to change your company logo.');
       return;
     }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.85,
+    });
+
+    if (result.canceled || !result.assets[0]) return;
+
+    setIsUploadingLogo(true);
+    try {
+      const updatedCompany = await authApi.uploadClientLogo(result.assets[0].uri);
+      setUser(updatedCompany);
+      showToast('Logo updated', 'success');
+    } catch (error) {
+      logger.error('Failed to upload logo:', error);
+      showToast('Failed to upload logo. Please try again.', 'error');
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
+
+  const handleSave = async () => {
+    const errors: Record<string, string> = {};
+    if (!companyName.trim()) errors.companyName = 'Company name is required';
+    if (!contactFirstName.trim()) errors.contactFirstName = 'First name is required';
+    if (!contactLastName.trim()) errors.contactLastName = 'Last name is required';
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+    setValidationErrors({});
 
     setIsSaving(true);
     try {
@@ -88,13 +136,35 @@ export function EditClientProfileScreen({ navigation }: Props) {
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          {/* Company Logo */}
+          <View style={styles.logoSection}>
+            <TouchableOpacity onPress={handlePickLogo} disabled={isUploadingLogo} style={styles.logoTouchable}>
+              <Avatar
+                imageUri={company?.logo}
+                name={companyName || company?.companyName || 'Company'}
+                size={88}
+              />
+              {isUploadingLogo && (
+                <View style={styles.logoOverlay}>
+                  <ActivityIndicator color={colors.textInverse} />
+                </View>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handlePickLogo} disabled={isUploadingLogo}>
+              <Text style={styles.changeLogoText}>
+                {isUploadingLogo ? 'Uploading…' : 'Change Logo'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Company</Text>
             <Input
               label="Company Name"
               value={companyName}
-              onChangeText={setCompanyName}
+              onChangeText={(t) => { setCompanyName(t); clearFieldError('companyName'); }}
               placeholder="Your company name"
+              error={validationErrors.companyName}
             />
           </View>
 
@@ -103,14 +173,16 @@ export function EditClientProfileScreen({ navigation }: Props) {
             <Input
               label="First Name"
               value={contactFirstName}
-              onChangeText={setContactFirstName}
+              onChangeText={(t) => { setContactFirstName(t); clearFieldError('contactFirstName'); }}
               placeholder="First name"
+              error={validationErrors.contactFirstName}
             />
             <Input
               label="Last Name"
               value={contactLastName}
-              onChangeText={setContactLastName}
+              onChangeText={(t) => { setContactLastName(t); clearFieldError('contactLastName'); }}
               placeholder="Last name"
+              error={validationErrors.contactLastName}
             />
             <Input
               label="Phone"
@@ -210,6 +282,26 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: spacing.xxl,
+  },
+  logoSection: {
+    alignItems: 'center',
+    paddingTop: spacing.xl,
+    gap: spacing.sm,
+  },
+  logoTouchable: {
+    position: 'relative',
+  },
+  logoOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 44,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  changeLogoText: {
+    color: colors.primary,
+    fontSize: typography.fontSize.sm,
+    fontWeight: '500' as const,
   },
   section: {
     marginTop: spacing.xl,

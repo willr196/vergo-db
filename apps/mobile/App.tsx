@@ -9,17 +9,24 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { RootNavigator } from './src/navigation';
-import { LoadingScreen } from './src/components';
-import { useAuthStore } from './src/store';
+import { LoadingScreen, OfflineBanner } from './src/components';
+import { useAuthStore, useNetworkStore } from './src/store';
 import { colors, typography, spacing } from './src/theme';
 import { AUTH_TIMEOUT } from './src/constants';
 
 function AppContent() {
   const { checkAuth } = useAuthStore();
+  const { initialize: initNetwork } = useNetworkStore();
   const [isInitializing, setIsInitializing] = useState(true);
   const [initError, setInitError] = useState<string | null>(null);
   const isInitializingRef = useRef(true);
-  
+
+  // Start network monitoring
+  useEffect(() => {
+    const cleanup = initNetwork();
+    return cleanup;
+  }, [initNetwork]);
+
   useEffect(() => {
     isInitializingRef.current = isInitializing;
   }, [isInitializing]);
@@ -39,7 +46,7 @@ function AppContent() {
       try {
         await checkAuth();
       } catch (error) {
-        console.warn('Auth check failed:', error);1
+        console.warn('Auth check failed:', error);
         // Don't block app loading on auth failure
         if (isMounted) {
           setInitError('Failed to restore session');
@@ -89,6 +96,7 @@ export default function App() {
         />
         <View style={styles.container}>
           <AppContent />
+          <OfflineBanner />
         </View>
       </SafeAreaProvider>
     </GestureHandlerRootView>

@@ -140,14 +140,14 @@ export function CreateQuoteScreen({ navigation }: Props) {
         [
           {
             text: 'View My Quotes',
-            onPress: () => navigation.navigate('ClientTabs' as any),
+            onPress: () => navigation.navigate('ClientTabs'),
           },
         ]
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       Alert.alert(
         'Unable to Submit',
-        err.message || 'Failed to submit quote request. Please check your connection and try again.'
+        err instanceof Error ? err.message : 'Failed to submit quote request. Please check your connection and try again.'
       );
     } finally {
       setIsSubmitting(false);

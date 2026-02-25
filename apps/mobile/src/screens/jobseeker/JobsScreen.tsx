@@ -19,7 +19,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { JobCard, LoadingScreen, EmptyState, JobFiltersModal } from '../../components';
+import { JobCard, LoadingScreen, EmptyState, ErrorState, JobFiltersModal } from '../../components';
 import { useJobsStore } from '../../store';
 import type { RootStackParamList, JobSeekerTabParamList, Job, JobFilters } from '../../types';
 
@@ -35,6 +35,7 @@ export function JobsScreen({ navigation }: Props) {
     isRefreshing,
     isLoadingMore,
     hasMore,
+    error,
     filters,
     fetchJobs,
     fetchMoreJobs,
@@ -102,28 +103,28 @@ export function JobsScreen({ navigation }: Props) {
     }
   }, [hasMore, isLoading, isRefreshing, isLoadingMore, fetchMoreJobs]);
 
-  const handleJobPress = (job: Job) => {
+  const handleJobPress = useCallback((job: Job) => {
     navigation.navigate('JobDetail', { jobId: job.id });
-  };
+  }, [navigation]);
 
-  const applyFilters = (newFilters: JobFilters) => {
+  const applyFilters = useCallback((newFilters: JobFilters) => {
     clearSearchTimer();
     setFilters(newFilters);
     setShowFilters(false);
-  };
+  }, [clearSearchTimer, setFilters]);
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     clearSearchTimer();
     clearFilters();
     setSearchQuery('');
     setShowFilters(false);
-  };
+  }, [clearSearchTimer, clearFilters]);
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
-  const renderJob = ({ item }: { item: Job }) => (
+  const renderJob = useCallback(({ item }: { item: Job }) => (
     <JobCard job={item} onPress={() => handleJobPress(item)} />
-  );
+  ), [handleJobPress]);
 
   const renderHeader = () => (
     <View style={styles.listHeader}>
@@ -149,6 +150,14 @@ export function JobsScreen({ navigation }: Props) {
 
   if (isLoading && jobs.length === 0) {
     return <LoadingScreen message="Loading jobs..." />;
+  }
+
+  if (error && jobs.length === 0 && !isRefreshing) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ErrorState message={error} onRetry={() => fetchJobs(true)} />
+      </SafeAreaView>
+    );
   }
 
   return (
@@ -218,6 +227,9 @@ export function JobsScreen({ navigation }: Props) {
         onEndReachedThreshold={0.5}
         keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
+        windowSize={5}
+        maxToRenderPerBatch={10}
+        initialNumToRender={10}
       />
 
       {/* Filter Modal */}

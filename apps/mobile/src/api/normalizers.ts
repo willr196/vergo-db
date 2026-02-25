@@ -3,7 +3,15 @@
  * Coerce backend payloads into expected runtime types
  */
 
-import type { ApplicationStatus, ClientCompany, Job, JobRole, JobSeeker } from '../types';
+import {
+  isJobSeekerUser,
+  type ApplicationStatus,
+  type AuthUser,
+  type ClientCompany,
+  type Job,
+  type JobRole,
+  type JobSeeker,
+} from '../types';
 
 const TRUE_STRING = 'true';
 const FALSE_STRING = 'false';
@@ -33,7 +41,7 @@ function coerceBoolean(value: unknown): boolean | undefined {
   return undefined;
 }
 
-type BackendJob = {
+export type BackendJob = {
   id: string;
   title: string;
   description: string;
@@ -132,6 +140,7 @@ export function normalizeJob(job: BackendJob): Job {
     clientCompanyId: job.companyName ? job.companyName : '',
     clientCompany: job.companyName
       ? {
+          type: 'client',
           id: '',
           email: '',
           companyName: job.companyName,
@@ -211,6 +220,7 @@ export function normalizeClientCompany(user: Partial<ClientCompany> & { contactN
   const now = new Date().toISOString();
   const [contactFirstName = '', contactLastName = ''] = (user.contactName || '').split(' ');
   return {
+    type: 'client',
     id: user.id || '',
     email: user.email || '',
     companyName: user.companyName || '',
@@ -233,21 +243,19 @@ export function normalizeClientCompany(user: Partial<ClientCompany> & { contactN
 export function normalizeStoredUser(user: JobSeeker | ClientCompany): JobSeeker | ClientCompany {
   // Ensure boolean fields are actually booleans, not strings
   // This handles cases where old persisted data may have string booleans
-  const sanitized = { ...user };
+  const sanitized: AuthUser = { ...user };
 
-  if ('type' in user && user.type === 'jobseeker') {
-    const jobSeeker = sanitized as JobSeeker;
+  if (isJobSeekerUser(sanitized)) {
     return normalizeJobSeeker({
-      ...jobSeeker,
-      hasDBSCheck: coerceBoolean(jobSeeker.hasDBSCheck) ?? false,
-      rightToWork: coerceBoolean(jobSeeker.rightToWork) ?? false,
+      ...sanitized,
+      hasDBSCheck: coerceBoolean(sanitized.hasDBSCheck) ?? false,
+      rightToWork: coerceBoolean(sanitized.rightToWork) ?? false,
     });
   }
 
-  const client = sanitized as ClientCompany;
   return normalizeClientCompany({
-    ...client,
-    isApproved: coerceBoolean(client.isApproved) ?? false,
+    ...sanitized,
+    isApproved: coerceBoolean(sanitized.isApproved) ?? false,
   });
 }
 // ============================================
@@ -293,9 +301,9 @@ export function normalizeApplicationStatus(status: unknown): ApplicationStatus {
   const lower = raw.toLowerCase();
 
   // Check backend uppercase statuses first (covers both endpoint schemas)
-  const upper = raw.toUpperCase() as BackendJobApplicationStatus;
-  if (upper in BACKEND_TO_FRONTEND_APPLICATION_STATUS) {
-    return BACKEND_TO_FRONTEND_APPLICATION_STATUS[upper];
+  const upper = raw.toUpperCase();
+  if (Object.prototype.hasOwnProperty.call(BACKEND_TO_FRONTEND_APPLICATION_STATUS, upper)) {
+    return BACKEND_TO_FRONTEND_APPLICATION_STATUS[upper as BackendJobApplicationStatus];
   }
 
   // Accept already-normalized frontend values
@@ -315,4 +323,11 @@ export function normalizeApplicationStatus(status: unknown): ApplicationStatus {
 
 export function toBackendApplicationStatus(status: ApplicationStatus): BackendJobApplicationStatus {
   return FRONTEND_TO_BACKEND_APPLICATION_STATUS[status];
+}
+
+export function isApplicationStatus(
+  status: unknown,
+  ...expected: ApplicationStatus[]
+): boolean {
+  return expected.includes(normalizeApplicationStatus(status));
 }

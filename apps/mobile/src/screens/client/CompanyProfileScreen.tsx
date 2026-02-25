@@ -18,10 +18,11 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { useAuthStore, useUIStore } from '../../store';
+import { Avatar, ErrorState, EmptyState } from '../../components';
+import { useAuthStore, useUIStore, selectClient } from '../../store';
 import { jobsApi } from '../../api/jobs';
 import { logger } from '../../utils/logger';
-import type { RootStackParamList, ClientTabParamList, ClientCompany } from '../../types';
+import type { RootStackParamList, ClientTabParamList } from '../../types';
 
 interface JobStats {
   jobsPosted: number;
@@ -34,17 +35,18 @@ type Props = CompositeScreenProps<
 >;
 
 export function CompanyProfileScreen({ navigation }: Props) {
-  const { user, logout } = useAuthStore();
+  const { logout } = useAuthStore();
+  const company = useAuthStore(selectClient);
   const { showToast } = useUIStore();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [stats, setStats] = useState<JobStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
-
-  const company = user as ClientCompany | null;
+  const [statsError, setStatsError] = useState<string | null>(null);
 
   const fetchStats = useCallback(async () => {
     try {
       setStatsLoading(true);
+      setStatsError(null);
       const result = await jobsApi.getClientJobs(undefined, 1, 200);
       const staffHired = result.jobs.reduce(
         (sum, job) => sum + (job.positionsFilled ?? 0),
@@ -56,6 +58,7 @@ export function CompanyProfileScreen({ navigation }: Props) {
       });
     } catch (error) {
       logger.error('Failed to fetch client stats:', error);
+      setStatsError(error instanceof Error ? error.message : 'Failed to load profile stats');
     } finally {
       setStatsLoading(false);
     }
@@ -140,11 +143,11 @@ export function CompanyProfileScreen({ navigation }: Props) {
 
         {/* Company Card */}
         <View style={styles.companyCard}>
-          <View style={styles.companyAvatar}>
-            <Text style={styles.companyInitial}>
-              {company?.companyName?.[0]?.toUpperCase() || 'C'}
-            </Text>
-          </View>
+          <Avatar
+            imageUri={company?.logo}
+            name={company?.companyName || 'Company'}
+            size={60}
+          />
           <View style={styles.companyInfo}>
             <Text style={styles.companyName}>{company?.companyName || 'Company'}</Text>
             <Text style={styles.companyEmail}>{company?.email || 'email@company.com'}</Text>
@@ -158,34 +161,41 @@ export function CompanyProfileScreen({ navigation }: Props) {
         </View>
 
         {/* Stats Row */}
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            {statsLoading ? (
-              <ActivityIndicator size="small" color={colors.primary} />
-            ) : (
-              <Text style={styles.statNumber}>{stats?.jobsPosted ?? 0}</Text>
-            )}
-            <Text style={styles.statLabel}>Jobs Posted</Text>
+        {statsLoading ? (
+          <View style={styles.statsRow}>
+            <ActivityIndicator size="small" color={colors.primary} />
           </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            {statsLoading ? (
-              <ActivityIndicator size="small" color={colors.primary} />
-            ) : (
-              <Text style={styles.statNumber}>{stats?.staffHired ?? 0}</Text>
-            )}
-            <Text style={styles.statLabel}>Staff Hired</Text>
+        ) : statsError ? (
+          <View style={styles.statsStateContainer}>
+            <ErrorState message={statsError} onRetry={fetchStats} style={styles.statsState} />
           </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            {statsLoading ? (
-              <ActivityIndicator size="small" color={colors.primary} />
-            ) : (
+        ) : !stats ? (
+          <View style={styles.statsStateContainer}>
+            <EmptyState
+              icon="📊"
+              title="No stats yet"
+              message="Your company stats will appear here after posting jobs."
+              style={styles.statsState}
+            />
+          </View>
+        ) : (
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{stats.jobsPosted}</Text>
+              <Text style={styles.statLabel}>Jobs Posted</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{stats.staffHired}</Text>
+              <Text style={styles.statLabel}>Staff Hired</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
               <Text style={styles.statNumber}>⭐ —</Text>
-            )}
-            <Text style={styles.statLabel}>Rating</Text>
+              <Text style={styles.statLabel}>Rating</Text>
+            </View>
           </View>
-        </View>
+        )}
 
         {/* Menu Items */}
         <View style={styles.menuSection}>
@@ -254,19 +264,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
   },
-  companyAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  companyInitial: {
-    color: colors.textInverse,
-    fontSize: typography.fontSize.xxl,
-    fontWeight: '700' as const,
-  },
   companyInfo: {
     flex: 1,
     marginLeft: spacing.md,
@@ -294,6 +291,8 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: colors.surface,
     marginHorizontal: spacing.lg,
     marginTop: spacing.md,
@@ -301,6 +300,12 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
+  },
+  statsStateContainer: {
+    marginTop: spacing.md,
+  },
+  statsState: {
+    minHeight: 140,
   },
   statItem: {
     flex: 1,

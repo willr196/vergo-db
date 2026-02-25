@@ -56,7 +56,7 @@ describe('DashboardScreen', () => {
       );
 
       const { queryByText } = render(
-        <DashboardScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <DashboardScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       // Header should still be visible
@@ -70,7 +70,7 @@ describe('DashboardScreen', () => {
       (clientApi.getStats as jest.Mock).mockResolvedValue(mockStats);
 
       const { getByText } = render(
-        <DashboardScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <DashboardScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -87,7 +87,7 @@ describe('DashboardScreen', () => {
       (clientApi.getStats as jest.Mock).mockResolvedValue(mockStats);
 
       const { getByText } = render(
-        <DashboardScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <DashboardScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       expect(getByText('Test Company')).toBeTruthy();
@@ -97,7 +97,7 @@ describe('DashboardScreen', () => {
       (clientApi.getStats as jest.Mock).mockResolvedValue(mockStats);
 
       const { getByText } = render(
-        <DashboardScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <DashboardScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -112,7 +112,7 @@ describe('DashboardScreen', () => {
       });
 
       const { queryByText } = render(
-        <DashboardScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <DashboardScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -128,7 +128,7 @@ describe('DashboardScreen', () => {
       (clientApi.getStats as jest.Mock).mockRejectedValue(new Error('Network error'));
 
       const { getByText } = render(
-        <DashboardScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <DashboardScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -141,7 +141,7 @@ describe('DashboardScreen', () => {
       (clientApi.getStats as jest.Mock).mockRejectedValue(new Error('Failed'));
 
       const { getByText } = render(
-        <DashboardScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <DashboardScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -155,7 +155,7 @@ describe('DashboardScreen', () => {
         .mockResolvedValueOnce(mockStats);
 
       const { getByText } = render(
-        <DashboardScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <DashboardScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -175,7 +175,7 @@ describe('DashboardScreen', () => {
       (clientApi.getStats as jest.Mock).mockResolvedValue(mockStats);
 
       const { getByText } = render(
-        <DashboardScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <DashboardScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -190,7 +190,7 @@ describe('DashboardScreen', () => {
       (clientApi.getStats as jest.Mock).mockResolvedValue(mockStats);
 
       const { getByText } = render(
-        <DashboardScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <DashboardScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {

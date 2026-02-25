@@ -77,7 +77,7 @@ describe('MyQuotesScreen', () => {
       );
 
       const { getByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       expect(getByText('Loading quotes...')).toBeTruthy();
@@ -89,7 +89,7 @@ describe('MyQuotesScreen', () => {
       (clientApi.getQuotes as jest.Mock).mockResolvedValue(mockPaginatedResponse);
 
       const { getByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -101,8 +101,8 @@ describe('MyQuotesScreen', () => {
     it('should display quote details correctly', async () => {
       (clientApi.getQuotes as jest.Mock).mockResolvedValue(mockPaginatedResponse);
 
-      const { getByText, getAllByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as any} route={mockRoute as any} />
+      const { getByText } = render(
+        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -115,7 +115,7 @@ describe('MyQuotesScreen', () => {
       (clientApi.getQuotes as jest.Mock).mockResolvedValue(mockPaginatedResponse);
 
       const { getByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -127,7 +127,7 @@ describe('MyQuotesScreen', () => {
       (clientApi.getQuotes as jest.Mock).mockResolvedValue(mockPaginatedResponse);
 
       const { getByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -145,7 +145,7 @@ describe('MyQuotesScreen', () => {
       });
 
       const { getByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -161,7 +161,7 @@ describe('MyQuotesScreen', () => {
       });
 
       const { getByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -178,7 +178,7 @@ describe('MyQuotesScreen', () => {
       (clientApi.getQuotes as jest.Mock).mockRejectedValue(new Error('Network error'));
 
       const { getByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -191,7 +191,7 @@ describe('MyQuotesScreen', () => {
       (clientApi.getQuotes as jest.Mock).mockRejectedValue(new Error('Failed'));
 
       const { getByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -205,7 +205,7 @@ describe('MyQuotesScreen', () => {
         .mockResolvedValueOnce(mockPaginatedResponse);
 
       const { getByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -225,7 +225,7 @@ describe('MyQuotesScreen', () => {
       (clientApi.getQuotes as jest.Mock).mockResolvedValue(mockPaginatedResponse);
 
       const { getByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -241,7 +241,7 @@ describe('MyQuotesScreen', () => {
       (clientApi.getQuotes as jest.Mock).mockResolvedValue(mockPaginatedResponse);
 
       const { getByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -261,7 +261,7 @@ describe('MyQuotesScreen', () => {
       (clientApi.getQuotes as jest.Mock).mockResolvedValue(mockPaginatedResponse);
 
       const { getByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -276,7 +276,7 @@ describe('MyQuotesScreen', () => {
       (clientApi.getQuotes as jest.Mock).mockResolvedValue(mockPaginatedResponse);
 
       const { getByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {

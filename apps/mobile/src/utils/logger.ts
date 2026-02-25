@@ -4,30 +4,31 @@
  */
 
 const isDevelopment = __DEV__;
+type LogArgs = readonly unknown[];
 
 export const logger = {
-  log: (...args: any[]) => {
+  log: (...args: LogArgs) => {
     if (isDevelopment) {
-      console.log(...args);
+      console.warn('[log]', ...args);
     }
   },
 
-  warn: (...args: any[]) => {
+  warn: (...args: LogArgs) => {
     if (isDevelopment) {
       console.warn(...args);
     }
   },
 
-  error: (...args: any[]) => {
+  error: (...args: LogArgs) => {
     if (isDevelopment) {
       console.error(...args);
     }
     // In production, you would send this to error tracking service (Sentry)
   },
 
-  info: (...args: any[]) => {
+  info: (...args: LogArgs) => {
     if (isDevelopment) {
-      console.info(...args);
+      console.warn('[info]', ...args);
     }
   },
 };

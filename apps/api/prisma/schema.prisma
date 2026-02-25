@@ -130,7 +130,8 @@ model Client {
   // Relations
   quoteRequests   QuoteRequest[]
   refreshTokens   RefreshToken[]
-  
+  pushTokens      PushToken[]
+
   @@index([email])
   @@index([status])
   @@index([createdAt])
@@ -283,7 +284,8 @@ model User {
   jobApplications JobApplication[]
   savedJobs       SavedJob[]
   refreshTokens   RefreshToken[]
-  
+  pushTokens      PushToken[]
+
   // Indexes (must be at the end)
   @@index([email])
   @@index([userType])
@@ -305,6 +307,24 @@ model RefreshToken {
   @@index([userId])
   @@index([clientId])
   @@index([expiresAt])
+}
+
+// Push notification tokens for mobile devices
+model PushToken {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  token      String   @unique
+  platform   String   // "ios" | "android"
+
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  clientId   String?
+  client     Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([clientId])
 }
 
 // Job listings

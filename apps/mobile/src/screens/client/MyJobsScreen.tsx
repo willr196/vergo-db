@@ -19,7 +19,6 @@ import { useFocusEffect, type CompositeScreenProps } from '@react-navigation/nat
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { LoadingScreen, EmptyState, ErrorState } from '../../components';
-import { useAuthStore } from '../../store';
 import { jobsApi } from '../../api';
 import { logger } from '../../utils/logger';
 import type { RootStackParamList, ClientTabParamList, Job } from '../../types';
@@ -46,7 +45,6 @@ function toApiStatus(filter: JobStatusFilter): string | undefined {
 }
 
 export function MyJobsScreen({ navigation, route }: Props) {
-  const { user } = useAuthStore();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -122,7 +120,7 @@ export function MyJobsScreen({ navigation, route }: Props) {
   };
 
   const getStatusStyle = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case 'published': // OPEN jobs after normalization
       case 'active':
         return { bg: colors.success + '20', text: colors.success };
@@ -138,7 +136,8 @@ export function MyJobsScreen({ navigation, route }: Props) {
   };
 
   const renderJob = ({ item }: { item: Job }) => {
-    const statusStyle = getStatusStyle(item.status || 'active');
+    const normalizedStatus = (item.status || 'active').toLowerCase();
+    const statusStyle = getStatusStyle(normalizedStatus);
     
     return (
       <TouchableOpacity
@@ -149,7 +148,9 @@ export function MyJobsScreen({ navigation, route }: Props) {
           <Text style={styles.jobTitle}>{item.title}</Text>
           <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
             <Text style={[styles.statusText, { color: statusStyle.text }]}>
-              {item.status === 'published' ? 'Active' : item.status || 'Active'}
+              {normalizedStatus === 'published' || normalizedStatus === 'open'
+                ? 'Active'
+                : normalizedStatus || 'active'}
             </Text>
           </View>
         </View>

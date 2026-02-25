@@ -122,7 +122,7 @@ export function EditJobScreen({ route, navigation }: Props) {
         setIsLoading(false);
       }
     })();
-  }, [jobId, navigation]);
+  }, [jobId, navigation, showToast]);
 
   // Once both the job slug and the roles list are available, select the matching role
   useEffect(() => {

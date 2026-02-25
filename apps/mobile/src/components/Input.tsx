@@ -34,6 +34,8 @@ export function Input({
   containerStyle,
   inputStyle,
   secureTextEntry,
+  onBlur: externalOnBlur,
+  onFocus: externalOnFocus,
   ...props
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
@@ -44,7 +46,7 @@ export function Input({
   return (
     <View style={[styles.container, containerStyle]}>
       {label && <Text style={styles.label}>{label}</Text>}
-      
+
       <View
         style={[
           styles.inputContainer,
@@ -53,7 +55,7 @@ export function Input({
         ]}
       >
         {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
-        
+
         <TextInput
           style={[
             styles.input,
@@ -62,8 +64,8 @@ export function Input({
             inputStyle,
           ]}
           placeholderTextColor={colors.textMuted}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={(e) => { setIsFocused(true); externalOnFocus?.(e); }}
+          onBlur={(e) => { setIsFocused(false); externalOnBlur?.(e); }}
           secureTextEntry={isPassword && !showPassword}
           {...props}
         />

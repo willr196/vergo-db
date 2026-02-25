@@ -4,7 +4,7 @@
  */
 
 import apiClient from './client';
-import { normalizeJob } from './normalizers';
+import { normalizeJob, type BackendJob } from './normalizers';
 import type { Job, JobFilters } from '../types';
 
 // Backend response types
@@ -83,8 +83,7 @@ async function toBackendJobPayload(jobData: Partial<Job>): Promise<Record<string
     if (roleId) payload.roleId = roleId;
   }
   // status passthrough
-  const jobAny = jobData as any;
-  if (jobAny.status !== undefined) payload.status = jobAny.status;
+  if (jobData.status !== undefined) payload.status = jobData.status;
 
   return payload;
 }
@@ -110,7 +109,7 @@ export const jobsApi = {
       if (filters.search) params.append('search', filters.search);
     }
 
-    const response = await apiClient.get<any>(`/api/v1/mobile/jobs?${params.toString()}`);
+    const response = await apiClient.get<BackendResponse<BackendJob>>(`/api/v1/mobile/jobs?${params.toString()}`);
 
     return {
       ok: true,
@@ -129,14 +128,14 @@ export const jobsApi = {
    * Get a single job by ID (public — OPEN jobs only)
    */
   async getJob(jobId: string): Promise<Job> {
-    const response = await apiClient.get<BackendResponse<Job>>(`/api/v1/mobile/jobs/${jobId}`);
+    const response = await apiClient.get<BackendResponse<BackendJob>>(`/api/v1/mobile/jobs/${jobId}`);
 
     if (response.data.ok && response.data.job) {
-      return normalizeJob(response.data.job as any);
+      return normalizeJob(response.data.job);
     }
 
     if (response.data.ok && response.data.data) {
-      return normalizeJob(response.data.data as any);
+      return normalizeJob(response.data.data);
     }
 
     throw new Error(response.data.error || 'Job not found');
@@ -146,12 +145,15 @@ export const jobsApi = {
    * Get a single job owned by the authenticated client (any status)
    */
   async getClientJob(jobId: string): Promise<Job> {
-    const response = await apiClient.get<BackendResponse<Job>>(
+    const response = await apiClient.get<BackendResponse<BackendJob>>(
       `/api/v1/client/mobile/jobs/${jobId}`
     );
 
-    if (response.data.ok && (response.data.job || response.data.data)) {
-      return normalizeJob((response.data.job || response.data.data) as any);
+    if (response.data.ok) {
+      const job = response.data.job || response.data.data;
+      if (job) {
+        return normalizeJob(job);
+      }
     }
 
     throw new Error(response.data.error || 'Job not found');
@@ -166,11 +168,11 @@ export const jobsApi = {
     params.append('limit', limit.toString());
     if (status) params.append('status', status);
 
-    const response = await apiClient.get<any>(`/api/v1/client/mobile/jobs?${params.toString()}`);
+    const response = await apiClient.get<BackendResponse<BackendJob>>(`/api/v1/client/mobile/jobs?${params.toString()}`);
 
     return {
       ok: true,
-      jobs: (response.data.jobs || []).map((job: any) => normalizeJob(job)),
+      jobs: (response.data.jobs || []).map(normalizeJob),
       pagination: response.data.pagination || {
         page,
         limit,
@@ -188,13 +190,13 @@ export const jobsApi = {
     const payload = await toBackendJobPayload(jobData);
     if (!payload.status) payload.status = 'DRAFT';
 
-    const response = await apiClient.post<BackendResponse<Job>>(
+    const response = await apiClient.post<BackendResponse<BackendJob>>(
       '/api/v1/client/mobile/jobs',
       payload
     );
 
     if (response.data.ok && (response.data.job || response.data.data)) {
-      return normalizeJob((response.data.job || response.data.data!) as any);
+      return normalizeJob(response.data.job || response.data.data!);
     }
 
     throw new Error(response.data.error || 'Failed to create job');
@@ -206,13 +208,13 @@ export const jobsApi = {
   async updateJob(jobId: string, jobData: Partial<Job>): Promise<Job> {
     const payload = await toBackendJobPayload(jobData);
 
-    const response = await apiClient.put<BackendResponse<Job>>(
+    const response = await apiClient.put<BackendResponse<BackendJob>>(
       `/api/v1/client/mobile/jobs/${jobId}`,
       payload
     );
 
     if (response.data.ok && (response.data.job || response.data.data)) {
-      return normalizeJob((response.data.job || response.data.data!) as any);
+      return normalizeJob(response.data.job || response.data.data!);
     }
 
     throw new Error(response.data.error || 'Failed to update job');
@@ -222,12 +224,12 @@ export const jobsApi = {
    * Close a job (stop accepting applications)
    */
   async closeJob(jobId: string): Promise<Job> {
-    const response = await apiClient.post<BackendResponse<Job>>(
+    const response = await apiClient.post<BackendResponse<BackendJob>>(
       `/api/v1/client/mobile/jobs/${jobId}/close`
     );
 
     if (response.data.ok && (response.data.job || response.data.data)) {
-      return normalizeJob((response.data.job || response.data.data!) as any);
+      return normalizeJob(response.data.job || response.data.data!);
     }
 
     throw new Error(response.data.error || 'Failed to close job');
@@ -275,12 +277,12 @@ export const jobsApi = {
       roleId?: string;
     }
   ): Promise<Job> {
-    const response = await apiClient.put<BackendResponse<Job>>(
+    const response = await apiClient.put<BackendResponse<BackendJob>>(
       `/api/v1/client/mobile/jobs/${jobId}`,
       payload
     );
     if (response.data.ok && (response.data.job || response.data.data)) {
-      return normalizeJob((response.data.job ?? response.data.data!) as any);
+      return normalizeJob(response.data.job ?? response.data.data!);
     }
     throw new Error(response.data.error || 'Failed to update job');
   },
@@ -306,12 +308,12 @@ export const jobsApi = {
     roleId: string;
   }): Promise<Job> {
     const body = { ...payload, status: payload.status ?? 'DRAFT' };
-    const response = await apiClient.post<BackendResponse<Job>>(
+    const response = await apiClient.post<BackendResponse<BackendJob>>(
       '/api/v1/client/mobile/jobs',
       body
     );
     if (response.data.ok && (response.data.job || response.data.data)) {
-      return normalizeJob((response.data.job ?? response.data.data!) as any);
+      return normalizeJob(response.data.job ?? response.data.data!);
     }
     throw new Error(response.data.error || 'Failed to create job');
   },
@@ -320,7 +322,7 @@ export const jobsApi = {
    * Get available cities for job filter
    */
   async getCities(): Promise<string[]> {
-    const response = await apiClient.get<BackendResponse<string[]>>('/api/v1/jobs/cities');
+    const response = await apiClient.get<BackendResponse<string[]>>('/api/v1/mobile/jobs/cities');
 
     if (response.data.ok && response.data.cities) {
       return response.data.cities;
@@ -334,10 +336,10 @@ export const jobsApi = {
    */
   async getRecommendedJobs(limit = 5): Promise<Job[]> {
     try {
-      const response = await apiClient.get<BackendResponse<Job>>(`/api/v1/jobs/recommended?limit=${limit}`);
+      const response = await apiClient.get<BackendResponse<BackendJob>>(`/api/v1/mobile/jobs/recommended?limit=${limit}`);
 
       if (response.data.ok && response.data.jobs) {
-        return response.data.jobs.map((job) => normalizeJob(job as any));
+        return response.data.jobs.map(normalizeJob);
       }
     } catch {
       // Recommended jobs is optional
@@ -350,14 +352,14 @@ export const jobsApi = {
    * Save a job to favorites
    */
   async saveJob(jobId: string): Promise<void> {
-    await apiClient.post(`/api/v1/jobs/${jobId}/save`);
+    await apiClient.post(`/api/v1/mobile/jobs/${jobId}/save`);
   },
 
   /**
    * Remove a job from favorites
    */
   async unsaveJob(jobId: string): Promise<void> {
-    await apiClient.delete(`/api/v1/jobs/${jobId}/save`);
+    await apiClient.delete(`/api/v1/mobile/jobs/${jobId}/save`);
   },
 
   /**
@@ -365,10 +367,10 @@ export const jobsApi = {
    */
   async getSavedJobs(): Promise<Job[]> {
     try {
-      const response = await apiClient.get<BackendResponse<Job>>('/api/v1/jobs/saved');
+      const response = await apiClient.get<BackendResponse<BackendJob>>('/api/v1/mobile/jobs/saved');
 
       if (response.data.ok && response.data.jobs) {
-        return response.data.jobs;
+        return response.data.jobs.map(normalizeJob);
       }
     } catch {
       // Saved jobs is optional feature

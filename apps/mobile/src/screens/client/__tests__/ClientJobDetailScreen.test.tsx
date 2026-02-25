@@ -109,7 +109,7 @@ describe('ClientJobDetailScreen', () => {
       );
 
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       expect(getByText('Loading job...')).toBeTruthy();
@@ -119,7 +119,7 @@ describe('ClientJobDetailScreen', () => {
   describe('Success State - Job Details', () => {
     it('should display job title and meta info', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -131,7 +131,7 @@ describe('ClientJobDetailScreen', () => {
 
     it('should display job status badge', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -141,7 +141,7 @@ describe('ClientJobDetailScreen', () => {
 
     it('should display tabs for applications and details', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -152,7 +152,7 @@ describe('ClientJobDetailScreen', () => {
 
     it('should show application count in tab', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -164,7 +164,7 @@ describe('ClientJobDetailScreen', () => {
   describe('Applications Tab', () => {
     it('should display applications by default', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -176,7 +176,7 @@ describe('ClientJobDetailScreen', () => {
 
     it('should display applicant emails', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -187,7 +187,7 @@ describe('ClientJobDetailScreen', () => {
 
     it('should display applicant initials in avatar', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -197,7 +197,7 @@ describe('ClientJobDetailScreen', () => {
 
     it('should display cover notes when available', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -207,7 +207,7 @@ describe('ClientJobDetailScreen', () => {
 
     it('should display application status badges', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -218,8 +218,8 @@ describe('ClientJobDetailScreen', () => {
     });
 
     it('should show action buttons for pending applications', async () => {
-      const { getByText, getAllByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+      const { getAllByText } = render(
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -231,7 +231,7 @@ describe('ClientJobDetailScreen', () => {
 
     it('should show hire button for shortlisted applications', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -245,7 +245,7 @@ describe('ClientJobDetailScreen', () => {
       });
 
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -258,7 +258,7 @@ describe('ClientJobDetailScreen', () => {
   describe('Job Details Tab', () => {
     it('should switch to details tab when pressed', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -276,7 +276,7 @@ describe('ClientJobDetailScreen', () => {
 
     it('should display job details correctly', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -293,7 +293,7 @@ describe('ClientJobDetailScreen', () => {
 
     it('should display job description', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -308,7 +308,7 @@ describe('ClientJobDetailScreen', () => {
 
     it('should display job requirements when available', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -329,8 +329,8 @@ describe('ClientJobDetailScreen', () => {
         status: 'shortlisted',
       });
 
-      const { getByText, getAllByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+      const { getAllByText } = render(
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -351,8 +351,8 @@ describe('ClientJobDetailScreen', () => {
         status: 'hired',
       });
 
-      const { getByText, getAllByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+      const { getAllByText } = render(
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -373,8 +373,8 @@ describe('ClientJobDetailScreen', () => {
         status: 'rejected',
       });
 
-      const { getByText, getAllByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+      const { getAllByText } = render(
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -393,7 +393,7 @@ describe('ClientJobDetailScreen', () => {
       (applicationsApi.shortlistApplicant as jest.Mock).mockRejectedValue(new Error('Failed'));
 
       const { getAllByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -411,7 +411,7 @@ describe('ClientJobDetailScreen', () => {
   describe('Close Job', () => {
     it('should show close job button for active jobs', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -426,7 +426,7 @@ describe('ClientJobDetailScreen', () => {
       });
 
       const { queryByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -436,7 +436,7 @@ describe('ClientJobDetailScreen', () => {
 
     it('should show confirmation dialog when close job is pressed', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -456,7 +456,7 @@ describe('ClientJobDetailScreen', () => {
   describe('Navigation', () => {
     it('should go back when back button is pressed', async () => {
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -473,7 +473,7 @@ describe('ClientJobDetailScreen', () => {
       (jobsApi.getJob as jest.Mock).mockResolvedValue(null);
 
       const { getByText } = render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
@@ -486,7 +486,7 @@ describe('ClientJobDetailScreen', () => {
       (jobsApi.getJob as jest.Mock).mockRejectedValue(new Error('Network error'));
 
       render(
-        <ClientJobDetailScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {

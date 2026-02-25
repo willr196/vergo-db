@@ -12,7 +12,7 @@ import {
   Platform,
   ViewStyle,
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { colors, spacing, borderRadius, typography } from '../theme';
 
 interface DateTimePickerProps {
@@ -40,7 +40,7 @@ export function DateTimePickerInput({
 }: DateTimePickerProps) {
   const [show, setShow] = useState(false);
 
-  const handleChange = (event: any, selectedDate?: Date) => {
+  const handleChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     if (Platform.OS === 'android') {
       setShow(false);
     }

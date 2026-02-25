@@ -12,13 +12,29 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, typography } from '../../theme';
 import { Button, Input } from '../../components';
 import { useAuthStore, useUIStore } from '../../store';
+import {
+  isBiometricAvailable,
+  isBiometricEnabled,
+  setBiometricEnabled,
+  hasBiometricBeenAsked,
+  markBiometricAsked,
+} from '../../utils/biometrics';
 import type { RootStackParamList } from '../../types';
+
+// Module-level rate limiter — persists across renders within a session
+const _loginAttempts = {
+  count: 0,
+  lockedUntil: 0,
+  MAX_ATTEMPTS: 5,
+  LOCKOUT_MS: 30_000,
+};
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -42,42 +58,100 @@ export function LoginScreen({ navigation, route }: Props) {
   
   const validate = (): boolean => {
     const errors: typeof validationErrors = {};
-    
+
     if (!email.trim()) {
       errors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       errors.email = 'Please enter a valid email';
     }
-    
+
     if (!password) {
       errors.password = 'Password is required';
     } else if (password.length < 6) {
       errors.password = 'Password must be at least 6 characters';
     }
-    
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
+  };
+
+  const validateField = (field: 'email' | 'password') => {
+    if (field === 'email') {
+      if (!email.trim()) {
+        setValidationErrors(prev => ({ ...prev, email: 'Email is required' }));
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setValidationErrors(prev => ({ ...prev, email: 'Please enter a valid email' }));
+      }
+    } else if (field === 'password') {
+      if (!password) {
+        setValidationErrors(prev => ({ ...prev, password: 'Password is required' }));
+      } else if (password.length < 6) {
+        setValidationErrors(prev => ({ ...prev, password: 'Password must be at least 6 characters' }));
+      }
+    }
   };
   
   const handleLogin = async () => {
     clearError();
-    
+
+    // Rate limiting
+    const now = Date.now();
+    if (_loginAttempts.lockedUntil > now) {
+      const secondsLeft = Math.ceil((_loginAttempts.lockedUntil - now) / 1000);
+      showToast(`Too many attempts. Try again in ${secondsLeft}s.`, 'error');
+      return;
+    }
+
     if (!validate()) return;
-    
+
     try {
       await login({
         email: email.trim().toLowerCase(),
         password,
         userType,
       });
+
+      // Reset rate limiter on success
+      _loginAttempts.count = 0;
+      _loginAttempts.lockedUntil = 0;
+
+      // Offer biometric enrollment if available and not yet asked
+      const [available, alreadyEnabled, alreadyAsked] = await Promise.all([
+        isBiometricAvailable(),
+        isBiometricEnabled(),
+        hasBiometricBeenAsked(),
+      ]);
+      if (available && !alreadyEnabled && !alreadyAsked) {
+        await markBiometricAsked();
+        Alert.alert(
+          'Enable Biometric Sign-In',
+          'Use Face ID / Touch ID to sign in faster next time?',
+          [
+            { text: 'Not Now', style: 'cancel' },
+            {
+              text: 'Enable',
+              onPress: async () => {
+                await setBiometricEnabled(true);
+              },
+            },
+          ],
+        );
+      }
       // Navigation will be handled by the root navigator based on auth state
     } catch (err: unknown) {
-      const message = err instanceof Error
-        ? err.message
-        : 'Please check your credentials and try again.';
-      showToast(message, 'error');
+      _loginAttempts.count += 1;
+      if (_loginAttempts.count >= _loginAttempts.MAX_ATTEMPTS) {
+        _loginAttempts.lockedUntil = Date.now() + _loginAttempts.LOCKOUT_MS;
+        _loginAttempts.count = 0;
+        showToast('Too many failed attempts. Please wait 30 seconds.', 'error');
+      } else {
+        const message = err instanceof Error
+          ? err.message
+          : 'Please check your credentials and try again.';
+        showToast(message, 'error');
+      }
     }
-};
+  };
   
   const handleForgotPassword = () => {
     navigation.navigate('ForgotPassword');
@@ -136,9 +210,10 @@ export function LoginScreen({ navigation, route }: Props) {
                   setValidationErrors((prev) => ({ ...prev, email: undefined }));
                 }
               }}
+              onBlur={() => validateField('email')}
               error={validationErrors.email}
             />
-            
+
             <Input
               label="Password"
               placeholder="Enter your password"
@@ -150,6 +225,7 @@ export function LoginScreen({ navigation, route }: Props) {
                   setValidationErrors((prev) => ({ ...prev, password: undefined }));
                 }
               }}
+              onBlur={() => validateField('password')}
               error={validationErrors.password}
             />
             

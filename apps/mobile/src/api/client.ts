@@ -16,6 +16,9 @@ export const STORAGE_KEYS = {
   REFRESH_TOKEN: 'vergo_refresh_token',
   USER_TYPE: 'vergo_user_type',
   USER_DATA: 'vergo_user_data',
+  LAST_ACTIVE: 'vergo_last_active',
+  BIOMETRIC_ENABLED: 'vergo_biometric_enabled',
+  BIOMETRIC_ASKED: 'vergo_biometric_asked',
 } as const;
 
 // Create axios instance
@@ -136,6 +139,9 @@ export async function clearAuthTokens(): Promise<void> {
   await SecureStore.deleteItemAsync(STORAGE_KEYS.REFRESH_TOKEN);
   await SecureStore.deleteItemAsync(STORAGE_KEYS.USER_TYPE);
   await SecureStore.deleteItemAsync(STORAGE_KEYS.USER_DATA);
+  await SecureStore.deleteItemAsync(STORAGE_KEYS.LAST_ACTIVE);
+  await SecureStore.deleteItemAsync(STORAGE_KEYS.BIOMETRIC_ENABLED);
+  await SecureStore.deleteItemAsync(STORAGE_KEYS.BIOMETRIC_ASKED);
 }
 
 export async function getAccessToken(): Promise<string | null> {

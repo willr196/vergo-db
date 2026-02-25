@@ -6,7 +6,7 @@
 import type { JobRole } from '../types';
 
 // Job Role options with display labels
-export const JOB_ROLES: ReadonlyArray<{ value: JobRole; label: string }> = [
+export const JOB_ROLES: readonly { value: JobRole; label: string }[] = [
   { value: 'bartender', label: 'Bartender' },
   { value: 'server', label: 'Server' },
   { value: 'chef', label: 'Chef' },
@@ -19,13 +19,13 @@ export const JOB_ROLES: ReadonlyArray<{ value: JobRole; label: string }> = [
 ] as const;
 
 // Job Role filter options (includes "All Roles" option)
-export const JOB_ROLE_FILTERS: ReadonlyArray<{ value: JobRole | ''; label: string }> = [
+export const JOB_ROLE_FILTERS: readonly { value: JobRole | ''; label: string }[] = [
   { value: '', label: 'All Roles' },
   ...JOB_ROLES,
 ] as const;
 
 // Hourly rate filter options
-export const HOURLY_RATE_OPTIONS: ReadonlyArray<number> = [0, 12, 15, 18, 20, 25] as const;
+export const HOURLY_RATE_OPTIONS: readonly number[] = [0, 12, 15, 18, 20, 25] as const;
 
 // Auth initialization timeout (milliseconds)
 export const AUTH_TIMEOUT = 10000;

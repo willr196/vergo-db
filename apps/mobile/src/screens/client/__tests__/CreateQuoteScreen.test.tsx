@@ -37,7 +37,7 @@ describe('CreateQuoteScreen', () => {
   describe('Form Rendering', () => {
     it('should render form title and subtitle', () => {
       const { getByText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       expect(getByText('Request a Quote')).toBeTruthy();
@@ -45,8 +45,8 @@ describe('CreateQuoteScreen', () => {
     });
 
     it('should render all required form fields', () => {
-      const { getByText, getByPlaceholderText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+      const { getByText } = render(
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       expect(getByText('Event Type *')).toBeTruthy();
@@ -57,7 +57,7 @@ describe('CreateQuoteScreen', () => {
 
     it('should render submit button', () => {
       const { getByText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       expect(getByText('Submit Quote Request')).toBeTruthy();
@@ -65,7 +65,7 @@ describe('CreateQuoteScreen', () => {
 
     it('should render role options', () => {
       const { getByText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       expect(getByText('Bartender')).toBeTruthy();
@@ -77,7 +77,7 @@ describe('CreateQuoteScreen', () => {
   describe('Form Validation', () => {
     it('should show error when submitting without event type', async () => {
       const { getByText, getByPlaceholderText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       // Fill in some fields but not event type
@@ -99,7 +99,7 @@ describe('CreateQuoteScreen', () => {
 
     it('should show error when submitting without location', async () => {
       const { getByText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       // Select event type
@@ -121,7 +121,7 @@ describe('CreateQuoteScreen', () => {
 
     it('should show error when submitting without roles', async () => {
       const { getByText, getByPlaceholderText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       // Select event type
@@ -146,7 +146,7 @@ describe('CreateQuoteScreen', () => {
 
     it('should show inline error message for event type', async () => {
       const { getByText, queryByText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fireEvent.press(getByText('Submit Quote Request'));
@@ -158,7 +158,7 @@ describe('CreateQuoteScreen', () => {
 
     it('should clear error when field is corrected', async () => {
       const { getByText, queryByText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       // Trigger validation error
@@ -180,7 +180,7 @@ describe('CreateQuoteScreen', () => {
   describe('Event Type Selection', () => {
     it('should show dropdown when event type selector is pressed', () => {
       const { getByText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fireEvent.press(getByText('Select event type'));
@@ -191,8 +191,8 @@ describe('CreateQuoteScreen', () => {
     });
 
     it('should update selected event type', () => {
-      const { getByText, queryByText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+      const { getByText } = render(
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fireEvent.press(getByText('Select event type'));
@@ -206,7 +206,7 @@ describe('CreateQuoteScreen', () => {
   describe('Role Selection', () => {
     it('should toggle role selection', () => {
       const { getByText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       const bartenderChip = getByText('Bartender');
@@ -221,7 +221,7 @@ describe('CreateQuoteScreen', () => {
 
     it('should allow multiple role selections', () => {
       const { getByText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fireEvent.press(getByText('Bartender'));
@@ -238,7 +238,7 @@ describe('CreateQuoteScreen', () => {
   describe('Staff Count', () => {
     it('should increment staff count', () => {
       const { getByText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       // Initial value should be 1
@@ -252,7 +252,7 @@ describe('CreateQuoteScreen', () => {
 
     it('should decrement staff count but not below 1', () => {
       const { getByText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       // Try to decrement below 1
@@ -283,7 +283,7 @@ describe('CreateQuoteScreen', () => {
       (clientApi.createQuote as jest.Mock).mockResolvedValue({ id: '1' });
 
       const { getByText, getByPlaceholderText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fillValidForm(getByText, getByPlaceholderText);
@@ -306,7 +306,7 @@ describe('CreateQuoteScreen', () => {
       (clientApi.createQuote as jest.Mock).mockResolvedValue({ id: '1' });
 
       const { getByText, getByPlaceholderText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fillValidForm(getByText, getByPlaceholderText);
@@ -326,7 +326,7 @@ describe('CreateQuoteScreen', () => {
       (clientApi.createQuote as jest.Mock).mockRejectedValue(new Error('Network error'));
 
       const { getByText, getByPlaceholderText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fillValidForm(getByText, getByPlaceholderText);
@@ -347,7 +347,7 @@ describe('CreateQuoteScreen', () => {
       );
 
       const { getByText, getByPlaceholderText } = render(
-        <CreateQuoteScreen navigation={mockNavigation as any} route={mockRoute as any} />
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       fillValidForm(getByText, getByPlaceholderText);

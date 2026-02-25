@@ -20,18 +20,19 @@ import { LoadingScreen, Button } from '../../components';
 import { jobsApi, applicationsApi } from '../../api';
 import { useUIStore } from '../../store';
 import { logger } from '../../utils/logger';
+import { isApplicationStatus, normalizeApplicationStatus } from '../../api/normalizers';
 import type { RootStackParamList, Job, Application } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientJobDetail'>;
 
 export function ClientJobDetailScreen({ route, navigation }: Props) {
-  const { jobId } = route.params;
+  const { jobId, initialTab } = route.params;
   const { showToast } = useUIStore();
   const [job, setJob] = useState<Job | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'details' | 'applications'>('applications');
+  const [activeTab, setActiveTab] = useState<'details' | 'applications'>(initialTab ?? 'applications');
 
   const fetchData = useCallback(async () => {
     try {
@@ -47,7 +48,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
     } finally {
       setIsLoading(false);
     }
-  }, [jobId]);
+  }, [jobId, showToast]);
 
   useEffect(() => {
     fetchData();
@@ -120,8 +121,18 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
     });
   };
 
+  const normalizeJobStatus = (status?: string) => {
+    const normalized = (status || '').toLowerCase();
+    if (normalized === 'published' || normalized === 'open' || normalized === 'active') {
+      return 'active';
+    }
+    if (normalized === 'closed') return 'closed';
+    if (normalized === 'filled') return 'filled';
+    return 'draft';
+  };
+
   const getStatusColor = (status: string) => {
-    switch (status) {
+    switch (normalizeApplicationStatus(status)) {
       case 'pending':
         return colors.warning;
       case 'reviewing':
@@ -160,7 +171,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
         <View style={styles.headerActions}>
-          {job.status !== 'closed' && (
+          {normalizeJobStatus(job.status) !== 'closed' && (
             <TouchableOpacity
               style={styles.editButton}
               onPress={() => navigation.navigate('EditJob', { jobId: job.id })}
@@ -168,7 +179,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
               <Text style={styles.editText}>Edit</Text>
             </TouchableOpacity>
           )}
-          {job.status !== 'closed' && (
+          {normalizeJobStatus(job.status) !== 'closed' && (
             <TouchableOpacity onPress={handleCloseJob}>
               <Text style={styles.closeText}>Close</Text>
             </TouchableOpacity>
@@ -182,21 +193,26 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
         <View style={styles.metaRow}>
           <Text style={styles.metaText}>📍 {job.city}</Text>
           <Text style={styles.metaText}>💰 £{job.hourlyRate}/hr</Text>
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: job.status === 'active' ? colors.success + '20' : colors.textMuted + '20' },
-            ]}
-          >
-            <Text
-              style={[
-                styles.statusText,
-                { color: job.status === 'active' ? colors.success : colors.textMuted },
-              ]}
-            >
-              {job.status || 'Active'}
-            </Text>
-          </View>
+            {(() => {
+              const normalizedJobStatus = normalizeJobStatus(job.status);
+              return (
+                <View
+                  style={[
+                    styles.statusBadge,
+                    { backgroundColor: normalizedJobStatus === 'active' ? colors.success + '20' : colors.textMuted + '20' },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.statusText,
+                      { color: normalizedJobStatus === 'active' ? colors.success : colors.textMuted },
+                    ]}
+                  >
+                    {normalizedJobStatus === 'active' ? 'Active' : normalizedJobStatus}
+                  </Text>
+                </View>
+              );
+            })()}
         </View>
       </View>
 
@@ -267,7 +283,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
                       <Text
                         style={[styles.appStatusText, { color: getStatusColor(app.status) }]}
                       >
-                        {app.status}
+                        {normalizeApplicationStatus(app.status)}
                       </Text>
                     </View>
                   </View>
@@ -279,7 +295,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
                     </View>
                   )}
 
-                  {(app.status === 'pending' || app.status === 'reviewing') && (
+                  {isApplicationStatus(app.status, 'pending', 'reviewing') && (
                     <View style={styles.actionButtons}>
                       <TouchableOpacity
                         style={[styles.actionButton, styles.shortlistButton]}
@@ -302,7 +318,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
                     </View>
                   )}
 
-                  {app.status === 'shortlisted' && (
+                  {isApplicationStatus(app.status, 'shortlisted') && (
                     <View style={styles.actionButtons}>
                       <TouchableOpacity
                         style={[styles.actionButton, styles.hireButton, styles.actionButtonFull]}

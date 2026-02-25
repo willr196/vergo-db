@@ -14,14 +14,16 @@ import {
   RefreshControl,
   ScrollView,
   ActivityIndicator,
+  Share,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { LoadingScreen } from '../../components';
+import { LoadingScreen, EmptyState, ErrorState } from '../../components';
 import { applicationsApi } from '../../api';
 import { useUIStore } from '../../store';
 import { logger } from '../../utils/logger';
+import { isApplicationStatus, normalizeApplicationStatus } from '../../api/normalizers';
 import type { RootStackParamList, Application, ApplicationStatus } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ApplicantList'>;
@@ -38,7 +40,7 @@ const STATUS_FILTERS: { value: FilterValue; label: string }[] = [
 ];
 
 function getStatusColor(status: ApplicationStatus): string {
-  switch (status) {
+  switch (normalizeApplicationStatus(status)) {
     case 'pending':
     case 'reviewing':
       return colors.warning;
@@ -54,7 +56,7 @@ function getStatusColor(status: ApplicationStatus): string {
 }
 
 function getStatusLabel(status: ApplicationStatus): string {
-  switch (status) {
+  switch (normalizeApplicationStatus(status)) {
     case 'pending': return 'Pending';
     case 'reviewing': return 'Reviewing';
     case 'shortlisted': return 'Shortlisted';
@@ -92,15 +94,19 @@ export function ApplicantListScreen({ route, navigation }: Props) {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
+  const [error, setError] = useState<string | null>(null);
 
   const fetchApplications = useCallback(async () => {
     try {
+      setError(null);
       const data = await applicationsApi.getJobApplications(jobId, undefined, 1);
       setAllApplications(data.applications);
       setCurrentPage(1);
       setHasMore(data.pagination.hasMore);
     } catch (error) {
       logger.error('Failed to fetch applicants:', error);
+      const message = error instanceof Error ? error.message : 'Failed to load applicants';
+      setError(message);
       showToast('Failed to load applicants', 'error');
     } finally {
       setIsLoading(false);
@@ -138,18 +144,28 @@ export function ApplicantListScreen({ route, navigation }: Props) {
     }
   }, [hasMore, isLoadingMore, isRefreshing, fetchMoreApplications]);
 
+  const handleShareJob = useCallback(async () => {
+    try {
+      await Share.share({
+        message: "I'm hiring on VERGO! Download the app and apply for open positions.",
+      });
+    } catch {
+      // user cancelled or share failed — no action needed
+    }
+  }, []);
+
   // Counts computed from all applications regardless of active filter
   const total = allApplications.length;
-  const shortlisted = allApplications.filter((a) => a.status === 'shortlisted').length;
-  const hired = allApplications.filter((a) => a.status === 'hired').length;
+  const shortlisted = allApplications.filter((a) => isApplicationStatus(a.status, 'shortlisted')).length;
+  const hired = allApplications.filter((a) => isApplicationStatus(a.status, 'hired')).length;
 
   // Client-side filtering for display
   const displayed =
     activeFilter === 'all'
       ? allApplications
-      : allApplications.filter((a) => a.status === activeFilter);
+      : allApplications.filter((a) => normalizeApplicationStatus(a.status) === activeFilter);
 
-  const handleAction = async (
+  const handleAction = useCallback(async (
     applicationId: string,
     action: 'shortlist' | 'hire' | 'reject'
   ) => {
@@ -170,9 +186,9 @@ export function ApplicantListScreen({ route, navigation }: Props) {
     } catch {
       showToast('Failed to update applicant status', 'error');
     }
-  };
+  }, [jobId, showToast]);
 
-  const confirmAction = (
+  const confirmAction = useCallback((
     applicationId: string,
     action: 'shortlist' | 'hire' | 'reject',
     name: string
@@ -190,10 +206,101 @@ export function ApplicantListScreen({ route, navigation }: Props) {
         onPress: () => handleAction(applicationId, action),
       },
     ]);
-  };
+  }, [handleAction]);
+
+  const renderApplicant = useCallback(({ item: app }: { item: Application }) => {
+    const name =
+      `${app.jobSeeker?.firstName || app.user?.firstName || ''} ${app.jobSeeker?.lastName || app.user?.lastName || ''}`.trim() ||
+      'Unknown Applicant';
+    const initial = name[0]?.toUpperCase() || '?';
+    const statusColor = getStatusColor(app.status);
+    const canAct = isApplicationStatus(app.status, 'pending', 'reviewing');
+    const canHireFromShortlist = isApplicationStatus(app.status, 'shortlisted');
+
+    return (
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() =>
+          navigation.navigate('ApplicantDetail', { applicationId: app.id })
+        }
+      >
+        <View style={styles.cardHeader}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{initial}</Text>
+          </View>
+          <View style={styles.applicantInfo}>
+            <Text style={styles.applicantName}>{name}</Text>
+            <Text style={styles.applicantEmail}>
+              {app.jobSeeker?.email || app.user?.email || ''}
+            </Text>
+            <Text style={styles.appliedDate}>Applied {formatDate(app.createdAt)}</Text>
+          </View>
+          <View style={[styles.statusBadge, { backgroundColor: statusColor + '20' }]}>
+            <Text style={[styles.statusText, { color: statusColor }]}>
+              {getStatusLabel(app.status)}
+            </Text>
+          </View>
+        </View>
+
+        {app.coverNote ? (
+          <Text style={styles.coverNote} numberOfLines={2}>
+            {app.coverNote}
+          </Text>
+        ) : null}
+
+        {canAct && (
+          <View style={styles.actions}>
+            <TouchableOpacity
+              style={[styles.actionBtn, styles.shortlistBtn]}
+              onPress={() => confirmAction(app.id, 'shortlist', name)}
+            >
+              <Text style={styles.actionBtnText}>Shortlist</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionBtn, styles.hireBtn]}
+              onPress={() => confirmAction(app.id, 'hire', name)}
+            >
+              <Text style={styles.actionBtnText}>Hire</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionBtn, styles.rejectBtn]}
+              onPress={() => confirmAction(app.id, 'reject', name)}
+            >
+              <Text style={styles.rejectBtnText}>Reject</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {canHireFromShortlist && (
+          <View style={styles.actions}>
+            <TouchableOpacity
+              style={[styles.actionBtn, styles.hireBtn, styles.actionBtnFull]}
+              onPress={() => confirmAction(app.id, 'hire', name)}
+            >
+              <Text style={styles.actionBtnText}>Hire This Candidate</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  }, [navigation, confirmAction]);
 
   if (isLoading) {
     return <LoadingScreen message="Loading applicants..." />;
+  }
+
+  if (error && allApplications.length === 0 && !isRefreshing) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ErrorState
+          message={error}
+          onRetry={() => {
+            setIsLoading(true);
+            fetchApplications();
+          }}
+        />
+      </SafeAreaView>
+    );
   }
 
   return (
@@ -252,98 +359,28 @@ export function ApplicantListScreen({ route, navigation }: Props) {
         }
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
+        windowSize={5}
+        maxToRenderPerBatch={10}
+        initialNumToRender={10}
         ListFooterComponent={
           isLoadingMore ? (
             <ActivityIndicator color={colors.primary} style={{ padding: 16 }} />
           ) : null
         }
         ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyEmoji}>📭</Text>
-            <Text style={styles.emptyTitle}>No applicants</Text>
-            <Text style={styles.emptySubtitle}>
-              {activeFilter !== 'all'
+          <EmptyState
+            icon="📭"
+            title={activeFilter !== 'all' ? 'No applicants here' : 'No applications yet'}
+            message={
+              activeFilter !== 'all'
                 ? 'No applicants with this status'
-                : 'Applications will appear here when candidates apply'}
-            </Text>
-          </View>
+                : 'Share this job to attract candidates'
+            }
+            actionTitle={activeFilter === 'all' ? 'Share Job' : undefined}
+            onAction={activeFilter === 'all' ? handleShareJob : undefined}
+          />
         }
-        renderItem={({ item: app }) => {
-          const name =
-            `${app.jobSeeker?.firstName || app.user?.firstName || ''} ${app.jobSeeker?.lastName || app.user?.lastName || ''}`.trim() ||
-            'Unknown Applicant';
-          const initial = name[0]?.toUpperCase() || '?';
-          const statusColor = getStatusColor(app.status);
-          const canAct = app.status === 'pending' || app.status === 'reviewing';
-          const canHireFromShortlist = app.status === 'shortlisted';
-
-          return (
-            <TouchableOpacity
-              style={styles.card}
-              onPress={() =>
-                navigation.navigate('ApplicantDetail', { applicationId: app.id })
-              }
-            >
-              <View style={styles.cardHeader}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>{initial}</Text>
-                </View>
-                <View style={styles.applicantInfo}>
-                  <Text style={styles.applicantName}>{name}</Text>
-                  <Text style={styles.applicantEmail}>
-                    {app.jobSeeker?.email || app.user?.email || ''}
-                  </Text>
-                  <Text style={styles.appliedDate}>Applied {formatDate(app.createdAt)}</Text>
-                </View>
-                <View style={[styles.statusBadge, { backgroundColor: statusColor + '20' }]}>
-                  <Text style={[styles.statusText, { color: statusColor }]}>
-                    {getStatusLabel(app.status)}
-                  </Text>
-                </View>
-              </View>
-
-              {app.coverNote ? (
-                <Text style={styles.coverNote} numberOfLines={2}>
-                  {app.coverNote}
-                </Text>
-              ) : null}
-
-              {canAct && (
-                <View style={styles.actions}>
-                  <TouchableOpacity
-                    style={[styles.actionBtn, styles.shortlistBtn]}
-                    onPress={() => confirmAction(app.id, 'shortlist', name)}
-                  >
-                    <Text style={styles.actionBtnText}>Shortlist</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.actionBtn, styles.hireBtn]}
-                    onPress={() => confirmAction(app.id, 'hire', name)}
-                  >
-                    <Text style={styles.actionBtnText}>Hire</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.actionBtn, styles.rejectBtn]}
-                    onPress={() => confirmAction(app.id, 'reject', name)}
-                  >
-                    <Text style={styles.rejectBtnText}>Reject</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-
-              {canHireFromShortlist && (
-                <View style={styles.actions}>
-                  <TouchableOpacity
-                    style={[styles.actionBtn, styles.hireBtn, styles.actionBtnFull]}
-                    onPress={() => confirmAction(app.id, 'hire', name)}
-                  >
-                    <Text style={styles.actionBtnText}>Hire This Candidate</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </TouchableOpacity>
-          );
-        }}
+        renderItem={renderApplicant}
       />
     </SafeAreaView>
   );
@@ -425,27 +462,6 @@ const styles = StyleSheet.create({
   listContent: {
     padding: spacing.lg,
     flexGrow: 1,
-  },
-  emptyState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xxl,
-  },
-  emptyEmoji: {
-    fontSize: 48,
-    marginBottom: spacing.md,
-  },
-  emptyTitle: {
-    color: colors.textPrimary,
-    fontSize: typography.fontSize.lg,
-    fontWeight: '600' as const,
-    marginBottom: spacing.xs,
-  },
-  emptySubtitle: {
-    color: colors.textSecondary,
-    fontSize: typography.fontSize.md,
-    textAlign: 'center',
   },
   card: {
     backgroundColor: colors.surface,

@@ -27,6 +27,7 @@ import quotes from './routes/quotes';
 import mobileJobs from './routes/mobileJobs';
 import mobileJobApplications from './routes/mobileJobApplications';
 import mobileClient from './routes/mobileClient';
+import mobileNotifications from './routes/mobileNotifications';
 import { emailQueue } from './services/email/queue';
 import webhooks from './routes/webhooks';
 import unsubscribe from './routes/unsubscribe';
@@ -679,6 +680,9 @@ app.use('/api/v1/clients', clientAuthRoutes);
 app.use('/api/v1/mobile/jobs', mobileJobs);
 app.use('/api/v1/mobile/job-applications', mobileJobApplications);
 app.use('/api/v1/client/mobile', mobileClient);
+
+// Mobile push notifications
+app.use('/api/v1/notifications', mobileNotifications);
 
 // Unsubscribe management
 app.use('/api/v1/unsubscribe', unsubscribe);

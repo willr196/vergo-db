@@ -13,12 +13,15 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import * as ImagePicker from 'expo-image-picker';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { Input } from '../../components';
+import { Input, Avatar } from '../../components';
 import { useAuthStore, useUIStore, selectJobSeeker } from '../../store';
+import { authApi } from '../../api';
 import type { RootStackParamList, JobSeeker, JobRole, AvailabilityStatus } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EditProfile'>;
@@ -43,10 +46,10 @@ const AVAILABILITY_OPTIONS: { value: AvailabilityStatus; label: string }[] = [
 ];
 
 export function EditProfileScreen({ navigation }: Props) {
-  const { updateProfile, isLoading, error } = useAuthStore();
+  const { updateProfile, setUser, isLoading, error } = useAuthStore();
   const user = useAuthStore(selectJobSeeker);
   const { showToast } = useUIStore();
-  
+
   // Form state
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -58,7 +61,8 @@ export function EditProfileScreen({ navigation }: Props) {
   const [preferredRoles, setPreferredRoles] = useState<JobRole[]>([]);
   const [yearsExperience, setYearsExperience] = useState('');
   const [minimumHourlyRate, setMinimumHourlyRate] = useState('');
-  
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [hasChanges, setHasChanges] = useState(false);
   
@@ -78,9 +82,16 @@ export function EditProfileScreen({ navigation }: Props) {
     }
   }, [user]);
   
-  const handleFieldChange = (setter: (v: string) => void) => (value: string) => {
+  const handleFieldChange = (setter: (v: string) => void, field?: string) => (value: string) => {
     setter(value);
     setHasChanges(true);
+    if (field && validationErrors[field]) {
+      setValidationErrors(prev => {
+        const updated = { ...prev };
+        delete updated[field];
+        return updated;
+      });
+    }
   };
   
   const toggleRole = (role: JobRole) => {
@@ -92,6 +103,36 @@ export function EditProfileScreen({ navigation }: Props) {
     }
   };
   
+  const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Required', 'Please allow photo access to change your profile photo.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.85,
+    });
+
+    if (result.canceled || !result.assets[0]) return;
+
+    const uri = result.assets[0].uri;
+    setIsUploadingImage(true);
+    try {
+      const updatedUser = await authApi.uploadJobSeekerAvatar(uri);
+      setUser(updatedUser);
+      setHasChanges(false); // image saved immediately, no pending changes from this action
+      showToast('Photo updated', 'success');
+    } catch {
+      showToast('Failed to upload photo. Please try again.', 'error');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   const validate = (): boolean => {
     const errors: Record<string, string> = {};
     
@@ -182,6 +223,27 @@ export function EditProfileScreen({ navigation }: Props) {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
+          {/* Profile Photo */}
+          <View style={styles.avatarSection}>
+            <TouchableOpacity onPress={handlePickImage} disabled={isUploadingImage} style={styles.avatarTouchable}>
+              <Avatar
+                imageUri={user.profileImage}
+                name={`${firstName || user.firstName} ${lastName || user.lastName}`}
+                size={88}
+              />
+              {isUploadingImage && (
+                <View style={styles.avatarOverlay}>
+                  <ActivityIndicator color={colors.textInverse} />
+                </View>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handlePickImage} disabled={isUploadingImage}>
+              <Text style={styles.changePhotoText}>
+                {isUploadingImage ? 'Uploading…' : 'Change Photo'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           {/* Basic Info */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Basic Information</Text>
@@ -191,7 +253,7 @@ export function EditProfileScreen({ navigation }: Props) {
                 <Input
                   label="First Name"
                   value={firstName}
-                  onChangeText={handleFieldChange(setFirstName)}
+                  onChangeText={handleFieldChange(setFirstName, 'firstName')}
                   error={validationErrors.firstName}
                   autoCapitalize="words"
                 />
@@ -200,7 +262,7 @@ export function EditProfileScreen({ navigation }: Props) {
                 <Input
                   label="Last Name"
                   value={lastName}
-                  onChangeText={handleFieldChange(setLastName)}
+                  onChangeText={handleFieldChange(setLastName, 'lastName')}
                   error={validationErrors.lastName}
                   autoCapitalize="words"
                 />
@@ -210,7 +272,7 @@ export function EditProfileScreen({ navigation }: Props) {
             <Input
               label="Phone"
               value={phone}
-              onChangeText={handleFieldChange(setPhone)}
+              onChangeText={handleFieldChange(setPhone, 'phone')}
               error={validationErrors.phone}
               keyboardType="phone-pad"
               placeholder="+44 7700 900000"
@@ -242,7 +304,7 @@ export function EditProfileScreen({ navigation }: Props) {
             <Input
               label="Postcode"
               value={postcode}
-              onChangeText={handleFieldChange(setPostcode)}
+              onChangeText={handleFieldChange(setPostcode, 'postcode')}
               error={validationErrors.postcode}
               placeholder="SW1A 1AA"
               autoCapitalize="characters"
@@ -377,7 +439,31 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.lg,
   },
-  
+
+  avatarSection: {
+    alignItems: 'center',
+    paddingVertical: spacing.xl,
+    gap: spacing.sm,
+  },
+
+  avatarTouchable: {
+    position: 'relative',
+  },
+
+  avatarOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 44,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  changePhotoText: {
+    color: colors.primary,
+    fontSize: typography.fontSize.sm,
+    fontWeight: '500' as const,
+  },
+
   section: {
     marginTop: spacing.lg,
   },

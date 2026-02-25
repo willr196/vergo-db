@@ -11,3 +11,5 @@ export { LoadingScreen, EmptyState, ErrorState, InlineLoading } from './LoadingS
 export { JobFiltersModal } from './JobFiltersModal';
 export { DateTimePickerInput } from './DateTimePicker';
 export { Toast } from './Toast';
+export { Avatar } from './Avatar';
+export { OfflineBanner } from './OfflineBanner';

@@ -7,7 +7,13 @@ import apiClient, { setAuthTokens, clearAuthTokens, STORAGE_KEYS } from './clien
 import * as SecureStore from 'expo-secure-store';
 import { normalizeClientCompany, normalizeJobSeeker } from './normalizers';
 import { logger } from '../utils/logger';
+import {
+  isBiometricEnabled,
+  isBiometricAvailable,
+  authenticateWithBiometrics,
+} from '../utils/biometrics';
 import type {
+  AuthUser,
   LoginRequest,
   LoginResponse,
   RegisterJobSeekerRequest,
@@ -17,16 +23,47 @@ import type {
   UserType,
 } from '../types';
 
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
 // Backend response types (matching your API)
 interface BackendAuthResponse {
   ok: boolean;
   error?: string;
   code?: string;
-  user?: JobSeeker | ClientCompany;
+  user?: Partial<JobSeeker> | Partial<ClientCompany>;
   token?: string;
   refreshToken?: string;
   message?: string;
   requiresVerification?: boolean;
+}
+
+function parseUserType(value: string | null): UserType | null {
+  if (value === 'jobseeker' || value === 'client') {
+    return value;
+  }
+  return null;
+}
+
+function normalizeAuthUser(
+  userType: 'jobseeker',
+  user: Partial<JobSeeker> | Partial<ClientCompany>
+): JobSeeker;
+function normalizeAuthUser(
+  userType: 'client',
+  user: Partial<JobSeeker> | Partial<ClientCompany>
+): ClientCompany;
+function normalizeAuthUser(
+  userType: UserType,
+  user: Partial<JobSeeker> | Partial<ClientCompany>
+): AuthUser;
+function normalizeAuthUser(
+  userType: UserType,
+  user: Partial<JobSeeker> | Partial<ClientCompany>
+): AuthUser {
+  if (userType === 'jobseeker') {
+    return normalizeJobSeeker(user as Partial<JobSeeker>);
+  }
+  return normalizeClientCompany(user as Partial<ClientCompany>);
 }
 
 export interface RegistrationResult {
@@ -53,15 +90,14 @@ export const authApi = {
     
     if (response.data.ok && response.data.token && response.data.user) {
       const { token, refreshToken, user } = response.data;
-      const normalizedUser = credentials.userType === 'jobseeker'
-        ? normalizeJobSeeker(user as JobSeeker)
-        : normalizeClientCompany(user as ClientCompany);
+      const normalizedUser = normalizeAuthUser(credentials.userType, user);
       
       // Store tokens
       await setAuthTokens(token, refreshToken || token);
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_TYPE, credentials.userType);
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, JSON.stringify(normalizedUser));
-      
+      await SecureStore.setItemAsync(STORAGE_KEYS.LAST_ACTIVE, Date.now().toString());
+
       return {
         token,
         refreshToken: refreshToken || token,
@@ -69,7 +105,7 @@ export const authApi = {
         userType: credentials.userType,
       };
     }
-    
+
     throw new Error(response.data.error || 'Login failed');
   },
 
@@ -81,7 +117,7 @@ export const authApi = {
     
     if (response.data.ok && response.data.token && response.data.user) {
       const { token, refreshToken, user } = response.data;
-      const normalizedUser = normalizeJobSeeker(user as JobSeeker);
+      const normalizedUser = normalizeAuthUser('jobseeker', user);
       
       await setAuthTokens(token, refreshToken || token);
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_TYPE, 'jobseeker');
@@ -113,7 +149,7 @@ export const authApi = {
     
     if (response.data.ok && response.data.token && response.data.user) {
       const { token, refreshToken, user } = response.data;
-      const normalizedUser = normalizeClientCompany(user as ClientCompany);
+      const normalizedUser = normalizeAuthUser('client', user);
       
       await setAuthTokens(token, refreshToken || token);
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_TYPE, 'client');
@@ -142,7 +178,8 @@ export const authApi = {
    */
   async logout(): Promise<void> {
     try {
-      const userType = await SecureStore.getItemAsync(STORAGE_KEYS.USER_TYPE) as UserType | null;
+      const storedUserType = await SecureStore.getItemAsync(STORAGE_KEYS.USER_TYPE);
+      const userType = parseUserType(storedUserType);
       const refreshToken = await SecureStore.getItemAsync(STORAGE_KEYS.REFRESH_TOKEN);
       const endpoint = userType === 'client' ? '/api/v1/client/mobile/logout' : '/api/v1/user/mobile/logout';
       await apiClient.post(endpoint, { refreshToken });
@@ -161,9 +198,7 @@ export const authApi = {
     const response = await apiClient.get<BackendAuthResponse>(endpoint);
     
     if (response.data.ok && response.data.user) {
-      return userType === 'jobseeker'
-        ? normalizeJobSeeker(response.data.user as JobSeeker)
-        : normalizeClientCompany(response.data.user as ClientCompany);
+      return normalizeAuthUser(userType, response.data.user);
     }
     
     throw new Error(response.data.error || 'Failed to get user');
@@ -174,8 +209,8 @@ export const authApi = {
    */
   async forgotPassword(email: string, userType: UserType): Promise<void> {
     const endpoint = userType === 'jobseeker' 
-      ? '/api/v1/user/forgot-password' 
-      : '/api/v1/client/forgot-password';
+      ? '/api/v1/user/mobile/forgot-password'
+      : '/api/v1/client/mobile/forgot-password';
     
     await apiClient.post(endpoint, { email });
   },
@@ -187,7 +222,7 @@ export const authApi = {
     const response = await apiClient.put<BackendAuthResponse>('/api/v1/user/mobile/profile', data);
     
     if (response.data.ok && response.data.user) {
-      const normalizedUser = normalizeJobSeeker(response.data.user as JobSeeker);
+      const normalizedUser = normalizeAuthUser('jobseeker', response.data.user);
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, JSON.stringify(normalizedUser));
       return normalizedUser;
     }
@@ -202,7 +237,7 @@ export const authApi = {
     const response = await apiClient.put<BackendAuthResponse>('/api/v1/client/mobile/profile', data);
     
     if (response.data.ok && response.data.user) {
-      const normalizedUser = normalizeClientCompany(response.data.user as ClientCompany);
+      const normalizedUser = normalizeAuthUser('client', response.data.user);
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, JSON.stringify(normalizedUser));
       return normalizedUser;
     }
@@ -213,21 +248,47 @@ export const authApi = {
   /**
    * Check if user is authenticated (from stored tokens)
    */
-  async checkAuth(): Promise<{ isAuthenticated: boolean; userType: UserType | null; user: JobSeeker | ClientCompany | null }> {
+  async checkAuth(): Promise<{ isAuthenticated: boolean; userType: UserType | null; user: AuthUser | null }> {
     try {
       const token = await SecureStore.getItemAsync(STORAGE_KEYS.ACCESS_TOKEN);
-      const userType = await SecureStore.getItemAsync(STORAGE_KEYS.USER_TYPE) as UserType | null;
+      const storedUserType = await SecureStore.getItemAsync(STORAGE_KEYS.USER_TYPE);
+      const userType = parseUserType(storedUserType);
       const userData = await SecureStore.getItemAsync(STORAGE_KEYS.USER_DATA);
 
       if (token && userType && userData) {
+        // Inactivity check: auto-logout after 30 days of no app usage
+        const lastActive = await SecureStore.getItemAsync(STORAGE_KEYS.LAST_ACTIVE);
+        if (lastActive) {
+          const elapsed = Date.now() - parseInt(lastActive, 10);
+          if (elapsed > THIRTY_DAYS_MS) {
+            logger.info('Session expired due to inactivity (30 days)');
+            await clearAuthTokens();
+            return { isAuthenticated: false, userType: null, user: null };
+          }
+        }
+
         try {
-          const parsedUser = JSON.parse(userData) as JobSeeker | ClientCompany;
-          const user = userType === 'jobseeker'
-            ? normalizeJobSeeker(parsedUser as JobSeeker)
-            : normalizeClientCompany(parsedUser as ClientCompany);
+          const parsedUser = JSON.parse(userData) as Partial<JobSeeker> | Partial<ClientCompany>;
+          const user = normalizeAuthUser(userType, parsedUser);
+
+          // Biometric gate: if the user has enabled biometric unlock, require it
+          const biometricEnabled = await isBiometricEnabled();
+          if (biometricEnabled) {
+            const available = await isBiometricAvailable();
+            if (available) {
+              const passed = await authenticateWithBiometrics('Sign in to VERGO');
+              if (!passed) {
+                await clearAuthTokens();
+                return { isAuthenticated: false, userType: null, user: null };
+              }
+            }
+          }
+
+          // Update last active timestamp on each successful session restore
+          await SecureStore.setItemAsync(STORAGE_KEYS.LAST_ACTIVE, Date.now().toString());
           return { isAuthenticated: true, userType, user };
-        } catch (parseError) {
-          // JSON parsing failed - clear corrupted tokens
+        } catch {
+          // JSON parsing failed — clear corrupted tokens
           await clearAuthTokens();
           return { isAuthenticated: false, userType: null, user: null };
         }
@@ -242,10 +303,62 @@ export const authApi = {
   },
 
   /**
+   * Upload a job seeker profile photo.
+   * Sends the image as multipart/form-data; backend returns the updated user.
+   */
+  async uploadJobSeekerAvatar(imageUri: string): Promise<JobSeeker> {
+    const filename = imageUri.split('/').pop() ?? 'avatar.jpg';
+    const ext = (filename.split('.').pop() ?? 'jpg').toLowerCase();
+    const mimeType = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
+
+    const formData = new FormData();
+    formData.append('avatar', { uri: imageUri, name: filename, type: mimeType } as unknown as Blob);
+
+    const response = await apiClient.post<BackendAuthResponse>(
+      '/api/v1/user/mobile/profile/avatar',
+      formData,
+    );
+
+    if (response.data.ok && response.data.user) {
+      const normalizedUser = normalizeAuthUser('jobseeker', response.data.user);
+      await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, JSON.stringify(normalizedUser));
+      return normalizedUser;
+    }
+
+    throw new Error(response.data.error || 'Failed to upload avatar');
+  },
+
+  /**
+   * Upload a client company logo.
+   * Sends the image as multipart/form-data; backend returns the updated company.
+   */
+  async uploadClientLogo(imageUri: string): Promise<ClientCompany> {
+    const filename = imageUri.split('/').pop() ?? 'logo.jpg';
+    const ext = (filename.split('.').pop() ?? 'jpg').toLowerCase();
+    const mimeType = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
+
+    const formData = new FormData();
+    formData.append('logo', { uri: imageUri, name: filename, type: mimeType } as unknown as Blob);
+
+    const response = await apiClient.post<BackendAuthResponse>(
+      '/api/v1/client/mobile/profile/logo',
+      formData,
+    );
+
+    if (response.data.ok && response.data.user) {
+      const normalizedUser = normalizeAuthUser('client', response.data.user);
+      await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, JSON.stringify(normalizedUser));
+      return normalizedUser;
+    }
+
+    throw new Error(response.data.error || 'Failed to upload logo');
+  },
+
+  /**
    * Register push notification token
    */
   async registerPushToken(token: string): Promise<void> {
-    await apiClient.post('/api/v1/notifications/register', { pushToken: token });
+    await apiClient.post('/api/v1/mobile/notifications/register', { pushToken: token });
   },
 };
 
