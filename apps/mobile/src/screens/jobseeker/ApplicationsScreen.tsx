@@ -20,6 +20,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { StatusBadge, LoadingScreen, EmptyState, ErrorState } from '../../components';
 import { useApplicationsStore } from '../../store';
+import { formatDate, formatRelativeDate } from '../../utils';
 import type { RootStackParamList, JobSeekerTabParamList, Application, ApplicationStatus } from '../../types';
 
 type Props = CompositeScreenProps<
@@ -34,6 +35,7 @@ const STATUS_FILTERS: { value: ApplicationStatus | null; label: string }[] = [
   { value: 'shortlisted', label: 'Shortlisted' },
   { value: 'hired', label: 'Hired' },
   { value: 'rejected', label: 'Not Selected' },
+  { value: 'withdrawn', label: 'Withdrawn' },
 ];
 
 export function ApplicationsScreen({ navigation }: Props) {
@@ -206,28 +208,6 @@ export function ApplicationsScreen({ navigation }: Props) {
       />
     </SafeAreaView>
   );
-}
-
-// Helper functions
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-  });
-}
-
-function formatRelativeDate(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return 'today';
-  if (diffDays === 1) return 'yesterday';
-  if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-  return formatDate(dateString);
 }
 
 const styles = StyleSheet.create({

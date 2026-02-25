@@ -102,10 +102,6 @@ export function MyQuotesScreen({ navigation }: Props) {
     fetchQuotes({ pageNumber: nextPage });
   };
 
-  const handleQuotePress = (quote: QuoteRequest) => {
-    navigation.navigate('ClientJobDetail', { jobId: quote.id });
-  };
-
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'TBC';
     return new Date(dateString).toLocaleDateString('en-GB', {
@@ -119,11 +115,7 @@ export function MyQuotesScreen({ navigation }: Props) {
     const statusConfig = getQuoteStatusConfig(item.status);
 
     return (
-      <TouchableOpacity
-        style={styles.quoteCard}
-        onPress={() => handleQuotePress(item)}
-        activeOpacity={0.7}
-      >
+      <View style={styles.quoteCard}>
         <View style={styles.quoteHeader}>
           <Text style={styles.eventType}>{item.eventType}</Text>
           <View style={[styles.statusBadge, { backgroundColor: statusConfig.bgColor }]}>
@@ -168,9 +160,8 @@ export function MyQuotesScreen({ navigation }: Props) {
           <Text style={styles.createdAt}>
             Submitted {formatDate(item.createdAt)}
           </Text>
-          <Text style={styles.viewDetails}>View Details ›</Text>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
 

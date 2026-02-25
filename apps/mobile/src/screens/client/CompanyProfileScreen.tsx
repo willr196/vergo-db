@@ -20,7 +20,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Avatar, ErrorState, EmptyState } from '../../components';
 import { useAuthStore, useUIStore, selectClient } from '../../store';
-import { jobsApi } from '../../api/jobs';
+import { applicationsApi } from '../../api';
 import { logger } from '../../utils/logger';
 import type { RootStackParamList, ClientTabParamList } from '../../types';
 
@@ -47,14 +47,10 @@ export function CompanyProfileScreen({ navigation }: Props) {
     try {
       setStatsLoading(true);
       setStatsError(null);
-      const result = await jobsApi.getClientJobs(undefined, 1, 200);
-      const staffHired = result.jobs.reduce(
-        (sum, job) => sum + (job.positionsFilled ?? 0),
-        0
-      );
+      const result = await applicationsApi.getClientStats();
       setStats({
-        jobsPosted: result.pagination.total,
-        staffHired,
+        jobsPosted: result.activeJobs,
+        staffHired: result.hired,
       });
     } catch (error) {
       logger.error('Failed to fetch client stats:', error);

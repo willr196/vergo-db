@@ -19,7 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { Input, Avatar } from '../../components';
+import { Input, Avatar, LoadingScreen } from '../../components';
 import { useAuthStore, useUIStore, selectJobSeeker } from '../../store';
 import { authApi } from '../../api';
 import type { RootStackParamList, JobSeeker, JobRole, AvailabilityStatus } from '../../types';
@@ -192,7 +192,7 @@ export function EditProfileScreen({ navigation }: Props) {
   };
   
   if (!user) {
-    return null;
+    return <LoadingScreen message="Loading profile..." />;
   }
   
   return (

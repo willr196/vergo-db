@@ -22,6 +22,7 @@ import { useAuthStore, selectClient } from '../../store';
 import { ErrorState } from '../../components';
 import type { RootStackParamList, ClientTabParamList } from '../../types';
 import { clientApi, type ClientDashboard, type DashboardApplication } from '../../api/clientApi';
+import { normalizeApplicationStatus } from '../../api/normalizers';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<ClientTabParamList, 'Dashboard'>,
@@ -66,42 +67,26 @@ function timeAgo(dateString: string): string {
 }
 
 function getApplicationStatusColor(status: string): string {
-  switch (status.toLowerCase()) {
-    case 'received':
-    case 'pending':
-      return colors.primary;
-    case 'reviewing':
-    case 'reviewed':
-      return '#17a2b8';
-    case 'shortlisted':
-      return '#6f42c1';
-    case 'hired':
-    case 'confirmed':
-      return colors.success;
-    case 'rejected':
-      return colors.error;
-    default:
-      return colors.textMuted;
+  switch (normalizeApplicationStatus(status)) {
+    case 'pending': return colors.primary;
+    case 'reviewing': return '#17a2b8';
+    case 'shortlisted': return '#6f42c1';
+    case 'hired': return colors.success;
+    case 'rejected': return colors.error;
+    case 'withdrawn': return colors.textMuted;
+    default: return colors.textMuted;
   }
 }
 
 function getApplicationStatusLabel(status: string): string {
-  switch (status.toLowerCase()) {
-    case 'received':
-    case 'pending':
-      return 'New';
-    case 'reviewing':
-    case 'reviewed':
-      return 'Reviewing';
-    case 'shortlisted':
-      return 'Shortlisted';
-    case 'hired':
-    case 'confirmed':
-      return 'Hired';
-    case 'rejected':
-      return 'Rejected';
-    default:
-      return status;
+  switch (normalizeApplicationStatus(status)) {
+    case 'pending': return 'New';
+    case 'reviewing': return 'Reviewing';
+    case 'shortlisted': return 'Shortlisted';
+    case 'hired': return 'Hired';
+    case 'rejected': return 'Rejected';
+    case 'withdrawn': return 'Withdrawn';
+    default: return status;
   }
 }
 

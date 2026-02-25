@@ -153,14 +153,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             user: freshUser,
           });
         } catch (error) {
-          await authApi.logout();
-          set({
-            isAuthenticated: false,
-            isLoading: false,
-            userType: null,
-            user: null,
-            error: error instanceof Error ? error.message : 'Authentication expired',
-          });
+          // Only force logout on genuine auth failures (401/403).
+          // For network errors or server outages, keep the cached user so
+          // the app remains usable offline.
+          const status = (error as { status?: number })?.status;
+          const isAuthFailure = status === 401 || status === 403;
+          if (isAuthFailure) {
+            await authApi.logout();
+            set({
+              isAuthenticated: false,
+              isLoading: false,
+              userType: null,
+              user: null,
+              error: error instanceof Error ? error.message : 'Authentication expired',
+            });
+          } else {
+            // Network or server error — stay logged in with cached data
+            set({ isAuthenticated: true, isLoading: false, userType, user });
+          }
         }
       } else {
         set({

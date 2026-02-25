@@ -229,10 +229,10 @@ export const applicationsApi = {
     rejectionReason?: string,
     jobId?: string
   ): Promise<Application> {
-    // Use the client mobile route when jobId is provided
-    const url = jobId
-      ? `/api/v1/client/mobile/jobs/${jobId}/applications/${applicationId}/status`
-      : `/api/v1/client/mobile/jobs/_/applications/${applicationId}/status`;
+    if (!jobId) {
+      throw new Error('jobId is required to update application status');
+    }
+    const url = `/api/v1/client/mobile/jobs/${jobId}/applications/${applicationId}/status`;
 
     const response = await apiClient.put<BackendResponse<BackendApplication>>(
       url,

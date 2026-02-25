@@ -44,11 +44,27 @@ export function EditClientProfileScreen({ navigation }: Props) {
   const [postcode, setPostcode] = useState(company?.postcode ?? '');
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const clearFieldError = (field: string) => {
     if (validationErrors[field]) {
       setValidationErrors(prev => { const updated = { ...prev }; delete updated[field]; return updated; });
+    }
+  };
+
+  const handleBack = () => {
+    if (hasChanges) {
+      Alert.alert(
+        'Unsaved Changes',
+        'You have unsaved changes. Are you sure you want to leave?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Leave', style: 'destructive', onPress: () => navigation.goBack() },
+        ]
+      );
+    } else {
+      navigation.goBack();
     }
   };
 
@@ -124,7 +140,7 @@ export function EditClientProfileScreen({ navigation }: Props) {
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
+          <TouchableOpacity onPress={handleBack} style={styles.headerButton}>
             <Text style={styles.cancelText}>Cancel</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Edit Profile</Text>
@@ -162,7 +178,7 @@ export function EditClientProfileScreen({ navigation }: Props) {
             <Input
               label="Company Name"
               value={companyName}
-              onChangeText={(t) => { setCompanyName(t); clearFieldError('companyName'); }}
+              onChangeText={(t) => { setCompanyName(t); setHasChanges(true); clearFieldError('companyName'); }}
               placeholder="Your company name"
               error={validationErrors.companyName}
             />
@@ -173,21 +189,21 @@ export function EditClientProfileScreen({ navigation }: Props) {
             <Input
               label="First Name"
               value={contactFirstName}
-              onChangeText={(t) => { setContactFirstName(t); clearFieldError('contactFirstName'); }}
+              onChangeText={(t) => { setContactFirstName(t); setHasChanges(true); clearFieldError('contactFirstName'); }}
               placeholder="First name"
               error={validationErrors.contactFirstName}
             />
             <Input
               label="Last Name"
               value={contactLastName}
-              onChangeText={(t) => { setContactLastName(t); clearFieldError('contactLastName'); }}
+              onChangeText={(t) => { setContactLastName(t); setHasChanges(true); clearFieldError('contactLastName'); }}
               placeholder="Last name"
               error={validationErrors.contactLastName}
             />
             <Input
               label="Phone"
               value={phone}
-              onChangeText={setPhone}
+              onChangeText={(t) => { setPhone(t); setHasChanges(true); }}
               placeholder="+44 7700 900000"
               keyboardType="phone-pad"
             />
@@ -198,7 +214,7 @@ export function EditClientProfileScreen({ navigation }: Props) {
             <Input
               label="Description"
               value={description}
-              onChangeText={setDescription}
+              onChangeText={(t) => { setDescription(t); setHasChanges(true); }}
               placeholder="Tell staff about your company…"
               multiline
               numberOfLines={4}
@@ -206,7 +222,7 @@ export function EditClientProfileScreen({ navigation }: Props) {
             <Input
               label="Website"
               value={website}
-              onChangeText={setWebsite}
+              onChangeText={(t) => { setWebsite(t); setHasChanges(true); }}
               placeholder="https://yourcompany.com"
               keyboardType="url"
               autoCapitalize="none"
@@ -218,19 +234,19 @@ export function EditClientProfileScreen({ navigation }: Props) {
             <Input
               label="Street Address"
               value={address}
-              onChangeText={setAddress}
+              onChangeText={(t) => { setAddress(t); setHasChanges(true); }}
               placeholder="123 Main Street"
             />
             <Input
               label="City"
               value={city}
-              onChangeText={setCity}
+              onChangeText={(t) => { setCity(t); setHasChanges(true); }}
               placeholder="London"
             />
             <Input
               label="Postcode"
               value={postcode}
-              onChangeText={setPostcode}
+              onChangeText={(t) => { setPostcode(t); setHasChanges(true); }}
               placeholder="SW1A 1AA"
               autoCapitalize="characters"
             />

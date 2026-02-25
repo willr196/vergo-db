@@ -120,8 +120,9 @@ export function RegisterScreen({ navigation, route }: Props) {
         }
       }
       // Navigation handled by root navigator
-    } catch {
-      showToast(error || 'Please check your information and try again.', 'error');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Please check your information and try again.';
+      showToast(message, 'error');
     }
   };
   

@@ -71,7 +71,10 @@ apiClient.interceptors.response.use(
             refreshToken,
           }, { timeout: 10000 });
           
-          const { token: newToken, refreshToken: newRefreshToken } = response.data as { token: string; refreshToken?: string };
+          const { token: newToken, refreshToken: newRefreshToken } = response.data as { token?: string; refreshToken?: string };
+          if (!newToken) {
+            throw new Error('Token refresh response missing access token');
+          }
           await SecureStore.setItemAsync(STORAGE_KEYS.ACCESS_TOKEN, newToken);
           if (newRefreshToken) {
             await SecureStore.setItemAsync(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);

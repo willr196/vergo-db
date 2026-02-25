@@ -36,7 +36,7 @@ export function ApplyToJobScreen({ navigation, route }: Props) {
     try {
       await applyToJob(job.id, coverNote.trim() || undefined);
       showToast('Application submitted! Track it in the Applications tab', 'success');
-      navigation.navigate('JobSeekerTabs');
+      navigation.goBack();
     } catch {
       showToast(error || 'Failed to submit application. Please try again.', 'error');
     }

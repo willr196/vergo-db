@@ -16,7 +16,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { Button, Avatar } from '../../components';
+import { Button, Avatar, LoadingScreen } from '../../components';
 import { useAuthStore, selectJobSeeker } from '../../store';
 import type { RootStackParamList, JobSeekerTabParamList, AvailabilityStatus } from '../../types';
 
@@ -55,9 +55,9 @@ export function ProfileScreen({ navigation }: Props) {
   };
   
   if (!user) {
-    return null;
+    return <LoadingScreen message="Loading profile..." />;
   }
-  
+
   const availabilityConfig = AVAILABILITY_CONFIG[user.availability || 'available'];
   const completionPercentage = calculateProfileCompletion(user);
   
@@ -492,37 +492,6 @@ const styles = StyleSheet.create({
   roleText: {
     color: colors.primary,
     fontSize: typography.fontSize.sm,
-  },
-  
-  menuSection: {
-    marginHorizontal: spacing.lg,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    marginBottom: spacing.lg,
-  },
-  
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.surfaceBorder,
-  },
-  
-  menuIcon: {
-    fontSize: 20,
-    marginRight: spacing.md,
-  },
-  
-  menuLabel: {
-    flex: 1,
-    color: colors.textPrimary,
-    fontSize: typography.fontSize.md,
-  },
-  
-  menuArrow: {
-    color: colors.textMuted,
-    fontSize: typography.fontSize.md,
   },
   
   logoutButton: {

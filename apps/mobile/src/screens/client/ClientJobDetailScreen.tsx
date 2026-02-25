@@ -16,7 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { LoadingScreen, Button } from '../../components';
+import { LoadingScreen, ErrorState } from '../../components';
 import { jobsApi, applicationsApi } from '../../api';
 import { useUIStore } from '../../store';
 import { logger } from '../../utils/logger';
@@ -33,6 +33,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'applications'>(initialTab ?? 'applications');
+  const [actingOnId, setActingOnId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -87,6 +88,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
     applicationId: string,
     action: 'shortlist' | 'hire' | 'reject'
   ) => {
+    setActingOnId(applicationId);
     try {
       let updatedApp: Application;
       
@@ -108,6 +110,8 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
       showToast(`Applicant ${actionLabel}`, 'success');
     } catch {
       showToast('Failed to update application', 'error');
+    } finally {
+      setActingOnId(null);
     }
   };
 
@@ -155,10 +159,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
   if (!job) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Job not found</Text>
-          <Button title="Go Back" onPress={() => navigation.goBack()} />
-        </View>
+        <ErrorState message="Job not found" onRetry={() => navigation.goBack()} />
       </SafeAreaView>
     );
   }
@@ -298,20 +299,23 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
                   {isApplicationStatus(app.status, 'pending', 'reviewing') && (
                     <View style={styles.actionButtons}>
                       <TouchableOpacity
-                        style={[styles.actionButton, styles.shortlistButton]}
+                        style={[styles.actionButton, styles.shortlistButton, actingOnId !== null && styles.actionButtonDisabled]}
                         onPress={() => handleApplicationAction(app.id, 'shortlist')}
+                        disabled={actingOnId !== null}
                       >
                         <Text style={styles.actionButtonText}>Shortlist</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
-                        style={[styles.actionButton, styles.hireButton]}
+                        style={[styles.actionButton, styles.hireButton, actingOnId !== null && styles.actionButtonDisabled]}
                         onPress={() => handleApplicationAction(app.id, 'hire')}
+                        disabled={actingOnId !== null}
                       >
                         <Text style={styles.actionButtonText}>Hire</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
-                        style={[styles.actionButton, styles.rejectButton]}
+                        style={[styles.actionButton, styles.rejectButton, actingOnId !== null && styles.actionButtonDisabled]}
                         onPress={() => handleApplicationAction(app.id, 'reject')}
+                        disabled={actingOnId !== null}
                       >
                         <Text style={styles.rejectButtonText}>Reject</Text>
                       </TouchableOpacity>
@@ -321,8 +325,9 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
                   {isApplicationStatus(app.status, 'shortlisted') && (
                     <View style={styles.actionButtons}>
                       <TouchableOpacity
-                        style={[styles.actionButton, styles.hireButton, styles.actionButtonFull]}
+                        style={[styles.actionButton, styles.hireButton, styles.actionButtonFull, actingOnId !== null && styles.actionButtonDisabled]}
                         onPress={() => handleApplicationAction(app.id, 'hire')}
+                        disabled={actingOnId !== null}
                       >
                         <Text style={styles.actionButtonText}>Hire This Candidate</Text>
                       </TouchableOpacity>
@@ -629,16 +634,8 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginTop: spacing.xs,
   },
-  errorContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.xl,
-  },
-  errorText: {
-    color: colors.textSecondary,
-    fontSize: typography.fontSize.lg,
-    marginBottom: spacing.lg,
+  actionButtonDisabled: {
+    opacity: 0.5,
   },
 });
 

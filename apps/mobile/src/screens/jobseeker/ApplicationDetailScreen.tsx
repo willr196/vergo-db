@@ -91,6 +91,9 @@ export function ApplicationDetailScreen({ navigation, route }: Props) {
   
   useEffect(() => {
     fetchApplication(applicationId);
+    return () => {
+      useApplicationsStore.setState({ selectedApplication: null });
+    };
   }, [applicationId, fetchApplication]);
   
   const handleRefresh = async () => {

@@ -92,15 +92,18 @@ export const authApi = {
       const { token, refreshToken, user } = response.data;
       const normalizedUser = normalizeAuthUser(credentials.userType, user);
       
+      if (!refreshToken) {
+        throw new Error('Login response missing refresh token');
+      }
       // Store tokens
-      await setAuthTokens(token, refreshToken || token);
+      await setAuthTokens(token, refreshToken);
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_TYPE, credentials.userType);
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, JSON.stringify(normalizedUser));
       await SecureStore.setItemAsync(STORAGE_KEYS.LAST_ACTIVE, Date.now().toString());
 
       return {
         token,
-        refreshToken: refreshToken || token,
+        refreshToken,
         user: normalizedUser,
         userType: credentials.userType,
       };
@@ -118,14 +121,16 @@ export const authApi = {
     if (response.data.ok && response.data.token && response.data.user) {
       const { token, refreshToken, user } = response.data;
       const normalizedUser = normalizeAuthUser('jobseeker', user);
-      
-      await setAuthTokens(token, refreshToken || token);
+      if (!refreshToken) {
+        throw new Error('Registration response missing refresh token');
+      }
+      await setAuthTokens(token, refreshToken);
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_TYPE, 'jobseeker');
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, JSON.stringify(normalizedUser));
-      
+
       return {
         token,
-        refreshToken: refreshToken || token,
+        refreshToken,
         user: normalizedUser,
         userType: 'jobseeker',
       };
@@ -150,14 +155,16 @@ export const authApi = {
     if (response.data.ok && response.data.token && response.data.user) {
       const { token, refreshToken, user } = response.data;
       const normalizedUser = normalizeAuthUser('client', user);
-      
-      await setAuthTokens(token, refreshToken || token);
+      if (!refreshToken) {
+        throw new Error('Registration response missing refresh token');
+      }
+      await setAuthTokens(token, refreshToken);
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_TYPE, 'client');
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, JSON.stringify(normalizedUser));
-      
+
       return {
         token,
-        refreshToken: refreshToken || token,
+        refreshToken,
         user: normalizedUser,
         userType: 'client',
       };

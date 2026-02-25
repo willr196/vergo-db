@@ -45,6 +45,7 @@ type FieldErrors = {
 export function CreateJobScreen({ navigation }: Props) {
   const { showToast } = useUIStore();
   const [isLoadingRoles, setIsLoadingRoles] = useState(true);
+  const [rolesError, setRolesError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -76,7 +77,7 @@ export function CreateJobScreen({ navigation }: Props) {
     jobsApi
       .getRoles()
       .then((data) => setRoles(data))
-      .catch(() => {})
+      .catch(() => setRolesError(true))
       .finally(() => setIsLoadingRoles(false));
   }, []);
 
@@ -208,6 +209,19 @@ export function CreateJobScreen({ navigation }: Props) {
                 <View style={styles.rolesLoading}>
                   <ActivityIndicator size="small" color={colors.primary} />
                   <Text style={styles.rolesLoadingText}>Loading roles…</Text>
+                </View>
+              ) : rolesError ? (
+                <View style={styles.rolesLoading}>
+                  <Text style={styles.errorText}>Failed to load roles.</Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setRolesError(false);
+                      setIsLoadingRoles(true);
+                      jobsApi.getRoles().then(setRoles).catch(() => setRolesError(true)).finally(() => setIsLoadingRoles(false));
+                    }}
+                  >
+                    <Text style={styles.rolesRetryText}>Retry</Text>
+                  </TouchableOpacity>
                 </View>
               ) : (
                 <View style={[styles.roleGrid, fieldErrors.roleId && styles.roleGridError]}>
@@ -537,6 +551,12 @@ const styles = StyleSheet.create({
   rolesLoadingText: {
     color: colors.textMuted,
     fontSize: typography.fontSize.sm,
+  },
+  rolesRetryText: {
+    color: colors.primary,
+    fontSize: typography.fontSize.sm,
+    fontWeight: '500' as const,
+    marginLeft: spacing.sm,
   },
   roleGrid: {
     flexDirection: 'row',

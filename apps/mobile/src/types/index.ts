@@ -195,7 +195,7 @@ export interface Application {
   coverNote?: string;
   
   // Status history
-  receivedAt: string;
+  receivedAt?: string;
   reviewedAt?: string;
   shortlistedAt?: string;
   decidedAt?: string;
