@@ -1,6 +1,7 @@
 // Webhook handlers for external services
 
 import { Router, raw } from 'express';
+import rateLimit from 'express-rate-limit';
 import crypto from 'crypto';
 import { prisma } from '../prisma';
 import { env } from '../env';
@@ -63,11 +64,19 @@ const eventToStatus: Record<ResendEventType, string> = {
   'email.clicked': 'CLICKED',
 };
 
+const resendWebhookLimiter = rateLimit({
+  windowMs: 60_000, // 1 minute
+  max: env.nodeEnv === 'production' ? 240 : 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many webhook requests. Try again shortly.' },
+});
+
 /**
  * POST /api/v1/webhooks/resend
  * Resend email delivery webhook
  */
-router.post('/resend', raw({ type: 'application/json' }), async (req, res) => {
+router.post('/resend', resendWebhookLimiter, raw({ type: 'application/json' }), async (req, res) => {
   try {
     // Get signature from headers
     const signature = req.headers['resend-signature'] as string;

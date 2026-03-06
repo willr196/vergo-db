@@ -9,8 +9,10 @@
     "test": "npm run build && node --test dist/src/__tests__/*.test.js",
     "validate:seo": "node scripts/validate-seo.js",
     "prisma": "prisma",
-    "prisma:deploy": "prisma migrate deploy",
-    "seed": "tsx prisma/seed.ts"
+    "prisma:deploy": "node scripts/prisma-deploy-with-retry.js",
+    "prisma:deploy:raw": "prisma migrate deploy",
+    "seed": "tsx prisma/seed.ts",
+    "seed:marketplace": "npx ts-node prisma/seed-marketplace.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.985.0",

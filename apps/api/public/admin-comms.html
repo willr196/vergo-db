@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Communications - VERGO Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="/vergo-logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css">
+</head>
+<body>
+
+  <div class="as-main">
+    <header class="as-topbar">
+      <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
+      <span class="as-topbar-title">Communications</span>
+    </header>
+
+    <div class="as-content">
+      <div id="alert-container"></div>
+
+      <div class="as-tabs" id="comms-tabs">
+        <button class="as-tab active" data-tab="contacts">Contact Forms</button>
+        <button class="as-tab" data-tab="push">Push Notifications</button>
+        <button class="as-tab" data-tab="email">Email Broadcast</button>
+      </div>
+
+      <!-- ── Contact Forms ───────────────────────────── -->
+      <div id="contacts-tab" class="tab-content active">
+        <div class="as-filters">
+          <div class="as-filter-group">
+            <label>Status</label>
+            <select id="cf-status">
+              <option value="">All</option>
+              <option value="NEW">New</option>
+              <option value="CONTACTED">Contacted</option>
+              <option value="QUOTED">Quoted</option>
+              <option value="BOOKED">Booked</option>
+              <option value="LOST">Lost</option>
+            </select>
+          </div>
+          <div class="as-filter-group">
+            <label>Type</label>
+            <select id="cf-type">
+              <option value="">All</option>
+              <option value="STAFF_REQUEST">Staff Request</option>
+              <option value="GENERAL">General</option>
+            </select>
+          </div>
+          <div class="as-filter-group">
+            <label>Search</label>
+            <input type="search" id="cf-search" placeholder="Name, email…">
+          </div>
+          <div class="as-filter-actions">
+            <button class="btn btn-primary" data-action="cf-filter">Filter</button>
+            <button class="btn btn-ghost" data-action="cf-clear">Clear</button>
+          </div>
+        </div>
+
+        <div class="as-table-wrap">
+          <div class="as-table-toolbar">
+            <div class="as-toolbar-left">
+              <span id="cf-count" class="text-muted fs-sm">Loading…</span>
+            </div>
+            <div class="as-toolbar-right">
+              <button class="btn btn-ghost btn-sm" data-action="cf-export">↓ CSV</button>
+              <button class="btn btn-ghost btn-sm" data-action="cf-reload">&#8635; Refresh</button>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Type</th>
+                <th>Subject</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="cf-tbody">
+              <tr><td colspan="7" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Push Notifications ─────────────────────── -->
+      <div id="push-tab" class="tab-content">
+        <div style="max-width:560px">
+          <div class="mb-2">
+            <p class="text-muted fs-sm mb-2">Send a push notification to registered mobile devices.</p>
+          </div>
+          <div class="mb-2">
+            <label class="as-label">Audience</label>
+            <select id="push-audience" class="as-input">
+              <option value="all">All users (staff + clients)</option>
+              <option value="staff">Staff only</option>
+              <option value="clients">Clients only</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="as-label">Notification Title</label>
+            <input type="text" id="push-title" class="as-input" placeholder="e.g. New job available!" maxlength="100">
+          </div>
+          <div class="mb-2">
+            <label class="as-label">Message</label>
+            <textarea id="push-body" placeholder="Notification body text…" maxlength="500"></textarea>
+          </div>
+          <div id="push-result" class="mb-2"></div>
+          <button class="btn btn-primary" data-action="send-push">Send Push Notification</button>
+        </div>
+      </div>
+
+      <!-- ── Email Broadcast ────────────────────────── -->
+      <div id="email-tab" class="tab-content">
+        <div style="max-width:620px">
+          <div class="mb-2">
+            <p class="text-muted fs-sm mb-2">Send a broadcast email via Resend to a selected audience.</p>
+          </div>
+          <div class="mb-2">
+            <label class="as-label">Audience</label>
+            <select id="email-audience" class="as-input">
+              <option value="all_clients">All approved clients</option>
+              <option value="all_staff">All staff applicants</option>
+              <option value="pending_staff">Pending staff (RECEIVED)</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="as-label">Subject</label>
+            <input type="text" id="email-subject" class="as-input" placeholder="Email subject line" maxlength="200">
+          </div>
+          <div class="mb-2">
+            <label class="as-label">Body (plain text, line breaks become &lt;br&gt;)</label>
+            <textarea id="email-body" style="min-height:200px" placeholder="Email body…" maxlength="10000"></textarea>
+          </div>
+          <div id="email-result" class="mb-2"></div>
+          <button class="btn btn-primary" data-action="send-email">Send Email Broadcast</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Contact detail modal -->
+  <div id="cf-modal" class="modal-backdrop d-none">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="cf-modal-title">Contact Details</h2>
+        <button class="modal-close" data-action="close-cf-modal">&#x2715;</button>
+      </div>
+      <div class="modal-body" id="cf-modal-body"></div>
+      <div class="modal-footer" id="cf-modal-footer">
+        <button class="btn btn-ghost" data-action="close-cf-modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/admin-core.js"></script>
+  <script src="/js/admin-nav.js"></script>
+  <script src="/pages/js/admin-comms.js"></script>
+</body>
+</html>

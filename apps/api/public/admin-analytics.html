@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics - VERGO Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="/vergo-logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css">
+  <link rel="stylesheet" href="/pages/css/admin-analytics.css">
+</head>
+<body>
+
+  <div class="as-main">
+    <header class="as-topbar">
+      <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
+      <span class="as-topbar-title">Analytics</span>
+      <div class="as-topbar-right">
+        <button class="btn btn-ghost btn-sm" data-action="refresh">&#8635; Refresh</button>
+        <button class="btn btn-ghost btn-sm" data-action="export-csv">↓ CSV</button>
+      </div>
+    </header>
+
+    <div class="as-content">
+      <div id="alert-container"></div>
+
+      <!-- Weekly summary -->
+      <div class="as-section-hdr mb-2"><span class="as-section-title">This Week vs Last Week</span></div>
+      <div class="weekly-grid" id="weekly-grid">
+        <div class="weekly-card"><div class="weekly-label">Applications</div><div class="weekly-val" id="wk-apps">-</div><div class="weekly-delta" id="wk-apps-delta"></div></div>
+        <div class="weekly-card"><div class="weekly-label">New Clients</div><div class="weekly-val" id="wk-clients">-</div><div class="weekly-delta" id="wk-clients-delta"></div></div>
+        <div class="weekly-card"><div class="weekly-label">Quote Requests</div><div class="weekly-val" id="wk-quotes">-</div><div class="weekly-delta" id="wk-quotes-delta"></div></div>
+      </div>
+
+      <!-- Charts grid -->
+      <div class="col-2">
+        <!-- Applicant Funnel -->
+        <div class="chart-card">
+          <div class="chart-title">Applicant Funnel</div>
+          <canvas id="chart-funnel"></canvas>
+        </div>
+
+        <!-- Client Growth -->
+        <div class="chart-card">
+          <div class="chart-title">Client Growth (6 months)</div>
+          <canvas id="chart-clients"></canvas>
+        </div>
+      </div>
+
+      <div class="col-2">
+        <!-- Quote Pipeline -->
+        <div class="chart-card">
+          <div class="chart-title">Quote Pipeline by Status</div>
+          <canvas id="chart-pipeline"></canvas>
+        </div>
+
+        <!-- Top Roles -->
+        <div class="chart-card">
+          <div class="chart-title">Top Roles Applied For</div>
+          <canvas id="chart-roles"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script src="/js/admin-core.js"></script>
+  <script src="/js/admin-nav.js"></script>
+  <script src="/pages/js/admin-analytics.js"></script>
+</body>
+</html>

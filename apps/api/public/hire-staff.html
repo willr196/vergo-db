@@ -38,9 +38,36 @@
       <h1>Hire Event Staff in London</h1>
       <p>Staff shaped by experience on film sets, TV productions, and arena-scale concerts. Reliable, well-presented hospitality teams for events across London &amp; surrounding areas.</p>
       <div class="hero-cta">
+        <a href="#roster" class="cta-button secondary">Browse the Roster</a>
         <a href="/contact" class="cta-button">Get a Quote</a>
         <a href="/apply" class="cta-button secondary">Join the Team</a>
       </div>
+    </section>
+
+    <section class="section roster-section" id="roster">
+      <div class="section-header">
+        <h2>Browse the roster</h2>
+        <p>See the live marketplace roster. Elite profiles are visible to everyone, with booking access reserved for Premium clients.</p>
+      </div>
+
+      <div class="roster-controls">
+        <label class="roster-field">
+          <span>Search</span>
+          <input id="staff-search" type="search" placeholder="Search names, bios or highlights">
+        </label>
+        <label class="roster-field roster-field-small">
+          <span>Tier</span>
+          <select id="staff-tier">
+            <option value="">All staff</option>
+            <option value="STANDARD">Standard</option>
+            <option value="ELITE">Elite</option>
+          </select>
+        </label>
+        <button id="staff-refresh" type="button" class="cta-button secondary roster-refresh">Refresh</button>
+      </div>
+
+      <p id="staff-status" class="roster-status" aria-live="polite">Loading roster…</p>
+      <div id="staff-grid" class="staff-grid" hidden></div>
     </section>
 
     <section class="section">
@@ -163,5 +190,6 @@
   <script src="/vergo-nav.js"></script>
   <script src="/vergo-footer.js"></script>
   <script src="/vergo-analytics.js"></script>
+  <script src="/pages/js/hire-staff.js"></script>
 </body>
 </html>

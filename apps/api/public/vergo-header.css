@@ -438,3 +438,205 @@ footer {
     padding: 6px 0;
   }
 }
+
+/* ============================================
+ * GLOBAL POLISH OVERRIDES
+ * ============================================ */
+
+header {
+  background: rgba(255, 255, 255, 0.86);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+  box-shadow: 0 18px 42px rgba(28, 28, 28, 0.08);
+}
+
+header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6), transparent);
+  opacity: 0.6;
+}
+
+.nav-container {
+  max-width: 1320px;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) 32px 14px;
+}
+
+.logo {
+  gap: 12px;
+}
+
+.logo img {
+  height: 42px;
+}
+
+nav ul {
+  gap: 30px;
+}
+
+nav a {
+  color: #2a241d;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+nav a::after {
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0), rgba(212, 175, 55, 0.95), rgba(212, 175, 55, 0));
+}
+
+.nav-cta-wrapper {
+  margin-left: 14px;
+}
+
+nav a.nav-cta {
+  padding: 13px 24px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f3d786 0%, #d4af37 55%, #bb962f 100%);
+  border: 1px solid rgba(184, 150, 46, 0.4);
+  box-shadow: 0 16px 38px rgba(212, 175, 55, 0.22);
+}
+
+nav a.nav-cta:hover {
+  background: linear-gradient(135deg, #f7dd90 0%, #ddb951 55%, #c49d3a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 44px rgba(212, 175, 55, 0.26);
+}
+
+.dropdown-menu {
+  margin-top: 10px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  box-shadow: 0 22px 58px rgba(28, 28, 28, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.dropdown-menu a {
+  padding: 13px 18px;
+}
+
+.dropdown-menu a:hover {
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.08), rgba(255, 255, 255, 0));
+}
+
+footer {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(212, 175, 55, 0.12), transparent 22%),
+    linear-gradient(180deg, #191511 0%, #0f0d0a 100%);
+  padding: 78px 40px 34px;
+}
+
+footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 96px 96px;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+footer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(860px, 86vw);
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.75), transparent);
+}
+
+.footer-content,
+.footer-bottom {
+  position: relative;
+  z-index: 1;
+}
+
+.footer-content {
+  gap: 48px;
+}
+
+.footer-column h3 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: -0.03em;
+}
+
+.footer-column p,
+.footer-column a {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.footer-column a {
+  width: fit-content;
+  position: relative;
+}
+
+.footer-column a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 6px;
+  width: 100%;
+  height: 1px;
+  background: rgba(212, 175, 55, 0.28);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--nav-transition);
+}
+
+.footer-column a:hover::after {
+  transform: scaleX(1);
+}
+
+.footer-bottom {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 960px) {
+  .nav-container {
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 20px 12px;
+  }
+
+  .logo img {
+    height: 38px;
+  }
+
+  nav ul {
+    background:
+      radial-gradient(circle at top left, rgba(212, 175, 55, 0.14), transparent 26%),
+      rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  nav a {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  footer {
+    padding: 54px 20px 24px;
+  }
+
+  .footer-column a {
+    width: 100%;
+  }
+}

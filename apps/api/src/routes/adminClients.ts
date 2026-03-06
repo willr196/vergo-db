@@ -15,20 +15,34 @@ r.use(adminAuth);
 // ============================================
 const listQuerySchema = z.object({
   status: z.enum(["PENDING", "APPROVED", "REJECTED", "SUSPENDED"]).optional(),
+  subscriptionTier: z.enum(["STANDARD", "PREMIUM"]).optional(),
+  subscriptionStatus: z.enum(["ACTIVE", "PAUSED", "CANCELLED", "EXPIRED"]).optional(),
   search: z.string().max(100).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20)
 });
 
-r.get("/", async (req, res) => {
+r.get("/", async (req, res, next) => {
   try {
-    const query = listQuerySchema.parse(req.query);
+    const parsed = listQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid query parameters" });
+    }
+    const query = parsed.data;
     const skip = (query.page - 1) * query.limit;
     
     const where: any = {};
     
     if (query.status) {
       where.status = query.status;
+    }
+
+    if (query.subscriptionTier) {
+      where.subscriptionTier = query.subscriptionTier;
+    }
+
+    if (query.subscriptionStatus) {
+      where.subscriptionStatus = query.subscriptionStatus;
     }
     
     if (query.search) {
@@ -60,6 +74,10 @@ r.get("/", async (req, res) => {
           approvedAt: true,
           approvedBy: true,
           rejectionReason: true,
+          subscriptionTier: true,
+          subscriptionStatus: true,
+          subscriptionStartedAt: true,
+          subscriptionExpiresAt: true,
           createdAt: true,
           lastLoginAt: true,
           _count: {
@@ -80,18 +98,17 @@ r.get("/", async (req, res) => {
       }
     };
 
-    res.json({ ok: true, ...payload, data: payload });
-    
+    res.json({ ok: true, data: payload });
+
   } catch (error) {
-    console.error("[ERROR] List clients failed:", error);
-    res.status(500).json({ error: "Failed to list clients" });
+    next(error);
   }
 });
 
 // ============================================
 // GET /api/v1/admin/clients/stats - Dashboard stats
 // ============================================
-r.get("/stats", async (req, res) => {
+r.get("/stats", async (_req, res, next) => {
   try {
     const [pending, approved, rejected, suspended, total] = await Promise.all([
       prisma.client.count({ where: { status: "PENDING" } }),
@@ -118,18 +135,17 @@ r.get("/stats", async (req, res) => {
       recentRegistrations
     };
 
-    res.json({ ok: true, ...payload, data: payload });
-    
+    res.json({ ok: true, data: payload });
+
   } catch (error) {
-    console.error("[ERROR] Get client stats failed:", error);
-    res.status(500).json({ error: "Failed to get stats" });
+    next(error);
   }
 });
 
 // ============================================
 // GET /api/v1/admin/clients/:id - Get single client
 // ============================================
-r.get("/:id", async (req, res) => {
+r.get("/:id", async (req, res, next) => {
   try {
     const client = await prisma.client.findUnique({
       where: { id: req.params.id },
@@ -148,18 +164,17 @@ r.get("/:id", async (req, res) => {
     // Remove sensitive fields
     const { passwordHash, verifyToken, resetToken, ...safeClient } = client;
     
-    res.json({ ok: true, client: safeClient, data: safeClient });
-    
+    res.json({ ok: true, data: safeClient });
+
   } catch (error) {
-    console.error("[ERROR] Get client failed:", error);
-    res.status(500).json({ error: "Failed to get client" });
+    next(error);
   }
 });
 
 // ============================================
 // POST /api/v1/admin/clients/:id/approve
 // ============================================
-r.post("/:id/approve", async (req, res) => {
+r.post("/:id/approve", async (req, res, next) => {
   try {
     const client = await prisma.client.findUnique({
       where: { id: req.params.id },
@@ -208,11 +223,10 @@ r.post("/:id/approve", async (req, res) => {
 
     authLogger.info({ action: 'client_approved', admin: adminUsername, clientId: req.params.id, company: client.companyName }, 'Admin approved client');
     
-    res.json({ ok: true, message: "Client approved successfully", data: { message: "Client approved successfully" } });
-    
+    res.json({ ok: true, data: { message: "Client approved successfully" } });
+
   } catch (error) {
-    console.error("[ERROR] Approve client failed:", error);
-    res.status(500).json({ error: "Failed to approve client" });
+    next(error);
   }
 });
 
@@ -223,7 +237,7 @@ const rejectSchema = z.object({
   reason: z.string().max(500).optional()
 });
 
-r.post("/:id/reject", async (req, res) => {
+r.post("/:id/reject", async (req, res, next) => {
   try {
     const parsed = rejectSchema.safeParse(req.body);
     const reason = parsed.success ? parsed.data.reason : undefined;
@@ -266,18 +280,17 @@ r.post("/:id/reject", async (req, res) => {
     const adminUsername = (req.session as any)?.username || "admin";
     authLogger.info({ action: 'client_rejected', admin: adminUsername, clientId: req.params.id, company: client.companyName, reason }, 'Admin rejected client');
     
-    res.json({ ok: true, message: "Client rejected", data: { message: "Client rejected" } });
-    
+    res.json({ ok: true, data: { message: "Client rejected" } });
+
   } catch (error) {
-    console.error("[ERROR] Reject client failed:", error);
-    res.status(500).json({ error: "Failed to reject client" });
+    next(error);
   }
 });
 
 // ============================================
 // POST /api/v1/admin/clients/:id/suspend
 // ============================================
-r.post("/:id/suspend", async (req, res) => {
+r.post("/:id/suspend", async (req, res, next) => {
   try {
     const client = await prisma.client.findUnique({
       where: { id: req.params.id },
@@ -296,18 +309,17 @@ r.post("/:id/suspend", async (req, res) => {
     const adminUsername = (req.session as any)?.username || "admin";
     authLogger.info({ action: 'client_suspended', admin: adminUsername, clientId: req.params.id, company: client.companyName }, 'Admin suspended client');
     
-    res.json({ ok: true, message: "Client suspended", data: { message: "Client suspended" } });
-    
+    res.json({ ok: true, data: { message: "Client suspended" } });
+
   } catch (error) {
-    console.error("[ERROR] Suspend client failed:", error);
-    res.status(500).json({ error: "Failed to suspend client" });
+    next(error);
   }
 });
 
 // ============================================
 // POST /api/v1/admin/clients/:id/reinstate
 // ============================================
-r.post("/:id/reinstate", async (req, res) => {
+r.post("/:id/reinstate", async (req, res, next) => {
   try {
     const client = await prisma.client.findUnique({
       where: { id: req.params.id },
@@ -333,11 +345,10 @@ r.post("/:id/reinstate", async (req, res) => {
     const adminUsername = (req.session as any)?.username || "admin";
     authLogger.info({ action: 'client_reinstated', admin: adminUsername, clientId: req.params.id, company: client.companyName }, 'Admin reinstated client');
     
-    res.json({ ok: true, message: "Client reinstated", data: { message: "Client reinstated" } });
-    
+    res.json({ ok: true, data: { message: "Client reinstated" } });
+
   } catch (error) {
-    console.error("[ERROR] Reinstate client failed:", error);
-    res.status(500).json({ error: "Failed to reinstate client" });
+    next(error);
   }
 });
 
@@ -350,7 +361,7 @@ const notesSchema = z.object({
   notes: z.string().max(2000).transform(stripHtml).optional()
 });
 
-r.put("/:id/notes", async (req, res) => {
+r.put("/:id/notes", async (req, res, next) => {
   try {
     const parsed = notesSchema.safeParse(req.body);
     
@@ -364,17 +375,16 @@ r.put("/:id/notes", async (req, res) => {
     });
     
     res.json({ ok: true, data: { ok: true } });
-    
+
   } catch (error) {
-    console.error("[ERROR] Update client notes failed:", error);
-    res.status(500).json({ error: "Failed to update notes" });
+    next(error);
   }
 });
 
 // ============================================
 // DELETE /api/v1/admin/clients/:id
 // ============================================
-r.delete("/:id", async (req, res) => {
+r.delete("/:id", async (req, res, next) => {
   try {
     const client = await prisma.client.findUnique({
       where: { id: req.params.id },
@@ -392,11 +402,10 @@ r.delete("/:id", async (req, res) => {
     const adminUsername = (req.session as any)?.username || "admin";
     authLogger.info({ action: 'client_deleted', admin: adminUsername, clientId: req.params.id, company: client.companyName }, 'Admin deleted client');
     
-    res.json({ ok: true, message: "Client deleted", data: { message: "Client deleted" } });
-    
+    res.json({ ok: true, data: { message: "Client deleted" } });
+
   } catch (error) {
-    console.error("[ERROR] Delete client failed:", error);
-    res.status(500).json({ error: "Failed to delete client" });
+    next(error);
   }
 });
 

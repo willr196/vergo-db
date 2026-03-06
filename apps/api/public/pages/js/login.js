@@ -1,6 +1,6 @@
 'use strict';
 
-    // Safe notification wrapper – won't crash if notify / notify.show is missing
+    // Safe notification wrapper that will not crash if notify / notify.show is missing
     function safeNotify(message, type = 'info') {
       try {
         if (window.notify && typeof notify.show === 'function') {
@@ -159,7 +159,7 @@
           // Clear login attempts first
           clearLoginAttempts();
           
-          // Schedule redirect – this will always run once response.ok is true
+          // Schedule redirect. This always runs once response.ok is true.
           setTimeout(() => {
             window.location.href = '/admin-jobs.html'; // or '/admin.html' if you prefer
           }, 500);

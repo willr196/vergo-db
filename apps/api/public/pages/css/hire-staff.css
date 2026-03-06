@@ -64,6 +64,146 @@
       margin: 0 auto;
     }
 
+    .roster-section {
+      padding-top: 64px;
+    }
+
+    .roster-controls {
+      display: flex;
+      gap: 16px;
+      align-items: flex-end;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .roster-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 280px;
+    }
+
+    .roster-field-small {
+      min-width: 180px;
+    }
+
+    .roster-field span {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+    }
+
+    .roster-field input,
+    .roster-field select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      background: var(--color-bg);
+      color: var(--color-text);
+      font: inherit;
+    }
+
+    .roster-field input:focus,
+    .roster-field select:focus {
+      outline: none;
+      border-color: var(--color-gold);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+    }
+
+    .roster-refresh {
+      min-width: 140px;
+    }
+
+    .roster-status {
+      text-align: center;
+      color: var(--color-text-muted);
+      margin-bottom: 28px;
+      min-height: 24px;
+    }
+
+    .staff-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .staff-card {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-height: 100%;
+    }
+
+    .staff-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .staff-card h3 {
+      font-size: 1.05rem;
+      margin: 0;
+    }
+
+    .staff-tier-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--color-border);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .staff-tier-badge.elite {
+      color: var(--color-gold);
+      border-color: rgba(212, 175, 55, 0.35);
+      background: rgba(212, 175, 55, 0.08);
+    }
+
+    .staff-tier-badge.standard {
+      color: var(--color-text);
+      background: var(--color-bg-warm);
+    }
+
+    .staff-rating,
+    .staff-copy {
+      color: var(--color-text-muted);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    .staff-highlights {
+      font-size: 0.92rem;
+      margin: 0;
+      color: var(--color-text);
+    }
+
+    .staff-card-footer {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-top: 8px;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .staff-visibility-note {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+
     .section-header {
       text-align: center;
       margin-bottom: 50px;
@@ -223,7 +363,8 @@
 
     @media (max-width: 1024px) {
       .roles-grid,
-      .steps-grid {
+      .steps-grid,
+      .staff-grid {
         grid-template-columns: repeat(2, 1fr);
       }
 
@@ -247,8 +388,15 @@
 
       .roles-grid,
       .steps-grid,
-      .why-grid {
+      .why-grid,
+      .staff-grid {
         grid-template-columns: 1fr;
+      }
+
+      .roster-field,
+      .roster-field-small,
+      .roster-refresh {
+        width: 100%;
       }
 
       .included-inner {

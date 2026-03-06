@@ -24,15 +24,25 @@ import jobApplications from './routes/jobApplications';
 import clientAuthRoutes from './routes/clientAuth';
 import adminClients from './routes/adminClients';
 import quotes from './routes/quotes';
+import marketplace from './routes/marketplace';
+import bookings from './routes/bookings';
 import mobileJobs from './routes/mobileJobs';
 import mobileJobApplications from './routes/mobileJobApplications';
 import mobileClient from './routes/mobileClient';
+import mobileMarketplace from './routes/mobileMarketplace';
 import mobileNotifications from './routes/mobileNotifications';
 import { emailQueue } from './services/email/queue';
 import webhooks from './routes/webhooks';
 import unsubscribe from './routes/unsubscribe';
 import adminScheduledEmails from './routes/adminScheduledEmails';
+import adminStats from './routes/adminStats';
+import adminQuotes from './routes/adminQuotes';
+import adminNotifications from './routes/adminNotifications';
+import adminAnalytics from './routes/adminAnalytics';
+import adminBookings from './routes/adminBookings';
+import adminMarketplace from './routes/adminMarketplace';
 import { logger, requestLogger } from './services/logger';
+import { startMemoryMonitoring, stopMemoryMonitoring } from './services/memory';
 import { initSentry, sentryErrorHandler, flushSentry } from './services/sentry';
 import { ZodError } from 'zod';
 
@@ -67,6 +77,83 @@ function formatYyyyMmDd(d: Date) {
   const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
   const dd = String(d.getUTCDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
+}
+
+type ReadinessStatus = 'ok' | 'error' | 'disabled' | 'degraded';
+
+type ReadinessCheck = {
+  status: ReadinessStatus;
+  required: boolean;
+  detail?: string;
+  latencyMs?: number;
+};
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+  let timer: NodeJS.Timeout | null = null;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+async function checkDatabaseReadiness(): Promise<ReadinessCheck> {
+  const started = Date.now();
+  try {
+    await withTimeout(prisma.$queryRaw`SELECT 1`, 1500, 'Database readiness check');
+    return { status: 'ok', required: true, latencyMs: Date.now() - started };
+  } catch (error) {
+    return {
+      status: 'error',
+      required: true,
+      latencyMs: Date.now() - started,
+      detail: error instanceof Error ? error.message : 'Database readiness check failed',
+    };
+  }
+}
+
+function checkEmailQueueReadiness(): ReadinessCheck {
+  if (!env.emailQueueEnabled) {
+    return { status: 'disabled', required: false, detail: 'EMAIL_QUEUE_ENABLED is false' };
+  }
+  if (!env.redisUrl) {
+    return {
+      status: 'error',
+      required: true,
+      detail: 'REDIS_URL is required when EMAIL_QUEUE_ENABLED is true',
+    };
+  }
+  if (!emailQueue.isAvailable()) {
+    return {
+      status: 'error',
+      required: true,
+      detail: 'Email queue is enabled but unavailable',
+    };
+  }
+  return { status: 'ok', required: true };
+}
+
+function checkS3Readiness(): ReadinessCheck {
+  if (env.s3Configured) return { status: 'ok', required: false };
+  return {
+    status: 'degraded',
+    required: false,
+    detail: 'S3 is not fully configured (upload/CV endpoints unavailable)',
+  };
+}
+
+function checkResendReadiness(): ReadinessCheck {
+  if (env.resendConfigured) return { status: 'ok', required: false };
+  return {
+    status: 'degraded',
+    required: false,
+    detail: 'RESEND_API_KEY is missing (email sending unavailable)',
+  };
 }
 
 function buildJobPageCspHeader(nonce: string) {
@@ -145,13 +232,6 @@ app.use(cors({
 // Gzip compression for all responses
 app.use(compression());
 
-// Webhooks must receive the raw body for signature verification
-app.use('/api/v1/webhooks', webhooks);
-
-// Body parsing
-app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ extended: true }));
-
 // Global rate limiter (Redis-backed in production, memory fallback in dev)
 const rateLimitOptions: Parameters<typeof rateLimit>[0] = { windowMs: 60_000, max: 120 };
 if (env.redisUrl) {
@@ -174,6 +254,14 @@ app.use(rateLimit(rateLimitOptions));
 
 // Structured request logging
 app.use(requestLogger());
+
+// Webhooks must receive the raw body for signature verification.
+// Keep this before express.json() so signature checks use the unparsed payload.
+app.use('/api/v1/webhooks', webhooks);
+
+// Body parsing
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true }));
 
 // Session configuration
 if (env.nodeEnv === 'production' && !process.env.SESSION_SECRET) {
@@ -218,6 +306,31 @@ app.use(session({
 
 // Healthcheck
 app.get('/health', (_, res) => res.json({ ok: true }));
+
+// Readiness check for deploy/orchestrator probes.
+app.get('/readyz', async (_req, res) => {
+  const checks = {
+    database: await checkDatabaseReadiness(),
+    emailQueue: checkEmailQueueReadiness(),
+    s3: checkS3Readiness(),
+    resend: checkResendReadiness(),
+  };
+
+  const requiredFailed = Object.values(checks).some((check) => check.required && check.status === 'error');
+  const degraded = Object.values(checks).some((check) => !check.required && check.status === 'degraded');
+
+  const status = requiredFailed ? 'not_ready' : degraded ? 'degraded' : 'ok';
+  const ok = !requiredFailed;
+
+  const payload = {
+    ok,
+    status,
+    timestamp: new Date().toISOString(),
+    checks,
+  };
+
+  return res.status(ok ? 200 : 503).json(payload);
+});
 
 // ============================================
 // SEO: Dynamic sitemap for job listings
@@ -642,15 +755,32 @@ app.get([
   '/admin-clients',
   '/admin-jobs',
   '/admin-job-applications',
+  '/admin-marketplace',
+  '/admin-bookings',
+  '/admin-quotes',
+  '/admin-comms',
 ], adminPageAuth, (req, res) => {
   const fileByPath: Record<string, string> = {
     '/admin': 'admin.html',
     '/admin-clients': 'admin-clients.html',
     '/admin-jobs': 'admin-jobs.html',
     '/admin-job-applications': 'admin-job-applications.html',
+    '/admin-marketplace': 'admin-marketplace.html',
+    '/admin-bookings': 'admin-bookings.html',
+    '/admin-quotes': 'admin-quotes.html',
+    '/admin-comms': 'admin-comms.html',
   };
   const file = fileByPath[req.path] ?? 'admin.html';
   res.sendFile(path.join(publicDir, file));
+});
+
+// Admin analytics page — custom CSP to allow Chart.js CDN
+app.get('/admin-analytics', adminPageAuth, (_req, res) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'"
+  );
+  res.sendFile(path.join(publicDir, 'admin-analytics.html'));
 });
 
 app.use('/api/v1/user', userAuth);
@@ -676,10 +806,17 @@ app.use('/api/v1/quotes', quotes);
 app.use('/api/v1/client', clientAuthRoutes);
 app.use('/api/v1/clients', clientAuthRoutes);
 
+// Marketplace (public + client-authenticated)
+app.use('/api/v1/marketplace', marketplace);
+
+// Bookings (client-authenticated)
+app.use('/api/v1/bookings', bookings);
+
 // Mobile app endpoints (JWT)
 app.use('/api/v1/mobile/jobs', mobileJobs);
 app.use('/api/v1/mobile/job-applications', mobileJobApplications);
 app.use('/api/v1/client/mobile', mobileClient);
+app.use('/api/v1/client/mobile', mobileMarketplace);
 
 // Mobile push notifications
 app.use('/api/v1/notifications', mobileNotifications);
@@ -689,6 +826,14 @@ app.use('/api/v1/unsubscribe', unsubscribe);
 
 // Admin: scheduled emails management
 app.use('/api/v1/admin/scheduled-emails', adminScheduledEmails);
+
+// Admin: stats, quotes, notifications, analytics
+app.use('/api/v1/admin/stats', adminStats);
+app.use('/api/v1/admin/quotes', adminQuotes);
+app.use('/api/v1/admin/notifications', adminNotifications);
+app.use('/api/v1/admin/analytics', adminAnalytics);
+app.use('/api/v1/admin/bookings', adminBookings);
+app.use('/api/v1/admin/marketplace', adminMarketplace);
 
 // Legacy cleanup (must be before static)
 
@@ -796,6 +941,7 @@ const PORT = Number(process.env.PORT) || 3000;
 async function startServer() {
   // Initialize email queue (gracefully handles missing Redis)
   await emailQueue.initialize();
+  startMemoryMonitoring();
 
   const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Server listening on 0.0.0.0:${PORT}`);
@@ -809,6 +955,7 @@ async function startServer() {
       logger.info('HTTP server closed');
 
       // Shutdown services
+      stopMemoryMonitoring();
       await emailQueue.shutdown();
       await flushSentry();
 

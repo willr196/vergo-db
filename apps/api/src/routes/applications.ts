@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { presignUpload, presignDownload } from '../services/s3';
+import { presignUpload, presignDownload, getS3Client, requireS3Config } from '../services/s3';
 import { prisma } from '../prisma';
 import { randomUUID } from 'crypto';
 import { adminAuth } from '../middleware/adminAuth';
-import { S3Client, GetObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { GetObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
 import rateLimit from 'express-rate-limit';
 import { env } from '../env';
@@ -166,13 +166,15 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
       return res.status(400).json({ error: 'Invalid key format' });
     }
 
-    const s3 = new S3Client({ region: env.s3Region });
+    requireS3Config();
+    const s3 = getS3Client();
+    const bucket = env.s3Bucket;
     const maxSize = 10 * 1024 * 1024; // 10MB
 
     // 3. Check file size BEFORE downloading (using HEAD request)
     try {
       const headCmd = new HeadObjectCommand({ 
-        Bucket: env.s3Bucket, 
+        Bucket: bucket,
         Key: key 
       });
       const headResponse = await s3.send(headCmd);
@@ -180,7 +182,7 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
       if (!headResponse.ContentLength || headResponse.ContentLength > maxSize) {
         // Delete oversized file
         await s3.send(new DeleteObjectCommand({ 
-          Bucket: env.s3Bucket, 
+          Bucket: bucket,
           Key: key 
         }));
         return res.status(400).json({ 
@@ -196,7 +198,7 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
 
     // 4. Download only first 4KB for file type detection (not entire file!)
     const getCmd = new GetObjectCommand({ 
-      Bucket: env.s3Bucket, 
+      Bucket: bucket,
       Key: key,
       Range: 'bytes=0-4095' // Only first 4KB
     });
@@ -222,7 +224,7 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
     if (!type || !allowedMimeTypes.includes(type.mime)) {
       // Delete the invalid file from S3
       const deleteCmd = new DeleteObjectCommand({ 
-        Bucket: env.s3Bucket, 
+        Bucket: bucket,
         Key: key 
       });
       await s3.send(deleteCmd);

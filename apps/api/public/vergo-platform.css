@@ -187,3 +187,346 @@ body.platform footer {
   color: var(--color-text-muted);
   border-top: 1px solid var(--color-border);
 }
+
+/* ============================================
+ * PLATFORM POLISH OVERRIDES
+ * ============================================ */
+
+body.platform {
+  background:
+    radial-gradient(circle at top left, rgba(212, 175, 55, 0.11), transparent 26%),
+    radial-gradient(circle at bottom right, rgba(44, 44, 44, 0.05), transparent 24%),
+    linear-gradient(180deg, #fbf8f2 0%, #f6efe4 52%, #ede1cc 100%);
+}
+
+body.platform .page-header {
+  position: relative;
+  overflow: hidden;
+  padding: 152px 24px 76px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.78), rgba(244, 236, 223, 0.98)),
+    radial-gradient(circle at 12% 18%, rgba(212, 175, 55, 0.18), transparent 30%);
+  border-bottom: none;
+  box-shadow: inset 0 -1px 0 rgba(28, 28, 28, 0.06);
+}
+
+body.platform .page-header::before {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border: 1px solid rgba(212, 175, 55, 0.16);
+  border-radius: 30px;
+  pointer-events: none;
+}
+
+body.platform .page-header::after {
+  content: "";
+  position: absolute;
+  inset: auto -8% -140px auto;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.14);
+  filter: blur(26px);
+  pointer-events: none;
+}
+
+body.platform .page-header h1,
+body.platform .section-title,
+body.platform .form-header h1,
+body.platform .form-success h2 {
+  font-family: var(--font-display);
+  letter-spacing: -0.04em;
+}
+
+body.platform .page-header h1,
+body.platform .form-header h1 {
+  font-size: clamp(2.9rem, 6vw, 4.8rem);
+  line-height: 0.95;
+}
+
+body.platform .page-header p,
+body.platform .subtitle,
+body.platform .submit-note,
+body.platform .form-note,
+body.platform .form-hint,
+body.platform .file-help,
+body.platform .upload-status,
+body.platform .security-notice,
+body.platform .rate-limit-warning {
+  color: #5e564b;
+}
+
+body.platform .container,
+body.platform .quote-container {
+  max-width: 1200px;
+}
+
+body.platform :is(
+  .login-container,
+  .auth-box,
+  .quote-form-section,
+  .sidebar-card,
+  .form-block,
+  .onboarding-section,
+  .role-row,
+  .table-container,
+  .dashboard-card,
+  .job-card,
+  .application-card,
+  .pending-banner,
+  .role-card,
+  .user-bar,
+  .filters-bar,
+  .filters,
+  .stat-box,
+  .included-banner
+) {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(247, 241, 233, 0.98));
+  border: 1px solid rgba(28, 28, 28, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 22px 62px rgba(28, 28, 28, 0.1);
+}
+
+body.platform :is(
+  .login-container,
+  .auth-box,
+  .quote-form-section,
+  .sidebar-card,
+  .form-block,
+  .onboarding-section,
+  .role-row,
+  .dashboard-card,
+  .job-card,
+  .application-card,
+  .role-card,
+  .stat-box
+) {
+  transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+body.platform :is(
+  .login-container,
+  .auth-box,
+  .quote-form-section,
+  .sidebar-card,
+  .form-block,
+  .onboarding-section,
+  .role-row,
+  .dashboard-card,
+  .job-card,
+  .application-card,
+  .role-card,
+  .stat-box
+):hover {
+  transform: translateY(-3px);
+  border-color: rgba(212, 175, 55, 0.34);
+  box-shadow: 0 26px 74px rgba(28, 28, 28, 0.12);
+}
+
+body.platform .login-container {
+  max-width: 440px;
+  padding: 42px 38px;
+  backdrop-filter: blur(16px);
+}
+
+body.platform .quote-container {
+  gap: 32px;
+}
+
+body.platform .quote-form-section,
+body.platform .sidebar-card,
+body.platform .form-block {
+  padding: clamp(24px, 4vw, 40px);
+}
+
+body.platform .onboarding-section {
+  padding: clamp(28px, 4vw, 42px);
+  border-left: none;
+}
+
+body.platform .roles-grid .role-tag,
+body.platform .role-tag,
+body.platform .staff-type-label {
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(28, 28, 28, 0.08);
+  box-shadow: 0 16px 38px rgba(28, 28, 28, 0.06);
+}
+
+body.platform .role-tag {
+  padding: 18px 16px;
+}
+
+body.platform .role-row {
+  padding: 14px 16px;
+}
+
+body.platform .step-number,
+body.platform .form-section-title span {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(212, 175, 55, 0.36);
+  background: linear-gradient(135deg, #fffaf0 0%, #f0d8b8 100%);
+  color: #8c6e30;
+  box-shadow: 0 12px 28px rgba(212, 175, 55, 0.22);
+}
+
+body.platform input,
+body.platform textarea,
+body.platform select {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(28, 28, 28, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+body.platform input:focus,
+body.platform textarea:focus,
+body.platform select:focus {
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 0 0 4px rgba(212, 175, 55, 0.12);
+}
+
+body.platform .btn,
+body.platform .btn-primary,
+body.platform .submit-button,
+body.platform .submit-btn,
+body.platform .cta-button,
+body.platform button[type="submit"] {
+  min-height: 50px;
+  border-radius: 999px;
+  box-shadow: 0 18px 44px rgba(212, 175, 55, 0.2);
+}
+
+body.platform .btn-secondary,
+body.platform .btn-outline {
+  border-radius: 999px;
+}
+
+body.platform .form-note,
+body.platform .security-notice,
+body.platform .rate-limit-warning,
+body.platform .pending-banner {
+  border-radius: 20px;
+  border-left: none;
+  box-shadow: 0 16px 38px rgba(28, 28, 28, 0.06);
+}
+
+body.platform .upload-status {
+  border-radius: 16px;
+}
+
+body.platform table {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 18px 44px rgba(28, 28, 28, 0.06);
+}
+
+body.platform th {
+  background: rgba(244, 236, 223, 0.88);
+}
+
+body.platform .quote-sidebar {
+  top: 110px;
+}
+
+body.platform .dashboard-header,
+body.platform .sidebar,
+body.platform .stat-card,
+body.platform .action-card,
+body.platform .activity-list {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(247, 241, 233, 0.98));
+  border: 1px solid rgba(28, 28, 28, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 22px 62px rgba(28, 28, 28, 0.1);
+}
+
+body.platform .dashboard-header {
+  margin: 12px 24px 0;
+  padding: 16px 24px;
+  top: 88px;
+  backdrop-filter: blur(16px);
+}
+
+body.platform .sidebar {
+  margin: 24px 0 24px 24px;
+  padding: 18px 0;
+  border-right: none;
+}
+
+body.platform .sidebar a {
+  margin: 4px 12px;
+  border-left: none;
+  border-radius: 14px;
+}
+
+body.platform .sidebar a.active {
+  box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.16);
+  border-left-color: transparent;
+}
+
+body.platform .main-content {
+  padding: 30px 24px 40px;
+}
+
+body.platform .stat-card,
+body.platform .action-card,
+body.platform .activity-list {
+  border-radius: 22px;
+}
+
+body.platform .action-card,
+body.platform .stat-card {
+  transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+body.platform .action-card:hover,
+body.platform .stat-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(212, 175, 55, 0.34);
+  box-shadow: 0 26px 74px rgba(28, 28, 28, 0.12);
+}
+
+body.platform footer {
+  background:
+    radial-gradient(circle at top left, rgba(212, 175, 55, 0.12), transparent 20%),
+    linear-gradient(180deg, #1a1612 0%, #110f0d 100%);
+  color: rgba(255, 255, 255, 0.62);
+  border-top: none;
+}
+
+@media (max-width: 900px) {
+  body.platform .page-header::before {
+    inset: 12px;
+    border-radius: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  body.platform .page-header {
+    padding: 128px 20px 58px;
+  }
+
+  body.platform .quote-form-section,
+  body.platform .sidebar-card,
+  body.platform .form-block,
+  body.platform .onboarding-section,
+  body.platform .login-container {
+    padding: 24px;
+  }
+
+  body.platform .dashboard-header {
+    margin: 10px 20px 0;
+    padding: 14px 18px;
+  }
+
+  body.platform .sidebar {
+    margin: 20px;
+  }
+}

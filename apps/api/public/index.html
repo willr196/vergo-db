@@ -21,10 +21,10 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 
-  <!-- Google Fonts - Inter -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="/vergo-styles.css">
@@ -35,7 +35,7 @@
 
   <link rel="stylesheet" href="/pages/css/index.css">
 </head>
-<body>
+<body class="homepage">
   <!-- Skip Link for Accessibility -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
@@ -45,8 +45,7 @@
   <main id="main-content">
     <!-- HERO SECTION -->
     <section class="hero">
-      <!-- Image/Video slot - Add your media here -->
-      <div class="hero-media">
+      <div class="hero-media" aria-hidden="true">
         <!--
           IMAGE SLOT: hero-bg.jpg
           Recommended: 1920x1080px, event/hospitality scene
@@ -54,17 +53,86 @@
           Or video: <video autoplay muted loop playsinline src="/videos/hero-bg.mp4"></video>
         -->
       </div>
-      <div class="hero-overlay"></div>
+      <div class="hero-overlay" aria-hidden="true"></div>
+      <div class="hero-glow hero-glow-left" aria-hidden="true"></div>
+      <div class="hero-glow hero-glow-right" aria-hidden="true"></div>
 
-      <div class="hero-content fade-in">
-        <h1 class="hero-title">VERGO</h1>
-        <p class="hero-subtitle">
-          Fast confirmations. Trusted teams for London's finest events.
-        </p>
-        <div class="hero-ctas">
-          <a href="/quote.html" class="btn btn-primary btn-lg">Get a Quote</a>
-          <a href="/apply.html" class="btn btn-secondary btn-lg">Join the Team</a>
+      <div class="hero-shell">
+        <div class="hero-content fade-in">
+          <span class="hero-kicker">London event staffing, elevated</span>
+          <h1 class="hero-title">Premium hospitality teams for events that need polish.</h1>
+          <p class="hero-subtitle">
+            Fast confirmations. Personally selected staff for private events, corporate functions, premium venues, and guest-facing service moments.
+          </p>
+          <div class="hero-proof" aria-label="Event types covered">
+            <span>Private events</span>
+            <span>Corporate functions</span>
+            <span>Premium venues</span>
+          </div>
+          <div class="hero-ctas">
+            <a href="/quote.html" class="btn btn-primary btn-lg">Get a Quote</a>
+            <a href="/apply.html" class="btn btn-secondary btn-lg">Join the Team</a>
+          </div>
+          <div class="hero-meta" aria-label="Core service strengths">
+            <div class="hero-meta-item">
+              <strong>Fast</strong>
+              <span>Confirmations within 24 hours for most enquiries.</span>
+            </div>
+            <div class="hero-meta-item">
+              <strong>Vetted</strong>
+              <span>Interviewed, checked, and briefed before placement.</span>
+            </div>
+            <div class="hero-meta-item">
+              <strong>Flexible</strong>
+              <span>Built for private, corporate, and venue-based events.</span>
+            </div>
+          </div>
         </div>
+
+        <aside class="hero-showcase fade-in fade-in-delay-2" aria-label="Service snapshot">
+          <div class="showcase-card showcase-card-primary">
+            <p class="showcase-eyebrow">Booking snapshot</p>
+            <h2>Designed for hosts who need speed, standards, and calm execution.</h2>
+            <div class="showcase-list">
+              <div class="showcase-list-item">
+                <span class="showcase-bullet" aria-hidden="true"></span>
+                <div>
+                  <strong>Roles covered</strong>
+                  <p>Event chefs, bar staff, front of house, baristas, and catering assistants.</p>
+                </div>
+              </div>
+              <div class="showcase-list-item">
+                <span class="showcase-bullet" aria-hidden="true"></span>
+                <div>
+                  <strong>Service-first briefing</strong>
+                  <p>Every booking is matched to the tone, pace, and guest expectations of your event.</p>
+                </div>
+              </div>
+              <div class="showcase-list-item">
+                <span class="showcase-bullet" aria-hidden="true"></span>
+                <div>
+                  <strong>London coverage</strong>
+                  <p>Support across London and nearby counties for both planned and urgent staffing needs.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="showcase-card showcase-card-secondary">
+            <div class="showcase-stat">
+              <span class="showcase-stat-value">&lt;24h</span>
+              <span class="showcase-stat-label">Typical response window</span>
+            </div>
+            <div class="showcase-stat">
+              <span class="showcase-stat-value">1-on-1</span>
+              <span class="showcase-stat-label">Candidate interviews before placement</span>
+            </div>
+            <div class="showcase-stat">
+              <span class="showcase-stat-value">100%</span>
+              <span class="showcase-stat-label">Right-to-work verification completed</span>
+            </div>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -92,6 +160,12 @@
             </div>
             <h3>Hire Event Staff</h3>
             <p>Event chefs, bar staff, front of house, baristas, and catering assistants. Every role filled by professionals who understand premium service.</p>
+            <div class="service-tags" aria-label="Roles covered">
+              <span>Event chefs</span>
+              <span>Bar staff</span>
+              <span>Front of house</span>
+            </div>
+            <a href="/hire-staff.html" class="service-link">Explore roles</a>
           </div>
         </div>
 
@@ -110,6 +184,12 @@
             </div>
             <h3>Event Staffing</h3>
             <p>From intimate private dinners to large corporate functions. We match the right team to your event's specific requirements.</p>
+            <div class="service-tags" aria-label="Event types">
+              <span>Private dinners</span>
+              <span>Corporate events</span>
+              <span>Launch parties</span>
+            </div>
+            <a href="/quote.html" class="service-link">Plan your booking</a>
           </div>
         </div>
 
@@ -183,6 +263,13 @@
       <div class="section-header fade-in">
         <h2>Built on Trust</h2>
         <div class="divider-gold"></div>
+      </div>
+
+      <div class="trust-ribbon fade-in" aria-label="Event environments covered">
+        <span>Private dinners</span>
+        <span>Corporate hospitality</span>
+        <span>VIP receptions</span>
+        <span>Premium venues</span>
       </div>
 
       <div class="trust-stats fade-in">
@@ -273,6 +360,7 @@
     <section class="candidate-section">
       <div class="candidate-inner fade-in">
         <div class="candidate-content">
+          <span class="candidate-kicker">For candidates</span>
           <h2>Work with VERGO</h2>
           <p>Join our team of hospitality professionals. Flexible shifts at premium venues across London.</p>
 
@@ -303,11 +391,16 @@
             </div>
           </div>
 
+          <p class="candidate-note">Applications are reviewed personally, with onboarding support for strong candidates who care about standards and guest experience.</p>
           <a href="/apply.html" class="btn btn-secondary">Apply Now</a>
         </div>
 
-        <div class="candidate-image">
-          <!-- IMAGE SLOT: candidate-cta.jpg (560x560px, staff portrait or team image) -->
+        <div class="candidate-image" aria-hidden="true">
+          <div class="candidate-image-card">
+            <span class="candidate-image-tag">Flexible shifts</span>
+            <span class="candidate-image-tag">Premium venues</span>
+            <span class="candidate-image-tag">Supportive onboarding</span>
+          </div>
         </div>
       </div>
     </section>
@@ -379,10 +472,14 @@
 
     <!-- FINAL CTA SECTION -->
     <section class="final-cta">
-      <div class="fade-in">
+      <div class="final-cta-card fade-in">
+        <span class="final-cta-kicker">Ready when you are</span>
         <h2>Ready to staff your event?</h2>
         <p>Get in touch with your event details. We'll respond within 24 hours with availability and pricing.</p>
-        <a href="/quote.html" class="btn btn-primary btn-lg">Get a Quote</a>
+        <div class="final-cta-actions">
+          <a href="/quote.html" class="btn btn-primary btn-lg">Get a Quote</a>
+          <a href="/contact.html" class="btn btn-secondary btn-lg">Talk to VERGO</a>
+        </div>
       </div>
     </section>
   </main>

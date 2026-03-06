@@ -5,122 +5,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Job Applications - VERGO Admin</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="canonical" href="https://vergoltd.com/admin-job-applications">
-  <link rel="icon" type="image/png" href="/logo.png">
-
-  <!-- Google Fonts - Inter (primary brand font) -->
+  <link rel="icon" type="image/svg+xml" href="/vergo-logo.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/vergo-styles.css">
-  <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
-
-
-  <link rel="stylesheet" href="/pages/css/admin-job-applications.css">
-  <link rel="stylesheet" href="/vergo-platform.css">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css">
 </head>
-<body class="platform">
-  <header></header>
-  <div class="admin-header">
-    <a href="index" class="logo">
-      <img src="/logo.png" alt="VERGO Ltd" loading="lazy" decoding="async">
-    </a>
-    <div class="header-nav">
-      <a href="admin">Roster</a>
-      <a href="admin-jobs">Jobs</a>
-      <a href="admin-job-applications" class="active">Applications</a>
-      <a href="admin-clients">Clients</a>
-      <a href="index">View Site</a>
-      <button type="button" class="btn btn-secondary btn-small" data-action="logout">Logout</button>
+<body>
+
+  <div class="as-main">
+    <header class="as-topbar">
+      <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
+      <span class="as-topbar-title">Job Applications</span>
+    </header>
+
+    <div class="as-content">
+      <div id="alert-container"></div>
+
+      <!-- Stats -->
+      <div class="kpi-grid" id="stats-row">
+        <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-value" id="stat-total">-</div></div>
+        <div class="kpi-card kpi-warning"><div class="kpi-label">Pending</div><div class="kpi-value" id="stat-pending">-</div></div>
+        <div class="kpi-card"><div class="kpi-label">Shortlisted</div><div class="kpi-value" id="stat-shortlisted">-</div></div>
+        <div class="kpi-card kpi-success"><div class="kpi-label">Confirmed</div><div class="kpi-value" id="stat-confirmed">-</div></div>
+        <div class="kpi-card kpi-error"><div class="kpi-label">Rejected</div><div class="kpi-value" id="stat-rejected">-</div></div>
+      </div>
+
+      <!-- Filters -->
+      <div class="as-filters">
+        <div class="as-filter-group">
+          <label>Status</label>
+          <select id="filter-status">
+            <option value="">All Statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="REVIEWED">Reviewed</option>
+            <option value="SHORTLISTED">Shortlisted</option>
+            <option value="CONFIRMED">Confirmed</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="WITHDRAWN">Withdrawn</option>
+          </select>
+        </div>
+        <div class="as-filter-group">
+          <label>Job</label>
+          <select id="filter-job">
+            <option value="">All Jobs</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="as-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Applicant</th>
+              <th>Job</th>
+              <th>Status</th>
+              <th>Note</th>
+              <th>Applied</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="applications-table">
+            <tr><td colspan="6" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-  
-  <main>
-    <div id="alert-container"></div>
-    
-    <div class="page-header">
-      <h1>Job Applications</h1>
-    </div>
-    
-    <div class="stats-row" id="stats-row">
-      <div class="stat-box">
-        <div class="stat-number" id="stat-total">-</div>
-        <div class="stat-label">Total</div>
-      </div>
-      <div class="stat-box pending">
-        <div class="stat-number" id="stat-pending">-</div>
-        <div class="stat-label">Pending</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-number" id="stat-shortlisted">-</div>
-        <div class="stat-label">Shortlisted</div>
-      </div>
-      <div class="stat-box confirmed">
-        <div class="stat-number" id="stat-confirmed">-</div>
-        <div class="stat-label">Confirmed</div>
-      </div>
-      <div class="stat-box rejected">
-        <div class="stat-number" id="stat-rejected">-</div>
-        <div class="stat-label">Rejected</div>
-      </div>
-    </div>
-    
-    <div class="filters">
-      <select id="filter-status">
-        <option value="">All Statuses</option>
-        <option value="PENDING">Pending</option>
-        <option value="REVIEWED">Reviewed</option>
-        <option value="SHORTLISTED">Shortlisted</option>
-        <option value="CONFIRMED">Confirmed</option>
-        <option value="REJECTED">Rejected</option>
-        <option value="WITHDRAWN">Withdrawn</option>
-      </select>
-      <select id="filter-job">
-        <option value="">All Jobs</option>
-      </select>
-    </div>
-    
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Applicant</th>
-            <th>Job</th>
-            <th>Status</th>
-            <th class="hide-mobile">Note</th>
-            <th>Applied</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="applications-table">
-          <tr><td colspan="6" class="loading">Loading applications...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </main>
-  
+
   <!-- Detail Modal -->
   <div id="detail-modal" class="modal-backdrop d-none">
     <div class="modal">
       <div class="modal-header">
         <h2>Application Details</h2>
-        <button class="modal-close" type="button" data-action="close-modal">&times;</button>
+        <button class="modal-close" type="button" data-action="close-modal">&#x2715;</button>
       </div>
-      <div class="modal-body" id="modal-body">
-        <!-- Filled by JS -->
-      </div>
+      <div class="modal-body" id="modal-body"></div>
       <div class="modal-footer" id="modal-footer">
-        <!-- Filled by JS -->
+        <button class="btn btn-ghost" data-action="close-modal">Close</button>
       </div>
     </div>
   </div>
-  
-  <script src="/js/admin-core.js"></script>
 
+  <script src="/js/admin-core.js"></script>
+  <script src="/js/admin-nav.js"></script>
   <script src="/pages/js/admin-job-applications.js"></script>
-  <footer></footer>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
 </body>
 </html>

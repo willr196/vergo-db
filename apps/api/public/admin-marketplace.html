@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketplace - VERGO Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="/vergo-logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css">
+  <style>
+    .as-table-wrap { overflow-x: auto; }
+
+    .market-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .market-card {
+      background: var(--as-card);
+      border: 1px solid var(--as-border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .market-card h3 {
+      margin: 0 0 8px;
+      font-size: 0.92rem;
+      color: var(--as-gold);
+      font-weight: 600;
+    }
+
+    .market-meta {
+      font-size: 0.78rem;
+      color: var(--as-muted);
+      margin-bottom: 10px;
+    }
+
+    .market-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .tier-STANDARD { background: rgba(255, 255, 255, 0.08); color: #ccc; }
+    .tier-ELITE { background: rgba(212, 175, 55, 0.15); color: #D4AF37; }
+    .tier-PREMIUM { background: rgba(212, 175, 55, 0.15); color: #D4AF37; }
+    .tier-null { background: rgba(108, 117, 125, 0.2); color: #6c757d; }
+
+    .badge-ACTIVE { background: rgba(40, 167, 69, 0.2); color: #28a745; }
+    .badge-PAUSED { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+    .badge-CANCELLED { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
+    .badge-EXPIRED { background: rgba(108, 117, 125, 0.2); color: #6c757d; }
+    .badge-UNKNOWN { background: rgba(108, 117, 125, 0.2); color: #6c757d; }
+
+    .feature-text {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      max-width: 240px;
+    }
+
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .switch-row label {
+      font-size: 0.8rem;
+      color: var(--as-muted);
+    }
+
+    .switch-row input[type="checkbox"] {
+      transform: scale(1.15);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0 0 12px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--as-text);
+    }
+
+    .subscriptions-note {
+      font-size: 0.8rem;
+      color: var(--as-muted);
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="as-main">
+    <header class="as-topbar">
+      <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
+      <span class="as-topbar-title">Marketplace</span>
+      <div class="as-topbar-right">
+        <button class="btn btn-ghost btn-sm" data-action="refresh-current">&#8635; Refresh</button>
+      </div>
+    </header>
+
+    <div class="as-content">
+      <div id="alert-container"></div>
+
+      <div class="as-tabs" id="marketplace-tabs">
+        <button class="as-tab active" data-action="switch-tab" data-tab="staff">Staff Tiers</button>
+        <button class="as-tab" data-action="switch-tab" data-tab="pricing">Pricing</button>
+        <button class="as-tab" data-action="switch-tab" data-tab="subscriptions">Subscriptions</button>
+      </div>
+
+      <div id="staff-tab" class="tab-content active">
+        <div class="kpi-grid" id="staff-stats">
+          <div class="kpi-card"><div class="kpi-label">On Marketplace</div><div class="kpi-value" id="stat-staff-total">-</div></div>
+          <div class="kpi-card"><div class="kpi-label">Standard</div><div class="kpi-value" id="stat-staff-standard">-</div></div>
+          <div class="kpi-card"><div class="kpi-label">Elite</div><div class="kpi-value" id="stat-staff-elite">-</div></div>
+          <div class="kpi-card kpi-warning"><div class="kpi-label">Unassigned</div><div class="kpi-value" id="stat-staff-unassigned">-</div></div>
+        </div>
+
+        <div class="as-filters">
+          <div class="as-filter-group">
+            <label>Tier</label>
+            <select id="filter-staff-tier">
+              <option value="">All</option>
+              <option value="STANDARD">Standard</option>
+              <option value="ELITE">Elite</option>
+              <option value="UNASSIGNED">Unassigned</option>
+            </select>
+          </div>
+          <div class="as-filter-group">
+            <label>Availability</label>
+            <select id="filter-staff-availability">
+              <option value="">All</option>
+              <option value="true">Available</option>
+              <option value="false">Unavailable</option>
+            </select>
+          </div>
+          <div class="as-filter-group">
+            <label>Search</label>
+            <input type="search" id="filter-staff-search" placeholder="Name or email...">
+          </div>
+          <div class="as-filter-actions">
+            <button class="btn btn-primary" data-action="apply-staff-filters">Apply</button>
+            <button class="btn btn-ghost" data-action="clear-staff-filters">Clear</button>
+          </div>
+        </div>
+
+        <div class="as-table-wrap">
+          <div class="as-table-toolbar">
+            <div class="as-toolbar-left">
+              <span id="staff-count" class="text-muted fs-sm">Loading...</span>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Current Tier</th>
+                <th>Available</th>
+                <th>Rating</th>
+                <th>Reviews</th>
+                <th>Highlights</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="staff-table">
+              <tr><td colspan="8" class="loading"><div class="as-skeleton" style="margin:auto;max-width:220px"></div></td></tr>
+            </tbody>
+          </table>
+          <div class="as-pagination" id="staff-pagination"></div>
+        </div>
+      </div>
+
+      <div id="pricing-tab" class="tab-content">
+        <div class="section-head">
+          <h2 class="section-title">Pricing Matrix</h2>
+          <div class="btn-group">
+            <button class="btn btn-primary" data-action="save-pricing">Save All Pricing</button>
+          </div>
+        </div>
+        <div id="pricing-cards" class="market-grid">
+          <div class="market-card text-muted">Loading pricing...</div>
+        </div>
+
+        <div class="section-head">
+          <h2 class="section-title">Subscription Plans</h2>
+          <div class="btn-group">
+            <button class="btn btn-primary" data-action="save-plans">Save All Plans</button>
+          </div>
+        </div>
+        <div id="plan-cards" class="market-grid">
+          <div class="market-card text-muted">Loading plans...</div>
+        </div>
+      </div>
+
+      <div id="subscriptions-tab" class="tab-content">
+        <p class="subscriptions-note">Manage client subscription tiers and statuses.</p>
+
+        <div class="as-filters">
+          <div class="as-filter-group">
+            <label>Tier</label>
+            <select id="filter-sub-tier">
+              <option value="">All</option>
+              <option value="STANDARD">Standard</option>
+              <option value="PREMIUM">Premium</option>
+            </select>
+          </div>
+          <div class="as-filter-group">
+            <label>Subscription Status</label>
+            <select id="filter-sub-status">
+              <option value="">All</option>
+              <option value="ACTIVE">Active</option>
+              <option value="PAUSED">Paused</option>
+              <option value="CANCELLED">Cancelled</option>
+              <option value="EXPIRED">Expired</option>
+            </select>
+          </div>
+          <div class="as-filter-group">
+            <label>Search</label>
+            <input type="search" id="filter-sub-search" placeholder="Company, contact, email...">
+          </div>
+          <div class="as-filter-actions">
+            <button class="btn btn-primary" data-action="apply-sub-filters">Apply</button>
+            <button class="btn btn-ghost" data-action="clear-sub-filters">Clear</button>
+          </div>
+        </div>
+
+        <div class="as-table-wrap">
+          <div class="as-table-toolbar">
+            <div class="as-toolbar-left">
+              <span id="sub-count" class="text-muted fs-sm">Loading...</span>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Contact</th>
+                <th>Current Tier</th>
+                <th>Status</th>
+                <th>Started At</th>
+                <th>Expires At</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="subs-table">
+              <tr><td colspan="7" class="loading"><div class="as-skeleton" style="margin:auto;max-width:220px"></div></td></tr>
+            </tbody>
+          </table>
+          <div class="as-pagination" id="subs-pagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="staff-modal" class="modal-backdrop d-none">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2>Edit Staff Marketplace Profile</h2>
+        <button class="modal-close" data-action="close-staff-modal" aria-label="Close">&#x2715;</button>
+      </div>
+      <form id="staff-form">
+        <div class="modal-body">
+          <input type="hidden" id="staff-form-id">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="as-label" for="staff-form-tier">Staff Tier</label>
+              <select id="staff-form-tier" class="as-input">
+                <option value="">Unassigned</option>
+                <option value="STANDARD">Standard</option>
+                <option value="ELITE">Elite</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="as-label" for="staff-form-available">Availability</label>
+              <div class="switch-row">
+                <label for="staff-form-available">Available for bookings</label>
+                <input id="staff-form-available" type="checkbox">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group mb-2">
+            <label class="as-label" for="staff-form-bio">Bio</label>
+            <textarea id="staff-form-bio" rows="4" maxlength="1000" placeholder="Short profile bio..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="as-label" for="staff-form-highlights">Highlights</label>
+            <input id="staff-form-highlights" class="as-input" type="text" maxlength="500" placeholder="e.g. Mixology, VIP service, festivals">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-action="close-staff-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/admin-core.js"></script>
+  <script src="/js/admin-nav.js"></script>
+  <script src="/pages/js/admin-marketplace.js"></script>
+</body>
+</html>

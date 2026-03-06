@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bookings - VERGO Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="/vergo-logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css">
+  <style>
+    .as-table-wrap { overflow-x: auto; }
+
+    .status-PENDING { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+    .status-CONFIRMED { background: rgba(40, 167, 69, 0.2); color: #28a745; }
+    .status-REJECTED { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
+    .status-CANCELLED { background: rgba(108, 117, 125, 0.2); color: #6c757d; }
+    .status-COMPLETED { background: rgba(23, 162, 184, 0.2); color: #17a2b8; }
+    .status-NO_SHOW { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
+
+    .tier-STANDARD { background: rgba(255, 255, 255, 0.08); color: #ccc; }
+    .tier-ELITE { background: rgba(212, 175, 55, 0.15); color: #D4AF37; }
+    .tier-PREMIUM { background: rgba(212, 175, 55, 0.15); color: #D4AF37; }
+    .tier-null { background: rgba(108, 117, 125, 0.2); color: #6c757d; }
+
+    .event-meta,
+    .shift-meta,
+    .rate-meta {
+      display: block;
+      font-size: 0.76rem;
+      color: var(--as-muted);
+      margin-top: 2px;
+    }
+
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .timeline {
+      border-left: 2px solid var(--as-border);
+      margin: 6px 0 0;
+      padding-left: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .timeline-item {
+      font-size: 0.86rem;
+    }
+
+    .timeline-item small {
+      color: var(--as-muted);
+      display: block;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+
+    .modal-section {
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .modal-section:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .modal-section h3 {
+      margin: 0 0 10px;
+      font-size: 0.85rem;
+      color: var(--as-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.45px;
+    }
+  </style>
+</head>
+<body>
+  <div class="as-main">
+    <header class="as-topbar">
+      <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
+      <span class="as-topbar-title">Bookings</span>
+      <div class="as-topbar-right">
+        <button class="btn btn-ghost btn-sm" data-action="refresh-bookings">&#8635; Refresh</button>
+      </div>
+    </header>
+
+    <div class="as-content">
+      <div id="alert-container"></div>
+
+      <div class="kpi-grid" id="booking-stats">
+        <div class="kpi-card kpi-warning"><div class="kpi-label">Pending</div><div class="kpi-value" id="stat-pending">-</div></div>
+        <div class="kpi-card kpi-success"><div class="kpi-label">Confirmed</div><div class="kpi-value" id="stat-confirmed">-</div></div>
+        <div class="kpi-card kpi-info"><div class="kpi-label">Completed</div><div class="kpi-value" id="stat-completed">-</div></div>
+        <div class="kpi-card kpi-error"><div class="kpi-label">Rejected</div><div class="kpi-value" id="stat-rejected">-</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-value" id="stat-total">-</div></div>
+      </div>
+
+      <div id="pending-banner" class="pending-banner hidden">
+        <div class="pending-banner-text">
+          <strong>You have <span id="pending-count">0</span> pending booking request(s)</strong>
+        </div>
+        <button class="btn btn-warning btn-sm" data-action="view-pending">View Pending</button>
+      </div>
+
+      <div class="as-filters">
+        <div class="as-filter-group">
+          <label>Status</label>
+          <select id="filter-status">
+            <option value="">All</option>
+            <option value="PENDING">Pending</option>
+            <option value="CONFIRMED">Confirmed</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="CANCELLED">Cancelled</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="NO_SHOW">No Show</option>
+          </select>
+        </div>
+        <div class="as-filter-group">
+          <label>Search</label>
+          <input type="search" id="filter-search" placeholder="Company, staff, location...">
+        </div>
+        <div class="as-filter-actions">
+          <button class="btn btn-primary" data-action="apply-filters">Apply</button>
+          <button class="btn btn-ghost" data-action="clear-filters">Clear</button>
+        </div>
+      </div>
+
+      <div class="as-table-wrap">
+        <div class="as-table-toolbar">
+          <div class="as-toolbar-left">
+            <span id="booking-count" class="text-muted fs-sm">Loading...</span>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Staff</th>
+              <th>Client</th>
+              <th>Event</th>
+              <th>Shift</th>
+              <th>Rate</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="bookings-table">
+            <tr><td colspan="8" class="loading"><div class="as-skeleton" style="margin:auto;max-width:220px"></div></td></tr>
+          </tbody>
+        </table>
+        <div class="as-pagination" id="bookings-pagination"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="booking-modal" class="modal-backdrop d-none">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2>Booking Details</h2>
+        <button class="modal-close" data-action="close-booking-modal" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="modal-body" id="booking-modal-body"></div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-action="close-booking-modal">Close</button>
+        <button class="btn btn-primary" data-action="save-booking-notes">Save Notes</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="reject-modal" class="modal-backdrop d-none">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Reject Booking</h2>
+        <button class="modal-close" data-action="close-reject-modal" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <label class="as-label" for="reject-reason">Rejection Reason</label>
+        <textarea id="reject-reason" maxlength="500" placeholder="Explain why this booking is rejected..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-action="close-reject-modal">Cancel</button>
+        <button class="btn btn-danger" data-action="confirm-reject">Reject Booking</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="complete-modal" class="modal-backdrop d-none">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Complete Booking</h2>
+        <button class="modal-close" data-action="close-complete-modal" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <label class="as-label" for="complete-hours">Actual Hours (optional)</label>
+        <input id="complete-hours" class="as-input" type="number" min="0.1" max="24" step="0.25" placeholder="e.g. 8">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-action="close-complete-modal">Cancel</button>
+        <button class="btn btn-info" data-action="confirm-complete">Mark Completed</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/admin-core.js"></script>
+  <script src="/js/admin-nav.js"></script>
+  <script src="/pages/js/admin-bookings.js"></script>
+</body>
+</html>

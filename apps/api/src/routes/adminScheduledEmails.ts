@@ -1,12 +1,15 @@
 // Admin API for managing scheduled emails
 
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { cancelScheduledEmail } from '../services/email/scheduler';
 import { emailQueue } from '../services/email/queue';
+import { adminAuth } from '../middleware/adminAuth';
+import { prisma } from '../prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
+
+// All routes require admin authentication
+router.use(adminAuth);
 
 /**
  * GET /api/v1/admin/scheduled-emails

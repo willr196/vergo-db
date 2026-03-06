@@ -3,294 +3,291 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - VERGO Ltd</title>
+  <title>Admin Dashboard - VERGO</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="canonical" href="https://vergoltd.com/admin">
   <link rel="icon" type="image/svg+xml" href="/vergo-logo.svg">
-
-  <!-- Google Fonts - Inter (primary brand font) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/vergo-styles.css">
-  <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
-
-
-  <link rel="stylesheet" href="/pages/css/admin.css">
-  <link rel="stylesheet" href="/vergo-platform.css">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css">
 </head>
-<body class="platform">
-  <header></header>
+<body>
 
-  <div class="header">
-    <div class="logo">
-      <img src="/logo.png" alt="VERGO Ltd" loading="lazy" decoding="async">
-      <h1>Admin Dashboard</h1>
-    </div>
-    <div class="header-nav">
-      <a href="admin">Roster</a>
-      <a href="admin-jobs">Jobs</a>
-      <a href="admin-job-applications">Applications</a>
-      <a href="admin-clients">Clients</a>
-      <a href="index">View Site</a>
-      <button id="logout" class="btn logout-btn">Logout</button>
-    </div>
-  </div>
+  <div class="as-main">
+    <header class="as-topbar">
+      <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
+      <span class="as-topbar-title">Dashboard</span>
+      <div class="as-topbar-right">
+        <span id="as-refresh-label" class="text-muted fs-sm"></span>
+        <button class="btn btn-ghost btn-sm" data-action="refresh-stats">&#8635; Refresh</button>
+        <a href="index" class="btn btn-ghost btn-sm">View Site</a>
+      </div>
+    </header>
 
-  <div class="notification" id="notification"></div>
+    <div class="as-content">
+      <div id="alert-container"></div>
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab active" data-tab="applications">Applications</button>
-    <button class="tab" data-tab="contacts">Contacts</button>
-    <button class="tab" data-tab="events">Events</button>
-  </div>
+      <!-- KPI Cards -->
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Total Applicants</div><div class="kpi-value" id="kpi-applicants">-</div><div class="kpi-sub" id="kpi-applicants-sub">Loading…</div></div>
+        <div class="kpi-card kpi-warning"><div class="kpi-label">Pending Review</div><div class="kpi-value" id="kpi-pending">-</div><div class="kpi-sub">Received</div></div>
+        <div class="kpi-card kpi-success"><div class="kpi-label">Hired</div><div class="kpi-value" id="kpi-hired">-</div><div class="kpi-sub">All time</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Clients</div><div class="kpi-value" id="kpi-clients">-</div><div class="kpi-sub" id="kpi-clients-sub">Loading…</div></div>
+        <div class="kpi-card kpi-warning"><div class="kpi-label">Pending Clients</div><div class="kpi-value" id="kpi-clients-pending">-</div><div class="kpi-sub">Awaiting approval</div></div>
+        <div class="kpi-card"><div class="kpi-label">Active Quotes</div><div class="kpi-value" id="kpi-quotes">-</div><div class="kpi-sub" id="kpi-quotes-sub">Loading…</div></div>
+        <div class="kpi-card kpi-success"><div class="kpi-label">Revenue Est.</div><div class="kpi-value" id="kpi-revenue">-</div><div class="kpi-sub">Accepted &amp; completed</div></div>
+        <div class="kpi-card kpi-info"><div class="kpi-label">New This Week</div><div class="kpi-value" id="kpi-week">-</div><div class="kpi-sub">Apps + clients</div></div>
+      </div>
 
-  <!-- Applications Tab -->
-  <div id="applications-tab" class="tab-content active">
-    
-    <!-- Stats -->
-    <div class="stats-grid" id="app-stats">
-      <div class="stat-card" data-filter="all">
-        <div class="stat-number" id="stat-total">0</div>
-        <div class="stat-label">Total</div>
-      </div>
-      <div class="stat-card" data-filter="RECEIVED">
-        <div class="stat-number" id="stat-received">0</div>
-        <div class="stat-label">New</div>
-      </div>
-      <div class="stat-card" data-filter="REVIEWING">
-        <div class="stat-number" id="stat-reviewing">0</div>
-        <div class="stat-label">Reviewing</div>
-      </div>
-      <div class="stat-card" data-filter="SHORTLISTED">
-        <div class="stat-number" id="stat-shortlisted">0</div>
-        <div class="stat-label">Shortlisted</div>
-      </div>
-      <div class="stat-card" data-filter="REJECTED">
-        <div class="stat-number" id="stat-rejected">0</div>
-        <div class="stat-label">Rejected</div>
-      </div>
-      <div class="stat-card" data-filter="HIRED">
-        <div class="stat-number" id="stat-hired">0</div>
-        <div class="stat-label">Hired</div>
-      </div>
-    </div>
-
-    <!-- Filters -->
-    <div class="filters-bar">
-      <div class="filters-row">
-        <div class="filter-group">
-          <label>Status</label>
-          <select id="filter-status">
-            <option value="">All Statuses</option>
-            <option value="RECEIVED">New Applications</option>
-            <option value="REVIEWING">Under Review</option>
-            <option value="SHORTLISTED">Shortlisted</option>
-            <option value="REJECTED">Rejected Pile</option>
-            <option value="HIRED">Hired Pile</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Role</label>
-          <select id="filter-role">
-            <option value="">All Roles</option>
-            <option value="Bartender">Bartender</option>
-            <option value="Barista">Barista</option>
-            <option value="Front of House">Front of House</option>
-            <option value="Waiter">Waiter</option>
-            <option value="Chef">Chef</option>
-            <option value="Kitchen Porter">Kitchen Porter</option>
-            <option value="Runner">Runner</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Search</label>
-          <input type="text" id="filter-search" placeholder="Name, email, phone...">
-        </div>
-        <div class="filter-actions">
-          <button class="btn-filter" type="button" data-action="apply-filters">Apply</button>
-          <button class="btn-clear" type="button" data-action="clear-filters">Clear</button>
+      <!-- Quick Actions -->
+      <div class="mb-3">
+        <div class="as-section-hdr"><span class="as-section-title">Quick Actions</span></div>
+        <div class="btn-group">
+          <a href="admin" class="btn btn-primary">View Roster</a>
+          <a href="admin-clients" class="btn btn-secondary">Manage Clients</a>
+          <a href="admin-quotes" class="btn btn-secondary">Manage Quotes</a>
+          <a href="admin-comms" class="btn btn-secondary">Communications</a>
+          <a href="admin-analytics" class="btn btn-secondary">Analytics</a>
+          <a href="admin-jobs" class="btn btn-ghost">Jobs Board</a>
         </div>
       </div>
-    </div>
 
-    <!-- Table -->
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th data-sort="fullName">Name <span class="sort-icon">↕</span></th>
-            <th data-sort="email">Email <span class="sort-icon">↕</span></th>
-            <th data-sort="phone">Phone <span class="sort-icon">↕</span></th>
-            <th data-sort="roles">Roles <span class="sort-icon">↕</span></th>
-            <th data-sort="status">Status <span class="sort-icon">↕</span></th>
-            <th data-sort="createdAt">Applied <span class="sort-icon">↕</span></th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="applications-body">
-          <tr>
-            <td colspan="7" class="loading">Loading applications...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Contacts Tab -->
-  <div id="contacts-tab" class="tab-content">
-    
-    <!-- Stats -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-number" id="stat-contacts-total">0</div>
-        <div class="stat-label">Total</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="stat-contacts-new">0</div>
-        <div class="stat-label">New</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="stat-contacts-quoted">0</div>
-        <div class="stat-label">Quoted</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="stat-contacts-booked">0</div>
-        <div class="stat-label">Booked</div>
-      </div>
-    </div>
-
-    <!-- Filters -->
-    <div class="filters-bar">
-      <div class="filters-row">
-        <div class="filter-group">
-          <label>Status</label>
-          <select id="filter-contact-status">
-            <option value="">All Statuses</option>
-            <option value="NEW">New</option>
-            <option value="CONTACTED">Contacted</option>
-            <option value="QUOTED">Quoted</option>
-            <option value="BOOKED">Booked</option>
-            <option value="LOST">Lost</option>
-          </select>
+      <!-- Alerts + Activity Feed -->
+      <div class="col-2 mb-3">
+        <!-- Alerts -->
+        <div>
+          <div class="as-section-hdr"><span class="as-section-title">Needs Attention</span></div>
+          <div id="alerts-panel">
+            <div class="as-alert-panel">
+              <div class="as-alert-header">⚠ Alerts</div>
+              <div class="as-alert-item"><span class="as-alert-icon">⏳</span><span class="as-alert-text text-muted">Loading alerts…</span></div>
+            </div>
+          </div>
         </div>
-        <div class="filter-group">
-          <label>Type</label>
-          <select id="filter-contact-type">
-            <option value="">All Types</option>
-            <option value="STAFF_REQUEST">Staff Request</option>
-            <option value="GENERAL">General</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Search</label>
-          <input type="text" id="filter-contact-search" placeholder="Name, email, company...">
-        </div>
-        <div class="filter-actions">
-          <button class="btn-filter" type="button" data-action="apply-contact-filters">Apply</button>
-          <button class="btn-clear" type="button" data-action="clear-contact-filters">Clear</button>
+        <!-- Activity Feed -->
+        <div>
+          <div class="as-section-hdr"><span class="as-section-title">Recent Activity</span></div>
+          <div class="as-activity" id="activity-feed">
+            <div class="as-activity-header">Last 10 actions</div>
+            <div class="as-activity-item"><span class="as-dot info"></span><span class="as-activity-text text-muted">Loading activity…</span></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Table -->
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th data-sort="name">Name <span class="sort-icon">↕</span></th>
-            <th data-sort="email">Email <span class="sort-icon">↕</span></th>
-            <th data-sort="type">Type <span class="sort-icon">↕</span></th>
-            <th data-sort="status">Status <span class="sort-icon">↕</span></th>
-            <th data-sort="createdAt">Date <span class="sort-icon">↕</span></th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="contacts-body">
-          <tr>
-            <td colspan="6" class="loading">Loading contacts...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+      <!-- Roster Section (Tabs) -->
+      <hr class="as-divider">
 
-  <!-- Events Tab -->
-  <div id="events-tab" class="tab-content">
-    
-    <!-- Stats -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-number" id="stat-events-total">0</div>
-        <div class="stat-label">Total</div>
+      <div class="as-tabs" id="roster-tabs">
+        <button class="as-tab active" data-tab="applications">Applications</button>
+        <button class="as-tab" data-tab="contacts">Contacts</button>
+        <button class="as-tab" data-tab="events">Events</button>
       </div>
-      <div class="stat-card">
-        <div class="stat-number" id="stat-events-upcoming">0</div>
-        <div class="stat-label">Upcoming</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="stat-events-confirmed">0</div>
-        <div class="stat-label">Confirmed</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="stat-events-completed">0</div>
-        <div class="stat-label">Completed</div>
-      </div>
-    </div>
 
-    <!-- Filters -->
-    <div class="filters-bar">
-      <div class="filters-row">
-        <div class="filter-group">
-          <label>Status</label>
-          <select id="filter-event-status">
-            <option value="">All Statuses</option>
-            <option value="UPCOMING">Upcoming</option>
-            <option value="CONFIRMED">Confirmed</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="CANCELLED">Cancelled</option>
-          </select>
+      <!-- Applications Tab -->
+      <div id="applications-tab" class="tab-content active">
+        <!-- Stats -->
+        <div class="kpi-grid" id="app-stats">
+          <div class="kpi-card" data-filter="all"><div class="kpi-label">Total</div><div class="kpi-value" id="stat-total">0</div></div>
+          <div class="kpi-card kpi-info" data-filter="RECEIVED"><div class="kpi-label">New</div><div class="kpi-value" id="stat-received">0</div></div>
+          <div class="kpi-card kpi-warning" data-filter="REVIEWING"><div class="kpi-label">Reviewing</div><div class="kpi-value" id="stat-reviewing">0</div></div>
+          <div class="kpi-card kpi-success" data-filter="SHORTLISTED"><div class="kpi-label">Shortlisted</div><div class="kpi-value" id="stat-shortlisted">0</div></div>
+          <div class="kpi-card kpi-error" data-filter="REJECTED"><div class="kpi-label">Rejected</div><div class="kpi-value" id="stat-rejected">0</div></div>
+          <div class="kpi-card" data-filter="HIRED"><div class="kpi-label text-gold">Hired</div><div class="kpi-value text-hired" id="stat-hired">0</div></div>
         </div>
-        <div class="filter-group">
-          <label>Search</label>
-          <input type="text" id="filter-event-search" placeholder="Event name, client...">
+
+        <!-- Bulk bar -->
+        <div class="as-bulk-bar" id="app-bulk-bar">
+          <span class="as-bulk-count"><span id="app-bulk-count">0</span> selected</span>
+          <button class="btn btn-success btn-sm" data-action="bulk-shortlist">Shortlist</button>
+          <button class="btn btn-danger btn-sm" data-action="bulk-reject">Reject</button>
+          <button class="btn btn-ghost btn-sm" data-action="bulk-clear">Clear</button>
         </div>
-        <div class="filter-actions">
-          <button class="btn-filter" type="button" data-action="apply-event-filters">Apply</button>
-          <button class="btn-clear" type="button" data-action="clear-event-filters">Clear</button>
+
+        <!-- Filters -->
+        <div class="as-filters">
+          <div class="as-filter-group">
+            <label>Status</label>
+            <select id="filter-status">
+              <option value="">All Statuses</option>
+              <option value="RECEIVED">New</option>
+              <option value="REVIEWING">Reviewing</option>
+              <option value="SHORTLISTED">Shortlisted</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="HIRED">Hired</option>
+            </select>
+          </div>
+          <div class="as-filter-group">
+            <label>Role</label>
+            <select id="filter-role">
+              <option value="">All Roles</option>
+              <option value="Bartender">Bartender</option>
+              <option value="Barista">Barista</option>
+              <option value="Front of House">Front of House</option>
+              <option value="Waiter">Waiter</option>
+              <option value="Chef">Chef</option>
+              <option value="Kitchen Porter">Kitchen Porter</option>
+              <option value="Runner">Runner</option>
+            </select>
+          </div>
+          <div class="as-filter-group">
+            <label>Search</label>
+            <input type="search" id="filter-search" placeholder="Name, email, phone…">
+          </div>
+          <div class="as-filter-actions">
+            <button class="btn btn-primary" data-action="apply-filters">Apply</button>
+            <button class="btn btn-ghost" data-action="clear-filters">Clear</button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="as-table-wrap">
+          <div class="as-table-toolbar">
+            <div class="as-toolbar-left">
+              <span id="app-count" class="text-muted fs-sm">Loading…</span>
+            </div>
+            <div class="as-toolbar-right">
+              <button class="btn btn-ghost btn-sm" data-action="export-apps-csv">↓ CSV</button>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th class="checkbox-col"><input type="checkbox" id="app-select-all" title="Select all"></th>
+                <th data-sort="fullName">Name <span class="sort-icon">↕</span></th>
+                <th data-sort="email">Email <span class="sort-icon">↕</span></th>
+                <th data-sort="phone">Phone <span class="sort-icon">↕</span></th>
+                <th data-sort="roles">Roles <span class="sort-icon">↕</span></th>
+                <th data-sort="status">Status <span class="sort-icon">↕</span></th>
+                <th data-sort="createdAt">Applied <span class="sort-icon">↕</span></th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="applications-body">
+              <tr><td colspan="8" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
+            </tbody>
+          </table>
+          <div class="as-pagination" id="app-pagination"></div>
         </div>
       </div>
-    </div>
 
-    <!-- Table -->
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th data-sort="eventName">Event <span class="sort-icon">↕</span></th>
-            <th data-sort="eventDate">Date <span class="sort-icon">↕</span></th>
-            <th data-sort="clientName">Client <span class="sort-icon">↕</span></th>
-            <th data-sort="status">Status <span class="sort-icon">↕</span></th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="events-body">
-          <tr>
-            <td colspan="5" class="loading">Loading events...</td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Contacts Tab -->
+      <div id="contacts-tab" class="tab-content">
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-value" id="stat-contacts-total">0</div></div>
+          <div class="kpi-card kpi-info"><div class="kpi-label">New</div><div class="kpi-value" id="stat-contacts-new">0</div></div>
+          <div class="kpi-card kpi-warning"><div class="kpi-label">Quoted</div><div class="kpi-value" id="stat-contacts-quoted">0</div></div>
+          <div class="kpi-card kpi-success"><div class="kpi-label">Booked</div><div class="kpi-value" id="stat-contacts-booked">0</div></div>
+        </div>
+        <div class="as-filters">
+          <div class="as-filter-group">
+            <label>Status</label>
+            <select id="filter-contact-status">
+              <option value="">All Statuses</option>
+              <option value="NEW">New</option>
+              <option value="CONTACTED">Contacted</option>
+              <option value="QUOTED">Quoted</option>
+              <option value="BOOKED">Booked</option>
+              <option value="LOST">Lost</option>
+            </select>
+          </div>
+          <div class="as-filter-group">
+            <label>Type</label>
+            <select id="filter-contact-type">
+              <option value="">All Types</option>
+              <option value="STAFF_REQUEST">Staff Request</option>
+              <option value="GENERAL">General</option>
+            </select>
+          </div>
+          <div class="as-filter-group">
+            <label>Search</label>
+            <input type="search" id="filter-contact-search" placeholder="Name, email…">
+          </div>
+          <div class="as-filter-actions">
+            <button class="btn btn-primary" data-action="apply-contact-filters">Apply</button>
+            <button class="btn btn-ghost" data-action="clear-contact-filters">Clear</button>
+          </div>
+        </div>
+        <div class="as-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-sort="name">Name <span class="sort-icon">↕</span></th>
+                <th data-sort="email">Email <span class="sort-icon">↕</span></th>
+                <th data-sort="type">Type <span class="sort-icon">↕</span></th>
+                <th data-sort="status">Status <span class="sort-icon">↕</span></th>
+                <th data-sort="createdAt">Date <span class="sort-icon">↕</span></th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="contacts-body">
+              <tr><td colspan="6" class="loading">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Events Tab -->
+      <div id="events-tab" class="tab-content">
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-value" id="stat-events-total">0</div></div>
+          <div class="kpi-card kpi-info"><div class="kpi-label">Upcoming</div><div class="kpi-value" id="stat-events-upcoming">0</div></div>
+          <div class="kpi-card kpi-success"><div class="kpi-label">Confirmed</div><div class="kpi-value" id="stat-events-confirmed">0</div></div>
+          <div class="kpi-card"><div class="kpi-label text-hired">Completed</div><div class="kpi-value text-hired" id="stat-events-completed">0</div></div>
+        </div>
+        <div class="as-filters">
+          <div class="as-filter-group">
+            <label>Status</label>
+            <select id="filter-event-status">
+              <option value="">All</option>
+              <option value="UPCOMING">Upcoming</option>
+              <option value="CONFIRMED">Confirmed</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+          </div>
+          <div class="as-filter-group">
+            <label>Search</label>
+            <input type="search" id="filter-event-search" placeholder="Event, client…">
+          </div>
+          <div class="as-filter-actions">
+            <button class="btn btn-primary" data-action="apply-event-filters">Apply</button>
+            <button class="btn btn-ghost" data-action="clear-event-filters">Clear</button>
+          </div>
+        </div>
+        <div class="as-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-sort="eventName">Event <span class="sort-icon">↕</span></th>
+                <th data-sort="eventDate">Date <span class="sort-icon">↕</span></th>
+                <th data-sort="clientName">Client <span class="sort-icon">↕</span></th>
+                <th data-sort="status">Status <span class="sort-icon">↕</span></th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="events-body">
+              <tr><td colspan="5" class="loading">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- .as-content -->
+  </div><!-- .as-main -->
+
+  <!-- Applicant Detail Drawer -->
+  <div class="as-drawer-backdrop" id="app-drawer-backdrop"></div>
+  <div class="as-drawer" id="app-drawer">
+    <div class="as-drawer-header">
+      <h2 id="drawer-name">Applicant</h2>
+      <button class="as-drawer-close" data-action="close-drawer" aria-label="Close">&#x2715;</button>
     </div>
+    <div class="as-drawer-body" id="drawer-body"></div>
+    <div class="as-drawer-footer" id="drawer-footer"></div>
   </div>
 
   <script src="/js/admin-core.js"></script>
-
-  <script src="/pages/js/admin.js"></script>
-
-  <footer></footer>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
+  <script src="/js/admin-nav.js"></script>
+  <script src="/pages/js/admin-dashboard.js"></script>
 </body>
 </html>

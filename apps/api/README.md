@@ -28,6 +28,23 @@ Mobile endpoints return `{ ok, ... }` payloads and use `Authorization: Bearer <t
   - `GET /api/v1/client/mobile/me`
   - `PUT /api/v1/client/mobile/profile`
 
+### Mobile Refresh Error Handling
+If refresh token reuse is detected (token replay), the API returns HTTP `401` with:
+
+```json
+{
+  "ok": false,
+  "code": "REFRESH_TOKEN_REUSE_DETECTED",
+  "forceLogout": true,
+  "reauthRequired": true
+}
+```
+
+Mobile clients should:
+1. Clear stored access + refresh tokens immediately.
+2. Clear local user/client session state.
+3. Redirect to login and require full re-authentication.
+
 ### Jobs + Applications
 - `GET /api/v1/mobile/jobs`
 - `GET /api/v1/mobile/jobs/meta/roles`

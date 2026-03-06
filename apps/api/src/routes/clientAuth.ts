@@ -47,6 +47,12 @@ const logoutSchema = z.object({
   refreshToken: z.string().min(1).optional()
 });
 
+function normalizeRateLimitIdentity(value: unknown): string {
+  if (typeof value !== "string") return "unknown";
+  const normalized = value.trim().toLowerCase();
+  return normalized || "unknown";
+}
+
 // ============================================
 // RATE LIMITING
 // ============================================
@@ -62,7 +68,7 @@ const loginLimiter = rateLimit({
   skipSuccessfulRequests: true,
   message: { error: "Too many login attempts. Try again in 15 minutes." },
   keyGenerator: (req) => {
-    const email = req.body?.email || "unknown";
+    const email = normalizeRateLimitIdentity(req.body?.email);
     return `${req.ip}-${email}`;
   }
 });
@@ -151,6 +157,10 @@ function shapeMobileClient(client: {
   status: string;
   industry?: string | null;
   website?: string | null;
+  subscriptionTier?: string | null;
+  subscriptionStatus?: string | null;
+  subscriptionStartedAt?: Date | null;
+  subscriptionExpiresAt?: Date | null;
 }) {
   return {
     id: client.id,
@@ -160,7 +170,11 @@ function shapeMobileClient(client: {
     phone: client.phone || undefined,
     status: client.status,
     industry: client.industry || undefined,
-    website: client.website || undefined
+    website: client.website || undefined,
+    subscriptionTier: client.subscriptionTier || undefined,
+    subscriptionStatus: client.subscriptionStatus || undefined,
+    subscriptionStartedAt: client.subscriptionStartedAt?.toISOString() || null,
+    subscriptionExpiresAt: client.subscriptionExpiresAt?.toISOString() || null,
   };
 }
 
@@ -532,6 +546,10 @@ r.post("/mobile/login", loginLimiter, async (req, res) => {
         phone: true,
         industry: true,
         website: true,
+        subscriptionTier: true,
+        subscriptionStatus: true,
+        subscriptionStartedAt: true,
+        subscriptionExpiresAt: true,
         failedAttempts: true,
         lockedUntil: true
       }
@@ -711,13 +729,31 @@ r.post("/mobile/refresh", refreshLimiter, async (req, res) => {
     const stored = await prisma.refreshToken.findUnique({
       where: { tokenHash }
     });
-    if (!stored || stored.revokedAt || stored.expiresAt < new Date() || stored.clientId !== payload.sub) {
+    const now = new Date();
+
+    if (!stored || stored.expiresAt < now || stored.clientId !== payload.sub) {
       return res.status(401).json({ ok: false, error: "Refresh token revoked" });
+    }
+
+    if (stored.revokedAt) {
+      // Refresh token replay detected. Revoke all active refresh tokens for this client.
+      await prisma.refreshToken.updateMany({
+        where: { clientId: payload.sub, revokedAt: null },
+        data: { revokedAt: now }
+      });
+      console.warn(`[SECURITY] Refresh token reuse detected (client): clientId=${payload.sub}`);
+      return res.status(401).json({
+        ok: false,
+        error: "Refresh token reuse detected. Please log in again.",
+        code: "REFRESH_TOKEN_REUSE_DETECTED",
+        forceLogout: true,
+        reauthRequired: true
+      });
     }
 
     await prisma.refreshToken.update({
       where: { tokenHash },
-      data: { revokedAt: new Date() }
+      data: { revokedAt: now }
     });
 
     const accessToken = signAccessToken({ sub: payload.sub, type: 'client', email: payload.email });
@@ -782,7 +818,11 @@ r.get("/mobile/me", requireClientJwt, async (req, res) => {
         phone: true,
         status: true,
         industry: true,
-        website: true
+        website: true,
+        subscriptionTier: true,
+        subscriptionStatus: true,
+        subscriptionStartedAt: true,
+        subscriptionExpiresAt: true,
       }
     });
 
@@ -817,7 +857,11 @@ r.put("/mobile/profile", requireClientJwt, async (req, res) => {
         phone: true,
         status: true,
         industry: true,
-        website: true
+        website: true,
+        subscriptionTier: true,
+        subscriptionStatus: true,
+        subscriptionStartedAt: true,
+        subscriptionExpiresAt: true,
       }
     });
 

@@ -5,7 +5,17 @@ import { env } from '../../env';
 import { prisma } from '../../prisma';
 import type { SendEmailOptions, EmailResult, EmailType } from './types';
 
-const resend = new Resend(env.resendApiKey);
+let resend: Resend | null = null;
+
+function getResendClient(): Resend | null {
+  if (!env.resendApiKey) {
+    return null;
+  }
+  if (!resend) {
+    resend = new Resend(env.resendApiKey);
+  }
+  return resend;
+}
 
 export const FROM_EMAIL = env.resendFromEmail || 'noreply@vergoltd.com';
 export const TO_EMAIL = env.resendToEmail || 'wrobb@vergoltd.com';
@@ -68,7 +78,18 @@ export async function sendEmail(options: SendOptions): Promise<EmailResult> {
   const toAddress = Array.isArray(to) ? to[0] : to;
 
   try {
-    const result = await resend.emails.send({
+    const resendClient = getResendClient();
+    if (!resendClient) {
+      const errorMessage = 'Email service not configured (RESEND_API_KEY missing)';
+      console.error('[EMAIL ERROR]', errorMessage);
+      return {
+        id: '',
+        success: false,
+        error: errorMessage,
+      };
+    }
+
+    const result = await resendClient.emails.send({
       from,
       to: Array.isArray(to) ? to : [to],
       subject,

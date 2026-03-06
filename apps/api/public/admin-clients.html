@@ -3,129 +3,129 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Manage Clients - VERGO Admin</title>
+  <title>Clients - VERGO Admin</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="canonical" href="https://vergoltd.com/admin-clients">
-  <link rel="icon" type="image/png" href="/logo-small.png">
+  <link rel="icon" type="image/svg+xml" href="/vergo-logo.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/vergo-styles.css">
-  <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
-  <link rel="stylesheet" href="/vergo-platform.css">
-
-  <link rel="stylesheet" href="/pages/css/admin-clients.css">
-  <link rel="stylesheet" href="/vergo-platform.css">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css">
 </head>
-<body class="platform">
-  <header></header>
-  <div class="admin-header">
-    <a href="admin" class="logo">VERGO Admin</a>
-    <nav>
-      <a href="admin">Dashboard</a>
-      <a href="admin-job-applications">Applications</a>
-      <a href="admin-jobs">Jobs</a>
-      <a href="admin-clients" class="active">Clients</a>
-    </nav>
+<body>
+
+  <div class="as-main">
+    <header class="as-topbar">
+      <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
+      <span class="as-topbar-title">Clients</span>
+    </header>
+
+    <div class="as-content">
+      <div id="alert-container"></div>
+
+      <!-- Stats -->
+      <div class="kpi-grid" id="stats-grid">
+        <div class="kpi-card kpi-warning"><div class="kpi-label">Pending</div><div class="kpi-value" id="stat-pending">-</div></div>
+        <div class="kpi-card kpi-success"><div class="kpi-label">Approved</div><div class="kpi-value" id="stat-approved">-</div></div>
+        <div class="kpi-card kpi-error"><div class="kpi-label">Rejected</div><div class="kpi-value" id="stat-rejected">-</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-value" id="stat-total">-</div></div>
+      </div>
+
+      <!-- Bulk bar -->
+      <div class="as-bulk-bar" id="bulk-bar">
+        <span class="as-bulk-count"><span id="bulk-count">0</span> selected</span>
+        <button class="btn btn-success btn-sm" data-action="bulk-approve">Approve All</button>
+        <button class="btn btn-danger btn-sm" data-action="bulk-reject">Reject All</button>
+        <button class="btn btn-ghost btn-sm" data-action="bulk-clear">Clear</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="as-filters">
+        <div class="as-filter-group">
+          <label>Status</label>
+          <select id="filter-status">
+            <option value="">All Statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="SUSPENDED">Suspended</option>
+          </select>
+        </div>
+        <div class="as-filter-group">
+          <label>Search</label>
+          <input type="search" id="filter-search" placeholder="Company, email, contact name…">
+        </div>
+        <div class="as-filter-actions">
+          <button class="btn btn-primary" data-action="apply-filters">Apply</button>
+          <button class="btn btn-ghost" data-action="clear-filters">Clear</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="as-table-wrap">
+        <div class="as-table-toolbar">
+          <div class="as-toolbar-left">
+            <span id="client-count" class="text-muted fs-sm">Loading…</span>
+          </div>
+          <div class="as-toolbar-right">
+            <button class="btn btn-ghost btn-sm" data-action="export-csv">↓ CSV</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th class="checkbox-col"><input type="checkbox" id="select-all" title="Select all"></th>
+              <th>Company</th>
+              <th>Contact</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Registered</th>
+              <th>Quotes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="clients-table">
+            <tr><td colspan="8" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
+          </tbody>
+        </table>
+        <div class="as-pagination" id="pagination"></div>
+      </div>
+    </div>
   </div>
-  
-  <main>
-    <div id="alert-container"></div>
-    
-    <div class="page-header">
-      <h1>Manage Clients</h1>
-    </div>
-    
-    <div class="stats-grid" id="stats-grid">
-      <div class="stat-card pending">
-        <h3>Pending</h3>
-        <div class="value" id="stat-pending">-</div>
-      </div>
-      <div class="stat-card approved">
-        <h3>Approved</h3>
-        <div class="value" id="stat-approved">-</div>
-      </div>
-      <div class="stat-card rejected">
-        <h3>Rejected</h3>
-        <div class="value" id="stat-rejected">-</div>
-      </div>
-      <div class="stat-card">
-        <h3>Total</h3>
-        <div class="value" id="stat-total">-</div>
-      </div>
-    </div>
-    
-    <div class="filters">
-      <select id="filter-status">
-        <option value="">All Statuses</option>
-        <option value="PENDING">Pending</option>
-        <option value="APPROVED">Approved</option>
-        <option value="REJECTED">Rejected</option>
-        <option value="SUSPENDED">Suspended</option>
-      </select>
-      <input type="text" id="filter-search" placeholder="Search by company, email, or contact...">
-    </div>
-    
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Company</th>
-            <th>Contact</th>
-            <th>Status</th>
-            <th>Registered</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="clients-table">
-          <tr><td colspan="5" class="loading">Loading clients...</td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="pagination" id="pagination"></div>
-  </main>
-  
-  <!-- View/Edit Modal -->
+
+  <!-- Client Detail Modal -->
   <div id="client-modal" class="modal-backdrop d-none">
-    <div class="modal">
+    <div class="modal modal-lg">
       <div class="modal-header">
         <h2 id="modal-title">Client Details</h2>
-        <button class="modal-close" type="button" data-action="close-modal" data-modal-id="client-modal">&times;</button>
+        <button class="modal-close" data-action="close-modal" aria-label="Close">&#x2715;</button>
       </div>
-      <div class="modal-body" id="modal-body">
-        <!-- Populated by JS -->
-      </div>
+      <div class="modal-body" id="modal-body"></div>
       <div class="modal-footer" id="modal-footer">
-        <button type="button" class="btn btn-view btn-lg" data-action="close-modal" data-modal-id="client-modal">Close</button>
+        <button class="btn btn-ghost" data-action="close-modal">Close</button>
       </div>
     </div>
   </div>
-  
+
   <!-- Reject Reason Modal -->
   <div id="reject-modal" class="modal-backdrop d-none">
     <div class="modal modal-sm">
       <div class="modal-header">
-        <h2>Reject Client</h2>
-        <button class="modal-close" type="button" data-action="close-modal" data-modal-id="reject-modal">&times;</button>
+        <h2 id="reject-modal-title">Reject Client</h2>
+        <button class="modal-close" data-action="close-reject-modal">&#x2715;</button>
       </div>
       <div class="modal-body">
-        <p class="text-muted mb-2">Optionally provide a reason for rejection:</p>
-        <textarea id="reject-reason" placeholder="Reason (optional)"></textarea>
+        <p class="text-muted mb-1 fs-sm">Optionally provide a reason for rejection:</p>
+        <textarea id="reject-reason" placeholder="Reason (optional)…"></textarea>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-view btn-lg" data-action="close-modal" data-modal-id="reject-modal">Cancel</button>
-        <button type="button" class="btn btn-reject btn-lg" data-action="confirm-reject">Reject Client</button>
+        <button class="btn btn-ghost" data-action="close-reject-modal">Cancel</button>
+        <button class="btn btn-danger" data-action="confirm-reject">Reject Client</button>
       </div>
     </div>
   </div>
-  
-  <script src="/js/admin-core.js"></script>
 
+  <script src="/js/admin-core.js"></script>
+  <script src="/js/admin-nav.js"></script>
   <script src="/pages/js/admin-clients.js"></script>
-  <footer></footer>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
 </body>
 </html>

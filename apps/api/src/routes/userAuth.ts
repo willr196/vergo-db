@@ -2,6 +2,7 @@ import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "../prisma";
 import { sendUserVerificationEmail, sendPasswordResetEmail } from "../services/email";
@@ -54,6 +55,12 @@ const logoutSchema = z.object({
   refreshToken: z.string().min(1).optional()
 });
 
+function normalizeRateLimitIdentity(value: unknown): string {
+  if (typeof value !== "string") return "unknown";
+  const normalized = value.trim().toLowerCase();
+  return normalized || "unknown";
+}
+
 // ============================================
 // RATE LIMITERS
 // ============================================
@@ -69,7 +76,7 @@ const loginLimiter = rateLimit({
   skipSuccessfulRequests: true,
   message: { error: "Too many login attempts. Try again in 15 minutes." },
   keyGenerator: (req) => {
-    const email = req.body?.email || "unknown";
+    const email = normalizeRateLimitIdentity(req.body?.email);
     return `${req.ip}-${email}`;
   }
 });
@@ -113,6 +120,13 @@ function shapeMobileUser(user: {
   lastName: string;
   phone: string | null;
   applicantId?: string | null;
+  staffTier?: string | null;
+  staffBio?: string | null;
+  staffAvatar?: string | null;
+  staffAvailable?: boolean;
+  staffRating?: Prisma.Decimal | null;
+  staffReviewCount?: number;
+  staffHighlights?: string | null;
 }) {
   return {
     id: user.id,
@@ -120,7 +134,14 @@ function shapeMobileUser(user: {
     firstName: user.firstName,
     lastName: user.lastName,
     phone: user.phone || undefined,
-    applicantId: user.applicantId || null
+    applicantId: user.applicantId || null,
+    staffTier: user.staffTier || null,
+    staffBio: user.staffBio || null,
+    staffAvatar: user.staffAvatar || null,
+    staffAvailable: Boolean(user.staffAvailable),
+    staffRating: user.staffRating != null ? Number(user.staffRating) : null,
+    staffReviewCount: user.staffReviewCount ?? 0,
+    staffHighlights: user.staffHighlights || null,
   };
 }
 
@@ -397,6 +418,13 @@ r.post("/mobile/login", loginLimiter, async (req, res) => {
         phone: true,
         emailVerified: true,
         applicantId: true,
+        staffTier: true,
+        staffBio: true,
+        staffAvatar: true,
+        staffAvailable: true,
+        staffRating: true,
+        staffReviewCount: true,
+        staffHighlights: true,
         failedAttempts: true,
         lockedUntil: true
       }
@@ -530,7 +558,14 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         phone: user.phone,
-        applicantId: user.applicantId
+        applicantId: user.applicantId,
+        staffTier: user.staffTier,
+        staffBio: user.staffBio,
+        staffAvatar: user.staffAvatar,
+        staffAvailable: user.staffAvailable,
+        staffRating: user.staffRating,
+        staffReviewCount: user.staffReviewCount,
+        staffHighlights: user.staffHighlights,
       })
     });
   } catch (error) {
@@ -558,13 +593,31 @@ r.post("/mobile/refresh", refreshLimiter, async (req, res) => {
     const stored = await prisma.refreshToken.findUnique({
       where: { tokenHash }
     });
-    if (!stored || stored.revokedAt || stored.expiresAt < new Date() || stored.userId !== payload.sub) {
+    const now = new Date();
+
+    if (!stored || stored.expiresAt < now || stored.userId !== payload.sub) {
       return res.status(401).json({ ok: false, error: "Refresh token revoked" });
+    }
+
+    if (stored.revokedAt) {
+      // Refresh token replay detected. Revoke all active refresh tokens for this user.
+      await prisma.refreshToken.updateMany({
+        where: { userId: payload.sub, revokedAt: null },
+        data: { revokedAt: now }
+      });
+      console.warn(`[SECURITY] Refresh token reuse detected (user): userId=${payload.sub}`);
+      return res.status(401).json({
+        ok: false,
+        error: "Refresh token reuse detected. Please log in again.",
+        code: "REFRESH_TOKEN_REUSE_DETECTED",
+        forceLogout: true,
+        reauthRequired: true
+      });
     }
 
     await prisma.refreshToken.update({
       where: { tokenHash },
-      data: { revokedAt: new Date() }
+      data: { revokedAt: now }
     });
 
     const accessToken = signAccessToken({ sub: payload.sub, type: 'user', email: payload.email });
@@ -627,7 +680,14 @@ r.get("/mobile/me", requireUserJwt, async (req, res) => {
         firstName: true,
         lastName: true,
         phone: true,
-        applicantId: true
+        applicantId: true,
+        staffTier: true,
+        staffBio: true,
+        staffAvatar: true,
+        staffAvailable: true,
+        staffRating: true,
+        staffReviewCount: true,
+        staffHighlights: true,
       }
     });
 
@@ -666,7 +726,14 @@ r.put("/mobile/profile", requireUserJwt, async (req, res) => {
         firstName: true,
         lastName: true,
         phone: true,
-        applicantId: true
+        applicantId: true,
+        staffTier: true,
+        staffBio: true,
+        staffAvatar: true,
+        staffAvailable: true,
+        staffRating: true,
+        staffReviewCount: true,
+        staffHighlights: true,
       }
     });
 

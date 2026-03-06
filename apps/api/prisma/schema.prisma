@@ -126,9 +126,16 @@ model Client {
   
   // Admin notes
   adminNotes      String?       @db.Text
+
+  // Subscription (tiered marketplace)
+  subscriptionTier      SubscriptionTier   @default(STANDARD)
+  subscriptionStatus    SubscriptionStatus @default(ACTIVE)
+  subscriptionStartedAt DateTime?
+  subscriptionExpiresAt DateTime?          // Null = no active paid sub (Standard is free)
   
   // Relations
   quoteRequests   QuoteRequest[]
+  bookings        Booking[]
   refreshTokens   RefreshToken[]
   pushTokens      PushToken[]
 
@@ -169,9 +176,98 @@ model QuoteRequest {
   // Relations
   clientId      String
   client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  bookings      Booking[]
   
   @@index([clientId])
   @@index([status])
+  @@index([createdAt])
+}
+
+// Pricing matrix: maps client tier x staff tier -> hourly rate
+model PricingTier {
+  id           String           @id @default(cuid())
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  clientTier   SubscriptionTier
+  staffTier    StaffTier
+  hourlyRate   Decimal          @db.Decimal(10, 2) // What client pays per hour
+  staffPayRate Decimal?         @db.Decimal(10, 2) // What staff gets paid per hour (optional, for admin reference)
+  isBookable   Boolean          @default(true) // false = STANDARD client can't book ELITE staff
+
+  // Ensure one row per combination
+  @@unique([clientTier, staffTier])
+  @@map("PricingTier")
+}
+
+// Subscription pricing reference (for admin/display, not billing logic)
+model SubscriptionPlan {
+  id           String           @id @default(cuid())
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  tier         SubscriptionTier @unique
+  name         String           // "Standard", "Premium"
+  weeklyPrice  Decimal          @db.Decimal(10, 2) // £0 for Standard, £X for Premium
+  monthlyPrice Decimal?         @db.Decimal(10, 2) // Alternative billing cycle
+  annualPrice  Decimal?         @db.Decimal(10, 2) // Alternative billing cycle
+  features     String?          @db.Text // JSON array of feature strings for display
+  isActive     Boolean          @default(true)
+
+  @@map("SubscriptionPlan")
+}
+
+// When a client requests to book a specific staff member or requests staff by tier
+model Booking {
+  id                  String           @id @default(cuid())
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  // Status
+  status              BookingStatus    @default(PENDING)
+
+  // Event/shift details
+  eventName           String?
+  eventDate           DateTime
+  eventEndDate        DateTime?
+  location            String
+  venue               String?
+  shiftStart          String           // e.g. "09:00"
+  shiftEnd            String           // e.g. "17:00"
+  hoursEstimated      Decimal?         @db.Decimal(5, 2)
+
+  // Pricing snapshot (captured at booking time so rate changes don't affect existing bookings)
+  clientTierAtBooking SubscriptionTier
+  staffTierAtBooking  StaffTier
+  hourlyRateCharged   Decimal          @db.Decimal(10, 2) // What client pays
+  staffPayRate        Decimal?         @db.Decimal(10, 2) // What staff gets
+  totalEstimated      Decimal?         @db.Decimal(10, 2) // hourlyRate x hours
+
+  // Notes
+  clientNotes         String?          @db.Text
+  adminNotes          String?          @db.Text
+  rejectionReason     String?
+
+  // Confirmation
+  confirmedAt         DateTime?
+  confirmedBy         String?          // Admin username
+  completedAt         DateTime?
+
+  // Relations
+  clientId            String
+  client              Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  staffId             String
+  staff               User             @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  // Optional link to original quote request
+  quoteRequestId      String?
+  quoteRequest        QuoteRequest?    @relation(fields: [quoteRequestId], references: [id], onDelete: SetNull)
+
+  @@index([clientId])
+  @@index([staffId])
+  @@index([status])
+  @@index([eventDate])
   @@index([createdAt])
 }
 
@@ -223,6 +319,32 @@ enum ClientStatus {
   APPROVED    // Can log in and use platform
   REJECTED    // Application denied
   SUSPENDED   // Account suspended
+}
+
+enum SubscriptionTier {
+  STANDARD
+  PREMIUM
+}
+
+enum StaffTier {
+  STANDARD
+  ELITE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  EXPIRED
+}
+
+enum BookingStatus {
+  PENDING      // Client requested, awaiting VERGO confirmation
+  CONFIRMED    // VERGO approved
+  REJECTED     // VERGO declined
+  CANCELLED    // Client or VERGO cancelled
+  COMPLETED    // Shift done
+  NO_SHOW      // Staff didn't show
 }
 
 model FileUploadVerification {
@@ -279,10 +401,20 @@ model User {
   failedAttempts  Int              @default(0)
   lockedUntil     DateTime?
   lastLoginAt     DateTime?
+
+  // Staff marketplace profile
+  staffTier       StaffTier?       // null = not on marketplace yet
+  staffBio        String?          @db.Text
+  staffAvatar     String?          // S3 key for profile photo
+  staffAvailable  Boolean          @default(false)  // Visible in marketplace?
+  staffRating     Decimal?         @db.Decimal(3, 2) // e.g. 4.85 out of 5
+  staffReviewCount Int             @default(0)
+  staffHighlights String?          @db.Text // e.g. "Netflix, BBC, Glastonbury" - key credits
   
   // Relations
   jobApplications JobApplication[]
   savedJobs       SavedJob[]
+  bookings        Booking[]
   refreshTokens   RefreshToken[]
   pushTokens      PushToken[]
 

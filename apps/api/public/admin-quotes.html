@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quotes - VERGO Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="/vergo-logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css">
+</head>
+<body>
+
+  <div class="as-main">
+    <header class="as-topbar">
+      <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
+      <span class="as-topbar-title">Quotes</span>
+    </header>
+
+    <div class="as-content">
+      <div id="alert-container"></div>
+
+      <!-- Stats -->
+      <div class="kpi-grid" id="quotes-kpi">
+        <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-value" id="q-total">-</div></div>
+        <div class="kpi-card kpi-info"><div class="kpi-label">New</div><div class="kpi-value" id="q-new">-</div><div class="kpi-sub">Awaiting review</div></div>
+        <div class="kpi-card kpi-warning"><div class="kpi-label">Quoted</div><div class="kpi-value" id="q-quoted">-</div><div class="kpi-sub">Sent to client</div></div>
+        <div class="kpi-card kpi-success"><div class="kpi-label">Accepted</div><div class="kpi-value" id="q-accepted">-</div></div>
+        <div class="kpi-card" style="border-color:rgba(32,201,151,0.3)"><div class="kpi-label" style="color:#20c997">Completed</div><div class="kpi-value" id="q-completed" style="color:#20c997">-</div></div>
+        <div class="kpi-card kpi-error"><div class="kpi-label">Declined</div><div class="kpi-value" id="q-declined">-</div></div>
+        <div class="kpi-card kpi-success"><div class="kpi-label">Total Value</div><div class="kpi-value" id="q-value" style="font-size:1.4rem">-</div><div class="kpi-sub">Quoted amounts</div></div>
+      </div>
+
+      <!-- Filters -->
+      <div class="as-filters">
+        <div class="as-filter-group">
+          <label>Status</label>
+          <select id="filter-status">
+            <option value="">All Statuses</option>
+            <option value="NEW">New</option>
+            <option value="QUOTED">Quoted</option>
+            <option value="ACCEPTED">Accepted</option>
+            <option value="DECLINED">Declined</option>
+            <option value="COMPLETED">Completed</option>
+          </select>
+        </div>
+        <div class="as-filter-group">
+          <label>From</label>
+          <input type="date" id="filter-date-from">
+        </div>
+        <div class="as-filter-group">
+          <label>To</label>
+          <input type="date" id="filter-date-to">
+        </div>
+        <div class="as-filter-group">
+          <label>Search</label>
+          <input type="search" id="filter-search" placeholder="Client, event type, location…">
+        </div>
+        <div class="as-filter-actions">
+          <button class="btn btn-primary" data-action="apply-filters">Apply</button>
+          <button class="btn btn-ghost" data-action="clear-filters">Clear</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="as-table-wrap">
+        <div class="as-table-toolbar">
+          <div class="as-toolbar-left">
+            <span id="quote-count" class="text-muted fs-sm">Loading…</span>
+          </div>
+          <div class="as-toolbar-right">
+            <button class="btn btn-ghost btn-sm" data-action="export-csv">↓ CSV</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="clientName">Client <span class="sort-icon">↕</span></th>
+              <th data-sort="eventType">Event Type <span class="sort-icon">↕</span></th>
+              <th data-sort="eventDate">Date <span class="sort-icon">↕</span></th>
+              <th>Headcount</th>
+              <th>Roles</th>
+              <th>Budget</th>
+              <th data-sort="status">Status <span class="sort-icon">↕</span></th>
+              <th data-sort="createdAt">Received <span class="sort-icon">↕</span></th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="quotes-tbody">
+            <tr><td colspan="9" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
+          </tbody>
+        </table>
+        <div class="as-pagination" id="quotes-pagination"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quote Detail Modal -->
+  <div id="quote-modal" class="modal-backdrop d-none">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 id="qm-title">Quote Details</h2>
+        <button class="modal-close" data-action="close-modal" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="modal-body" id="qm-body"></div>
+      <div class="modal-footer" id="qm-footer">
+        <button class="btn btn-ghost" data-action="close-modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Update Modal -->
+  <div id="status-modal" class="modal-backdrop d-none">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 id="sm-title">Update Status</h2>
+        <button class="modal-close" data-action="close-status-modal">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <label class="as-label">New Status</label>
+          <select id="sm-status" class="as-input">
+            <option value="NEW">New</option>
+            <option value="QUOTED">Quoted</option>
+            <option value="ACCEPTED">Accepted</option>
+            <option value="DECLINED">Declined</option>
+            <option value="COMPLETED">Completed</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label class="as-label">Quoted Amount (£)</label>
+          <input type="number" id="sm-amount" class="as-input" placeholder="e.g. 2500" min="0" step="0.01">
+        </div>
+        <div>
+          <label class="as-label">Admin Notes</label>
+          <textarea id="sm-notes" placeholder="Internal notes…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-action="close-status-modal">Cancel</button>
+        <button class="btn btn-primary" data-action="confirm-status-update">Update</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/admin-core.js"></script>
+  <script src="/js/admin-nav.js"></script>
+  <script src="/pages/js/admin-quotes.js"></script>
+</body>
+</html>

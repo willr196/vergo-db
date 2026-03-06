@@ -144,6 +144,9 @@ class EmailQueue {
         html: data.html,
         replyTo: data.replyTo,
         tags: data.tags,
+        emailType: data.emailType,
+        userId: data.userId,
+        clientId: data.clientId,
       });
 
       if (!result.success) {
@@ -257,6 +260,27 @@ class EmailQueue {
     ]);
 
     return { waiting, active, completed, failed, delayed };
+  }
+
+  /**
+   * Cancel a queued/delayed job by ID.
+   * Returns true if the job is removed or already absent.
+   */
+  async cancelJob(jobId: string): Promise<boolean> {
+    if (!this.queue) return false;
+
+    try {
+      const job = await this.queue.getJob(jobId);
+      if (!job) {
+        // Treat as already cancelled/completed from a queue perspective.
+        return true;
+      }
+      await job.remove();
+      return true;
+    } catch (error) {
+      console.error('[EMAIL QUEUE] Failed to cancel job:', error);
+      return false;
+    }
   }
 
   /**

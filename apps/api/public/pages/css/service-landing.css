@@ -185,3 +185,171 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================
+ * SERVICE LANDING POLISH OVERRIDES
+ * ============================================ */
+
+.service-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 132px 24px 58px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.78), rgba(244, 236, 223, 0.98)),
+    radial-gradient(circle at 12% 18%, rgba(212, 175, 55, 0.18), transparent 30%);
+  box-shadow: inset 0 -1px 0 rgba(28, 28, 28, 0.06);
+}
+
+.service-hero::before {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border: 1px solid rgba(212, 175, 55, 0.16);
+  border-radius: 30px;
+  pointer-events: none;
+}
+
+.service-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -8% -150px auto;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.14);
+  filter: blur(28px);
+}
+
+.service-hero-inner,
+.service-main {
+  position: relative;
+  z-index: 1;
+}
+
+.service-hero h1,
+.service-section h2,
+.service-cta-banner h2 {
+  font-family: var(--font-display);
+  letter-spacing: -0.04em;
+}
+
+.service-hero h1 {
+  font-size: clamp(3rem, 6vw, 4.8rem);
+  line-height: 0.95;
+  max-width: 12ch;
+}
+
+.service-hero p {
+  color: #5b5349;
+  font-size: 1.08rem;
+}
+
+.service-breadcrumb {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(28, 28, 28, 0.08);
+  box-shadow: 0 12px 30px rgba(28, 28, 28, 0.06);
+}
+
+.service-main {
+  padding: 42px 24px 84px;
+}
+
+.service-section {
+  margin-top: 34px;
+}
+
+.benefit-card,
+.panel,
+.faq-list details,
+.service-cta-banner {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(249, 245, 238, 0.98));
+  border: 1px solid rgba(28, 28, 28, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 18px 48px rgba(28, 28, 28, 0.08);
+}
+
+.benefit-card,
+.panel,
+.faq-list details {
+  transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+.benefit-card:hover,
+.panel:hover,
+.faq-list details:hover {
+  transform: translateY(-4px);
+  border-color: rgba(212, 175, 55, 0.34);
+  box-shadow: 0 24px 62px rgba(28, 28, 28, 0.1);
+}
+
+.benefit-card,
+.panel,
+.service-cta-banner {
+  padding: 24px;
+}
+
+.faq-list details {
+  padding: 18px 20px;
+}
+
+.faq-list summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.faq-list summary::after {
+  content: "+";
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--color-gold);
+  font-size: 1.4rem;
+  font-weight: 300;
+  flex-shrink: 0;
+}
+
+.faq-list details[open] summary::after {
+  content: "×";
+}
+
+.related-links {
+  gap: 12px;
+}
+
+.related-links a {
+  padding: 12px 16px;
+  box-shadow: 0 10px 24px rgba(28, 28, 28, 0.05);
+}
+
+.service-cta-banner {
+  padding: 30px;
+  box-shadow: 0 24px 66px rgba(28, 28, 28, 0.1);
+}
+
+@media (max-width: 768px) {
+  .service-hero {
+    padding: 120px 20px 48px;
+  }
+
+  .service-hero::before {
+    inset: 12px;
+    border-radius: 24px;
+  }
+
+  .service-main {
+    padding: 34px 20px 72px;
+  }
+}

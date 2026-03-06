@@ -14,6 +14,12 @@ const loginSchema = z.object({
   password: z.string().min(8).max(72)
 });
 
+function normalizeRateLimitIdentity(value: unknown): string {
+  if (typeof value !== "string") return "unknown";
+  const normalized = value.trim().toLowerCase();
+  return normalized || "unknown";
+}
+
 // ============================================
 // RATE LIMITING
 // ============================================
@@ -25,7 +31,7 @@ const loginLimiter = rateLimit({
   skipSuccessfulRequests: true,
   message: { error: "Too many login attempts. Try again in 10 minutes." },
   keyGenerator: (req) => {
-    const username = req.body?.username || 'unknown';
+    const username = normalizeRateLimitIdentity(req.body?.username);
     return `${req.ip}-${username}`;
   }
 });

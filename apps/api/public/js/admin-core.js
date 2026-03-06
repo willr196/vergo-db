@@ -1,5 +1,5 @@
 /**
- * AdminCore — shared utilities for VERGO admin pages.
+ * AdminCore - shared utilities for VERGO admin pages.
  * Include via <script src="/js/admin-core.js"></script> before the page script.
  */
 (function () {
@@ -54,6 +54,8 @@
   };
 
   // ── Notifications ─────────────────────────────────────────────────────
+  var _alertTimers = {};
+
   /**
    * Show an alert inside a container element (inline banner style).
    * @param {string} message
@@ -62,11 +64,13 @@
    * @param {number} [timeout=5000]
    */
   AdminCore.showAlert = function (message, type, containerId, timeout) {
-    var container = document.getElementById(containerId || 'alert-container');
+    var key = containerId || 'alert-container';
+    var container = document.getElementById(key);
     if (!container) return;
+    clearTimeout(_alertTimers[key]);
     container.innerHTML =
       '<div class="alert alert-' + type + '">' + AdminCore.escapeHtml(message) + '</div>';
-    setTimeout(function () { container.innerHTML = ''; }, timeout || 5000);
+    _alertTimers[key] = setTimeout(function () { container.innerHTML = ''; }, timeout || 5000);
   };
 
   /**
@@ -116,6 +120,13 @@
     if (el) el.classList.add('d-none');
   };
 
+  // Single Escape handler for all registered modals, avoids N listeners on document.
+  var _modals = [];
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    _modals.forEach(function (id) { AdminCore.closeModal(id); });
+  });
+
   /**
    * Wire up backdrop-click and Escape-key to close the modal.
    * Call once per modal id after the DOM is ready.
@@ -123,15 +134,9 @@
   AdminCore.initModalBehavior = function (id) {
     var el = document.getElementById(id);
     if (!el) return;
-
+    _modals.push(id);
     el.addEventListener('click', function (e) {
       if (e.target.classList.contains('modal-backdrop')) {
-        AdminCore.closeModal(id);
-      }
-    });
-
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !el.classList.contains('d-none')) {
         AdminCore.closeModal(id);
       }
     });
@@ -145,6 +150,49 @@
       clearTimeout(timer);
       timer = setTimeout(function () { fn.apply(ctx, args); }, wait || 300);
     };
+  };
+
+  // ── Loading wrapper ───────────────────────────────────────────────────
+  /**
+   * Disables btn, shows '…', runs asyncFn, then restores btn state.
+   * Errors propagate to the caller and always restore the button in finally.
+   */
+  AdminCore.withLoading = async function (btn, asyncFn) {
+    var orig = btn.textContent, origDisabled = btn.disabled;
+    btn.disabled = true; btn.textContent = '…';
+    try { return await asyncFn(); }
+    finally { btn.disabled = origDisabled; btn.textContent = orig; }
+  };
+
+  // ── Tab initialiser ───────────────────────────────────────────────────
+  /**
+   * Wire up .as-tab buttons inside containerSelector to show .tab-content panels.
+   * @param {string} [containerSelector] - defaults to entire document
+   */
+  AdminCore.initTabs = function (containerSelector) {
+    var container = containerSelector ? document.querySelector(containerSelector) : document;
+    if (!container) return;
+    var tabs = container.querySelectorAll('.as-tab');
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var target = tab.dataset.tab;
+        tabs.forEach(function (t) { t.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function (c) { c.classList.remove('active'); });
+        tab.classList.add('active');
+        var panel = document.getElementById(target + '-tab');
+        if (panel) panel.classList.add('active');
+      });
+    });
+  };
+
+  // ── One-shot listener ─────────────────────────────────────────────────
+  /** Adds an event listener that removes itself after the first fire. */
+  AdminCore.once = function (el, event, fn) {
+    var handler = function () {
+      el.removeEventListener(event, handler);
+      fn.apply(this, arguments);
+    };
+    el.addEventListener(event, handler);
   };
 
   // ── Status badge HTML ─────────────────────────────────────────────────
