@@ -125,26 +125,26 @@
       <div id="alert-container"></div>
 
       <div class="as-tabs" id="marketplace-tabs">
-        <button class="as-tab active" data-action="switch-tab" data-tab="staff">Staff Tiers</button>
+        <button class="as-tab active" data-action="switch-tab" data-tab="staff">Staff Pools</button>
         <button class="as-tab" data-action="switch-tab" data-tab="pricing">Pricing</button>
-        <button class="as-tab" data-action="switch-tab" data-tab="subscriptions">Subscriptions</button>
+        <button class="as-tab" data-action="switch-tab" data-tab="subscriptions">Client Access</button>
       </div>
 
       <div id="staff-tab" class="tab-content active">
         <div class="kpi-grid" id="staff-stats">
           <div class="kpi-card"><div class="kpi-label">On Marketplace</div><div class="kpi-value" id="stat-staff-total">-</div></div>
-          <div class="kpi-card"><div class="kpi-label">Standard</div><div class="kpi-value" id="stat-staff-standard">-</div></div>
-          <div class="kpi-card"><div class="kpi-label">Elite</div><div class="kpi-value" id="stat-staff-elite">-</div></div>
+          <div class="kpi-card"><div class="kpi-label">Flex Pool</div><div class="kpi-value" id="stat-staff-standard">-</div></div>
+          <div class="kpi-card"><div class="kpi-label">Select Pool</div><div class="kpi-value" id="stat-staff-elite">-</div></div>
           <div class="kpi-card kpi-warning"><div class="kpi-label">Unassigned</div><div class="kpi-value" id="stat-staff-unassigned">-</div></div>
         </div>
 
         <div class="as-filters">
           <div class="as-filter-group">
-            <label>Tier</label>
+            <label>Pool</label>
             <select id="filter-staff-tier">
               <option value="">All</option>
-              <option value="STANDARD">Standard</option>
-              <option value="ELITE">Elite</option>
+              <option value="STANDARD">Flex Pool</option>
+              <option value="ELITE">Select Pool</option>
               <option value="UNASSIGNED">Unassigned</option>
             </select>
           </div>
@@ -177,7 +177,7 @@
               <tr>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Current Tier</th>
+                <th>Current Pool</th>
                 <th>Available</th>
                 <th>Rating</th>
                 <th>Reviews</th>
@@ -205,7 +205,7 @@
         </div>
 
         <div class="section-head">
-          <h2 class="section-title">Subscription Plans</h2>
+          <h2 class="section-title">Marketplace Access Plans</h2>
           <div class="btn-group">
             <button class="btn btn-primary" data-action="save-plans">Save All Plans</button>
           </div>
@@ -216,15 +216,15 @@
       </div>
 
       <div id="subscriptions-tab" class="tab-content">
-        <p class="subscriptions-note">Manage client subscription tiers and statuses.</p>
+        <p class="subscriptions-note">Manage client marketplace access and subscription statuses.</p>
 
         <div class="as-filters">
           <div class="as-filter-group">
-            <label>Tier</label>
+            <label>Access</label>
             <select id="filter-sub-tier">
               <option value="">All</option>
-              <option value="STANDARD">Standard</option>
-              <option value="PREMIUM">Premium</option>
+              <option value="STANDARD">Flex Access</option>
+              <option value="PREMIUM">Select Access</option>
             </select>
           </div>
           <div class="as-filter-group">
@@ -258,7 +258,7 @@
               <tr>
                 <th>Company</th>
                 <th>Contact</th>
-                <th>Current Tier</th>
+                <th>Current Access</th>
                 <th>Status</th>
                 <th>Started At</th>
                 <th>Expires At</th>
@@ -287,11 +287,11 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="as-label" for="staff-form-tier">Staff Tier</label>
+              <label class="as-label" for="staff-form-tier">Marketplace Pool</label>
               <select id="staff-form-tier" class="as-input">
                 <option value="">Unassigned</option>
-                <option value="STANDARD">Standard</option>
-                <option value="ELITE">Elite</option>
+                <option value="STANDARD">Flex Pool</option>
+                <option value="ELITE">Select Pool</option>
               </select>
             </div>
             <div class="form-group">

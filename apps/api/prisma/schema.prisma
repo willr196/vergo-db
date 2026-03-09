@@ -166,6 +166,7 @@ model QuoteRequest {
   // Additional info
   description   String?   @db.Text
   budget        String?   // Budget range
+  requestedLane BookingLane?
   
   // Status tracking
   status        String    @default("NEW") // NEW, QUOTED, ACCEPTED, DECLINED, COMPLETED
@@ -181,6 +182,7 @@ model QuoteRequest {
   @@index([clientId])
   @@index([status])
   @@index([createdAt])
+  @@index([requestedLane])
 }
 
 // Pricing matrix: maps client tier x staff tier -> hourly rate
@@ -225,6 +227,7 @@ model Booking {
 
   // Status
   status              BookingStatus    @default(PENDING)
+  bookingLane         BookingLane      @default(FLEX)
 
   // Event/shift details
   eventName           String?
@@ -267,6 +270,7 @@ model Booking {
   @@index([clientId])
   @@index([staffId])
   @@index([status])
+  @@index([bookingLane])
   @@index([eventDate])
   @@index([createdAt])
 }
@@ -345,6 +349,12 @@ enum BookingStatus {
   CANCELLED    // Client or VERGO cancelled
   COMPLETED    // Shift done
   NO_SHOW      // Staff didn't show
+}
+
+enum BookingLane {
+  FLEX
+  SELECT
+  MANAGED
 }
 
 model FileUploadVerification {

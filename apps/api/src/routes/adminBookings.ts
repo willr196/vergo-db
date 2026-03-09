@@ -9,6 +9,7 @@ r.use(adminAuth);
 
 const listBookingsQuerySchema = z.object({
   status: z.enum(['PENDING', 'CONFIRMED', 'REJECTED', 'CANCELLED', 'COMPLETED', 'NO_SHOW']).optional(),
+  bookingLane: z.enum(['FLEX', 'SELECT', 'MANAGED']).optional(),
   clientId: z.string().optional(),
   staffId: z.string().optional(),
   search: z.string().max(100).optional(),
@@ -59,6 +60,7 @@ function shapeBooking(booking: any) {
   return {
     id: booking.id,
     status: booking.status,
+    bookingLane: booking.bookingLane,
     eventName: booking.eventName,
     eventDate: booking.eventDate?.toISOString() || null,
     eventEndDate: booking.eventEndDate?.toISOString() || null,
@@ -162,6 +164,7 @@ r.get('/', async (req, res, next) => {
 
     const where: any = {};
     if (query.status) where.status = query.status;
+    if (query.bookingLane) where.bookingLane = query.bookingLane;
     if (query.clientId) where.clientId = query.clientId;
     if (query.staffId) where.staffId = query.staffId;
 

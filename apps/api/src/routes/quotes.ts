@@ -43,7 +43,11 @@ const quoteRequestSchema = z.object({
   eventDate: z.string().optional(), // ISO date string
   duration: z.number().int().min(1).max(30).optional(), // Days
   location: z.string().max(200).optional(),
+  venue: z.string().max(200).optional(),
+  shiftStart: z.string().max(10).optional(),
+  shiftEnd: z.string().max(10).optional(),
   guestCount: z.number().int().min(1).max(100000).optional(),
+  requestedLane: z.enum(["FLEX", "SELECT", "MANAGED"]).optional(),
   
   // Staff requirements
   staffNeeded: z.number().int().min(1).max(500),
@@ -62,12 +66,160 @@ const quoteRequestSchema = z.object({
   clientId: z.string().optional()
 });
 
+const ROLE_LABELS: Record<string, string> = {
+  event_chef: "Event chefs",
+  bar_staff: "Bar staff",
+  foh: "Front of house",
+  catering_assistant: "Catering assistants",
+  barista: "Baristas",
+  runner: "Runners",
+  kitchen_porter: "Kitchen porters",
+  waiter: "Waiters",
+  supervisor: "Supervisors",
+};
+
+function parseNumber(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return undefined;
+}
+
+function normaliseRoles(input: unknown): string[] | undefined {
+  if (!Array.isArray(input)) return undefined;
+  const roles = input
+    .map((value) => {
+      const raw = String(value || "").trim();
+      if (!raw) return null;
+      return ROLE_LABELS[raw] || raw.replace(/[_-]+/g, " ");
+    })
+    .filter((value): value is string => Boolean(value));
+  return roles.length ? roles : undefined;
+}
+
+function computeShiftEnd(start: string | undefined, hoursValue: unknown) {
+  if (!start) return undefined;
+  const hours = parseNumber(hoursValue);
+  if (hours == null || hours <= 0 || hours > 24) return undefined;
+
+  const [hourPart, minutePart] = start.split(":");
+  const hoursInt = Number(hourPart);
+  const minutesInt = Number(minutePart);
+  if (!Number.isInteger(hoursInt) || !Number.isInteger(minutesInt)) return undefined;
+
+  const totalMinutes = hoursInt * 60 + minutesInt + Math.round(hours * 60);
+  const endHours = Math.floor((totalMinutes / 60) % 24);
+  const endMinutes = totalMinutes % 60;
+  return `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`;
+}
+
+function buildMessage(body: Record<string, unknown>) {
+  const parts: string[] = [];
+
+  const message = typeof body.message === "string" ? body.message.trim() : "";
+  const specialRequirements =
+    typeof body.special_requirements === "string" ? body.special_requirements.trim() : "";
+  const estimatedHours = parseNumber(body.event_hours);
+  const source = typeof body.how_found === "string" ? body.how_found.trim() : "";
+
+  if (message) parts.push(message);
+  if (specialRequirements) parts.push(`Special requirements: ${specialRequirements}`);
+  if (estimatedHours != null) parts.push(`Estimated hours: ${estimatedHours}`);
+  if (source) parts.push(`Lead source: ${source}`);
+
+  return parts.length ? parts.join("\n\n") : undefined;
+}
+
+function normaliseQuotePayload(body: unknown) {
+  const raw = body && typeof body === "object" ? (body as Record<string, unknown>) : {};
+  const shiftStart =
+    typeof raw.shiftStart === "string"
+      ? raw.shiftStart
+      : typeof raw.event_time === "string"
+        ? raw.event_time
+        : undefined;
+
+  const roles = normaliseRoles(raw.roles) || normaliseRoles(raw.staff_types);
+  const message = buildMessage(raw);
+
+  return {
+    name:
+      typeof raw.name === "string"
+        ? raw.name
+        : typeof raw.contact_name === "string"
+          ? raw.contact_name
+          : "",
+    email:
+      typeof raw.email === "string"
+        ? raw.email
+        : typeof raw.contact_email === "string"
+          ? raw.contact_email
+          : "",
+    phone:
+      typeof raw.phone === "string"
+        ? raw.phone
+        : typeof raw.contact_phone === "string"
+          ? raw.contact_phone
+          : undefined,
+    company:
+      typeof raw.company === "string"
+        ? raw.company
+        : typeof raw.company_name === "string"
+          ? raw.company_name
+          : undefined,
+    eventType:
+      typeof raw.eventType === "string"
+        ? raw.eventType
+        : typeof raw.event_type === "string"
+          ? raw.event_type
+          : "Hospitality staffing request",
+    eventDate:
+      typeof raw.eventDate === "string"
+        ? raw.eventDate
+        : typeof raw.event_date === "string"
+          ? raw.event_date
+          : undefined,
+    duration: parseNumber(raw.duration),
+    location:
+      typeof raw.location === "string"
+        ? raw.location
+        : typeof raw.event_location === "string"
+          ? raw.event_location
+          : undefined,
+    venue: typeof raw.venue === "string" ? raw.venue : undefined,
+    shiftStart,
+    shiftEnd:
+      typeof raw.shiftEnd === "string"
+        ? raw.shiftEnd
+        : computeShiftEnd(shiftStart, raw.event_hours),
+    guestCount: parseNumber(raw.guestCount),
+    requestedLane:
+      raw.requestedLane === "FLEX" || raw.requestedLane === "SELECT" || raw.requestedLane === "MANAGED"
+        ? raw.requestedLane
+        : raw.requested_lane === "FLEX" || raw.requested_lane === "SELECT" || raw.requested_lane === "MANAGED"
+          ? raw.requested_lane
+          : raw.lane_preference === "FLEX" ||
+              raw.lane_preference === "SELECT" ||
+              raw.lane_preference === "MANAGED"
+            ? raw.lane_preference
+            : undefined,
+    staffNeeded: parseNumber(raw.staffNeeded ?? raw.staff_quantity),
+    roles,
+    message,
+    estimatedTotal: parseNumber(raw.estimatedTotal),
+    honeypot: typeof raw.honeypot === "string" ? raw.honeypot : undefined,
+    clientId: typeof raw.clientId === "string" ? raw.clientId : undefined,
+  };
+}
+
 // ============================================
 // POST /api/v1/quotes - Submit quote request (PUBLIC)
 // ============================================
 r.post("/", quoteLimiter, async (req, res, next) => {
   try {
-    const data = quoteRequestSchema.parse(req.body);
+    const data = quoteRequestSchema.parse(normaliseQuotePayload(req.body));
     
     // Check honeypot (spam prevention)
     if (data.honeypot && data.honeypot.length > 0) {
@@ -104,10 +256,14 @@ r.post("/", quoteLimiter, async (req, res, next) => {
             ? new Date(new Date(data.eventDate).getTime() + (data.duration - 1) * 24 * 60 * 60 * 1000)
             : null,
           location: data.location || 'TBC',
+          venue: data.venue || null,
           staffCount: data.staffNeeded,
           roles: data.roles?.join(', ') || 'General staff',
+          shiftStart: data.shiftStart || null,
+          shiftEnd: data.shiftEnd || null,
           description: data.message || null,
           budget: data.estimatedTotal ? `£${data.estimatedTotal.toLocaleString()}` : null,
+          requestedLane: data.requestedLane || null,
           status: 'NEW',
           clientId: clientId
         }
@@ -128,6 +284,10 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       eventDate: data.eventDate || "Flexible",
       duration: data.duration ? `${data.duration} day(s)` : "Not specified",
       location: data.location || "TBC",
+      venue: data.venue || "Not provided",
+      shiftStart: data.shiftStart || "Not provided",
+      shiftEnd: data.shiftEnd || "Not provided",
+      requestedLane: data.requestedLane || "Not specified",
       guestCount: data.guestCount || "Not specified",
       staffNeeded: data.staffNeeded,
       roles: data.roles?.join(", ") || "General staff",
@@ -141,6 +301,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       {
         quoteId: savedQuote?.id || null,
         eventType: data.eventType,
+        requestedLane: data.requestedLane || null,
         staffNeeded: data.staffNeeded,
         hasLinkedClient: !!clientId,
       },
@@ -163,7 +324,10 @@ r.post("/", quoteLimiter, async (req, res, next) => {
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Phone</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.phone)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Company</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.company)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Occasion Type</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.eventType)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Requested Lane</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.requestedLane)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Event Date</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.eventDate)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Venue</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.venue)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Shift</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(`${quoteDetails.shiftStart} - ${quoteDetails.shiftEnd}`)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Duration</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.duration)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Location</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.location)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Guest Count</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.guestCount)}</td></tr>

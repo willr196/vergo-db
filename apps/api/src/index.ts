@@ -801,6 +801,7 @@ app.use('/api/v1/admin/clients', adminClients);
 
 // Quotes
 app.use('/api/v1/quotes', quotes);
+app.use('/api/quote', quotes);
 
 // Client auth routes
 app.use('/api/v1/client', clientAuthRoutes);

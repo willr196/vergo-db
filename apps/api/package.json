@@ -3,9 +3,11 @@
   "type": "commonjs",
   "private": true,
   "scripts": {
+    "prebuild": "node scripts/ensure-prisma-client-link.js",
     "dev": "tsx watch src/index.ts",
     "build": "tsc -p .",
     "start": "node dist/src/index.js",
+    "pretest": "node scripts/ensure-prisma-client-link.js",
     "test": "npm run build && node --test dist/src/__tests__/*.test.js",
     "validate:seo": "node scripts/validate-seo.js",
     "prisma": "prisma",

@@ -6,6 +6,7 @@ import { requireClientJwt } from "../middleware/jwtAuth";
 import {
   premiumAccessErrorMessage,
   resolveMarketplaceAccess,
+  resolveMarketplaceBookingLane,
 } from "../utils/marketplaceAccess";
 
 const r = Router();
@@ -26,6 +27,7 @@ const createBookingSchema = z.object({
 
 const listBookingsSchema = z.object({
   status: z.enum(["PENDING", "CONFIRMED", "REJECTED", "CANCELLED", "COMPLETED", "NO_SHOW"]).optional(),
+  bookingLane: z.enum(["FLEX", "SELECT", "MANAGED"]).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(20),
 });
@@ -141,7 +143,7 @@ r.post("/", async (req, res, next) => {
         error:
           code === "SUBSCRIPTION_NOT_ACTIVE"
             ? premiumAccessErrorMessage()
-            : "Your subscription tier cannot book this staff level. Upgrade to Premium to unlock Elite staff.",
+            : "Your current marketplace access cannot book this staff level. Upgrade to Select access to unlock the Select pool.",
         code,
       });
     }
@@ -151,6 +153,11 @@ r.post("/", async (req, res, next) => {
     const hoursEstimated = new Prisma.Decimal(computedHours);
     const totalEstimated =
       new Prisma.Decimal((Number(pricing.hourlyRate) * computedHours).toFixed(2));
+    const bookingLane = resolveMarketplaceBookingLane(staff.staffTier);
+
+    if (!bookingLane) {
+      return res.status(400).json({ ok: false, error: "Staff member is not assigned to a marketplace lane" });
+    }
 
     const booking = await prisma.booking.create({
       data: {
@@ -165,6 +172,7 @@ r.post("/", async (req, res, next) => {
         shiftEnd: data.shiftEnd,
         hoursEstimated,
         clientNotes: data.clientNotes,
+        bookingLane,
         clientTierAtBooking: access.effectiveTier,
         staffTierAtBooking: staff.staffTier,
         hourlyRateCharged: pricing.hourlyRate,
@@ -187,10 +195,12 @@ r.post("/", async (req, res, next) => {
       data: {
         id: booking.id,
         status: booking.status,
+        bookingLane: booking.bookingLane,
         eventDate: booking.eventDate,
         location: booking.location,
         hourlyRate: Number(booking.hourlyRateCharged),
         totalEstimated: booking.totalEstimated ? Number(booking.totalEstimated) : null,
+        marketplaceAccessLane: access.marketplaceAccessLane,
         staff: {
           id: staff.id,
           name: maskedName(staff.firstName, staff.lastName),
@@ -220,6 +230,7 @@ r.get("/", async (req, res, next) => {
 
     const where: any = { clientId };
     if (query.status) where.status = query.status;
+    if (query.bookingLane) where.bookingLane = query.bookingLane;
 
     const [bookings, total] = await Promise.all([
       prisma.booking.findMany({
@@ -246,6 +257,7 @@ r.get("/", async (req, res, next) => {
     const shaped = bookings.map((b) => ({
       id: b.id,
       status: b.status,
+      bookingLane: b.bookingLane,
       eventName: b.eventName,
       eventDate: b.eventDate,
       location: b.location,
@@ -312,6 +324,7 @@ r.get("/:id", async (req, res, next) => {
       data: {
         id: booking.id,
         status: booking.status,
+        bookingLane: booking.bookingLane,
         eventName: booking.eventName,
         eventDate: booking.eventDate,
         eventEndDate: booking.eventEndDate,

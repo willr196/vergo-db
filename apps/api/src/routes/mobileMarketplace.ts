@@ -3,6 +3,10 @@ import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../prisma';
 import { requireClientJwt } from '../middleware/jwtAuth';
+import {
+  resolveMarketplaceAccess,
+  resolveMarketplaceBookingLane,
+} from '../utils/marketplaceAccess';
 
 const r = Router();
 r.use(requireClientJwt);
@@ -74,6 +78,7 @@ function shapeBooking(booking: any) {
   return {
     id: booking.id,
     status: booking.status,
+    bookingLane: booking.bookingLane,
     eventName: booking.eventName,
     eventDate: booking.eventDate?.toISOString() || null,
     eventEndDate: booking.eventEndDate?.toISOString() || null,
@@ -173,6 +178,8 @@ r.get('/marketplace/pricing', async (req, res, next) => {
 
     const payload = {
       clientTier: client.subscriptionTier,
+      marketplaceAccessLane:
+        client.subscriptionTier === 'PREMIUM' && client.subscriptionStatus === 'ACTIVE' ? 'SELECT' : 'FLEX',
       subscriptionStatus: client.subscriptionStatus,
       subscriptionStartedAt: client.subscriptionStartedAt?.toISOString() || null,
       subscriptionExpiresAt: client.subscriptionExpiresAt?.toISOString() || null,
@@ -189,6 +196,7 @@ r.get('/marketplace/pricing', async (req, res, next) => {
         : null,
       rates: rates.map((row) => ({
         staffTier: row.staffTier,
+        bookingLane: resolveMarketplaceBookingLane(row.staffTier),
         hourlyRate: toNumber(row.hourlyRate),
         staffPayRate: toNumber(row.staffPayRate),
         isBookable: row.isBookable,
@@ -210,6 +218,7 @@ r.get('/marketplace/staff', async (req, res, next) => {
     const client = await getClientSubscription(req.auth!.userId);
     if (!client) return res.status(404).json({ ok: false, error: 'Client not found' });
     if ('error' in client) return res.status(client.code).json({ ok: false, error: client.error });
+    const access = resolveMarketplaceAccess(client);
 
     const where: any = {
       userType: 'JOB_SEEKER',
@@ -274,6 +283,7 @@ r.get('/marketplace/staff', async (req, res, next) => {
         lastName: member.lastName,
         fullName: `${member.firstName} ${member.lastName}`,
         staffTier: member.staffTier,
+        bookingLane: resolveMarketplaceBookingLane(member.staffTier),
         staffBio: member.staffBio,
         staffAvatar: member.staffAvatar,
         staffAvailable: member.staffAvailable,
@@ -296,6 +306,7 @@ r.get('/marketplace/staff', async (req, res, next) => {
         hasMore: query.page * query.limit < total,
       },
       clientTier: client.subscriptionTier,
+      marketplaceAccessLane: access.marketplaceAccessLane,
     };
 
     res.json({ ok: true, ...payload, data: payload });
@@ -310,6 +321,7 @@ r.get('/marketplace/staff/:id', async (req, res, next) => {
     const client = await getClientSubscription(req.auth!.userId);
     if (!client) return res.status(404).json({ ok: false, error: 'Client not found' });
     if ('error' in client) return res.status(client.code).json({ ok: false, error: client.error });
+    const access = resolveMarketplaceAccess(client);
 
     const staff = await prisma.user.findFirst({
       where: {
@@ -357,6 +369,7 @@ r.get('/marketplace/staff/:id', async (req, res, next) => {
         lastName: staff.lastName,
         fullName: `${staff.firstName} ${staff.lastName}`,
         staffTier: staff.staffTier,
+        bookingLane: resolveMarketplaceBookingLane(staff.staffTier),
         staffBio: staff.staffBio,
         staffAvatar: staff.staffAvatar,
         staffAvailable: staff.staffAvailable,
@@ -368,6 +381,7 @@ r.get('/marketplace/staff/:id', async (req, res, next) => {
         isBookable: pricing ? pricing.isBookable : false,
       },
       clientTier: client.subscriptionTier,
+      marketplaceAccessLane: access.marketplaceAccessLane,
     };
 
     res.json({ ok: true, ...payload, data: payload });
@@ -383,6 +397,7 @@ r.post('/bookings', async (req, res, next) => {
     const client = await getClientSubscription(req.auth!.userId);
     if (!client) return res.status(404).json({ ok: false, error: 'Client not found' });
     if ('error' in client) return res.status(client.code).json({ ok: false, error: client.error });
+    const access = resolveMarketplaceAccess(client);
 
     if (client.subscriptionStatus !== 'ACTIVE') {
       return res.status(403).json({
@@ -453,7 +468,7 @@ r.post('/bookings', async (req, res, next) => {
     if (!pricing.isBookable) {
       return res.status(403).json({
         ok: false,
-        error: 'Upgrade to Premium to book this staff tier',
+        error: 'Upgrade to Select access to book this staff tier',
         code: 'UPGRADE_REQUIRED',
       });
     }
@@ -461,6 +476,11 @@ r.post('/bookings', async (req, res, next) => {
     const computedHours = parsed.hoursEstimated ?? computeHoursFromShift(parsed.shiftStart, parsed.shiftEnd);
     const hoursEstimated = new Prisma.Decimal(computedHours.toFixed(2));
     const totalEstimated = new Prisma.Decimal((Number(pricing.hourlyRate) * computedHours).toFixed(2));
+    const bookingLane = resolveMarketplaceBookingLane(staff.staffTier);
+
+    if (!bookingLane) {
+      return res.status(400).json({ ok: false, error: 'Staff member is not assigned to a marketplace lane' });
+    }
 
     const booking = await prisma.booking.create({
       data: {
@@ -472,6 +492,7 @@ r.post('/bookings', async (req, res, next) => {
         shiftStart: parsed.shiftStart,
         shiftEnd: parsed.shiftEnd,
         hoursEstimated,
+        bookingLane,
         clientTierAtBooking: client.subscriptionTier,
         staffTierAtBooking: staff.staffTier,
         hourlyRateCharged: pricing.hourlyRate,
@@ -515,7 +536,12 @@ r.post('/bookings', async (req, res, next) => {
     });
 
     const payload = shapeBooking(booking);
-    res.status(201).json({ ok: true, booking: payload, data: payload });
+    res.status(201).json({
+      ok: true,
+      booking: payload,
+      marketplaceAccessLane: access.marketplaceAccessLane,
+      data: payload,
+    });
   } catch (error) {
     if (error instanceof Error && error.message.includes('must be a valid date')) {
       return res.status(400).json({ ok: false, error: error.message });

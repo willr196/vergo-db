@@ -36,6 +36,11 @@
     return '<span class="badge tier-' + esc(tier) + '">' + esc(tier) + '</span>';
   }
 
+  function laneBadge(lane) {
+    if (!lane) return '<span class="badge tier-null">-</span>';
+    return '<span class="badge">' + esc(lane) + '</span>';
+  }
+
   function statusBadge(status) {
     return '<span class="status-badge status-' + esc(status) + '">' + esc(status) + '</span>';
   }
@@ -145,6 +150,7 @@
         + '</td>'
         + '<td>'
         + '<strong>' + esc(eventName) + '</strong>'
+        + '<span class="event-meta">' + laneBadge(booking.bookingLane) + '</span>'
         + '<span class="event-meta">' + esc(eventDate) + '</span>'
         + '<span class="event-meta">' + esc(booking.location || '-') + '</span>'
         + '</td>'
@@ -355,6 +361,7 @@
       + '<h3>Event</h3>'
       + '<div class="detail-grid">'
       + '<div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">' + esc(booking.eventName || 'General booking') + '</span></div>'
+      + '<div class="detail-row"><span class="detail-label">Lane</span><span class="detail-value">' + laneBadge(booking.bookingLane) + '</span></div>'
       + '<div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">' + esc(eventDateRange) + '</span></div>'
       + '<div class="detail-row"><span class="detail-label">Location</span><span class="detail-value">' + esc(booking.location || '-') + '</span></div>'
       + '<div class="detail-row"><span class="detail-label">Venue</span><span class="detail-value">' + esc(booking.venue || '-') + '</span></div>'

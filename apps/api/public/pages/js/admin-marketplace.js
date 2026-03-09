@@ -41,9 +41,23 @@
     if (el) el.textContent = String(value);
   }
 
+  function tierLabel(tier) {
+    if (tier === 'STANDARD') return 'FLEX';
+    if (tier === 'ELITE') return 'SELECT';
+    if (tier === 'PREMIUM') return 'SELECT';
+    return tier || 'UNASSIGNED';
+  }
+
+  function tierLongLabel(tier) {
+    if (tier === 'STANDARD') return 'Flex';
+    if (tier === 'ELITE') return 'Select';
+    if (tier === 'PREMIUM') return 'Select';
+    return tier || 'Unassigned';
+  }
+
   function tierBadge(tier) {
     if (!tier) return '<span class="badge tier-null">UNASSIGNED</span>';
-    return '<span class="badge tier-' + esc(tier) + '">' + esc(tier) + '</span>';
+    return '<span class="badge tier-' + esc(tier) + '">' + esc(tierLabel(tier)) + '</span>';
   }
 
   function boolBadge(value) {
@@ -136,10 +150,10 @@
 
       const actions = [];
       if (staff.staffTier !== 'STANDARD') {
-        actions.push('<button class="btn btn-ghost btn-sm" data-action="set-tier" data-id="' + esc(staff.id) + '" data-tier="STANDARD">Set Standard</button>');
+        actions.push('<button class="btn btn-ghost btn-sm" data-action="set-tier" data-id="' + esc(staff.id) + '" data-tier="STANDARD">Set Flex</button>');
       }
       if (staff.staffTier !== 'ELITE') {
-        actions.push('<button class="btn btn-warning btn-sm" data-action="set-tier" data-id="' + esc(staff.id) + '" data-tier="ELITE">Set Elite</button>');
+        actions.push('<button class="btn btn-warning btn-sm" data-action="set-tier" data-id="' + esc(staff.id) + '" data-tier="ELITE">Set Select</button>');
       }
       actions.push('<button class="btn btn-secondary btn-sm" data-action="toggle-available" data-id="' + esc(staff.id) + '">' + (staff.staffAvailable ? 'Set Unavailable' : 'Set Available') + '</button>');
       actions.push('<button class="btn btn-info btn-sm" data-action="open-staff-edit" data-id="' + esc(staff.id) + '">Edit</button>');
@@ -190,7 +204,7 @@
   }
 
   async function quickSetTier(id, tier) {
-    if (!confirm('Set staff tier to ' + tier + '?')) return;
+    if (!confirm('Move this staff member into the ' + tierLongLabel(tier) + ' pool?')) return;
     const current = staffRows.find((row) => row.id === id);
     if (!current) return;
 
@@ -319,7 +333,7 @@
     container.innerHTML = pricingRows.map((row) => {
       const payValue = row.staffPayRate == null ? '' : String(row.staffPayRate);
       return '<div class="market-card" data-pricing-id="' + esc(row.id) + '">'
-        + '<h3>' + esc(row.clientTier) + ' × ' + esc(row.staffTier) + '</h3>'
+        + '<h3>' + esc(tierLongLabel(row.clientTier)) + ' Access × ' + esc(tierLongLabel(row.staffTier)) + ' Pool</h3>'
         + '<div class="market-meta">Bookable: ' + (row.isBookable ? 'Yes' : 'No') + '</div>'
         + '<div class="form-group">'
         + '<label class="as-label">Hourly Rate (£)</label>'
@@ -349,7 +363,7 @@
       const monthly = plan.monthlyPrice == null ? '' : String(plan.monthlyPrice);
       const annual = plan.annualPrice == null ? '' : String(plan.annualPrice);
       return '<div class="market-card" data-plan-id="' + esc(plan.id) + '">'
-        + '<h3>' + esc(plan.name) + ' (' + esc(plan.tier) + ')</h3>'
+        + '<h3>' + esc(plan.name) + ' (' + esc(tierLabel(plan.tier)) + ')</h3>'
         + '<div class="form-group">'
         + '<label class="as-label">Weekly (£)</label>'
         + '<input type="number" min="0" step="0.01" class="as-input plan-weekly" value="' + esc(String(plan.weeklyPrice)) + '">'
@@ -571,10 +585,10 @@
     tbody.innerHTML = subscriptionRows.map((client) => {
       const actions = [];
       if (client.subscriptionTier !== 'PREMIUM') {
-        actions.push('<button class="btn btn-success btn-sm" data-action="upgrade-client" data-id="' + esc(client.id) + '">Grant Premium Pilot</button>');
+        actions.push('<button class="btn btn-success btn-sm" data-action="upgrade-client" data-id="' + esc(client.id) + '">Grant Select Access</button>');
       }
       if (client.subscriptionTier !== 'STANDARD') {
-        actions.push('<button class="btn btn-warning btn-sm" data-action="downgrade-client" data-id="' + esc(client.id) + '">Return to Standard</button>');
+        actions.push('<button class="btn btn-warning btn-sm" data-action="downgrade-client" data-id="' + esc(client.id) + '">Return to Flex</button>');
       }
       if (!actions.length) {
         actions.push('<span class="text-muted fs-sm">No actions</span>');
@@ -587,7 +601,7 @@
       return '<tr>'
         + '<td><strong>' + esc(client.companyName || '-') + '</strong></td>'
         + '<td>' + esc(client.contactName || '-') + '</td>'
-        + '<td><span class="badge ' + tierClass + '">' + esc(client.subscriptionTier || 'STANDARD') + '</span></td>'
+        + '<td><span class="badge ' + tierClass + '">' + esc(tierLabel(client.subscriptionTier || 'STANDARD')) + '</span></td>'
         + '<td><span class="badge ' + esc(subStatusClass) + '">' + esc(subStatus) + '</span></td>'
         + '<td class="fs-sm">' + esc(formatDate(client.subscriptionStartedAt)) + '</td>'
         + '<td class="fs-sm">' + esc(formatDate(client.subscriptionExpiresAt)) + '</td>'
@@ -610,8 +624,8 @@
 
   async function updateClientSubscription(clientId, nextTier) {
     const confirmMsg = nextTier === 'PREMIUM'
-      ? 'Grant this client Premium pilot access? Billing and onboarding are still handled manually.'
-      : 'Return this client to the Standard tier?';
+      ? 'Grant this client Select marketplace access? Billing and onboarding are still handled manually.'
+      : 'Return this client to Flex marketplace access?';
 
     if (!confirm(confirmMsg)) return;
 

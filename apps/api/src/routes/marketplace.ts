@@ -2,7 +2,10 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma";
 import { requireClientJwt } from "../middleware/jwtAuth";
-import { resolveMarketplaceAccess } from "../utils/marketplaceAccess";
+import {
+  resolveMarketplaceAccess,
+  resolveMarketplaceBookingLane,
+} from "../utils/marketplaceAccess";
 
 const r = Router();
 
@@ -105,6 +108,7 @@ r.get("/staff", async (req, res, next) => {
       id: s.id,
       name: maskName(s.firstName, s.lastName),
       tier: s.staffTier,
+      bookingLane: resolveMarketplaceBookingLane(s.staffTier),
       bio: s.staffBio,
       avatar: s.staffAvatar,
       rating: s.staffRating ? Number(s.staffRating) : null,
@@ -192,6 +196,7 @@ r.get("/staff/pricing", requireClientJwt, async (req, res, next) => {
         id: s.id,
         name: maskName(s.firstName, s.lastName),
         tier: s.staffTier,
+        bookingLane: resolveMarketplaceBookingLane(s.staffTier),
         bio: s.staffBio,
         avatar: s.staffAvatar,
         rating: s.staffRating ? Number(s.staffRating) : null,
@@ -206,6 +211,7 @@ r.get("/staff/pricing", requireClientJwt, async (req, res, next) => {
       ok: true,
       data: {
         clientTier: access.effectiveTier,
+        marketplaceAccessLane: access.marketplaceAccessLane,
         subscriptionTier: access.subscriptionTier,
         subscriptionStatus: access.subscriptionStatus,
         premiumAccessActive: access.hasActivePremium,
@@ -269,6 +275,7 @@ r.get("/staff/:id/pricing", requireClientJwt, async (req, res, next) => {
         id: staff.id,
         name: maskName(staff.firstName, staff.lastName),
         tier: staff.staffTier,
+        bookingLane: resolveMarketplaceBookingLane(staff.staffTier),
         bio: staff.staffBio,
         avatar: staff.staffAvatar,
         rating: staff.staffRating ? Number(staff.staffRating) : null,
@@ -277,6 +284,7 @@ r.get("/staff/:id/pricing", requireClientJwt, async (req, res, next) => {
         hourlyRate: pricing ? Number(pricing.hourlyRate) : null,
         isBookable: pricing?.isBookable ?? false,
         clientTier: access.effectiveTier,
+        marketplaceAccessLane: access.marketplaceAccessLane,
         subscriptionTier: access.subscriptionTier,
         subscriptionStatus: access.subscriptionStatus,
         premiumAccessActive: access.hasActivePremium,
@@ -310,6 +318,7 @@ r.get("/staff/:id", async (req, res, next) => {
         id: staff.id,
         name: maskName(staff.firstName, staff.lastName),
         tier: staff.staffTier,
+        bookingLane: resolveMarketplaceBookingLane(staff.staffTier),
         bio: staff.staffBio,
         avatar: staff.staffAvatar,
         rating: staff.staffRating ? Number(staff.staffRating) : null,
@@ -340,6 +349,7 @@ r.get("/pricing", async (_req, res, next) => {
       data: {
         plans: plans.map((p) => ({
           tier: p.tier,
+          marketplaceAccessLane: p.tier === "PREMIUM" ? "SELECT" : "FLEX",
           name: p.name,
           weeklyPrice: Number(p.weeklyPrice),
           monthlyPrice: p.monthlyPrice ? Number(p.monthlyPrice) : null,
@@ -348,7 +358,9 @@ r.get("/pricing", async (_req, res, next) => {
         })),
         hourlyRates: tiers.map((t) => ({
           clientTier: t.clientTier,
+          marketplaceAccessLane: t.clientTier === "PREMIUM" ? "SELECT" : "FLEX",
           staffTier: t.staffTier,
+          bookingLane: resolveMarketplaceBookingLane(t.staffTier),
           hourlyRate: Number(t.hourlyRate),
           isBookable: t.isBookable,
         })),

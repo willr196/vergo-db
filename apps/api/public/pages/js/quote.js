@@ -1,177 +1,222 @@
-document.addEventListener('DOMContentLoaded', function() {
-      const form = document.getElementById('quote-form');
-      const successMessage = document.getElementById('form-success');
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('quote-form');
+  const successMessage = document.getElementById('form-success');
+  const submitBtn = form.querySelector('.submit-btn');
+  const btnText = submitBtn.querySelector('.btn-text');
+  const btnLoading = submitBtn.querySelector('.btn-loading');
 
-      // Form validation
-      const validators = {
-        event_date: (value) => {
-          if (!value) return 'Please select an event date';
-          const date = new Date(value);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          if (date < today) return 'Event date must be in the future';
-          return null;
-        },
-        event_time: (value) => {
-          if (!value) return 'Please select a start time';
-          return null;
-        },
-        event_location: (value) => {
-          if (!value.trim()) return 'Please enter the event location';
-          if (value.trim().length < 3) return 'Please enter a valid location';
-          return null;
-        },
-        event_hours: (value) => {
-          if (!value) return 'Please enter estimated hours';
-          const hours = parseInt(value);
-          if (isNaN(hours) || hours < 1) return 'Please enter a valid number of hours';
-          if (hours > 24) return 'Please enter hours between 1 and 24';
-          return null;
-        },
-        staff_quantity: (value) => {
-          if (!value) return 'Please enter the number of staff needed';
-          const qty = parseInt(value);
-          if (isNaN(qty) || qty < 1) return 'Please enter a valid number';
-          return null;
-        },
-        contact_name: (value) => {
-          if (!value.trim()) return 'Please enter your name';
-          if (value.trim().length < 2) return 'Please enter a valid name';
-          return null;
-        },
-        contact_email: (value) => {
-          if (!value.trim()) return 'Please enter your email address';
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(value)) return 'Please enter a valid email address';
-          return null;
-        },
-        contact_phone: (value) => {
-          if (!value.trim()) return 'Please enter your phone number';
-          const phoneRegex = /^[\d\s\+\-\(\)]{7,}$/;
-          if (!phoneRegex.test(value.replace(/\s/g, ''))) return 'Please enter a valid phone number';
-          return null;
-        }
-      };
+  const roleLabels = {
+    event_chef: 'Event chefs',
+    bar_staff: 'Bar staff',
+    foh: 'Front of house',
+    catering_assistant: 'Catering assistants',
+    barista: 'Baristas',
+  };
 
-      // Validate staff types (at least one selected)
-      function validateStaffTypes() {
-        const checked = form.querySelectorAll('input[name="staff_types"]:checked');
-        const errorEl = document.getElementById('staff-types-error');
-        if (checked.length === 0) {
-          errorEl.textContent = 'Please select at least one staff type';
-          errorEl.classList.add('visible');
-          return false;
-        }
-        errorEl.classList.remove('visible');
-        return true;
+  const occasionLabels = {
+    corporate: 'Corporate event',
+    private: 'Private party',
+    wedding: 'Wedding',
+    festival: 'Festival / outdoor event',
+    'product-launch': 'Product launch',
+    charity: 'Charity event',
+    other: 'Other hospitality event',
+  };
+
+  const validators = {
+    event_date: (value) => {
+      if (!value) return 'Please select an event date';
+      const date = new Date(value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (date < today) return 'Event date must be in the future';
+      return null;
+    },
+    event_time: (value) => (!value ? 'Please select a start time' : null),
+    event_location: (value) => {
+      if (!value.trim()) return 'Please enter the event location';
+      if (value.trim().length < 3) return 'Please enter a valid location';
+      return null;
+    },
+    event_hours: (value) => {
+      if (!value) return 'Please enter estimated hours';
+      const hours = Number(value);
+      if (!Number.isFinite(hours) || hours < 1 || hours > 24) {
+        return 'Please enter hours between 1 and 24';
       }
+      return null;
+    },
+    staff_quantity: (value) => {
+      if (!value) return 'Please enter the number of staff needed';
+      const qty = Number(value);
+      if (!Number.isFinite(qty) || qty < 1) return 'Please enter a valid number';
+      return null;
+    },
+    contact_name: (value) => {
+      if (!value.trim()) return 'Please enter your name';
+      if (value.trim().length < 2) return 'Please enter a valid name';
+      return null;
+    },
+    contact_email: (value) => {
+      if (!value.trim()) return 'Please enter your email address';
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) return 'Please enter a valid email address';
+      return null;
+    },
+    contact_phone: (value) => {
+      if (!value.trim()) return 'Please enter your phone number';
+      const phoneRegex = /^[\d\s+\-()]{7,}$/;
+      if (!phoneRegex.test(value.replace(/\s/g, ''))) return 'Please enter a valid phone number';
+      return null;
+    },
+  };
 
-      // Show/hide field error
-      function showFieldError(fieldName, message) {
-        const input = form.querySelector(`[name="${fieldName}"]`);
-        const errorEl = document.getElementById(`${fieldName.replace('_', '-')}-error`);
-        if (input && errorEl) {
-          if (message) {
-            input.classList.add('error');
-            errorEl.textContent = message;
-            errorEl.classList.add('visible');
-          } else {
-            input.classList.remove('error');
-            errorEl.classList.remove('visible');
-          }
-        }
-      }
+  function validateStaffTypes() {
+    const checked = form.querySelectorAll('input[name="staff_types"]:checked');
+    const errorEl = document.getElementById('staff-types-error');
+    if (checked.length === 0) {
+      errorEl.textContent = 'Please select at least one staff type';
+      errorEl.classList.add('visible');
+      return false;
+    }
+    errorEl.classList.remove('visible');
+    return true;
+  }
 
-      // Validate single field
-      function validateField(fieldName) {
-        const input = form.querySelector(`[name="${fieldName}"]`);
-        if (input && validators[fieldName]) {
-          const error = validators[fieldName](input.value);
-          showFieldError(fieldName, error);
-          return !error;
-        }
-        return true;
-      }
+  function showFieldError(fieldName, message) {
+    const input = form.querySelector('[name="' + fieldName + '"]');
+    const errorEl = document.getElementById(fieldName.replace('_', '-') + '-error');
+    if (!input || !errorEl) return;
 
-      // Add real-time validation on blur
-      Object.keys(validators).forEach(fieldName => {
-        const input = form.querySelector(`[name="${fieldName}"]`);
-        if (input) {
-          input.addEventListener('blur', () => validateField(fieldName));
-          input.addEventListener('input', () => {
-            if (input.classList.contains('error')) {
-              validateField(fieldName);
-            }
-          });
-        }
-      });
+    if (message) {
+      input.classList.add('error');
+      errorEl.textContent = message;
+      errorEl.classList.add('visible');
+      return;
+    }
 
-      // Form submission
-      form.addEventListener('submit', async function(e) {
-        e.preventDefault();
+    input.classList.remove('error');
+    errorEl.classList.remove('visible');
+  }
 
-        // Validate all fields
-        let isValid = true;
-        Object.keys(validators).forEach(fieldName => {
-          if (!validateField(fieldName)) isValid = false;
-        });
-        if (!validateStaffTypes()) isValid = false;
+  function validateField(fieldName) {
+    const input = form.querySelector('[name="' + fieldName + '"]');
+    if (!input || !validators[fieldName]) return true;
+    const error = validators[fieldName](input.value);
+    showFieldError(fieldName, error);
+    return !error;
+  }
 
-        if (!isValid) {
-          // Scroll to first error
-          const firstError = form.querySelector('.error');
-          if (firstError) {
-            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            firstError.focus();
-          }
-          return;
-        }
+  function computeShiftEnd(startTime, durationHours) {
+    if (!startTime || !durationHours) return '';
+    const parts = startTime.split(':');
+    if (parts.length !== 2) return '';
 
-        // Show loading state
-        const submitBtn = form.querySelector('.submit-btn');
-        const btnText = submitBtn.querySelector('.btn-text');
-        const btnLoading = submitBtn.querySelector('.btn-loading');
-        submitBtn.disabled = true;
-        btnText.style.display = 'none';
-        btnLoading.style.display = 'inline-flex';
+    const startMinutes = Number(parts[0]) * 60 + Number(parts[1]);
+    const endMinutes = startMinutes + Math.round(Number(durationHours) * 60);
+    const hours = Math.floor((endMinutes / 60) % 24);
+    const minutes = endMinutes % 60;
 
-        // Collect form data
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
+    return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
+  }
 
-        // Get staff types as array
-        data.staff_types = Array.from(form.querySelectorAll('input[name="staff_types"]:checked'))
-          .map(cb => cb.value);
+  function buildMessage(data) {
+    const details = [];
+    if (data.special_requirements) {
+      details.push('Special requirements: ' + data.special_requirements.trim());
+    }
+    if (data.how_found) {
+      details.push('Lead source: ' + data.how_found);
+    }
+    return details.join('\n\n');
+  }
 
-        try {
-          // Submit to API
-          const response = await fetch('/api/quote', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-          });
+  function buildPayload() {
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    const roles = Array.from(form.querySelectorAll('input[name="staff_types"]:checked')).map((checkbox) => checkbox.value);
+    const eventType = data.event_type ? occasionLabels[data.event_type] || data.event_type : 'Hospitality staffing request';
+    const hours = Number(data.event_hours);
+    const shiftStart = data.event_time || '';
+    const shiftEnd = computeShiftEnd(shiftStart, hours);
 
-          if (response.ok) {
-            // Show success
-            form.style.display = 'none';
-            successMessage.classList.add('visible');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          } else {
-            throw new Error('Submission failed');
-          }
-        } catch (error) {
-          // For now, show success anyway (API might not be set up yet)
-          // In production, show error message
-          form.style.display = 'none';
-          successMessage.classList.add('visible');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+    return {
+      name: data.contact_name.trim(),
+      email: data.contact_email.trim(),
+      phone: data.contact_phone.trim(),
+      company: data.company_name ? data.company_name.trim() : '',
+      eventType: eventType,
+      eventDate: data.event_date || undefined,
+      location: data.event_location.trim(),
+      requestedLane: data.lane_preference || 'MANAGED',
+      staffNeeded: Number(data.staff_quantity),
+      roles: roles.map((role) => roleLabels[role] || role),
+      shiftStart: shiftStart || undefined,
+      shiftEnd: shiftEnd || undefined,
+      message: buildMessage(data) || undefined,
+    };
+  }
 
-        // Reset button state
-        submitBtn.disabled = false;
-        btnText.style.display = 'inline';
-        btnLoading.style.display = 'none';
-      });
+  Object.keys(validators).forEach((fieldName) => {
+    const input = form.querySelector('[name="' + fieldName + '"]');
+    if (!input) return;
+
+    input.addEventListener('blur', function () {
+      validateField(fieldName);
     });
+
+    input.addEventListener('input', function () {
+      if (input.classList.contains('error')) {
+        validateField(fieldName);
+      }
+    });
+  });
+
+  form.addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    let isValid = true;
+    Object.keys(validators).forEach((fieldName) => {
+      if (!validateField(fieldName)) isValid = false;
+    });
+    if (!validateStaffTypes()) isValid = false;
+
+    if (!isValid) {
+      const firstError = form.querySelector('.error');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstError.focus();
+      }
+      return;
+    }
+
+    submitBtn.disabled = true;
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'inline-flex';
+
+    try {
+      const response = await fetch('/api/v1/quotes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(buildPayload()),
+      });
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result.error || 'Quote submission failed');
+      }
+
+      form.style.display = 'none';
+      successMessage.classList.add('visible');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (error) {
+      window.alert(error.message || 'Quote submission failed. Please try again.');
+    } finally {
+      submitBtn.disabled = false;
+      btnText.style.display = 'inline';
+      btnLoading.style.display = 'none';
+    }
+  });
+});

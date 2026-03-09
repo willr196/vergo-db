@@ -1,4 +1,4 @@
-import type { SubscriptionStatus, SubscriptionTier } from "@prisma/client";
+import type { BookingLane, StaffTier, SubscriptionStatus, SubscriptionTier } from "@prisma/client";
 
 type ClientAccessInput = {
   subscriptionTier: SubscriptionTier | null;
@@ -11,6 +11,7 @@ export type MarketplaceAccess = {
   subscriptionStatus: SubscriptionStatus | null;
   hasActivePremium: boolean;
   premiumInactive: boolean;
+  marketplaceAccessLane: Extract<BookingLane, "FLEX" | "SELECT">;
 };
 
 export function resolveMarketplaceAccess(client: ClientAccessInput): MarketplaceAccess {
@@ -24,9 +25,16 @@ export function resolveMarketplaceAccess(client: ClientAccessInput): Marketplace
     subscriptionStatus: client.subscriptionStatus,
     hasActivePremium,
     premiumInactive: subscriptionTier === "PREMIUM" && !hasActivePremium,
+    marketplaceAccessLane: hasActivePremium ? "SELECT" : "FLEX",
   };
 }
 
 export function premiumAccessErrorMessage() {
-  return "Your Premium subscription is not active. Reactivate it to unlock Premium rates and Elite staff.";
+  return "Your Select marketplace access is not active. Reactivate it to unlock Select rates and vetted Select talent.";
+}
+
+export function resolveMarketplaceBookingLane(staffTier: StaffTier | null | undefined): BookingLane | null {
+  if (staffTier === "ELITE") return "SELECT";
+  if (staffTier === "STANDARD") return "FLEX";
+  return null;
 }

@@ -92,7 +92,9 @@
         + '<td><strong>' + esc(client.companyName || '-') + '</strong>'
         + (client.contactName ? '<br><span class="text-muted fs-sm">' + esc(client.contactName) + '</span>' : '')
         + '</td>'
-        + '<td>' + esc(q.eventType || '-') + '</td>'
+        + '<td>' + esc(q.eventType || '-')
+        + (q.requestedLane ? '<br><span class="text-muted fs-sm">Lane: ' + esc(q.requestedLane) + '</span>' : '')
+        + '</td>'
         + '<td>' + eventDate + '</td>'
         + '<td>' + esc(String(q.staffCount || '-')) + '</td>'
         + '<td><span class="text-muted fs-sm">' + esc(q.roles ? q.roles.substring(0, 40) : '-') + '</span></td>'
@@ -142,6 +144,7 @@
         + '<hr style="border:none;border-top:1px solid var(--as-border);margin:14px 0">'
         + '<div class="detail-grid mb-2">'
         + '<div class="detail-row"><span class="detail-label">Event Type</span><span class="detail-value">' + esc(q.eventType || '-') + '</span></div>'
+        + '<div class="detail-row"><span class="detail-label">Requested Lane</span><span class="detail-value">' + esc(q.requestedLane || '-') + '</span></div>'
         + '<div class="detail-row"><span class="detail-label">Event Date</span><span class="detail-value">' + (q.eventDate ? fmtD(q.eventDate) : '-') + '</span></div>'
         + '<div class="detail-row"><span class="detail-label">Location</span><span class="detail-value">' + esc(q.location || '-') + '</span></div>'
         + '<div class="detail-row"><span class="detail-label">Venue</span><span class="detail-value">' + esc(q.venue || '-') + '</span></div>'
