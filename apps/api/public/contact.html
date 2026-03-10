@@ -4,214 +4,326 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/logo-small.png">
-  <title>Contact Us | VERGO Ltd - Event Staff London</title>
-  <meta name="description" content="Contact VERGO Ltd for event staffing in London & surrounding areas. Request staff, enquire about events, or just say hello. Replies within 24 hours.">
+  <title>Contact Us | VERGO Ltd</title>
+  <meta name="description" content="Contact VERGO for event staffing in London. Request staff, ask a question or speak directly about an upcoming brief.">
   <link rel="canonical" href="https://vergoltd.com/contact">
+  <meta name="theme-color" content="#0a0a0a">
 
-  <!-- Google Fonts - Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="/vergo-styles.css">
-  <link rel="stylesheet" href="/vergo-header.css">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
-
-
-  <link rel="stylesheet" href="/pages/css/contact.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
 </head>
 <body>
-  <!-- Skip Link -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <!-- Header -->
-  <header></header>
+  <div id="site-header" class="site-header" role="banner">
+    <div class="page-shell">
+      <div class="nav-container">
+        <a href="/" class="logo" aria-label="VERGO home">
+          <span class="logo-mark">V</span>
+          <span class="logo-copy">
+            <span class="logo-title">VERGO</span>
+            <span class="logo-subtitle">London hospitality staffing</span>
+          </span>
+        </a>
 
-  <!-- Page Header -->
-  <div class="page-header">
-    <h1>Contact Us</h1>
-    <p>Get in touch - we'll respond within 24 hours</p>
+        <div class="nav-frame">
+          <nav class="site-nav" aria-label="Primary">
+            <ul>
+              <li><a href="/#roles">Roles</a></li>
+              <li><a href="/#why-vergo">Why VERGO</a></li>
+              <li><a href="/#event-types">Event Types</a></li>
+              <li><a href="/#paths">Clients &amp; Workers</a></li>
+            </ul>
+          </nav>
+          <div class="nav-actions">
+            <a href="/apply" class="btn btn-secondary">Join VERGO</a>
+            <a href="/quote" class="btn btn-primary">Hire Staff</a>
+          </div>
+        </div>
+
+        <button id="mobile-menu-button" class="menu-toggle" type="button" aria-label="Toggle navigation menu" aria-controls="mobile-menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      <div id="mobile-menu" class="mobile-menu" hidden>
+        <nav aria-label="Mobile">
+          <a href="/#roles">Roles</a>
+          <a href="/#why-vergo">Why VERGO</a>
+          <a href="/#event-types">Event Types</a>
+          <a href="/#paths">Clients &amp; Workers</a>
+        </nav>
+        <div class="nav-actions">
+          <a href="/apply" class="btn btn-secondary">Join VERGO</a>
+          <a href="/quote" class="btn btn-primary">Hire Staff</a>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <main id="main-content" class="container">
-    <div class="form-section">
-      <!-- Contact Forms -->
-      <div class="contact-form">
-        <!-- Tab Buttons -->
-        <div class="form-tabs">
-          <button type="button" class="tab-btn active" data-tab="staff">Request Staff</button>
-          <button type="button" class="tab-btn" data-tab="general">General Contact</button>
+  <main id="main-content">
+    <section class="page-hero">
+      <div class="page-shell">
+        <div class="hero-grid">
+          <div>
+            <span class="eyebrow">Contact VERGO</span>
+            <h1>One page. Two routes. Clear next step.</h1>
+            <p class="lede">Use the staffing form for a live brief. Use general contact for everything else. We reply fast and keep it direct.</p>
+            <div class="hero-actions">
+              <a href="#contact-forms" class="btn btn-primary">Open the Forms</a>
+              <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" class="btn btn-secondary" target="_blank" rel="noopener">WhatsApp VERGO</a>
+            </div>
+          </div>
+
+          <aside class="panel hero-summary" aria-label="Contact summary">
+            <span class="status">Fast response</span>
+            <h2>Best for event briefs that need quick decisions.</h2>
+            <p>Send the essentials. We will come back with availability, route and next steps without burying the answer.</p>
+            <div class="detail-grid">
+              <article class="detail-card">
+                <p class="card-label">For clients</p>
+                <p><strong>Staffing requests, role mix, dates, timings and service notes.</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">For general</p>
+                <p><strong>Partnerships, questions, follow-ups and non-booking contact.</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Direct</p>
+                <p><strong>wrobb@vergoltd.com or WhatsApp 07944 505783.</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Coverage</p>
+                <p><strong>London and surrounding areas.</strong></p>
+              </article>
+            </div>
+          </aside>
         </div>
+      </div>
+    </section>
 
-        <!-- Staff Request Form -->
-        <div class="form-panel active" id="staffPanel">
-          <form id="staffForm">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="staff-name">Your Name *</label>
-                <input type="text" id="staff-name" name="name" required minlength="2">
-              </div>
+    <section id="contact-forms" class="section-block">
+      <div class="page-shell">
+        <div class="form-shell">
+          <div class="form-card">
+            <div class="form-tabs">
+              <button type="button" class="tab-btn active" data-tab="staff">Request Staff</button>
+              <button type="button" class="tab-btn" data-tab="general">General Contact</button>
+            </div>
 
-              <div class="form-group">
-                <label for="staff-email">Email Address *</label>
-                <input type="email" id="staff-email" name="email" required>
+            <div class="form-panel active" id="staffPanel">
+              <form id="staffForm">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="staff-name">Your name</label>
+                    <input type="text" id="staff-name" name="name" required minlength="2">
+                  </div>
+                  <div class="form-group">
+                    <label for="staff-email">Email address</label>
+                    <input type="email" id="staff-email" name="email" required>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="staff-phone">Phone</label>
+                    <input type="tel" id="staff-phone" name="phone">
+                  </div>
+                  <div class="form-group">
+                    <label for="staff-company">Company or organisation</label>
+                    <input type="text" id="staff-company" name="company" required minlength="2">
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="staff-date">Event date</label>
+                    <input type="date" id="staff-date" name="date">
+                  </div>
+                  <div class="form-group">
+                    <label for="staff-count">Number of staff</label>
+                    <input type="number" id="staff-count" name="staffCount" min="1" max="100" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Roles required</label>
+                  <div class="checkbox-group">
+                    <label class="checkbox-item">
+                      <input type="checkbox" name="roles" value="Event Chefs">
+                      <span>Event chefs or kitchen</span>
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" name="roles" value="Bar Staff">
+                      <span>Bar staff</span>
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" name="roles" value="Front of House">
+                      <span>Front of house</span>
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" name="roles" value="Baristas">
+                      <span>Baristas</span>
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" name="roles" value="Catering Assistants">
+                      <span>Catering assistants</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="staff-message">Brief details</label>
+                  <textarea id="staff-message" name="message" placeholder="Date, location, timings, guest count, service style." required minlength="10"></textarea>
+                </div>
+
+                <div class="hp-field">
+                  <label for="staff-website">Website</label>
+                  <input type="text" id="staff-website" name="website" tabindex="-1" autocomplete="off">
+                </div>
+
+                <button type="submit" class="submit-btn">Request Staff</button>
+              </form>
+            </div>
+
+            <div class="form-panel" id="generalPanel">
+              <form id="generalForm">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="general-name">Your name</label>
+                    <input type="text" id="general-name" name="name" required minlength="2">
+                  </div>
+                  <div class="form-group">
+                    <label for="general-email">Email address</label>
+                    <input type="email" id="general-email" name="email" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="general-subject">Subject</label>
+                  <input type="text" id="general-subject" name="subject" required minlength="3" placeholder="What do you need?">
+                </div>
+
+                <div class="form-group">
+                  <label for="general-message">Message</label>
+                  <textarea id="general-message" name="message" placeholder="Keep it short. We will follow up." required minlength="10"></textarea>
+                </div>
+
+                <div class="hp-field">
+                  <label for="general-website">Website</label>
+                  <input type="text" id="general-website" name="website" tabindex="-1" autocomplete="off">
+                </div>
+
+                <button type="submit" class="submit-btn">Send Message</button>
+              </form>
+            </div>
+
+            <div class="form-success" id="formSuccess">
+              <h2>Message received.</h2>
+              <p>Thank you. VERGO will reply within 24 hours.</p>
+            </div>
+          </div>
+
+          <aside class="sidebar-stack">
+            <div class="sidebar-card">
+              <p class="card-label">Expect</p>
+              <h3>What happens next.</h3>
+              <ul class="list">
+                <li>We review the brief quickly.</li>
+                <li>We confirm availability and route.</li>
+                <li>We follow up with clean next steps.</li>
+              </ul>
+            </div>
+
+            <div class="sidebar-card">
+              <p class="card-label">Roles</p>
+              <h3>Typical supply.</h3>
+              <div class="chip-row">
+                <span class="chip">Chefs</span>
+                <span class="chip">Bar staff</span>
+                <span class="chip">Front of house</span>
+                <span class="chip">Baristas</span>
+                <span class="chip">Support crews</span>
               </div>
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="staff-phone">Phone Number</label>
-                <input type="tel" id="staff-phone" name="phone">
-              </div>
-
-              <div class="form-group">
-                <label for="staff-company">Company / Organisation *</label>
-                <input type="text" id="staff-company" name="company" required minlength="2">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="staff-date">Event Date (optional)</label>
-                <input type="date" id="staff-date" name="date">
-              </div>
-
-              <div class="form-group">
-                <label for="staff-count">Number of Staff *</label>
-                <input type="number" id="staff-count" name="staffCount" min="1" max="100" required>
+            <div class="contact-info">
+              <p class="card-label">Direct contact</p>
+              <h3>Prefer email or WhatsApp?</h3>
+              <div class="footer-links" style="margin-top: 18px;">
+                <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
+                <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">07944 505783</a>
+                <p>Same-day responses where possible.</p>
+                <p>London and surrounding areas.</p>
               </div>
             </div>
-
-            <div class="form-group-checkbox">
-              <label>Roles Required *</label>
-              <div class="checkbox-group">
-                <label class="checkbox-item">
-                  <input type="checkbox" name="roles" value="Event Chefs">
-                  <span>Event Chefs / Kitchen</span>
-                </label>
-                <label class="checkbox-item">
-                  <input type="checkbox" name="roles" value="Bar Staff">
-                  <span>Bar Staff</span>
-                </label>
-                <label class="checkbox-item">
-                  <input type="checkbox" name="roles" value="Front of House">
-                  <span>Front of House / Waiters</span>
-                </label>
-                <label class="checkbox-item">
-                  <input type="checkbox" name="roles" value="Baristas">
-                  <span>Baristas</span>
-                </label>
-                <label class="checkbox-item">
-                  <input type="checkbox" name="roles" value="Catering Assistants">
-                  <span>Catering Assistants</span>
-                </label>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="staff-message">Additional Details *</label>
-              <textarea id="staff-message" name="message" placeholder="Tell us about your event, location, timings, and any specific requirements..." required minlength="10"></textarea>
-            </div>
-
-            <!-- Honeypot field -->
-            <div class="hp-field">
-              <label for="staff-website">Website</label>
-              <input type="text" id="staff-website" name="website" tabindex="-1" autocomplete="off">
-            </div>
-
-            <button type="submit" class="submit-btn">Request Staff Quote</button>
-          </form>
+          </aside>
         </div>
+      </div>
+    </section>
+  </main>
 
-        <!-- General Contact Form -->
-        <div class="form-panel" id="generalPanel">
-          <form id="generalForm">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="general-name">Your Name *</label>
-                <input type="text" id="general-name" name="name" required minlength="2">
-              </div>
-
-              <div class="form-group">
-                <label for="general-email">Email Address *</label>
-                <input type="email" id="general-email" name="email" required>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="general-subject">Subject *</label>
-              <input type="text" id="general-subject" name="subject" required minlength="3" placeholder="What's this about?">
-            </div>
-
-            <div class="form-group">
-              <label for="general-message">Your Message *</label>
-              <textarea id="general-message" name="message" placeholder="How can we help you?" required minlength="10"></textarea>
-            </div>
-
-            <!-- Honeypot field -->
-            <div class="hp-field">
-              <label for="general-website">Website</label>
-              <input type="text" id="general-website" name="website" tabindex="-1" autocomplete="off">
-            </div>
-
-            <button type="submit" class="submit-btn">Send Message</button>
-          </form>
+  <footer role="contentinfo">
+    <div class="page-shell">
+      <div class="footer-grid">
+        <div>
+          <a href="/" class="logo" aria-label="VERGO home">
+            <span class="logo-mark">V</span>
+            <span class="logo-copy">
+              <span class="logo-title">VERGO</span>
+              <span class="logo-subtitle">Premium staffing, London</span>
+            </span>
+          </a>
+          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Premium hospitality and event staffing for private events, corporate hospitality, venues, productions and service-led environments across London.</p>
         </div>
-
-        <!-- Success Message -->
-        <div class="form-success" id="formSuccess">
-          <h2>Message Received</h2>
-          <p>Thank you for getting in touch. We'll respond within 24 hours.</p>
+        <div>
+          <p class="footer-title">Services</p>
+          <div class="footer-links">
+            <a href="/hire-staff">Hire Event Staff</a>
+            <a href="/#roles">Roles We Supply</a>
+            <a href="/#event-types">Event Types</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/quote">Get a Quote</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-title">Work With Us</p>
+          <div class="footer-links">
+            <a href="/apply">Join VERGO</a>
+            <a href="/jobs">View Openings</a>
+            <a href="/#paths">Clients &amp; Workers</a>
+            <a href="/about">About VERGO</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-title">Contact</p>
+          <div class="footer-links">
+            <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
+            <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07944 505783</a>
+            <p>Replies within 24 hours for most enquiries.</p>
+            <p>London and surrounding areas.</p>
+          </div>
         </div>
       </div>
 
-      <!-- Sidebar -->
-      <aside class="sidebar">
-        <div class="sidebar-card">
-          <h3>What to Expect</h3>
-          <ul>
-            <li><span>&#10003;</span> Same-day response guaranteed</li>
-            <li><span>&#10003;</span> Booking confirmed in writing</li>
-            <li><span>&#10003;</span> Staff briefed before event</li>
-            <li><span>&#10003;</span> Invoice issued after event</li>
-            <li><span>&#10003;</span> Clear communication throughout</li>
-          </ul>
+      <div class="footer-bottom">
+        <p>&copy; 2026 VERGO Ltd. All rights reserved.</p>
+        <div class="footer-bottom-links">
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
         </div>
-
-        <div class="sidebar-card">
-          <h3>Roles We Supply</h3>
-          <ul>
-            <li><span>&#8226;</span> Event Chefs / Kitchen Teams</li>
-            <li><span>&#8226;</span> Bar Staff (Bartenders / Barbacks)</li>
-            <li><span>&#8226;</span> Front of House (Waiters / Runners)</li>
-            <li><span>&#8226;</span> Baristas</li>
-            <li><span>&#8226;</span> Catering Assistants</li>
-          </ul>
-        </div>
-
-        <div class="contact-info">
-          <h3>Direct Contact</h3>
-          <p><strong>Email:</strong><br><a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a></p>
-          <p style="margin-top: 16px;"><strong>WhatsApp:</strong><br><a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener" style="color: var(--color-gold); text-decoration: none;">07944 505783</a></p>
-          <p style="margin-top: 16px; padding: 12px 16px; background: var(--color-bg-warm); border-left: 3px solid var(--color-gold); font-size: 0.85rem; color: var(--color-text-muted);">Same-day response guaranteed</p>
-          <p style="margin-top: 16px; font-size: 0.85rem; color: var(--color-text-muted);">London & surrounding areas</p>
-        </div>
-      </aside>
+      </div>
     </div>
-  </main>
+  </footer>
 
-  <!-- Footer -->
-  <footer role="contentinfo"></footer>
-
-  <!-- Scripts -->
   <script src="/vergo-utils.js"></script>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-public-shell.js"></script>
   <script src="/vergo-analytics.js"></script>
-
-
   <script src="/pages/js/contact.js"></script>
 </body>
 </html>

@@ -11,35 +11,32 @@
 
   const footerHTML = `
     <div class="footer-inner">
-      <!-- Top section with gold divider -->
       <div class="footer-divider"></div>
 
       <div class="footer-content">
-        <!-- Brand Column -->
         <div class="footer-brand">
           <a href="/" class="footer-logo" aria-label="VERGO Ltd Home">
             <img src="/logo.png" alt="VERGO Ltd" width="120" height="auto" loading="lazy" decoding="async">
           </a>
           <p class="footer-tagline">
-            Event staffing shaped by experience on film sets, TV productions, and live events. London &amp; surrounding areas.
+            Premium hospitality and event staffing for private events, corporate functions, venues, productions and premium service environments across London.
           </p>
           <div class="footer-roles">
-            Event Chefs &middot; Bar Staff &middot; Front of House &middot; Baristas &middot; Catering Assistants
+            Chefs &middot; Bar Staff &middot; Front of House &middot; Baristas &middot; Kitchen Porters &middot; Event Support
           </div>
         </div>
 
-        <!-- Quick Links -->
         <div class="footer-column">
           <h3>Services</h3>
           <ul>
             <li><a href="/hire-staff">Hire Event Staff</a></li>
+            <li><a href="/#roles">Roles We Supply</a></li>
+            <li><a href="/#event-types">Event Types</a></li>
             <li><a href="/pricing">Pricing</a></li>
             <li><a href="/quote">Get a Quote</a></li>
-            <li><a href="/jobs">Current Jobs</a></li>
           </ul>
         </div>
 
-        <!-- Work With Us -->
         <div class="footer-column">
           <h3>Work With Us</h3>
           <ul>
@@ -48,27 +45,25 @@
           </ul>
         </div>
 
-        <!-- Company -->
         <div class="footer-column">
           <h3>Company</h3>
           <ul>
             <li><a href="/about">About VERGO</a></li>
             <li><a href="/faq">FAQ</a></li>
+            <li><a href="/blog">Blog</a></li>
             <li><a href="/contact">Contact</a></li>
           </ul>
         </div>
 
-        <!-- Contact Column -->
         <div class="footer-column footer-contact">
           <h3>Get in Touch</h3>
           <a href="mailto:wrobb@vergoltd.com" class="footer-email">wrobb@vergoltd.com</a>
           <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" class="footer-whatsapp" target="_blank" rel="noopener">WhatsApp: 07944 505783</a>
-          <p class="footer-response">Same-day response guaranteed</p>
+          <p class="footer-response">Replies within 24 hours for most enquiries</p>
           <p class="footer-coverage">London & surrounding areas</p>
         </div>
       </div>
 
-      <!-- Bottom section -->
       <div class="footer-bottom">
         <div class="footer-bottom-content">
           <p class="footer-copyright">

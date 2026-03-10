@@ -4,205 +4,328 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/logo-small.png">
-  <title>Post a Job | VERGO Ltd | London's Event Staffing Board</title>
-  <meta name="description" content="Post your hospitality job on VERGO's job board. Reach London's best event staff - bartenders, chefs, waiters, and more. Free to post.">
+  <title>Post a Job | VERGO Ltd</title>
+  <meta name="description" content="Post a hospitality job on VERGO. Reach London event staff quickly and submit roles for review.">
   <link rel="canonical" href="https://vergoltd.com/post-job">
-  
-  <!-- Security Headers -->
+  <meta name="theme-color" content="#0a0a0a">
+
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-  
-  <!-- Accessibility -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-styles.css">
-  <link rel="stylesheet" href="/vergo-header.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
-  
-
-  <link rel="stylesheet" href="/pages/css/post-job.css">
-  <link rel="stylesheet" href="/vergo-platform.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
 </head>
-<body class="platform">
+<body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
-  <header></header>
 
-  <main id="main-content" class="page-container">
-    <div class="page-header">
-      <h1>Post a Job</h1>
-      <p>Reach London's best hospitality professionals. Free to post, reviewed within 24 hours.</p>
-    </div>
-    
-    <div class="form-card">
-      <!-- Success Message -->
-      <div class="success-message" id="success-message">
-        <div class="icon">✓</div>
-        <h2>Job Submitted!</h2>
-        <p>We'll review your listing and publish it within 24 hours. You'll receive an email confirmation shortly.</p>
-        <a href="jobs">← Back to Job Board</a>
-      </div>
-      
-      <!-- Form -->
-      <form id="post-job-form">
-        <div class="form-alert error" id="form-alert"></div>
-        
-        <!-- Company Info -->
-        <div class="form-section">
-          <h2>Company Details</h2>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>Company Name <span class="required">*</span></label>
-              <input type="text" name="companyName" required placeholder="e.g. Premier Events Ltd">
-              <div class="error">Please enter your company name</div>
-            </div>
-            
-            <div class="form-group">
-              <label>Contact Email <span class="required">*</span></label>
-              <input type="email" name="posterEmail" required placeholder="hiring@yourcompany.com">
-              <div class="error">Please enter a valid email</div>
-            </div>
+  <div id="site-header" class="site-header" role="banner">
+    <div class="page-shell">
+      <div class="nav-container">
+        <a href="/" class="logo" aria-label="VERGO home">
+          <span class="logo-mark">V</span>
+          <span class="logo-copy">
+            <span class="logo-title">VERGO</span>
+            <span class="logo-subtitle">London hospitality staffing</span>
+          </span>
+        </a>
+
+        <div class="nav-frame">
+          <nav class="site-nav" aria-label="Primary">
+            <ul>
+              <li><a href="/#roles">Roles</a></li>
+              <li><a href="/#why-vergo">Why VERGO</a></li>
+              <li><a href="/#event-types">Event Types</a></li>
+              <li><a href="/#paths">Clients &amp; Workers</a></li>
+            </ul>
+          </nav>
+          <div class="nav-actions">
+            <a href="/apply" class="btn btn-secondary">Join VERGO</a>
+            <a href="/quote" class="btn btn-primary">Hire Staff</a>
           </div>
         </div>
-        
-        <!-- Job Details -->
-        <div class="form-section">
-          <h2>Job Details</h2>
-          
-          <div class="form-group">
-            <label>Job Title <span class="required">*</span></label>
-            <input type="text" name="title" required placeholder="e.g. Bartender for Corporate Gala">
-            <div class="error">Please enter a job title</div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>Role Type <span class="required">*</span></label>
-              <select name="roleId" required id="role-select">
-                <option value="">Select role...</option>
-              </select>
-              <div class="error">Please select a role</div>
-            </div>
-            
-            <div class="form-group">
-              <label>Location <span class="required">*</span></label>
-              <input type="text" name="location" required placeholder="e.g. Central London">
-              <div class="error">Please enter a location</div>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>Pay Rate (£/hr)</label>
-              <input type="number" name="payRateMin" min="10" max="100" step="0.50" placeholder="e.g. 15.00">
-              <div class="hint">Minimum rate you're offering</div>
-            </div>
-            
-            <div class="form-group">
-              <label>Up to (£/hr)</label>
-              <input type="number" name="payRateMax" min="10" max="100" step="0.50" placeholder="e.g. 20.00">
-              <div class="hint">Maximum rate (optional)</div>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label>Job Description <span class="required">*</span></label>
-            <textarea name="description" required rows="5" placeholder="Describe the role, responsibilities, dress code, what to expect..."></textarea>
-            <div class="hint">Minimum 20 characters</div>
-            <div class="error">Please provide a description (min 20 characters)</div>
-          </div>
-        </div>
-        
-        <!-- Application Method -->
-        <div class="form-section">
-          <h2>How Should Candidates Apply?</h2>
-          
-          <div class="apply-method">
-            <label class="apply-option active" id="opt-email">
-              <input type="radio" name="applyMethod" value="email" checked>
-              <div class="icon">✉️</div>
-              <div class="label">Email Applications</div>
-              <div class="desc">Receive applications via email</div>
-            </label>
-            
-            <label class="apply-option" id="opt-url">
-              <input type="radio" name="applyMethod" value="url">
-              <div class="icon">🔗</div>
-              <div class="label">External Link</div>
-              <div class="desc">Direct to your careers page</div>
-            </label>
-          </div>
-          
-          <div class="apply-fields active" id="fields-email">
-            <div class="form-group">
-              <label>Application Email</label>
-              <input type="email" name="applyEmail" placeholder="Same as contact email if left blank">
-            </div>
-          </div>
-          
-          <div class="apply-fields" id="fields-url">
-            <div class="form-group">
-              <label>Application URL <span class="required">*</span></label>
-              <input type="url" name="externalUrl" placeholder="https://yourcompany.com/careers/job-123">
-              <div class="error">Please enter a valid URL</div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Confirmation -->
-        <div class="form-section">
-          <div class="checkbox-group">
-            <input type="checkbox" name="confirm" id="confirm" required>
-            <label for="confirm">
-              I confirm this is a legitimate job posting and agree to the <a href="terms" target="_blank">Terms of Service</a>. I understand the listing will be reviewed before publishing.
-            </label>
-          </div>
-        </div>
-        
-        <!-- Honeypot -->
-        <div style="display:none">
-          <input type="text" name="website" tabindex="-1" autocomplete="off">
-        </div>
-        
-        <button type="submit" class="submit-btn" id="submit-btn">
-          Submit Job for Review
+
+        <button id="mobile-menu-button" class="menu-toggle" type="button" aria-label="Toggle navigation menu" aria-controls="mobile-menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
         </button>
-      </form>
+      </div>
+
+      <div id="mobile-menu" class="mobile-menu" hidden>
+        <nav aria-label="Mobile">
+          <a href="/#roles">Roles</a>
+          <a href="/#why-vergo">Why VERGO</a>
+          <a href="/#event-types">Event Types</a>
+          <a href="/#paths">Clients &amp; Workers</a>
+        </nav>
+        <div class="nav-actions">
+          <a href="/apply" class="btn btn-secondary">Join VERGO</a>
+          <a href="/quote" class="btn btn-primary">Hire Staff</a>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <main id="main-content">
+    <section class="page-hero">
+      <div class="page-shell">
+        <div class="hero-grid">
+          <div>
+            <span class="eyebrow">Post a job</span>
+            <h1>Put hospitality roles in front of London event staff.</h1>
+            <p class="lede">Submit the brief, choose how candidates should apply and send it for review. Clean inputs. No wasted steps.</p>
+            <div class="hero-actions">
+              <a href="#job-form" class="btn btn-primary">Post a Role</a>
+              <a href="/jobs" class="btn btn-secondary">View Job Board</a>
+            </div>
+          </div>
+
+          <aside class="panel hero-summary" aria-label="Post a job summary">
+            <span class="status">Reviewed before publish</span>
+            <h2>Made for straightforward hospitality hiring.</h2>
+            <div class="detail-grid">
+              <article class="detail-card">
+                <p class="card-label">For</p>
+                <p><strong>Venues, agencies and operators hiring hospitality staff.</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Needs</p>
+                <p><strong>Title, role, location, pay and clear description.</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Apply path</p>
+                <p><strong>Email inbox or external careers URL.</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Timing</p>
+                <p><strong>Listings are reviewed before they go live.</strong></p>
+              </article>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="job-form" class="section-block">
+      <div class="page-shell">
+        <div class="form-shell">
+          <div class="form-card">
+            <div class="success-message" id="success-message">
+              <div class="icon">Submitted</div>
+              <h2>Job received.</h2>
+              <p>We will review the listing and follow up by email.</p>
+              <a href="/jobs" class="btn btn-secondary">Back to Job Board</a>
+            </div>
+
+            <form id="post-job-form">
+              <div class="form-alert error" id="form-alert"></div>
+
+              <div class="form-group">
+                <p class="card-label">Company details</p>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Company name <span class="required">*</span></label>
+                  <input type="text" name="companyName" required placeholder="Premier Events Ltd">
+                  <div class="error">Please enter your company name</div>
+                </div>
+                <div class="form-group">
+                  <label>Contact email <span class="required">*</span></label>
+                  <input type="email" name="posterEmail" required placeholder="hiring@yourcompany.com">
+                  <div class="error">Please enter a valid email</div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <p class="card-label">Job details</p>
+              </div>
+
+              <div class="form-group">
+                <label>Job title <span class="required">*</span></label>
+                <input type="text" name="title" required placeholder="Bartender for corporate event">
+                <div class="error">Please enter a job title</div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Role type <span class="required">*</span></label>
+                  <select name="roleId" required id="role-select">
+                    <option value="">Select role...</option>
+                  </select>
+                  <div class="error">Please select a role</div>
+                </div>
+                <div class="form-group">
+                  <label>Location <span class="required">*</span></label>
+                  <input type="text" name="location" required placeholder="Central London">
+                  <div class="error">Please enter a location</div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Pay rate from</label>
+                  <input type="number" name="payRateMin" min="10" max="100" step="0.50" placeholder="15.00">
+                  <div class="hint">Hourly rate minimum</div>
+                </div>
+                <div class="form-group">
+                  <label>Pay rate to</label>
+                  <input type="number" name="payRateMax" min="10" max="100" step="0.50" placeholder="20.00">
+                  <div class="hint">Optional maximum</div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Job description <span class="required">*</span></label>
+                <textarea name="description" required rows="5" placeholder="Role, responsibilities, dress code, call time, what candidates need to know."></textarea>
+                <div class="hint">Minimum 20 characters</div>
+                <div class="error">Please provide a description (min 20 characters)</div>
+              </div>
+
+              <div class="form-group">
+                <p class="card-label">Application method</p>
+              </div>
+
+              <div class="apply-method">
+                <label class="apply-option active" id="opt-email">
+                  <input type="radio" name="applyMethod" value="email" checked>
+                  <div class="icon">Email</div>
+                  <div class="label">Email applications</div>
+                  <div class="desc">Candidates apply directly by email.</div>
+                </label>
+
+                <label class="apply-option" id="opt-url">
+                  <input type="radio" name="applyMethod" value="url">
+                  <div class="icon">Link</div>
+                  <div class="label">External link</div>
+                  <div class="desc">Send applicants to your careers page.</div>
+                </label>
+              </div>
+
+              <div class="apply-fields active" id="fields-email">
+                <div class="form-group">
+                  <label>Application email</label>
+                  <input type="email" name="applyEmail" placeholder="Uses contact email if left blank">
+                </div>
+              </div>
+
+              <div class="apply-fields" id="fields-url">
+                <div class="form-group">
+                  <label>Application URL <span class="required">*</span></label>
+                  <input type="url" name="externalUrl" placeholder="https://yourcompany.com/careers/job-123">
+                  <div class="error">Please enter a valid URL</div>
+                </div>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" name="confirm" id="confirm" required>
+                <label for="confirm">I confirm this is a legitimate job posting and I agree to the <a href="/terms" target="_blank" rel="noopener">Terms of Service</a>.</label>
+              </div>
+
+              <div class="hp-field">
+                <input type="text" name="website" tabindex="-1" autocomplete="off">
+              </div>
+
+              <button type="submit" class="submit-btn" id="submit-btn">Submit Job for Review</button>
+            </form>
+          </div>
+
+          <aside class="sidebar-stack">
+            <div class="sidebar-card">
+              <p class="card-label">Best results</p>
+              <h3>Keep the listing specific.</h3>
+              <ul class="list">
+                <li>State the real role and location.</li>
+                <li>Give a clear pay range if possible.</li>
+                <li>Explain the shift plainly.</li>
+              </ul>
+            </div>
+
+            <div class="sidebar-card">
+              <p class="card-label">Use cases</p>
+              <h3>Works well for hospitality demand.</h3>
+              <div class="chip-row">
+                <span class="chip">Bartenders</span>
+                <span class="chip">Front of house</span>
+                <span class="chip">Chefs</span>
+                <span class="chip">Porters</span>
+                <span class="chip">Event support</span>
+              </div>
+            </div>
+
+            <div class="contact-info">
+              <p class="card-label">Need staffing instead?</p>
+              <h3>Use the client route.</h3>
+              <div class="footer-links" style="margin-top: 18px;">
+                <p>If you want VERGO to supply staff directly, use the staffing enquiry flow instead of the job board.</p>
+                <a href="/hire-staff">Hire event staff</a>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <footer class="footer">
-    <div class="footer-content">
-      <div>
-        <h4>VERGO Ltd</h4>
-        <p>London's premium event staffing agency.</p>
+  <footer role="contentinfo">
+    <div class="page-shell">
+      <div class="footer-grid">
+        <div>
+          <a href="/" class="logo" aria-label="VERGO home">
+            <span class="logo-mark">V</span>
+            <span class="logo-copy">
+              <span class="logo-title">VERGO</span>
+              <span class="logo-subtitle">Premium staffing, London</span>
+            </span>
+          </a>
+          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Premium hospitality and event staffing for private events, corporate hospitality, venues, productions and service-led environments across London.</p>
+        </div>
+        <div>
+          <p class="footer-title">Services</p>
+          <div class="footer-links">
+            <a href="/hire-staff">Hire Event Staff</a>
+            <a href="/#roles">Roles We Supply</a>
+            <a href="/#event-types">Event Types</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/quote">Get a Quote</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-title">Work With Us</p>
+          <div class="footer-links">
+            <a href="/apply">Join VERGO</a>
+            <a href="/jobs">View Openings</a>
+            <a href="/#paths">Clients &amp; Workers</a>
+            <a href="/about">About VERGO</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-title">Contact</p>
+          <div class="footer-links">
+            <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
+            <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07944 505783</a>
+            <p>Replies within 24 hours for most enquiries.</p>
+            <p>London and surrounding areas.</p>
+          </div>
+        </div>
       </div>
-      <div>
-        <h4>Services</h4>
-        <a href="hire-staff">Hire Event Staff</a>
-        <a href="pricing">Pricing</a>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 VERGO Ltd. All rights reserved.</p>
+        <div class="footer-bottom-links">
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+        </div>
       </div>
-      <div>
-        <h4>Company</h4>
-        <a href="about">About Us</a>
-        <a href="jobs">Job Board</a>
-        <a href="contact">Contact</a>
-      </div>
-      <div>
-        <h4>Legal</h4>
-        <a href="privacy">Privacy Policy</a>
-        <a href="terms">Terms of Service</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2024 VERGO Ltd. All rights reserved.</p>
     </div>
   </footer>
 
-
-  <script src="/pages/js/post-job.js"></script>
   <script src="/vergo-utils.js"></script>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-public-shell.js"></script>
   <script src="/vergo-analytics.js"></script>
+  <script src="/pages/js/post-job.js"></script>
 </body>
 </html>

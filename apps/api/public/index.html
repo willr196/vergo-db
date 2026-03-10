@@ -4,582 +4,1149 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/logo-small.png">
-  <title>VERGO</title>
-  <meta name="description" content="VERGO gives London hospitality businesses three staffing lanes: Flex for standard shifts, Select for vetted premium talent, and Managed for PAYE supplied staff with stronger support.">
+  <title>VERGO | Premium London Event Staffing</title>
+  <meta name="description" content="VERGO helps companies hire premium London event staff by tier and helps workers join a premium roster for events, film, TV and music productions.">
   <link rel="canonical" href="https://vergoltd.com/">
+  <meta name="theme-color" content="#0a0a0a">
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="VERGO Ltd | Flex, Select, and Managed Hospitality Staffing">
-  <meta property="og:description" content="Three ways to hire hospitality staff in London: Flex, Select, and Managed.">
+  <meta property="og:title" content="VERGO | Premium London Event Staffing">
+  <meta property="og:description" content="Hire premium London event staff by tier or join VERGO's premium staffing roster for events, film, TV and music productions.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://vergoltd.com">
   <meta property="og:image" content="https://vergoltd.com/logo.png">
-  <!-- Google Search Console Verification -->
-  <meta name="google-site-verification" content="google153cacaf2b1d1296" />
+  <meta name="google-site-verification" content="google153cacaf2b1d1296">
 
-  <!-- Security Headers -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="/vergo-styles.css">
-  <link rel="stylesheet" href="/vergo-header.css">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
 
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --bg-soft: #121212;
+      --panel: #151515;
+      --panel-strong: #1a1a1a;
+      --gold: #D4AF37;
+      --gold-soft: rgba(212, 175, 55, 0.16);
+      --gold-line: rgba(212, 175, 55, 0.35);
+      --white: #f7f7f7;
+      --text: #d6d6d6;
+      --muted: #9b9b9b;
+      --line: rgba(255, 255, 255, 0.1);
+      --line-strong: rgba(255, 255, 255, 0.16);
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+      --radius: 28px;
+      --radius-sm: 18px;
+      --content: 1280px;
+      --nav-height: 92px;
+    }
 
-  <link rel="stylesheet" href="/pages/css/index.css">
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Manrope", sans-serif;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(212, 175, 55, 0.12), transparent 24%),
+        radial-gradient(circle at 85% 12%, rgba(212, 175, 55, 0.08), transparent 18%),
+        linear-gradient(180deg, #0a0a0a 0%, #0d0d0d 46%, #0a0a0a 100%);
+      color: var(--white);
+      line-height: 1.65;
+    }
+
+    body.menu-open {
+      overflow: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 16px;
+      top: -48px;
+      z-index: 2000;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--gold);
+      color: #111;
+      font-weight: 700;
+      transition: top 0.2s ease;
+    }
+
+    .skip-link:focus {
+      top: 16px;
+    }
+
+    .page-shell {
+      width: min(100% - 32px, var(--content));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 1000;
+      padding: 20px 0 0;
+      transition: padding 0.25s ease;
+    }
+
+    .site-header.is-scrolled {
+      padding-top: 10px;
+    }
+
+    .site-header .page-shell {
+      position: relative;
+    }
+
+    .nav-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 72px;
+      padding: 14px 20px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(10, 10, 10, 0.92);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      flex-shrink: 0;
+    }
+
+    .logo-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--gold-line);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--gold);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+    }
+
+    .logo-copy {
+      display: grid;
+      gap: 2px;
+    }
+
+    .logo-title {
+      color: var(--white);
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.34em;
+      text-transform: uppercase;
+    }
+
+    .logo-subtitle {
+      color: var(--muted);
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .nav-frame {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-left: auto;
+    }
+
+    .site-nav ul {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .site-nav a {
+      position: relative;
+      color: var(--text);
+      font-size: 0.94rem;
+      font-weight: 600;
+      padding: 8px 0;
+      transition: color 0.2s ease;
+    }
+
+    .site-nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.2s ease;
+    }
+
+    .site-nav a:hover,
+    .site-nav a:focus-visible {
+      color: var(--gold);
+    }
+
+    .site-nav a:hover::after,
+    .site-nav a:focus-visible::after {
+      transform: scaleX(1);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .menu-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--line-strong);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--white);
+      cursor: pointer;
+    }
+
+    .menu-toggle span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      margin: 3px 0;
+      border-radius: 999px;
+      background: var(--white);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .menu-toggle.is-active span:nth-child(1) {
+      transform: translateY(8px) rotate(45deg);
+    }
+
+    .menu-toggle.is-active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .menu-toggle.is-active span:nth-child(3) {
+      transform: translateY(-8px) rotate(-45deg);
+    }
+
+    .mobile-menu {
+      display: none;
+      margin-top: 12px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(18, 18, 18, 0.96);
+      box-shadow: var(--shadow);
+    }
+
+    .mobile-menu.is-open {
+      display: block;
+    }
+
+    .mobile-menu nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .mobile-menu nav a {
+      padding: 12px 14px;
+      border-radius: 14px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .mobile-menu .nav-actions {
+      margin-top: 16px;
+      display: grid;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 0 22px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.95rem;
+      font-weight: 700;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #111;
+      box-shadow: 0 18px 36px rgba(212, 175, 55, 0.16);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--line-strong);
+      color: var(--white);
+    }
+
+    .hero-stage {
+      position: relative;
+      padding: calc(var(--nav-height) + 64px) 0 56px;
+      overflow: hidden;
+    }
+
+    .hero-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 75% 15%, rgba(212, 175, 55, 0.12), transparent 22%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 30%);
+      pointer-events: none;
+    }
+
+    .hero-layout,
+    .section-grid,
+    .two-up {
+      display: grid;
+      gap: 28px;
+    }
+
+    .hero-layout {
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      align-items: start;
+    }
+
+    .section-grid--roles {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    }
+
+    .section-grid--events {
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    }
+
+    .two-up--paths {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      color: var(--gold);
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 36px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold));
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      color: var(--white);
+    }
+
+    h1,
+    .display {
+      font-family: "Cormorant Garamond", serif;
+      letter-spacing: -0.04em;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 7vw, 6rem);
+      line-height: 0.92;
+      max-width: 12ch;
+    }
+
+    h2 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(2.4rem, 5vw, 4.4rem);
+      line-height: 0.94;
+      letter-spacing: -0.04em;
+    }
+
+    h3 {
+      font-size: 1.32rem;
+      line-height: 1.2;
+    }
+
+    p {
+      margin: 0;
+      color: var(--text);
+      max-width: 66ch;
+    }
+
+    .lede {
+      margin-top: 22px;
+      font-size: 1.06rem;
+      line-height: 1.8;
+      max-width: 62ch;
+    }
+
+    .hero-actions,
+    .stacked-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 30px;
+    }
+
+    .feature-grid,
+    .card-grid,
+    .detail-grid,
+    .footer-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .feature-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 34px;
+    }
+
+    .card-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card-grid--four {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .card-grid--two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .detail-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .panel,
+    .feature-card,
+    .detail-card,
+    .role-card,
+    .path-card,
+    .footer-card {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(26, 26, 26, 0.96), rgba(15, 15, 15, 0.96));
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      padding: 28px;
+    }
+
+    .feature-card,
+    .detail-card,
+    .role-card {
+      padding: 22px;
+      border-radius: 22px;
+    }
+
+    .card-label {
+      color: var(--gold);
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .section-block {
+      padding: 52px 0;
+    }
+
+    .section-heading {
+      max-width: 760px;
+      margin-bottom: 28px;
+    }
+
+    .section-heading p {
+      margin-top: 18px;
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+
+    .hero-summary .status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 0 14px;
+      border: 1px solid var(--gold-line);
+      border-radius: 999px;
+      color: var(--gold);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .hero-summary p + .detail-grid,
+    .hero-summary p + .stacked-actions,
+    .hero-summary .detail-grid + .stacked-actions {
+      margin-top: 20px;
+    }
+
+    .hero-summary h2 {
+      font-size: clamp(2.1rem, 4vw, 3.3rem);
+      max-width: 11ch;
+      margin-top: 16px;
+    }
+
+    .hero-summary p {
+      margin-top: 18px;
+      line-height: 1.75;
+    }
+
+    .detail-card strong,
+    .role-card strong {
+      color: var(--white);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .role-card p:last-child,
+    .detail-card p:last-child {
+      margin-top: 14px;
+      line-height: 1.75;
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+      margin: 22px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .list li {
+      display: flex;
+      gap: 12px;
+      color: var(--text);
+      align-items: flex-start;
+    }
+
+    .list li::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      margin-top: 10px;
+      flex: 0 0 8px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .path-card {
+      padding: 32px;
+    }
+
+    .path-card p + .list,
+    .path-card .list + .stacked-actions {
+      margin-top: 24px;
+    }
+
+    .path-card--worker {
+      background: linear-gradient(180deg, rgba(23, 23, 23, 0.98), rgba(14, 14, 14, 0.96));
+    }
+
+    .hero-copy-block {
+      max-width: 980px;
+    }
+
+    .audience-grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 34px;
+    }
+
+    .audience-card {
+      padding: 28px;
+      border-color: var(--gold-line);
+      background:
+        radial-gradient(circle at 100% 0, rgba(212, 175, 55, 0.14), transparent 34%),
+        linear-gradient(180deg, rgba(24, 24, 24, 0.98), rgba(13, 13, 13, 0.96));
+    }
+
+    .audience-card--staff {
+      background:
+        radial-gradient(circle at 0 0, rgba(212, 175, 55, 0.12), transparent 32%),
+        linear-gradient(180deg, rgba(21, 21, 21, 0.98), rgba(12, 12, 12, 0.96));
+    }
+
+    .audience-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .audience-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--gold-line);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--gold);
+      font-size: 0.92rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .audience-card h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      margin-top: 18px;
+      max-width: 12ch;
+    }
+
+    .audience-card p:last-of-type {
+      margin-top: 14px;
+      line-height: 1.75;
+    }
+
+    .audience-link {
+      margin-top: 24px;
+      width: fit-content;
+    }
+
+    .tier-preview-card {
+      border-color: var(--gold-line);
+      background:
+        radial-gradient(circle at 100% 0, rgba(212, 175, 55, 0.12), transparent 32%),
+        linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(13, 13, 13, 0.96));
+    }
+
+    .tier-rate {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-top: 18px;
+      color: var(--white);
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .tier-rate span {
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .tier-preview-card .list {
+      margin-top: 18px;
+    }
+
+    .cta-panel {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 34px;
+      border: 1px solid var(--gold-line);
+      border-radius: 34px;
+      background:
+        radial-gradient(circle at 100% 50%, rgba(212, 175, 55, 0.12), transparent 38%),
+        linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(12, 12, 12, 0.98));
+      box-shadow: var(--shadow);
+    }
+
+    .cta-panel p {
+      margin-top: 16px;
+      max-width: 52ch;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      background: #080808;
+    }
+
+    .footer-grid {
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      padding: 44px 0 28px;
+    }
+
+    .footer-title {
+      color: var(--white);
+      font-size: 0.92rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .footer-links {
+      display: grid;
+      gap: 10px;
+    }
+
+    .footer-links a,
+    .footer-links p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .footer-links a:hover,
+    .footer-links a:focus-visible {
+      color: var(--gold);
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 0 28px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .footer-bottom-links {
+      display: flex;
+      gap: 16px;
+    }
+
+    .footer-bottom-links a:hover,
+    .footer-bottom-links a:focus-visible {
+      color: var(--gold);
+    }
+
+    @media (max-width: 1120px) {
+      .feature-grid,
+      .card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .card-grid--four {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .footer-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 960px) {
+      .nav-frame {
+        display: none;
+      }
+
+      .menu-toggle {
+        display: inline-flex;
+      }
+
+      .hero-layout,
+      .section-grid,
+      .two-up,
+      .audience-grid,
+      .detail-grid,
+      .footer-grid,
+      .cta-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .cta-panel {
+        flex-direction: column;
+        align-items: start;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page-shell {
+        width: min(100% - 24px, var(--content));
+      }
+
+      .nav-container {
+        padding: 12px 16px;
+      }
+
+      .logo-subtitle {
+        display: none;
+      }
+
+      .hero-stage {
+        padding-top: calc(var(--nav-height) + 44px);
+      }
+
+      .feature-grid,
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel,
+      .path-card,
+      .cta-panel {
+        padding: 24px;
+      }
+
+      .section-block {
+        padding: 40px 0;
+      }
+
+      .hero-actions,
+      .stacked-actions,
+      .footer-bottom-links {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .audience-link {
+        width: 100%;
+      }
+
+      .hero-actions .btn,
+      .stacked-actions .btn {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body class="homepage">
-  <!-- Skip Link for Accessibility -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <!-- Header Navigation -->
-  <header></header>
+  <!-- Use a dedicated banner container so vergo-nav.js cannot overwrite or duplicate the homepage navigation. -->
+  <div id="site-header" class="site-header" role="banner">
+    <div class="page-shell">
+      <div class="nav-container">
+        <a href="/" class="logo" aria-label="VERGO home">
+          <span class="logo-mark">V</span>
+          <span class="logo-copy">
+            <span class="logo-title">VERGO</span>
+            <span class="logo-subtitle">London hospitality staffing</span>
+          </span>
+        </a>
+
+        <div class="nav-frame">
+          <nav class="site-nav" aria-label="Primary">
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="/hire-staff">Hire Staff</a></li>
+              <li><a href="/jobs">Job Board</a></li>
+              <li><a href="/apply">Join VERGO</a></li>
+              <li><a href="/pricing">Pricing</a></li>
+              <li><a href="/contact">Contact</a></li>
+            </ul>
+          </nav>
+          <div class="nav-actions">
+            <a href="/apply" class="btn btn-secondary">Join VERGO</a>
+            <a href="/quote" class="btn btn-primary">Hire Staff</a>
+          </div>
+        </div>
+
+        <button id="mobile-menu-button" class="menu-toggle" type="button" aria-label="Toggle navigation menu" aria-controls="mobile-menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      <div id="mobile-menu" class="mobile-menu" hidden>
+        <nav aria-label="Mobile">
+          <a href="/">Home</a>
+          <a href="/hire-staff">Hire Staff</a>
+          <a href="/jobs">Job Board</a>
+          <a href="/apply">Join VERGO</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/contact">Contact</a>
+        </nav>
+        <div class="nav-actions">
+          <a href="/apply" class="btn btn-secondary">Join VERGO</a>
+          <a href="/quote" class="btn btn-primary">Hire Staff</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <main id="main-content">
-    <!-- HERO SECTION -->
-    <section class="hero">
-      <div class="hero-media" aria-hidden="true">
-        <!--
-          IMAGE SLOT: hero-bg.jpg
-          Recommended: 1920x1080px, event/hospitality scene
-          Add: <img src="/images/hero-bg.jpg" alt="Premium event staffing" loading="lazy" decoding="async">
-          Or video: <video autoplay muted loop playsinline src="/videos/hero-bg.mp4"></video>
-        -->
-      </div>
-      <div class="hero-overlay" aria-hidden="true"></div>
-      <div class="hero-glow hero-glow-left" aria-hidden="true"></div>
-      <div class="hero-glow hero-glow-right" aria-hidden="true"></div>
+    <section class="hero-stage">
+      <div class="page-shell">
+        <div class="hero-copy-block">
+          <span class="eyebrow">Premium London event staffing</span>
+          <h1>Hire premium staff or join VERGO's roster.</h1>
+          <p class="lede">Companies can book by staff tier. Workers can apply for flexible shifts across premium events, film, TV and music productions.</p>
 
-      <div class="hero-shell">
-        <div class="hero-content fade-in">
-          <span class="hero-kicker">London hospitality staffing, built in lanes</span>
-          <h1 class="hero-title">Three ways to hire hospitality staff without forcing every booking through the same model.</h1>
-          <p class="hero-subtitle">
-            Use VERGO Flex for standard shifts, VERGO Select for vetted premium talent, or VERGO Managed when the booking needs payroll-backed support and tighter execution.
-          </p>
-          <div class="hero-proof" aria-label="Event types covered">
-            <span>Private events</span>
-            <span>Corporate functions</span>
-            <span>Premium venues</span>
-          </div>
-          <div class="hero-ctas">
-            <a href="/quote.html" class="btn btn-primary btn-lg">Get a Quote</a>
-            <a href="/apply.html" class="btn btn-secondary btn-lg">Join the Team</a>
-          </div>
-          <div class="hero-meta" aria-label="Core service strengths">
-            <div class="hero-meta-item">
-              <strong>Fast</strong>
-              <span>Lane recommendation and response within 24 hours for most enquiries.</span>
-            </div>
-            <div class="hero-meta-item">
-              <strong>Tiered</strong>
-              <span>Flex, Select, and Managed routes matched to the risk of the booking.</span>
-            </div>
-            <div class="hero-meta-item">
-              <strong>Practical</strong>
-              <span>Built for private events, venues, agencies, and repeat hospitality demand.</span>
-            </div>
+          <div class="audience-grid" aria-label="Choose your path">
+            <a class="path-card audience-card" href="/hire-staff">
+              <div class="audience-top">
+                <span class="audience-icon" aria-hidden="true">CO</span>
+                <p class="card-label">For Companies</p>
+              </div>
+              <h2>Browse our staff tiers and book for your next event.</h2>
+              <p>Start with Standard or Gold staff and choose the level that fits your brief.</p>
+              <span class="btn btn-primary audience-link">Hire Staff</span>
+            </a>
+
+            <a class="path-card audience-card audience-card--staff" href="/apply">
+              <div class="audience-top">
+                <span class="audience-icon" aria-hidden="true">ST</span>
+                <p class="card-label">For Staff</p>
+              </div>
+              <h2>Join London's premium event staffing roster.</h2>
+              <p>Flexible shifts across premium events, film, TV, music and guest-facing hospitality.</p>
+              <span class="btn btn-secondary audience-link">Join VERGO</span>
+            </a>
           </div>
         </div>
-
-        <aside class="hero-showcase fade-in fade-in-delay-2" aria-label="Service snapshot">
-          <div class="showcase-card showcase-card-primary">
-            <p class="showcase-eyebrow">Booking snapshot</p>
-            <h2>Designed for buyers who need the right staffing model, not just a list of temps.</h2>
-            <div class="showcase-list">
-              <div class="showcase-list-item">
-                <span class="showcase-bullet" aria-hidden="true"></span>
-                <div>
-                  <strong>Flex</strong>
-                  <p>Lower-touch booking for standard hospitality shifts and repeat demand.</p>
-                </div>
-              </div>
-              <div class="showcase-list-item">
-                <span class="showcase-bullet" aria-hidden="true"></span>
-                <div>
-                  <strong>Select</strong>
-                  <p>Vetted, top-rated workers for guest-facing shifts where reliability matters more.</p>
-                </div>
-              </div>
-              <div class="showcase-list-item">
-                <span class="showcase-bullet" aria-hidden="true"></span>
-                <div>
-                  <strong>Managed</strong>
-                  <p>PAYE supplied staff and stronger support for premium events, leads, and higher-stakes briefs.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="showcase-card showcase-card-secondary">
-            <div class="showcase-stat">
-              <span class="showcase-stat-value">&lt;24h</span>
-              <span class="showcase-stat-label">Typical response window</span>
-            </div>
-            <div class="showcase-stat">
-              <span class="showcase-stat-value">1-on-1</span>
-              <span class="showcase-stat-label">Candidate interviews before placement</span>
-            </div>
-            <div class="showcase-stat">
-              <span class="showcase-stat-value">100%</span>
-              <span class="showcase-stat-label">Right-to-work verification completed</span>
-            </div>
-          </div>
-        </aside>
       </div>
     </section>
 
-    <section class="lane-section" id="staffing-lanes">
-      <div class="section-header fade-in">
-        <h2>Choose your staffing lane</h2>
-        <div class="divider-gold"></div>
-        <p>VERGO is built to route a booking by risk, service level, and worker standard, not force everything into one agency model.</p>
-      </div>
-
-      <div class="lane-grid">
-        <article class="lane-card fade-in fade-in-delay-1">
-          <span class="lane-pill">Lower-touch marketplace</span>
-          <h3>VERGO Flex</h3>
-          <p>For standard shifts where speed and cost matter more than high-touch fulfilment.</p>
-          <ul class="lane-points">
-            <li>Verified hospitality workers</li>
-            <li>Best for repeat, lower-risk demand</li>
-            <li>Leanest fee structure</li>
-          </ul>
-        </article>
-
-        <article class="lane-card lane-card-featured fade-in fade-in-delay-2">
-          <span class="lane-pill">Vetted marketplace</span>
-          <h3>VERGO Select</h3>
-          <p>For bookings where reliability, presentation, and guest-facing confidence matter more.</p>
-          <ul class="lane-points">
-            <li>Interview-passed and top-rated workers</li>
-            <li>Built for premium venues and stronger briefs</li>
-            <li>Higher-trust talent without full managed supply</li>
-          </ul>
-        </article>
-
-        <article class="lane-card fade-in fade-in-delay-3">
-          <span class="lane-pill">PAYE managed supply</span>
-          <h3>VERGO Managed</h3>
-          <p>For events where payroll handling, stronger support, and active staffing ownership are expected.</p>
-          <ul class="lane-points">
-            <li>Hand-picked PAYE staff</li>
-            <li>Best for premium events, chefs, leads, and replacement-sensitive work</li>
-            <li>Highest service level</li>
-          </ul>
-        </article>
-      </div>
-    </section>
-
-    <!-- SERVICES SECTION -->
-    <section class="services-section" id="services">
-      <div class="section-header fade-in">
-        <h2>What We Provide</h2>
-        <div class="divider-gold"></div>
-        <p>Professional hospitality staff for events of all sizes</p>
-      </div>
-
-      <div class="services-grid">
-        <div class="service-card fade-in fade-in-delay-1">
-          <div class="service-image">
-            <!-- IMAGE SLOT: service-hire.jpg (800x500px) -->
-          </div>
-          <div class="service-content">
-            <div class="service-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-            </div>
-            <h3>Hire Event Staff</h3>
-            <p>Event chefs, bar staff, front of house, baristas, and catering assistants. Every role filled by professionals who understand premium service.</p>
-            <div class="service-tags" aria-label="Roles covered">
-              <span>Event chefs</span>
-              <span>Bar staff</span>
-              <span>Front of house</span>
-            </div>
-            <a href="/hire-staff.html" class="service-link">Explore roles</a>
-          </div>
+    <section class="section-block">
+      <div class="page-shell">
+        <div class="section-heading">
+          <span class="eyebrow">Staff tiers</span>
+          <h2>Standard for reliable cover, Gold for experienced specialists.</h2>
+          <p>The tier system is the hook: pick the level of experience, dress code and service style your event needs.</p>
         </div>
 
-        <div class="service-card fade-in fade-in-delay-2">
-          <div class="service-image">
-            <!-- IMAGE SLOT: service-events.jpg (800x500px) -->
-          </div>
-          <div class="service-content">
-            <div class="service-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-              </svg>
-            </div>
-            <h3>Event Staffing</h3>
-            <p>From intimate private dinners to large corporate functions. We match the right team to your event's specific requirements.</p>
-            <div class="service-tags" aria-label="Event types">
-              <span>Private dinners</span>
-              <span>Corporate events</span>
-              <span>Launch parties</span>
-            </div>
-            <a href="/quote.html" class="service-link">Plan your booking</a>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <section class="standards-section" id="standards">
-      <div class="section-header fade-in">
-        <h2>The VERGO Standard</h2>
-        <div class="divider-gold"></div>
-        <p>Fast confirmations matter, but the real difference is how the team fits the room.</p>
-      </div>
-
-      <div class="standards-shell">
-        <div class="standards-intro fade-in fade-in-delay-1">
-          <span class="standards-kicker">How we brief</span>
-          <p>We do not stop at role titles. Dress expectations, guest profile, service pace, and the tone of the event all shape the staff we put forward.</p>
-          <div class="standards-tags" aria-label="Typical bookings">
-            <span>Private dining</span>
-            <span>Corporate hospitality</span>
-            <span>Brand launches</span>
-            <span>Premium venues</span>
-          </div>
-          <a href="/contact.html" class="standards-link">Talk through your event</a>
-        </div>
-
-        <div class="standards-grid">
-          <article class="standards-card fade-in fade-in-delay-2">
-            <h3>Matched to the setting</h3>
-            <p>Private homes, guest-facing corporate events, and venue teams each need a different service style.</p>
+        <div class="card-grid card-grid--two">
+          <article class="role-card tier-preview-card">
+            <p class="card-label">Standard</p>
+            <h3>Reliable event cover.</h3>
+            <span class="tier-rate">&pound;20<span>/hr</span></span>
+            <ul class="list">
+              <li>Reliable floor, bar and support staff for standard service briefs.</li>
+              <li>Smart black service dress code and straightforward briefing.</li>
+              <li>Best for venue shifts, receptions and dependable extra cover.</li>
+            </ul>
           </article>
-
-          <article class="standards-card fade-in fade-in-delay-3">
-            <h3>Briefed properly</h3>
-            <p>Arrival sequence, dress code, service flow, and event priorities are built into the booking, not left for the day itself.</p>
-          </article>
-
-          <article class="standards-card fade-in fade-in-delay-4">
-            <h3>Calm on the floor</h3>
-            <p>The aim is a team that shows up ready, reads the room quickly, and keeps service polished without adding friction.</p>
+          <article class="role-card tier-preview-card">
+            <p class="card-label">Gold</p>
+            <h3>Experienced specialists.</h3>
+            <span class="tier-rate">&pound;28<span>/hr</span></span>
+            <ul class="list">
+              <li>Higher-experience staff for premium guest-facing service and tighter briefs.</li>
+              <li>Elevated dress code, calmer room-read and stronger service style.</li>
+              <li>Best for launches, private dining, productions and high-touch events.</li>
+            </ul>
           </article>
         </div>
-      </div>
-    </section>
 
-    <!-- WHY VERGO SECTION -->
-    <section class="why-section">
-      <div class="section-header fade-in">
-        <h2>Why VERGO</h2>
-        <div class="divider-gold"></div>
-        <p>The difference is in the details</p>
-      </div>
-
-      <div class="why-grid">
-        <div class="why-card fade-in fade-in-delay-1">
-          <div class="why-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-              <polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>
-          </div>
-          <div class="why-content">
-            <h3>Personally Selected Staff</h3>
-            <p>Every team member is interviewed and assessed before joining. No anonymous profiles.</p>
-          </div>
-        </div>
-
-        <div class="why-card fade-in fade-in-delay-2">
-          <div class="why-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
-            </svg>
-          </div>
-          <div class="why-content">
-            <h3>Rapid Confirmations</h3>
-            <p>Response within 24 hours. Availability confirmed quickly so you can plan with confidence.</p>
-          </div>
-        </div>
-
-        <div class="why-card fade-in fade-in-delay-3">
-          <div class="why-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>
-          </div>
-          <div class="why-content">
-            <h3>Premium Presentation</h3>
-            <p>Professional appearance standards. Your guests will notice the difference.</p>
-          </div>
-        </div>
-
-        <div class="why-card fade-in fade-in-delay-4">
-          <div class="why-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-          </div>
-          <div class="why-content">
-            <h3>Consistent Quality Control</h3>
-            <p>Direct oversight on standards and feedback. Real accountability.</p>
-          </div>
+        <div class="stacked-actions" style="margin-top: 28px;">
+          <a href="/pricing" class="btn btn-primary">View Full Pricing</a>
         </div>
       </div>
     </section>
 
-    <!-- TRUST/SOCIAL PROOF SECTION -->
-    <section class="trust-section">
-      <div class="section-header fade-in">
-        <h2>Built on Trust</h2>
-        <div class="divider-gold"></div>
-      </div>
-
-      <div class="trust-ribbon fade-in" aria-label="Event environments covered">
-        <span>Private dinners</span>
-        <span>Corporate hospitality</span>
-        <span>VIP receptions</span>
-        <span>Premium venues</span>
-      </div>
-
-      <div class="trust-stats fade-in">
-        <div class="stat-item">
-          <div class="stat-number">&lt;24h</div>
-          <div class="stat-label">Response Time</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">100%</div>
-          <div class="stat-label">Right-to-Work Verified</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">1-on-1</div>
-          <div class="stat-label">Interview Process</div>
-        </div>
-      </div>
-
-      <div class="trust-tiles fade-in">
-        <div class="trust-tile">
-          <span class="trust-tile-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          </span>
-          <p>Consistent standards for every team member</p>
-        </div>
-        <div class="trust-tile">
-          <span class="trust-tile-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          </span>
-          <p>Right-to-work verification completed</p>
-        </div>
-        <div class="trust-tile">
-          <span class="trust-tile-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          </span>
-          <p>Best-effort replacement coverage policy</p>
-        </div>
-        <div class="trust-tile">
-          <span class="trust-tile-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          </span>
-          <p>Experience across corporate and private events</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- HOW IT WORKS SECTION -->
-    <section class="process-section" id="process">
-      <div class="section-header fade-in">
-        <h2>How It Works</h2>
-        <div class="divider-gold"></div>
-        <p>From enquiry to event in three simple steps</p>
-      </div>
-
-      <div class="process-steps fade-in">
-        <div class="process-step">
-          <div class="step-number">1</div>
-          <h3>Tell Us Your Needs</h3>
-          <p>Share your event details: date, location, roles required, and any special requirements.</p>
-        </div>
-
-        <div class="process-step">
-          <div class="step-number">2</div>
-          <h3>We Confirm Fast</h3>
-          <p>Receive availability and pricing within 24 hours. The right team assigned to your event.</p>
-        </div>
-
-        <div class="process-step">
-          <div class="step-number">3</div>
-          <h3>Your Team Arrives Ready</h3>
-          <p>Staff are briefed on your event specifics. Professional service delivered on the day.</p>
-        </div>
-      </div>
-
-      <div class="process-cta fade-in">
-        <a href="/quote.html" class="btn btn-primary btn-lg">Get a Quote</a>
-      </div>
-    </section>
-
-    <!-- CANDIDATE CTA SECTION -->
-    <section class="candidate-section">
-      <div class="candidate-inner fade-in">
-        <div class="candidate-content">
-          <span class="candidate-kicker">For candidates</span>
-          <h2>Work with VERGO</h2>
-          <p>Join our team of hospitality professionals. Flexible shifts at premium venues across London.</p>
-
-          <div class="candidate-benefits">
-            <div class="candidate-benefit">
-              <span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-              </span>
-              Flexible shifts
-            </div>
-            <div class="candidate-benefit">
-              <span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-              </span>
-              Premium venues
-            </div>
-            <div class="candidate-benefit">
-              <span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-              </span>
-              Fair rates
-            </div>
+    <section class="section-block" style="padding-top: 12px; padding-bottom: 64px;">
+      <div class="page-shell">
+        <div class="cta-panel">
+          <div>
+            <span class="eyebrow">For Staff</span>
+            <h2>Flexible work across premium events, film, TV and music productions.</h2>
+            <p>Join VERGO's London roster for better-run shifts, guest-facing roles and premium environments.</p>
           </div>
-
-          <p class="candidate-note">Applications are reviewed personally, with onboarding support for strong candidates who care about standards and guest experience.</p>
-          <a href="/apply.html" class="btn btn-secondary">Apply Now</a>
-        </div>
-
-        <div class="candidate-image" aria-hidden="true">
-          <div class="candidate-image-card">
-            <span class="candidate-image-tag">Flexible shifts</span>
-            <span class="candidate-image-tag">Premium venues</span>
-            <span class="candidate-image-tag">Supportive onboarding</span>
+          <div class="stacked-actions" style="margin-top: 0;">
+            <a href="/apply" class="btn btn-primary">Apply Now</a>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ SECTION -->
-    <section class="faq-section" id="faq">
-      <div class="section-header fade-in">
-        <h2>Frequently Asked Questions</h2>
-        <div class="divider-gold"></div>
-      </div>
-
-      <div class="faq-grid fade-in">
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            Do you require upfront payment?
-          </button>
-          <div class="faq-answer">
-            <div class="faq-answer-content">
-              No upfront payment. We issue an invoice after the event with clear payment terms.
-            </div>
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            What areas do you cover?
-          </button>
-          <div class="faq-answer">
-            <div class="faq-answer-content">
-              We cover London and surrounding areas, including Greater London and nearby counties. If you're unsure whether your location is covered, please get in touch.
-            </div>
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            How quickly can you confirm staff?
-          </button>
-          <div class="faq-answer">
-            <div class="faq-answer-content">
-              We respond to all enquiries within 24 hours. For urgent requests, we'll do our best to accommodate same-day or next-day bookings where availability allows.
-            </div>
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            How do you vet your staff?
-          </button>
-          <div class="faq-answer">
-            <div class="faq-answer-content">
-              All staff go through a full onboarding process including an interview, right-to-work verification, and a standards briefing. Training is provided if experience is limited but attitude is strong.
-            </div>
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            What if a staff member can't make it?
-          </button>
-          <div class="faq-answer">
-            <div class="faq-answer-content">
-              We provide best-effort replacement support and keep you updated with options. Your event is always the priority.
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FINAL CTA SECTION -->
-    <section class="final-cta">
-      <div class="final-cta-card fade-in">
-        <span class="final-cta-kicker">Ready when you are</span>
-        <h2>Ready to staff your event?</h2>
-        <p>Get in touch with your event details. We'll respond within 24 hours with availability and pricing.</p>
-        <div class="final-cta-actions">
-          <a href="/quote.html" class="btn btn-primary btn-lg">Get a Quote</a>
-          <a href="/contact.html" class="btn btn-secondary btn-lg">Talk to VERGO</a>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- Footer -->
-  <footer role="contentinfo"></footer>
+  <footer role="contentinfo">
+    <div class="page-shell">
+      <div class="footer-grid">
+        <div>
+          <a href="/" class="logo" aria-label="VERGO home">
+            <span class="logo-mark">V</span>
+            <span class="logo-copy">
+              <span class="logo-title">VERGO</span>
+              <span class="logo-subtitle">Premium staffing, London</span>
+            </span>
+          </a>
+          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Premium London event staffing for companies who need reliable teams and workers who want better-run shifts.</p>
+        </div>
+        <div>
+          <p class="footer-title">Navigate</p>
+          <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/hire-staff">Hire Staff</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/contact">Contact</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-title">Work With Us</p>
+          <div class="footer-links">
+            <a href="/jobs">Job Board</a>
+            <a href="/apply">Join VERGO</a>
+            <a href="/quote">Get a Quote</a>
+            <a href="/about">About VERGO</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-title">Contact</p>
+          <div class="footer-links">
+            <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
+            <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07944 505783</a>
+            <p>Replies within 24 hours for most enquiries.</p>
+            <p>London and surrounding areas.</p>
+          </div>
+        </div>
+      </div>
 
-  <!-- Scripts -->
-  <script src="/vergo-utils.js"></script>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
+      <div class="footer-bottom">
+        <p>&copy; 2026 VERGO Ltd. All rights reserved.</p>
+        <div class="footer-bottom-links">
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
   <script src="/vergo-analytics.js"></script>
+  <script>
+    (function () {
+      const header = document.getElementById('site-header');
+      const button = document.getElementById('mobile-menu-button');
+      const menu = document.getElementById('mobile-menu');
 
-  <!-- FAQ Toggle & Scroll Animation Script -->
+      if (header) {
+        const syncHeader = () => {
+          header.classList.toggle('is-scrolled', window.scrollY > 24);
+        };
 
-  <script src="/pages/js/index.js"></script>
+        syncHeader();
+        window.addEventListener('scroll', syncHeader, { passive: true });
+      }
 
-  <!-- Structured Data -->
+      if (!button || !menu) {
+        return;
+      }
+
+      const closeMenu = () => {
+        button.classList.remove('is-active');
+        button.setAttribute('aria-expanded', 'false');
+        menu.classList.remove('is-open');
+        menu.hidden = true;
+        document.body.classList.remove('menu-open');
+      };
+
+      const openMenu = () => {
+        button.classList.add('is-active');
+        button.setAttribute('aria-expanded', 'true');
+        menu.hidden = false;
+        menu.classList.add('is-open');
+        document.body.classList.add('menu-open');
+      };
+
+      button.addEventListener('click', () => {
+        if (menu.classList.contains('is-open')) {
+          closeMenu();
+          return;
+        }
+
+        openMenu();
+      });
+
+      menu.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', closeMenu);
+      });
+
+      document.addEventListener('click', (event) => {
+        if (header && header.contains(event.target)) {
+          return;
+        }
+
+        closeMenu();
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeMenu();
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 960) {
+          closeMenu();
+        }
+      });
+    })();
+  </script>
+
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -591,7 +1158,7 @@
         "url": "https://vergoltd.com/",
         "logo": "https://vergoltd.com/logo.png",
         "image": "https://vergoltd.com/logo.png",
-        "description": "Premium event staffing agency providing reliable hospitality professionals across London and surrounding areas.",
+        "description": "Premium hospitality and event staffing across London for private clients, corporate hospitality, productions, venues and premium service environments.",
         "email": "wrobb@vergoltd.com",
         "telephone": "+447944505783",
         "contactPoint": [
@@ -611,7 +1178,7 @@
         "name": "VERGO Ltd",
         "url": "https://vergoltd.com/",
         "image": "https://vergoltd.com/logo.png",
-        "description": "Premium event staffing for corporate functions, private events, venues, film/TV, and live events across London and surrounding areas.",
+        "description": "Premium hospitality staff for private events, corporate hospitality, hospitality groups, productions and live events across London and surrounding areas.",
         "email": "wrobb@vergoltd.com",
         "telephone": "+447944505783",
         "priceRange": "££",
@@ -634,10 +1201,12 @@
           "Hospitality Staff",
           "Event Chefs",
           "Bar Staff",
+          "Bartenders",
           "Front of House",
-          "Kitchen Porters",
           "Baristas",
-          "Catering Assistants"
+          "Kitchen Porters",
+          "Catering Assistants",
+          "Event Supervisors"
         ],
         "parentOrganization": { "@id": "https://vergoltd.com/#organization" }
       },

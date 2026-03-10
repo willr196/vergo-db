@@ -12,8 +12,8 @@ ADD COLUMN "bookingLane" "BookingLane" NOT NULL DEFAULT 'FLEX';
 -- Backfill existing marketplace bookings based on the staff tier that was booked.
 UPDATE "Booking"
 SET "bookingLane" = CASE
-  WHEN "staffTierAtBooking" = 'ELITE' THEN 'SELECT'
-  ELSE 'FLEX'
+  WHEN "staffTierAtBooking" = 'ELITE' THEN 'SELECT'::"BookingLane"
+  ELSE 'FLEX'::"BookingLane"
 END;
 
 -- CreateIndex

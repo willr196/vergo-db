@@ -1,54 +1,110 @@
 (function () {
   'use strict';
 
-  function closeFAQItem(item) {
-    item.classList.remove('active');
-    item.querySelector('.faq-question')?.setAttribute('aria-expanded', 'false');
-
-    const answer = item.querySelector('.faq-answer');
-    if (answer) {
-      answer.style.maxHeight = '0px';
-    }
-  }
-
-  function openFAQItem(item, button) {
-    const answer = item.querySelector('.faq-answer');
-
-    item.classList.add('active');
-    button.setAttribute('aria-expanded', 'true');
-
-    if (answer) {
-      answer.style.maxHeight = `${answer.scrollHeight}px`;
-    }
-  }
-
-  function toggleFAQ(button) {
-    const item = button.closest('.faq-item');
-    if (!item) {
+  function onReady(fn) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn);
       return;
     }
 
-    const wasActive = item.classList.contains('active');
-
-    // Close all other items
-    document.querySelectorAll('.faq-item.active').forEach((el) => {
-      closeFAQItem(el);
-    });
-
-    // Toggle clicked item
-    if (!wasActive) {
-      openFAQItem(item, button);
-    }
+    fn();
   }
 
-  function initFAQ() {
-    document.querySelectorAll('.faq-question').forEach((button) => {
-      button.addEventListener('click', () => toggleFAQ(button));
+  function initMobileMenu() {
+    const button = document.getElementById('mobile-menu-button');
+    const menu = document.getElementById('mobile-menu');
+
+    if (!button || !menu) {
+      return;
+    }
+
+    const closeMenu = () => {
+      button.classList.remove('is-active');
+      menu.classList.remove('is-open');
+      button.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('menu-open');
+    };
+
+    const openMenu = () => {
+      button.classList.add('is-active');
+      menu.classList.add('is-open');
+      button.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('menu-open');
+    };
+
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+
+      if (menu.classList.contains('is-open')) {
+        closeMenu();
+        return;
+      }
+
+      openMenu();
     });
+
+    menu.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+
+      if (button.contains(target) || menu.contains(target)) {
+        return;
+      }
+
+      closeMenu();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeMenu();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 768) {
+        closeMenu();
+      }
+    });
+  }
+
+  function initRevealAnimations() {
+    const elements = document.querySelectorAll('[data-reveal]');
+
+    if (!elements.length) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      elements.forEach((element) => element.classList.add('is-visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.16,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    elements.forEach((element) => observer.observe(element));
   }
 
   function initHeroSpotlight() {
-    const hero = document.querySelector('.hero');
+    const hero = document.querySelector('.hero-stage');
+
     if (!hero) {
       return;
     }
@@ -73,54 +129,42 @@
         const x = ((event.clientX - rect.left) / rect.width) * 100;
         const y = ((event.clientY - rect.top) / rect.height) * 100;
 
-        hero.style.setProperty('--hero-pointer-x', `${x}%`);
-        hero.style.setProperty('--hero-pointer-y', `${y}%`);
+        hero.style.setProperty('--pointer-x', `${x}%`);
+        hero.style.setProperty('--pointer-y', `${y}%`);
         frameId = null;
       });
     });
 
     hero.addEventListener('pointerleave', () => {
-      hero.style.removeProperty('--hero-pointer-x');
-      hero.style.removeProperty('--hero-pointer-y');
+      hero.style.removeProperty('--pointer-x');
+      hero.style.removeProperty('--pointer-y');
     });
   }
 
-  // Fade in elements when they come into view
-  function initScrollAnimations() {
-    const fadeElements = document.querySelectorAll('.fade-in');
+  function initHeaderState() {
+    const header = document.getElementById('site-header');
 
-    // Respect reduced motion preference
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      fadeElements.forEach((el) => el.classList.add('visible'));
+    if (!header) {
       return;
     }
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    });
+    const syncState = () => {
+      header.classList.toggle('is-scrolled', window.scrollY > 24);
+    };
 
-    fadeElements.forEach((el) => observer.observe(el));
-  }
-
-  function onReady(fn) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', fn);
-    } else {
-      fn();
-    }
+    syncState();
+    window.addEventListener('scroll', syncState, { passive: true });
   }
 
   onReady(() => {
-    initFAQ();
+    // Fallback: add .homepage-root to <html> for browsers without :has() support
+    if (document.body.classList.contains('homepage')) {
+      document.documentElement.classList.add('homepage-root');
+    }
+
+    initMobileMenu();
+    initRevealAnimations();
     initHeroSpotlight();
-    initScrollAnimations();
+    initHeaderState();
   });
 })();

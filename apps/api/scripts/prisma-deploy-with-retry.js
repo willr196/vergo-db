@@ -10,6 +10,34 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Wake Neon by running a simple query. Neon serverless Postgres suspends after
+ * idle periods; the first connection can take 3-8s. Warming up here ensures
+ * Prisma's advisory lock timeout (10s) isn't eaten by the cold start.
+ */
+function warmUpDatabase() {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) return;
+
+  const prismaBin = path.join(process.cwd(), 'node_modules', '.bin', 'prisma');
+  console.log('[prisma:deploy] Warming up database connection...');
+
+  // Use prisma db execute to run a simple query — this wakes Neon
+  const result = spawnSync(prismaBin, ['db', 'execute', '--stdin', '--schema', 'prisma/schema.prisma'], {
+    input: 'SELECT 1;',
+    env: process.env,
+    encoding: 'utf8',
+    timeout: 30000,
+  });
+
+  if (result.status === 0) {
+    console.log('[prisma:deploy] Database is warm.');
+  } else {
+    console.warn('[prisma:deploy] Warm-up query did not succeed, proceeding anyway...');
+    if (result.stderr) console.warn(result.stderr);
+  }
+}
+
 function runPrismaDeploy() {
   const prismaBin = path.join(process.cwd(), 'node_modules', '.bin', 'prisma');
   return spawnSync(prismaBin, ['migrate', 'deploy'], {
@@ -21,6 +49,9 @@ function runPrismaDeploy() {
 async function main() {
   const maxAttempts = parsePositiveInt(process.env.PRISMA_DEPLOY_MAX_ATTEMPTS, 4);
   const baseDelayMs = parsePositiveInt(process.env.PRISMA_DEPLOY_RETRY_DELAY_MS, 5000);
+
+  // Wake Neon before the first migrate attempt
+  warmUpDatabase();
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     console.log(`[prisma:deploy] Attempt ${attempt}/${maxAttempts}`);
@@ -34,7 +65,7 @@ async function main() {
     }
 
     const combinedOutput = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
-    const retryable = /P1001|Can't reach database server/i.test(combinedOutput);
+    const retryable = /P1001|P1002|Can't reach database server|advisory lock/i.test(combinedOutput);
 
     if (!retryable || attempt === maxAttempts) {
       if (result.error) {
@@ -48,6 +79,7 @@ async function main() {
       `[prisma:deploy] Retryable database connectivity failure detected. Retrying in ${delayMs}ms...`
     );
     await sleep(delayMs);
+    warmUpDatabase();
   }
 }
 

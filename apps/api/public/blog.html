@@ -3,47 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- SEO Meta -->
-  <title>Event Staffing Blog | Tips, Guides & Industry Insights | VERGO Ltd</title>
-  <meta name="description" content="Expert advice on event planning, staffing, and hospitality in London. Tips for hiring event staff, running successful events, and industry trends.">
-  <meta name="keywords" content="event planning tips, hospitality blog, event staffing advice, hire bartenders guide, London events">
+  <link rel="icon" type="image/png" href="/logo-small.png">
+  <title>Event Staffing Blog | VERGO Ltd</title>
+  <meta name="description" content="Guides and practical notes on event staffing, hiring and hospitality delivery in London.">
+  <meta name="keywords" content="event staffing blog, hospitality hiring guides, London event staffing">
   <link rel="canonical" href="https://vergoltd.com/blog">
-  
-  <!-- Open Graph -->
+  <meta name="theme-color" content="#0a0a0a">
+
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://vergoltd.com/blog">
   <meta property="og:title" content="Event Staffing Blog | VERGO Ltd">
-  <meta property="og:description" content="Expert advice on event planning, staffing, and hospitality in London.">
-  <meta property="og:image" content="https://vergoltd.com/images/blog-og.jpg">
+  <meta property="og:description" content="Practical guidance on hiring, staffing and hospitality delivery in London.">
+  <meta property="og:image" content="https://vergoltd.com/logo.png">
   <meta property="og:site_name" content="VERGO Ltd">
-  
-  <!-- Twitter -->
+
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Event Staffing Blog | VERGO Ltd">
-  <meta name="twitter:description" content="Expert advice on event planning, staffing, and hospitality in London.">
-  
-  <!-- Google Fonts - Inter -->
+  <meta name="twitter:description" content="Practical guidance on hiring and staffing for London events.">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="/vergo-styles.css">
-  <link rel="stylesheet" href="/vergo-header.css">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
 
-
-  <link rel="stylesheet" href="/pages/css/blog.css">
-  
-  <!-- Structured Data -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Blog",
     "name": "VERGO Ltd Blog",
-    "description": "Expert advice on event planning, staffing, and hospitality in London",
+    "description": "Practical guidance on event staffing and hospitality in London",
     "url": "https://vergoltd.com/blog",
     "publisher": {
       "@type": "Organization",
@@ -57,74 +46,187 @@
   </script>
 </head>
 <body>
-<header></header>
-  
-  <!-- Hero -->
-  <section class="hero">
-    <h1>The <span>VERGO</span> Blog</h1>
-    <p>Insights, tips, and guides for event planning and hospitality in London</p>
-    
-    <div class="categories">
-      <a href="#" class="category-tag active">All Posts</a>
-      <a href="#" class="category-tag">Event Planning</a>
-      <a href="#" class="category-tag">Hiring Guide</a>
-      <a href="#" class="category-tag">Industry Insights</a>
-      <a href="#" class="category-tag">Staff Tips</a>
-    </div>
-  </section>
-  
-  <main>
-    <!-- Featured Post -->
-    <article class="featured-post">
-      <div class="featured-image">🍸</div>
-      <div class="featured-content">
-        <span class="featured-badge">Featured</span>
-        <h2><a href="blog/how-to-hire-bartenders-london">The Complete Guide to Hiring Bartenders for Your London Event</a></h2>
-        <p>Everything you need to know about finding and booking professional bartenders. From cocktail parties to corporate events, we cover ratios, rates, and what to look for.</p>
-        <div class="post-meta">
-          <span>📅 December 15, 2024</span>
-          <span>⏱️ 8 min read</span>
-          <span>🏷️ Hiring Guide</span>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <div id="site-header" class="site-header" role="banner">
+    <div class="page-shell">
+      <div class="nav-container">
+        <a href="/" class="logo" aria-label="VERGO home">
+          <span class="logo-mark">V</span>
+          <span class="logo-copy">
+            <span class="logo-title">VERGO</span>
+            <span class="logo-subtitle">London hospitality staffing</span>
+          </span>
+        </a>
+
+        <div class="nav-frame">
+          <nav class="site-nav" aria-label="Primary">
+            <ul>
+              <li><a href="/#roles">Roles</a></li>
+              <li><a href="/#why-vergo">Why VERGO</a></li>
+              <li><a href="/#event-types">Event Types</a></li>
+              <li><a href="/#paths">Clients &amp; Workers</a></li>
+            </ul>
+          </nav>
+          <div class="nav-actions">
+            <a href="/apply" class="btn btn-secondary">Join VERGO</a>
+            <a href="/quote" class="btn btn-primary">Hire Staff</a>
+          </div>
+        </div>
+
+        <button id="mobile-menu-button" class="menu-toggle" type="button" aria-label="Toggle navigation menu" aria-controls="mobile-menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      <div id="mobile-menu" class="mobile-menu" hidden>
+        <nav aria-label="Mobile">
+          <a href="/#roles">Roles</a>
+          <a href="/#why-vergo">Why VERGO</a>
+          <a href="/#event-types">Event Types</a>
+          <a href="/#paths">Clients &amp; Workers</a>
+        </nav>
+        <div class="nav-actions">
+          <a href="/apply" class="btn btn-secondary">Join VERGO</a>
+          <a href="/quote" class="btn btn-primary">Hire Staff</a>
         </div>
       </div>
-    </article>
-    
-    <!-- Latest Posts -->
-    <h2 class="section-title">Latest Articles</h2>
-    
-    <div class="blog-grid">
-      <article class="blog-card">
-        <div class="blog-card-image">💷</div>
-        <div class="blog-card-content">
-          <span class="blog-card-category">Industry Insights</span>
-          <h3><a href="blog/event-staffing-costs-london-2024">Event Staffing Costs in London: 2024 Market Rates</a></h3>
-          <p>What should you expect to pay for event staff in London? We break down current market rates and what affects pricing.</p>
-          <a href="blog/event-staffing-costs-london-2024" class="read-more">Read More →</a>
-        </div>
-      </article>
-      
     </div>
-    
-    <!-- Newsletter -->
-    <section class="newsletter">
-      <h2>Stay in the Loop</h2>
-      <p>Get event planning tips, industry insights, and exclusive offers delivered to your inbox.</p>
-      <form class="newsletter-form" id="newsletter-form">
-        <input type="email" placeholder="Enter your email" required>
-        <button type="submit">Subscribe</button>
-      </form>
+  </div>
+
+  <main id="main-content">
+    <section class="page-hero">
+      <div class="page-shell">
+        <div class="hero-grid">
+          <div>
+            <span class="eyebrow">Journal</span>
+            <h1>Short reads on hiring, staffing and event delivery.</h1>
+            <p class="lede">Useful if you need practical guidance before an event, a staffing decision or a hiring push.</p>
+            <div class="categories">
+              <button type="button" class="category-tag active">All Posts</button>
+              <button type="button" class="category-tag">Hiring Guide</button>
+              <button type="button" class="category-tag">Planning</button>
+              <button type="button" class="category-tag">Market Notes</button>
+            </div>
+          </div>
+
+          <aside class="panel hero-summary" aria-label="Blog summary">
+            <span class="status">Current focus</span>
+            <h2>Advice built around real booking decisions.</h2>
+            <p>Expect hiring ratios, staffing cost notes and planning guidance, not generic event filler.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="page-shell">
+        <article class="featured-post">
+          <div class="featured-image">B</div>
+          <div class="featured-content">
+            <span class="featured-badge card-label">Featured</span>
+            <h2><a href="blog/how-to-hire-bartenders-london">The Complete Guide to Hiring Bartenders for Your London Event</a></h2>
+            <p>Ratios, practical checks and what actually matters when you book bartenders for a busy event.</p>
+            <div class="post-meta">
+              <span>December 15, 2024</span>
+              <span>8 min read</span>
+              <span>Hiring Guide</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="page-shell">
+        <h2 class="section-title">Latest articles</h2>
+        <div class="blog-grid">
+          <article class="blog-card">
+            <div class="blog-card-image">GBP</div>
+            <div class="blog-card-content">
+              <span class="card-label">Market Notes</span>
+              <h3><a href="blog/event-staffing-costs-london-2024">Event Staffing Costs in London: 2024 Market Rates</a></h3>
+              <p>What shifts usually cost and which variables move the number.</p>
+              <a href="blog/event-staffing-costs-london-2024" class="read-more">Read the article</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" style="padding-top: 0; padding-bottom: 64px;">
+      <div class="page-shell">
+        <section class="newsletter">
+          <span class="eyebrow">Stay in the loop</span>
+          <h2>Get new articles by email.</h2>
+          <p>Useful updates only. No clutter.</p>
+          <form class="newsletter-form" id="newsletter-form">
+            <input type="email" placeholder="Enter your email" required>
+            <button type="submit" class="btn btn-primary">Subscribe</button>
+          </form>
+        </section>
+      </div>
     </section>
   </main>
-  
-  <footer>
-    <p>&copy; 2024 VERGO Ltd. <a href="tel:+447944505783">07944 505 783</a> | <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a></p>
-  </footer>
-  
 
-  <script src="/pages/js/blog.js"></script>
+  <footer role="contentinfo">
+    <div class="page-shell">
+      <div class="footer-grid">
+        <div>
+          <a href="/" class="logo" aria-label="VERGO home">
+            <span class="logo-mark">V</span>
+            <span class="logo-copy">
+              <span class="logo-title">VERGO</span>
+              <span class="logo-subtitle">Premium staffing, London</span>
+            </span>
+          </a>
+          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Premium hospitality and event staffing for private events, corporate hospitality, venues, productions and service-led environments across London.</p>
+        </div>
+        <div>
+          <p class="footer-title">Services</p>
+          <div class="footer-links">
+            <a href="/hire-staff">Hire Event Staff</a>
+            <a href="/#roles">Roles We Supply</a>
+            <a href="/#event-types">Event Types</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/quote">Get a Quote</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-title">Work With Us</p>
+          <div class="footer-links">
+            <a href="/apply">Join VERGO</a>
+            <a href="/jobs">View Openings</a>
+            <a href="/#paths">Clients &amp; Workers</a>
+            <a href="/about">About VERGO</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-title">Contact</p>
+          <div class="footer-links">
+            <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
+            <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07944 505783</a>
+            <p>Replies within 24 hours for most enquiries.</p>
+            <p>London and surrounding areas.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 VERGO Ltd. All rights reserved.</p>
+        <div class="footer-bottom-links">
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
   <script src="/vergo-utils.js"></script>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-public-shell.js"></script>
   <script src="/vergo-analytics.js"></script>
+  <script src="/pages/js/blog.js"></script>
 </body>
 </html>

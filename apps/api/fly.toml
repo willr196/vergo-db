@@ -12,6 +12,10 @@ primary_region = "lhr"
   min_machines_running = 1
   processes = ["app"]
 
+[env]
+  # Give Neon's advisory lock more time on cold starts (default is 10 000 ms)
+  PRISMA_MIGRATE_ADVISORY_LOCK_TIMEOUT = "30000"
+
 [deploy]
   release_command = "npm run prisma:deploy"
 

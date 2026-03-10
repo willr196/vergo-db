@@ -11,12 +11,31 @@
 
   // Determine current page for active state
   const currentPath = window.location.pathname.replace(/\/$/, '').replace(/\.html$/, '');
+  const isHomepage = document.body.classList.contains('homepage');
 
   const isActive = (page) => {
     const normalised = page.replace(/\/$/, '').replace(/\.html$/, '');
     if ((normalised === '' || normalised === '/') && (currentPath === '' || currentPath === '/')) return true;
     return currentPath === normalised;
   };
+
+  const homepageLinks = `
+          <li><a href="/hire-staff"${isActive('/hire-staff') ? ' aria-current="page"' : ''}>Hire Staff</a></li>
+          <li><a href="/#roles">Roles</a></li>
+          <li><a href="/#event-types">Event Types</a></li>
+          <li><a href="/apply"${isActive('/apply') ? ' aria-current="page"' : ''}>Join VERGO</a></li>
+          <li><a href="/about"${isActive('/about') ? ' aria-current="page"' : ''}>About</a></li>
+          <li class="nav-cta-wrapper"><a href="/quote"${isActive('/quote') ? ' aria-current="page"' : ''} class="nav-cta">Get a Quote</a></li>
+  `;
+
+  const defaultLinks = `
+          <li><a href="/"${isActive('/') ? ' aria-current="page"' : ''}>Home</a></li>
+          <li><a href="/hire-staff"${isActive('/hire-staff') ? ' aria-current="page"' : ''}>Hire Event Staff</a></li>
+          <li><a href="/apply"${isActive('/apply') ? ' aria-current="page"' : ''}>Join VERGO</a></li>
+          <li><a href="/about"${isActive('/about') ? ' aria-current="page"' : ''}>About</a></li>
+          <li><a href="/faq"${isActive('/faq') ? ' aria-current="page"' : ''}>FAQ</a></li>
+          <li class="nav-cta-wrapper"><a href="/quote"${isActive('/quote') ? ' aria-current="page"' : ''} class="nav-cta">Get a Quote</a></li>
+  `;
 
   // Navigation HTML - Premium structure
   const navHTML = `
@@ -33,15 +52,7 @@
 
       <nav role="navigation" aria-label="Main navigation">
         <ul id="nav-menu">
-          <li><a href="/"${isActive('/') ? ' aria-current="page"' : ''}>Home</a></li>
-          <li><a href="/hire-staff"${isActive('/hire-staff') ? ' aria-current="page"' : ''}>Hire Event Staff</a></li>
-          <li><a href="/pricing"${isActive('/pricing') ? ' aria-current="page"' : ''}>Pricing</a></li>
-          <li><a href="/jobs"${isActive('/jobs') ? ' aria-current="page"' : ''}>Job Board</a></li>
-          <li><a href="/blog"${isActive('/blog') ? ' aria-current="page"' : ''}>Blog</a></li>
-          <li><a href="/apply"${isActive('/apply') ? ' aria-current="page"' : ''}>Join VERGO</a></li>
-          <li><a href="/about"${isActive('/about') ? ' aria-current="page"' : ''}>About</a></li>
-          <li><a href="/faq"${isActive('/faq') ? ' aria-current="page"' : ''}>FAQ</a></li>
-          <li class="nav-cta-wrapper"><a href="/contact"${isActive('/contact') ? ' aria-current="page"' : ''} class="nav-cta">Contact</a></li>
+          ${isHomepage ? homepageLinks : defaultLinks}
         </ul>
       </nav>
     </div>
@@ -54,12 +65,12 @@
     header.innerHTML = navHTML;
   }
 
-  // Inject Inter font globally if missing
-  if (!document.getElementById('vergo-font-inter')) {
+  // Inject shared navigation font if missing
+  if (!document.getElementById('vergo-font-manrope')) {
     const fontLink = document.createElement('link');
-    fontLink.id = 'vergo-font-inter';
+    fontLink.id = 'vergo-font-manrope';
     fontLink.rel = 'stylesheet';
-    fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap';
+    fontLink.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap';
     document.head.appendChild(fontLink);
   }
 

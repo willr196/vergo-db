@@ -5,44 +5,172 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/logo-small.png">
   <title>Job Details | VERGO Ltd</title>
-  <meta name="description" content="View event staffing job details and apply to join the VERGO Ltd team.">
+  <meta name="description" content="View event staffing job details and apply through the VERGO platform.">
   <meta name="robots" content="noindex,follow">
   <link rel="canonical" href="https://vergoltd.com/job-detail">
+  <meta name="theme-color" content="#0a0a0a">
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/vergo-styles.css">
-  <link rel="stylesheet" href="/vergo-header.css">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
-
-
-  <link rel="stylesheet" href="/pages/css/job-detail.css">
-  <link rel="stylesheet" href="/vergo-platform.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
 </head>
-<body class="platform">
-<header></header>
-  
-  <main>
-    <a href="jobs" class="back-link">← Back to Jobs</a>
-    
-    <div id="job-content">
-      <div class="loading">
-        <div class="loading-spinner"></div>
-        <p>Loading job details...</p>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <div id="site-header" class="site-header" role="banner">
+    <div class="page-shell">
+      <div class="nav-container">
+        <a href="/" class="logo" aria-label="VERGO home">
+          <span class="logo-mark">V</span>
+          <span class="logo-copy">
+            <span class="logo-title">VERGO</span>
+            <span class="logo-subtitle">London hospitality staffing</span>
+          </span>
+        </a>
+
+        <div class="nav-frame">
+          <nav class="site-nav" aria-label="Primary">
+            <ul>
+              <li><a href="/#roles">Roles</a></li>
+              <li><a href="/#why-vergo">Why VERGO</a></li>
+              <li><a href="/#event-types">Event Types</a></li>
+              <li><a href="/#paths">Clients &amp; Workers</a></li>
+            </ul>
+          </nav>
+          <div class="nav-actions">
+            <a href="/apply" class="btn btn-secondary">Join VERGO</a>
+            <a href="/quote" class="btn btn-primary">Hire Staff</a>
+          </div>
+        </div>
+
+        <button id="mobile-menu-button" class="menu-toggle" type="button" aria-label="Toggle navigation menu" aria-controls="mobile-menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      <div id="mobile-menu" class="mobile-menu" hidden>
+        <nav aria-label="Mobile">
+          <a href="/#roles">Roles</a>
+          <a href="/#why-vergo">Why VERGO</a>
+          <a href="/#event-types">Event Types</a>
+          <a href="/#paths">Clients &amp; Workers</a>
+        </nav>
+        <div class="nav-actions">
+          <a href="/apply" class="btn btn-secondary">Join VERGO</a>
+          <a href="/quote" class="btn btn-primary">Hire Staff</a>
+        </div>
       </div>
     </div>
-  </main>
-  
-  <footer role="contentinfo"></footer>
-  
+  </div>
 
-  <script src="/pages/js/job-detail.js"></script>
+  <main id="main-content">
+    <section class="page-hero">
+      <div class="page-shell">
+        <div class="hero-grid">
+          <div>
+            <span class="eyebrow">Job detail</span>
+            <h1>Everything important in one place.</h1>
+            <p class="lede">Check the role, timing, pay and application path. If it fits, move on it quickly.</p>
+            <div class="hero-actions">
+              <a href="/jobs" class="btn btn-primary">Back to Jobs</a>
+              <a href="/apply" class="btn btn-secondary">Join VERGO</a>
+            </div>
+          </div>
+
+          <aside class="panel hero-summary" aria-label="Job detail summary">
+            <span class="status">Live listing</span>
+            <h2>Built for a fast read, then a clean apply.</h2>
+            <p>The panel below loads the latest details from the platform, including login-aware application status.</p>
+            <div class="detail-grid">
+              <article class="detail-card">
+                <p class="card-label">Includes</p>
+                <p><strong>Location, date, time, pay and spots left.</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Apply flow</p>
+                <p><strong>Login, external redirect or direct application as appropriate.</strong></p>
+              </article>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="page-shell">
+        <div class="panel">
+          <a href="/jobs" class="back-link">Back to jobs</a>
+          <div id="job-content" style="margin-top: 24px;">
+            <div class="loading">
+              <div class="loading-spinner"></div>
+              <p>Loading job details...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer role="contentinfo">
+    <div class="page-shell">
+      <div class="footer-grid">
+        <div>
+          <a href="/" class="logo" aria-label="VERGO home">
+            <span class="logo-mark">V</span>
+            <span class="logo-copy">
+              <span class="logo-title">VERGO</span>
+              <span class="logo-subtitle">Premium staffing, London</span>
+            </span>
+          </a>
+          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Premium hospitality and event staffing for private events, corporate hospitality, venues, productions and service-led environments across London.</p>
+        </div>
+        <div>
+          <p class="footer-title">Services</p>
+          <div class="footer-links">
+            <a href="/hire-staff">Hire Event Staff</a>
+            <a href="/#roles">Roles We Supply</a>
+            <a href="/#event-types">Event Types</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/quote">Get a Quote</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-title">Work With Us</p>
+          <div class="footer-links">
+            <a href="/apply">Join VERGO</a>
+            <a href="/jobs">View Openings</a>
+            <a href="/#paths">Clients &amp; Workers</a>
+            <a href="/about">About VERGO</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-title">Contact</p>
+          <div class="footer-links">
+            <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
+            <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07944 505783</a>
+            <p>Replies within 24 hours for most enquiries.</p>
+            <p>London and surrounding areas.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 VERGO Ltd. All rights reserved.</p>
+        <div class="footer-bottom-links">
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
   <script src="/vergo-utils.js"></script>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-public-shell.js"></script>
   <script src="/vergo-analytics.js"></script>
+  <script src="/pages/js/job-detail.js"></script>
 </body>
 </html>
