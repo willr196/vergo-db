@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/logo-small.png">
+  <title>Browse Our Team | VERGO Ltd</title>
+  <meta name="description" content="Browse VERGO's visible marketplace staff by tier, role, and experience for your next event.">
+  <link rel="canonical" href="https://vergoltd.com/browse-staff">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <meta property="og:title" content="Browse Our Team | VERGO Ltd">
+  <meta property="og:description" content="Vetted professionals ready for your next event. Browse Gold and Standard staff profiles on VERGO.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://vergoltd.com/browse-staff">
+  <meta property="og:image" content="https://vergoltd.com/logo.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/vergo-a11y.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
+  <link rel="stylesheet" href="/pages/css/browse-staff.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <div id="site-header" class="site-header" role="banner"></div>
+
+  <main id="main-content">
+    <section class="page-hero">
+      <div class="page-shell">
+        <div class="hero-grid">
+          <div>
+            <span class="eyebrow">Marketplace</span>
+            <h1>Browse Our Team</h1>
+            <p class="lede">Vetted professionals ready for your next event</p>
+            <div class="hero-actions">
+              <a href="/hire-staff" class="btn btn-secondary">How It Works</a>
+              <a href="/pricing" class="btn btn-primary">See Pricing</a>
+            </div>
+          </div>
+
+          <aside class="panel hero-summary" aria-label="Marketplace summary">
+            <span class="status">Public browse</span>
+            <h2>Search visible staff by tier, role, and experience.</h2>
+            <p>Gold profiles stand out visually. Standard profiles show the worker's own base hourly rate.</p>
+            <div class="detail-grid">
+              <article class="detail-card">
+                <p class="card-label">Standard</p>
+                <p><strong>Marketplace rates vary by staff member.</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Gold</p>
+                <p><strong>Fixed premium pricing by role.</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Profiles</p>
+                <p><strong>Only staff approved for public visibility appear here.</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Filters</p>
+                <p><strong>Search quickly by role, tier, or first name.</strong></p>
+              </article>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block marketplace-section">
+      <div class="page-shell">
+        <div class="panel marketplace-filter-bar" aria-label="Staff filters">
+          <div class="filter-tabs" role="tablist" aria-label="Staff tier filters">
+            <button class="tab-btn active" type="button" role="tab" aria-selected="true" data-tier="">All Staff</button>
+            <button class="tab-btn" type="button" role="tab" aria-selected="false" data-tier="GOLD">Gold Tier</button>
+            <button class="tab-btn" type="button" role="tab" aria-selected="false" data-tier="STANDARD">Standard Tier</button>
+          </div>
+
+          <div class="filter-controls">
+            <div class="marketplace-field">
+              <label for="staff-role-filter">Role</label>
+              <select id="staff-role-filter">
+                <option value="">All Roles</option>
+                <option value="Bartender">Bartender</option>
+                <option value="Waiter">Waiter</option>
+                <option value="FOH">FOH</option>
+                <option value="Chef">Chef</option>
+                <option value="Kitchen Porter">Kitchen Porter</option>
+                <option value="Runner">Runner</option>
+                <option value="Supervisor">Supervisor</option>
+              </select>
+            </div>
+
+            <div class="marketplace-field marketplace-search-field">
+              <label for="staff-search-input">Search</label>
+              <input id="staff-search-input" type="search" placeholder="Search by name..." autocomplete="off">
+            </div>
+          </div>
+        </div>
+
+        <div class="marketplace-results-meta">
+          <p id="results-status" class="results-status">Loading staff profiles...</p>
+          <p id="results-live-region" class="sr-only" aria-live="polite"></p>
+        </div>
+
+        <div id="staff-grid" class="staff-market-grid"></div>
+
+        <div id="staff-empty" class="empty-state marketplace-empty" hidden>
+          <h3>No staff found matching your filters</h3>
+          <p>Try a different tier, role, or search term.</p>
+        </div>
+
+        <div class="load-more-wrap">
+          <button id="load-more-button" class="btn btn-secondary" type="button" hidden>Load more</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer role="contentinfo"></footer>
+
+  <div id="profile-modal" class="profile-modal" hidden>
+    <div class="profile-backdrop" data-close-modal="true"></div>
+    <div class="profile-dialog panel" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
+      <button id="profile-close-button" class="profile-close" type="button" aria-label="Close profile">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <div id="profile-modal-body" class="profile-modal-body">
+        <div class="profile-loading">
+          <div class="profile-loading-bar"></div>
+          <div class="profile-loading-bar short"></div>
+          <div class="profile-loading-bar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/vergo-public-shell.js"></script>
+  <script src="/vergo-analytics.js"></script>
+  <script src="/pages/js/browse-staff.js"></script>
+</body>
+</html>

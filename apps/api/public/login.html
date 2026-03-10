@@ -7,97 +7,96 @@
   <meta name="description" content="Secure admin login for VERGO Ltd management system">
   <meta name="robots" content="noindex, nofollow">
   <link rel="canonical" href="https://vergoltd.com/login">
+  <meta name="theme-color" content="#0a0a0a">
   
   <!-- Security Headers (should also be set server-side) -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com;">
 
-  <!-- Google Fonts - Inter (primary brand font) -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/vergo-styles.css">
-  <link rel="stylesheet" href="/vergo-header.css">
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
-  <link rel="stylesheet" href="/vergo-platform.css">
-
-
-  <link rel="stylesheet" href="/pages/css/login.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
+  <link rel="stylesheet" href="/pages/css/public-auth.css">
   
 </head>
-<body class="platform">
-  <header></header>
-  <!-- Skip link for accessibility -->
-  <a href="#login-form" class="skip-link">Skip to login form</a>
+<body class="public-auth-page admin-login-page">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="site-header" class="site-header" role="banner"></div>
   
   <!-- Screen reader only heading -->
   <h1 class="sr-only">VERGO Ltd Admin Portal</h1>
   
-  <main class="login-container" role="main">
-    <h1 id="main-heading">Admin Login</h1>
-    <p class="subtitle">VERGO Ltd Management System</p>
-    
-    <!-- Security notice -->
-    <div class="security-notice">
-      <strong>🔒 Secure Login:</strong> This is a protected area. All login attempts are logged and monitored.
+  <main id="main-content" class="auth-main" role="main">
+    <div class="auth-container auth-container-admin">
+      <div class="auth-box">
+        <h1 id="main-heading">Admin Login</h1>
+        <p class="subtitle">VERGO Ltd Management System</p>
+        
+        <!-- Security notice -->
+        <div class="security-notice">
+          <strong>Secure Login:</strong> This is a protected area. All login attempts are logged and monitored.
+        </div>
+        
+        <!-- ARIA live region for form messages -->
+        <div id="form-status" role="status" aria-live="polite" class="sr-only"></div>
+        
+        <form id="login-form" novalidate aria-labelledby="main-heading">
+          <div class="form-group">
+            <label for="username">
+              Username <span class="required" aria-label="required">*</span>
+            </label>
+            <input 
+              type="text"
+              id="username"
+              name="username" 
+              required 
+              autocomplete="username"
+              autocapitalize="off"
+              aria-required="true"
+              aria-describedby="username-error"
+              maxlength="100"
+            />
+          </div>
+          
+          <div class="form-group">
+            <label for="password">
+              Password <span class="required" aria-label="required">*</span>
+            </label>
+            <input 
+              type="password"
+              id="password"
+              name="password" 
+              required 
+              autocomplete="current-password"
+              aria-required="true"
+              aria-describedby="password-error"
+              minlength="8"
+            />
+          </div>
+          
+          <!-- Honeypot field (hidden from users, catches bots) -->
+          <div style="position: absolute; left: -9999px; opacity: 0;" aria-hidden="true">
+            <label for="website">Website (leave blank)</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+          </div>
+          
+          <!-- Rate limit warning -->
+          <div id="rate-limit-warning" class="rate-limit-warning" role="alert">
+            <strong>Too many attempts.</strong> Please wait <span id="retry-time">60</span> seconds before trying again.
+          </div>
+          
+          <button type="submit" aria-label="Login to admin dashboard">
+            <span class="spinner" aria-hidden="true"></span>
+            <span id="button-text">Login</span>
+          </button>
+        </form>
+      </div>
     </div>
-    
-    <!-- ARIA live region for form messages -->
-    <div id="form-status" role="status" aria-live="polite" class="sr-only"></div>
-    
-    <form id="login-form" novalidate aria-labelledby="main-heading">
-      <div class="form-group">
-        <label for="username">
-          Username <span class="required" aria-label="required">*</span>
-        </label>
-        <input 
-          type="text"
-          id="username"
-          name="username" 
-          required 
-          autocomplete="username"
-          autocapitalize="off"
-          aria-required="true"
-          aria-describedby="username-error"
-          maxlength="100"
-        />
-      </div>
-      
-      <div class="form-group">
-        <label for="password">
-          Password <span class="required" aria-label="required">*</span>
-        </label>
-        <input 
-          type="password"
-          id="password"
-          name="password" 
-          required 
-          autocomplete="current-password"
-          aria-required="true"
-          aria-describedby="password-error"
-          minlength="8"
-        />
-      </div>
-      
-      <!-- Honeypot field (hidden from users, catches bots) -->
-      <div style="position: absolute; left: -9999px; opacity: 0;" aria-hidden="true">
-        <label for="website">Website (leave blank)</label>
-        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
-      </div>
-      
-      <!-- Rate limit warning -->
-      <div id="rate-limit-warning" class="rate-limit-warning" role="alert">
-        <strong>⚠️ Too many attempts.</strong> Please wait <span id="retry-time">60</span> seconds before trying again.
-      </div>
-      
-      <button type="submit" aria-label="Login to admin dashboard">
-        <span class="spinner" aria-hidden="true"></span>
-        <span id="button-text">Login</span>
-      </button>
-    </form>
   </main>
 
   <!-- Load utilities -->
@@ -105,8 +104,7 @@
   
 
   <script src="/pages/js/login.js"></script>
-  <footer></footer>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
+  <footer role="contentinfo"></footer>
+  <script src="/vergo-public-shell.js"></script>
 </body>
 </html>

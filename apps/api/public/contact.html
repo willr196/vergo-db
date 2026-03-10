@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/logo-small.png">
-  <title>Contact Us | VERGO Ltd</title>
-  <meta name="description" content="Contact VERGO for event staffing in London. Request staff, ask a question or speak directly about an upcoming brief.">
+  <title>Contact VERGO | Event Staffing Enquiries</title>
+  <meta name="description" content="Contact VERGO for staffing briefs, quotes and general enquiries. Email, call or send a message through the contact form.">
   <link rel="canonical" href="https://vergoltd.com/contact">
   <meta name="theme-color" content="#0a0a0a">
 
@@ -14,6 +14,78 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-a11y.css">
   <link rel="stylesheet" href="/vergo-public-pages.css">
+  <style>
+    .btn-primary,
+    .submit-btn,
+    .form-submit,
+    .cta-button:not(.secondary),
+    .tier-cta:not(.secondary),
+    .calc-cta,
+    button[type="submit"]:not(.tab-btn) {
+      background: #D4AF37;
+      border: 2px solid #D4AF37;
+      color: #0a0a0a;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus-visible,
+    .submit-btn:hover,
+    .submit-btn:focus-visible,
+    .form-submit:hover,
+    .form-submit:focus-visible,
+    .cta-button:not(.secondary):hover,
+    .cta-button:not(.secondary):focus-visible,
+    .tier-cta:not(.secondary):hover,
+    .tier-cta:not(.secondary):focus-visible,
+    .calc-cta:hover,
+    .calc-cta:focus-visible,
+    button[type="submit"]:not(.tab-btn):hover,
+    button[type="submit"]:not(.tab-btn):focus-visible {
+      background: transparent;
+      color: #D4AF37;
+      border-color: #D4AF37;
+    }
+
+    .contact-links {
+      display: grid;
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .contact-link-card {
+      display: block;
+      padding: 20px 22px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.03);
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .contact-link-card:hover,
+    .contact-link-card:focus-visible {
+      transform: translateY(-1px);
+      border-color: var(--gold-line);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .contact-link-card strong {
+      display: block;
+      margin-top: 8px;
+      color: var(--white);
+      font-size: 1.05rem;
+      font-weight: 800;
+      word-break: break-word;
+    }
+
+    .contact-note {
+      margin-top: 18px;
+    }
+
+    .compact-sidebar {
+      align-content: start;
+    }
+  </style>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -32,15 +104,17 @@
         <div class="nav-frame">
           <nav class="site-nav" aria-label="Primary">
             <ul>
-              <li><a href="/#roles">Roles</a></li>
-              <li><a href="/#why-vergo">Why VERGO</a></li>
-              <li><a href="/#event-types">Event Types</a></li>
-              <li><a href="/#paths">Clients &amp; Workers</a></li>
+              <li><a href="/">Home</a></li>
+              <li><a href="/hire-staff">Hire Staff</a></li>
+              <li><a href="/jobs">Job Board</a></li>
+              <li><a href="/apply">Join VERGO</a></li>
+              <li><a href="/pricing">Pricing</a></li>
+              <li><a href="/contact">Contact</a></li>
             </ul>
           </nav>
           <div class="nav-actions">
             <a href="/apply" class="btn btn-secondary">Join VERGO</a>
-            <a href="/quote" class="btn btn-primary">Hire Staff</a>
+            <a href="/hire-staff" class="btn btn-primary">Hire Staff</a>
           </div>
         </div>
 
@@ -53,14 +127,16 @@
 
       <div id="mobile-menu" class="mobile-menu" hidden>
         <nav aria-label="Mobile">
-          <a href="/#roles">Roles</a>
-          <a href="/#why-vergo">Why VERGO</a>
-          <a href="/#event-types">Event Types</a>
-          <a href="/#paths">Clients &amp; Workers</a>
+          <a href="/">Home</a>
+          <a href="/hire-staff">Hire Staff</a>
+          <a href="/jobs">Job Board</a>
+          <a href="/apply">Join VERGO</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/contact">Contact</a>
         </nav>
         <div class="nav-actions">
           <a href="/apply" class="btn btn-secondary">Join VERGO</a>
-          <a href="/quote" class="btn btn-primary">Hire Staff</a>
+          <a href="/hire-staff" class="btn btn-primary">Hire Staff</a>
         </div>
       </div>
     </div>
@@ -71,37 +147,29 @@
       <div class="page-shell">
         <div class="hero-grid">
           <div>
-            <span class="eyebrow">Contact VERGO</span>
-            <h1>One page. Two routes. Clear next step.</h1>
-            <p class="lede">Use the staffing form for a live brief. Use general contact for everything else. We reply fast and keep it direct.</p>
+            <span class="eyebrow">Contact</span>
+            <h1>Contact VERGO.</h1>
+            <p class="lede">Send a staffing brief or a general enquiry and we will point you to the right route quickly.</p>
             <div class="hero-actions">
-              <a href="#contact-forms" class="btn btn-primary">Open the Forms</a>
-              <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" class="btn btn-secondary" target="_blank" rel="noopener">WhatsApp VERGO</a>
+              <a href="#contact-forms" class="btn btn-primary">Send an Enquiry</a>
+              <a href="/hire-staff" class="btn btn-secondary">Hire Staff</a>
             </div>
           </div>
 
-          <aside class="panel hero-summary" aria-label="Contact summary">
-            <span class="status">Fast response</span>
-            <h2>Best for event briefs that need quick decisions.</h2>
-            <p>Send the essentials. We will come back with availability, route and next steps without burying the answer.</p>
-            <div class="detail-grid">
-              <article class="detail-card">
-                <p class="card-label">For clients</p>
-                <p><strong>Staffing requests, role mix, dates, timings and service notes.</strong></p>
-              </article>
-              <article class="detail-card">
-                <p class="card-label">For general</p>
-                <p><strong>Partnerships, questions, follow-ups and non-booking contact.</strong></p>
-              </article>
-              <article class="detail-card">
-                <p class="card-label">Direct</p>
-                <p><strong>wrobb@vergoltd.com or WhatsApp 07944 505783.</strong></p>
-              </article>
-              <article class="detail-card">
-                <p class="card-label">Coverage</p>
-                <p><strong>London and surrounding areas.</strong></p>
-              </article>
+          <aside class="panel hero-summary" aria-label="Direct contact details">
+            <span class="status">Direct contact</span>
+            <h2>Email or call if that is faster.</h2>
+            <div class="contact-links">
+              <a class="contact-link-card" href="mailto:wrobb@vergoltd.com">
+                <span class="card-label">Email</span>
+                <strong>wrobb@vergoltd.com</strong>
+              </a>
+              <a class="contact-link-card" href="tel:+447944505783">
+                <span class="card-label">Phone</span>
+                <strong>07944 505783</strong>
+              </a>
             </div>
+            <p class="contact-note">Use the form below for staffing requests or general contact.</p>
           </aside>
         </div>
       </div>
@@ -111,6 +179,12 @@
       <div class="page-shell">
         <div class="form-shell">
           <div class="form-card">
+            <div class="section-heading" style="margin-bottom: 22px;">
+              <span class="eyebrow">Contact form</span>
+              <h2>Tell us what you need.</h2>
+              <p>Choose the right tab, keep it short, and VERGO will reply with the next step.</p>
+            </div>
+
             <div class="form-tabs">
               <button type="button" class="tab-btn active" data-tab="staff">Request Staff</button>
               <button type="button" class="tab-btn" data-tab="general">General Contact</button>
@@ -229,38 +303,15 @@
             </div>
           </div>
 
-          <aside class="sidebar-stack">
-            <div class="sidebar-card">
-              <p class="card-label">Expect</p>
-              <h3>What happens next.</h3>
-              <ul class="list">
-                <li>We review the brief quickly.</li>
-                <li>We confirm availability and route.</li>
-                <li>We follow up with clean next steps.</li>
-              </ul>
-            </div>
-
-            <div class="sidebar-card">
-              <p class="card-label">Roles</p>
-              <h3>Typical supply.</h3>
-              <div class="chip-row">
-                <span class="chip">Chefs</span>
-                <span class="chip">Bar staff</span>
-                <span class="chip">Front of house</span>
-                <span class="chip">Baristas</span>
-                <span class="chip">Support crews</span>
-              </div>
-            </div>
-
+          <aside class="sidebar-stack compact-sidebar">
             <div class="contact-info">
-              <p class="card-label">Direct contact</p>
-              <h3>Prefer email or WhatsApp?</h3>
-              <div class="footer-links" style="margin-top: 18px;">
-                <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
-                <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">07944 505783</a>
-                <p>Same-day responses where possible.</p>
-                <p>London and surrounding areas.</p>
-              </div>
+              <p class="card-label">Useful first message</p>
+              <h3>What to include.</h3>
+              <ul class="list">
+                <li>Date, venue, roles and headcount for staffing briefs.</li>
+                <li>Subject and short message for general enquiries.</li>
+                <li>Reply target: within 24 hours for most enquiries.</li>
+              </ul>
             </div>
           </aside>
         </div>
@@ -279,24 +330,23 @@
               <span class="logo-subtitle">Premium staffing, London</span>
             </span>
           </a>
-          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Premium hospitality and event staffing for private events, corporate hospitality, venues, productions and service-led environments across London.</p>
+          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Premium London event staffing for companies who need reliable teams and workers who want better-run shifts.</p>
         </div>
         <div>
-          <p class="footer-title">Services</p>
+          <p class="footer-title">Navigate</p>
           <div class="footer-links">
-            <a href="/hire-staff">Hire Event Staff</a>
-            <a href="/#roles">Roles We Supply</a>
-            <a href="/#event-types">Event Types</a>
+            <a href="/">Home</a>
+            <a href="/hire-staff">Hire Staff</a>
             <a href="/pricing">Pricing</a>
-            <a href="/quote">Get a Quote</a>
+            <a href="/contact">Contact</a>
           </div>
         </div>
         <div>
           <p class="footer-title">Work With Us</p>
           <div class="footer-links">
+            <a href="/jobs">Job Board</a>
             <a href="/apply">Join VERGO</a>
-            <a href="/jobs">View Openings</a>
-            <a href="/#paths">Clients &amp; Workers</a>
+            <a href="/quote">Get a Quote</a>
             <a href="/about">About VERGO</a>
           </div>
         </div>
@@ -304,7 +354,7 @@
           <p class="footer-title">Contact</p>
           <div class="footer-links">
             <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
-            <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07944 505783</a>
+            <a href="tel:+447944505783">07944 505783</a>
             <p>Replies within 24 hours for most enquiries.</p>
             <p>London and surrounding areas.</p>
           </div>

@@ -25,12 +25,12 @@
       const payload = await res.json();
       const data = payload.data ?? payload;
       if (!data.authenticated) {
-        window.location.href = 'login.html';
+        window.location.href = '/login';
         return null;
       }
       return data;
     } catch (err) {
-      window.location.href = 'login.html';
+      window.location.href = '/login';
       return null;
     }
   };
@@ -39,7 +39,7 @@
     try {
       await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'include' });
     } catch (_) { /* best-effort */ }
-    window.location.href = 'login.html';
+    window.location.href = '/login';
   };
 
   // ── Fetch helper ──────────────────────────────────────────────────────

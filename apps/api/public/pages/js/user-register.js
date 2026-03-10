@@ -3,7 +3,7 @@ const form = document.getElementById('register-form');
     
     // Get redirect URL if present
     const params = new URLSearchParams(window.location.search);
-    const redirect = params.get('redirect') || 'jobs.html';
+    const redirect = params.get('redirect') || '/jobs';
     
     form.addEventListener('submit', async (e) => {
       e.preventDefault();

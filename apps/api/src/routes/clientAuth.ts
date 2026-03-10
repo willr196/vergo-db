@@ -286,7 +286,7 @@ r.get("/verify-email", async (req, res) => {
     }
     
     if (client.emailVerified) {
-      return res.redirect("/client-login.html?verified=already");
+      return res.redirect("/client-login?verified=already");
     }
     
     await prisma.client.update({
@@ -301,7 +301,7 @@ r.get("/verify-email", async (req, res) => {
     console.log(`[CLIENT] Email verified: ${client.companyName}`);
     
     // Redirect to login page with success message
-    res.redirect("/client-login.html?verified=true");
+    res.redirect("/client-login?verified=true");
     
   } catch (error) {
     console.error("[ERROR] Client email verification failed:", error);

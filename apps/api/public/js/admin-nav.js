@@ -91,7 +91,7 @@
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function () {
       if (window.AdminCore) AdminCore.logout();
-      else window.location.href = 'login.html';
+      else window.location.href = '/login';
     });
   }
 

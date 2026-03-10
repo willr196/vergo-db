@@ -320,9 +320,10 @@
     }
 
     .btn-primary {
-      background: var(--gold);
-      border-color: var(--gold);
-      color: #111;
+      background: #D4AF37;
+      border: 2px solid #D4AF37;
+      color: #0a0a0a;
+      font-weight: 700;
       box-shadow: 0 18px 36px rgba(212, 175, 55, 0.16);
     }
 
@@ -330,6 +331,13 @@
       background: rgba(255, 255, 255, 0.04);
       border-color: var(--line-strong);
       color: var(--white);
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus-visible {
+      background: transparent;
+      color: #D4AF37;
+      border-color: #D4AF37;
     }
 
     .hero-stage {
@@ -712,6 +720,26 @@
       margin-top: 18px;
     }
 
+    .tier-card-copy {
+      margin-top: 18px;
+      color: var(--gold);
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .tier-inline-note {
+      margin: 0 0 28px;
+      color: var(--gold);
+      font-size: 0.98rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .tier-preview-card .stacked-actions {
+      margin-top: 24px;
+    }
+
     .cta-panel {
       display: flex;
       align-items: end;
@@ -885,7 +913,7 @@
 <body class="homepage">
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <!-- Use a dedicated banner container so vergo-nav.js cannot overwrite or duplicate the homepage navigation. -->
+  <!-- Dedicated banner container for the homepage navigation shell. -->
   <div id="site-header" class="site-header" role="banner">
     <div class="page-shell">
       <div class="nav-container">
@@ -910,7 +938,7 @@
           </nav>
           <div class="nav-actions">
             <a href="/apply" class="btn btn-secondary">Join VERGO</a>
-            <a href="/quote" class="btn btn-primary">Hire Staff</a>
+            <a href="/hire-staff" class="btn btn-primary">Hire Staff</a>
           </div>
         </div>
 
@@ -932,7 +960,7 @@
         </nav>
         <div class="nav-actions">
           <a href="/apply" class="btn btn-secondary">Join VERGO</a>
-          <a href="/quote" class="btn btn-primary">Hire Staff</a>
+          <a href="/hire-staff" class="btn btn-primary">Hire Staff</a>
         </div>
       </div>
     </div>
@@ -975,35 +1003,39 @@
       <div class="page-shell">
         <div class="section-heading">
           <span class="eyebrow">Staff tiers</span>
-          <h2>Standard for reliable cover, Gold for experienced specialists.</h2>
-          <p>The tier system is the hook: pick the level of experience, dress code and service style your event needs.</p>
+          <h2>Marketplace flexibility or proven premium performance.</h2>
+          <p>Standard staff are vetted and reliable. Gold staff earn premium status through reviews and repeat bookings.</p>
         </div>
+
+        <p class="tier-inline-note">Gold status is earned through performance &mdash; not purchased.</p>
 
         <div class="card-grid card-grid--two">
           <article class="role-card tier-preview-card">
-            <p class="card-label">Standard</p>
-            <h3>Reliable event cover.</h3>
-            <span class="tier-rate">&pound;20<span>/hr</span></span>
+            <p class="card-label">Standard Tier</p>
+            <h3>Marketplace &mdash; vetted staff, flexible rates.</h3>
+            <p class="tier-card-copy">Staff wage + &pound;2/hr + VAT</p>
             <ul class="list">
-              <li>Reliable floor, bar and support staff for standard service briefs.</li>
-              <li>Smart black service dress code and straightforward briefing.</li>
-              <li>Best for venue shifts, receptions and dependable extra cover.</li>
+              <li>Every worker passes VERGO screening before joining.</li>
+              <li>Open marketplace model with client choice from available staff.</li>
+              <li>Best for general event cover, extra hands and flexible staffing.</li>
             </ul>
+            <div class="stacked-actions">
+              <a href="/hire-staff" class="btn btn-primary">Browse Standard</a>
+            </div>
           </article>
           <article class="role-card tier-preview-card">
-            <p class="card-label">Gold</p>
-            <h3>Experienced specialists.</h3>
-            <span class="tier-rate">&pound;28<span>/hr</span></span>
+            <p class="card-label">Gold Tier</p>
+            <h3>Premium &mdash; proven performers, fixed rates.</h3>
+            <p class="tier-card-copy">&pound;20/hr standard roles | &pound;26/hr chefs</p>
             <ul class="list">
-              <li>Higher-experience staff for premium guest-facing service and tighter briefs.</li>
-              <li>Elevated dress code, calmer room-read and stronger service style.</li>
-              <li>Best for launches, private dining, productions and high-touch events.</li>
+              <li>Gold status is earned through excellent reviews and repeat bookings.</li>
+              <li>VERGO matches Gold briefs with our strongest, most experienced people.</li>
+              <li>Best for premium events, productions and corporate hospitality.</li>
             </ul>
+            <div class="stacked-actions">
+              <a href="/hire-staff" class="btn btn-primary">View Gold</a>
+            </div>
           </article>
-        </div>
-
-        <div class="stacked-actions" style="margin-top: 28px;">
-          <a href="/pricing" class="btn btn-primary">View Full Pricing</a>
         </div>
       </div>
     </section>
@@ -1076,77 +1108,8 @@
     </div>
   </footer>
 
+  <script src="/vergo-public-shell.js"></script>
   <script src="/vergo-analytics.js"></script>
-  <script>
-    (function () {
-      const header = document.getElementById('site-header');
-      const button = document.getElementById('mobile-menu-button');
-      const menu = document.getElementById('mobile-menu');
-
-      if (header) {
-        const syncHeader = () => {
-          header.classList.toggle('is-scrolled', window.scrollY > 24);
-        };
-
-        syncHeader();
-        window.addEventListener('scroll', syncHeader, { passive: true });
-      }
-
-      if (!button || !menu) {
-        return;
-      }
-
-      const closeMenu = () => {
-        button.classList.remove('is-active');
-        button.setAttribute('aria-expanded', 'false');
-        menu.classList.remove('is-open');
-        menu.hidden = true;
-        document.body.classList.remove('menu-open');
-      };
-
-      const openMenu = () => {
-        button.classList.add('is-active');
-        button.setAttribute('aria-expanded', 'true');
-        menu.hidden = false;
-        menu.classList.add('is-open');
-        document.body.classList.add('menu-open');
-      };
-
-      button.addEventListener('click', () => {
-        if (menu.classList.contains('is-open')) {
-          closeMenu();
-          return;
-        }
-
-        openMenu();
-      });
-
-      menu.querySelectorAll('a').forEach((link) => {
-        link.addEventListener('click', closeMenu);
-      });
-
-      document.addEventListener('click', (event) => {
-        if (header && header.contains(event.target)) {
-          return;
-        }
-
-        closeMenu();
-      });
-
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-          closeMenu();
-        }
-      });
-
-      window.addEventListener('resize', () => {
-        if (window.innerWidth > 960) {
-          closeMenu();
-        }
-      });
-    })();
-  </script>
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",

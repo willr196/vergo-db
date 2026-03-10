@@ -9,6 +9,7 @@
     "start": "node dist/src/index.js",
     "pretest": "node scripts/ensure-prisma-client-link.js",
     "test": "npm run build && node --test dist/src/__tests__/*.test.js",
+    "validate:pages": "node scripts/validate-page-consistency.js",
     "validate:seo": "node scripts/validate-seo.js",
     "prisma": "prisma",
     "prisma:deploy": "node scripts/prisma-deploy-with-retry.js",

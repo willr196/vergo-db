@@ -106,7 +106,7 @@ let applications = [];
             </td>
             <td>
               <div class="job-info">
-                <span class="job-title"><a href="admin-jobs">${escapeHtml(app.job.title)}</a></span>
+                <span class="job-title"><a href="/admin-jobs">${escapeHtml(app.job.title)}</a></span>
                 <span class="job-meta">${escapeHtml(app.job.location)} • ${eventDate}</span>
                 <span class="job-type ${app.job.type === 'INTERNAL' ? 'internal' : 'external'}">
                   ${app.job.type === 'INTERNAL' ? 'VERGO' : 'External'}

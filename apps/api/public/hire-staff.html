@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/logo-small.png">
   <title>Hire Staff by Tier | VERGO Ltd</title>
-  <meta name="description" content="Hire VERGO staff by tier. Compare Standard and Gold event staff, see the difference, and request a quote for your next London event.">
+  <meta name="description" content="Compare VERGO Standard marketplace staff and Gold proven performers, then browse available profiles or request a quote for your next event.">
   <link rel="canonical" href="https://vergoltd.com/hire-staff">
   <meta name="theme-color" content="#0a0a0a">
 
   <meta property="og:title" content="Hire Staff by Tier | VERGO Ltd">
-  <meta property="og:description" content="Compare VERGO Standard and Gold staff tiers, then request a quote for your next London event.">
+  <meta property="og:description" content="Compare VERGO Standard marketplace staff and Gold proven performers, then browse available profiles or request a quote for your next event.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://vergoltd.com/hire-staff">
   <meta property="og:image" content="https://vergoltd.com/logo.png">
@@ -21,6 +21,38 @@
   <link rel="stylesheet" href="/vergo-a11y.css">
   <link rel="stylesheet" href="/vergo-public-pages.css">
   <style>
+    .btn-primary,
+    .submit-btn,
+    .form-submit,
+    .cta-button:not(.secondary),
+    .tier-cta:not(.secondary),
+    .calc-cta,
+    button[type="submit"]:not(.tab-btn) {
+      background: #D4AF37;
+      border: 2px solid #D4AF37;
+      color: #0a0a0a;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus-visible,
+    .submit-btn:hover,
+    .submit-btn:focus-visible,
+    .form-submit:hover,
+    .form-submit:focus-visible,
+    .cta-button:not(.secondary):hover,
+    .cta-button:not(.secondary):focus-visible,
+    .tier-cta:not(.secondary):hover,
+    .tier-cta:not(.secondary):focus-visible,
+    .calc-cta:hover,
+    .calc-cta:focus-visible,
+    button[type="submit"]:not(.tab-btn):hover,
+    button[type="submit"]:not(.tab-btn):focus-visible {
+      background: transparent;
+      color: #D4AF37;
+      border-color: #D4AF37;
+    }
+
     .tier-compare-grid {
       display: grid;
       gap: 18px;
@@ -44,6 +76,24 @@
 
     .tier-compare-grid .tier-features {
       margin-top: 18px;
+    }
+
+    .tier-price-note {
+      margin-top: 16px;
+      color: var(--white);
+      font-size: 1.55rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .tier-price-note span {
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .tier-card .stacked-actions {
+      margin-top: 24px;
     }
 
     @media (max-width: 960px) {
@@ -80,7 +130,7 @@
           </nav>
           <div class="nav-actions">
             <a href="/apply" class="btn btn-secondary">Join VERGO</a>
-            <a href="/quote" class="btn btn-primary">Hire Staff</a>
+            <a href="/hire-staff" class="btn btn-primary">Hire Staff</a>
           </div>
         </div>
 
@@ -102,7 +152,7 @@
         </nav>
         <div class="nav-actions">
           <a href="/apply" class="btn btn-secondary">Join VERGO</a>
-          <a href="/quote" class="btn btn-primary">Hire Staff</a>
+          <a href="/hire-staff" class="btn btn-primary">Hire Staff</a>
         </div>
       </div>
     </div>
@@ -114,34 +164,34 @@
         <div class="hero-grid">
           <div>
             <span class="eyebrow">Hire staff</span>
-            <h1>Staff matched to your brief.</h1>
-            <p class="lede">Choose Standard or Gold staff and VERGO will match the right people to your event, service style and dress code.</p>
+            <h1>Choose the right tier for the room.</h1>
+            <p class="lede">Standard lets you browse vetted marketplace staff. Gold gives you proven premium performers who have earned their place.</p>
             <div class="hero-actions">
-              <a href="/quote" class="btn btn-primary">Get a Quote</a>
-              <a href="/pricing" class="btn btn-secondary">View Pricing</a>
+              <a href="/browse-staff" class="btn btn-primary">Browse Available Staff</a>
+              <a href="/quote" class="btn btn-secondary">Request a Quote</a>
             </div>
           </div>
 
           <aside class="panel hero-summary" aria-label="Hire staff summary">
-            <span class="status">Tier-led staffing</span>
-            <h2>Standard covers reliable service. Gold covers premium specialists.</h2>
-            <p>Tell VERGO what the room needs and we will match the right tier, confirm availability and move quickly.</p>
+            <span class="status">Two-tier staffing</span>
+            <h2>Flexible cover or proven premium staff.</h2>
+            <p>Both tiers are screened. Gold is earned through performance, not bought.</p>
             <div class="detail-grid">
               <article class="detail-card">
-                <p class="card-label">Tier</p>
-                <p><strong>Choose Standard or Gold based on the brief.</strong></p>
+                <p class="card-label">Standard</p>
+                <p><strong>Open marketplace model with client choice.</strong></p>
               </article>
               <article class="detail-card">
-                <p class="card-label">Style</p>
-                <p><strong>Dress code and service level are built into the match.</strong></p>
+                <p class="card-label">Gold</p>
+                <p><strong>Matched by VERGO to your brief.</strong></p>
               </article>
               <article class="detail-card">
-                <p class="card-label">Timing</p>
-                <p><strong>Staff confirmed within 24 hours for most briefs.</strong></p>
+                <p class="card-label">Rates</p>
+                <p><strong>Staff rate + &pound;4/hr service fee + VAT or fixed Gold pricing.</strong></p>
               </article>
               <article class="detail-card">
-                <p class="card-label">Quote</p>
-                <p><strong>Clear rates and next steps before anything is locked in.</strong></p>
+                <p class="card-label">Reply</p>
+                <p><strong>Clear quote and next steps within 24 hours for most briefs.</strong></p>
               </article>
             </div>
           </aside>
@@ -153,33 +203,38 @@
       <div class="page-shell">
         <div class="section-heading">
           <span class="eyebrow">Staff tiers</span>
-          <h2>Pick the level that fits the room.</h2>
-          <p>Standard for reliable cover, Gold for experienced specialists.</p>
+          <h2>The Marketplace or Proven Performers.</h2>
         </div>
 
         <div class="tier-compare-grid">
           <article class="tier-card">
             <span class="tier-pill">Standard</span>
-            <h3 class="tier-name">Reliable event cover.</h3>
-            <p class="tier-summary">Best when you need dependable extra hands and clean service delivery.</p>
+            <h3 class="tier-name">Vetted marketplace staff.</h3>
+            <p class="tier-price-note">Staff member's rate + &pound;4/hr service fee + VAT</p>
             <ul class="tier-features">
-              <li><span class="mark">Experience</span><span>Reliable hospitality staff for receptions, venues and repeat service.</span></li>
-              <li><span class="mark">Dress code</span><span>Smart black service dress code and straightforward briefing.</span></li>
-              <li><span class="mark">Service style</span><span>Steady support, clear direction and quick integration.</span></li>
-              <li><span class="mark">Typical events</span><span>Venue shifts, receptions, busy bars and reliable cover.</span></li>
+              <li><span class="mark">01</span><span>Everyone passes VERGO screening before joining.</span></li>
+              <li><span class="mark">02</span><span>Browse available staff and pick the team that fits the brief.</span></li>
+              <li><span class="mark">03</span><span>Rates vary by role and staff member.</span></li>
+              <li><span class="mark">04</span><span>Good for general event cover, extra hands and flexible staffing.</span></li>
             </ul>
+            <div class="stacked-actions">
+              <a href="/browse-staff" class="btn btn-primary">Browse Available Staff</a>
+            </div>
           </article>
 
           <article class="tier-card gold-card">
             <span class="tier-pill">Gold</span>
-            <h3 class="tier-name">Experienced specialists.</h3>
-            <p class="tier-summary">Best when presentation, autonomy and stronger room-read matter more.</p>
+            <h3 class="tier-name">Proven premium staff.</h3>
+            <p class="tier-price-note">From &pound;20/hr <span>plus VAT | chefs &pound;26/hr | supervisors &pound;22/hr</span></p>
             <ul class="tier-features">
-              <li><span class="mark">Experience</span><span>Higher-experience staff for premium guest-facing briefs.</span></li>
-              <li><span class="mark">Dress code</span><span>Elevated dress standards, formal blacks and brand-ready presentation.</span></li>
-              <li><span class="mark">Service style</span><span>Polished, calmer service with stronger guest handling.</span></li>
-              <li><span class="mark">Typical events</span><span>Private dining, launches, VIP hospitality, productions and premium events.</span></li>
+              <li><span class="mark">01</span><span>Gold status is earned through reviews and repeat bookings.</span></li>
+              <li><span class="mark">02</span><span>VERGO's highest-quality, most experienced people.</span></li>
+              <li><span class="mark">03</span><span>Fixed rates: &pound;20/hr for bartenders, waiters, FOH and runners, &pound;26/hr for chefs, &pound;22/hr for supervisors.</span></li>
+              <li><span class="mark">04</span><span>Matched by VERGO to your brief for premium events and corporate hospitality.</span></li>
             </ul>
+            <div class="stacked-actions">
+              <a href="/browse-staff?tier=GOLD" class="btn btn-primary">Browse Gold Staff</a>
+            </div>
           </article>
         </div>
       </div>
@@ -189,23 +244,20 @@
       <div class="page-shell">
         <div class="section-heading">
           <span class="eyebrow">How it works</span>
-          <h2>Three steps, no noise.</h2>
+          <h2>Three steps.</h2>
         </div>
         <div class="card-grid">
           <article class="detail-card">
             <p class="card-label">01</p>
-            <h3>Tell us your event.</h3>
-            <p>Date, location, numbers, service style and dress code.</p>
+            <p>Send the date, venue, roles and headcount.</p>
           </article>
           <article class="detail-card">
             <p class="card-label">02</p>
-            <h3>We match the tier.</h3>
-            <p>Standard or Gold, based on the level of experience you need.</p>
+            <p>Choose Standard marketplace staff or Gold matched performers.</p>
           </article>
           <article class="detail-card">
             <p class="card-label">03</p>
-            <h3>Staff get confirmed.</h3>
-            <p>Most briefs are confirmed within 24 hours with clear next steps.</p>
+            <p>Receive rates, confirmation and next steps from VERGO.</p>
           </article>
         </div>
       </div>
@@ -215,13 +267,13 @@
       <div class="page-shell">
         <div class="cta-panel">
           <div>
-            <span class="eyebrow">Get a quote</span>
-            <h2>Tell VERGO what the room needs.</h2>
-            <p>We will match the right tier and come back with a clear quote for your brief.</p>
+            <span class="eyebrow">Next step</span>
+            <h2>Browse the marketplace or talk the brief through.</h2>
+            <p>Start with available staff profiles or send VERGO the brief for a faster Gold recommendation.</p>
           </div>
           <div class="stacked-actions" style="margin-top: 0;">
-            <a href="/quote" class="btn btn-primary">Get a Quote</a>
-            <a href="/pricing" class="btn btn-secondary">View Pricing</a>
+            <a href="/browse-staff" class="btn btn-primary">Browse Available Staff</a>
+            <a href="/quote" class="btn btn-secondary">Request a Quote</a>
           </div>
         </div>
       </div>

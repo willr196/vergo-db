@@ -7,6 +7,7 @@
   <title>Get a Quote | VERGO Ltd - Hospitality Staffing Lanes</title>
   <meta name="description" content="Request staffing through VERGO Flex, VERGO Select, or VERGO Managed. Tell us about your event and we will respond within 24 hours with the right route and pricing.">
   <link rel="canonical" href="https://vergoltd.com/quote">
+  <meta name="theme-color" content="#0a0a0a">
 
   <!-- Open Graph -->
   <meta property="og:title" content="Get a Quote | VERGO Ltd">
@@ -19,26 +20,24 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 
-  <!-- Google Fonts - Inter -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="/vergo-styles.css">
-  <link rel="stylesheet" href="/vergo-header.css">
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
-
-
   <link rel="stylesheet" href="/pages/css/quote.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
+  <link rel="stylesheet" href="/vergo-public-legacy.css">
 </head>
-<body>
+<body class="legacy-public-page quote-page-shell">
   <!-- Skip Link for Accessibility -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <!-- Header Navigation -->
-  <header></header>
+  <div id="site-header" class="site-header" role="banner"></div>
 
   <main id="main-content" class="quote-page">
     <div class="quote-container">
@@ -474,8 +473,7 @@
 
   <!-- Scripts -->
   <script src="/vergo-utils.js"></script>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-public-shell.js"></script>
   <script src="/vergo-analytics.js"></script>
 
   <!-- Form Handling Script -->

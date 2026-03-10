@@ -19,6 +19,39 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-a11y.css">
   <link rel="stylesheet" href="/vergo-public-pages.css">
+  <style>
+    .btn-primary,
+    .submit-btn,
+    .form-submit,
+    .cta-button:not(.secondary),
+    .tier-cta:not(.secondary),
+    .calc-cta,
+    button[type="submit"]:not(.tab-btn) {
+      background: #D4AF37;
+      border: 2px solid #D4AF37;
+      color: #0a0a0a;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus-visible,
+    .submit-btn:hover,
+    .submit-btn:focus-visible,
+    .form-submit:hover,
+    .form-submit:focus-visible,
+    .cta-button:not(.secondary):hover,
+    .cta-button:not(.secondary):focus-visible,
+    .tier-cta:not(.secondary):hover,
+    .tier-cta:not(.secondary):focus-visible,
+    .calc-cta:hover,
+    .calc-cta:focus-visible,
+    button[type="submit"]:not(.tab-btn):hover,
+    button[type="submit"]:not(.tab-btn):focus-visible {
+      background: transparent;
+      color: #D4AF37;
+      border-color: #D4AF37;
+    }
+  </style>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -89,56 +122,12 @@
             </div>
           </div>
 
-          <aside class="panel hero-summary" aria-label="Application summary">
-            <span class="status">London roster</span>
-            <h2>What you get from VERGO.</h2>
-            <p>Flexible work, premium rooms and a cleaner application path into better-run event jobs.</p>
-            <div class="detail-grid">
-              <article class="detail-card">
-                <p class="card-label">Events</p>
-                <p><strong>Premium hospitality, private events and guest-facing service.</strong></p>
-              </article>
-              <article class="detail-card">
-                <p class="card-label">Flexibility</p>
-                <p><strong>Shifts that fit around your availability and experience.</strong></p>
-              </article>
-              <article class="detail-card">
-                <p class="card-label">Production</p>
-                <p><strong>Film, TV and music production work where suitable.</strong></p>
-              </article>
-              <article class="detail-card">
-                <p class="card-label">Onboarding</p>
-                <p><strong>Clear next steps, right-to-work checks and standards.</strong></p>
-              </article>
-            </div>
+          <aside class="panel hero-summary" aria-label="Tier progression">
+            <span class="status">Tier progression</span>
+            <h2>Start strong. Earn Gold.</h2>
+            <p>Start as Standard tier. Build your reputation through great work.</p>
+            <p>Top-rated staff earn Gold status &mdash; higher rates, premium event access.</p>
           </aside>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-block">
-      <div class="page-shell">
-        <div class="card-grid card-grid--four">
-          <article class="detail-card">
-            <p class="card-label">01</p>
-            <h3>Flexible shifts.</h3>
-            <p>Pick up work around your availability and experience.</p>
-          </article>
-          <article class="detail-card">
-            <p class="card-label">02</p>
-            <h3>Premium events.</h3>
-            <p>Work in guest-facing environments where presentation matters.</p>
-          </article>
-          <article class="detail-card">
-            <p class="card-label">03</p>
-            <h3>Film, TV and music.</h3>
-            <p>Join a roster that can move across productions as well as events.</p>
-          </article>
-          <article class="detail-card">
-            <p class="card-label">04</p>
-            <h3>Clear standards.</h3>
-            <p>Know what is expected before you step into the room.</p>
-          </article>
         </div>
       </div>
     </section>
@@ -172,6 +161,59 @@
                   <label for="phone">Phone</label>
                   <input type="tel" id="phone" name="phone">
                 </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="dateOfBirth">Date of birth</label>
+                  <input type="date" id="dateOfBirth" name="dateOfBirth">
+                  <p class="hint">Required for right-to-work verification</p>
+                </div>
+                <div class="form-group">
+                  <label for="postcode">Postcode</label>
+                  <input type="text" id="postcode" name="postcode" autocomplete="postal-code" placeholder="e.g. E1 6AN">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Preferred job types</label>
+                <p class="hint">Select the work categories you are most interested in.</p>
+                <div class="checkbox-group">
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="preferredJobTypes" value="Corporate Events">
+                    <span>Corporate Events</span>
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="preferredJobTypes" value="Film &amp; TV">
+                    <span>Film &amp; TV</span>
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="preferredJobTypes" value="Music &amp; Festivals">
+                    <span>Music &amp; Festivals</span>
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="preferredJobTypes" value="Private Events">
+                    <span>Private Events</span>
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="preferredJobTypes" value="Hospitality/Venues">
+                    <span>Hospitality/Venues</span>
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="preferredJobTypes" value="Weddings">
+                    <span>Weddings</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="bio">Short bio</label>
+                <textarea id="bio" name="bio" maxlength="300" placeholder="A sentence or two about your experience"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="yearsExperience">Years of experience</label>
+                <input type="number" id="yearsExperience" name="yearsExperience" min="0" max="40" inputmode="numeric">
               </div>
 
               <div class="form-group">

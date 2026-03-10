@@ -6,22 +6,24 @@
   <title>Dashboard - VERGO Ltd</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="canonical" href="https://vergoltd.com/client-dashboard">
+  <meta name="theme-color" content="#0a0a0a">
   <link rel="icon" type="image/png" href="/logo-small.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-styles.css">
-  <link rel="stylesheet" href="/vergo-header.css">
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
   <link rel="stylesheet" href="/vergo-platform.css">
 
   <link rel="stylesheet" href="/pages/css/client-dashboard.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
+  <link rel="stylesheet" href="/vergo-public-legacy.css">
 </head>
-<body class="platform">
-  <header></header>
+<body class="platform legacy-public-page dashboard-page dashboard-shell-page">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="site-header" class="site-header" role="banner"></div>
   <div class="dashboard-header">
-    <a href="index" class="logo">
+    <a href="/" class="logo">
       <img src="/logo.png" alt="VERGO Ltd" loading="lazy" decoding="async">
     </a>
     <div class="header-right">
@@ -42,7 +44,7 @@
         <a href="#" data-page="profile">
           <span class="sidebar-icon">🏢</span> Company Profile
         </a>
-        <a href="pricing">
+        <a href="/pricing">
           <span class="sidebar-icon">💰</span> Pricing Calculator
         </a>
       </nav>
@@ -141,8 +143,7 @@
   
 
   <script src="/pages/js/client-dashboard.js"></script>
-  <footer></footer>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
+  <footer role="contentinfo"></footer>
+  <script src="/vergo-public-shell.js"></script>
 </body>
 </html>

@@ -32,7 +32,7 @@
 	            Welcome, <strong>${escapeHtml(currentUser.firstName)}</strong>
 	          </div>
 	          <div class="user-actions">
-	            <a href="user-dashboard" class="btn btn-secondary btn-small">My Applications</a>
+	            <a href="/user-dashboard" class="btn btn-secondary btn-small">My Applications</a>
 	            <button type="button" class="btn btn-small btn-logout" data-action="logout">Log Out</button>
 	          </div>
 	        `;
@@ -40,8 +40,8 @@
 	        bar.className = 'user-bar logged-out';
 	        bar.innerHTML = `
 	          <div class="user-actions">
-	            <a href="user-login" class="btn btn-secondary btn-small">Log In</a>
-	            <a href="user-register" class="btn btn-primary btn-small">Create Account</a>
+	            <a href="/user-login" class="btn btn-secondary btn-small">Log In</a>
+	            <a href="/user-register" class="btn btn-primary btn-small">Create Account</a>
 	          </div>
 	        `;
 	      }

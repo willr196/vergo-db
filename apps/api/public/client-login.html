@@ -7,35 +7,29 @@
   <title>Client Login - VERGO Ltd</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="canonical" href="https://vergoltd.com/client-login">
+  <meta name="theme-color" content="#0a0a0a">
 
-  <!-- Google Fonts - Inter (primary brand font) -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/vergo-styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
-
-
-  <link rel="stylesheet" href="/pages/css/client-login.css">
-  <link rel="stylesheet" href="/vergo-platform.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
+  <link rel="stylesheet" href="/pages/css/public-auth.css">
 </head>
-<body class="platform">
-  <header>
-    <a href="index" class="logo">
-      <img src="/logo.png" alt="VERGO Ltd" loading="lazy" decoding="async">
-    </a>
-  </header>
+<body class="public-auth-page client-auth-page">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="site-header" class="site-header" role="banner"></div>
   
-  <main>
-    <div class="auth-container">
+  <main id="main-content" class="auth-main">
+    <div class="auth-container auth-container-narrow">
       <div class="auth-box">
         <h1>Client Login</h1>
         <p class="subtitle">Access your client dashboard</p>
         
         <div class="toggle-type">
           <span>Looking for work?</span>
-          <a href="user-login">Job Seeker Login</a>
+          <a href="/user-login">Job Seeker Login</a>
         </div>
         
         <div id="message"></div>
@@ -51,7 +45,7 @@
             <input type="password" id="password" name="password" required autocomplete="current-password">
           </div>
           
-          <a href="forgot-password" class="forgot-link">Forgot password?</a>
+          <a href="/forgot-password?type=client" class="forgot-link">Forgot password?</a>
           
           <button type="submit" class="btn">Log In</button>
         </form>
@@ -62,21 +56,18 @@
         </div>
         
         <div class="auth-footer">
-          Don't have an account? <a href="client-register">Register as a Client</a>
+          Don't have an account? <a href="/client-register">Register as a Client</a>
         </div>
       </div>
       
-      <a href="hire-staff" class="back-link">← Back to Hire Event Staff</a>
+      <a href="/hire-staff" class="back-link">← Back to Hire Event Staff</a>
     </div>
   </main>
   
-  <footer>
-    <p>&copy; 2025 VERGO Ltd.</p>
-  </footer>
+  <footer role="contentinfo"></footer>
   
 
   <script src="/pages/js/client-login.js"></script>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-public-shell.js"></script>
 </body>
 </html>

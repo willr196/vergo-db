@@ -7,7 +7,7 @@ let currentUser = null;
     const jobId = params.get('id');
     
     if (!jobId) {
-      window.location.href = 'jobs.html';
+      window.location.href = '/jobs';
     }
     
     // Check auth
@@ -50,7 +50,7 @@ let currentUser = null;
             <div class="loading">
               <h3>Job not found</h3>
               <p>This job may have been filled or removed.</p>
-              <a href="jobs" class="btn btn-primary" style="margin-top: 20px;">View All Jobs</a>
+              <a href="/jobs" class="btn btn-primary" style="margin-top: 20px;">View All Jobs</a>
             </div>
           `;
           return;
@@ -166,7 +166,7 @@ let currentUser = null;
           <div class="apply-status applied">
             ✓ You've already applied for this job
           </div>
-          <a href="user-dashboard" class="btn btn-secondary btn-block">View My Applications</a>
+          <a href="/user-dashboard" class="btn btn-secondary btn-block">View My Applications</a>
         `;
         return;
       }
@@ -179,8 +179,8 @@ let currentUser = null;
             Please log in or create an account to apply
           </div>
           <div style="display: flex; gap: 15px;">
-            <a href="user-login.html?redirect=${encodeURIComponent(window.location.href)}" class="btn btn-primary" style="flex: 1; text-align: center;">Log In</a>
-            <a href="user-register.html?redirect=${encodeURIComponent(window.location.href)}" class="btn btn-secondary" style="flex: 1; text-align: center;">Create Account</a>
+            <a href="/user-login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}" class="btn btn-primary" style="flex: 1; text-align: center;">Log In</a>
+            <a href="/user-register?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}" class="btn btn-secondary" style="flex: 1; text-align: center;">Create Account</a>
           </div>
         `;
         return;

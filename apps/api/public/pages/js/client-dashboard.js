@@ -14,7 +14,7 @@
       const data = payload.data ?? payload;
 
       if (!data.authenticated) {
-        window.location.href = '/client-login.html';
+        window.location.href = '/client-login';
         return;
       }
 
@@ -23,7 +23,7 @@
       loadDashboard();
     } catch (err) {
       console.error('Auth check failed:', err);
-      window.location.href = '/client-login.html';
+      window.location.href = '/client-login';
     }
   }
 
@@ -59,7 +59,7 @@
               <p>Get a custom quote for your upcoming event staffing needs.</p>
             </div>
           </a>
-          <a href="pricing" class="action-card">
+          <a href="/pricing" class="action-card">
             <span class="action-icon">💰</span>
             <div class="action-content">
               <h3>Pricing Calculator</h3>
@@ -181,12 +181,33 @@
     }
 
     const formData = new FormData(form);
-    const _data = Object.fromEntries(formData);
+    const payload = Object.fromEntries(formData);
 
     try {
-      // For now, just show success (would need API endpoint)
-      alert('Quote request submitted! We\\'ll get back to you within 24 hours.');
+      const res = await fetch('/api/v1/quotes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: clientData?.contactName || payload.name || '',
+          email: clientData?.email || payload.email || '',
+          phone: payload.phone || '',
+          company: clientData?.companyName || '',
+          eventType: payload.eventType || 'Hospitality staffing request',
+          eventDate: payload.eventDate || undefined,
+          location: payload.location || '',
+          staffNeeded: Number(payload.staffNeeded) || 1,
+          roles: payload.roles ? [payload.roles] : ['Bar staff'],
+          message: payload.message || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Quote submission failed');
+      }
+
       closeModal();
+      loadDashboard();
     } catch (err) {
       const message = (err && typeof err === 'object' && 'message' in err) ? String(err.message) : 'Unknown error';
       alert('Failed to submit quote: ' + message);
@@ -202,10 +223,10 @@
   async function logout() {
     try {
       await fetch('/api/v1/clients/logout', { method: 'POST' });
-      window.location.href = '/client-login.html';
+      window.location.href = '/client-login';
     } catch (err) {
       console.error('Logout failed:', err);
-      window.location.href = '/client-login.html';
+      window.location.href = '/client-login';
     }
   }
 

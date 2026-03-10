@@ -55,8 +55,8 @@ async function secureFetch(url, options = {}) {
     }
     
     // Handle 401 Unauthorized
-    if (response.status === 401 && window.location.pathname !== '/login.html') {
-      window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+    if (response.status === 401 && window.location.pathname !== '/login') {
+      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
       return null;
     }
     
@@ -352,7 +352,7 @@ class SessionManager {
       checkInterval: 60000, // Check every minute
       warningTime: 5 * 60 * 1000, // Warn 5 minutes before expiry
       logoutUrl: '/api/v1/auth/logout',
-      loginUrl: '/login.html',
+      loginUrl: '/login',
       ...options
     };
     

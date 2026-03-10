@@ -7,45 +7,24 @@
   <title>My Applications - VERGO Ltd</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="canonical" href="https://vergoltd.com/user-dashboard">
+  <meta name="theme-color" content="#0a0a0a">
 
-  <!-- Google Fonts - Inter (primary brand font) -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-styles.css">
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
-
-
   <link rel="stylesheet" href="/pages/css/user-dashboard.css">
   <link rel="stylesheet" href="/vergo-platform.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
+  <link rel="stylesheet" href="/vergo-public-legacy.css">
 </head>
-<body class="platform">
-  <header>
-    <a href="index" class="logo">
-      <img src="/logo.png" alt="VERGO Ltd" loading="lazy" decoding="async">
-    </a>
-    
-	    <button class="menu-toggle" type="button" aria-label="Toggle menu">
-	      <span></span><span></span><span></span>
-	    </button>
-    
-    <nav>
-      <ul id="nav-menu">
-        <li><a href="index">Home</a></li>
-        <li><a href="hire-staff">Hire Event Staff</a></li>
-        <li><a href="pricing">Pricing</a></li>
-        <li><a href="jobs">Job Board</a></li>
-        <li><a href="blog">Blog</a></li>
-        <li><a href="apply">Join VERGO</a></li>
-        <li><a href="about">About</a></li>
-        <li><a href="faq">FAQ</a></li>
-        <li><a href="contact">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
+<body class="platform legacy-public-page dashboard-page">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="site-header" class="site-header" role="banner"></div>
   
-  <main>
+  <main id="main-content">
     <div id="content">
       <div class="loading">
         <div class="loading-spinner"></div>
@@ -54,13 +33,10 @@
     </div>
   </main>
   
-  <footer>
-    <p>&copy; 2025 VERGO Ltd.</p>
-  </footer>
+  <footer role="contentinfo"></footer>
   
 
   <script src="/pages/js/user-dashboard.js"></script>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-public-shell.js"></script>
 </body>
 </html>

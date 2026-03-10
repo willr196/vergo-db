@@ -27,8 +27,8 @@ let currentUser = null;
         <div class="login-required">
           <h2>Please Log In</h2>
           <p>You need to be logged in to view your applications.</p>
-          <a href="user-login.html?redirect=${encodeURIComponent(window.location.href)}" class="btn btn-primary">Log In</a>
-          <a href="user-register" class="btn btn-secondary">Create Account</a>
+          <a href="/user-login?redirect=${encodeURIComponent(window.location.pathname)}" class="btn btn-primary">Log In</a>
+          <a href="/user-register" class="btn btn-secondary">Create Account</a>
         </div>
       `;
     }
@@ -90,7 +90,7 @@ let currentUser = null;
           <div class="empty-state">
             <h3>No applications yet</h3>
             <p>Browse available jobs and apply to get started!</p>
-            <a href="jobs" class="btn btn-primary">Browse Jobs</a>
+            <a href="/jobs" class="btn btn-primary">Browse Jobs</a>
           </div>
         `;
       } else {
@@ -135,7 +135,7 @@ let currentUser = null;
           <div class="application-actions">
             <span class="status-badge ${statusClass}">${statusLabel}</span>
             ${canWithdraw ? `<button type="button" class="btn btn-danger btn-small" data-action="withdraw" data-app-id="${app.id}">Withdraw</button>` : ''}
-            ${job.status === 'OPEN' ? `<a href="job-detail.html?id=${job.id}" class="btn btn-secondary btn-small">View Job</a>` : ''}
+            ${job.status === 'OPEN' ? `<a href="/job-detail?id=${job.id}" class="btn btn-secondary btn-small">View Job</a>` : ''}
           </div>
         </div>
       `;
@@ -166,7 +166,7 @@ let currentUser = null;
     async function logout() {
       try {
         await fetch('/api/v1/user/logout', { method: 'POST' });
-        window.location.href = 'jobs.html';
+        window.location.href = '/jobs';
       } catch (err) {
         console.error('Logout failed:', err);
       }

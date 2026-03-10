@@ -8,35 +8,29 @@
   <meta name="description" content="Register your company to hire premium event staff in London. Access exclusive rates, instant booking, and dedicated support.">
   <meta name="robots" content="noindex, nofollow">
   <link rel="canonical" href="https://vergoltd.com/client-register">
+  <meta name="theme-color" content="#0a0a0a">
 
-  <!-- Google Fonts - Inter (primary brand font) -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/vergo-styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
-
-
-  <link rel="stylesheet" href="/pages/css/client-register.css">
-  <link rel="stylesheet" href="/vergo-platform.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
+  <link rel="stylesheet" href="/pages/css/public-auth.css">
 </head>
-<body class="platform">
-  <header>
-    <a href="index" class="logo">
-      <img src="/logo.png" alt="VERGO Ltd" loading="lazy" decoding="async">
-    </a>
-  </header>
+<body class="public-auth-page client-auth-page">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="site-header" class="site-header" role="banner"></div>
   
-  <main>
-    <div class="auth-container">
+  <main id="main-content" class="auth-main">
+    <div class="auth-container auth-container-wide">
       <div class="auth-box">
         <h1>Register as a Client</h1>
         <p class="subtitle">Create an account to hire premium event staff</p>
         
         <div class="toggle-type">
           <span>Looking for work instead?</span>
-          <a href="user-register">Register as a Job Seeker</a>
+          <a href="/user-register">Register as a Job Seeker</a>
         </div>
         
         <div class="benefits">
@@ -132,21 +126,18 @@
         </form>
         
         <div class="auth-footer">
-          Already have an account? <a href="client-login">Log in</a>
+          Already have an account? <a href="/client-login">Log in</a>
         </div>
       </div>
       
-      <a href="hire-staff" class="back-link">← Back to Hire Event Staff</a>
+      <a href="/hire-staff" class="back-link">← Back to Hire Event Staff</a>
     </div>
   </main>
   
-  <footer>
-    <p>&copy; 2025 VERGO Ltd.</p>
-  </footer>
+  <footer role="contentinfo"></footer>
   
 
   <script src="/pages/js/client-register.js"></script>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-public-shell.js"></script>
 </body>
 </html>

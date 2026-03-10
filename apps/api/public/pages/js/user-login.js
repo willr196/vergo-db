@@ -10,7 +10,7 @@
 
   // Get redirect URL (allow same-origin only)
   const params = new URLSearchParams(window.location.search);
-  const defaultRedirect = '/jobs.html';
+  const defaultRedirect = '/user-dashboard';
   let redirect = defaultRedirect;
   const redirectParam = params.get('redirect');
   if (redirectParam) {

@@ -54,8 +54,8 @@ export function adminPageAuth(req: Request, res: Response, next: NextFunction) {
     const wantsHTML = typeof accept === 'string' && accept.includes('text/html');
     
     if (wantsHTML) {
-      const redirectPath = req.originalUrl.startsWith('/') && !req.originalUrl.startsWith('//') ? req.originalUrl : '/admin.html';
-      return res.redirect('/login.html?redirect=' + encodeURIComponent(redirectPath));
+      const redirectPath = req.originalUrl.startsWith('/') && !req.originalUrl.startsWith('//') ? req.originalUrl : '/admin';
+      return res.redirect('/login?redirect=' + encodeURIComponent(redirectPath));
     }
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -67,7 +67,7 @@ export function adminPageAuth(req: Request, res: Response, next: NextFunction) {
   if (lastActivity && (now - lastActivity > MAX_IDLE_TIME)) {
     res.clearCookie("vergo.sid");
     req.session.destroy(() => {
-      res.redirect('/login.html?timeout=idle');
+      res.redirect('/login?timeout=idle');
     });
     return;
   }
@@ -75,7 +75,7 @@ export function adminPageAuth(req: Request, res: Response, next: NextFunction) {
   if (loginTime && (now - loginTime > MAX_SESSION_AGE)) {
     res.clearCookie("vergo.sid");
     req.session.destroy(() => {
-      res.redirect('/login.html?timeout=expired');
+      res.redirect('/login?timeout=expired');
     });
     return;
   }

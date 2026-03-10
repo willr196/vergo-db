@@ -51,6 +51,60 @@ async function getFileType(buffer: Buffer) {
   return fn(buffer);
 }
 
+const stripHtml = (value: string) => value.replace(/<[^>]*>/g, '');
+
+const optionalString = (max: number) =>
+  z.preprocess(
+    (value) => {
+      if (typeof value !== 'string') return value;
+      const trimmed = value.trim();
+      return trimmed === '' ? undefined : trimmed;
+    },
+    z.string().max(max).optional()
+  );
+
+const optionalSanitizedString = (max: number) =>
+  z.preprocess(
+    (value) => {
+      if (typeof value !== 'string') return value;
+      const sanitized = stripHtml(value).trim();
+      return sanitized === '' ? undefined : sanitized;
+    },
+    z.string().max(max).optional()
+  );
+
+const optionalDateString = z.preprocess(
+  (value) => {
+    if (typeof value !== 'string') return value;
+    const trimmed = value.trim();
+    return trimmed === '' ? undefined : trimmed;
+  },
+  z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional()
+);
+
+const preferredJobTypeValues = [
+  'Corporate Events',
+  'Film & TV',
+  'Music & Festivals',
+  'Private Events',
+  'Hospitality/Venues',
+  'Weddings'
+] as const;
+
+const preferredJobTypeSchema = z.enum(preferredJobTypeValues);
+
+function parseDateOnlyToUtc(dateValue: string) {
+  return new Date(`${dateValue}T00:00:00.000Z`);
+}
+
+function splitCommaSeparated(value: string | null | undefined) {
+  if (!value) return [];
+  return value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 // ============================================
 // CLEANUP JOB - Delete expired verifications every 15 minutes
 // ============================================
@@ -260,14 +314,19 @@ const createBody = z.object({
   firstName: z.string().min(1).max(100).trim(),
   lastName: z.string().min(1).max(100).trim(),
   email: z.string().email().max(255).toLowerCase(),
-  phone: z.string().max(20).optional(),
+  phone: optionalString(20),
   rightToWorkUk: z.boolean().optional(),
   roles: z.array(roleWithExperience).min(1).max(10),
   cvKey: z.string().min(1).max(500),
   cvOriginalName: z.string().max(255).optional(),
   cvFileSize: z.number().int().positive().max(10485760).optional(),
   cvMimeType: z.string().max(100).optional(),
-  source: z.string().max(100).optional()
+  source: z.string().max(100).optional(),
+  dateOfBirth: optionalDateString,
+  postcode: optionalString(24),
+  preferredJobTypes: z.array(preferredJobTypeSchema).max(preferredJobTypeValues.length).optional(),
+  bio: optionalSanitizedString(300),
+  yearsExperience: z.number().int().min(0).max(40).optional()
 });
 
 const applicationLimiter = rateLimit({
@@ -286,36 +345,65 @@ r.post('/', applicationLimiter, async (req, res, next) => {
     }
 
     // ✅ Verify the file was properly verified
-	    const verification = await prisma.fileUploadVerification.findUnique({
-	      where: { key: d.cvKey }
-	    });
+    const verification = await prisma.fileUploadVerification.findUnique({
+      where: { key: d.cvKey }
+    });
 
-	    if (!verification || !verification.verified) {
-	      return res.status(400).json({ 
-	        error: 'CV must be verified before creating application' 
-	      });
-	    }
-	    if (verification.applicantId !== d.applicantId) {
-	      // Prevent mixing a verified CV key with a different applicantId payload.
-	      return res.status(400).json({
-	        error: 'CV verification mismatch. Please upload and verify your CV again.'
-	      });
-	    }
+    if (!verification || !verification.verified) {
+      return res.status(400).json({
+        error: 'CV must be verified before creating application'
+      });
+    }
+    if (verification.applicantId !== d.applicantId) {
+      // Prevent mixing a verified CV key with a different applicantId payload.
+      return res.status(400).json({
+        error: 'CV verification mismatch. Please upload and verify your CV again.'
+      });
+    }
 
-	    const app = await prisma.application.create({
-	      data: {
-	        applicant: {
-          connectOrCreate: {
-            where: { email: d.email },
-            create: {
-              id: d.applicantId,
-              firstName: d.firstName,
-              lastName: d.lastName,
-              email: d.email,
-              phone: d.phone ?? null,
-              rightToWorkUk: d.rightToWorkUk ?? null
-            }
-          }
+    const applicantCreateData = {
+      id: d.applicantId,
+      firstName: d.firstName,
+      lastName: d.lastName,
+      email: d.email,
+      phone: d.phone ?? null,
+      rightToWorkUk: d.rightToWorkUk ?? null,
+      dateOfBirth: d.dateOfBirth ? parseDateOnlyToUtc(d.dateOfBirth) : null,
+      postcode: d.postcode ?? null,
+      preferredJobTypes: d.preferredJobTypes && d.preferredJobTypes.length > 0
+        ? d.preferredJobTypes.join(',')
+        : null,
+      bio: d.bio ?? null,
+      yearsExperience: d.yearsExperience ?? null
+    };
+
+    const applicantUpdateData: Record<string, unknown> = {
+      firstName: d.firstName,
+      lastName: d.lastName
+    };
+
+    if (d.phone !== undefined) applicantUpdateData.phone = d.phone;
+    if (d.rightToWorkUk !== undefined) applicantUpdateData.rightToWorkUk = d.rightToWorkUk;
+    if (d.dateOfBirth !== undefined) applicantUpdateData.dateOfBirth = parseDateOnlyToUtc(d.dateOfBirth);
+    if (d.postcode !== undefined) applicantUpdateData.postcode = d.postcode;
+    if (d.preferredJobTypes !== undefined) {
+      applicantUpdateData.preferredJobTypes = d.preferredJobTypes.length > 0
+        ? d.preferredJobTypes.join(',')
+        : null;
+    }
+    if (d.bio !== undefined) applicantUpdateData.bio = d.bio;
+    if (d.yearsExperience !== undefined) applicantUpdateData.yearsExperience = d.yearsExperience;
+
+    const applicant = await prisma.applicant.upsert({
+      where: { email: d.email },
+      update: applicantUpdateData,
+      create: applicantCreateData
+    });
+
+    const app = await prisma.application.create({
+      data: {
+        applicant: {
+          connect: { id: applicant.id }
         },
         cvKey: d.cvKey,
         cvOriginalName: d.cvOriginalName ?? null,
@@ -361,22 +449,22 @@ r.post('/', applicationLimiter, async (req, res, next) => {
     });
 
     // Send confirmation to applicant
-	    sendApplicationConfirmationToApplicant({
-	      to: d.email,
-	      name: d.firstName,
-	      roles: roleStrings,
-	      applicationId: app.id
-	    }).catch(err => {
-	      console.error('[EMAIL] Failed to send applicant confirmation:', err);
-	    });
+    sendApplicationConfirmationToApplicant({
+      to: d.email,
+      name: d.firstName,
+      roles: roleStrings,
+      applicationId: app.id
+    }).catch(err => {
+      console.error('[EMAIL] Failed to send applicant confirmation:', err);
+    });
 
-	    // One-time use: reduce the risk of reusing the same verified key in multiple submissions.
-	    prisma.fileUploadVerification.delete({ where: { key: d.cvKey } }).catch(() => {});
+    // One-time use: reduce the risk of reusing the same verified key in multiple submissions.
+    prisma.fileUploadVerification.delete({ where: { key: d.cvKey } }).catch(() => {});
 
-	    console.log(`[APPLICATION] New application: ${app.id}`);
-	    res.status(201).json({ ok: true, id: app.id, data: { id: app.id } });
-	  } catch (e) { next(e); }
-	});
+    console.log(`[APPLICATION] New application: ${app.id}`);
+    res.status(201).json({ ok: true, id: app.id, data: { id: app.id } });
+  } catch (e) { next(e); }
+});
 
 // ============================================
 // LIST APPLICATIONS (ADMIN)
@@ -385,6 +473,88 @@ const listQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(50)
 });
+
+function shapeApplicationListItem(app: any) {
+  return {
+    id: app.id,
+    applicantId: app.applicant.id,
+    createdAt: app.createdAt,
+    updatedAt: app.updatedAt,
+    firstName: app.applicant.firstName,
+    lastName: app.applicant.lastName,
+    email: app.applicant.email,
+    phone: app.applicant.phone ?? '',
+    roles: app.roles.map((role: any) => ({
+      name: role.role.name,
+      experienceLevel: role.experienceLevel ?? null
+    })),
+    cvUrl: app.cvKey,
+    cvKey: app.cvKey,
+    cvOriginalName: app.cvOriginalName ?? null,
+    cvFileSize: app.cvFileSize ?? null,
+    cvMimeType: app.cvMimeType ?? null,
+    cvUploadedAt: app.cvUploadedAt ?? null,
+    source: app.source,
+    status: app.status
+  };
+}
+
+async function shapeApplicationDetail(app: any) {
+  let cvUrl: string | null = null;
+  const lastUpdatedAt =
+    app.applicant?.updatedAt && app.applicant.updatedAt > app.updatedAt
+      ? app.applicant.updatedAt
+      : app.updatedAt;
+
+  if (app.cvKey) {
+    try {
+      cvUrl = await presignDownload(app.cvKey);
+    } catch (error) {
+      console.error(`[CV] Failed to presign download for application ${app.id}:`, error);
+    }
+  }
+
+  return {
+    id: app.id,
+    applicantId: app.applicant.id,
+    createdAt: app.createdAt,
+    updatedAt: app.updatedAt,
+    lastUpdatedAt,
+    status: app.status,
+    source: app.source ?? null,
+    notes: app.notes ?? '',
+    cvUrl,
+    cvKey: app.cvKey,
+    cvOriginalName: app.cvOriginalName ?? null,
+    cvFileSize: app.cvFileSize ?? null,
+    cvMimeType: app.cvMimeType ?? null,
+    cvUploadedAt: app.cvUploadedAt ?? null,
+    roles: app.roles.map((role: any) => ({
+      id: role.role.id,
+      name: role.role.name,
+      experienceLevel: role.experienceLevel ?? null
+    })),
+    applicant: {
+      id: app.applicant.id,
+      firstName: app.applicant.firstName,
+      lastName: app.applicant.lastName,
+      fullName: `${app.applicant.firstName} ${app.applicant.lastName}`.trim(),
+      email: app.applicant.email,
+      phone: app.applicant.phone ?? '',
+      staffTier: app.applicant.staffTier ?? 'STANDARD',
+      hourlyRate: app.applicant.hourlyRate?.toString() ?? null,
+      bio: app.applicant.bio ?? '',
+      profileVisible: Boolean(app.applicant.profileVisible),
+      yearsExperience: app.applicant.yearsExperience ?? null,
+      promotedToGoldAt: app.applicant.promotedToGoldAt ?? null,
+      totalBookings: app.applicant.totalBookings ?? 0,
+      averageRating: app.applicant.averageRating?.toString() ?? null,
+      dateOfBirth: app.applicant.dateOfBirth ?? null,
+      postcode: app.applicant.postcode ?? '',
+      preferredJobTypes: splitCommaSeparated(app.applicant.preferredJobTypes)
+    }
+  };
+}
 
 r.get('/', adminAuth, async (req, res, next) => {
   try {
@@ -408,27 +578,7 @@ r.get('/', adminAuth, async (req, res, next) => {
       prisma.application.count()
     ]);
 
-    // 🔧 FIX: Return cvUrl instead of cvKey for frontend compatibility
-    const shaped = apps.map(a => ({
-      id: a.id,
-      createdAt: a.createdAt,
-      firstName: a.applicant.firstName,
-      lastName: a.applicant.lastName,
-      email: a.applicant.email,
-      phone: a.applicant.phone ?? '',
-      roles: a.roles.map(r => ({
-        name: r.role.name,
-        experienceLevel: r.experienceLevel ?? null
-      })),
-      cvUrl: a.cvKey,
-      cvKey: a.cvKey,
-      cvOriginalName: a.cvOriginalName ?? null,
-      cvFileSize: a.cvFileSize ?? null,
-      cvMimeType: a.cvMimeType ?? null,
-      cvUploadedAt: a.cvUploadedAt ?? null,
-      source: a.source,
-      status: a.status
-    }));
+    const shaped = apps.map(shapeApplicationListItem);
 
     const payload = {
       applications: shaped,
@@ -483,8 +633,52 @@ r.get('/:id', adminAuth, async (req, res, next) => {
         }
       }
     });
-    if (!app) return res.status(404).end();
-    res.json({ ok: true, application: app, data: app });
+    if (!app) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+
+    const payload = await shapeApplicationDetail(app);
+    res.json({ ok: true, application: payload, data: payload });
+  } catch (e) { next(e); }
+});
+
+// ============================================
+// UPDATE NOTES (ADMIN)
+// ============================================
+const notesBody = z.object({
+  notes: z.string().max(2000).transform(stripHtml)
+});
+
+r.patch('/:id/notes', adminAuth, async (req, res, next) => {
+  try {
+    const parsed = notesBody.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Invalid payload', issues: parsed.error.issues });
+    }
+
+    const existing = await prisma.application.findUnique({
+      where: { id: req.params.id },
+      select: { id: true }
+    });
+
+    if (!existing) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+
+    const app = await prisma.application.update({
+      where: { id: existing.id },
+      data: { notes: parsed.data.notes || null }
+    });
+
+    const adminUsername = (req.session as any)?.username || 'admin';
+    authLogger.info({ action: 'application_notes_updated', admin: adminUsername, applicationId: req.params.id }, 'Admin updated application notes');
+
+    res.json({
+      ok: true,
+      notes: app.notes ?? '',
+      updatedAt: app.updatedAt,
+      data: { notes: app.notes ?? '', updatedAt: app.updatedAt }
+    });
   } catch (e) { next(e); }
 });
 
@@ -501,8 +695,18 @@ r.patch('/:id/status', adminAuth, async (req, res, next) => {
     if (!parsed.success) {
       return res.status(400).json({ error: 'Invalid payload', issues: parsed.error.issues });
     }
-    const app = await prisma.application.update({
+
+    const existing = await prisma.application.findUnique({
       where: { id: req.params.id },
+      select: { id: true }
+    });
+
+    if (!existing) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+
+    const app = await prisma.application.update({
+      where: { id: existing.id },
       data: { status: parsed.data.status as any }
     });
 

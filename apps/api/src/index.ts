@@ -25,6 +25,7 @@ import clientAuthRoutes from './routes/clientAuth';
 import adminClients from './routes/adminClients';
 import quotes from './routes/quotes';
 import marketplace from './routes/marketplace';
+import staffBrowse from './routes/staffBrowse';
 import bookings from './routes/bookings';
 import mobileJobs from './routes/mobileJobs';
 import mobileJobApplications from './routes/mobileJobApplications';
@@ -41,6 +42,7 @@ import adminNotifications from './routes/adminNotifications';
 import adminAnalytics from './routes/adminAnalytics';
 import adminBookings from './routes/adminBookings';
 import adminMarketplace from './routes/adminMarketplace';
+import adminStaff from './routes/adminStaff';
 import { logger, requestLogger } from './services/logger';
 import { startMemoryMonitoring, stopMemoryMonitoring } from './services/memory';
 import { initSentry, sentryErrorHandler, flushSentry } from './services/sentry';
@@ -184,6 +186,7 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       baseUri: ["'self'"],
       frameAncestors: ["'none'"],
+      frameSrc: ["'self'", "https:"],
       objectSrc: ["'none'"],
       imgSrc: ["'self'", "data:", "https:"],
       // No 'unsafe-inline' scripts. Allow JSON-LD blocks via hashes.
@@ -461,7 +464,7 @@ app.get('/jobs', async (_req, res, next) => {
       `;
     }).join('');
 
-    const body = jobs.length > 0
+    const jobsContent = jobs.length > 0
       ? `<div class="jobs-grid">${cards}</div>`
       : `
         <div class="empty-state">
@@ -478,74 +481,117 @@ app.get('/jobs', async (_req, res, next) => {
   <link rel="icon" type="image/png" href="/logo-small.png">
 
   <title>Jobs | VERGO Ltd</title>
-  <meta name="description" content="Browse event staffing opportunities in London & surrounding areas. Apply to join the VERGO Ltd team.">
+  <meta name="description" content="Browse hospitality and event staffing jobs in London. View open VERGO roles and apply through the platform.">
   <link rel="canonical" href="https://vergoltd.com/jobs">
+  <meta name="theme-color" content="#0a0a0a">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/vergo-styles.css">
-  <link rel="stylesheet" href="/vergo-header.css">
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
-  <link rel="stylesheet" href="/pages/css/jobs.css">
-  <link rel="stylesheet" href="/vergo-platform.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
 </head>
-<body class="platform">
+<body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
-  <header></header>
+  <div id="site-header" class="site-header" role="banner"></div>
 
   <main id="main-content">
-    <div class="page-header">
-      <h1>Available Jobs</h1>
-      <p>Find your next opportunity in London's events industry</p>
-    </div>
+    <section class="page-hero">
+      <div class="page-shell">
+        <div class="hero-grid">
+          <div>
+            <span class="eyebrow">Openings</span>
+            <h1>Live hospitality roles across London.</h1>
+            <p class="lede">Filter by role. View internal and external opportunities. Apply fast once the right shift shows up.</p>
+            <div class="hero-actions">
+              <a href="/apply" class="btn btn-primary">Join VERGO</a>
+              <a href="/post-job" class="btn btn-secondary">Post a Job</a>
+            </div>
+          </div>
 
-    <div id="user-bar" class="user-bar logged-out">
-      <div class="user-actions">
-        <a href="user-login" class="btn btn-secondary btn-small">Log In</a>
-        <a href="user-register" class="btn btn-primary btn-small">Create Account</a>
+          <aside class="panel hero-summary" aria-label="Jobs summary">
+            <span class="status">Platform powered</span>
+            <h2>Search cleanly. Apply without the clutter.</h2>
+            <p>Create an account for a smoother path into applications and updates.</p>
+            <div class="detail-grid">
+              <article class="detail-card">
+                <p class="card-label">Filters</p>
+                <p><strong>Role and source filters update the list live.</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Account</p>
+                <p><strong>Log in to track applications from your dashboard.</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Types</p>
+                <p><strong>VERGO roles and external jobs in one place.</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Detail</p>
+                <p><strong>Open any listing to view timing, pay and spots.</strong></p>
+              </article>
+            </div>
+          </aside>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <div class="filters" aria-label="Job filters">
-      <div class="filter-group">
-        <label>Role</label>
-        <select id="filter-role">
-          <option value="">All Roles</option>
-        </select>
+    <section class="section-block">
+      <div class="page-shell">
+        <div id="user-bar" class="user-bar logged-out">
+          <div class="user-actions">
+            <a href="/user-login" class="btn btn-secondary btn-small">Log In</a>
+            <a href="/user-register" class="btn btn-primary btn-small">Create Account</a>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="section-heading" style="margin-bottom: 18px;">
+            <span class="eyebrow">Job board</span>
+            <h2>Current listings.</h2>
+            <p>Use the filters first. The list updates below.</p>
+          </div>
+
+          <div class="filters" aria-label="Job filters">
+            <div class="filter-group">
+              <label for="filter-role">Role</label>
+              <select id="filter-role">
+                <option value="">All roles</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="filter-type">Type</label>
+              <select id="filter-type">
+                <option value="">All types</option>
+                <option value="INTERNAL">VERGO Jobs</option>
+                <option value="EXTERNAL">External Jobs</option>
+              </select>
+            </div>
+          </div>
+
+          <noscript>
+            <div class="empty-state">
+              <p>Filters and pagination require JavaScript. Open a job to view details and apply.</p>
+            </div>
+          </noscript>
+
+          <div id="jobs-container" data-ssr="1">
+            ${jobsContent}
+          </div>
+
+          <div id="pagination" class="pagination d-none"></div>
+        </div>
       </div>
-      <div class="filter-group">
-        <label>Type</label>
-        <select id="filter-type">
-          <option value="">All Types</option>
-          <option value="INTERNAL">VERGO Jobs</option>
-          <option value="EXTERNAL">External Jobs</option>
-        </select>
-      </div>
-    </div>
-
-    <noscript>
-      <div class="empty-state">
-        <p>Filters and pagination require JavaScript. Open a job to view details and apply.</p>
-      </div>
-    </noscript>
-
-    <div id="jobs-container" data-ssr="1">
-      ${body}
-    </div>
-
-    <div id="pagination" class="pagination d-none"></div>
+    </section>
   </main>
 
   <footer role="contentinfo"></footer>
 
-  <script src="/pages/js/jobs.js"></script>
   <script src="/vergo-utils.js"></script>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-public-shell.js"></script>
   <script src="/vergo-analytics.js"></script>
+  <script src="/pages/js/jobs.js"></script>
 </body>
 </html>`;
 
@@ -590,6 +636,7 @@ app.get('/jobs/:id', async (req, res, next) => {
 
     const date = job.eventDate ? job.eventDate.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'Flexible';
     const time = (job.shiftStart && job.shiftEnd) ? `${job.shiftStart} - ${job.shiftEnd}` : 'To be confirmed';
+    const spotsLeft = Math.max(0, job.staffNeeded - job.staffConfirmed);
 
     const typeClass = job.type === 'INTERNAL' ? 'internal' : 'external';
     const typeLabel = job.type === 'INTERNAL' ? 'VERGO Job' : 'External';
@@ -650,6 +697,7 @@ app.get('/jobs/:id', async (req, res, next) => {
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(descriptionText)}">
   <link rel="canonical" href="${canonicalUrl}">
+  <meta name="theme-color" content="#0a0a0a">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="${canonicalUrl}">
@@ -659,76 +707,123 @@ app.get('/jobs/:id', async (req, res, next) => {
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/vergo-styles.css">
   <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-mobile.css">
-  <link rel="stylesheet" href="/pages/css/job-detail.css">
-  <link rel="stylesheet" href="/vergo-platform.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
 
   <script type="application/ld+json" nonce="${nonce}">${jsonLd}</script>
 </head>
-<body class="platform">
+<body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
-  <header></header>
+  <div id="site-header" class="site-header" role="banner"></div>
 
   <main id="main-content">
-    <a href="/jobs" class="back-link">← Back to Jobs</a>
+    <section class="page-hero">
+      <div class="page-shell">
+        <div class="hero-grid">
+          <div>
+            <span class="eyebrow">Job detail</span>
+            <h1>Everything important in one place.</h1>
+            <p class="lede">Check the role, timing, pay and application path. If it fits, move on it quickly.</p>
+            <div class="hero-actions">
+              <a href="/jobs" class="btn btn-primary">Back to Jobs</a>
+              <a href="/apply" class="btn btn-secondary">Join VERGO</a>
+            </div>
+          </div>
 
-    <div class="job-container">
-      <div class="job-header">
-        <div class="job-badges">
-          <span class="badge badge-role">${escapeHtml(job.role.name)}</span>
-          <span class="badge badge-${typeClass}">${typeLabel}</span>
-        </div>
-        <h1 class="job-title">${escapeHtml(job.title)}</h1>
-        <p class="job-company">${escapeHtml(company)}</p>
-      </div>
-
-      <div class="job-meta-grid">
-        <div class="meta-item">
-          <span class="meta-label">Location</span>
-          <span class="meta-value">📍 ${escapeHtml(job.location)}${job.venue ? ' - ' + escapeHtml(job.venue) : ''}</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Date</span>
-          <span class="meta-value">📅 ${escapeHtml(date)}</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Time</span>
-          <span class="meta-value">⏰ ${escapeHtml(time)}</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Pay</span>
-          <span class="meta-value highlight">${escapeHtml(pay)}</span>
-        </div>
-      </div>
-
-      <div class="job-body">
-        <div class="section">
-          <h3>Description</h3>
-          <p>${escapeHtml(job.description).replace(/\\n/g, '<br>')}</p>
-        </div>
-        ${job.requirements ? `
-        <div class="section">
-          <h3>Requirements</h3>
-          <p>${escapeHtml(job.requirements).replace(/\\n/g, '<br>')}</p>
-        </div>` : ''}
-      </div>
-
-      <div class="apply-section">
-        <div class="apply-box">
-          <h3>Apply for this position</h3>
-          ${applyCta}
+          <aside class="panel hero-summary" aria-label="Job detail summary">
+            <span class="status">${job.type === 'INTERNAL' ? 'VERGO listing' : 'External listing'}</span>
+            <h2>${escapeHtml(job.title)}</h2>
+            <p>${escapeHtml(company)}${job.venue ? ` · ${escapeHtml(job.venue)}` : ''}</p>
+            <div class="detail-grid">
+              <article class="detail-card">
+                <p class="card-label">Role</p>
+                <p><strong>${escapeHtml(job.role.name)}</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Pay</p>
+                <p><strong>${escapeHtml(pay)}</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Date</p>
+                <p><strong>${escapeHtml(date)}</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Spots</p>
+                <p><strong>${spotsLeft} of ${job.staffNeeded} left</strong></p>
+              </article>
+            </div>
+          </aside>
         </div>
       </div>
-    </div>
+    </section>
+
+    <section class="section-block">
+      <div class="page-shell">
+        <div class="panel">
+          <a href="/jobs" class="back-link">Back to jobs</a>
+
+          <div class="job-container" style="margin-top: 24px;">
+            <div class="job-header">
+              <div class="job-badges">
+                <span class="badge badge-role">${escapeHtml(job.role.name)}</span>
+                <span class="badge badge-${typeClass}">${typeLabel}</span>
+              </div>
+              <h1 class="job-title">${escapeHtml(job.title)}</h1>
+              <p class="job-company">${escapeHtml(company)}</p>
+            </div>
+
+            <div class="job-meta-grid">
+              <div class="meta-item">
+                <span class="meta-label">Location</span>
+                <span class="meta-value">📍 ${escapeHtml(job.location)}${job.venue ? ' - ' + escapeHtml(job.venue) : ''}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Date</span>
+                <span class="meta-value">📅 ${escapeHtml(date)}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Time</span>
+                <span class="meta-value">⏰ ${escapeHtml(time)}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Pay</span>
+                <span class="meta-value highlight">${escapeHtml(pay)}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Spots Available</span>
+                <span class="meta-value">${spotsLeft} of ${job.staffNeeded}</span>
+              </div>
+            </div>
+
+            <div class="job-body">
+              <div class="section">
+                <h3>Description</h3>
+                <p>${escapeHtml(job.description).replace(/\\n/g, '<br>')}</p>
+              </div>
+              ${job.requirements ? `
+              <div class="section">
+                <h3>Requirements</h3>
+                <p>${escapeHtml(job.requirements).replace(/\\n/g, '<br>')}</p>
+              </div>` : ''}
+            </div>
+
+            <div class="apply-section">
+              <div class="apply-box">
+                <h3>Apply for this position</h3>
+                ${applyCta}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer role="contentinfo"></footer>
-  <script src="/vergo-nav.js"></script>
-  <script src="/vergo-footer.js"></script>
+  <script src="/vergo-utils.js"></script>
+  <script src="/vergo-public-shell.js"></script>
   <script src="/vergo-analytics.js"></script>
 </body>
 </html>`;
@@ -809,6 +904,7 @@ app.use('/api/v1/clients', clientAuthRoutes);
 
 // Marketplace (public + client-authenticated)
 app.use('/api/v1/marketplace', marketplace);
+app.use('/api/v1/staff', staffBrowse);
 
 // Bookings (client-authenticated)
 app.use('/api/v1/bookings', bookings);
@@ -835,11 +931,22 @@ app.use('/api/v1/admin/notifications', adminNotifications);
 app.use('/api/v1/admin/analytics', adminAnalytics);
 app.use('/api/v1/admin/bookings', adminBookings);
 app.use('/api/v1/admin/marketplace', adminMarketplace);
+app.use('/api/v1/admin/staff', adminStaff);
 
 // Legacy cleanup (must be before static)
 
 app.get(['/hire-us', '/hire-us.html'], (_req, res) => {
   res.redirect(301, '/hire-staff');
+});
+
+app.get(['/js/client-login', '/js/client-login.html'], (req, res) => {
+  const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+  res.redirect(301, '/client-login' + qs);
+});
+
+app.get(['/js/client-register', '/js/client-register.html'], (req, res) => {
+  const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+  res.redirect(301, '/client-register' + qs);
 });
 
 app.use((req, res, next) => {
@@ -916,7 +1023,48 @@ app.use(express.static(publicDir, {
 }));
 
 // 404 handler (after static)
-app.use((_req, res) => {
+app.use((req, res) => {
+  const accept = req.headers['accept'] || '';
+  if (typeof accept === 'string' && accept.includes('text/html')) {
+    res.status(404).type('text/html').send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found | VERGO Ltd</title>
+  <link rel="icon" type="image/png" href="/logo-small.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/vergo-a11y.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="site-header" class="site-header" role="banner"></div>
+  <main id="main-content">
+    <section class="page-hero">
+      <div class="page-shell">
+        <div class="hero-grid">
+          <div>
+            <span class="eyebrow">404</span>
+            <h1>Page not found.</h1>
+            <p class="lede">The page you are looking for does not exist or has been moved.</p>
+            <div class="hero-actions">
+              <a href="/" class="btn btn-primary">Back to Home</a>
+              <a href="/jobs" class="btn btn-secondary">View Jobs</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer role="contentinfo"></footer>
+  <script src="/vergo-public-shell.js"></script>
+</body>
+</html>`);
+    return;
+  }
   res.status(404).json({ error: 'Not found' });
 });
 

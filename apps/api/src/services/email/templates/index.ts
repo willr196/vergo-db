@@ -38,7 +38,7 @@ export const userVerificationEmail = (data: EmailTemplateData): string => {
 };
 
 export const userPasswordResetEmail = (data: EmailTemplateData): string => {
-  const resetUrl = data.resetUrl || `${env.webOrigin}/reset-password.html?token=${encodeURIComponent(data.token || '')}`;
+  const resetUrl = data.resetUrl || `${env.webOrigin}/reset-password?token=${encodeURIComponent(data.token || '')}`;
 
   return composeEmail({
     body: emailBody(`
@@ -87,7 +87,7 @@ export const clientVerificationEmail = (data: EmailTemplateData): string => {
 };
 
 export const clientPasswordResetEmail = (data: EmailTemplateData): string => {
-  const resetUrl = data.resetUrl || `${env.webOrigin}/reset-password.html?token=${encodeURIComponent(data.token || '')}&type=client`;
+  const resetUrl = data.resetUrl || `${env.webOrigin}/reset-password?token=${encodeURIComponent(data.token || '')}&type=client`;
 
   return composeEmail({
     body: emailBody(`
@@ -106,7 +106,7 @@ export const clientPasswordResetEmail = (data: EmailTemplateData): string => {
 };
 
 export const clientApprovalEmail = (data: EmailTemplateData): string => {
-  const loginUrl = `${env.webOrigin}/client-login.html`;
+  const loginUrl = `${env.webOrigin}/client-login`;
 
   return composeEmail({
     body: emailBody(`
@@ -149,7 +149,7 @@ export const clientRejectionEmail = (data: EmailTemplateData): string => {
 // ============================================
 
 export const applicationNotificationEmail = (data: EmailTemplateData): string => {
-  const adminUrl = `${env.webOrigin}/admin.html`;
+  const adminUrl = `${env.webOrigin}/admin`;
 
   return composeEmail({
     body: emailBody(`
@@ -196,7 +196,7 @@ export const applicationConfirmationEmail = (data: EmailTemplateData): string =>
 };
 
 export const jobApplicationNotificationEmail = (data: EmailTemplateData): string => {
-  const adminUrl = `${env.webOrigin}/admin.html`;
+  const adminUrl = `${env.webOrigin}/admin`;
 
   return composeEmail({
     body: emailBody(`
@@ -298,7 +298,7 @@ export const quoteFollowupEmail = (data: EmailTemplateData): string => {
 };
 
 export const applicationReviewReminderEmail = (data: EmailTemplateData): string => {
-  const adminUrl = `${env.webOrigin}/admin.html`;
+  const adminUrl = `${env.webOrigin}/admin`;
 
   return composeEmail({
     body: emailBody(`

@@ -28,6 +28,10 @@
       return roles;
     }
 
+    function getCheckedValues(name) {
+      return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map((input) => input.value);
+    }
+
     // CV Upload state
     let uploadedCvData = null;
 
@@ -159,6 +163,9 @@
       }
 
       const rolesWithExp = getRolesWithExperience();
+      const preferredJobTypes = getCheckedValues('preferredJobTypes');
+      const yearsExperienceRaw = formData.get('yearsExperience');
+      const yearsExperience = yearsExperienceRaw ? Number(yearsExperienceRaw) : undefined;
 
       // Validate experience is selected for each ticked role
       for (const r of rolesWithExp) {
@@ -174,6 +181,11 @@
         lastName: formData.get('lastName'),
         email: formData.get('email'),
         phone: formData.get('phone') || undefined,
+        dateOfBirth: formData.get('dateOfBirth') || undefined,
+        postcode: formData.get('postcode') || undefined,
+        preferredJobTypes: preferredJobTypes.length > 0 ? preferredJobTypes : undefined,
+        bio: formData.get('bio') || undefined,
+        yearsExperience: Number.isFinite(yearsExperience) ? yearsExperience : undefined,
         roles: rolesWithExp,
         cvKey: uploadedCvData.cvKey,
         cvOriginalName: uploadedCvData.cvOriginalName,

@@ -188,7 +188,7 @@ export async function sendApplicationNotificationEmail(data: {
             ` : ''}
             
             <div style="margin-top: 20px; text-align: center;">
-              <a href="${safe(`${env.webOrigin}/admin.html`)}" style="display: inline-block; padding: 15px 30px; background: #D4AF37; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
+              <a href="${safe(`${env.webOrigin}/admin`)}" style="display: inline-block; padding: 15px 30px; background: #D4AF37; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
                 📄 View in Admin Panel
               </a>
             </div>
@@ -356,7 +356,7 @@ export async function sendPasswordResetEmail(data: {
   token: string;
 }) {
   try {
-    const resetUrl = `${env.webOrigin}/reset-password.html?token=${encodeURIComponent(data.token)}`;
+    const resetUrl = `${env.webOrigin}/reset-password?token=${encodeURIComponent(data.token)}`;
     const safeResetUrl = safe(resetUrl);
     
     const result = await resend.emails.send({
@@ -433,7 +433,7 @@ export async function sendJobApplicationNotification(data: {
             <p><strong>Email:</strong> ${safe(data.applicantEmail)}</p>
           </div>
           <div style="text-align: center; margin-top: 20px;">
-            <a href="${safe(`${env.webOrigin}/admin.html`)}" style="padding: 15px 30px; background: #D4AF37; color: white; text-decoration: none; border-radius: 8px;">View in Admin</a>
+            <a href="${safe(`${env.webOrigin}/admin`)}" style="padding: 15px 30px; background: #D4AF37; color: white; text-decoration: none; border-radius: 8px;">View in Admin</a>
           </div>
         </div>
       </div>
@@ -563,7 +563,7 @@ export async function sendClientPasswordResetEmail(data: {
   token: string;
 }) {
   try {
-    const resetUrl = `${env.webOrigin}/reset-password.html?token=${encodeURIComponent(data.token)}&type=client`;
+    const resetUrl = `${env.webOrigin}/reset-password?token=${encodeURIComponent(data.token)}&type=client`;
     const safeResetUrl = safe(resetUrl);
 
     const result = await resend.emails.send({
@@ -625,7 +625,7 @@ export async function sendClientApprovalEmail(data: {
   companyName: string;
 }) {
   try {
-    const loginUrl = `${env.webOrigin}/client-login.html`;
+    const loginUrl = `${env.webOrigin}/client-login`;
     const safeLoginUrl = safe(loginUrl);
 
     const result = await resend.emails.send({

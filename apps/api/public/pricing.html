@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/logo-small.png">
-  <title>Pricing by Staff Tier | VERGO Ltd</title>
-  <meta name="description" content="Compare VERGO Standard and Gold staff tiers, see client rates, and continue to the hire staff quote path.">
+  <title>Transparent Pricing | VERGO Ltd</title>
+  <meta name="description" content="Transparent pricing for VERGO Standard marketplace staff and Gold proven performers.">
   <link rel="canonical" href="https://vergoltd.com/pricing">
   <meta name="theme-color" content="#0a0a0a">
-  <meta property="og:title" content="Pricing by Staff Tier | VERGO Ltd">
-  <meta property="og:description" content="Compare VERGO Standard and Gold staff tiers, see client rates, and continue to the quote path.">
+
+  <meta property="og:title" content="Transparent Pricing | VERGO Ltd">
+  <meta property="og:description" content="Transparent pricing for VERGO Standard marketplace staff and Gold proven performers.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://vergoltd.com/pricing">
   <meta property="og:image" content="https://vergoltd.com/logo.png">
@@ -20,52 +21,167 @@
   <link rel="stylesheet" href="/vergo-a11y.css">
   <link rel="stylesheet" href="/vergo-public-pages.css">
   <style>
+    .btn-primary,
+    .submit-btn,
+    .form-submit,
+    .cta-button:not(.secondary),
+    .tier-cta:not(.secondary),
+    .calc-cta,
+    button[type="submit"]:not(.tab-btn) {
+      background: #D4AF37;
+      border: 2px solid #D4AF37;
+      color: #0a0a0a;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus-visible,
+    .submit-btn:hover,
+    .submit-btn:focus-visible,
+    .form-submit:hover,
+    .form-submit:focus-visible,
+    .cta-button:not(.secondary):hover,
+    .cta-button:not(.secondary):focus-visible,
+    .tier-cta:not(.secondary):hover,
+    .tier-cta:not(.secondary):focus-visible,
+    .calc-cta:hover,
+    .calc-cta:focus-visible,
+    button[type="submit"]:not(.tab-btn):hover,
+    button[type="submit"]:not(.tab-btn):focus-visible {
+      background: transparent;
+      color: #D4AF37;
+      border-color: #D4AF37;
+    }
+
     .pricing-grid {
+      display: grid;
+      gap: 18px;
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .pricing-grid .tier-card {
+      background: linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(12, 12, 12, 0.98));
+    }
+
+    .pricing-grid .gold-card {
       border-color: var(--gold-line);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42), 0 16px 38px rgba(212, 175, 55, 0.08);
       background:
         radial-gradient(circle at 100% 0, rgba(212, 175, 55, 0.12), transparent 32%),
-        linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(13, 13, 13, 0.96));
+        linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(12, 12, 12, 0.98));
     }
 
-    .comparison-panel {
-      padding: 28px;
-      overflow-x: auto;
+    .pricing-copy {
+      margin-top: 14px;
+      color: var(--white);
+      font-size: 1.08rem;
+      font-weight: 700;
+      line-height: 1.6;
     }
 
-    .comparison-table {
+    .price-line {
+      margin-top: 18px;
+      color: var(--white);
+      font-size: 1.3rem;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .rate-table {
       width: 100%;
-      min-width: 640px;
+      margin-top: 22px;
       border-collapse: collapse;
     }
 
-    .comparison-table th,
-    .comparison-table td {
-      padding: 16px 18px;
+    .rate-table th,
+    .rate-table td {
+      padding: 14px 0;
       border-top: 1px solid var(--line);
       text-align: left;
       vertical-align: top;
     }
 
-    .comparison-table thead th {
+    .rate-table thead th {
       border-top: 0;
-      color: var(--white);
-      font-size: 0.92rem;
+      color: var(--muted);
+      font-size: 0.78rem;
       font-weight: 800;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
     }
 
-    .comparison-table tbody th {
-      color: var(--gold);
-      font-size: 0.84rem;
+    .rate-table td:last-child {
+      color: var(--white);
       font-weight: 800;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
       white-space: nowrap;
+    }
+
+    .tier-card .stacked-actions {
+      margin-top: 24px;
+    }
+
+    .earned-note {
+      margin-top: 26px;
+      text-align: center;
+      color: var(--gold);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .faq-grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .faq-card {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .faq-card[open] {
+      border-color: var(--gold-line);
+      background:
+        radial-gradient(circle at 100% 0, rgba(212, 175, 55, 0.08), transparent 34%),
+        linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(12, 12, 12, 0.98));
+    }
+
+    .faq-card summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      cursor: pointer;
+      padding: 22px;
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    .faq-card summary::after {
+      content: "+";
+      color: var(--gold);
+      font-size: 1.4rem;
+      line-height: 1;
+      transition: transform 0.2s ease;
+    }
+
+    .faq-card summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq-card[open] summary::after {
+      transform: rotate(45deg);
+    }
+
+    .faq-card p {
+      padding: 0 22px 22px;
+    }
+
+    @media (max-width: 1100px) {
+      .faq-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 960px) {
@@ -78,57 +194,7 @@
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <div id="site-header" class="site-header" role="banner">
-    <div class="page-shell">
-      <div class="nav-container">
-        <a href="/" class="logo" aria-label="VERGO home">
-          <span class="logo-mark">V</span>
-          <span class="logo-copy">
-            <span class="logo-title">VERGO</span>
-            <span class="logo-subtitle">London hospitality staffing</span>
-          </span>
-        </a>
-
-        <div class="nav-frame">
-          <nav class="site-nav" aria-label="Primary">
-            <ul>
-              <li><a href="/">Home</a></li>
-              <li><a href="/hire-staff">Hire Staff</a></li>
-              <li><a href="/jobs">Job Board</a></li>
-              <li><a href="/apply">Join VERGO</a></li>
-              <li><a href="/pricing">Pricing</a></li>
-              <li><a href="/contact">Contact</a></li>
-            </ul>
-          </nav>
-          <div class="nav-actions">
-            <a href="/apply" class="btn btn-secondary">Join VERGO</a>
-            <a href="/quote" class="btn btn-primary">Hire Staff</a>
-          </div>
-        </div>
-
-        <button id="mobile-menu-button" class="menu-toggle" type="button" aria-label="Toggle navigation menu" aria-controls="mobile-menu" aria-expanded="false">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      </div>
-
-      <div id="mobile-menu" class="mobile-menu" hidden>
-        <nav aria-label="Mobile">
-          <a href="/">Home</a>
-          <a href="/hire-staff">Hire Staff</a>
-          <a href="/jobs">Job Board</a>
-          <a href="/apply">Join VERGO</a>
-          <a href="/pricing">Pricing</a>
-          <a href="/contact">Contact</a>
-        </nav>
-        <div class="nav-actions">
-          <a href="/apply" class="btn btn-secondary">Join VERGO</a>
-          <a href="/quote" class="btn btn-primary">Hire Staff</a>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div id="site-header" class="site-header" role="banner"></div>
 
   <main id="main-content">
     <section class="page-hero">
@@ -136,29 +202,30 @@
         <div class="hero-grid">
           <div>
             <span class="eyebrow">Pricing</span>
-            <h1>Pricing by staff tier.</h1>
-            <p class="lede">Standard staff from &pound;20/hr. Gold staff from &pound;28/hr. Final quotes depend on role mix, shift length and the brief.</p>
+            <h1>Transparent Pricing</h1>
+            <p class="lede">Simple pricing for marketplace staff and Gold performers.</p>
           </div>
 
           <aside class="panel hero-summary" aria-label="Pricing summary">
-            <span class="status">Simple tiering</span>
-            <h2>Pay for the level of experience the room actually needs.</h2>
+            <span class="status">No hidden tiers</span>
+            <h2>Know what changes between Standard and Gold.</h2>
+            <p>Standard keeps things flexible. Gold moves onto fixed client rates once a staff member has earned the upgrade.</p>
             <div class="detail-grid">
               <article class="detail-card">
                 <p class="card-label">Standard</p>
-                <p><strong>Reliable cover for steady service and repeat demand.</strong></p>
+                <p><strong>Staff rate + fixed service fee + VAT.</strong></p>
               </article>
               <article class="detail-card">
                 <p class="card-label">Gold</p>
-                <p><strong>Experienced specialists for premium guest-facing briefs.</strong></p>
+                <p><strong>Fixed hourly rates by role.</strong></p>
               </article>
               <article class="detail-card">
-                <p class="card-label">Rates</p>
-                <p><strong>From &pound;20/hr and &pound;28/hr respectively.</strong></p>
+                <p class="card-label">Earned</p>
+                <p><strong>Gold status is earned through performance, not bought.</strong></p>
               </article>
               <article class="detail-card">
-                <p class="card-label">Quote</p>
-                <p><strong>Tell VERGO the brief and we will price the right tier.</strong></p>
+                <p class="card-label">Flexible</p>
+                <p><strong>Mix Standard and Gold staff on the same event if that suits the brief.</strong></p>
               </article>
             </div>
           </aside>
@@ -166,155 +233,95 @@
       </div>
     </section>
 
-    <section id="pricing-tiers" class="section-block">
+    <section class="section-block">
       <div class="page-shell">
-        <div class="section-heading">
-          <span class="eyebrow">Tier rates</span>
-          <h2>Rates built around Standard and Gold staff.</h2>
-        </div>
-
-        <div class="tiers-grid pricing-grid">
+        <div class="pricing-grid">
           <article class="tier-card">
             <span class="tier-pill">Standard</span>
-            <h3 class="tier-name">Reliable event cover.</h3>
-            <p class="tier-summary">Best for steady service, clean execution and dependable extra cover.</p>
-            <div class="tier-price">From &pound;20<span>/hr</span></div>
+            <h3 class="tier-name">The Marketplace</h3>
+            <p class="pricing-copy">Vetted, checked staff ready to work</p>
+            <p class="price-line">Staff member's rate + &pound;4/hr service fee + VAT</p>
             <ul class="tier-features">
-              <li><span class="mark">+</span><span>Reliable hospitality staff for receptions, venues and repeat service.</span></li>
-              <li><span class="mark">+</span><span>Smart black service dress code and straightforward briefing.</span></li>
-              <li><span class="mark">+</span><span>Good fit for standard floor, bar and support shifts.</span></li>
+              <li><span class="mark">01</span><span>Browse and pick your team.</span></li>
+              <li><span class="mark">02</span><span>All staff background-checked.</span></li>
+              <li><span class="mark">03</span><span>Flexible for any event type.</span></li>
+              <li><span class="mark">04</span><span>Book as few or as many as you need.</span></li>
             </ul>
+            <div class="stacked-actions">
+              <a href="/browse-staff" class="btn btn-primary">Browse Standard Staff</a>
+            </div>
           </article>
 
           <article class="tier-card gold-card">
             <span class="tier-pill">Gold</span>
-            <h3 class="tier-name">Experienced specialists.</h3>
-            <p class="tier-summary">Best for premium guest-facing briefs where presentation and autonomy matter more.</p>
-            <div class="tier-price">From &pound;28<span>/hr</span></div>
+            <h3 class="tier-name">Proven Performers</h3>
+            <p class="pricing-copy">Top-rated staff who've earned their place</p>
+            <table class="rate-table" aria-label="Gold fixed rates">
+              <thead>
+                <tr>
+                  <th scope="col">Role</th>
+                  <th scope="col">Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Bartender / Waiter / FOH / Runner</td>
+                  <td>&pound;20/hr + VAT</td>
+                </tr>
+                <tr>
+                  <td>Chef</td>
+                  <td>&pound;26/hr + VAT</td>
+                </tr>
+                <tr>
+                  <td>Supervisor</td>
+                  <td>&pound;22/hr + VAT</td>
+                </tr>
+              </tbody>
+            </table>
             <ul class="tier-features">
-              <li><span class="mark">+</span><span>Higher-experience staff for premium, VIP and specialist service.</span></li>
-              <li><span class="mark">+</span><span>Elevated dress code, stronger room-read and calmer service style.</span></li>
-              <li><span class="mark">+</span><span>Good fit for private dining, launches, productions and high-touch events.</span></li>
+              <li><span class="mark">01</span><span>Earned through consistent 5-star performance.</span></li>
+              <li><span class="mark">02</span><span>Experienced across premium events and productions.</span></li>
+              <li><span class="mark">03</span><span>Every Gold member personally endorsed by VERGO.</span></li>
+              <li><span class="mark">04</span><span>Priority availability for repeat clients.</span></li>
             </ul>
+            <div class="stacked-actions">
+              <a href="/browse-staff?tier=GOLD" class="btn btn-primary">Browse Gold Staff</a>
+            </div>
           </article>
         </div>
-      </div>
-    </section>
 
-    <section class="section-block">
-      <div class="page-shell">
-        <div class="panel comparison-panel">
-          <div class="section-heading" style="margin-bottom: 12px;">
-            <span class="eyebrow">Compare tiers</span>
-            <h2>Standard vs Gold.</h2>
-          </div>
-
-          <table class="comparison-table">
-            <thead>
-              <tr>
-                <th scope="col">Category</th>
-                <th scope="col">Standard</th>
-                <th scope="col">Gold</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Experience</th>
-                <td>Reliable hospitality staff for standard guest-facing and support briefs.</td>
-                <td>Higher-experience specialists for premium guest-facing service.</td>
-              </tr>
-              <tr>
-                <th scope="row">Dress code</th>
-                <td>Smart black service dress code and clean presentation.</td>
-                <td>Elevated dress standards, formal blacks and brand-ready presentation.</td>
-              </tr>
-              <tr>
-                <th scope="row">Service style</th>
-                <td>Steady support, clear direction and quick integration.</td>
-                <td>More autonomous, polished service with stronger room-read.</td>
-              </tr>
-              <tr>
-                <th scope="row">Typical events</th>
-                <td>Venue shifts, receptions, busy bars and dependable extra cover.</td>
-                <td>Private dining, launches, VIP hospitality, productions and premium events.</td>
-              </tr>
-              <tr>
-                <th scope="row">Rates</th>
-                <td>From &pound;20/hr</td>
-                <td>From &pound;28/hr</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <p class="earned-note">Every staff member starts Standard. Gold status is earned — not bought.</p>
       </div>
     </section>
 
     <section class="section-block" style="padding-top: 12px; padding-bottom: 64px;">
       <div class="page-shell">
-        <div class="cta-panel">
-          <div>
-            <span class="eyebrow">Next step</span>
-            <h2>Choose the tier, then brief the event.</h2>
-            <p>Continue to the hire staff path and get a quote built around your brief.</p>
-          </div>
-          <div class="stacked-actions" style="margin-top: 0;">
-            <a href="/hire-staff" class="btn btn-primary">Get a Quote</a>
-          </div>
+        <div class="section-heading">
+          <span class="eyebrow">Questions</span>
+          <h2>Quick answers.</h2>
+        </div>
+
+        <div class="faq-grid">
+          <details class="panel faq-card" open>
+            <summary>What does the service fee cover?</summary>
+            <p>Vetting, coordination, insurance and the platform that keeps bookings moving cleanly.</p>
+          </details>
+
+          <details class="panel faq-card">
+            <summary>Can I mix Standard and Gold staff?</summary>
+            <p>Yes. Book whoever fits your event, whether that means a mixed team or one tier only.</p>
+          </details>
+
+          <details class="panel faq-card">
+            <summary>How do staff earn Gold status?</summary>
+            <p>Consistent high ratings, repeat bookings and a direct VERGO endorsement.</p>
+          </details>
         </div>
       </div>
     </section>
   </main>
 
-  <footer role="contentinfo">
-    <div class="page-shell">
-      <div class="footer-grid">
-        <div>
-          <a href="/" class="logo" aria-label="VERGO home">
-            <span class="logo-mark">V</span>
-            <span class="logo-copy">
-              <span class="logo-title">VERGO</span>
-              <span class="logo-subtitle">Premium staffing, London</span>
-            </span>
-          </a>
-          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Premium London event staffing for companies who need reliable teams and workers who want better-run shifts.</p>
-        </div>
-        <div>
-          <p class="footer-title">Navigate</p>
-          <div class="footer-links">
-            <a href="/">Home</a>
-            <a href="/hire-staff">Hire Staff</a>
-            <a href="/pricing">Pricing</a>
-            <a href="/contact">Contact</a>
-          </div>
-        </div>
-        <div>
-          <p class="footer-title">Work With Us</p>
-          <div class="footer-links">
-            <a href="/jobs">Job Board</a>
-            <a href="/apply">Join VERGO</a>
-            <a href="/about">About VERGO</a>
-          </div>
-        </div>
-        <div>
-          <p class="footer-title">Contact</p>
-          <div class="footer-links">
-            <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
-            <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07944 505783</a>
-            <p>Replies within 24 hours for most enquiries.</p>
-            <p>London and surrounding areas.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <p>&copy; 2026 VERGO Ltd. All rights reserved.</p>
-        <div class="footer-bottom-links">
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/terms">Terms of Service</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <footer role="contentinfo"></footer>
 
   <script src="/vergo-public-shell.js"></script>
   <script src="/vergo-analytics.js"></script>

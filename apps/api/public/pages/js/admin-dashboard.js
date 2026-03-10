@@ -6,7 +6,8 @@
   var fmtDt    = AdminCore.formatDateTime;
   var fmtD     = AdminCore.formatDate;
   var relTime  = AdminCore.relativeTime;
-  var toast    = function (m, t) { AdminCore.toast(m, t); };
+  var notify   = function (m, t) { AdminCore.notify(m, t); };
+  var toast    = notify;
 
   // ── State ────────────────────────────────────────────────
   var allApplications = [];
@@ -14,6 +15,8 @@
   var allEvents       = [];
   var filteredApps    = [];
   var selectedAppIds  = new Set();
+  var applicationDetails = {};
+  var activeDrawerAppId = null;
 
   var appSort      = { col: 'createdAt', dir: 'desc' };
   var contactSort  = { col: 'createdAt', dir: 'desc' };
@@ -218,7 +221,7 @@
       var checked = selectedAppIds.has(app.id) ? ' checked' : '';
       return '<tr>'
         + '<td class="checkbox-col"><input type="checkbox" data-app-id="' + esc(app.id) + '" class="app-checkbox"' + checked + '></td>'
-        + '<td><strong style="cursor:pointer" data-action="open-drawer" data-app-id="' + esc(app.id) + '">' + esc(app.firstName) + ' ' + esc(app.lastName) + '</strong></td>'
+        + '<td><button type="button" class="applicant-link" data-action="open-drawer" data-app-id="' + esc(app.id) + '">' + esc(app.firstName) + ' ' + esc(app.lastName) + '</button></td>'
         + '<td>' + esc(app.email) + '</td>'
         + '<td>' + esc(app.phone || '-') + '</td>'
         + '<td>' + (roles || '<span class="text-muted">-</span>') + '</td>'
@@ -226,10 +229,7 @@
         + '<td>' + fmtD(app.createdAt) + '</td>'
         + '<td><div style="display:flex;gap:6px;flex-wrap:wrap">'
         + '<button class="btn btn-info btn-sm" data-action="open-cv" data-app-id="' + esc(app.id) + '" data-cv-url="' + esc(app.cvUrl || app.cvKey || '') + '">CV</button>'
-        + (app.status !== 'REVIEWING' ? '<button class="btn btn-warning btn-sm" data-action="update-status" data-app-id="' + esc(app.id) + '" data-status="REVIEWING">Review</button>' : '')
-        + (app.status !== 'SHORTLISTED' ? '<button class="btn btn-success btn-sm" data-action="update-status" data-app-id="' + esc(app.id) + '" data-status="SHORTLISTED">Shortlist</button>' : '')
-        + (app.status !== 'HIRED' ? '<button class="btn btn-sm" style="background:#20c997;color:#fff" data-action="update-status" data-app-id="' + esc(app.id) + '" data-status="HIRED">Hire</button>' : '')
-        + (app.status !== 'REJECTED' ? '<button class="btn btn-danger btn-sm" data-action="update-status" data-app-id="' + esc(app.id) + '" data-status="REJECTED">Reject</button>' : '')
+        + renderStatusActions(app.id, app.status)
         + '</div></td>'
         + '</tr>';
     }).join('');
@@ -251,38 +251,185 @@
     el.innerHTML = info + btns;
   }
 
-  // ── Drawer ─────────────────────────────────────────────
-  function openDrawer(appId) {
-    var app = allApplications.find(function(a){ return a.id === appId; });
-    if (!app) return;
-    document.getElementById('drawer-name').textContent = app.firstName + ' ' + app.lastName;
-    var roles = (app.roles || []).map(function(r){ var name = typeof r==='string'?r:r.name; return '<span class="role-pill">'+esc(name)+'</span>'; }).join('');
+  function findApplication(appId) {
+    return allApplications.find(function (app) { return app.id === appId; }) || null;
+  }
+
+  function renderTagPills(items, className, emptyLabel) {
+    if (!items || items.length === 0) {
+      return '<span class="text-muted">' + esc(emptyLabel || '-') + '</span>';
+    }
+    return items.map(function (item) {
+      return '<span class="tag-pill ' + esc(className || '') + '">' + esc(item) + '</span>';
+    }).join('');
+  }
+
+  function renderRolePills(roles) {
+    if (!roles || roles.length === 0) {
+      return '<span class="text-muted">No roles selected</span>';
+    }
+    return roles.map(function (role) {
+      var label = role.experienceLevel ? role.name + ' · ' + role.experienceLevel : role.name;
+      return '<span class="tag-pill tag-pill-role">' + esc(label) + '</span>';
+    }).join('');
+  }
+
+  function renderTierBadge(tier) {
+    var safeTier = tier === 'GOLD' ? 'GOLD' : 'STANDARD';
+    var tierClass = safeTier === 'GOLD' ? 'gold' : 'standard';
+    return '<span class="tier-badge ' + tierClass + '">' + safeTier + '</span>';
+  }
+
+  function formatRating(rating) {
+    return rating ? esc(String(rating)) + '/5' : 'Unrated';
+  }
+
+  function formatCurrency(rate) {
+    return rate ? '£' + esc(String(rate)) + '/hr' : 'Not set';
+  }
+
+  function isPdfCv(detail) {
+    var mime = String(detail.cvMimeType || '').toLowerCase();
+    var fileName = String(detail.cvOriginalName || '').toLowerCase();
+    return mime === 'application/pdf' || /\.pdf($|\?)/.test(fileName);
+  }
+
+  function renderStatusActions(appId, status) {
+    return (status !== 'REVIEWING' ? '<button class="btn btn-warning btn-sm" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="REVIEWING">Review</button>' : '')
+      + (status !== 'SHORTLISTED' ? '<button class="btn btn-success btn-sm" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="SHORTLISTED">Shortlist</button>' : '')
+      + (status !== 'HIRED' ? '<button class="btn btn-sm" style="background:#20c997;color:#fff" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="HIRED">Hire</button>' : '')
+      + (status !== 'REJECTED' ? '<button class="btn btn-danger btn-sm" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="REJECTED">Reject</button>' : '');
+  }
+
+  function wireDrawerNotesAutoSave(appId, savedNotes) {
+    var notesEl = document.getElementById('drawer-notes');
+    if (!notesEl) return;
+    notesEl.dataset.savedValue = savedNotes || '';
+    notesEl.addEventListener('blur', function () {
+      if (notesEl.value !== (notesEl.dataset.savedValue || '')) {
+        saveNotes(appId, true);
+      }
+    });
+  }
+
+  function renderDrawer(detail) {
+    var applicant = detail.applicant || {};
+    var preferredJobTypes = renderTagPills(applicant.preferredJobTypes || [], 'tag-pill-jobtype', 'Not provided');
+    var rolePills = renderRolePills(detail.roles || []);
+    var hasPdfPreview = Boolean(detail.cvUrl) && isPdfCv(detail);
+    var downloadHref = detail.cvUrl || '';
+    var notesValue = detail.notes || '';
+
+    document.getElementById('drawer-name').textContent = applicant.fullName || ((applicant.firstName || '') + ' ' + (applicant.lastName || '')).trim() || 'Applicant';
     document.getElementById('drawer-body').innerHTML =
       '<div class="detail-grid mb-2">'
-      + '<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">' + esc(app.email) + '</span></div>'
-      + '<div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">' + esc(app.phone||'-') + '</span></div>'
-      + '<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge badge-'+esc(app.status)+'">'+esc(app.status)+'</span></span></div>'
-      + '<div class="detail-row"><span class="detail-label">Applied</span><span class="detail-value">' + fmtDt(app.createdAt) + '</span></div>'
+      + '<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a class="detail-link" href="mailto:' + esc(applicant.email || '') + '">' + esc(applicant.email || '-') + '</a></span></div>'
+      + '<div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">' + esc(applicant.phone || '-') + '</span></div>'
+      + '<div class="detail-row"><span class="detail-label">DOB</span><span class="detail-value">' + fmtD(applicant.dateOfBirth) + '</span></div>'
+      + '<div class="detail-row"><span class="detail-label">Postcode</span><span class="detail-value">' + esc(applicant.postcode || '-') + '</span></div>'
       + '</div>'
-      + '<div class="mb-2"><span class="detail-label">Roles</span><div style="margin-top:6px">' + (roles||'<span class="text-muted">-</span>') + '</div></div>'
-      + (app.notes ? '<div class="mb-2"><span class="detail-label">Notes</span><p style="font-size:0.875rem;margin-top:4px">'+esc(app.notes)+'</p></div>' : '')
-      + '<div class="mt-2"><span class="as-label">Admin Notes</span><textarea id="drawer-notes" class="mt-1" placeholder="Internal notes…">'
-      + esc(app.adminNotes||'') + '</textarea>'
-      + '<button class="btn btn-ghost btn-sm mt-1" data-action="save-notes" data-app-id="' + esc(appId) + '">Save Notes</button></div>';
+      + '<div class="drawer-section mb-2"><span class="detail-label">Preferred job types</span><div class="pill-wrap mt-1">' + preferredJobTypes + '</div></div>'
+      + '<div class="drawer-section mb-2"><span class="detail-label">Roles applied for</span><div class="pill-wrap mt-1">' + rolePills + '</div></div>'
+      + '<div class="drawer-section mb-2"><span class="detail-label">Bio</span><p class="drawer-copy">' + esc(applicant.bio || 'No bio provided.') + '</p></div>'
+      + '<div class="detail-grid mb-2">'
+      + '<div class="detail-row"><span class="detail-label">Years of experience</span><span class="detail-value">' + esc(applicant.yearsExperience != null ? String(applicant.yearsExperience) : 'Not provided') + '</span></div>'
+      + '<div class="detail-row"><span class="detail-label">Standard hourly rate</span><span class="detail-value">' + formatCurrency(applicant.hourlyRate) + '</span></div>'
+      + '</div>'
+      + '<div class="detail-grid mb-2">'
+      + '<div class="detail-row">'
+      + '<span class="detail-label">Current tier</span>'
+      + '<div class="drawer-tier-row">' + renderTierBadge(applicant.staffTier) + '</div>'
+      + '</div>'
+      + '<div class="detail-row">'
+      + '<label class="as-label" for="drawer-tier-select">Change tier</label>'
+      + '<select id="drawer-tier-select" class="as-input" data-action="change-tier" data-applicant-id="' + esc(applicant.id || '') + '" data-current-tier="' + esc(applicant.staffTier || 'STANDARD') + '">'
+      + '<option value="STANDARD"' + ((applicant.staffTier || 'STANDARD') === 'STANDARD' ? ' selected' : '') + '>STANDARD</option>'
+      + '<option value="GOLD"' + (applicant.staffTier === 'GOLD' ? ' selected' : '') + '>GOLD</option>'
+      + '</select>'
+      + '</div>'
+      + '<div class="detail-row">'
+      + '<span class="detail-label">Profile visible</span>'
+      + '<label class="toggle-switch">'
+      + '<input type="checkbox" data-action="toggle-visibility" data-applicant-id="' + esc(applicant.id || '') + '"' + (applicant.profileVisible ? ' checked' : '') + '>'
+      + '<span class="toggle-slider"></span>'
+      + '<span class="toggle-label">' + (applicant.profileVisible ? 'Visible on marketplace' : 'Hidden from marketplace') + '</span>'
+      + '</label>'
+      + '</div>'
+      + '<div class="detail-row"><span class="detail-label">Promoted to Gold</span><span class="detail-value">' + fmtDt(applicant.promotedToGoldAt) + '</span></div>'
+      + '</div>'
+      + '<div class="drawer-section mb-2">'
+      + '<div class="drawer-section-header"><span class="detail-label">CV</span><span class="detail-meta">' + esc(detail.cvOriginalName || 'Uploaded CV') + '</span></div>'
+      + (hasPdfPreview
+        ? '<div class="cv-preview"><iframe src="' + esc(downloadHref) + '" title="CV preview"></iframe></div>'
+        : '<p class="drawer-copy text-muted">Embedded preview is available for PDF CVs. Use the download link if preview is unavailable.</p>')
+      + '<div class="drawer-inline-actions mt-1">'
+      + (downloadHref
+        ? '<a class="btn btn-ghost btn-sm" href="' + esc(downloadHref) + '" target="_blank" rel="noopener noreferrer">Download CV</a>'
+        : '<button class="btn btn-ghost btn-sm" data-action="open-cv" data-app-id="' + esc(detail.id) + '" data-cv-url="' + esc(detail.cvKey || '') + '">Download CV</button>')
+      + '</div>'
+      + '</div>'
+      + '<div class="drawer-section mb-2">'
+      + '<label class="as-label" for="drawer-notes">Admin notes</label>'
+      + '<textarea id="drawer-notes" maxlength="2000" placeholder="Internal notes for this application...">' + esc(notesValue) + '</textarea>'
+      + '<div class="drawer-inline-actions mt-1"><button class="btn btn-ghost btn-sm" data-action="save-notes" data-app-id="' + esc(detail.id) + '">Save notes</button></div>'
+      + '</div>'
+      + '<div class="stats-row mb-2">'
+      + '<div class="stat-card"><span class="detail-label">Total bookings</span><strong>' + esc(String(applicant.totalBookings || 0)) + '</strong></div>'
+      + '<div class="stat-card"><span class="detail-label">Average rating</span><strong>' + formatRating(applicant.averageRating) + '</strong></div>'
+      + '<div class="stat-card"><span class="detail-label">Status</span><strong><span class="badge badge-' + esc(detail.status) + '">' + esc(detail.status) + '</span></strong></div>'
+      + '</div>'
+      + '<div class="detail-grid">'
+      + '<div class="detail-row"><span class="detail-label">Applied date</span><span class="detail-value">' + fmtDt(detail.createdAt) + '</span></div>'
+      + '<div class="detail-row"><span class="detail-label">Last updated</span><span class="detail-value">' + fmtDt(detail.lastUpdatedAt || detail.updatedAt) + '</span></div>'
+      + '</div>';
 
     document.getElementById('drawer-footer').innerHTML =
-      '<button class="btn btn-info btn-sm" data-action="open-cv" data-app-id="' + esc(appId) + '" data-cv-url="' + esc(app.cvUrl||app.cvKey||'') + '">View CV</button>'
-      + (app.status !== 'SHORTLISTED' ? '<button class="btn btn-success btn-sm" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="SHORTLISTED">Shortlist</button>' : '')
-      + (app.status !== 'HIRED' ? '<button class="btn btn-sm" style="background:#20c997;color:#fff" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="HIRED">Hire</button>' : '')
-      + (app.status !== 'REJECTED' ? '<button class="btn btn-danger btn-sm" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="REJECTED">Reject</button>' : '');
+      (downloadHref
+        ? '<a class="btn btn-info btn-sm" href="' + esc(downloadHref) + '" target="_blank" rel="noopener noreferrer">Open CV</a>'
+        : '<button class="btn btn-info btn-sm" data-action="open-cv" data-app-id="' + esc(detail.id) + '" data-cv-url="' + esc(detail.cvKey || '') + '">Open CV</button>')
+      + renderStatusActions(detail.id, detail.status);
 
+    wireDrawerNotesAutoSave(detail.id, notesValue);
+  }
+
+  async function loadApplicationDetail(appId) {
+    var detail = await fetch_('/api/v1/applications/' + appId);
+    applicationDetails[appId] = detail;
+    return detail;
+  }
+
+  async function openDrawer(appId) {
+    var app = findApplication(appId);
+    activeDrawerAppId = appId;
+    document.getElementById('drawer-name').textContent = app ? app.firstName + ' ' + app.lastName : 'Applicant';
+    document.getElementById('drawer-body').innerHTML = '<div class="drawer-loading">Loading applicant details…</div>';
+    document.getElementById('drawer-footer').innerHTML = '';
     document.getElementById('app-drawer-backdrop').classList.add('open');
     document.getElementById('app-drawer').classList.add('open');
+
+    try {
+      var detail = await loadApplicationDetail(appId);
+      if (activeDrawerAppId === appId) {
+        renderDrawer(detail);
+      }
+    } catch (e) {
+      document.getElementById('drawer-body').innerHTML = '<div class="empty-state">Failed to load applicant details: ' + esc(e.message) + '</div>';
+      notify('Failed to load applicant details: ' + e.message, 'error');
+    }
   }
 
   function closeDrawer() {
+    activeDrawerAppId = null;
     document.getElementById('app-drawer-backdrop').classList.remove('open');
     document.getElementById('app-drawer').classList.remove('open');
+  }
+
+  async function refreshOpenDrawer(appId) {
+    if (!activeDrawerAppId || activeDrawerAppId !== appId) return;
+    var detail = await loadApplicationDetail(appId);
+    if (activeDrawerAppId === appId) {
+      renderDrawer(detail);
+    }
   }
 
   // ── Actions ─────────────────────────────────────────────
@@ -295,41 +442,99 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
-      toast('Status updated to ' + status, 'success');
+      notify('Status updated to ' + status, 'success');
       await loadApplications();
-      closeDrawer();
+      await refreshOpenDrawer(appId);
     } catch (e) {
-      toast('Failed: ' + e.message, 'error');
+      notify('Failed: ' + e.message, 'error');
     }
   }
 
   async function openCV(appId, cvUrl) {
     if (!cvUrl || cvUrl === 'undefined') {
-      toast('No CV available', 'warning');
+      notify('No CV available', 'warning');
       return;
     }
-    if (cvUrl.startsWith('http')) { window.open(cvUrl, '_blank', 'noopener,noreferrer'); return; }
+    if (cvUrl.startsWith('http')) {
+      window.open(cvUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
     try {
       var resp = await fetch_('/api/v1/applications/' + appId + '/cv');
-      if (resp.signedUrl) window.open(resp.signedUrl, '_blank');
+      if (resp.signedUrl) window.open(resp.signedUrl, '_blank', 'noopener,noreferrer');
       else throw new Error('No signed URL');
     } catch (e) {
-      toast('Failed to open CV: ' + e.message, 'error');
+      notify('Failed to open CV: ' + e.message, 'error');
     }
   }
 
   async function saveNotes(appId) {
-    var notes = document.getElementById('drawer-notes').value;
+    var notesEl = document.getElementById('drawer-notes');
+    if (!notesEl) return;
+    var notes = notesEl.value;
+    if (notes === (notesEl.dataset.savedValue || '')) return;
+    if (notesEl.dataset.saving === 'true') return;
+    notesEl.dataset.saving = 'true';
+
     try {
-      await fetch_('/api/v1/applications/' + appId + '/notes', {
-        method: 'PUT',
+      var updated = await fetch_('/api/v1/applications/' + appId + '/notes', {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes })
+        body: JSON.stringify({ notes: notes })
       });
-      toast('Notes saved', 'success');
-      await loadApplications();
+      notesEl.dataset.savedValue = updated.notes || '';
+      if (applicationDetails[appId]) {
+        applicationDetails[appId].notes = updated.notes || '';
+        applicationDetails[appId].updatedAt = updated.updatedAt || applicationDetails[appId].updatedAt;
+      }
+      notify('Notes saved', 'success');
+      await refreshOpenDrawer(appId);
     } catch (e) {
-      toast('Failed to save notes: ' + e.message, 'error');
+      notify('Failed to save notes: ' + e.message, 'error');
+    } finally {
+      delete notesEl.dataset.saving;
+    }
+  }
+
+  async function updateTier(applicantId, tier, selectEl) {
+    var previousTier = selectEl.dataset.currentTier || 'STANDARD';
+    selectEl.disabled = true;
+    try {
+      await fetch_('/api/v1/admin/staff/' + encodeURIComponent(applicantId) + '/tier', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier: tier })
+      });
+      selectEl.dataset.currentTier = tier;
+      notify('Applicant tier updated to ' + tier, 'success');
+      if (activeDrawerAppId) {
+        await refreshOpenDrawer(activeDrawerAppId);
+      }
+    } catch (e) {
+      selectEl.value = previousTier;
+      notify('Failed to update tier: ' + e.message, 'error');
+    } finally {
+      selectEl.disabled = false;
+    }
+  }
+
+  async function updateVisibility(applicantId, visible, checkboxEl) {
+    checkboxEl.disabled = true;
+    try {
+      await fetch_('/api/v1/admin/staff/' + encodeURIComponent(applicantId) + '/visibility', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visible: visible })
+      });
+      notify('Profile visibility updated', 'success');
+      if (activeDrawerAppId) {
+        await refreshOpenDrawer(activeDrawerAppId);
+      }
+    } catch (e) {
+      checkboxEl.checked = !visible;
+      notify('Failed to update visibility: ' + e.message, 'error');
+    } finally {
+      checkboxEl.disabled = false;
     }
   }
 
@@ -566,6 +771,14 @@
 
   // Checkbox delegation
   document.addEventListener('change', function (e) {
+    var tierSelect = e.target.closest('[data-action="change-tier"]');
+    if (tierSelect) {
+      return updateTier(tierSelect.dataset.applicantId, tierSelect.value, tierSelect);
+    }
+    var visibilityToggle = e.target.closest('[data-action="toggle-visibility"]');
+    if (visibilityToggle) {
+      return updateVisibility(visibilityToggle.dataset.applicantId, visibilityToggle.checked, visibilityToggle);
+    }
     var cb = e.target.closest('.app-checkbox');
     if (cb) {
       if (cb.checked) selectedAppIds.add(cb.dataset.appId);

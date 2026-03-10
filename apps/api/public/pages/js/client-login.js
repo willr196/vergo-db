@@ -9,7 +9,7 @@
   if (!form || !msgBox || !resendSection) return;
 
   const params = new URLSearchParams(window.location.search);
-  const defaultRedirect = '/client-dashboard.html';
+  const defaultRedirect = '/client-dashboard';
   let redirect = defaultRedirect;
   const redirectParam = params.get('redirect');
   if (redirectParam) {

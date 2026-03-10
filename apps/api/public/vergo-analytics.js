@@ -299,7 +299,7 @@
       banner.innerHTML =
         '<div style="line-height:1.35; font-size:13px; max-width: 880px;">' +
         'We use optional analytics cookies to understand site usage. ' +
-        '<a href="/privacy.html" style="color:#D4AF37; text-decoration:none;">Privacy Policy</a>' +
+        '<a href="/privacy" style="color:#D4AF37; text-decoration:none;">Privacy Policy</a>' +
         '</div>' +
         '<div style="display:flex; gap:8px; flex-shrink:0;">' +
         '<button id="vergo-cookie-reject" style="border:1px solid rgba(255,255,255,0.25); background:transparent; color:#fff; border-radius:10px; padding:10px 12px; font-size:13px; cursor:pointer;">Reject</button>' +

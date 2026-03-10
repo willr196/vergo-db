@@ -61,7 +61,7 @@
         + bio
         + '<div class="staff-card-footer">'
         + '<span class="staff-visibility-note">' + escapeHtml(visibilityNote) + '</span>'
-        + '<a href="/pricing.html" class="cta-button secondary">View pricing</a>'
+        + '<a href="/pricing" class="cta-button secondary">View pricing</a>'
         + '</div>'
         + '</article>';
     }).join('');

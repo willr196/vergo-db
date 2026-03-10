@@ -161,7 +161,7 @@
           
           // Schedule redirect. This always runs once response.ok is true.
           setTimeout(() => {
-            window.location.href = '/admin-jobs.html'; // or '/admin.html' if you prefer
+            window.location.href = '/admin-jobs';
           }, 500);
           
           // Non-critical notification
