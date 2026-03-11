@@ -24,7 +24,7 @@
           <li><a href="/#event-types">Event Types</a></li>
           <li><a href="/about"${isActive('/about') ? ' aria-current="page"' : ''}>About</a></li>
           <li class="nav-cta-wrapper nav-cta-secondary"><a href="/apply"${isActive('/apply') ? ' aria-current="page"' : ''} class="nav-cta nav-cta-outline">Join VERGO</a></li>
-          <li class="nav-cta-wrapper"><a href="/quote"${isActive('/quote') ? ' aria-current="page"' : ''} class="nav-cta">Get a Quote</a></li>
+          <li class="nav-cta-wrapper"><a href="/contact?tab=staff#contact-forms"${isActive('/contact') ? ' aria-current="page"' : ''} class="nav-cta">Request Staff</a></li>
   `;
 
   const defaultLinks = `
@@ -32,7 +32,7 @@
           <li><a href="/about"${isActive('/about') ? ' aria-current="page"' : ''}>About</a></li>
           <li><a href="/faq"${isActive('/faq') ? ' aria-current="page"' : ''}>FAQ</a></li>
           <li class="nav-cta-wrapper nav-cta-secondary"><a href="/apply"${isActive('/apply') ? ' aria-current="page"' : ''} class="nav-cta nav-cta-outline">Join VERGO</a></li>
-          <li class="nav-cta-wrapper"><a href="/quote"${isActive('/quote') ? ' aria-current="page"' : ''} class="nav-cta">Get a Quote</a></li>
+          <li class="nav-cta-wrapper"><a href="/contact?tab=staff#contact-forms"${isActive('/contact') ? ' aria-current="page"' : ''} class="nav-cta">Request Staff</a></li>
   `;
 
   // Navigation HTML - Premium structure

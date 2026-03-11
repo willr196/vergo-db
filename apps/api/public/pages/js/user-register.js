@@ -46,12 +46,23 @@ const form = document.getElementById('register-form');
         }
         
         // Success
-        msgBox.innerHTML = `
-          <div class="success-msg">
-            <strong>Account created!</strong><br>
-            Please check your email to verify your account before logging in.
-          </div>
-        `;
+        const verificationUrl = typeof data.verificationUrl === 'string' ? data.verificationUrl : '';
+        const successMessage = data.message || 'Please check your email to verify your account before logging in.';
+
+        msgBox.innerHTML = verificationUrl
+          ? `
+            <div class="success-msg">
+              <strong>Account created!</strong><br>
+              ${escapeHtml(successMessage)}<br>
+              <a class="btn-link" href="${escapeHtml(verificationUrl)}">Verify account now</a>
+            </div>
+          `
+          : `
+            <div class="success-msg">
+              <strong>Account created!</strong><br>
+              ${escapeHtml(successMessage)}
+            </div>
+          `;
         form.style.display = 'none';
         
       } catch (err) {
@@ -61,6 +72,11 @@ const form = document.getElementById('register-form');
       }
     });
     
-    function escapeHtml(str) {
-      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
+	    function escapeHtml(str) {
+	      return String(str)
+	        .replace(/&/g, '&amp;')
+	        .replace(/</g, '&lt;')
+	        .replace(/>/g, '&gt;')
+	        .replace(/"/g, '&quot;')
+	        .replace(/'/g, '&#39;');
+	    }

@@ -32,6 +32,18 @@ export async function presignUpload(key: string, contentType: string) {
   return { url }
 }
 
+export async function uploadBuffer(key: string, body: Buffer, contentType: string) {
+  requireS3Config()
+  const s3Client = getS3Client()
+  const cmd = new PutObjectCommand({
+    Bucket: env.s3Bucket,
+    Key: key,
+    Body: body,
+    ContentType: contentType,
+  })
+  await s3Client.send(cmd)
+}
+
 export async function presignDownload(key: string) {
   requireS3Config()
   const s3Client = getS3Client()

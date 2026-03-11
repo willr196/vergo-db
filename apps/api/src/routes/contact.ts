@@ -76,9 +76,6 @@ r.post('/staff-request', contactLimiter, async (req, res, next) => {
       });
     }
     
-    // Send email notification
-    await sendStaffRequestEmail(data);
-
     await prisma.contact.create({
       data: {
         name: data.name,
@@ -93,6 +90,12 @@ r.post('/staff-request', contactLimiter, async (req, res, next) => {
         status: 'NEW'
       }
     });
+
+    try {
+      await sendStaffRequestEmail(data);
+    } catch (emailError) {
+      console.error('[EMAIL] Staff request notification failed:', emailError);
+    }
     
     console.log('[STAFF REQUEST]', {
       from: data.email.slice(0, 2) + '***',
@@ -143,9 +146,6 @@ r.post('/general', contactLimiter, async (req, res, next) => {
       });
     }
     
-    // Send email notification
-    await sendGeneralEnquiryEmail(data);
-
     await prisma.contact.create({
       data: {
         name: data.name,
@@ -156,6 +156,12 @@ r.post('/general', contactLimiter, async (req, res, next) => {
         status: 'NEW'
       }
     });
+
+    try {
+      await sendGeneralEnquiryEmail(data);
+    } catch (emailError) {
+      console.error('[EMAIL] General enquiry notification failed:', emailError);
+    }
     
     console.log('[GENERAL ENQUIRY]', {
       from: data.email.slice(0, 2) + '***',

@@ -7,6 +7,12 @@ type AuthInfo = {
   email?: string;
 };
 
+function setNoStoreHeaders(res: Response) {
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+}
+
 declare module 'express-serve-static-core' {
   interface Request {
     auth?: AuthInfo;
@@ -39,6 +45,7 @@ function requireJwt(req: Request, res: Response, next: NextFunction, expectedTyp
       email: payload.email
     };
 
+    setNoStoreHeaders(res);
     return next();
   } catch (error) {
     return res.status(401).json({ ok: false, error: 'Invalid or expired token' });

@@ -41,7 +41,7 @@
     ],
     pricing: ['/pricing'],
     contact: ['/contact'],
-    join: ['/apply', '/user-login', '/user-register'],
+    join: ['/apply', '/staff-roles', '/user-login', '/user-register'],
   };
 
   const isCurrent = (group) => {
@@ -139,7 +139,8 @@
           <div class="footer-links">
             <a href="/jobs">Job Board</a>
             <a href="/apply">Join VERGO</a>
-            <a href="/quote">Get a Quote</a>
+            <a href="/staff-roles">Role Guide</a>
+            <a href="/contact?tab=staff#contact-forms">Request Staff</a>
             <a href="/about">About VERGO</a>
           </div>
         </div>

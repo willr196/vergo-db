@@ -269,6 +269,64 @@ test('user mobile refresh detects token reuse and revokes all active tokens', as
   }
 });
 
+test('user registration does not expose verification links unless explicitly enabled', async () => {
+  setRequiredEnv();
+
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const express = require('express');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const userAuth = require('../routes/userAuth').default;
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { prisma } = require('../prisma');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { env } = require('../env');
+
+  const prismaAny = prisma as any;
+  const envAny = env as any;
+  const originalFindUnique = prismaAny.user.findUnique;
+  const originalCreate = prismaAny.user.create;
+  const originalResendConfigured = envAny.resendConfigured;
+  const originalExposeDevVerificationLinks = envAny.exposeDevVerificationLinks;
+
+  prismaAny.user.findUnique = async () => null;
+  prismaAny.user.create = async (args: any) => ({
+    id: 'user-register-1',
+    email: args.data.email,
+    firstName: args.data.firstName,
+  });
+  envAny.resendConfigured = false;
+  envAny.exposeDevVerificationLinks = false;
+
+  const app = express();
+  app.use(express.json());
+  app.use('/api/v1/user', userAuth);
+
+  try {
+    const response = await inject(app, {
+      method: 'POST',
+      url: '/api/v1/user/register',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        firstName: 'Casey',
+        lastName: 'Tester',
+        email: 'casey@example.com',
+        password: 'correct horse battery staple',
+      }),
+    });
+
+    assert.equal(response.statusCode, 201);
+    const body = JSON.parse(response.body || '{}') as any;
+    assert.equal(body.ok, true);
+    assert.equal(body.emailDelivery, 'unavailable');
+    assert.equal('verificationUrl' in body, false);
+  } finally {
+    prismaAny.user.findUnique = originalFindUnique;
+    prismaAny.user.create = originalCreate;
+    envAny.resendConfigured = originalResendConfigured;
+    envAny.exposeDevVerificationLinks = originalExposeDevVerificationLinks;
+  }
+});
+
 test('client mobile refresh detects token reuse and revokes all active tokens', async () => {
   setRequiredEnv();
 

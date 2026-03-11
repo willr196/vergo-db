@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/logo-small.png">
   <title>Transparent Pricing | VERGO Ltd</title>
-  <meta name="description" content="Transparent pricing for VERGO Standard marketplace staff and Gold proven performers.">
+  <meta name="description" content="Transparent pricing for VERGO Standard and Gold staffing, including a public price calculator for common briefs.">
   <link rel="canonical" href="https://vergoltd.com/pricing">
   <meta name="theme-color" content="#0a0a0a">
 
   <meta property="og:title" content="Transparent Pricing | VERGO Ltd">
-  <meta property="og:description" content="Transparent pricing for VERGO Standard marketplace staff and Gold proven performers.">
+  <meta property="og:description" content="Transparent pricing for VERGO Standard and Gold staffing, including a public price calculator for common briefs.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://vergoltd.com/pricing">
   <meta property="og:image" content="https://vergoltd.com/logo.png">
@@ -128,6 +128,36 @@
       font-weight: 700;
     }
 
+    .calculator-section .calculator-form {
+      padding: 28px;
+    }
+
+    .calculator-section .calc-field--full {
+      grid-column: 1 / -1;
+    }
+
+    .calculator-section .calc-muted {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.7;
+    }
+
+    .calculator-section .calc-rate-note {
+      margin-top: 4px;
+    }
+
+    .calculator-section .calc-summary {
+      margin: 16px 0 0;
+    }
+
+    .calculator-section .calc-breakdown {
+      margin-top: 18px;
+    }
+
+    .calculator-section .calc-disclaimer {
+      margin-top: 18px;
+    }
+
     .faq-grid {
       display: grid;
       gap: 18px;
@@ -203,7 +233,11 @@
           <div>
             <span class="eyebrow">Pricing</span>
             <h1>Transparent Pricing</h1>
-            <p class="lede">Simple pricing for marketplace staff and Gold performers.</p>
+            <p class="lede">Simple pricing for Standard and Gold staffing, with a calculator for fast estimates and a quote route for more bespoke briefs.</p>
+            <div class="hero-actions">
+              <a href="#calculator" class="btn btn-primary">Use Price Calculator</a>
+              <a href="/contact?tab=staff#contact-forms" class="btn btn-secondary">Request Staff</a>
+            </div>
           </div>
 
           <aside class="panel hero-summary" aria-label="Pricing summary">
@@ -213,7 +247,7 @@
             <div class="detail-grid">
               <article class="detail-card">
                 <p class="card-label">Standard</p>
-                <p><strong>Staff rate + fixed service fee + VAT.</strong></p>
+                <p><strong>Wage + &pound;3/hr + VAT.</strong></p>
               </article>
               <article class="detail-card">
                 <p class="card-label">Gold</p>
@@ -226,6 +260,10 @@
               <article class="detail-card">
                 <p class="card-label">Flexible</p>
                 <p><strong>Mix Standard and Gold staff on the same event if that suits the brief.</strong></p>
+              </article>
+              <article class="detail-card">
+                <p class="card-label">Calculator</p>
+                <p><strong>Price up common briefs here before requesting a full quote.</strong></p>
               </article>
             </div>
           </aside>
@@ -240,15 +278,15 @@
             <span class="tier-pill">Standard</span>
             <h3 class="tier-name">The Marketplace</h3>
             <p class="pricing-copy">Vetted, checked staff ready to work</p>
-            <p class="price-line">Staff member's rate + &pound;4/hr service fee + VAT</p>
+            <p class="price-line">Wage + &pound;3/hr + VAT</p>
             <ul class="tier-features">
-              <li><span class="mark">01</span><span>Browse and pick your team.</span></li>
+              <li><span class="mark">01</span><span>Price the brief up quickly with the calculator or quote route.</span></li>
               <li><span class="mark">02</span><span>All staff background-checked.</span></li>
               <li><span class="mark">03</span><span>Flexible for any event type.</span></li>
               <li><span class="mark">04</span><span>Book as few or as many as you need.</span></li>
             </ul>
             <div class="stacked-actions">
-              <a href="/browse-staff" class="btn btn-primary">Browse Standard Staff</a>
+              <a href="#calculator" class="btn btn-primary">Use Price Calculator</a>
             </div>
           </article>
 
@@ -285,12 +323,89 @@
               <li><span class="mark">04</span><span>Priority availability for repeat clients.</span></li>
             </ul>
             <div class="stacked-actions">
-              <a href="/browse-staff?tier=GOLD" class="btn btn-primary">Browse Gold Staff</a>
+              <a href="/contact?tab=staff#contact-forms" class="btn btn-primary">Request Staff</a>
             </div>
           </article>
         </div>
 
         <p class="earned-note">Every staff member starts Standard. Gold status is earned — not bought.</p>
+      </div>
+    </section>
+
+    <section id="calculator" class="section-block calculator-section" style="padding-top: 8px;">
+      <div class="page-shell">
+        <div class="section-heading">
+          <span class="eyebrow">Price calculator</span>
+          <h2>Build a quick estimate.</h2>
+          <p>For Standard, enter the agreed wage and the calculator adds &pound;3/hr plus VAT. For Gold, the fixed public role rates are applied automatically.</p>
+        </div>
+
+        <div class="calculator-shell">
+          <form id="pricing-calculator" class="panel calculator-form" novalidate>
+            <div class="calc-field">
+              <label for="calc-tier">Staffing route</label>
+              <select id="calc-tier" name="tier">
+                <option value="GOLD" selected>Gold</option>
+                <option value="STANDARD">Standard</option>
+              </select>
+            </div>
+
+            <div class="calc-field">
+              <label for="calc-role">Role</label>
+              <select id="calc-role" name="role">
+                <option value="standard">Bartender / Waiter / FOH / Runner</option>
+                <option value="chef">Chef</option>
+                <option value="supervisor">Supervisor</option>
+              </select>
+            </div>
+
+            <div class="calc-field">
+              <label for="calc-headcount">Staff needed</label>
+              <input id="calc-headcount" name="headcount" type="number" min="1" max="100" step="1" value="4" inputmode="numeric">
+            </div>
+
+            <div class="calc-field">
+              <label for="calc-hours">Hours per person</label>
+              <input id="calc-hours" name="hours" type="number" min="1" max="24" step="0.5" value="6" inputmode="decimal">
+            </div>
+
+            <div id="calc-standard-rate-wrap" class="calc-field calc-field--full" hidden>
+              <label for="calc-standard-rate">Standard hourly rate</label>
+              <input id="calc-standard-rate" name="standardRate" type="number" min="0" max="200" step="0.5" inputmode="decimal" placeholder="Enter the agreed staff hourly rate">
+              <p id="calc-standard-note" class="calc-muted calc-rate-note">Standard pricing = agreed wage + &pound;3/hr + VAT.</p>
+            </div>
+          </form>
+
+          <div class="calculator-results" aria-live="polite">
+            <span id="calc-tier-badge" class="tier-pill calc-tier-badge">Gold estimate</span>
+            <p id="calc-total" class="calc-total">&pound;576</p>
+            <p id="calc-summary" class="calc-summary">4 staff for 6 hours on the Gold bartender / waiter / FOH / runner rate.</p>
+
+            <div class="calc-breakdown">
+              <div class="calc-breakdown-row">
+                <span id="calc-rate-label">Hourly rate used</span>
+                <strong id="calc-hourly-rate">&pound;20/hr</strong>
+              </div>
+              <div class="calc-breakdown-row">
+                <span>Shift subtotal</span>
+                <strong id="calc-subtotal">&pound;480</strong>
+              </div>
+              <div class="calc-breakdown-row">
+                <span id="calc-service-label">Service fee</span>
+                <strong id="calc-service-fee">Included</strong>
+              </div>
+              <div class="calc-breakdown-row">
+                <span>VAT</span>
+                <strong id="calc-vat">&pound;96</strong>
+              </div>
+            </div>
+
+            <p id="calc-disclaimer" class="calc-muted calc-disclaimer">Estimate only. Travel, late-night uplifts, mixed teams and bespoke briefs may need a full quote.</p>
+            <div class="stacked-actions">
+              <a id="calc-quote-link" href="/contact?tab=staff#contact-forms" class="btn btn-secondary">Request Staff</a>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -325,5 +440,6 @@
 
   <script src="/vergo-public-shell.js"></script>
   <script src="/vergo-analytics.js"></script>
+  <script src="/pages/js/pricing.js"></script>
 </body>
 </html>

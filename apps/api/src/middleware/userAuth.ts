@@ -3,6 +3,12 @@ import { Request, Response, NextFunction } from 'express';
 const USER_IDLE_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours
 const USER_MAX_SESSION_AGE = 24 * 60 * 60 * 1000; // 24 hours
 
+function setNoStoreHeaders(res: Response) {
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+}
+
 declare module 'express-session' {
   interface SessionData {
     // User session fields
@@ -50,6 +56,7 @@ export function requireUser(req: Request, res: Response, next: NextFunction) {
   
   // Update last activity
   req.session.userLastActivity = now;
+  setNoStoreHeaders(res);
   
   return next();
 }

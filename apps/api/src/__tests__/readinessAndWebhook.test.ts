@@ -25,7 +25,9 @@ const { env } = require('../env');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { logger } = require('../services/logger');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { presignUpload } = require('../services/s3');
+const s3Service = require('../services/s3');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { presignUpload } = s3Service;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { sendEmail } = require('../services/email/sender');
 
@@ -185,6 +187,205 @@ test('webhook resend route is rate-limited and request-logged', async () => {
     assert.equal(loggedWebhookWarn, true);
   } finally {
     loggerAny.warn = originalWarn;
+  }
+});
+
+test('homepage includes canonical metadata and shared shell mounts', async () => {
+  const res = await inject(app, { method: 'GET', url: '/' });
+  assert.equal(res.statusCode, 200);
+  assert.match(res.body, /<link rel="canonical" href="https:\/\/vergoltd\.com\/">/i);
+  assert.match(res.body, /<meta name="theme-color" content="#0a0a0a">/i);
+  assert.match(res.body, /id="site-header"/i);
+  assert.match(res.body, /id="main-content"/i);
+  assert.match(res.body, /footer role="contentinfo"/i);
+  assert.match(res.body, /\/vergo-public-shell\.js/i);
+});
+
+test('applications presign does not fall back to local uploads in production by default', async () => {
+  const envAny = env as any;
+  const originalNodeEnv = envAny.nodeEnv;
+  const originalS3Configured = envAny.s3Configured;
+  const originalAllowLocalCvUploads = envAny.allowLocalCvUploads;
+
+  envAny.nodeEnv = 'production';
+  envAny.s3Configured = false;
+  envAny.allowLocalCvUploads = false;
+
+  try {
+    const res = await inject(app, {
+      method: 'POST',
+      url: '/api/v1/applications/presign',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        fileName: 'candidate-cv.pdf',
+        fileType: 'application/pdf',
+      }),
+    });
+
+    assert.equal(res.statusCode, 503);
+    const body = JSON.parse(res.body || '{}') as any;
+    assert.match(String(body.error || ''), /CV uploads are unavailable/i);
+    assert.notEqual(body.code, 'DIRECT_UPLOAD_REQUIRED');
+  } finally {
+    envAny.nodeEnv = originalNodeEnv;
+    envAny.s3Configured = originalS3Configured;
+    envAny.allowLocalCvUploads = originalAllowLocalCvUploads;
+  }
+});
+
+test('applications create accepts a verified local CV key', async () => {
+  const prismaAny = prisma as any;
+  const localApplicantId = 'c7d06490-0d67-46fc-9b3c-fbe8c687c5b4';
+  const localCvKey = 'cv/local/2026/03/c7d06490-0d67-46fc-9b3c-fbe8c687c5b4/test-file.pdf';
+
+  const originalFindVerification = prismaAny.fileUploadVerification.findUnique;
+  const originalDeleteVerification = prismaAny.fileUploadVerification.delete;
+  const originalApplicantUpsert = prismaAny.applicant.upsert;
+  const originalApplicationCreate = prismaAny.application.create;
+
+  const createCalls: any[] = [];
+
+  prismaAny.fileUploadVerification.findUnique = async ({ where }: any) => ({
+    key: where.key,
+    applicantId: localApplicantId,
+    verified: true,
+    expiresAt: new Date(Date.now() + 60_000),
+  });
+  prismaAny.fileUploadVerification.delete = async () => ({ id: 'verification-1' });
+  prismaAny.applicant.upsert = async () => ({ id: 'applicant-existing-1' });
+  prismaAny.application.create = async (args: any) => {
+    createCalls.push(args);
+    return { id: 'application-1' };
+  };
+
+  try {
+    const res = await inject(app, {
+      method: 'POST',
+      url: '/api/v1/applications',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        applicantId: localApplicantId,
+        firstName: 'Casey',
+        lastName: 'Applicant',
+        email: 'casey@example.com',
+        phone: '07123456789',
+        roles: [{ role: 'Bartender', experienceLevel: '3-5 years' }],
+        cvKey: localCvKey,
+        cvOriginalName: 'casey-cv.pdf',
+        cvFileSize: 2048,
+        cvMimeType: 'application/pdf',
+        source: 'website',
+      }),
+    });
+
+    assert.equal(res.statusCode, 201);
+    assert.equal(createCalls.length, 1);
+    assert.equal(createCalls[0].data.cvKey, localCvKey);
+  } finally {
+    prismaAny.fileUploadVerification.findUnique = originalFindVerification;
+    prismaAny.fileUploadVerification.delete = originalDeleteVerification;
+    prismaAny.applicant.upsert = originalApplicantUpsert;
+    prismaAny.application.create = originalApplicationCreate;
+  }
+});
+
+test('applications direct-upload stores validated CVs in S3 when S3 is configured', async () => {
+  const envAny = env as any;
+  const prismaAny = prisma as any;
+  const originalS3Configured = envAny.s3Configured;
+  const originalAllowLocalCvUploads = envAny.allowLocalCvUploads;
+  const originalUploadBuffer = s3Service.uploadBuffer;
+  const originalVerificationCreate = prismaAny.fileUploadVerification.create;
+
+  const uploadCalls: any[] = [];
+  const verificationCalls: any[] = [];
+
+  envAny.s3Configured = true;
+  envAny.allowLocalCvUploads = false;
+  s3Service.uploadBuffer = async (key: string, body: Buffer, contentType: string) => {
+    uploadCalls.push({ key, body, contentType });
+  };
+  prismaAny.fileUploadVerification.create = async (args: any) => {
+    verificationCalls.push(args);
+    return { id: 'verification-1', ...args.data };
+  };
+
+  try {
+    const pdfBuffer = Buffer.from('%PDF-1.4\n1 0 obj\n<<>>\nendobj\n', 'utf8');
+    const res = await inject(app, {
+      method: 'POST',
+      url: '/api/v1/applications/direct-upload',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        fileName: 'candidate-cv.pdf',
+        fileType: 'application/pdf',
+        contentBase64: pdfBuffer.toString('base64'),
+      }),
+    });
+
+    assert.equal(res.statusCode, 200);
+    assert.equal(uploadCalls.length, 1);
+    assert.equal(uploadCalls[0].contentType, 'application/pdf');
+    assert.match(String(uploadCalls[0].key || ''), /^cv\//);
+    assert.deepEqual(uploadCalls[0].body, pdfBuffer);
+    assert.equal(verificationCalls.length, 1);
+    assert.equal(verificationCalls[0].data.verified, true);
+
+    const body = JSON.parse(res.body || '{}') as any;
+    assert.match(String(body.key || ''), /^cv\//);
+    assert.equal(body.fileType, 'application/pdf');
+  } finally {
+    envAny.s3Configured = originalS3Configured;
+    envAny.allowLocalCvUploads = originalAllowLocalCvUploads;
+    s3Service.uploadBuffer = originalUploadBuffer;
+    prismaAny.fileUploadVerification.create = originalVerificationCreate;
+  }
+});
+
+test('applications direct-upload rejects disguised files when MIME sniffing fails', async () => {
+  const envAny = env as any;
+  const prismaAny = prisma as any;
+  const originalS3Configured = envAny.s3Configured;
+  const originalAllowLocalCvUploads = envAny.allowLocalCvUploads;
+  const originalUploadBuffer = s3Service.uploadBuffer;
+  const originalVerificationCreate = prismaAny.fileUploadVerification.create;
+
+  let uploadAttempted = false;
+  let verificationCreated = false;
+
+  envAny.s3Configured = true;
+  envAny.allowLocalCvUploads = false;
+  s3Service.uploadBuffer = async () => {
+    uploadAttempted = true;
+  };
+  prismaAny.fileUploadVerification.create = async () => {
+    verificationCreated = true;
+    return { id: 'verification-1' };
+  };
+
+  try {
+    const fakePdfBuffer = Buffer.from('this is not a real PDF file', 'utf8');
+    const res = await inject(app, {
+      method: 'POST',
+      url: '/api/v1/applications/direct-upload',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        fileName: 'candidate-cv.pdf',
+        fileType: 'application/octet-stream',
+        contentBase64: fakePdfBuffer.toString('base64'),
+      }),
+    });
+
+    assert.equal(res.statusCode, 400);
+    const body = JSON.parse(res.body || '{}') as any;
+    assert.match(String(body.error || ''), /Invalid file type/i);
+    assert.equal(uploadAttempted, false);
+    assert.equal(verificationCreated, false);
+  } finally {
+    envAny.s3Configured = originalS3Configured;
+    envAny.allowLocalCvUploads = originalAllowLocalCvUploads;
+    s3Service.uploadBuffer = originalUploadBuffer;
+    prismaAny.fileUploadVerification.create = originalVerificationCreate;
   }
 });
 

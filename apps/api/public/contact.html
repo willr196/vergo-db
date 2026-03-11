@@ -85,6 +85,71 @@
     .compact-sidebar {
       align-content: start;
     }
+
+    .role-request-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .role-request-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) 96px;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .role-request-item.is-inactive .role-count-input,
+    .role-request-item.is-inactive .role-other-input {
+      opacity: 0.45;
+    }
+
+    .role-request-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .role-request-copy {
+      display: grid;
+      gap: 4px;
+    }
+
+    .role-request-copy strong {
+      color: var(--white);
+      font-size: 0.98rem;
+      font-weight: 700;
+    }
+
+    .role-request-copy span {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .role-count-input,
+    .role-other-input {
+      width: 100%;
+    }
+
+    .role-other-input {
+      grid-column: 2 / 4;
+    }
+
+    @media (max-width: 720px) {
+      .role-request-item {
+        grid-template-columns: auto minmax(0, 1fr);
+      }
+
+      .role-count-input,
+      .role-other-input {
+        grid-column: 2 / -1;
+      }
+    }
   </style>
 </head>
 <body>
@@ -220,34 +285,97 @@
                     <input type="date" id="staff-date" name="date">
                   </div>
                   <div class="form-group">
-                    <label for="staff-count">Number of staff</label>
-                    <input type="number" id="staff-count" name="staffCount" min="1" max="100" required>
+                    <label for="staff-count">Approximate total staff</label>
+                    <input type="number" id="staff-count" name="staffCount" min="1" max="100">
+                    <p class="hint">Use this if you want to give an overall estimate, or leave it blank and add counts next to each role.</p>
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label>Roles required</label>
-                  <div class="checkbox-group">
-                    <label class="checkbox-item">
-                      <input type="checkbox" name="roles" value="Event Chefs">
-                      <span>Event chefs or kitchen</span>
-                    </label>
-                    <label class="checkbox-item">
-                      <input type="checkbox" name="roles" value="Bar Staff">
-                      <span>Bar staff</span>
-                    </label>
-                    <label class="checkbox-item">
-                      <input type="checkbox" name="roles" value="Front of House">
-                      <span>Front of house</span>
-                    </label>
-                    <label class="checkbox-item">
-                      <input type="checkbox" name="roles" value="Baristas">
-                      <span>Baristas</span>
-                    </label>
-                    <label class="checkbox-item">
-                      <input type="checkbox" name="roles" value="Catering Assistants">
-                      <span>Catering assistants</span>
-                    </label>
+                  <p class="hint">Select the roles you need. Add an approximate total above or counts next to any roles where you know the split.</p>
+                  <div class="role-request-grid">
+                    <div class="role-request-item is-inactive">
+                      <label class="role-request-toggle">
+                        <input class="role-request-checkbox" type="checkbox" name="roles" value="Event Chefs">
+                      </label>
+                      <div class="role-request-copy">
+                        <strong>Event chefs or kitchen</strong>
+                        <span>Chefs, prep or back-of-house event support.</span>
+                      </div>
+                      <input class="role-count-input" type="number" min="1" max="100" placeholder="Qty" disabled>
+                    </div>
+                    <div class="role-request-item is-inactive">
+                      <label class="role-request-toggle">
+                        <input class="role-request-checkbox" type="checkbox" name="roles" value="Bar Staff">
+                      </label>
+                      <div class="role-request-copy">
+                        <strong>Bar staff</strong>
+                        <span>Bartenders and drinks service.</span>
+                      </div>
+                      <input class="role-count-input" type="number" min="1" max="100" placeholder="Qty" disabled>
+                    </div>
+                    <div class="role-request-item is-inactive">
+                      <label class="role-request-toggle">
+                        <input class="role-request-checkbox" type="checkbox" name="roles" value="Front of House">
+                      </label>
+                      <div class="role-request-copy">
+                        <strong>Front of house</strong>
+                        <span>Guest-facing reception and floor support.</span>
+                      </div>
+                      <input class="role-count-input" type="number" min="1" max="100" placeholder="Qty" disabled>
+                    </div>
+                    <div class="role-request-item is-inactive">
+                      <label class="role-request-toggle">
+                        <input class="role-request-checkbox" type="checkbox" name="roles" value="Waiters">
+                      </label>
+                      <div class="role-request-copy">
+                        <strong>Waiters</strong>
+                        <span>Tray service, plated service and table support.</span>
+                      </div>
+                      <input class="role-count-input" type="number" min="1" max="100" placeholder="Qty" disabled>
+                    </div>
+                    <div class="role-request-item is-inactive">
+                      <label class="role-request-toggle">
+                        <input class="role-request-checkbox" type="checkbox" name="roles" value="Runners">
+                      </label>
+                      <div class="role-request-copy">
+                        <strong>Runners</strong>
+                        <span>Fast floor support, clear-down and reset cover.</span>
+                      </div>
+                      <input class="role-count-input" type="number" min="1" max="100" placeholder="Qty" disabled>
+                    </div>
+                    <div class="role-request-item is-inactive">
+                      <label class="role-request-toggle">
+                        <input class="role-request-checkbox" type="checkbox" name="roles" value="Baristas">
+                      </label>
+                      <div class="role-request-copy">
+                        <strong>Baristas</strong>
+                        <span>Coffee service and espresso-machine support.</span>
+                      </div>
+                      <input class="role-count-input" type="number" min="1" max="100" placeholder="Qty" disabled>
+                    </div>
+                    <div class="role-request-item is-inactive">
+                      <label class="role-request-toggle">
+                        <input class="role-request-checkbox" type="checkbox" name="roles" value="Catering Assistants">
+                      </label>
+                      <div class="role-request-copy">
+                        <strong>Catering assistants</strong>
+                        <span>Prep, pass and service support.</span>
+                      </div>
+                      <input class="role-count-input" type="number" min="1" max="100" placeholder="Qty" disabled>
+                    </div>
+                    <div class="role-request-item is-inactive">
+                      <label class="role-request-toggle">
+                        <input class="role-request-checkbox" type="checkbox" name="roles" value="Other">
+                      </label>
+                      <div class="role-request-copy">
+                        <strong>Other</strong>
+                        <span>Add any role that is not listed here.</span>
+                      </div>
+                      <input class="role-count-input" type="number" min="1" max="100" placeholder="Qty" disabled>
+                      <input type="text" id="staff-role-other" class="role-other-input" placeholder="Describe the other role" maxlength="80" disabled>
+                    </div>
                   </div>
                 </div>
 
@@ -346,7 +474,7 @@
           <div class="footer-links">
             <a href="/jobs">Job Board</a>
             <a href="/apply">Join VERGO</a>
-            <a href="/quote">Get a Quote</a>
+            <a href="#contact-forms">Request Staff</a>
             <a href="/about">About VERGO</a>
           </div>
         </div>

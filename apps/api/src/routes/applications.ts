@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { presignUpload, presignDownload, getS3Client, requireS3Config } from '../services/s3';
+import { presignUpload, presignDownload, getS3Client, requireS3Config, uploadBuffer } from '../services/s3';
 import { prisma } from '../prisma';
 import { randomUUID } from 'crypto';
 import { adminAuth } from '../middleware/adminAuth';
@@ -10,6 +10,8 @@ import rateLimit from 'express-rate-limit';
 import { env } from '../env';
 import { sendApplicationNotificationEmail, sendApplicationConfirmationToApplicant } from '../services/email';
 import { authLogger } from '../services/logger';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
 const r = Router();
 
@@ -31,10 +33,31 @@ async function streamToBuffer(stream: Readable, maxBytes: number): Promise<Buffe
 }
 
 let fileTypeFromBufferFn: ((buffer: Buffer) => Promise<{ mime: string } | undefined>) | null = null;
+const importEsmModule = new Function('specifier', 'return import(specifier)') as (specifier: string) => Promise<any>;
+const MAX_CV_BYTES = 10 * 1024 * 1024;
+const ALLOWED_CV_EXTENSIONS = new Set(['pdf', 'doc', 'docx']);
+const ALLOWED_CV_MIME_TYPES = new Set([
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+]);
+const LOCAL_CV_PREFIX = 'cv/local/';
+const LOCAL_CV_ROOT = path.resolve(env.localCvUploadRoot);
+const DOC_MAGIC = Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]);
+const ZIP_MAGIC_HEADERS = [
+  Buffer.from([0x50, 0x4b, 0x03, 0x04]),
+  Buffer.from([0x50, 0x4b, 0x05, 0x06]),
+  Buffer.from([0x50, 0x4b, 0x07, 0x08]),
+];
+
+function localCvUploadsEnabled() {
+  return env.allowLocalCvUploads && !env.s3Configured;
+}
 
 async function getFileType(buffer: Buffer) {
   if (!fileTypeFromBufferFn) {
-    const mod = await import('file-type');
+    // `file-type` is ESM-only in current versions; use a real runtime import from CommonJS output.
+    const mod = await importEsmModule('file-type');
     const modAny = mod as {
       fileTypeFromBuffer?: (buffer: Buffer) => Promise<{ mime: string } | undefined>;
       fromBuffer?: (buffer: Buffer) => Promise<{ mime: string } | undefined>;
@@ -49,6 +72,151 @@ async function getFileType(buffer: Buffer) {
     throw new Error('file-type: buffer detection not initialized');
   }
   return fn(buffer);
+}
+
+function getCvExtension(fileNameOrKey: string) {
+  const cleanValue = String(fileNameOrKey || '').split('?')[0];
+  return cleanValue.split('.').pop()?.toLowerCase() || '';
+}
+
+function buildCvKey(applicantId: string, ext: string, storageMode: 's3' | 'local') {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+
+  if (storageMode === 'local') {
+    return `${LOCAL_CV_PREFIX}${now.getFullYear()}/${month}/${applicantId}/${randomUUID()}.${ext}`;
+  }
+
+  return `cv/${now.getFullYear()}/${now.getMonth() + 1}/${applicantId}/${randomUUID()}.${ext}`;
+}
+
+function isLocalCvKey(key: string) {
+  return key.startsWith(LOCAL_CV_PREFIX);
+}
+
+function resolveLocalCvPath(key: string) {
+  if (!isLocalCvKey(key)) {
+    throw new Error('Not a local CV key');
+  }
+
+  const relativePath = key.slice(LOCAL_CV_PREFIX.length);
+  const absolutePath = path.resolve(LOCAL_CV_ROOT, relativePath);
+  if (!absolutePath.startsWith(LOCAL_CV_ROOT + path.sep)) {
+    throw new Error('Invalid local CV path');
+  }
+  return absolutePath;
+}
+
+function getMimeTypeFromExtension(ext: string) {
+  if (ext === 'pdf') return 'application/pdf';
+  if (ext === 'doc') return 'application/msword';
+  if (ext === 'docx') return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  return 'application/octet-stream';
+}
+
+function bufferStartsWith(buffer: Buffer, prefix: Buffer) {
+  return buffer.length >= prefix.length && buffer.subarray(0, prefix.length).equals(prefix);
+}
+
+function looksLikePdf(buffer: Buffer) {
+  return buffer.length >= 5 && buffer.subarray(0, 5).toString('latin1') === '%PDF-';
+}
+
+function looksLikeDoc(buffer: Buffer) {
+  return bufferStartsWith(buffer, DOC_MAGIC);
+}
+
+function looksLikeDocx(buffer: Buffer) {
+  if (!ZIP_MAGIC_HEADERS.some((header) => bufferStartsWith(buffer, header))) {
+    return false;
+  }
+
+  const sampleText = buffer.toString('latin1');
+  return sampleText.includes('[Content_Types].xml') && sampleText.includes('word/');
+}
+
+function sampleMatchesCvExtension(ext: string, sampleBuffer: Buffer) {
+  if (ext === 'pdf') return looksLikePdf(sampleBuffer);
+  if (ext === 'doc') return looksLikeDoc(sampleBuffer);
+  if (ext === 'docx') return looksLikeDocx(sampleBuffer);
+  return false;
+}
+
+function mimeMatchesCvExtension(ext: string, mimeType: string) {
+  const normalized = mimeType.toLowerCase();
+  if (ext === 'pdf') return normalized === 'application/pdf';
+  if (ext === 'doc') return normalized === 'application/msword';
+  if (ext === 'docx') return normalized === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  return false;
+}
+
+function isAllowedCvFile(input: {
+  fileName: string;
+  declaredMimeType?: string | null;
+  detectedMimeType?: string | null;
+  sampleBuffer?: Buffer | null;
+}) {
+  const ext = getCvExtension(input.fileName);
+  if (!ALLOWED_CV_EXTENSIONS.has(ext)) {
+    return false;
+  }
+
+  if (input.sampleBuffer && sampleMatchesCvExtension(ext, input.sampleBuffer)) {
+    return true;
+  }
+
+  if (input.detectedMimeType && ALLOWED_CV_MIME_TYPES.has(input.detectedMimeType)) {
+    return mimeMatchesCvExtension(ext, input.detectedMimeType);
+  }
+
+  if (input.declaredMimeType && input.declaredMimeType !== 'application/octet-stream') {
+    return mimeMatchesCvExtension(ext, input.declaredMimeType);
+  }
+
+  return false;
+}
+
+function decodeBase64Payload(value: string) {
+  const content = value.includes(',') ? value.slice(value.indexOf(',') + 1) : value;
+  return Buffer.from(content, 'base64');
+}
+
+function buildLocalCvUrl(appId: string) {
+  return `/api/v1/applications/${encodeURIComponent(appId)}/cv/file`;
+}
+
+function sanitiseDownloadFileName(value: string) {
+  return value.replace(/["\r\n]/g, '_');
+}
+
+function setNoStoreHeaders(res: import('express').Response) {
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+}
+
+async function deleteStoredCv(key: string) {
+  if (isLocalCvKey(key)) {
+    const filePath = resolveLocalCvPath(key);
+    try {
+      await fs.unlink(filePath);
+    } catch (error: any) {
+      if (error?.code !== 'ENOENT') {
+        throw error;
+      }
+    }
+    return;
+  }
+
+  if (!key.startsWith('cv/') || !env.s3Configured) {
+    return;
+  }
+
+  const s3 = getS3Client();
+  await s3.send(new DeleteObjectCommand({
+    Bucket: env.s3Bucket,
+    Key: key
+  }));
 }
 
 const stripHtml = (value: string) => value.replace(/<[^>]*>/g, '');
@@ -110,15 +278,38 @@ function splitCommaSeparated(value: string | null | undefined) {
 // ============================================
 const cleanupInterval = setInterval(async () => {
   try {
-    const result = await prisma.fileUploadVerification.deleteMany({
+    const now = new Date();
+    const expiredVerifications = await prisma.fileUploadVerification.findMany({
       where: {
         expiresAt: {
-          lt: new Date()
+          lt: now
+        }
+      },
+      select: { key: true }
+    });
+
+    if (!expiredVerifications.length) {
+      return;
+    }
+
+    const result = await prisma.fileUploadVerification.deleteMany({
+      where: {
+        key: {
+          in: expiredVerifications.map((verification) => verification.key)
         }
       }
     });
+
+    const deletions = await Promise.allSettled(
+      expiredVerifications.map(({ key }) => deleteStoredCv(key))
+    );
+    const failedDeletes = deletions.filter((resultItem) => resultItem.status === 'rejected').length;
+
     if (result.count > 0) {
-      console.log(`[CLEANUP] Deleted ${result.count} expired verification(s)`);
+      console.log(`[CLEANUP] Deleted ${result.count} expired verification(s) and attempted ${expiredVerifications.length} blob cleanup(s)`);
+    }
+    if (failedDeletes > 0) {
+      console.warn(`[CLEANUP] Failed to delete ${failedDeletes} expired upload blob(s)`);
     }
   } catch (error) {
     console.error('[CLEANUP] Failed to delete expired verifications:', error);
@@ -142,6 +333,12 @@ const verifyLimiter = rateLimit({
   message: { error: 'Too many verification requests. Please try again in a minute.' }
 });
 
+const directUploadLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 3,
+  message: { error: 'Too many direct upload requests. Please try again in a minute.' }
+});
+
 // ============================================
 // PRESIGN FOR CV UPLOAD
 // ============================================
@@ -153,16 +350,28 @@ const presignBody = z.object({
 r.post('/presign', presignLimiter, async (req, res, next) => {
   try {
     const { fileName, fileType } = presignBody.parse(req.body);
-    const ext = fileName.split('.').pop()?.toLowerCase() || 'pdf';
+    const ext = getCvExtension(fileName);
 
     // extension whitelist
-    if (!/(pdf|doc|docx)$/.test(ext)) {
+    if (!ALLOWED_CV_EXTENSIONS.has(ext)) {
       return res.status(400).json({ error: 'Only PDF/DOC/DOCX allowed' });
     }
 
+    if (!env.s3Configured && localCvUploadsEnabled()) {
+      return res.status(503).json({
+        error: 'Presigned uploads are unavailable in this environment.',
+        code: 'DIRECT_UPLOAD_REQUIRED'
+      });
+    }
+
+    if (!env.s3Configured) {
+      return res.status(503).json({
+        error: 'CV uploads are unavailable in this environment. Please try again later.'
+      });
+    }
+
     const applicantId = randomUUID();
-    const now = new Date();
-    const key = `cv/${now.getFullYear()}/${now.getMonth() + 1}/${applicantId}/${randomUUID()}.${ext}`;
+    const key = buildCvKey(applicantId, ext, 's3');
     const { url } = await presignUpload(key, fileType);
 
     // ✅ Store in database instead of Map
@@ -175,6 +384,74 @@ r.post('/presign', presignLimiter, async (req, res, next) => {
     });
 
     const payload = { url, key, applicantId };
+    res.json({ ok: true, ...payload, data: payload });
+  } catch (e) { next(e); }
+});
+
+const directUploadBody = z.object({
+  fileName: z.string().min(3).max(255),
+  fileType: z.string().max(100).optional(),
+  contentBase64: z.string().min(1)
+});
+
+r.post('/direct-upload', directUploadLimiter, async (req, res, next) => {
+  try {
+    const storageMode = env.s3Configured ? 's3' : (localCvUploadsEnabled() ? 'local' : null);
+    if (!storageMode) {
+      return res.status(503).json({
+        error: 'Direct upload is disabled in this environment.'
+      });
+    }
+
+    const { fileName, fileType, contentBase64 } = directUploadBody.parse(req.body);
+    const ext = getCvExtension(fileName);
+    if (!ALLOWED_CV_EXTENSIONS.has(ext)) {
+      return res.status(400).json({ error: 'Only PDF/DOC/DOCX allowed' });
+    }
+
+    const buffer = decodeBase64Payload(contentBase64);
+    if (!buffer.length) {
+      return res.status(400).json({ error: 'Uploaded file was empty' });
+    }
+    if (buffer.byteLength > MAX_CV_BYTES) {
+      return res.status(400).json({ error: 'File too large. Maximum size is 10MB.' });
+    }
+
+    const sampleBuffer = buffer.subarray(0, Math.min(buffer.length, 4096));
+    const detectedType = await getFileType(sampleBuffer);
+    if (!isAllowedCvFile({
+      fileName,
+      declaredMimeType: fileType || null,
+      detectedMimeType: detectedType?.mime || null,
+      sampleBuffer
+    })) {
+      return res.status(400).json({
+        error: 'Invalid file type. Only PDF and Word documents are allowed.'
+      });
+    }
+
+    const applicantId = randomUUID();
+    const key = buildCvKey(applicantId, ext, storageMode);
+    const resolvedFileType = detectedType?.mime || fileType || getMimeTypeFromExtension(ext);
+
+    if (storageMode === 's3') {
+      await uploadBuffer(key, buffer, resolvedFileType);
+    } else {
+      const absolutePath = resolveLocalCvPath(key);
+      await fs.mkdir(path.dirname(absolutePath), { recursive: true });
+      await fs.writeFile(absolutePath, buffer);
+    }
+
+    await prisma.fileUploadVerification.create({
+      data: {
+        key,
+        applicantId,
+        verified: true,
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000)
+      }
+    });
+
+    const payload = { key, applicantId, fileType: resolvedFileType };
     res.json({ ok: true, ...payload, data: payload });
   } catch (e) { next(e); }
 });
@@ -223,7 +500,8 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
     requireS3Config();
     const s3 = getS3Client();
     const bucket = env.s3Bucket;
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const maxSize = MAX_CV_BYTES;
+    let headResponse: { ContentType?: string; ContentLength?: number } | null = null;
 
     // 3. Check file size BEFORE downloading (using HEAD request)
     try {
@@ -231,7 +509,7 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
         Bucket: bucket,
         Key: key 
       });
-      const headResponse = await s3.send(headCmd);
+      headResponse = await s3.send(headCmd);
       
       if (!headResponse.ContentLength || headResponse.ContentLength > maxSize) {
         // Delete oversized file
@@ -269,13 +547,13 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
     // 5. Check actual file type from buffer
     const type = await getFileType(buffer);
       
-    const allowedMimeTypes = [
-      'application/pdf',
-      'application/msword', // .doc
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // .docx
-    ];
-    
-    if (!type || !allowedMimeTypes.includes(type.mime)) {
+    const declaredMimeType = typeof headResponse?.ContentType === 'string' ? headResponse.ContentType : null;
+    if (!isAllowedCvFile({
+      fileName: key,
+      declaredMimeType,
+      detectedMimeType: type?.mime || null,
+      sampleBuffer: buffer
+    })) {
       // Delete the invalid file from S3
       const deleteCmd = new DeleteObjectCommand({ 
         Bucket: bucket,
@@ -294,7 +572,8 @@ r.post('/verify-upload', verifyLimiter, async (req, res, next) => {
       data: { verified: true }
     });
     
-    res.json({ ok: true, fileType: type.mime, data: { fileType: type.mime } });
+    const resolvedFileType = type?.mime || declaredMimeType || getMimeTypeFromExtension(getCvExtension(key));
+    res.json({ ok: true, fileType: resolvedFileType, data: { fileType: resolvedFileType } });
   } catch (error) {
     console.error('File verification error:', error);
     next(error);
@@ -507,10 +786,14 @@ async function shapeApplicationDetail(app: any) {
       : app.updatedAt;
 
   if (app.cvKey) {
-    try {
-      cvUrl = await presignDownload(app.cvKey);
-    } catch (error) {
-      console.error(`[CV] Failed to presign download for application ${app.id}:`, error);
+    if (isLocalCvKey(app.cvKey)) {
+      cvUrl = buildLocalCvUrl(app.id);
+    } else {
+      try {
+        cvUrl = await presignDownload(app.cvKey);
+      } catch (error) {
+        console.error(`[CV] Failed to presign download for application ${app.id}:`, error);
+      }
     }
   }
 
@@ -592,6 +875,35 @@ r.get('/', adminAuth, async (req, res, next) => {
 // ============================================
 // GET CV LINK (ADMIN)
 // ============================================
+r.get('/:id/cv/file', adminAuth, async (req, res, next) => {
+  try {
+    const app = await prisma.application.findUnique({ where: { id: req.params.id } });
+    if (!app) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+    if (!app.cvKey || !isLocalCvKey(app.cvKey)) {
+      return res.status(404).json({ error: 'No local CV file found for this application' });
+    }
+
+    const filePath = resolveLocalCvPath(app.cvKey);
+    await fs.access(filePath);
+
+    const fileName = sanitiseDownloadFileName(app.cvOriginalName || path.basename(filePath));
+    const mimeType = app.cvMimeType || getMimeTypeFromExtension(getCvExtension(fileName));
+    const isInlineSafe = mimeType === 'application/pdf';
+    setNoStoreHeaders(res);
+    res.type(mimeType);
+    res.setHeader('Content-Disposition', `${isInlineSafe ? 'inline' : 'attachment'}; filename="${fileName}"`);
+    res.sendFile(filePath);
+  } catch (e: any) {
+    if (e?.code === 'ENOENT') {
+      return res.status(404).json({ error: 'CV file not found' });
+    }
+    console.error('[CV] Error streaming local CV:', e);
+    next(e);
+  }
+});
+
 r.get('/:id/cv', adminAuth, async (req, res, next) => {
   try {
     const appId = req.params.id;
@@ -605,6 +917,11 @@ r.get('/:id/cv', adminAuth, async (req, res, next) => {
     }
     if (!app.cvKey) {
       return res.status(404).json({ error: 'No CV on file for this application' });
+    }
+
+    if (isLocalCvKey(app.cvKey)) {
+      const url = buildLocalCvUrl(appId);
+      return res.json({ ok: true, signedUrl: url, url, data: { signedUrl: url, url } });
     }
 
     const url = await presignDownload(app.cvKey);

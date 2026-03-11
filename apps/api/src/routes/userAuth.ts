@@ -8,6 +8,7 @@ import { prisma } from "../prisma";
 import { sendUserVerificationEmail, sendPasswordResetEmail } from "../services/email";
 import { requireUserJwt } from "../middleware/jwtAuth";
 import { signAccessToken, signRefreshToken, verifyRefreshToken, getTokenExpiresAt, hashToken } from "../utils/jwt";
+import { env } from "../env";
 
 const r = Router();
 
@@ -113,6 +114,71 @@ function redactEmail(email: string): string {
   return local.slice(0, 2) + "***@" + domain;
 }
 
+type VerificationDeliveryResult = {
+  sent: boolean;
+  verificationUrl?: string;
+  reason?: "EMAIL_NOT_CONFIGURED" | "EMAIL_SEND_FAILED";
+};
+
+function setNoStoreHeaders(res: import("express").Response) {
+  res.setHeader("Cache-Control", "private, no-store, max-age=0");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+}
+
+function buildVerificationUrl(token: string): string {
+  const baseUrl = (env.webOrigin || `http://localhost:${env.port}`).replace(/\/+$/, "");
+  return `${baseUrl}/api/v1/user/verify-email?token=${encodeURIComponent(token)}`;
+}
+
+function canExposeVerificationUrl(): boolean {
+  return env.exposeDevVerificationLinks;
+}
+
+async function sendVerificationEmailWithFallback(data: {
+  to: string;
+  name: string;
+  token: string;
+  userId?: string;
+}): Promise<VerificationDeliveryResult> {
+  const verificationUrl = canExposeVerificationUrl() ? buildVerificationUrl(data.token) : undefined;
+
+  if (!env.resendConfigured) {
+    console.warn(`[EMAIL] Verification email skipped: RESEND not configured for ${redactEmail(data.to)}`);
+    return { sent: false, verificationUrl, reason: "EMAIL_NOT_CONFIGURED" };
+  }
+
+  try {
+    await sendUserVerificationEmail(data);
+    return { sent: true };
+  } catch (error) {
+    console.error("[EMAIL] Failed to send verification:", error);
+    return { sent: false, verificationUrl, reason: "EMAIL_SEND_FAILED" };
+  }
+}
+
+function buildVerificationResponse(
+  sentMessage: string,
+  fallbackMessage: string,
+  delivery: VerificationDeliveryResult
+) {
+  const response: Record<string, unknown> = {
+    ok: true,
+    message: delivery.sent ? sentMessage : fallbackMessage,
+    emailDelivery: delivery.sent
+      ? "sent"
+      : delivery.reason === "EMAIL_NOT_CONFIGURED"
+        ? "unavailable"
+        : "failed",
+  };
+
+  if (!delivery.sent && delivery.verificationUrl) {
+    response.verificationUrl = delivery.verificationUrl;
+  }
+
+  return response;
+}
+
 function shapeMobileUser(user: {
   id: string;
   email: string;
@@ -197,21 +263,24 @@ r.post("/register", registerLimiter, async (req, res) => {
       }
     });
     
-    // Send verification email (async, don't block)
-    sendUserVerificationEmail({
+    const delivery = await sendVerificationEmailWithFallback({
       to: email,
       name: firstName,
-      token: verifyToken
-    }).catch(err => {
-      console.error("[EMAIL] Failed to send verification:", err);
+      token: verifyToken,
+      userId: user.id,
     });
     
     console.log(`[USER] New registration: ${redactEmail(email)}`);
     
-    res.status(201).json({ 
-      ok: true,
-      message: "Registration successful. Please check your email to verify your account."
-    });
+    res.status(201).json(
+      buildVerificationResponse(
+        "Registration successful. Please check your email to verify your account.",
+        env.nodeEnv === "production"
+          ? "Registration successful, but we could not send the verification email just now. Please use resend verification or contact support."
+          : "Registration successful. Email delivery is unavailable in this environment, so use the verification link below.",
+        delivery
+      )
+    );
     
   } catch (error) {
     console.error("[ERROR] Registration failed:", error);
@@ -775,6 +844,7 @@ r.post("/logout", (req, res) => {
 // GET /api/v1/user/session
 // ============================================
 r.get("/session", async (req, res) => {
+  setNoStoreHeaders(res);
   if (!req.session?.isUser || !req.session?.userId) {
     return res.json({ ok: true, authenticated: false, data: { authenticated: false } });
   }
@@ -956,15 +1026,26 @@ r.post("/resend-verification", forgotPasswordLimiter, async (req, res) => {
       data: { verifyToken: verifyTokenHash, verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000) }
     });
 
-    sendUserVerificationEmail({
+    const delivery = await sendVerificationEmailWithFallback({
       to: email,
       name: user.firstName,
-      token: verifyToken
-    }).catch(err => {
-      console.error("[EMAIL] Failed to resend verification:", err);
+      token: verifyToken,
+      userId: user.id,
     });
     
-    res.json(successResponse);
+    if (delivery.sent) {
+      return res.json(successResponse);
+    }
+
+    return res.json(
+      buildVerificationResponse(
+        successResponse.message,
+        env.nodeEnv === "production"
+          ? successResponse.message
+          : "Email delivery is unavailable in this environment, so use the verification link below if this account is unverified.",
+        delivery
+      )
+    );
     
   } catch (error) {
     console.error("[ERROR] Resend verification failed:", error);

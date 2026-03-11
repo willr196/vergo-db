@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/logo-small.png">
-  <title>Join VERGO | Premium London Event Work</title>
-  <meta name="description" content="Apply to join VERGO for flexible shifts across premium London events, film, TV, music productions and guest-facing hospitality work.">
+  <title>Join VERGO | Flexible Hospitality &amp; Event Work</title>
+  <meta name="description" content="Apply to join VERGO for flexible shifts across events, film, TV, music productions and guest-facing hospitality work.">
   <link rel="canonical" href="https://vergoltd.com/apply">
   <meta name="theme-color" content="#0a0a0a">
-  <meta property="og:title" content="Join VERGO | Premium London Event Work">
-  <meta property="og:description" content="Apply to join VERGO for flexible shifts across premium London events, film, TV, music productions and guest-facing hospitality work.">
+  <meta property="og:title" content="Join VERGO | Flexible Hospitality &amp; Event Work">
+  <meta property="og:description" content="Apply to join VERGO for flexible shifts across events, film, TV, music productions and guest-facing hospitality work.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://vergoltd.com/apply">
   <meta property="og:image" content="https://vergoltd.com/logo.png">
@@ -114,19 +114,20 @@
         <div class="hero-grid">
           <div>
             <span class="eyebrow">Join VERGO</span>
-            <h1>Premium London events. Flexible shifts. Film, TV and music work.</h1>
-            <p class="lede">Apply to join a roster built around guest-facing standards, better briefs and flexible work across premium events, productions and venues.</p>
+            <h1>Flexible shifts. Film, TV, music and more.</h1>
+            <p class="lede">Apply to join a roster built around guest-facing standards, better briefs and flexible work across events, productions and venues.</p>
             <div class="hero-actions">
               <a href="#application-form" class="btn btn-primary">Apply Now</a>
+              <a href="/staff-roles" class="btn btn-secondary">Role Guide</a>
               <a href="/jobs" class="btn btn-secondary">Job Board</a>
             </div>
           </div>
 
           <aside class="panel hero-summary" aria-label="Tier progression">
-            <span class="status">Tier progression</span>
-            <h2>Start strong. Earn Gold.</h2>
-            <p>Start as Standard tier. Build your reputation through great work.</p>
-            <p>Top-rated staff earn Gold status &mdash; higher rates, premium event access.</p>
+            <span class="status">Staff tiers</span>
+            <h2>Strong experience can lift your hourly rate.</h2>
+            <p>Everyone starts by showing us their standards, reliability and fit for guest-facing work.</p>
+            <p>If you have strong proven experience and deliver consistently on shift, VERGO moves you into higher tiers with better hourly rates and access to premium bookings.</p>
           </aside>
         </div>
       </div>
@@ -176,49 +177,14 @@
               </div>
 
               <div class="form-group">
-                <label>Preferred job types</label>
-                <p class="hint">Select the work categories you are most interested in.</p>
-                <div class="checkbox-group">
-                  <label class="checkbox-item">
-                    <input type="checkbox" name="preferredJobTypes" value="Corporate Events">
-                    <span>Corporate Events</span>
-                  </label>
-                  <label class="checkbox-item">
-                    <input type="checkbox" name="preferredJobTypes" value="Film &amp; TV">
-                    <span>Film &amp; TV</span>
-                  </label>
-                  <label class="checkbox-item">
-                    <input type="checkbox" name="preferredJobTypes" value="Music &amp; Festivals">
-                    <span>Music &amp; Festivals</span>
-                  </label>
-                  <label class="checkbox-item">
-                    <input type="checkbox" name="preferredJobTypes" value="Private Events">
-                    <span>Private Events</span>
-                  </label>
-                  <label class="checkbox-item">
-                    <input type="checkbox" name="preferredJobTypes" value="Hospitality/Venues">
-                    <span>Hospitality/Venues</span>
-                  </label>
-                  <label class="checkbox-item">
-                    <input type="checkbox" name="preferredJobTypes" value="Weddings">
-                    <span>Weddings</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="form-group">
                 <label for="bio">Short bio</label>
                 <textarea id="bio" name="bio" maxlength="300" placeholder="A sentence or two about your experience"></textarea>
               </div>
 
               <div class="form-group">
-                <label for="yearsExperience">Years of experience</label>
-                <input type="number" id="yearsExperience" name="yearsExperience" min="0" max="40" inputmode="numeric">
-              </div>
-
-              <div class="form-group">
-                <label>Select roles and experience</label>
-                <p class="hint">Tick the role. Choose the experience level.</p>
+                <label>Choose your roles and experience level</label>
+                <p class="hint">Tick the roles you can actually work, then choose your experience level for each one. Need help comparing them? <a href="/staff-roles" class="back-link">View the role guide.</a></p>
+                <p class="hint">Higher staff tiers are based on proven experience and performance. If you are highly experienced and can show it in the work, we offer higher hourly rates.</p>
                 <div id="roles-error" class="field-error-message" style="display: none;" role="alert"></div>
 
                 <div class="roles-with-experience" id="roles-container">
@@ -227,7 +193,8 @@
                       <input type="checkbox" name="roles" value="Bartender">
                       <span>Bartender</span>
                     </label>
-                    <select class="experience-select" data-role="Bartender" disabled>
+                    <label class="sr-only" for="experience-bartender">Experience level for Bartender</label>
+                    <select id="experience-bartender" class="experience-select" data-role="Bartender" disabled>
                       <option value="">Select experience...</option>
                       <option value="Entry level">Entry level (0-1 years)</option>
                       <option value="1-2 years">1-2 years</option>
@@ -241,7 +208,8 @@
                       <input type="checkbox" name="roles" value="Barista">
                       <span>Barista</span>
                     </label>
-                    <select class="experience-select" data-role="Barista" disabled>
+                    <label class="sr-only" for="experience-barista">Experience level for Barista</label>
+                    <select id="experience-barista" class="experience-select" data-role="Barista" disabled>
                       <option value="">Select experience...</option>
                       <option value="Entry level">Entry level (0-1 years)</option>
                       <option value="1-2 years">1-2 years</option>
@@ -255,7 +223,8 @@
                       <input type="checkbox" name="roles" value="Front of House">
                       <span>Front of House</span>
                     </label>
-                    <select class="experience-select" data-role="Front of House" disabled>
+                    <label class="sr-only" for="experience-front-of-house">Experience level for Front of House</label>
+                    <select id="experience-front-of-house" class="experience-select" data-role="Front of House" disabled>
                       <option value="">Select experience...</option>
                       <option value="Entry level">Entry level (0-1 years)</option>
                       <option value="1-2 years">1-2 years</option>
@@ -269,7 +238,8 @@
                       <input type="checkbox" name="roles" value="Waiter">
                       <span>Waiter</span>
                     </label>
-                    <select class="experience-select" data-role="Waiter" disabled>
+                    <label class="sr-only" for="experience-waiter">Experience level for Waiter</label>
+                    <select id="experience-waiter" class="experience-select" data-role="Waiter" disabled>
                       <option value="">Select experience...</option>
                       <option value="Entry level">Entry level (0-1 years)</option>
                       <option value="1-2 years">1-2 years</option>
@@ -283,7 +253,8 @@
                       <input type="checkbox" name="roles" value="Chef">
                       <span>Chef</span>
                     </label>
-                    <select class="experience-select" data-role="Chef" disabled>
+                    <label class="sr-only" for="experience-chef">Experience level for Chef</label>
+                    <select id="experience-chef" class="experience-select" data-role="Chef" disabled>
                       <option value="">Select experience...</option>
                       <option value="Entry level">Entry level (0-1 years)</option>
                       <option value="1-2 years">1-2 years</option>
@@ -297,7 +268,8 @@
                       <input type="checkbox" name="roles" value="Kitchen Porter">
                       <span>Kitchen Porter</span>
                     </label>
-                    <select class="experience-select" data-role="Kitchen Porter" disabled>
+                    <label class="sr-only" for="experience-kitchen-porter">Experience level for Kitchen Porter</label>
+                    <select id="experience-kitchen-porter" class="experience-select" data-role="Kitchen Porter" disabled>
                       <option value="">Select experience...</option>
                       <option value="Entry level">Entry level (0-1 years)</option>
                       <option value="1-2 years">1-2 years</option>
@@ -311,7 +283,8 @@
                       <input type="checkbox" name="roles" value="Runner">
                       <span>Runner</span>
                     </label>
-                    <select class="experience-select" data-role="Runner" disabled>
+                    <label class="sr-only" for="experience-runner">Experience level for Runner</label>
+                    <select id="experience-runner" class="experience-select" data-role="Runner" disabled>
                       <option value="">Select experience...</option>
                       <option value="Entry level">Entry level (0-1 years)</option>
                       <option value="1-2 years">1-2 years</option>
@@ -357,6 +330,15 @@
                 <li>Premium environments where presentation matters.</li>
                 <li>Clearer onboarding and cleaner communication.</li>
               </ul>
+            </div>
+
+            <div class="sidebar-card">
+              <p class="card-label">Role guide</p>
+              <h3>Check what each role actually involves.</h3>
+              <p>Use the role guide to compare guest-facing, bar, kitchen and runner positions before you apply.</p>
+              <div class="stacked-actions">
+                <a href="/staff-roles" class="btn btn-secondary">View Role Guide</a>
+              </div>
             </div>
 
             <div class="sidebar-card">
@@ -413,6 +395,7 @@
           <p class="footer-title">Apply</p>
           <div class="footer-links">
             <a href="#application-form">Application Form</a>
+            <a href="/staff-roles">Role Guide</a>
             <a href="/jobs">Current Roles</a>
             <a href="/about">About VERGO</a>
           </div>

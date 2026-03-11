@@ -69,10 +69,10 @@
       "icons": [{ "src": "/images/icons/jobs-96x96.png", "sizes": "96x96" }]
     },
     {
-      "name": "Get a Quote",
-      "short_name": "Quote",
+      "name": "Request Staff",
+      "short_name": "Staff",
       "description": "Request staffing for your event",
-      "url": "/contact.html",
+      "url": "/contact.html?tab=staff#contact-forms",
       "icons": [{ "src": "/images/icons/quote-96x96.png", "sizes": "96x96" }]
     },
     {

@@ -3,6 +3,12 @@ import { Request, Response, NextFunction } from 'express';
 const MAX_IDLE_TIME = 30 * 60 * 1000; // 30 minutes
 const MAX_SESSION_AGE = 8 * 60 * 60 * 1000; // 8 hours
 
+function setNoStoreHeaders(res: Response) {
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+}
+
 declare module 'express-session' {
   interface SessionData {
     isAdmin?: boolean;
@@ -45,6 +51,7 @@ export function adminAuth(req: Request, res: Response, next: NextFunction) {
   }
 
   req.session.lastActivity = now;
+  setNoStoreHeaders(res);
   return next();
 }
 
@@ -81,5 +88,6 @@ export function adminPageAuth(req: Request, res: Response, next: NextFunction) {
   }
   
   req.session.lastActivity = now;
+  setNoStoreHeaders(res);
   return next();
 }

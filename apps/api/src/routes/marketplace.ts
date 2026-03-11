@@ -9,6 +9,15 @@ import {
 
 const r = Router();
 
+const publicBrowseDisabledPayload = {
+  ok: false,
+  error: "Public staff browsing has been removed for data-protection reasons. Request staff or use the pricing calculator instead.",
+  data: {
+    quoteUrl: "/contact?tab=staff#contact-forms",
+    calculatorUrl: "/pricing#calculator",
+  },
+} as const;
+
 const browseStaffSchema = z.object({
   tier: z.enum(["STANDARD", "ELITE"]).optional(),
   search: z.string().max(100).optional(),
@@ -63,71 +72,7 @@ const marketplaceStaffSelect = {
 // GET /api/v1/marketplace/staff - Public browse (no pricing shown)
 r.get("/staff", async (req, res, next) => {
   try {
-    const query = browseStaffSchema.parse(req.query);
-    const skip = (query.page - 1) * query.limit;
-
-    const where: any = {
-      staffAvailable: true,
-      staffTier: { not: null },
-      userType: "JOB_SEEKER",
-    };
-
-    if (query.tier) where.staffTier = query.tier;
-
-    if (query.search) {
-      where.OR = [
-        { firstName: { contains: query.search, mode: "insensitive" } },
-        { lastName: { contains: query.search, mode: "insensitive" } },
-        { staffBio: { contains: query.search, mode: "insensitive" } },
-        { staffHighlights: { contains: query.search, mode: "insensitive" } },
-      ];
-    }
-
-    const [staff, total] = await Promise.all([
-      prisma.user.findMany({
-        where,
-        orderBy: [{ staffTier: "desc" }, { staffRating: "desc" }],
-        skip,
-        take: query.limit,
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          staffTier: true,
-          staffBio: true,
-          staffAvatar: true,
-          staffRating: true,
-          staffReviewCount: true,
-          staffHighlights: true,
-        },
-      }),
-      prisma.user.count({ where }),
-    ]);
-
-    const shaped = staff.map((s) => ({
-      id: s.id,
-      name: maskName(s.firstName, s.lastName),
-      tier: s.staffTier,
-      bookingLane: resolveMarketplaceBookingLane(s.staffTier),
-      bio: s.staffBio,
-      avatar: s.staffAvatar,
-      rating: s.staffRating ? Number(s.staffRating) : null,
-      reviewCount: s.staffReviewCount,
-      highlights: s.staffHighlights,
-    }));
-
-    res.json({
-      ok: true,
-      data: {
-        staff: shaped,
-        pagination: {
-          page: query.page,
-          limit: query.limit,
-          total,
-          totalPages: Math.ceil(total / query.limit),
-        },
-      },
-    });
+    return res.status(410).json(publicBrowseDisabledPayload);
   } catch (e) {
     next(e);
   }
@@ -298,34 +243,7 @@ r.get("/staff/:id/pricing", requireClientJwt, async (req, res, next) => {
 // GET /api/v1/marketplace/staff/:id - Public profile detail
 r.get("/staff/:id", async (req, res, next) => {
   try {
-    const staff = await prisma.user.findFirst({
-      where: {
-        id: req.params.id,
-        staffAvailable: true,
-        staffTier: { not: null },
-        userType: "JOB_SEEKER",
-      },
-      select: marketplaceStaffSelect,
-    });
-
-    if (!staff) {
-      return res.status(404).json({ ok: false, error: "Staff member not found" });
-    }
-
-    res.json({
-      ok: true,
-      data: {
-        id: staff.id,
-        name: maskName(staff.firstName, staff.lastName),
-        tier: staff.staffTier,
-        bookingLane: resolveMarketplaceBookingLane(staff.staffTier),
-        bio: staff.staffBio,
-        avatar: staff.staffAvatar,
-        rating: staff.staffRating ? Number(staff.staffRating) : null,
-        reviewCount: staff.staffReviewCount,
-        highlights: staff.staffHighlights,
-      },
-    });
+    return res.status(410).json(publicBrowseDisabledPayload);
   } catch (e) {
     next(e);
   }

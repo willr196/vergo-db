@@ -262,6 +262,10 @@ app.use(requestLogger());
 // Keep this before express.json() so signature checks use the unparsed payload.
 app.use('/api/v1/webhooks', webhooks);
 
+// The CV direct-upload route is the only public endpoint that needs a large JSON body.
+app.use('/api/v1/applications/direct-upload', express.json({ limit: '16mb' }));
+app.use('/api/applications/direct-upload', express.json({ limit: '16mb' }));
+
 // Body parsing
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -937,6 +941,10 @@ app.use('/api/v1/admin/staff', adminStaff);
 
 app.get(['/hire-us', '/hire-us.html'], (_req, res) => {
   res.redirect(301, '/hire-staff');
+});
+
+app.get(['/quote', '/quote.html'], (_req, res) => {
+  res.redirect(301, '/contact?tab=staff#contact-forms');
 });
 
 app.get(['/js/client-login', '/js/client-login.html'], (req, res) => {

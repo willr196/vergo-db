@@ -33,7 +33,7 @@
             <li><a href="/#roles">Roles We Supply</a></li>
             <li><a href="/#event-types">Event Types</a></li>
             <li><a href="/pricing">Pricing</a></li>
-            <li><a href="/quote">Get a Quote</a></li>
+            <li><a href="/contact?tab=staff#contact-forms">Request Staff</a></li>
           </ul>
         </div>
 

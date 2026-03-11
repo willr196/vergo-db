@@ -84,16 +84,25 @@
     }
 
     try {
-      await fetch('/api/v1/user/resend-verification', {
+      const res = await fetch('/api/v1/user/resend-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: lastEmail })
       });
+      const payload = await res.json().catch(() => ({}));
+      const data = payload.data ?? payload;
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to resend verification');
+      }
 
-      msgBox.innerHTML = '<div class="info-msg">If your email is registered and unverified, a new verification link has been sent.</div>';
+      const linkMarkup = typeof data.verificationUrl === 'string'
+        ? '<br><a class="btn-link" href="' + escapeHtml(data.verificationUrl) + '">Verify account now</a>'
+        : '';
+      msgBox.innerHTML = '<div class="info-msg">' + escapeHtml(data.message || 'If your email is registered and unverified, a new verification link has been sent.') + linkMarkup + '</div>';
       resendSection.classList.add('d-none');
-    } catch (_err) {
-      msgBox.innerHTML = '<div class="error-msg">Failed to resend. Please try again.</div>';
+    } catch (err) {
+      const message = (err && typeof err === 'object' && 'message' in err) ? String(err.message) : 'Failed to resend. Please try again.';
+      msgBox.innerHTML = '<div class="error-msg">' + escapeHtml(message) + '</div>';
     }
   }
 
@@ -105,7 +114,11 @@
   }
 
   function escapeHtml(str) {
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 })();
-

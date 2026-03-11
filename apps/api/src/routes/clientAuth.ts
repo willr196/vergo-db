@@ -98,6 +98,12 @@ function redactEmail(email: string): string {
 const CLIENT_IDLE_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours
 const CLIENT_MAX_SESSION_AGE = 24 * 60 * 60 * 1000; // 24 hours
 
+function setNoStoreHeaders(res: Response) {
+  res.setHeader("Cache-Control", "private, no-store, max-age=0");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+}
+
 function clearClientSession(req: Request, res: Response) {
   req.session.destroy(() => {});
   res.clearCookie("vergo.sid");
@@ -136,6 +142,7 @@ function requireClientSession(req: Request, res: Response, next: NextFunction) {
   if (!result.ok) {
     return res.status(401).json({ error: result.error || "Not authenticated", code: result.code });
   }
+  setNoStoreHeaders(res);
   return next();
 }
 
@@ -877,6 +884,7 @@ r.put("/mobile/profile", requireClientJwt, async (req, res) => {
 // ============================================
 r.get("/session", async (req, res) => {
   try {
+    setNoStoreHeaders(res);
     const sessionResult = validateClientSession(req, res);
     if (!sessionResult.ok) {
       return res.json({ ok: true, authenticated: false, data: { authenticated: false } });
