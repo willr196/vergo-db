@@ -20,20 +20,18 @@
   };
 
   const homepageLinks = `
-          <li><a href="/hire-staff"${isActive('/hire-staff') ? ' aria-current="page"' : ''}>Hire Staff</a></li>
           <li><a href="/#roles">Roles</a></li>
           <li><a href="/#event-types">Event Types</a></li>
-          <li><a href="/apply"${isActive('/apply') ? ' aria-current="page"' : ''}>Join VERGO</a></li>
           <li><a href="/about"${isActive('/about') ? ' aria-current="page"' : ''}>About</a></li>
+          <li class="nav-cta-wrapper nav-cta-secondary"><a href="/apply"${isActive('/apply') ? ' aria-current="page"' : ''} class="nav-cta nav-cta-outline">Join VERGO</a></li>
           <li class="nav-cta-wrapper"><a href="/quote"${isActive('/quote') ? ' aria-current="page"' : ''} class="nav-cta">Get a Quote</a></li>
   `;
 
   const defaultLinks = `
           <li><a href="/"${isActive('/') ? ' aria-current="page"' : ''}>Home</a></li>
-          <li><a href="/hire-staff"${isActive('/hire-staff') ? ' aria-current="page"' : ''}>Hire Event Staff</a></li>
-          <li><a href="/apply"${isActive('/apply') ? ' aria-current="page"' : ''}>Join VERGO</a></li>
           <li><a href="/about"${isActive('/about') ? ' aria-current="page"' : ''}>About</a></li>
           <li><a href="/faq"${isActive('/faq') ? ' aria-current="page"' : ''}>FAQ</a></li>
+          <li class="nav-cta-wrapper nav-cta-secondary"><a href="/apply"${isActive('/apply') ? ' aria-current="page"' : ''} class="nav-cta nav-cta-outline">Join VERGO</a></li>
           <li class="nav-cta-wrapper"><a href="/quote"${isActive('/quote') ? ' aria-current="page"' : ''} class="nav-cta">Get a Quote</a></li>
   `;
 

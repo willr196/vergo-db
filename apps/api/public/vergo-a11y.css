@@ -340,13 +340,13 @@ legend {
   color: #999999; /* Changed from #666 for better contrast */
 }
 
-/* Links must have sufficient contrast — scoped to non-homepage pages */
-body:not(.homepage) a {
+/* Keep link contrast high without overriding button-style links */
+body:not(.homepage) a:not(.btn):not(.cta-button):not(.submit-btn):not(.form-submit):not(.tier-cta):not(.calc-cta) {
   color: #D4AF37;
   text-underline-offset: 2px;
 }
 
-body:not(.homepage) a:hover {
+body:not(.homepage) a:not(.btn):not(.cta-button):not(.submit-btn):not(.form-submit):not(.tier-cta):not(.calc-cta):hover {
   text-decoration: underline;
   text-decoration-thickness: 2px;
 }

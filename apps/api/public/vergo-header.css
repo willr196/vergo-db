@@ -153,6 +153,18 @@ nav a.nav-cta[aria-current="page"] {
   color: #fff;
 }
 
+nav a.nav-cta.nav-cta-outline {
+  background: transparent;
+  color: var(--nav-text);
+}
+
+nav a.nav-cta.nav-cta-outline:hover {
+  background: transparent;
+  border-color: var(--nav-gold-hover);
+  color: var(--nav-text);
+  box-shadow: 0 4px 12px rgba(201, 162, 77, 0.2);
+}
+
 /* ============================================
  * DROPDOWN MENUS
  * ============================================ */

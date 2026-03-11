@@ -79,9 +79,7 @@
           <nav class="site-nav" aria-label="Primary">
             <ul>
               <li><a href="/"${withCurrent('home')}>Home</a></li>
-              <li><a href="/hire-staff"${withCurrent('hire')}>Hire Staff</a></li>
               <li><a href="/jobs"${withCurrent('jobs')}>Job Board</a></li>
-              <li><a href="/apply"${withCurrent('join')}>Join VERGO</a></li>
               <li><a href="/pricing"${withCurrent('pricing')}>Pricing</a></li>
               <li><a href="/contact"${withCurrent('contact')}>Contact</a></li>
             </ul>
@@ -102,9 +100,7 @@
       <div id="mobile-menu" class="mobile-menu" hidden>
         <nav aria-label="Mobile">
           <a href="/"${withCurrent('home')}>Home</a>
-          <a href="/hire-staff"${withCurrent('hire')}>Hire Staff</a>
           <a href="/jobs"${withCurrent('jobs')}>Job Board</a>
-          <a href="/apply"${withCurrent('join')}>Join VERGO</a>
           <a href="/pricing"${withCurrent('pricing')}>Pricing</a>
           <a href="/contact"${withCurrent('contact')}>Contact</a>
         </nav>
