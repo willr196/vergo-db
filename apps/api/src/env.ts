@@ -1,6 +1,8 @@
 import 'dotenv/config'
 import path from 'node:path'
 
+const nodeEnv = process.env.NODE_ENV ?? 'development'
+
 const requireEnv = (k: string) => {
   const v = process.env[k]
   if (!v) throw new Error(`Missing env: ${k}`)
@@ -12,17 +14,78 @@ const parsePositiveInt = (value: string | undefined, fallback: number) => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
 }
 
-const jwt = requireEnv('JWT_SECRET')
-const jwtRefresh = process.env.JWT_REFRESH_SECRET || jwt
-if ((process.env.NODE_ENV ?? 'development') === 'production' && !process.env.JWT_REFRESH_SECRET) {
-  console.warn('[SECURITY] JWT_REFRESH_SECRET not set; falling back to JWT_SECRET')
+function getSecretByteLength(value: string) {
+  const trimmed = value.trim()
+  if (!trimmed) return 0
+
+  if (/^[0-9a-f]+$/i.test(trimmed) && trimmed.length % 2 === 0) {
+    return trimmed.length / 2
+  }
+
+  if (/^[A-Za-z0-9+/]+={0,2}$/.test(trimmed) && trimmed.length % 4 === 0) {
+    try {
+      const decoded = Buffer.from(trimmed, 'base64')
+      if (decoded.length > 0) return decoded.length
+    } catch {
+      // Fall back to byte-length below.
+    }
+  }
+
+  return Buffer.byteLength(trimmed, 'utf8')
 }
 
-const nodeEnv = process.env.NODE_ENV ?? 'development'
+function isPlaceholderSecret(value: string) {
+  const normalized = value.trim().toLowerCase()
+  return new Set([
+    'changeme',
+    'change-me',
+    'change_this',
+    'replace-me',
+    'replace_this',
+    'secret',
+    'password',
+    'test-only-secret',
+    'your-secret',
+  ]).has(normalized)
+}
+
+export function assertStrongSecret(name: string, value: string) {
+  if (getSecretByteLength(value) < 32) {
+    throw new Error(`${name} must be at least 32 bytes (256 bits)`)
+  }
+
+  if (nodeEnv !== 'test' && isPlaceholderSecret(value)) {
+    throw new Error(`${name} must not use a placeholder value`)
+  }
+}
+
+const jwt = requireEnv('JWT_SECRET')
+if (nodeEnv !== 'test') {
+  assertStrongSecret('JWT_SECRET', jwt)
+}
+
+const jwtRefreshEnv = process.env.JWT_REFRESH_SECRET
+if (nodeEnv === 'production' && !jwtRefreshEnv) {
+  throw new Error('JWT_REFRESH_SECRET required in production')
+}
+const jwtRefresh = jwtRefreshEnv || jwt
+if (jwtRefreshEnv && nodeEnv !== 'test') {
+  assertStrongSecret('JWT_REFRESH_SECRET', jwtRefreshEnv)
+}
+if (nodeEnv === 'production' && jwtRefresh === jwt) {
+  throw new Error('JWT_REFRESH_SECRET must differ from JWT_SECRET in production')
+}
+if (nodeEnv !== 'production' && jwtRefresh === jwt) {
+  console.warn('[SECURITY] JWT_REFRESH_SECRET not set; falling back to JWT_SECRET in non-production')
+}
+
 const allowLocalCvUploads =
   process.env.ALLOW_LOCAL_CV_UPLOADS === 'true' || nodeEnv !== 'production'
 const localCvUploadRoot = process.env.LOCAL_CV_UPLOAD_ROOT ?? '/tmp/vergo-cv-uploads'
 const webOrigin = process.env.WEB_ORIGIN ?? 'http://localhost:8080'
+if (nodeEnv === 'production' && !/^https:\/\//i.test(webOrigin)) {
+  throw new Error('WEB_ORIGIN must use https in production')
+}
 const normalizedWebOrigin = webOrigin.replace(/\/+$/, '')
 const exposeDevVerificationLinks =
   process.env.EXPOSE_DEV_VERIFICATION_LINKS === 'true' &&

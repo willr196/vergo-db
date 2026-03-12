@@ -1,6 +1,7 @@
 // Admin API for managing scheduled emails
 
 import { Router } from 'express';
+import { z } from 'zod';
 import { cancelScheduledEmail } from '../services/email/scheduler';
 import { emailQueue } from '../services/email/queue';
 import { adminAuth } from '../middleware/adminAuth';
@@ -11,16 +12,24 @@ const router = Router();
 // All routes require admin authentication
 router.use(adminAuth);
 
+const listScheduledEmailsQuerySchema = z.object({
+  status: z.string().max(50).optional(),
+  emailType: z.string().max(100).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+const scheduledEmailParamsSchema = z.object({
+  id: z.string().min(1).max(191),
+});
+
 /**
  * GET /api/v1/admin/scheduled-emails
  * List all scheduled emails with optional filters
  */
 router.get('/', async (req, res) => {
   try {
-    const { status, emailType, page = '1', limit = '20' } = req.query;
-
-    const pageNum = Math.max(1, parseInt(page as string, 10));
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10)));
+    const { status, emailType, page, limit } = listScheduledEmailsQuerySchema.parse(req.query);
 
     const where: Record<string, any> = {};
     if (status && typeof status === 'string') where.status = status;
@@ -30,8 +39,8 @@ router.get('/', async (req, res) => {
       prisma.scheduledEmail.findMany({
         where,
         orderBy: { scheduledFor: 'desc' },
-        skip: (pageNum - 1) * limitNum,
-        take: limitNum,
+        skip: (page - 1) * limit,
+        take: limit,
       }),
       prisma.scheduledEmail.count({ where }),
     ]);
@@ -39,10 +48,10 @@ router.get('/', async (req, res) => {
     res.json({
       data: scheduled,
       pagination: {
-        page: pageNum,
-        limit: limitNum,
+        page,
+        limit,
         total,
-        pages: Math.ceil(total / limitNum),
+        pages: Math.ceil(total / limit),
       },
     });
   } catch (error) {
@@ -57,8 +66,9 @@ router.get('/', async (req, res) => {
  */
 router.delete('/:id', async (req, res) => {
   try {
+    const { id } = scheduledEmailParamsSchema.parse(req.params);
     const scheduled = await prisma.scheduledEmail.findUnique({
-      where: { id: req.params.id },
+      where: { id },
     });
 
     if (!scheduled) {

@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { Router, Request, Response, NextFunction, raw } from "express";
 import rateLimit from "express-rate-limit";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -7,6 +7,7 @@ import { prisma } from "../prisma";
 import { sendClientVerificationEmail, sendClientPasswordResetEmail } from "../services/email";
 import { requireClientJwt } from "../middleware/jwtAuth";
 import { signAccessToken, signRefreshToken, verifyRefreshToken, getTokenExpiresAt, hashToken } from "../utils/jwt";
+import { parseMobileImageUpload } from "../utils/mobileMediaUpload";
 
 const r = Router();
 
@@ -47,6 +48,14 @@ const logoutSchema = z.object({
   refreshToken: z.string().min(1).optional()
 });
 
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(8).max(72),
+  newPassword: z.string().min(8).max(72),
+}).refine((value) => value.currentPassword !== value.newPassword, {
+  message: "New password must be different from your current password",
+  path: ["newPassword"],
+});
+
 function normalizeRateLimitIdentity(value: unknown): string {
   if (typeof value !== "string") return "unknown";
   const normalized = value.trim().toLowerCase();
@@ -64,7 +73,7 @@ const registerLimiter = rateLimit({
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
+  max: 5,
   skipSuccessfulRequests: true,
   message: { error: "Too many login attempts. Try again in 15 minutes." },
   keyGenerator: (req) => {
@@ -77,6 +86,12 @@ const forgotPasswordLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 3,
   message: { error: "Too many reset requests. Try again later." }
+});
+
+const resetPasswordLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // 10 reset completions per hour per IP
+  message: { error: "Too many password reset attempts. Try again later." }
 });
 
 const refreshLimiter = rateLimit({
@@ -161,6 +176,7 @@ function shapeMobileClient(client: {
   companyName: string;
   contactName: string;
   phone: string | null;
+  logo?: string | null;
   status: string;
   industry?: string | null;
   website?: string | null;
@@ -175,6 +191,7 @@ function shapeMobileClient(client: {
     companyName: client.companyName,
     contactName: client.contactName,
     phone: client.phone || undefined,
+    logo: client.logo || null,
     status: client.status,
     industry: client.industry || undefined,
     website: client.website || undefined,
@@ -551,6 +568,7 @@ r.post("/mobile/login", loginLimiter, async (req, res) => {
         emailVerified: true,
         status: true,
         phone: true,
+        logo: true,
         industry: true,
         website: true,
         subscriptionTier: true,
@@ -823,6 +841,7 @@ r.get("/mobile/me", requireClientJwt, async (req, res) => {
         companyName: true,
         contactName: true,
         phone: true,
+        logo: true,
         status: true,
         industry: true,
         website: true,
@@ -862,6 +881,7 @@ r.put("/mobile/profile", requireClientJwt, async (req, res) => {
         companyName: true,
         contactName: true,
         phone: true,
+        logo: true,
         status: true,
         industry: true,
         website: true,
@@ -876,6 +896,41 @@ r.put("/mobile/profile", requireClientJwt, async (req, res) => {
   } catch (error) {
     console.error("[ERROR] Mobile client profile update failed:", error);
     res.status(500).json({ ok: false, error: "Failed to update profile" });
+  }
+});
+
+// ============================================
+// POST /api/v1/client/mobile/profile/logo
+// ============================================
+r.post("/mobile/profile/logo", requireClientJwt, raw({ type: () => true, limit: "2mb" }), async (req, res) => {
+  try {
+    const { dataUrl } = await parseMobileImageUpload(req.body, req.headers["content-type"], "logo");
+
+    const client = await prisma.client.update({
+      where: { id: req.auth!.userId },
+      data: { logo: dataUrl },
+      select: {
+        id: true,
+        email: true,
+        companyName: true,
+        contactName: true,
+        phone: true,
+        logo: true,
+        status: true,
+        industry: true,
+        website: true,
+        subscriptionTier: true,
+        subscriptionStatus: true,
+        subscriptionStartedAt: true,
+        subscriptionExpiresAt: true,
+      }
+    });
+
+    res.json({ ok: true, user: shapeMobileClient(client) });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to upload logo";
+    const status = /maximum size/i.test(message) ? 413 : 400;
+    res.status(status).json({ ok: false, error: message });
   }
 });
 
@@ -920,9 +975,10 @@ r.get("/session", async (req, res) => {
 });
 
 // ============================================
-// POST /api/v1/clients/forgot-password
+// POST /api/v1/client/forgot-password
+// POST /api/v1/client/mobile/forgot-password
 // ============================================
-r.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
+r.post(["/forgot-password", "/mobile/forgot-password"], forgotPasswordLimiter, async (req, res) => {
   try {
     const parsed = forgotPasswordSchema.safeParse(req.body);
     
@@ -980,7 +1036,7 @@ r.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
 // ============================================
 // POST /api/v1/clients/reset-password
 // ============================================
-r.post("/reset-password", async (req, res) => {
+r.post("/reset-password", resetPasswordLimiter, async (req, res) => {
   try {
     const parsed = resetPasswordSchema.safeParse(req.body);
     
@@ -1048,6 +1104,7 @@ r.get("/profile", requireClientSession, async (req, res) => {
         contactName: true,
         email: true,
         phone: true,
+        postcode: true,
         jobTitle: true,
         createdAt: true
       }
@@ -1075,6 +1132,7 @@ const updateProfileSchema = z.object({
   companySize: z.string().max(50).optional(),
   contactName: z.string().min(2).max(100).trim().optional(),
   phone: z.string().max(20).optional(),
+  postcode: z.string().max(24).optional(),
   jobTitle: z.string().max(100).optional()
 });
 
@@ -1104,6 +1162,7 @@ r.put("/profile", requireClientSession, async (req, res) => {
         contactName: true,
         email: true,
         phone: true,
+        postcode: true,
         jobTitle: true
       }
     });
@@ -1113,6 +1172,67 @@ r.put("/profile", requireClientSession, async (req, res) => {
   } catch (error) {
     console.error("[ERROR] Update client profile failed:", error);
     res.status(500).json({ error: "Failed to update profile" });
+  }
+});
+
+// ============================================
+// PUT /api/v1/client/change-password (authenticated)
+// ============================================
+r.put("/change-password", requireClientSession, async (req, res) => {
+  try {
+    const clientId = (req.session as any)?.clientId;
+
+    if (!clientId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const parsed = changePasswordSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: "Invalid input",
+        details: parsed.error.issues.map((issue) => issue.message),
+      });
+    }
+
+    const client = await prisma.client.findUnique({
+      where: { id: clientId },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        companyName: true,
+      },
+    });
+
+    if (!client) {
+      return res.status(404).json({ error: "Client not found" });
+    }
+
+    const passwordMatches = await bcrypt.compare(parsed.data.currentPassword, client.passwordHash);
+
+    if (!passwordMatches) {
+      return res.status(400).json({ error: "Current password is incorrect" });
+    }
+
+    const passwordHash = await bcrypt.hash(parsed.data.newPassword, 12);
+
+    await prisma.client.update({
+      where: { id: client.id },
+      data: {
+        passwordHash,
+        failedAttempts: 0,
+        lockedUntil: null,
+        resetToken: null,
+        resetTokenExp: null,
+      },
+    });
+
+    console.log(`[CLIENT] Password changed: ${client.companyName} (${redactEmail(client.email)})`);
+    res.json({ ok: true, message: "Password updated successfully." });
+  } catch (error) {
+    console.error("[ERROR] Client password change failed:", error);
+    res.status(500).json({ error: "Failed to change password" });
   }
 });
 

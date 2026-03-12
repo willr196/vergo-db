@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
 import rateLimit from "express-rate-limit";
-import { prisma } from "../prisma";
 import { Resend } from "resend";
 import { FROM_EMAIL, TO_EMAIL } from "../services/email";
 import { logger, maskEmail } from "../services/logger";
@@ -61,9 +60,6 @@ const quoteRequestSchema = z.object({
   
   // For spam prevention
   honeypot: z.string().max(0).optional(), // Should be empty
-  
-  // Optional: Link to existing client (for authenticated requests)
-  clientId: z.string().optional()
 });
 
 const ROLE_LABELS: Record<string, string> = {
@@ -210,7 +206,6 @@ function normaliseQuotePayload(body: unknown) {
     message,
     estimatedTotal: parseNumber(raw.estimatedTotal),
     honeypot: typeof raw.honeypot === "string" ? raw.honeypot : undefined,
-    clientId: typeof raw.clientId === "string" ? raw.clientId : undefined,
   };
 }
 
@@ -228,54 +223,12 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       return res.status(201).json({ ok: true, message: "Quote request received" });
     }
     
-    // ============================================
-    // FIX: Actually save to database!
-    // ============================================
-    let savedQuote: { id: string } | null = null;
-    
-    // Try to find existing client by email (for linking)
-    let clientId = data.clientId || null;
-    if (!clientId) {
-      const existingClient = await prisma.client.findUnique({
-        where: { email: data.email },
-        select: { id: true, status: true }
-      });
-      if (existingClient && existingClient.status === 'APPROVED') {
-        clientId = existingClient.id;
-      }
-    }
-    
-    // Only save to DB if we have a client to link to
-    // (QuoteRequest requires clientId - it's not optional in schema)
-    if (clientId) {
-      savedQuote = await prisma.quoteRequest.create({
-        data: {
-          eventType: data.eventType,
-          eventDate: data.eventDate ? new Date(data.eventDate) : null,
-          eventEndDate: data.duration && data.eventDate 
-            ? new Date(new Date(data.eventDate).getTime() + (data.duration - 1) * 24 * 60 * 60 * 1000)
-            : null,
-          location: data.location || 'TBC',
-          venue: data.venue || null,
-          staffCount: data.staffNeeded,
-          roles: data.roles?.join(', ') || 'General staff',
-          shiftStart: data.shiftStart || null,
-          shiftEnd: data.shiftEnd || null,
-          description: data.message || null,
-          budget: data.estimatedTotal ? `£${data.estimatedTotal.toLocaleString()}` : null,
-          requestedLane: data.requestedLane || null,
-          status: 'NEW',
-          clientId: clientId
-        }
-      });
-      logger.info({ quoteId: savedQuote.id, clientId }, 'Quote saved to database');
-    } else {
-      logger.info({ email: maskEmail(data.email) }, 'Quote not saved to DB (no linked client)');
-    }
+    const savedQuoteId: string | null = null;
+    logger.info({ email: maskEmail(data.email) }, 'Public quote request received without client linkage');
     
     // Build the quote details for logging/email
     const quoteDetails = {
-      id: savedQuote?.id || 'N/A (email only)',
+      id: savedQuoteId || 'N/A (email only)',
       name: data.name,
       email: data.email,
       phone: data.phone || "Not provided",
@@ -294,16 +247,16 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       message: data.message || "None",
       estimatedTotal: data.estimatedTotal ? `£${data.estimatedTotal.toLocaleString()}` : "Not calculated",
       submittedAt: new Date().toISOString(),
-      savedToDb: !!savedQuote
+      savedToDb: !!savedQuoteId
     };
     
     logger.info(
       {
-        quoteId: savedQuote?.id || null,
+        quoteId: savedQuoteId,
         eventType: data.eventType,
         requestedLane: data.requestedLane || null,
         staffNeeded: data.staffNeeded,
-        hasLinkedClient: !!clientId,
+        hasLinkedClient: false,
       },
       'Quote request received'
     );
@@ -317,7 +270,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
           subject: `New Quote Request: ${data.eventType} - ${data.staffNeeded} staff`,
           html: `
             <h2>New Quote Request</h2>
-            ${savedQuote ? `<p style="color: green;"><strong>✅ Saved to database:</strong> ${safe(savedQuote.id)}</p>` : '<p style="color: orange;"><strong>⚠️ Email only</strong> (no linked client account)</p>'}
+            ${savedQuoteId ? `<p style="color: green;"><strong>✅ Saved to database:</strong> ${safe(savedQuoteId)}</p>` : '<p style="color: orange;"><strong>⚠️ Email only</strong> (no linked client account)</p>'}
             <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Name</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.name)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Email</td><td style="padding: 8px; border: 1px solid #ddd;"><a href="mailto:${safe(data.email)}">${safe(data.email)}</a></td></tr>
@@ -371,7 +324,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
                   ${data.eventDate ? `<p><strong>Date:</strong> ${safe(data.eventDate)}</p>` : ''}
                   ${data.location ? `<p><strong>Location:</strong> ${safe(data.location)}</p>` : ''}
                   ${data.estimatedTotal ? `<p><strong>Estimated Budget:</strong> £${safe(data.estimatedTotal.toLocaleString())}</p>` : ''}
-                  ${savedQuote ? `<p style="color: #666; font-size: 12px;"><strong>Reference:</strong> ${safe(savedQuote.id)}</p>` : ''}
+                  ${savedQuoteId ? `<p style="color: #666; font-size: 12px;"><strong>Reference:</strong> ${safe(savedQuoteId)}</p>` : ''}
                 </div>
                 
                 <p>If you have any urgent questions, please call us directly or reply to this email.</p>
@@ -394,7 +347,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
     res.status(201).json({ 
       ok: true, 
       message: "Quote request received. We'll be in touch within 24 hours.",
-      quoteId: savedQuote?.id || null
+      quoteId: savedQuoteId
     });
     
   } catch (error) {

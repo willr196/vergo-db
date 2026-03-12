@@ -82,9 +82,9 @@ let currentUser = null;
       
       const typeClass = job.type === 'INTERNAL' ? 'internal' : 'external';
       const typeLabel = job.type === 'INTERNAL' ? 'VERGO Job' : 'External';
-      const company = job.type === 'EXTERNAL' && job.companyName ? job.companyName : 'VERGO Ltd';
-      
-      document.title = `${job.title} - VERGO Ltd`;
+      const company = job.type === 'EXTERNAL' && job.companyName ? job.companyName : 'VERGO Events';
+
+      document.title = `${job.title} | VERGO Events — Premium Event Staffing in London`;
       
       document.getElementById('job-content').innerHTML = `
         <div class="job-container">

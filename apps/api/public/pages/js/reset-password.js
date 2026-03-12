@@ -13,7 +13,7 @@
   const content = document.getElementById('content');
 
   if (isClient) {
-    document.title = 'Set New Client Password - VERGO Ltd';
+    document.title = 'Set New Client Password | VERGO Events — Premium Event Staffing in London';
     if (title) title.textContent = 'Set New Client Password';
     if (subtitle) subtitle.textContent = 'Enter a new password for your client account below.';
   }

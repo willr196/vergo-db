@@ -201,6 +201,21 @@ test('homepage includes canonical metadata and shared shell mounts', async () =>
   assert.match(res.body, /\/vergo-public-shell\.js/i);
 });
 
+test('non-api unknown routes return the branded 404 page', async () => {
+  const res = await inject(app, { method: 'GET', url: '/missing-page' });
+  assert.equal(res.statusCode, 404);
+  assert.match(res.body, /<title>Page Not Found \| VERGO Events/i);
+  assert.match(res.body, /<h1>Page Not Found<\/h1>/i);
+  assert.match(res.body, /<a[^>]*href="\/"[^>]*>Back to Homepage<\/a>/i);
+});
+
+test('unknown api routes still return json not-found payloads', async () => {
+  const res = await inject(app, { method: 'GET', url: '/api/v1/missing-page' });
+  assert.equal(res.statusCode, 404);
+  assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
+  assert.deepEqual(JSON.parse(res.body || '{}'), { error: 'Not found' });
+});
+
 test('applications presign does not fall back to local uploads in production by default', async () => {
   const envAny = env as any;
   const originalNodeEnv = envAny.nodeEnv;

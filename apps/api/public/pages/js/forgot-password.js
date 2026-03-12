@@ -15,7 +15,7 @@
   const backLink = document.getElementById('auth-back-link');
 
   if (isClient) {
-    document.title = 'Reset Client Password - VERGO Ltd';
+    document.title = 'Reset Client Password | VERGO Events — Premium Event Staffing in London';
     if (title) title.textContent = 'Reset Client Password';
     if (subtitle) subtitle.textContent = 'Enter the email on your client account and we will send a reset link.';
     if (backLink) {

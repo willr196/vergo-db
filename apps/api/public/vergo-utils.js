@@ -700,7 +700,7 @@ class UserAuth {
           </button>
           <ul class="user-dropdown" role="menu">
             <li><a href="/dashboard" role="menuitem">Dashboard</a></li>
-            <li><a href="/dashboard/profile" role="menuitem">Profile</a></li>
+            <li><a href="/profile.html" role="menuitem">Profile</a></li>
             <li><a href="/dashboard/applications" role="menuitem">My Applications</a></li>
             <li><a href="/dashboard/saved" role="menuitem">Saved Jobs</a></li>
             <li><hr></li>

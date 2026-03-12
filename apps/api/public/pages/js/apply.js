@@ -30,11 +30,19 @@
 
     const UPLOADED_CV_STORAGE_KEY = 'vergo_uploaded_cv';
     const UPLOADED_CV_TTL_MS = 10 * 60 * 1000;
+    const CV_DEBUG_PREFIX = '[CV DEBUG]';
+    const CV_DEBUG_CHECKPOINTS = [
+      { delay: 500, label: 'after 500ms' },
+      { delay: 2000, label: 'after 2s' },
+      { delay: 10000, label: 'after 10s' }
+    ];
 
     // CV Upload state
     let uploadedCvData = null;
     let cvUploadInFlight = false;
     let cvUploadToken = 0;
+    let selectedCvFile = null;
+    let cvDebugTimerIds = [];
 
     function persistUploadedCvData(data) {
       try {
@@ -55,6 +63,72 @@
     function clearUploadedCvData() {
       uploadedCvData = null;
       persistUploadedCvData(null);
+      syncCvFileRequirement();
+    }
+
+    function clearSelectedCvFile() {
+      selectedCvFile = null;
+      clearCvDebugTimers();
+    }
+
+    function getCvFileInput() {
+      return document.getElementById('cvFile');
+    }
+
+    function clearCvDebugTimers() {
+      cvDebugTimerIds.forEach((timerId) => window.clearTimeout(timerId));
+      cvDebugTimerIds = [];
+    }
+
+    function syncCvFileRequirement() {
+      const input = getCvFileInput();
+      if (!input) {
+        return;
+      }
+
+      // Rely on selected/uploaded CV state instead of the browser's transient file-input value.
+      input.required = !uploadedCvData && !selectedCvFile;
+    }
+
+    function restoreSelectedCvFile(reason) {
+      const input = getCvFileInput();
+      if (!input || !selectedCvFile || input.files?.length) {
+        return;
+      }
+
+      if (typeof DataTransfer !== 'function') {
+        console.warn(`${CV_DEBUG_PREFIX} File input cleared ${reason}, but DataTransfer is unavailable.`);
+        return;
+      }
+
+      try {
+        const transfer = new DataTransfer();
+        transfer.items.add(selectedCvFile);
+        input.files = transfer.files;
+        console.log(`${CV_DEBUG_PREFIX} File restored ${reason}:`, input.files[0]?.name || 'GONE');
+      } catch (error) {
+        console.warn(`${CV_DEBUG_PREFIX} Failed to restore file ${reason}.`, error);
+      }
+    }
+
+    function logCvSelectionCheckpoint(label) {
+      const input = getCvFileInput();
+      const currentName = input?.files?.[0]?.name || 'GONE';
+      console.log(`${CV_DEBUG_PREFIX} File ${label}:`, currentName);
+
+      if (currentName === 'GONE' && selectedCvFile) {
+        restoreSelectedCvFile(label);
+      }
+    }
+
+    function scheduleCvDebugChecks() {
+      clearCvDebugTimers();
+      CV_DEBUG_CHECKPOINTS.forEach((checkpoint) => {
+        const timerId = window.setTimeout(() => {
+          logCvSelectionCheckpoint(checkpoint.label);
+        }, checkpoint.delay);
+        cvDebugTimerIds.push(timerId);
+      });
     }
 
     function formatFileSize(bytes) {
@@ -73,6 +147,8 @@
     function setUploadedCvData(data) {
       uploadedCvData = data;
       persistUploadedCvData(data);
+      syncCvFileRequirement();
+      restoreSelectedCvFile('after upload success');
       showUploadStatus(buildUploadedCvMessage(data), 'success');
     }
 
@@ -98,6 +174,7 @@
           cvMimeType: parsed.cvMimeType
         };
 
+        syncCvFileRequirement();
         showUploadStatus(buildUploadedCvMessage(uploadedCvData), 'success');
       } catch (_error) {
         sessionStorage.removeItem(UPLOADED_CV_STORAGE_KEY);
@@ -145,16 +222,22 @@
     restoreUploadedCvData();
 
     const cvFileInput = document.getElementById('cvFile');
+    syncCvFileRequirement();
 
     // Handle CV file selection and upload
     cvFileInput.addEventListener('change', async function(e) {
       const file = e.target.files[0];
       if (!file) {
+        clearSelectedCvFile();
         if (!uploadedCvData && !cvUploadInFlight) {
           showUploadStatus('', '');
         }
         return;
       }
+
+      selectedCvFile = file;
+      console.log(`${CV_DEBUG_PREFIX} File selected:`, file.name);
+      scheduleCvDebugChecks();
 
       const uploadToken = ++cvUploadToken;
       cvUploadInFlight = true;
@@ -164,6 +247,7 @@
       const maxSize = 10 * 1024 * 1024;
       if (file.size > maxSize) {
         showUploadStatus('File is too large. Maximum size is 10MB.', 'error');
+        clearSelectedCvFile();
         e.target.value = '';
         clearUploadedCvData();
         cvUploadInFlight = false;
@@ -175,6 +259,7 @@
       const ext = '.' + file.name.split('.').pop().toLowerCase();
       if (!allowedTypes.includes(ext)) {
         showUploadStatus('Invalid file type. Please upload a PDF, DOC, or DOCX file.', 'error');
+        clearSelectedCvFile();
         e.target.value = '';
         clearUploadedCvData();
         cvUploadInFlight = false;
@@ -285,11 +370,15 @@
         }
         console.error('CV upload error:', error);
         showUploadStatus(error.message || 'Failed to upload CV. Please try again.', 'error');
+        clearSelectedCvFile();
         e.target.value = '';
         clearUploadedCvData();
       } finally {
         if (uploadToken === cvUploadToken) {
           cvUploadInFlight = false;
+          if (uploadedCvData) {
+            restoreSelectedCvFile('after upload settle');
+          }
         }
       }
     });
@@ -360,6 +449,7 @@
         });
 
         if (response.ok) {
+          clearSelectedCvFile();
           clearUploadedCvData();
           cvFileInput.value = '';
           form.classList.add('d-none');

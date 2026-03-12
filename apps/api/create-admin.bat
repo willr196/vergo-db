@@ -24,7 +24,7 @@ if "%USERNAME%"=="" set USERNAME=admin
 
 REM Prompt for password
 echo.
-echo Enter a secure password (minimum 8 characters):
+echo Enter a secure password (minimum 12 characters with uppercase, lowercase, and number):
 set "PASSWORD="
 set "psCommand=powershell -Command "$password = Read-Host -AsSecureString; $BSTR=[System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password); [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)""
 for /f "usebackq delims=" %%p in (`%psCommand%`) do set PASSWORD=%%p

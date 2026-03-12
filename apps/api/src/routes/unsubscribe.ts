@@ -2,6 +2,7 @@
 
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
+import { z } from 'zod';
 import {
   getPreferencesByToken,
   updatePreferences,
@@ -28,16 +29,29 @@ const updateLimiter = rateLimit({
   message: 'Too many requests. Please try again later.',
 });
 
+const tokenQuerySchema = z.object({
+  token: z.string().min(1).max(255),
+});
+
+const unsubscribeUpdateSchema = z.object({
+  token: z.string().min(1).max(255),
+  action: z.enum(['unsubscribe-all']).optional(),
+  marketing: z.literal('on').optional(),
+  notifications: z.literal('on').optional(),
+  jobAlerts: z.literal('on').optional(),
+  quoteUpdates: z.literal('on').optional(),
+});
+
 /**
  * GET /api/v1/unsubscribe?token=xxx
  * One-click unsubscribe page
  */
 router.get('/', viewLimiter, async (req, res) => {
-  const { token } = req.query;
-
-  if (!token || typeof token !== 'string') {
+  const parsed = tokenQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
     return res.status(400).send(renderPage('Invalid unsubscribe link', 'error'));
   }
+  const { token } = parsed.data;
 
   try {
     const prefs = await getPreferencesByToken(token);
@@ -58,11 +72,11 @@ router.get('/', viewLimiter, async (req, res) => {
  * Update email preferences
  */
 router.post('/', updateLimiter, async (req, res) => {
-  const { token, action, marketing, notifications, jobAlerts, quoteUpdates } = req.body;
-
-  if (!token || typeof token !== 'string') {
+  const parsed = unsubscribeUpdateSchema.safeParse(req.body);
+  if (!parsed.success) {
     return res.status(400).json({ error: 'Missing token' });
   }
+  const { token, action, marketing, notifications, jobAlerts, quoteUpdates } = parsed.data;
 
   try {
     const prefs = await getPreferencesByToken(token);
@@ -98,11 +112,11 @@ router.post('/', updateLimiter, async (req, res) => {
  * RFC 8058 one-click unsubscribe (for List-Unsubscribe-Post header)
  */
 router.post('/one-click', updateLimiter, async (req, res) => {
-  const { token } = req.query;
-
-  if (!token || typeof token !== 'string') {
+  const parsed = tokenQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
     return res.status(400).json({ error: 'Missing token' });
   }
+  const { token } = parsed.data;
 
   try {
     const prefs = await getPreferencesByToken(token);

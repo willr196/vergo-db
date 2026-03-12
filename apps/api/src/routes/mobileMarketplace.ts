@@ -74,7 +74,21 @@ function computeHoursFromShift(shiftStart: string, shiftEnd: string): number {
   return Number((diff / 60).toFixed(2));
 }
 
+function maskLastName(lastName: string | null | undefined): string {
+  const initial = lastName?.charAt(0) || '';
+  return initial ? `${initial}.` : '';
+}
+
+function maskName(firstName: string, lastName: string | null | undefined): string {
+  const maskedLastName = maskLastName(lastName);
+  return maskedLastName ? `${firstName} ${maskedLastName}` : firstName;
+}
+
 function shapeBooking(booking: any) {
+  const maskedStaffName = booking.staff
+    ? maskName(booking.staff.firstName, booking.staff.lastName)
+    : null;
+
   return {
     id: booking.id,
     status: booking.status,
@@ -90,13 +104,10 @@ function shapeBooking(booking: any) {
     clientTierAtBooking: booking.clientTierAtBooking,
     staffTierAtBooking: booking.staffTierAtBooking,
     hourlyRateCharged: toNumber(booking.hourlyRateCharged),
-    staffPayRate: toNumber(booking.staffPayRate),
     totalEstimated: toNumber(booking.totalEstimated),
     clientNotes: booking.clientNotes,
-    adminNotes: booking.adminNotes,
     rejectionReason: booking.rejectionReason,
     confirmedAt: booking.confirmedAt?.toISOString() || null,
-    confirmedBy: booking.confirmedBy,
     completedAt: booking.completedAt?.toISOString() || null,
     quoteRequestId: booking.quoteRequestId || null,
     createdAt: booking.createdAt?.toISOString() || null,
@@ -106,15 +117,16 @@ function shapeBooking(booking: any) {
           id: booking.client.id,
           companyName: booking.client.companyName,
           contactName: booking.client.contactName,
-          email: booking.client.email,
           subscriptionTier: booking.client.subscriptionTier,
         }
       : undefined,
     staff: booking.staff
       ? {
           id: booking.staff.id,
+          name: maskedStaffName,
           firstName: booking.staff.firstName,
-          lastName: booking.staff.lastName,
+          lastName: maskLastName(booking.staff.lastName),
+          fullName: maskedStaffName,
           staffTier: booking.staff.staffTier,
           staffAvatar: booking.staff.staffAvatar,
           staffRating: toNumber(booking.staff.staffRating),
@@ -156,14 +168,15 @@ r.get('/marketplace/pricing', async (req, res, next) => {
     const client = await getClientSubscription(req.auth!.userId);
     if (!client) return res.status(404).json({ ok: false, error: 'Client not found' });
     if ('error' in client) return res.status(client.code).json({ ok: false, error: client.error });
+    const access = resolveMarketplaceAccess(client);
 
     const [rates, plan] = await Promise.all([
       prisma.pricingTier.findMany({
-        where: { clientTier: client.subscriptionTier },
+        where: { clientTier: access.effectiveTier },
         orderBy: { staffTier: 'asc' },
       }),
       prisma.subscriptionPlan.findUnique({
-        where: { tier: client.subscriptionTier },
+        where: { tier: access.effectiveTier },
         select: {
           tier: true,
           name: true,
@@ -177,10 +190,11 @@ r.get('/marketplace/pricing', async (req, res, next) => {
     ]);
 
     const payload = {
-      clientTier: client.subscriptionTier,
-      marketplaceAccessLane:
-        client.subscriptionTier === 'PREMIUM' && client.subscriptionStatus === 'ACTIVE' ? 'SELECT' : 'FLEX',
+      clientTier: access.effectiveTier,
+      marketplaceAccessLane: access.marketplaceAccessLane,
+      subscriptionTier: access.subscriptionTier,
       subscriptionStatus: client.subscriptionStatus,
+      premiumAccessActive: access.hasActivePremium,
       subscriptionStartedAt: client.subscriptionStartedAt?.toISOString() || null,
       subscriptionExpiresAt: client.subscriptionExpiresAt?.toISOString() || null,
       plan: plan
@@ -198,7 +212,6 @@ r.get('/marketplace/pricing', async (req, res, next) => {
         staffTier: row.staffTier,
         bookingLane: resolveMarketplaceBookingLane(row.staffTier),
         hourlyRate: toNumber(row.hourlyRate),
-        staffPayRate: toNumber(row.staffPayRate),
         isBookable: row.isBookable,
       })),
     };
@@ -259,8 +272,8 @@ r.get('/marketplace/staff', async (req, res, next) => {
       }),
       prisma.user.count({ where }),
       prisma.pricingTier.findMany({
-        where: { clientTier: client.subscriptionTier },
-        select: { staffTier: true, hourlyRate: true, staffPayRate: true, isBookable: true },
+        where: { clientTier: access.effectiveTier },
+        select: { staffTier: true, hourlyRate: true, isBookable: true },
       }),
     ]);
 
@@ -269,7 +282,6 @@ r.get('/marketplace/staff', async (req, res, next) => {
         row.staffTier,
         {
           hourlyRate: toNumber(row.hourlyRate),
-          staffPayRate: toNumber(row.staffPayRate),
           isBookable: row.isBookable,
         },
       ])
@@ -277,11 +289,13 @@ r.get('/marketplace/staff', async (req, res, next) => {
 
     const shaped = staff.map((member) => {
       const pricing = member.staffTier ? pricingByTier.get(member.staffTier) : null;
+      const masked = maskName(member.firstName, member.lastName);
       return {
         id: member.id,
+        name: masked,
         firstName: member.firstName,
-        lastName: member.lastName,
-        fullName: `${member.firstName} ${member.lastName}`,
+        lastName: maskLastName(member.lastName),
+        fullName: masked,
         staffTier: member.staffTier,
         bookingLane: resolveMarketplaceBookingLane(member.staffTier),
         staffBio: member.staffBio,
@@ -291,7 +305,6 @@ r.get('/marketplace/staff', async (req, res, next) => {
         staffReviewCount: member.staffReviewCount,
         staffHighlights: member.staffHighlights,
         hourlyRate: pricing?.hourlyRate ?? null,
-        staffPayRate: pricing?.staffPayRate ?? null,
         isBookable: pricing?.isBookable ?? false,
       };
     });
@@ -305,8 +318,11 @@ r.get('/marketplace/staff', async (req, res, next) => {
         totalPages: Math.ceil(total / query.limit),
         hasMore: query.page * query.limit < total,
       },
-      clientTier: client.subscriptionTier,
+      clientTier: access.effectiveTier,
       marketplaceAccessLane: access.marketplaceAccessLane,
+      subscriptionTier: access.subscriptionTier,
+      subscriptionStatus: access.subscriptionStatus,
+      premiumAccessActive: access.hasActivePremium,
     };
 
     res.json({ ok: true, ...payload, data: payload });
@@ -351,23 +367,24 @@ r.get('/marketplace/staff/:id', async (req, res, next) => {
     const pricing = await prisma.pricingTier.findUnique({
       where: {
         clientTier_staffTier: {
-          clientTier: client.subscriptionTier,
+          clientTier: access.effectiveTier,
           staffTier: staff.staffTier,
         },
       },
       select: {
         hourlyRate: true,
-        staffPayRate: true,
         isBookable: true,
       },
     });
 
+    const masked = maskName(staff.firstName, staff.lastName);
     const payload = {
       staff: {
         id: staff.id,
+        name: masked,
         firstName: staff.firstName,
-        lastName: staff.lastName,
-        fullName: `${staff.firstName} ${staff.lastName}`,
+        lastName: maskLastName(staff.lastName),
+        fullName: masked,
         staffTier: staff.staffTier,
         bookingLane: resolveMarketplaceBookingLane(staff.staffTier),
         staffBio: staff.staffBio,
@@ -377,11 +394,13 @@ r.get('/marketplace/staff/:id', async (req, res, next) => {
         staffReviewCount: staff.staffReviewCount,
         staffHighlights: staff.staffHighlights,
         hourlyRate: pricing ? toNumber(pricing.hourlyRate) : null,
-        staffPayRate: pricing ? toNumber(pricing.staffPayRate) : null,
         isBookable: pricing ? pricing.isBookable : false,
       },
-      clientTier: client.subscriptionTier,
+      clientTier: access.effectiveTier,
       marketplaceAccessLane: access.marketplaceAccessLane,
+      subscriptionTier: access.subscriptionTier,
+      subscriptionStatus: access.subscriptionStatus,
+      premiumAccessActive: access.hasActivePremium,
     };
 
     res.json({ ok: true, ...payload, data: payload });
@@ -447,7 +466,7 @@ r.post('/bookings', async (req, res, next) => {
     const pricing = await prisma.pricingTier.findUnique({
       where: {
         clientTier_staffTier: {
-          clientTier: client.subscriptionTier,
+          clientTier: access.effectiveTier,
           staffTier: staff.staffTier,
         },
       },
@@ -461,7 +480,7 @@ r.post('/bookings', async (req, res, next) => {
     if (!pricing) {
       return res.status(400).json({
         ok: false,
-        error: `No pricing configured for ${client.subscriptionTier} x ${staff.staffTier}`,
+        error: `No pricing configured for ${access.effectiveTier} x ${staff.staffTier}`,
       });
     }
 
@@ -493,7 +512,7 @@ r.post('/bookings', async (req, res, next) => {
         shiftEnd: parsed.shiftEnd,
         hoursEstimated,
         bookingLane,
-        clientTierAtBooking: client.subscriptionTier,
+        clientTierAtBooking: access.effectiveTier,
         staffTierAtBooking: staff.staffTier,
         hourlyRateCharged: pricing.hourlyRate,
         staffPayRate: pricing.staffPayRate,

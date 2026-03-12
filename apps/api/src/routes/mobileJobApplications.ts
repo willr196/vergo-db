@@ -84,19 +84,13 @@ r.post('/', async (req, res, next) => {
     }).catch(err => console.error('[EMAIL]', err));
 
     // Push notification: notify the client of the new application
-    if (job.companyName) {
-      prisma.client.findFirst({ where: { companyName: job.companyName } })
-        .then(client => {
-          if (client) {
-            return sendPushToClient(
-              client.id,
-              'New Application',
-              `New application for ${job.title}`,
-              { type: 'new_applicant', jobId: data.jobId }
-            );
-          }
-        })
-        .catch(err => console.error('[PUSH]', err));
+    if (job.clientId) {
+      sendPushToClient(
+        job.clientId,
+        'New Application',
+        `New application for ${job.title}`,
+        { type: 'new_applicant', jobId: data.jobId }
+      ).catch(err => console.error('[PUSH]', err));
     }
 
     res.status(201).json({ ok: true, application, data: application });

@@ -10,7 +10,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
-import { env } from './env';
+import { assertStrongSecret, env } from './env';
 import { prisma } from './prisma';
 import applications from './routes/applications';
 import events from './routes/events';
@@ -46,6 +46,7 @@ import adminStaff from './routes/adminStaff';
 import { logger, requestLogger } from './services/logger';
 import { startMemoryMonitoring, stopMemoryMonitoring } from './services/memory';
 import { initSentry, sentryErrorHandler, flushSentry } from './services/sentry';
+import { enforceHttpsRedirect } from './utils/httpsRedirect';
 import { ZodError } from 'zod';
 
 // Initialize Sentry early (before Express app)
@@ -179,6 +180,11 @@ function buildJobPageCspHeader(nonce: string) {
 if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
+app.use(enforceHttpsRedirect({
+  nodeEnv: env.nodeEnv,
+  webOrigin: env.webOrigin,
+  allowedHosts: ['vergo-app.fly.dev'],
+}));
 // Security headers
 app.use(helmet({
   contentSecurityPolicy: {
@@ -214,6 +220,14 @@ app.use(helmet({
   xFrameOptions: { action: 'deny' }
 }));
 
+const allowedCorsOrigins = Array.from(new Set([
+  env.webOrigin,
+  'https://vergo-app.fly.dev',
+  ...(env.nodeEnv === 'production'
+    ? []
+    : [`http://localhost:${env.port}`, 'http://localhost:8080']),
+]));
+
 // Performance headers
 app.use((_req, res, next) => {
   res.setHeader('X-DNS-Prefetch-Control', 'on');
@@ -223,12 +237,13 @@ app.use((_req, res, next) => {
 
 // CORS — must include your frontend origin + localhost for dev
 app.use(cors({
-  origin: [
-    env.webOrigin,
-    `http://localhost:${env.port}`,
-    'http://localhost:8080',
-    'https://vergo-app.fly.dev'
-  ],
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedCorsOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, false);
+  },
   credentials: true
 }));
 
@@ -286,9 +301,22 @@ if (!SESSION_SECRET) {
     console.warn('[SECURITY] SESSION_SECRET not set; using ephemeral random secret (sessions will reset on restart)');
   }
 }
+if (env.nodeEnv !== 'test') {
+  assertStrongSecret('SESSION_SECRET', SESSION_SECRET);
+}
 
 const PgSession = connectPgSimple(session);
 const dbUsesSsl = /sslmode=require/i.test(env.dbUrl);
+const allowInsecureSessionStoreSsl = process.env.SESSION_STORE_SSL_REJECT_UNAUTHORIZED === 'false';
+const sessionStoreSsl = dbUsesSsl
+  ? allowInsecureSessionStoreSsl
+    ? { rejectUnauthorized: false }
+    : { rejectUnauthorized: true }
+  : false;
+
+if (dbUsesSsl && allowInsecureSessionStoreSsl) {
+  console.warn('[SECURITY] SESSION_STORE_SSL_REJECT_UNAUTHORIZED=false disables TLS certificate verification for the session store');
+}
 
 app.use(session({
   name: 'vergo.sid',
@@ -301,7 +329,7 @@ app.use(session({
       conString: env.dbUrl,
       tableName: 'user_sessions',
       createTableIfMissing: true,
-      ssl: dbUsesSsl ? { rejectUnauthorized: false } : false
+      ssl: sessionStoreSsl
     }),
   cookie: {
     httpOnly: true,
@@ -481,11 +509,15 @@ app.get('/jobs', async (_req, res, next) => {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="/logo-small.png">
-
-  <title>Jobs | VERGO Ltd</title>
-  <meta name="description" content="Browse hospitality and event staffing jobs in London. View open VERGO roles and apply through the platform.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jobs | VERGO Events — Premium Event Staffing in London</title>
+  <meta name="description" content="Browse current VERGO Events hospitality and event staffing jobs in London, with live listings for premium venues, productions, and events.">
+  <meta property="og:title" content="Jobs | VERGO Events — Premium Event Staffing in London">
+  <meta property="og:description" content="Browse current VERGO Events hospitality and event staffing jobs in London, with live listings for premium venues, productions, and events.">
+  <meta property="og:image" content="https://vergoltd.com/logo.png">
+  <meta property="og:url" content="https://vergoltd.com/jobs">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="/favicon.ico">
   <link rel="canonical" href="https://vergoltd.com/jobs">
   <meta name="theme-color" content="#0a0a0a">
 
@@ -629,11 +661,11 @@ app.get('/jobs/:id', async (req, res, next) => {
       return res.status(404).send('Not found');
     }
 
-    const title = `${job.title} | VERGO Ltd`;
+    const title = `${job.title} | VERGO Events — Premium Event Staffing in London`;
     const descriptionText = job.description?.slice(0, 160) || 'View job details and apply.';
     const canonicalUrl = `https://vergoltd.com/jobs/${encodeURIComponent(job.id)}`;
 
-    const company = (job.type === 'EXTERNAL' && job.companyName) ? job.companyName : 'VERGO Ltd';
+    const company = (job.type === 'EXTERNAL' && job.companyName) ? job.companyName : 'VERGO Events';
     const pay = job.payRate
       ? `£${Number(job.payRate)}/${job.payType === 'HOURLY' ? 'hr' : job.payType === 'DAILY' ? 'day' : 'fixed'}`
       : 'Competitive';
@@ -695,8 +727,8 @@ app.get('/jobs/:id', async (req, res, next) => {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="/logo-small.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="/favicon.ico">
 
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(descriptionText)}">
@@ -705,7 +737,7 @@ app.get('/jobs/:id', async (req, res, next) => {
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="${canonicalUrl}">
-  <meta property="og:title" content="${escapeHtml(job.title)}">
+  <meta property="og:title" content="${escapeHtml(title)}">
   <meta property="og:description" content="${escapeHtml(descriptionText)}">
   <meta property="og:image" content="https://vergoltd.com/logo.png">
 
@@ -921,6 +953,7 @@ app.use('/api/v1/client/mobile', mobileMarketplace);
 
 // Mobile push notifications
 app.use('/api/v1/notifications', mobileNotifications);
+app.use('/api/v1/mobile/notifications', mobileNotifications);
 
 // Unsubscribe management
 app.use('/api/v1/unsubscribe', unsubscribe);
@@ -1032,46 +1065,17 @@ app.use(express.static(publicDir, {
 
 // 404 handler (after static)
 app.use((req, res) => {
-  const accept = req.headers['accept'] || '';
-  if (typeof accept === 'string' && accept.includes('text/html')) {
-    res.status(404).type('text/html').send(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Page Not Found | VERGO Ltd</title>
-  <link rel="icon" type="image/png" href="/logo-small.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-public-pages.css">
-</head>
-<body>
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-  <div id="site-header" class="site-header" role="banner"></div>
-  <main id="main-content">
-    <section class="page-hero">
-      <div class="page-shell">
-        <div class="hero-grid">
-          <div>
-            <span class="eyebrow">404</span>
-            <h1>Page not found.</h1>
-            <p class="lede">The page you are looking for does not exist or has been moved.</p>
-            <div class="hero-actions">
-              <a href="/" class="btn btn-primary">Back to Home</a>
-              <a href="/jobs" class="btn btn-secondary">View Jobs</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-  <footer role="contentinfo"></footer>
-  <script src="/vergo-public-shell.js"></script>
-</body>
-</html>`);
-    return;
+  const isApiRequest = req.path === '/api' || req.path.startsWith('/api/');
+  if (!isApiRequest) {
+    const notFoundPage = resolvePublicFile('404.html');
+    if (notFoundPage && fs.existsSync(notFoundPage)) {
+      res.status(404);
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      return res.sendFile(notFoundPage);
+    }
+    return res.status(404).type('text/html').send('Page Not Found');
   }
   res.status(404).json({ error: 'Not found' });
 });

@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, raw } from "express";
 import rateLimit from "express-rate-limit";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -7,7 +7,9 @@ import { z } from "zod";
 import { prisma } from "../prisma";
 import { sendUserVerificationEmail, sendPasswordResetEmail } from "../services/email";
 import { requireUserJwt } from "../middleware/jwtAuth";
+import { requireUser } from "../middleware/userAuth";
 import { signAccessToken, signRefreshToken, verifyRefreshToken, getTokenExpiresAt, hashToken } from "../utils/jwt";
+import { parseMobileImageUpload } from "../utils/mobileMediaUpload";
 import { env } from "../env";
 
 const r = Router();
@@ -44,7 +46,7 @@ const forgotPasswordSchema = z.object({
 });
 
 const resetPasswordSchema = z.object({
-  token: z.string().min(1),
+  token: z.string().length(64),
   password: z.string().min(8).max(72)
 });
 
@@ -54,6 +56,39 @@ const refreshSchema = z.object({
 
 const logoutSchema = z.object({
   refreshToken: z.string().min(1).optional()
+});
+
+const preferredJobTypeValues = [
+  "Corporate Events",
+  "Film & TV",
+  "Music & Festivals",
+  "Private Events",
+  "Hospitality/Venues",
+  "Weddings",
+] as const;
+
+const preferredJobTypeSchema = z.enum(preferredJobTypeValues);
+
+const webProfileSchema = z.object({
+  firstName: z.string().min(1).max(100).trim().optional(),
+  lastName: z.string().min(1).max(100).trim().optional(),
+  phone: z.string().max(20).trim().optional(),
+  postcode: z.string().max(24).trim().optional(),
+  dateOfBirth: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional()
+    .or(z.literal("")),
+  preferredJobTypes: z.array(preferredJobTypeSchema).max(preferredJobTypeValues.length).optional(),
+  experienceSummary: z.string().max(300).optional(),
+});
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(8).max(72),
+  newPassword: z.string().min(8).max(72),
+}).refine((value) => value.currentPassword !== value.newPassword, {
+  message: "New password must be different from your current password",
+  path: ["newPassword"],
 });
 
 function normalizeRateLimitIdentity(value: unknown): string {
@@ -73,7 +108,7 @@ const registerLimiter = rateLimit({
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // 10 attempts per 15 min
+  max: 5, // 5 attempts per 15 min
   skipSuccessfulRequests: true,
   message: { error: "Too many login attempts. Try again in 15 minutes." },
   keyGenerator: (req) => {
@@ -86,6 +121,12 @@ const forgotPasswordLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 3, // 3 reset requests per hour
   message: { error: "Too many reset requests. Try again later." }
+});
+
+const resetPasswordLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // 10 reset completions per hour per IP
+  message: { error: "Too many password reset attempts. Try again later." }
 });
 
 const refreshLimiter = rateLimit({
@@ -112,6 +153,100 @@ function redactEmail(email: string): string {
   const [local, domain] = email.split("@");
   if (!domain) return "***";
   return local.slice(0, 2) + "***@" + domain;
+}
+
+function stripHtml(value: string): string {
+  return value.replace(/<[^>]*>/g, "");
+}
+
+function parseDateOnlyToUtc(dateValue: string): Date {
+  return new Date(`${dateValue}T00:00:00.000Z`);
+}
+
+function formatDateOnly(dateValue: Date | null | undefined): string | null {
+  if (!dateValue) return null;
+  return dateValue.toISOString().slice(0, 10);
+}
+
+function splitCommaSeparated(value: string | null | undefined): string[] {
+  if (!value) return [];
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
+async function getWebProfileRecord(
+  db: Prisma.TransactionClient | typeof prisma,
+  userId: string
+) {
+  return db.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      phone: true,
+      applicantId: true,
+      staffAvatar: true,
+      staffBio: true,
+      applicant: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          phone: true,
+          dateOfBirth: true,
+          postcode: true,
+          preferredJobTypes: true,
+          bio: true,
+          yearsExperience: true,
+          applications: {
+            select: {
+              roles: {
+                select: {
+                  role: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+function shapeWebUserProfile(user: NonNullable<Awaited<ReturnType<typeof getWebProfileRecord>>>) {
+  const registeredRoles = uniqueStrings(
+    (user.applicant?.applications || []).flatMap((application) =>
+      application.roles.map((role) => role.role.name)
+    )
+  );
+
+  return {
+    id: user.id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phone: user.phone || user.applicant?.phone || "",
+    profileImage: user.staffAvatar || null,
+    applicantId: user.applicantId || null,
+    postcode: user.applicant?.postcode || "",
+    dateOfBirth: formatDateOnly(user.applicant?.dateOfBirth),
+    preferredJobTypes: splitCommaSeparated(user.applicant?.preferredJobTypes),
+    experienceSummary: user.applicant?.bio || user.staffBio || "",
+    yearsExperience: user.applicant?.yearsExperience ?? null,
+    registeredRoles,
+  };
 }
 
 type VerificationDeliveryResult = {
@@ -200,6 +335,7 @@ function shapeMobileUser(user: {
     firstName: user.firstName,
     lastName: user.lastName,
     phone: user.phone || undefined,
+    profileImage: user.staffAvatar || null,
     applicantId: user.applicantId || null,
     staffTier: user.staffTier || null,
     staffBio: user.staffBio || null,
@@ -814,6 +950,41 @@ r.put("/mobile/profile", requireUserJwt, async (req, res) => {
 });
 
 // ============================================
+// POST /api/v1/user/mobile/profile/avatar
+// ============================================
+r.post("/mobile/profile/avatar", requireUserJwt, raw({ type: () => true, limit: "2mb" }), async (req, res) => {
+  try {
+    const { dataUrl } = await parseMobileImageUpload(req.body, req.headers["content-type"], "avatar");
+
+    const user = await prisma.user.update({
+      where: { id: req.auth!.userId },
+      data: { staffAvatar: dataUrl },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        applicantId: true,
+        staffTier: true,
+        staffBio: true,
+        staffAvatar: true,
+        staffAvailable: true,
+        staffRating: true,
+        staffReviewCount: true,
+        staffHighlights: true,
+      }
+    });
+
+    res.json({ ok: true, user: shapeMobileUser(user) });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to upload avatar";
+    const status = /maximum size/i.test(message) ? 413 : 400;
+    res.status(status).json({ ok: false, error: message });
+  }
+});
+
+// ============================================
 // POST /api/v1/user/logout
 // ============================================
 r.post("/logout", (req, res) => {
@@ -887,9 +1058,226 @@ r.get("/session", async (req, res) => {
 });
 
 // ============================================
-// POST /api/v1/user/forgot-password
+// GET /api/v1/user/profile (authenticated)
 // ============================================
-r.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
+r.get("/profile", requireUser, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const user = await getWebProfileRecord(prisma, userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const profile = shapeWebUserProfile(user);
+    res.json({ ok: true, user: profile, data: profile });
+  } catch (error) {
+    console.error("[ERROR] Get user profile failed:", error);
+    res.status(500).json({ error: "Failed to get profile" });
+  }
+});
+
+// ============================================
+// PUT /api/v1/user/profile (authenticated)
+// ============================================
+r.put("/profile", requireUser, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const parsed = webProfileSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: "Invalid input",
+        details: parsed.error.issues.map((issue) => issue.message),
+      });
+    }
+
+    const input = parsed.data;
+    const applicantSpecificTouched =
+      input.dateOfBirth !== undefined ||
+      input.postcode !== undefined ||
+      input.preferredJobTypes !== undefined ||
+      input.experienceSummary !== undefined;
+
+    const updatedUser = await prisma.$transaction(async (tx) => {
+      const currentUser = await tx.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          phone: true,
+          applicantId: true,
+        },
+      });
+
+      if (!currentUser) {
+        return null;
+      }
+
+      const userUpdateData: Prisma.UserUpdateInput = {};
+
+      if (input.firstName !== undefined) userUpdateData.firstName = input.firstName;
+      if (input.lastName !== undefined) userUpdateData.lastName = input.lastName;
+      if (input.phone !== undefined) userUpdateData.phone = input.phone || null;
+      if (input.experienceSummary !== undefined) {
+        userUpdateData.staffBio = stripHtml(input.experienceSummary).trim() || null;
+      }
+
+      if (Object.keys(userUpdateData).length > 0) {
+        await tx.user.update({
+          where: { id: userId },
+          data: userUpdateData,
+        });
+      }
+
+      if (currentUser.applicantId || applicantSpecificTouched) {
+        const applicantUpdateData: Prisma.ApplicantUpdateInput = {};
+
+        if (input.firstName !== undefined) applicantUpdateData.firstName = input.firstName;
+        if (input.lastName !== undefined) applicantUpdateData.lastName = input.lastName;
+        if (input.phone !== undefined) applicantUpdateData.phone = input.phone || null;
+        if (input.dateOfBirth !== undefined) {
+          applicantUpdateData.dateOfBirth = input.dateOfBirth
+            ? parseDateOnlyToUtc(input.dateOfBirth)
+            : null;
+        }
+        if (input.postcode !== undefined) applicantUpdateData.postcode = input.postcode || null;
+        if (input.preferredJobTypes !== undefined) {
+          applicantUpdateData.preferredJobTypes = input.preferredJobTypes.length > 0
+            ? input.preferredJobTypes.join(",")
+            : null;
+        }
+        if (input.experienceSummary !== undefined) {
+          applicantUpdateData.bio = stripHtml(input.experienceSummary).trim() || null;
+        }
+
+        if (currentUser.applicantId) {
+          if (Object.keys(applicantUpdateData).length > 0) {
+            await tx.applicant.update({
+              where: { id: currentUser.applicantId },
+              data: applicantUpdateData,
+            });
+          }
+        } else {
+          const applicant = await tx.applicant.upsert({
+            where: { email: currentUser.email },
+            update: applicantUpdateData,
+            create: {
+              email: currentUser.email,
+              firstName: input.firstName ?? currentUser.firstName,
+              lastName: input.lastName ?? currentUser.lastName,
+              phone: input.phone ?? currentUser.phone ?? null,
+              dateOfBirth: input.dateOfBirth ? parseDateOnlyToUtc(input.dateOfBirth) : null,
+              postcode: input.postcode || null,
+              preferredJobTypes: input.preferredJobTypes && input.preferredJobTypes.length > 0
+                ? input.preferredJobTypes.join(",")
+                : null,
+              bio: input.experienceSummary
+                ? stripHtml(input.experienceSummary).trim() || null
+                : null,
+            },
+            select: { id: true },
+          });
+
+          await tx.user.update({
+            where: { id: userId },
+            data: { applicantId: applicant.id },
+          });
+        }
+      }
+
+      return getWebProfileRecord(tx, userId);
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const profile = shapeWebUserProfile(updatedUser);
+    res.json({ ok: true, user: profile, data: profile });
+  } catch (error) {
+    console.error("[ERROR] Update user profile failed:", error);
+    res.status(500).json({ error: "Failed to update profile" });
+  }
+});
+
+// ============================================
+// PUT /api/v1/user/change-password (authenticated)
+// ============================================
+r.put("/change-password", requireUser, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const parsed = changePasswordSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: "Invalid input",
+        details: parsed.error.issues.map((issue) => issue.message),
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const passwordMatches = await bcrypt.compare(parsed.data.currentPassword, user.passwordHash);
+
+    if (!passwordMatches) {
+      return res.status(400).json({ error: "Current password is incorrect" });
+    }
+
+    const passwordHash = await bcrypt.hash(parsed.data.newPassword, 12);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        failedAttempts: 0,
+        lockedUntil: null,
+        resetToken: null,
+        resetTokenExp: null,
+      },
+    });
+
+    console.log(`[USER] Password changed: ${redactEmail(user.email)}`);
+    res.json({ ok: true, message: "Password updated successfully." });
+  } catch (error) {
+    console.error("[ERROR] User password change failed:", error);
+    res.status(500).json({ error: "Failed to change password" });
+  }
+});
+
+// ============================================
+// POST /api/v1/user/forgot-password
+// POST /api/v1/user/mobile/forgot-password
+// ============================================
+r.post(["/forgot-password", "/mobile/forgot-password"], forgotPasswordLimiter, async (req, res) => {
   try {
     const parsed = forgotPasswordSchema.safeParse(req.body);
     
@@ -947,7 +1335,7 @@ r.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
 // ============================================
 // POST /api/v1/user/reset-password
 // ============================================
-r.post("/reset-password", async (req, res) => {
+r.post("/reset-password", resetPasswordLimiter, async (req, res) => {
   try {
     const parsed = resetPasswordSchema.safeParse(req.body);
     

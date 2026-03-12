@@ -370,15 +370,52 @@ r.delete('/quotes/:id', async (req, res) => {
   }
 });
 
+type AuthenticatedClient = {
+  id: string;
+  companyName: string;
+  canUseLegacyCompanyOwnership: boolean;
+};
+
 // ============================================
-// HELPER: look up the authenticated client's companyName
+// HELPER: look up the authenticated client and legacy ownership fallback
 // ============================================
-async function getClientCompanyName(clientId: string): Promise<string | null> {
+async function getAuthenticatedClient(clientId: string): Promise<AuthenticatedClient | null> {
   const client = await prisma.client.findUnique({
     where: { id: clientId },
-    select: { companyName: true }
+    select: { id: true, companyName: true }
   });
-  return client?.companyName ?? null;
+
+  if (!client?.companyName) {
+    return null;
+  }
+
+  const matchingClients = await prisma.client.count({
+    where: { companyName: client.companyName }
+  });
+
+  return {
+    id: client.id,
+    companyName: client.companyName,
+    // Temporary fallback for legacy jobs created before Job.clientId existed.
+    canUseLegacyCompanyOwnership: matchingClients === 1
+  };
+}
+
+function buildOwnedJobWhere(baseWhere: Record<string, unknown>, client: AuthenticatedClient) {
+  if (client.canUseLegacyCompanyOwnership) {
+    return {
+      ...baseWhere,
+      OR: [
+        { clientId: client.id },
+        { clientId: null, companyName: client.companyName }
+      ]
+    };
+  }
+
+  return {
+    ...baseWhere,
+    clientId: client.id
+  };
 }
 
 // Fire-and-forget: notify seekers who have previously applied to jobs with the same role
@@ -434,16 +471,15 @@ function shapeJob(job: any) {
 // ============================================
 r.get('/dashboard', async (req, res) => {
   try {
-    const clientId = req.auth!.userId;
-    const companyName = await getClientCompanyName(clientId);
+    const client = await getAuthenticatedClient(req.auth!.userId);
 
-    if (!companyName) {
+    if (!client) {
       return res.status(400).json({ ok: false, error: 'Client company not found' });
     }
 
     // Aggregate stats from all jobs
     const jobs = await prisma.job.findMany({
-      where: { companyName },
+      where: buildOwnedJobWhere({}, client),
       select: {
         id: true,
         status: true,
@@ -509,17 +545,16 @@ r.get('/dashboard', async (req, res) => {
 // ============================================
 r.get('/jobs', async (req, res) => {
   try {
-    const clientId = req.auth!.userId;
-    const companyName = await getClientCompanyName(clientId);
+    const client = await getAuthenticatedClient(req.auth!.userId);
 
-    if (!companyName) {
+    if (!client) {
       return res.status(400).json({ ok: false, error: 'Client company not found' });
     }
 
     const query = listClientJobsSchema.parse(req.query);
     const skip = (query.page - 1) * query.limit;
 
-    const where: any = { companyName };
+    const where: any = buildOwnedJobWhere({}, client);
     if (query.status) where.status = query.status;
 
     const [jobs, total] = await Promise.all([
@@ -561,22 +596,21 @@ r.get('/jobs', async (req, res) => {
 // ============================================
 r.get('/jobs/:id', async (req, res) => {
   try {
-    const clientId = req.auth!.userId;
-    const companyName = await getClientCompanyName(clientId);
+    const client = await getAuthenticatedClient(req.auth!.userId);
 
-    if (!companyName) {
+    if (!client) {
       return res.status(400).json({ ok: false, error: 'Client company not found' });
     }
 
-    const job = await prisma.job.findUnique({
-      where: { id: req.params.id },
+    const job = await prisma.job.findFirst({
+      where: buildOwnedJobWhere({ id: req.params.id }, client),
       include: {
         role: { select: { id: true, name: true } },
         _count: { select: { applications: true } }
       }
     });
 
-    if (!job || job.companyName !== companyName) {
+    if (!job) {
       return res.status(404).json({ ok: false, error: 'Job not found' });
     }
 
@@ -593,10 +627,9 @@ r.get('/jobs/:id', async (req, res) => {
 // ============================================
 r.post('/jobs', async (req, res) => {
   try {
-    const clientId = req.auth!.userId;
-    const companyName = await getClientCompanyName(clientId);
+    const client = await getAuthenticatedClient(req.auth!.userId);
 
-    if (!companyName) {
+    if (!client) {
       return res.status(400).json({ ok: false, error: 'Client company not found' });
     }
 
@@ -633,7 +666,8 @@ r.post('/jobs', async (req, res) => {
         shiftStart: data.shiftStart || null,
         shiftEnd: data.shiftEnd || null,
         staffNeeded: data.staffNeeded,
-        companyName,
+        clientId: client.id,
+        companyName: client.companyName,
         closingDate: data.closingDate ? new Date(data.closingDate) : null,
         publishedAt: data.status === 'OPEN' ? new Date() : null,
         roleId: data.roleId
@@ -644,7 +678,7 @@ r.post('/jobs', async (req, res) => {
       }
     });
 
-    console.log(`[JOB] Client ${clientId} created job ${job.id}: ${job.title}`);
+    console.log(`[JOB] Client ${client.id} created job ${job.id}: ${job.title}`);
 
     // Push notification: notify seekers interested in this role when job is published
     if (job.status === 'OPEN') {
@@ -665,15 +699,16 @@ r.post('/jobs', async (req, res) => {
 // ============================================
 r.put('/jobs/:id', async (req, res) => {
   try {
-    const clientId = req.auth!.userId;
-    const companyName = await getClientCompanyName(clientId);
+    const client = await getAuthenticatedClient(req.auth!.userId);
 
-    if (!companyName) {
+    if (!client) {
       return res.status(400).json({ ok: false, error: 'Client company not found' });
     }
 
-    const existing = await prisma.job.findUnique({ where: { id: req.params.id } });
-    if (!existing || existing.companyName !== companyName) {
+    const existing = await prisma.job.findFirst({
+      where: buildOwnedJobWhere({ id: req.params.id }, client)
+    });
+    if (!existing) {
       return res.status(404).json({ ok: false, error: 'Job not found' });
     }
 
@@ -720,6 +755,8 @@ r.put('/jobs/:id', async (req, res) => {
         ...(data.staffNeeded && { staffNeeded: data.staffNeeded }),
         ...(data.closingDate !== undefined && { closingDate: data.closingDate ? new Date(data.closingDate) : null }),
         ...(data.roleId && { roleId: data.roleId }),
+        clientId: client.id,
+        companyName: client.companyName,
         publishedAt
       },
       include: {
@@ -728,7 +765,7 @@ r.put('/jobs/:id', async (req, res) => {
       }
     });
 
-    console.log(`[JOB] Client ${clientId} updated job ${job.id}`);
+    console.log(`[JOB] Client ${client.id} updated job ${job.id}`);
 
     // Push notification: notify seekers when a draft job is published
     if (data.status === 'OPEN' && existing.status !== 'OPEN') {
@@ -749,15 +786,16 @@ r.put('/jobs/:id', async (req, res) => {
 // ============================================
 r.post('/jobs/:id/close', async (req, res) => {
   try {
-    const clientId = req.auth!.userId;
-    const companyName = await getClientCompanyName(clientId);
+    const client = await getAuthenticatedClient(req.auth!.userId);
 
-    if (!companyName) {
+    if (!client) {
       return res.status(400).json({ ok: false, error: 'Client company not found' });
     }
 
-    const existing = await prisma.job.findUnique({ where: { id: req.params.id } });
-    if (!existing || existing.companyName !== companyName) {
+    const existing = await prisma.job.findFirst({
+      where: buildOwnedJobWhere({ id: req.params.id }, client)
+    });
+    if (!existing) {
       return res.status(404).json({ ok: false, error: 'Job not found' });
     }
 
@@ -767,14 +805,14 @@ r.post('/jobs/:id/close', async (req, res) => {
 
     const job = await prisma.job.update({
       where: { id: req.params.id },
-      data: { status: 'CLOSED' },
+      data: { status: 'CLOSED', clientId: client.id, companyName: client.companyName },
       include: {
         role: { select: { id: true, name: true } },
         _count: { select: { applications: true } }
       }
     });
 
-    console.log(`[JOB] Client ${clientId} closed job ${job.id}`);
+    console.log(`[JOB] Client ${client.id} closed job ${job.id}`);
 
     const shaped = shapeJob(job);
     res.json({ ok: true, job: shaped, data: shaped });
@@ -789,16 +827,17 @@ r.post('/jobs/:id/close', async (req, res) => {
 // ============================================
 r.get('/jobs/:id/applications', async (req, res) => {
   try {
-    const clientId = req.auth!.userId;
-    const companyName = await getClientCompanyName(clientId);
+    const client = await getAuthenticatedClient(req.auth!.userId);
 
-    if (!companyName) {
+    if (!client) {
       return res.status(400).json({ ok: false, error: 'Client company not found' });
     }
 
     // Verify job belongs to client
-    const job = await prisma.job.findUnique({ where: { id: req.params.id } });
-    if (!job || job.companyName !== companyName) {
+    const job = await prisma.job.findFirst({
+      where: buildOwnedJobWhere({ id: req.params.id }, client)
+    });
+    if (!job) {
       return res.status(404).json({ ok: false, error: 'Job not found' });
     }
 
@@ -873,16 +912,17 @@ r.get('/jobs/:id/applications', async (req, res) => {
 // ============================================
 r.put('/jobs/:jobId/applications/:appId/status', async (req, res) => {
   try {
-    const clientId = req.auth!.userId;
-    const companyName = await getClientCompanyName(clientId);
+    const client = await getAuthenticatedClient(req.auth!.userId);
 
-    if (!companyName) {
+    if (!client) {
       return res.status(400).json({ ok: false, error: 'Client company not found' });
     }
 
     // Verify job belongs to client
-    const job = await prisma.job.findUnique({ where: { id: req.params.jobId } });
-    if (!job || job.companyName !== companyName) {
+    const job = await prisma.job.findFirst({
+      where: buildOwnedJobWhere({ id: req.params.jobId }, client)
+    });
+    if (!job) {
       return res.status(404).json({ ok: false, error: 'Job not found' });
     }
 
@@ -949,7 +989,7 @@ r.put('/jobs/:jobId/applications/:appId/status', async (req, res) => {
       ).catch(err => console.error('[PUSH]', err));
     }
 
-    console.log(`[JOB] Client ${clientId} updated application ${application.id} to ${parsed.data.status}`);
+    console.log(`[JOB] Client ${client.id} updated application ${application.id} to ${parsed.data.status}`);
 
     const shaped = {
       id: application.id,
@@ -976,17 +1016,16 @@ r.put('/jobs/:jobId/applications/:appId/status', async (req, res) => {
 // ============================================
 r.get('/applications/:appId', async (req, res) => {
   try {
-    const clientId = req.auth!.userId;
-    const companyName = await getClientCompanyName(clientId);
+    const client = await getAuthenticatedClient(req.auth!.userId);
 
-    if (!companyName) {
+    if (!client) {
       return res.status(400).json({ ok: false, error: 'Client company not found' });
     }
 
     const application = await prisma.jobApplication.findFirst({
       where: {
         id: req.params.appId,
-        job: { companyName }
+        job: buildOwnedJobWhere({}, client)
       },
       include: {
         user: {

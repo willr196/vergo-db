@@ -39,8 +39,43 @@ function hasThemeColor(html) {
   return /<meta\b[^>]*name=["']theme-color["'][^>]*content=["'][^"']+["'][^>]*>/i.test(html);
 }
 
+function hasViewport(html) {
+  return /<meta\b[^>]*name=["']viewport["'][^>]*content=["']width=device-width,\s*initial-scale=1["'][^>]*>/i.test(html);
+}
+
+function hasDescription(html) {
+  return /<meta\b[^>]*name=["']description["'][^>]*content=["'][^"']+["'][^>]*>/i.test(html);
+}
+
 function hasCanonical(html) {
   return /<link\b[^>]*rel=["']canonical["'][^>]*href=["'][^"']+["'][^>]*>/i.test(html);
+}
+
+function hasFavicon(html) {
+  return /<link\b[^>]*rel=["']icon["'][^>]*href=["']\/favicon\.ico["'][^>]*>/i.test(html);
+}
+
+function hasOpenGraph(html, property) {
+  const escaped = property.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`<meta\\b[^>]*property=["']${escaped}["'][^>]*content=["'][^"']+["'][^>]*>`, 'i').test(html);
+}
+
+function validateSharedMeta(html) {
+  /** @type {string[]} */
+  const issues = [];
+
+  if (!hasDescription(html)) issues.push('missing description meta');
+  if (!hasViewport(html)) issues.push('missing standard viewport meta');
+  if (!hasThemeColor(html)) issues.push('missing theme-color meta');
+  if (!hasCanonical(html)) issues.push('missing canonical link');
+  if (!hasFavicon(html)) issues.push('missing favicon link');
+  if (!hasOpenGraph(html, 'og:title')) issues.push('missing og:title meta');
+  if (!hasOpenGraph(html, 'og:description')) issues.push('missing og:description meta');
+  if (!hasOpenGraph(html, 'og:image')) issues.push('missing og:image meta');
+  if (!hasOpenGraph(html, 'og:url')) issues.push('missing og:url meta');
+  if (!hasOpenGraph(html, 'og:type')) issues.push('missing og:type meta');
+
+  return issues;
 }
 
 function hasPublicShell(html) {
@@ -89,12 +124,9 @@ function isLegacyAlias(rel) {
 }
 
 function validatePublicPage(rel, html) {
-  /** @type {string[]} */
-  const issues = [];
+  const issues = validateSharedMeta(html);
 
   if (!hasTitle(html)) issues.push('missing non-empty <title>');
-  if (!hasThemeColor(html)) issues.push('missing theme-color meta');
-  if (!hasCanonical(html)) issues.push('missing canonical link');
   if (!hasHeaderShellMount(html)) issues.push('missing #site-header shell mount');
   if (!hasFooterShellMount(html)) issues.push('missing footer[role="contentinfo"] shell mount');
   if (!hasPublicShell(html)) issues.push('missing /vergo-public-shell.js');
@@ -105,14 +137,12 @@ function validatePublicPage(rel, html) {
 }
 
 function validateAdminPage(rel, html) {
-  /** @type {string[]} */
-  const issues = [];
+  const issues = validateSharedMeta(html);
 
   const titleMatch = html.match(/<title>([^<]*)<\/title>/i);
   const title = titleMatch ? titleMatch[1].trim() : '';
 
   if (!title) issues.push('missing non-empty <title>');
-  if (title && !/VERGO Admin$/i.test(title)) issues.push('title should end with "VERGO Admin"');
   if (!hasNoindexRobots(html)) issues.push('missing noindex robots meta');
   if (!hasAdminSharedCss(html)) issues.push('missing /pages/css/admin-shared.css');
   if (!hasAdminCore(html)) issues.push('missing /js/admin-core.js');

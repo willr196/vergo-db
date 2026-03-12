@@ -412,3 +412,209 @@ test('client mobile refresh detects token reuse and revokes all active tokens', 
     prismaAny.refreshToken.create = originalCreate;
   }
 });
+
+test('user profile update links applicant data and returns web profile payload', async () => {
+  setRequiredEnv();
+
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const express = require('express');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const userAuth = require('../routes/userAuth').default;
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { prisma } = require('../prisma');
+
+  const prismaAny = prisma as any;
+  const originalTransaction = prismaAny.$transaction;
+
+  const userUpdateCalls: any[] = [];
+  let applicantUpsertCalled = false;
+  let findUniqueCount = 0;
+
+  prismaAny.$transaction = async (callback: any) => {
+    const tx = {
+      user: {
+        findUnique: async () => {
+          findUniqueCount += 1;
+
+          if (findUniqueCount === 1) {
+            return {
+              id: 'user-profile-1',
+              email: 'alice@example.com',
+              firstName: 'Alice',
+              lastName: 'Brown',
+              phone: null,
+              applicantId: null,
+            };
+          }
+
+          return {
+            id: 'user-profile-1',
+            email: 'alice@example.com',
+            firstName: 'Alicia',
+            lastName: 'Brown',
+            phone: '07123456789',
+            applicantId: 'applicant-1',
+            staffAvatar: null,
+            staffBio: 'Five years across premium events',
+            applicant: {
+              id: 'applicant-1',
+              firstName: 'Alicia',
+              lastName: 'Brown',
+              phone: '07123456789',
+              dateOfBirth: new Date('1994-03-20T00:00:00.000Z'),
+              postcode: 'E1 6AN',
+              preferredJobTypes: 'Corporate Events,Film & TV',
+              bio: 'Five years across premium events',
+              yearsExperience: 5,
+              applications: [
+                {
+                  roles: [
+                    { role: { name: 'Bartender' } },
+                    { role: { name: 'Event Host' } },
+                  ],
+                },
+              ],
+            },
+          };
+        },
+        update: async (args: any) => {
+          userUpdateCalls.push(args);
+          return { id: 'user-profile-1', ...args.data };
+        },
+      },
+      applicant: {
+        upsert: async (args: any) => {
+          applicantUpsertCalled = true;
+          assert.equal(args.where.email, 'alice@example.com');
+          assert.equal(args.create.postcode, 'E1 6AN');
+          assert.equal(args.create.preferredJobTypes, 'Corporate Events,Film & TV');
+          return { id: 'applicant-1' };
+        },
+      },
+    };
+
+    return callback(tx);
+  };
+
+  const app = express();
+  app.use(express.json());
+  app.use((req: any, _res: any, next: any) => {
+    req.session = {
+      isUser: true,
+      userId: 'user-profile-1',
+      userLoginTime: Date.now(),
+      userLastActivity: Date.now(),
+      destroy: () => {},
+    };
+    next();
+  });
+  app.use('/api/v1/user', userAuth);
+
+  try {
+    const response = await inject(app, {
+      method: 'PUT',
+      url: '/api/v1/user/profile',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        firstName: 'Alicia',
+        phone: '07123456789',
+        postcode: 'E1 6AN',
+        dateOfBirth: '1994-03-20',
+        preferredJobTypes: ['Corporate Events', 'Film & TV'],
+        experienceSummary: 'Five years across premium events',
+      }),
+    });
+
+    assert.equal(response.statusCode, 200);
+    const body = JSON.parse(response.body || '{}') as any;
+
+    assert.equal(body.ok, true);
+    assert.equal(body.data.firstName, 'Alicia');
+    assert.equal(body.data.postcode, 'E1 6AN');
+    assert.equal(body.data.dateOfBirth, '1994-03-20');
+    assert.deepEqual(body.data.preferredJobTypes, ['Corporate Events', 'Film & TV']);
+    assert.deepEqual(body.data.registeredRoles, ['Bartender', 'Event Host']);
+    assert.equal(applicantUpsertCalled, true);
+    assert.equal(userUpdateCalls.length, 2);
+    assert.equal(userUpdateCalls[1].data.applicantId, 'applicant-1');
+  } finally {
+    prismaAny.$transaction = originalTransaction;
+  }
+});
+
+test('client change-password verifies the current password before updating the hash', async () => {
+  setRequiredEnv();
+
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const express = require('express');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const bcrypt = require('bcrypt');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const clientAuth = require('../routes/clientAuth').default;
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { prisma } = require('../prisma');
+
+  const prismaAny = prisma as any;
+  const originalFindUnique = prismaAny.client.findUnique;
+  const originalUpdate = prismaAny.client.update;
+
+  const currentPassword = 'CurrentPass123';
+  const nextPassword = 'NewSecurePass456';
+  const currentHash = await bcrypt.hash(currentPassword, 4);
+  let updatedHash = '';
+
+  prismaAny.client.findUnique = async (args: any) => {
+    assert.equal(args.where.id, 'client-password-1');
+    return {
+      id: 'client-password-1',
+      email: 'client@example.com',
+      companyName: 'Acme Events',
+      passwordHash: currentHash,
+    };
+  };
+
+  prismaAny.client.update = async (args: any) => {
+    updatedHash = args.data.passwordHash;
+    assert.equal(args.where.id, 'client-password-1');
+    assert.equal(args.data.failedAttempts, 0);
+    assert.equal(args.data.lockedUntil, null);
+    return { id: 'client-password-1' };
+  };
+
+  const app = express();
+  app.use(express.json());
+  app.use((req: any, _res: any, next: any) => {
+    req.session = {
+      clientId: 'client-password-1',
+      isClient: true,
+      clientLoginTime: Date.now(),
+      clientLastActivity: Date.now(),
+      destroy: () => {},
+    };
+    next();
+  });
+  app.use('/api/v1/client', clientAuth);
+
+  try {
+    const response = await inject(app, {
+      method: 'PUT',
+      url: '/api/v1/client/change-password',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        currentPassword,
+        newPassword: nextPassword,
+      }),
+    });
+
+    assert.equal(response.statusCode, 200);
+    const body = JSON.parse(response.body || '{}') as any;
+
+    assert.equal(body.ok, true);
+    assert.ok(updatedHash.length > 0);
+    assert.notEqual(updatedHash, currentHash);
+    assert.equal(await bcrypt.compare(nextPassword, updatedHash), true);
+  } finally {
+    prismaAny.client.findUnique = originalFindUnique;
+    prismaAny.client.update = originalUpdate;
+  }
+});

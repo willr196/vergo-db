@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 async function main() {
   const username = process.env.ADMIN_USERNAME || 'admin';
   const password = process.env.ADMIN_PASSWORD;
+  const strongPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{12,}$/;
 
   if (!password) {
     console.error('\n❌ ERROR: ADMIN_PASSWORD environment variable is required\n');
@@ -17,8 +18,8 @@ async function main() {
   }
 
   // Validate password strength
-  if (password.length < 8) {
-    throw new Error('Password must be at least 8 characters long');
+  if (!strongPasswordPattern.test(password)) {
+    throw new Error('Password must be at least 12 characters and include uppercase, lowercase, and a number');
   }
 
   const hash = await bcrypt.hash(password, 12); // 12 rounds (more secure)

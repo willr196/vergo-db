@@ -63,6 +63,50 @@
     header.innerHTML = navHTML;
   }
 
+  const injectProfileLink = async () => {
+    const menu = document.getElementById('nav-menu');
+    if (!menu || menu.querySelector('[data-nav-profile]')) {
+      return;
+    }
+
+    const checks = [
+      { url: '/api/v1/user/session', key: 'user' },
+      { url: '/api/v1/client/session', key: 'client' },
+    ];
+
+    for (const check of checks) {
+      try {
+        const res = await fetch(check.url, {
+          credentials: 'include',
+          cache: 'no-store',
+        });
+
+        if (!res.ok) {
+          continue;
+        }
+
+        const payload = await res.json().catch(() => null);
+        const data = payload && typeof payload === 'object' && 'data' in payload ? payload.data : payload;
+
+        if (!data || !data.authenticated || !data[check.key]) {
+          continue;
+        }
+
+        const item = document.createElement('li');
+        item.innerHTML = `<a href="/profile.html" data-nav-profile${isActive('/profile') ? ' aria-current="page"' : ''}>Profile</a>`;
+        item.querySelector('a')?.addEventListener('click', () => {
+          if (window.innerWidth <= 960 && window.vergoNav) {
+            window.vergoNav.closeMenu();
+          }
+        });
+        menu.appendChild(item);
+        return;
+      } catch (_error) {
+        // Ignore auth lookup failures; the shared nav still renders normally.
+      }
+    }
+  };
+
   // Inject shared navigation font if missing
   if (!document.getElementById('vergo-font-manrope')) {
     const fontLink = document.createElement('link');
@@ -71,6 +115,8 @@
     fontLink.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap';
     document.head.appendChild(fontLink);
   }
+
+  injectProfileLink();
 
   // Navigation functions
   window.vergoNav = {

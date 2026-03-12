@@ -24,12 +24,12 @@ function normalizeRateLimitIdentity(value: unknown): string {
 // RATE LIMITING
 // ============================================
 const loginLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000,
-  max: 10,
+  windowMs: 15 * 60 * 1000,
+  max: 5,
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true,
-  message: { error: "Too many login attempts. Try again in 10 minutes." },
+  message: { error: "Too many login attempts. Try again in 15 minutes." },
   keyGenerator: (req) => {
     const username = normalizeRateLimitIdentity(req.body?.username);
     return `${req.ip}-${username}`;

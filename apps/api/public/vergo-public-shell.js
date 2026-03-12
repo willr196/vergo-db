@@ -39,6 +39,7 @@
       '/job-detail',
       '/user-dashboard',
     ],
+    profile: ['/profile'],
     pricing: ['/pricing'],
     contact: ['/contact'],
     join: ['/apply', '/staff-roles', '/user-login', '/user-register'],
@@ -62,6 +63,74 @@
     fontLink.rel = 'stylesheet';
     fontLink.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap';
     document.head.appendChild(fontLink);
+  };
+
+  const injectProfileLinks = async () => {
+    if (!header) {
+      return;
+    }
+
+    const checks = [
+      { url: '/api/v1/user/session', key: 'user' },
+      { url: '/api/v1/client/session', key: 'client' },
+    ];
+
+    for (const check of checks) {
+      try {
+        const res = await fetch(check.url, {
+          credentials: 'include',
+          cache: 'no-store',
+        });
+
+        if (!res.ok) {
+          continue;
+        }
+
+        const payload = await res.json().catch(() => null);
+        const data = payload && typeof payload === 'object' && 'data' in payload ? payload.data : payload;
+
+        if (!data || !data.authenticated || !data[check.key]) {
+          continue;
+        }
+
+        const profileHref = '/profile.html';
+        const desktopNav = header.querySelector('.site-nav ul');
+        if (desktopNav && !desktopNav.querySelector('[data-nav-profile]')) {
+          const profileItem = document.createElement('li');
+          profileItem.innerHTML = `<a href="${profileHref}" data-nav-profile${withCurrent('profile')}>Profile</a>`;
+          desktopNav.appendChild(profileItem);
+        }
+
+        const mobileNav = header.querySelector('#mobile-menu nav');
+        if (mobileNav && !mobileNav.querySelector('[data-nav-profile]')) {
+          const mobileLink = document.createElement('a');
+          mobileLink.href = profileHref;
+          mobileLink.setAttribute('data-nav-profile', 'true');
+          if (isCurrent('profile')) {
+            mobileLink.setAttribute('aria-current', 'page');
+          }
+          mobileLink.textContent = 'Profile';
+          mobileLink.addEventListener('click', () => {
+            const toggle = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (toggle) {
+              toggle.classList.remove('is-active');
+              toggle.setAttribute('aria-expanded', 'false');
+            }
+            if (mobileMenu) {
+              mobileMenu.classList.remove('is-open');
+              mobileMenu.hidden = true;
+            }
+            document.body.classList.remove('menu-open');
+          });
+          mobileNav.appendChild(mobileLink);
+        }
+
+        return;
+      } catch (_error) {
+        // Ignore auth lookup failures; public nav should still render.
+      }
+    }
   };
 
   const headerHTML = `
@@ -177,6 +246,8 @@
     footer.setAttribute('role', 'contentinfo');
     footer.innerHTML = footerHTML;
   }
+
+  injectProfileLinks();
 
   const button = document.getElementById('mobile-menu-button');
   const menu = document.getElementById('mobile-menu');

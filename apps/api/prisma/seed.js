@@ -8,14 +8,15 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 async function main() {
     const username = process.env.ADMIN_USERNAME || 'admin';
     const password = process.env.ADMIN_PASSWORD;
+    const strongPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{12,}$/;
     if (!password) {
         console.error('\n❌ ERROR: ADMIN_PASSWORD environment variable is required\n');
         console.error('To create an admin user, run:');
         console.error('  ADMIN_PASSWORD=your_secure_password npm run seed\n');
         process.exit(1);
     }
-    if (password.length < 8) {
-        console.error('❌ ERROR: Password must be at least 8 characters long');
+    if (!strongPasswordPattern.test(password)) {
+        console.error('❌ ERROR: Password must be at least 12 characters and include uppercase, lowercase, and a number');
         process.exit(1);
     }
     const hash = await bcrypt_1.default.hash(password, 12);
