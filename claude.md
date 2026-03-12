@@ -27,3 +27,19 @@ Monorepo with three apps:
 - Always run type checking after mobile changes
 - Test API changes against both web session auth AND mobile JWT auth
 - Prisma schema is source of truth for data model
+
+## Admin Panel
+- Location: apps/api/public/
+- Pages: admin.html (roster/dashboard), admin-jobs.html, admin-job-applications.html, admin-clients.html
+- Backend routes: apps/api/src/routes/adminClients.ts, adminJobs.ts etc.
+- Auth: session-based (web), same as the rest of the web platform
+- Stack: vanilla HTML/CSS/JS (no framework), dark theme (#0a0a0a bg, #D4AF37 gold accent)
+- Chart library to use: Chart.js from cdnjs CDN
+```
+
+---
+
+**Step 3 — Run it:**
+```
+/clear
+/build-admin
