@@ -16,7 +16,7 @@ import {
 const TRUE_STRING = 'true';
 const FALSE_STRING = 'false';
 
-function coerceBoolean(value: unknown): boolean | undefined {
+export function coerceBoolean(value: unknown): boolean | undefined {
   // Handle actual booleans
   if (value === true || value === false) {
     return value;

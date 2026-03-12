@@ -3,6 +3,7 @@
  */
 
 import apiClient from './client';
+import { coerceBoolean } from './normalizers';
 import type {
   Booking,
   BookingDetail,
@@ -203,7 +204,7 @@ function normalizeStaff(staff: BackendStaffRecord): MarketplaceStaff {
     reviewCount: staff.reviewCount ?? staff.staffReviewCount ?? 0,
     highlights: staff.highlights ?? staff.staffHighlights ?? null,
     hourlyRate: staff.hourlyRate ?? null,
-    isBookable: Boolean(staff.isBookable),
+    isBookable: coerceBoolean(staff.isBookable) ?? false,
   };
 }
 
@@ -334,20 +335,20 @@ export const marketplaceApi = {
 
   async getPricing(): Promise<PricingPayload> {
     const response = await apiClient.get<ApiEnvelope<{
-      plans?: Array<{
+      plans?: {
         tier: SubscriptionTier;
         name: string;
         weeklyPrice: number;
         monthlyPrice: number | null;
         annualPrice: number | null;
         features: string[] | string | null;
-      }>;
-      hourlyRates?: Array<{
+      }[];
+      hourlyRates?: {
         clientTier: SubscriptionTier;
         staffTier: StaffTier;
         hourlyRate: number;
         isBookable: boolean;
-      }>;
+      }[];
     }>>('/api/v1/marketplace/pricing');
 
     if (!response.data.ok) {
@@ -373,7 +374,7 @@ export const marketplaceApi = {
         clientTier: normalizeSubscriptionTier(rate.clientTier),
         staffTier: normalizeTier(rate.staffTier),
         hourlyRate: rate.hourlyRate,
-        isBookable: rate.isBookable,
+        isBookable: coerceBoolean(rate.isBookable) ?? false,
       })),
     };
   },

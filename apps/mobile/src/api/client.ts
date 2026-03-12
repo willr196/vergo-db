@@ -5,6 +5,7 @@
 
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import { coerceBoolean } from './normalizers';
 import { logger } from '../utils/logger';
 
 // VERGO Backend API
@@ -123,11 +124,10 @@ apiClient.interceptors.response.use(
               code: 'TOKEN_REFRESH_FAILED',
             };
         const isRefreshTokenReplay = formattedRefreshError.code === 'REFRESH_TOKEN_REUSE_DETECTED';
-        const forceLogout = Boolean(
-          formattedRefreshError.forceLogout ||
-          formattedRefreshError.reauthRequired ||
-          isRefreshTokenReplay
-        );
+        const forceLogout =
+          (coerceBoolean(formattedRefreshError.forceLogout) ?? false) ||
+          (coerceBoolean(formattedRefreshError.reauthRequired) ?? false) ||
+          isRefreshTokenReplay;
 
         await clearAuthTokens();
 
@@ -176,8 +176,8 @@ function formatError(error: AxiosError): ApiError {
       code,
       status: error.response.status,
       details: data.details as Record<string, unknown>,
-      reauthRequired: Boolean(data.reauthRequired) || isRefreshTokenReplay,
-      forceLogout: Boolean(data.forceLogout) || isRefreshTokenReplay,
+      reauthRequired: (coerceBoolean(data.reauthRequired) ?? false) || isRefreshTokenReplay,
+      forceLogout: (coerceBoolean(data.forceLogout) ?? false) || isRefreshTokenReplay,
     };
   } else if (error.request) {
     // Request made but no response

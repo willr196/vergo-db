@@ -4,7 +4,7 @@
  */
 
 import apiClient from './client';
-import { normalizeApplicationStatus, normalizeJob, toBackendApplicationStatus } from './normalizers';
+import { coerceBoolean, normalizeApplicationStatus, normalizeJob, toBackendApplicationStatus } from './normalizers';
 import type { Application, ApplicationStatus, Job } from '../types';
 
 type BackendApplication = Omit<Application, 'status' | 'job'> & {
@@ -157,7 +157,7 @@ export const applicationsApi = {
         `/api/v1/mobile/job-applications/check/${jobId}`
       );
 
-      return response.data.applied ?? response.data.hasApplied ?? false;
+      return coerceBoolean(response.data.applied) ?? coerceBoolean(response.data.hasApplied) ?? false;
     } catch {
       return false;
     }

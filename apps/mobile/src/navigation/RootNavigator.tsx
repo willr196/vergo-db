@@ -9,7 +9,6 @@ import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import type { LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import * as Notifications from 'expo-notifications';
 
 import { colors, typography } from '../theme';
 import {
@@ -24,6 +23,7 @@ import {
   registerForPushNotifications,
   addNotificationReceivedListener,
   addNotificationResponseListener,
+  getLastNotificationResponse,
 } from '../utils/notifications';
 import { navigationRef } from './navigationRef';
 import type { RootStackParamList, JobSeekerTabParamList, ClientTabParamList, UserType } from '../types';
@@ -93,7 +93,7 @@ function readStringDataField(data: unknown, key: string): string | undefined {
 }
 
 function handleNotificationTap(
-  notification: Notifications.Notification,
+  notification: import('expo-notifications').Notification,
   userType: UserType | null
 ) {
   if (!navigationRef.isReady()) return;
@@ -399,7 +399,7 @@ export function RootNavigator() {
     });
 
     // Handle the case where the app was launched from a killed state via a notification tap
-    Notifications.getLastNotificationResponseAsync().then((response) => {
+    getLastNotificationResponse().then((response) => {
       if (response) {
         handleNotificationTap(response.notification, userTypeRef.current);
       }

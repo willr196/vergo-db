@@ -4,23 +4,76 @@
  * token registration, and notification listeners.
  */
 
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { authApi } from '../api';
 import { logger } from './logger';
 
-// Configure how notifications are displayed when the app is in the foreground
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+type NotificationsModule = typeof import('expo-notifications');
+type DeviceModule = typeof import('expo-device');
+type Notification = import('expo-notifications').Notification;
+type NotificationResponse = import('expo-notifications').NotificationResponse;
+type ExpoConstantsLike = {
+  expoConfig?: {
+    extra?: {
+      eas?: {
+        projectId?: string;
+      };
+    };
+  };
+  easConfig?: {
+    projectId?: string;
+  };
+};
+
+let notificationHandlerConfigured = false;
+
+function loadNotificationsModule(): NotificationsModule | null {
+  try {
+    return require('expo-notifications') as NotificationsModule;
+  } catch (error) {
+    logger.warn('expo-notifications is unavailable in this client:', error);
+    return null;
+  }
+}
+
+function loadDeviceModule(): DeviceModule | null {
+  try {
+    return require('expo-device') as DeviceModule;
+  } catch (error) {
+    logger.warn('expo-device is unavailable in this client:', error);
+    return null;
+  }
+}
+
+function loadConstantsModule(): ExpoConstantsLike | null {
+  try {
+    return require('expo-constants').default as ExpoConstantsLike;
+  } catch (error) {
+    logger.warn('expo-constants is unavailable in this client:', error);
+    return null;
+  }
+}
+
+function ensureNotificationHandlerConfigured(notifications: NotificationsModule): boolean {
+  if (notificationHandlerConfigured) return true;
+
+  try {
+    notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+    notificationHandlerConfigured = true;
+    return true;
+  } catch (error) {
+    logger.warn('Failed to configure notification handler:', error);
+    return false;
+  }
+}
 
 /**
  * Request notification permissions and register the device push token.
@@ -28,6 +81,16 @@ Notifications.setNotificationHandler({
  * or if running on a simulator.
  */
 export async function registerForPushNotifications(): Promise<void> {
+  const Notifications = loadNotificationsModule();
+  const Device = loadDeviceModule();
+  const Constants = loadConstantsModule();
+
+  if (!Notifications || !Device) {
+    return;
+  }
+
+  ensureNotificationHandlerConfigured(Notifications);
+
   if (!Device.isDevice) {
     logger.warn('Push notifications are only supported on physical devices.');
     return;
@@ -59,8 +122,8 @@ export async function registerForPushNotifications(): Promise<void> {
 
   // Get the Expo push token
   const projectId =
-    Constants.expoConfig?.extra?.eas?.projectId ??
-    Constants.easConfig?.projectId;
+    Constants?.expoConfig?.extra?.eas?.projectId ??
+    Constants?.easConfig?.projectId;
 
   let expoPushToken: string;
   try {
@@ -89,10 +152,22 @@ export async function registerForPushNotifications(): Promise<void> {
  * Returns a cleanup function — call it in useEffect cleanup.
  */
 export function addNotificationReceivedListener(
-  handler: (notification: Notifications.Notification) => void
+  handler: (notification: Notification) => void
 ): () => void {
-  const sub = Notifications.addNotificationReceivedListener(handler);
-  return () => sub.remove();
+  const Notifications = loadNotificationsModule();
+  if (!Notifications) {
+    return () => {};
+  }
+
+  ensureNotificationHandlerConfigured(Notifications);
+
+  try {
+    const sub = Notifications.addNotificationReceivedListener(handler);
+    return () => sub.remove();
+  } catch (error) {
+    logger.warn('Failed to attach notification received listener:', error);
+    return () => {};
+  }
 }
 
 /**
@@ -100,8 +175,36 @@ export function addNotificationReceivedListener(
  * Returns a cleanup function — call it in useEffect cleanup.
  */
 export function addNotificationResponseListener(
-  handler: (response: Notifications.NotificationResponse) => void
+  handler: (response: NotificationResponse) => void
 ): () => void {
-  const sub = Notifications.addNotificationResponseReceivedListener(handler);
-  return () => sub.remove();
+  const Notifications = loadNotificationsModule();
+  if (!Notifications) {
+    return () => {};
+  }
+
+  ensureNotificationHandlerConfigured(Notifications);
+
+  try {
+    const sub = Notifications.addNotificationResponseReceivedListener(handler);
+    return () => sub.remove();
+  } catch (error) {
+    logger.warn('Failed to attach notification response listener:', error);
+    return () => {};
+  }
+}
+
+export async function getLastNotificationResponse(): Promise<NotificationResponse | null> {
+  const Notifications = loadNotificationsModule();
+  if (!Notifications) {
+    return null;
+  }
+
+  ensureNotificationHandlerConfigured(Notifications);
+
+  try {
+    return await Notifications.getLastNotificationResponseAsync();
+  } catch (error) {
+    logger.warn('Failed to get last notification response:', error);
+    return null;
+  }
 }
