@@ -37,16 +37,29 @@ function AppContent() {
     // Timeout to prevent infinite loading
     const timeout = setTimeout(() => {
       if (isMounted && isInitializingRef.current) {
-        console.warn('Auth check timed out, proceeding without auth');
+        console.log('[VERGO] Auth check timed out after 5s');
         setIsInitializing(false);
       }
     }, AUTH_TIMEOUT);
     
     async function initialize() {
       try {
+        console.log('[VERGO] Pinging backend...');
+        try {
+          const health = await fetch('https://vergo-app.fly.dev/health', {
+            method: 'GET',
+            signal: AbortSignal.timeout(5000),
+          });
+          console.log('[VERGO] Backend health:', health.status);
+        } catch (e) {
+          console.log('[VERGO] Backend unreachable:', e);
+        }
+
+        console.log('[VERGO] Starting auth check...');
         await checkAuth();
+        console.log('[VERGO] Auth check complete');
       } catch (error) {
-        console.warn('Auth check failed:', error);
+        console.log('[VERGO] Auth check failed:', error);
         // Don't block app loading on auth failure
         if (isMounted) {
           setInitError('Failed to restore session');

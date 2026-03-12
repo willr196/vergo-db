@@ -28,7 +28,7 @@ export const JOB_ROLE_FILTERS: readonly { value: JobRole | ''; label: string }[]
 export const HOURLY_RATE_OPTIONS: readonly number[] = [0, 12, 15, 18, 20, 25] as const;
 
 // Auth initialization timeout (milliseconds)
-export const AUTH_TIMEOUT = 10000;
+export const AUTH_TIMEOUT = 5000;
 
 // API request timeout (milliseconds)
 export const API_TIMEOUT = 30000;

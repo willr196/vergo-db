@@ -20,17 +20,18 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Avatar, ErrorState, EmptyState } from '../../components';
 import { useAuthStore, useUIStore, selectClient } from '../../store';
-import { applicationsApi } from '../../api';
+import { clientApi } from '../../api';
 import { logger } from '../../utils/logger';
 import type { RootStackParamList, ClientTabParamList } from '../../types';
 
-interface JobStats {
-  jobsPosted: number;
-  staffHired: number;
+interface MarketplaceStats {
+  totalQuotes: number;
+  activeQuotes: number;
+  completedQuotes: number;
 }
 
 type Props = CompositeScreenProps<
-  BottomTabScreenProps<ClientTabParamList, 'CompanyProfile'>,
+  BottomTabScreenProps<ClientTabParamList, 'Profile'>,
   NativeStackScreenProps<RootStackParamList>
 >;
 
@@ -39,7 +40,7 @@ export function CompanyProfileScreen({ navigation }: Props) {
   const company = useAuthStore(selectClient);
   const { showToast } = useUIStore();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [stats, setStats] = useState<JobStats | null>(null);
+  const [stats, setStats] = useState<MarketplaceStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
 
@@ -47,10 +48,11 @@ export function CompanyProfileScreen({ navigation }: Props) {
     try {
       setStatsLoading(true);
       setStatsError(null);
-      const result = await applicationsApi.getClientStats();
+      const result = await clientApi.getStats();
       setStats({
-        jobsPosted: result.activeJobs,
-        staffHired: result.hired,
+        totalQuotes: result.totalQuotes,
+        activeQuotes: result.activeQuotes,
+        completedQuotes: result.completed,
       });
     } catch (error) {
       logger.error('Failed to fetch client stats:', error);
@@ -99,6 +101,12 @@ export function CompanyProfileScreen({ navigation }: Props) {
       title: 'Team Members',
       subtitle: 'Manage team access',
       onPress: () => showToast('Team management coming soon', 'info'),
+    },
+    {
+      icon: '🗂️',
+      title: 'Quote Requests',
+      subtitle: 'View custom staffing requests and updates',
+      onPress: () => navigation.navigate('MyQuotes'),
     },
     {
       icon: '💳',
@@ -170,19 +178,19 @@ export function CompanyProfileScreen({ navigation }: Props) {
             <EmptyState
               icon="📊"
               title="No stats yet"
-              message="Your company stats will appear here after posting jobs."
+              message="Your quote and booking activity will appear here once you start requesting staff."
               style={styles.statsState}
             />
           </View>
         ) : (
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{stats.jobsPosted}</Text>
+              <Text style={styles.statNumber}>{stats.totalQuotes}</Text>
               <Text style={styles.statLabel}>Jobs Posted</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{stats.staffHired}</Text>
+              <Text style={styles.statNumber}>{stats.activeQuotes}</Text>
               <Text style={styles.statLabel}>Staff Hired</Text>
             </View>
             <View style={styles.statDivider} />

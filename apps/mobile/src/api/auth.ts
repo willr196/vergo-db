@@ -202,7 +202,7 @@ export const authApi = {
    */
   async getCurrentUser(userType: UserType): Promise<JobSeeker | ClientCompany> {
     const endpoint = userType === 'jobseeker' ? '/api/v1/user/mobile/me' : '/api/v1/client/mobile/me';
-    const response = await apiClient.get<BackendAuthResponse>(endpoint);
+    const response = await apiClient.get<BackendAuthResponse>(endpoint, { timeout: 8000 });
     
     if (response.data.ok && response.data.user) {
       return normalizeAuthUser(userType, response.data.user);

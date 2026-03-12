@@ -12,7 +12,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as Notifications from 'expo-notifications';
 
 import { colors, typography } from '../theme';
-import { useAuthStore, useNotificationsStore, useJobsStore, useApplicationsStore, registerRefreshCallback } from '../store';
+import {
+  useAuthStore,
+  useNotificationsStore,
+  useJobsStore,
+  useApplicationsStore,
+  registerRefreshCallback,
+} from '../store';
 import { Toast } from '../components';
 import {
   registerForPushNotifications,
@@ -23,11 +29,11 @@ import { navigationRef } from './navigationRef';
 import type { RootStackParamList, JobSeekerTabParamList, ClientTabParamList, UserType } from '../types';
 
 // Auth Screens
-import { 
-  WelcomeScreen, 
-  LoginScreen, 
-  RegisterScreen, 
-  ForgotPasswordScreen 
+import {
+  WelcomeScreen,
+  LoginScreen,
+  RegisterScreen,
+  ForgotPasswordScreen,
 } from '../screens/auth';
 
 // Job Seeker Screens
@@ -44,8 +50,14 @@ import {
 // Client Screens
 import {
   DashboardScreen,
-  MyJobsScreen,
+  BrowseStaffScreen,
+  BookingsScreen,
+  StaffDetailScreen,
+  CreateBookingScreen,
+  BookingDetailScreen,
   CompanyProfileScreen,
+  CreateQuoteScreen,
+  MyQuotesScreen,
   CreateJobScreen,
   ClientJobDetailScreen,
   ApplicantListScreen,
@@ -111,8 +123,10 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
   const icons: Record<string, string> = {
     Jobs: '💼',
     Applications: '📋',
-    Profile: '👤',
+    Profile: '🏢',
     Dashboard: '📊',
+    Browse: '👥',
+    Bookings: '📋',
     MyJobs: '📝',
     CompanyProfile: '🏢',
   };
@@ -183,12 +197,17 @@ function ClientTabNavigator() {
         listeners={{ tabPress: () => clearUnread() }}
       />
       <ClientTab.Screen
-        name="MyJobs"
-        component={MyJobsScreen}
-        options={{ tabBarLabel: 'My Jobs' }}
+        name="Browse"
+        component={BrowseStaffScreen}
+        options={{ tabBarLabel: 'Browse' }}
       />
       <ClientTab.Screen
-        name="CompanyProfile"
+        name="Bookings"
+        component={BookingsScreen}
+        options={{ tabBarLabel: 'Bookings' }}
+      />
+      <ClientTab.Screen
+        name="Profile"
         component={CompanyProfileScreen}
         options={{ tabBarLabel: 'Profile' }}
       />
@@ -252,6 +271,23 @@ function ClientStack() {
       }}
     >
       <Stack.Screen name="ClientTabs" component={ClientTabNavigator} />
+
+      {/* Marketplace flow */}
+      <Stack.Screen name="StaffDetail" component={StaffDetailScreen} />
+      <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
+      <Stack.Screen name="MyQuotes" component={MyQuotesScreen} />
+      <Stack.Screen
+        name="CreateBooking"
+        component={CreateBookingScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen
+        name="CreateQuote"
+        component={CreateQuoteScreen}
+        options={{ presentation: 'modal' }}
+      />
+
+      {/* Legacy client job flow retained */}
       <Stack.Screen name="ClientJobDetail" component={ClientJobDetailScreen} />
       <Stack.Screen name="ApplicantList" component={ApplicantListScreen} />
       <Stack.Screen name="ApplicantDetail" component={ApplicantDetailScreen} />
@@ -304,10 +340,16 @@ export function RootNavigator() {
         ClientTabs: {
           screens: {
             Dashboard: 'client/dashboard',
-            MyJobs: 'client/jobs',
-            CompanyProfile: 'client/profile',
+            Browse: 'client/browse',
+            Bookings: 'client/bookings',
+            Profile: 'client/profile',
           },
         },
+        StaffDetail: 'client/staff/:staffId',
+        CreateBooking: 'client/staff/:staffId/book',
+        BookingDetail: 'client/bookings/:bookingId',
+        MyQuotes: 'client/quotes',
+        CreateQuote: 'client/quotes/create',
         ClientJobDetail: 'client/job/:jobId',
         CreateJob: 'client/jobs/create',
         EditJob: 'client/jobs/:jobId/edit',
@@ -394,17 +436,17 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     height: 60,
   },
-  
+
   tabLabel: {
     fontSize: typography.fontSize.xs,
     fontWeight: '500' as const,
     marginTop: 4,
   },
-  
+
   tabIcon: {
     fontSize: 22,
   },
-  
+
   tabIconFocused: {
     transform: [{ scale: 1.1 }],
   },

@@ -15,8 +15,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { LoadingScreen, EmptyState, ErrorState } from '../../components';
@@ -26,12 +24,9 @@ import {
   QuoteStatus,
   getQuoteStatusConfig
 } from '../../api/clientApi';
-import type { RootStackParamList, ClientTabParamList } from '../../types';
+import type { RootStackParamList } from '../../types';
 
-type Props = CompositeScreenProps<
-  BottomTabScreenProps<ClientTabParamList, 'MyJobs'>,
-  NativeStackScreenProps<RootStackParamList>
->;
+type Props = NativeStackScreenProps<RootStackParamList, 'MyQuotes'>;
 
 type FilterStatus = 'all' | QuoteStatus;
 
@@ -191,7 +186,7 @@ export function MyQuotesScreen({ navigation }: Props) {
         <Text style={styles.title}>My Quotes</Text>
         <TouchableOpacity
           style={styles.newQuoteButton}
-          onPress={() => navigation.navigate('CreateJob')}
+          onPress={() => navigation.navigate('CreateQuote')}
         >
           <Text style={styles.newQuoteButtonText}>+ New</Text>
         </TouchableOpacity>
@@ -248,7 +243,7 @@ export function MyQuotesScreen({ navigation }: Props) {
             title="No Quotes Yet"
             message="Submit a quote request to get staffing for your next occasion."
             actionTitle="Request a Quote"
-            onAction={() => navigation.navigate('CreateJob')}
+            onAction={() => navigation.navigate('CreateQuote')}
           />
         }
         ListFooterComponent={

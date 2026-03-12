@@ -2,11 +2,14 @@
  * VERGO App TypeScript Types
  */
 
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
 // ============================================
 // User Types
 // ============================================
 
 export type UserType = 'jobseeker' | 'client';
+export type SubscriptionTier = 'STANDARD' | 'PREMIUM';
 
 export interface User {
   id: string;
@@ -26,25 +29,25 @@ export interface JobSeeker extends User {
   address?: string;
   city?: string;
   postcode?: string;
-  
+
   // Work preferences
   availability: AvailabilityStatus;
   preferredRoles: JobRole[];
   minimumHourlyRate?: number;
   maxTravelDistance?: number;
-  
+
   // Documents & verification
   hasDBSCheck: boolean;
   dbsCheckDate?: string;
   nationalInsurance?: string;
   rightToWork: boolean;
   rightToWorkDocument?: string;
-  
+
   // Experience
   yearsExperience: number;
   skills: string[];
   previousEmployers?: string[];
-  
+
   // Stats
   completedJobs: number;
   rating?: number;
@@ -59,18 +62,24 @@ export interface ClientCompany {
   contactLastName: string;
   phone?: string;
   logo?: string;
-  
+
   // Company details
   description?: string;
   website?: string;
   address?: string;
   city?: string;
   postcode?: string;
-  
+
+  // Marketplace subscription
+  subscriptionTier?: SubscriptionTier;
+  subscriptionStatus?: string;
+  subscriptionStartedAt?: string | null;
+  subscriptionExpiresAt?: string | null;
+
   // Status
   isApproved: boolean;
   approvedAt?: string;
-  
+
   createdAt: string;
   updatedAt: string;
 }
@@ -91,7 +100,7 @@ export type AvailabilityStatus = 'available' | 'limited' | 'unavailable';
 // Job Types
 // ============================================
 
-export type JobRole = 
+export type JobRole =
   | 'bartender'
   | 'server'
   | 'chef'
@@ -114,46 +123,46 @@ export interface Job {
   id: string;
   clientCompanyId: string;
   clientCompany?: ClientCompany;
-  
+
   // Basic info
   title: string;
   role: JobRole;
   description: string;
   requirements?: string;
-  
+
   // Location
   venue: string;
   address: string;
   city: string;
   postcode?: string;
-  
+
   // Schedule
   date: string;
   startTime: string;
   endTime: string;
   breakDuration?: number; // minutes
-  
+
   // Compensation
   hourlyRate: number;
   payType?: 'HOURLY' | 'DAILY' | 'FIXED';
   totalHours?: number;
   estimatedPay?: number;
-  
+
   // Requirements
   uniformRequired?: boolean;
   uniformDetails?: string;
   dbsRequired: boolean;
   experienceRequired?: number; // years
-  
+
   // Capacity
   positions?: number;
   positionsAvailable?: number;
   positionsFilled?: number;
   applicationCount?: number;
-  
+
   // Status
   status?: JobStatus | string;
-  
+
   // Timestamps
   createdAt: string;
   updatedAt: string;
@@ -175,7 +184,7 @@ export interface JobFilters {
 // Application Types
 // ============================================
 
-export type ApplicationStatus = 
+export type ApplicationStatus =
   | 'pending'
   | 'reviewing'
   | 'shortlisted'
@@ -190,22 +199,81 @@ export interface Application {
   userId: string;
   user?: JobSeeker;
   jobSeeker?: JobSeeker;
-  
+
   status: ApplicationStatus;
   coverNote?: string;
-  
+
   // Status history
   receivedAt?: string;
   reviewedAt?: string;
   shortlistedAt?: string;
   decidedAt?: string;
-  
+
   // Feedback
   rejectionReason?: string;
   clientNotes?: string;
-  
+
   createdAt: string;
   updatedAt: string;
+}
+
+// ============================================
+// Marketplace + Booking Types
+// ============================================
+
+export type StaffTier = 'STANDARD' | 'ELITE';
+export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'REJECTED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
+
+export interface MarketplaceStaff {
+  id: string;
+  name: string;
+  tier: StaffTier;
+  bio: string | null;
+  avatar: string | null;
+  rating: number | null;
+  reviewCount: number;
+  highlights: string | null;
+  hourlyRate: number | null;
+  isBookable: boolean;
+}
+
+export interface Booking {
+  id: string;
+  status: BookingStatus;
+  eventName: string | null;
+  eventDate: string;
+  location: string;
+  venue: string | null;
+  shiftStart: string;
+  shiftEnd: string;
+  hourlyRate: number;
+  totalEstimated: number | null;
+  createdAt: string;
+  confirmedAt: string | null;
+  staff: {
+    id: string;
+    name: string;
+    tier: StaffTier;
+    avatar: string | null;
+    rating: number | null;
+  };
+}
+
+export interface BookingDetail extends Booking {
+  eventEndDate: string | null;
+  hoursEstimated: number | null;
+  clientNotes: string | null;
+  rejectionReason: string | null;
+  completedAt: string | null;
+  staff: {
+    id: string;
+    name: string;
+    tier: StaffTier;
+    avatar: string | null;
+    rating: number | null;
+    bio: string | null;
+    highlights: string | null;
+  };
 }
 
 // ============================================
@@ -271,22 +339,29 @@ export type RootStackParamList = {
   Login: { userType: UserType };
   Register: { userType: UserType };
   ForgotPassword: undefined;
-  
+
   // Job Seeker
-  JobSeekerTabs: undefined;
+  JobSeekerTabs: NavigatorScreenParams<JobSeekerTabParamList> | undefined;
   JobDetail: { jobId: string };
   ApplyToJob: { jobId: string; job: Job };
   ApplicationDetail: { applicationId: string };
   EditProfile: undefined;
-  
+
   // Client
-  ClientTabs: undefined;
+  ClientTabs: NavigatorScreenParams<ClientTabParamList> | undefined;
   ClientJobDetail: { jobId: string; initialTab?: 'applications' | 'details' };
   CreateJob: undefined;
+  CreateQuote: undefined;
+  MyQuotes: undefined;
   EditJob: { jobId: string };
   ApplicantDetail: { applicationId: string };
   ApplicantList: { jobId: string };
   EditClientProfile: undefined;
+
+  // Marketplace + Bookings
+  StaffDetail: { staffId: string; staff?: MarketplaceStaff };
+  CreateBooking: { staffId: string; staff: MarketplaceStaff };
+  BookingDetail: { bookingId: string };
 };
 
 export type JobSeekerTabParamList = {
@@ -297,6 +372,11 @@ export type JobSeekerTabParamList = {
 
 export type ClientTabParamList = {
   Dashboard: undefined;
+  Browse: undefined;
+  Bookings: undefined;
+  Profile: undefined;
+
+  // Legacy tabs retained for compatibility with existing screens/tests
   MyJobs: { initialFilter?: 'all' | 'active' | 'closed' } | undefined;
   CompanyProfile: undefined;
 };
@@ -305,7 +385,7 @@ export type ClientTabParamList = {
 // Notification Types
 // ============================================
 
-export type NotificationType = 
+export type NotificationType =
   | 'new_job'
   | 'application_update'
   | 'job_reminder'

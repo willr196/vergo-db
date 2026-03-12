@@ -8,8 +8,10 @@ export {
   setAuthTokens,
   clearAuthTokens,
   getAccessToken,
+  registerAuthFailureHandler,
   STORAGE_KEYS,
 } from './client';
+export type { ApiError, AuthFailureInfo } from './client';
 
 export { authApi } from './auth';
 export { jobsApi } from './jobs';
@@ -29,3 +31,18 @@ export type {
   CreateQuoteRequest,
   PaginatedQuotesResponse,
 } from './clientApi';
+
+// NEW: Marketplace + booking APIs for Phase 5
+export {
+  marketplaceApi,
+} from './marketplace';
+
+export type {
+  BrowseStaffParams,
+  BrowseStaffResponse,
+  PricingPayload,
+  CreateBookingPayload,
+  BookingListParams,
+  BookingListResponse,
+  CancelBookingResponse,
+} from './marketplace';

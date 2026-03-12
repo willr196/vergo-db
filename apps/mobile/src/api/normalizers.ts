@@ -233,6 +233,12 @@ export function normalizeClientCompany(user: Partial<ClientCompany> & { contactN
     address: user.address,
     city: user.city,
     postcode: user.postcode,
+    subscriptionTier: user.subscriptionTier === 'PREMIUM' || user.subscriptionTier === 'STANDARD'
+      ? user.subscriptionTier
+      : undefined,
+    subscriptionStatus: user.subscriptionStatus || undefined,
+    subscriptionStartedAt: user.subscriptionStartedAt ?? null,
+    subscriptionExpiresAt: user.subscriptionExpiresAt ?? null,
     isApproved: coerceBoolean(user.isApproved) ?? (user.status === 'APPROVED'),
     approvedAt: user.approvedAt,
     createdAt: user.createdAt || now,

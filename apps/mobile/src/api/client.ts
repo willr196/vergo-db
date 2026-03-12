@@ -10,6 +10,30 @@ import { logger } from '../utils/logger';
 // VERGO Backend API
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://vergo-app.fly.dev';
 
+export interface AuthFailureInfo {
+  message: string;
+  code?: string;
+  status?: number;
+  reauthRequired?: boolean;
+  forceLogout?: boolean;
+}
+
+type AuthFailureHandler = (info: AuthFailureInfo) => void;
+
+let authFailureHandler: AuthFailureHandler | null = null;
+
+export function registerAuthFailureHandler(handler: AuthFailureHandler | null): void {
+  authFailureHandler = handler;
+}
+
+function notifyAuthFailure(info: AuthFailureInfo): void {
+  try {
+    authFailureHandler?.(info);
+  } catch (error) {
+    logger.warn('Auth failure handler threw an error:', error);
+  }
+}
+
 // Storage keys
 export const STORAGE_KEYS = {
   ACCESS_TOKEN: 'vergo_access_token',
@@ -42,6 +66,7 @@ apiClient.interceptors.request.use(
     } catch (error) {
       logger.warn('Failed to get auth token:', error);
     }
+    console.log(`[VERGO API] ${config.method?.toUpperCase()} ${config.url}`);
     return config;
   },
   (error) => {
@@ -51,7 +76,10 @@ apiClient.interceptors.request.use(
 
 // Response interceptor - handle errors and token refresh
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(`[VERGO API] ${response.status} ${response.config.url}`);
+    return response;
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
     
@@ -88,9 +116,38 @@ apiClient.interceptors.response.use(
         }
       } catch (refreshError) {
         logger.warn('Token refresh failed:', refreshError);
-        // Token refresh failed - clear tokens and redirect to login
+        const formattedRefreshError = axios.isAxiosError(refreshError)
+          ? formatError(refreshError)
+          : {
+              message: refreshError instanceof Error ? refreshError.message : 'Token refresh failed',
+              code: 'TOKEN_REFRESH_FAILED',
+            };
+        const isRefreshTokenReplay = formattedRefreshError.code === 'REFRESH_TOKEN_REUSE_DETECTED';
+        const forceLogout = Boolean(
+          formattedRefreshError.forceLogout ||
+          formattedRefreshError.reauthRequired ||
+          isRefreshTokenReplay
+        );
+
         await clearAuthTokens();
-        // The auth store will handle redirect
+
+        if (forceLogout) {
+          notifyAuthFailure({
+            message: isRefreshTokenReplay
+              ? 'Session security issue detected. Please sign in again.'
+              : formattedRefreshError.message,
+            code: formattedRefreshError.code,
+            status: formattedRefreshError.status,
+            forceLogout: true,
+            reauthRequired: true,
+          });
+        }
+
+        return Promise.reject({
+          ...formattedRefreshError,
+          forceLogout,
+          reauthRequired: forceLogout || formattedRefreshError.reauthRequired,
+        } as ApiError);
       }
     }
     
@@ -104,17 +161,23 @@ export interface ApiError {
   code?: string;
   status?: number;
   details?: Record<string, unknown>;
+  reauthRequired?: boolean;
+  forceLogout?: boolean;
 }
 
 function formatError(error: AxiosError): ApiError {
   if (error.response) {
     // Server responded with error
     const data = error.response.data as Record<string, unknown>;
+    const code = data.code as string | undefined;
+    const isRefreshTokenReplay = code === 'REFRESH_TOKEN_REUSE_DETECTED';
     return {
       message: (data.message as string) || (data.error as string) || 'An error occurred',
-      code: data.code as string,
+      code,
       status: error.response.status,
       details: data.details as Record<string, unknown>,
+      reauthRequired: Boolean(data.reauthRequired) || isRefreshTokenReplay,
+      forceLogout: Boolean(data.forceLogout) || isRefreshTokenReplay,
     };
   } else if (error.request) {
     // Request made but no response

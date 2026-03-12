@@ -23,7 +23,7 @@ import { Button } from '../../components';
 import { clientApi, CreateQuoteRequest } from '../../api/clientApi';
 import type { RootStackParamList } from '../../types';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'CreateJob'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'CreateQuote'>;
 
 const OCCASION_TYPES = [
   'Corporate Event',
@@ -140,7 +140,7 @@ export function CreateQuoteScreen({ navigation }: Props) {
         [
           {
             text: 'View My Quotes',
-            onPress: () => navigation.navigate('ClientTabs'),
+            onPress: () => navigation.replace('MyQuotes'),
           },
         ]
       );

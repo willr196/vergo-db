@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand';
-import { authApi } from '../api';
+import { authApi, registerAuthFailureHandler } from '../api';
 import { isClientCompanyUser, isJobSeekerUser } from '../types';
 import type {
   AuthUser,
@@ -140,45 +140,52 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true });
     
     try {
+      console.log('[VERGO] checkAuth: reading tokens...');
       const { isAuthenticated, userType, user } = await authApi.checkAuth();
-      
-      if (isAuthenticated && userType && user) {
-        // Optionally refresh user data from server
-        try {
-          const freshUser = await authApi.getCurrentUser(userType);
-          set({
-            isAuthenticated: true,
-            isLoading: false,
-            userType,
-            user: freshUser,
-          });
-        } catch (error) {
-          // Only force logout on genuine auth failures (401/403).
-          // For network errors or server outages, keep the cached user so
-          // the app remains usable offline.
-          const status = (error as { status?: number })?.status;
-          const isAuthFailure = status === 401 || status === 403;
-          if (isAuthFailure) {
-            await authApi.logout();
-            set({
-              isAuthenticated: false,
-              isLoading: false,
-              userType: null,
-              user: null,
-              error: error instanceof Error ? error.message : 'Authentication expired',
-            });
-          } else {
-            // Network or server error — stay logged in with cached data
-            set({ isAuthenticated: true, isLoading: false, userType, user });
-          }
-        }
-      } else {
+      console.log('[VERGO] checkAuth: tokens found?', isAuthenticated);
+
+      if (!isAuthenticated || !userType || !user) {
         set({
           isAuthenticated: false,
           isLoading: false,
           userType: null,
           user: null,
         });
+        return;
+      }
+      
+      console.log('[VERGO] checkAuth: refreshing user from server...');
+      try {
+        const freshUser = await authApi.getCurrentUser(userType);
+        set({
+          isAuthenticated: true,
+          isLoading: false,
+          userType,
+          user: freshUser,
+        });
+      } catch (error) {
+        // Only force logout on genuine auth failures (401/403).
+        // For network errors or server outages, keep the cached user so
+        // the app remains usable offline.
+        const status = (error as { status?: number })?.status;
+        const isAuthFailure = status === 401 || status === 403;
+        if (isAuthFailure) {
+          try {
+            await authApi.logout();
+          } catch (logoutError) {
+            console.log('[VERGO] checkAuth: logout after auth failure failed:', logoutError);
+          }
+          set({
+            isAuthenticated: false,
+            isLoading: false,
+            userType: null,
+            user: null,
+            error: error instanceof Error ? error.message : 'Authentication expired',
+          });
+        } else {
+          // Network or server error — stay logged in with cached data
+          set({ isAuthenticated: true, isLoading: false, userType, user });
+        }
       }
     } catch {
       set({
@@ -229,6 +236,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ user });
   },
 }));
+
+registerAuthFailureHandler((info) => {
+  useAuthStore.setState({
+    isAuthenticated: false,
+    isLoading: false,
+    userType: null,
+    user: null,
+    error: info.code === 'REFRESH_TOKEN_REUSE_DETECTED'
+      ? 'For security, you were signed out because your session token was reused. Please sign in again.'
+      : info.message || 'Session expired. Please sign in again.',
+  });
+});
 
 // Selectors for common patterns
 export const selectIsJobSeeker = (state: AuthState) => state.userType === 'jobseeker';
