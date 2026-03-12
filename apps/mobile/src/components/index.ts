@@ -5,6 +5,7 @@
 
 export { Button } from './Button';
 export { Input } from './Input';
+export { BrandBackground } from './BrandBackground';
 export { JobCard } from './JobCard';
 export { StatusBadge } from './StatusBadge';
 export { LoadingScreen, EmptyState, ErrorState, InlineLoading } from './LoadingStates';
@@ -13,3 +14,4 @@ export { DateTimePickerInput } from './DateTimePicker';
 export { Toast } from './Toast';
 export { Avatar } from './Avatar';
 export { OfflineBanner } from './OfflineBanner';
+export { ErrorBoundary } from './ErrorBoundary';

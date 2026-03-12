@@ -1,0 +1,69 @@
+diff --git a/node_modules/react-native-screens/src/utils.ts b/node_modules/react-native-screens/src/utils.ts
+index 02ad04e..4b871b0 100644
+--- a/node_modules/react-native-screens/src/utils.ts
++++ b/node_modules/react-native-screens/src/utils.ts
+@@ -15,9 +15,17 @@ export function executeNativeBackPress() {
+ }
+ 
+ type OptionalBoolean = 'undefined' | 'false' | 'true';
++function isFabricRenderer() {
++  return typeof globalThis === 'object' && globalThis !== null && 'nativeFabricUIManager' in globalThis;
++}
++
+ export function parseBooleanToOptionalBooleanNativeProp(
+   prop: boolean | undefined,
+-): OptionalBoolean {
++): OptionalBoolean | boolean | undefined {
++  if (isFabricRenderer()) {
++    return prop;
++  }
++
+   switch (prop) {
+     case undefined:
+       return 'undefined';
+diff --git a/node_modules/react-native-screens/lib/module/utils.js b/node_modules/react-native-screens/lib/module/utils.js
+index cca6240..693d949 100644
+--- a/node_modules/react-native-screens/lib/module/utils.js
++++ b/node_modules/react-native-screens/lib/module/utils.js
+@@ -1,12 +1,18 @@
+ import { BackHandler, Platform } from 'react-native';
+ export const isSearchBarAvailableForCurrentPlatform = ['ios', 'android'].includes(Platform.OS);
+ export const isHeaderBarButtonsAvailableForCurrentPlatform = Platform.OS === 'ios';
++function isFabricRenderer() {
++  return typeof globalThis === 'object' && globalThis !== null && 'nativeFabricUIManager' in globalThis;
++}
+ export function executeNativeBackPress() {
+   // This function invokes the native back press event
+   BackHandler.exitApp();
+   return true;
+ }
+ export function parseBooleanToOptionalBooleanNativeProp(prop) {
++  if (isFabricRenderer()) {
++    return prop;
++  }
+   switch (prop) {
+     case undefined:
+       return 'undefined';
+diff --git a/node_modules/react-native-screens/lib/commonjs/utils.js b/node_modules/react-native-screens/lib/commonjs/utils.js
+index bc78366..3140eba 100644
+--- a/node_modules/react-native-screens/lib/commonjs/utils.js
++++ b/node_modules/react-native-screens/lib/commonjs/utils.js
+@@ -9,12 +9,18 @@ exports.parseBooleanToOptionalBooleanNativeProp = parseBooleanToOptionalBooleanN
+ var _reactNative = require("react-native");
+ const isSearchBarAvailableForCurrentPlatform = exports.isSearchBarAvailableForCurrentPlatform = ['ios', 'android'].includes(_reactNative.Platform.OS);
+ const isHeaderBarButtonsAvailableForCurrentPlatform = exports.isHeaderBarButtonsAvailableForCurrentPlatform = _reactNative.Platform.OS === 'ios';
++function isFabricRenderer() {
++  return typeof globalThis === 'object' && globalThis !== null && 'nativeFabricUIManager' in globalThis;
++}
+ function executeNativeBackPress() {
+   // This function invokes the native back press event
+   _reactNative.BackHandler.exitApp();
+   return true;
+ }
+ function parseBooleanToOptionalBooleanNativeProp(prop) {
++  if (isFabricRenderer()) {
++    return prop;
++  }
+   switch (prop) {
+     case undefined:
+       return 'undefined';

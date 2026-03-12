@@ -9,7 +9,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { RootNavigator } from './src/navigation';
-import { LoadingScreen, OfflineBanner } from './src/components';
+import { ErrorBoundary, LoadingScreen, OfflineBanner } from './src/components';
 import { useAuthStore, useNetworkStore } from './src/store';
 import { colors, typography, spacing } from './src/theme';
 import { AUTH_TIMEOUT } from './src/constants';
@@ -125,8 +125,12 @@ export default function App() {
           translucent={false}
         />
         <View style={styles.container}>
-          <AppContent />
-          <OfflineBanner />
+          <ErrorBoundary>
+            <>
+              <AppContent />
+              <OfflineBanner />
+            </>
+          </ErrorBoundary>
         </View>
       </SafeAreaProvider>
     </GestureHandlerRootView>

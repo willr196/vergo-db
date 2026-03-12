@@ -10,7 +10,8 @@ import {
   ActivityIndicator,
   ViewStyle,
 } from 'react-native';
-import { colors, spacing, typography } from '../theme';
+import { BrandBackground } from './BrandBackground';
+import { borderRadius, colors, spacing, typography, shadows } from '../theme';
 import Button from './Button';
 
 // ============================================
@@ -23,10 +24,15 @@ interface LoadingScreenProps {
 
 export function LoadingScreen({ message = 'Loading...' }: LoadingScreenProps) {
   return (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color={colors.primary} />
-      <Text style={styles.loadingText}>{message}</Text>
-    </View>
+    <BrandBackground contentStyle={styles.loadingContainer} showFrame={false}>
+      <View style={styles.loadingPanel}>
+        <View style={styles.loadingMark}>
+          <Text style={styles.loadingMarkText}>V</Text>
+        </View>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={styles.loadingText}>{message}</Text>
+      </View>
+    </BrandBackground>
   );
 }
 
@@ -122,14 +128,46 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.background,
     padding: spacing.xl,
+  },
+
+  loadingPanel: {
+    width: '100%',
+    maxWidth: 320,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.xxl,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
+    borderRadius: borderRadius.xl,
+    backgroundColor: colors.surfaceStrong,
+    ...shadows.md,
+  },
+
+  loadingMark: {
+    width: 56,
+    height: 56,
+    borderRadius: borderRadius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.primaryLine,
+    backgroundColor: colors.primarySoft,
+  },
+
+  loadingMarkText: {
+    color: colors.primary,
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.heavy,
+    letterSpacing: 2,
   },
   
   loadingText: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.md,
-    marginTop: spacing.md,
+    textAlign: 'center',
   },
   
   // Empty
@@ -138,6 +176,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.xl,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.surfaceStrong,
+    ...shadows.sm,
   },
   
   emptyIcon: {
@@ -171,6 +214,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.xl,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.surfaceStrong,
+    ...shadows.sm,
   },
   
   errorIcon: {

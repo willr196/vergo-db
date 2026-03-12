@@ -98,28 +98,30 @@ const styles = StyleSheet.create({
   },
   
   label: {
-    color: colors.textPrimary,
+    color: colors.textSecondary,
     fontSize: typography.fontSize.sm,
-    fontWeight: '500' as const,
-    marginBottom: spacing.xs,
+    fontWeight: typography.fontWeight.medium,
+    marginBottom: spacing.sm,
   },
   
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceLight,
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
     borderRadius: borderRadius.md,
-    minHeight: 48,
+    minHeight: 56,
   },
   
   inputContainerFocused: {
-    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primaryLine,
   },
   
   inputContainerError: {
-    borderColor: colors.error,
+    backgroundColor: colors.errorSoft,
+    borderColor: 'rgba(255, 122, 122, 0.34)',
   },
   
   input: {
@@ -127,7 +129,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.md - 1,
   },
   
   inputWithLeftIcon: {
@@ -149,19 +151,19 @@ const styles = StyleSheet.create({
   showHideText: {
     color: colors.primary,
     fontSize: typography.fontSize.sm,
-    fontWeight: '500' as const,
+    fontWeight: typography.fontWeight.semibold,
   },
   
   error: {
     color: colors.error,
     fontSize: typography.fontSize.sm,
-    marginTop: spacing.xs,
+    marginTop: spacing.sm,
   },
   
   hint: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.sm,
-    marginTop: spacing.xs,
+    marginTop: spacing.sm,
   },
 });
 

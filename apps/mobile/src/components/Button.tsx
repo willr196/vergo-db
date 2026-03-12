@@ -12,7 +12,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { colors, spacing, borderRadius, typography } from '../theme';
+import { colors, spacing, borderRadius, typography, shadows } from '../theme';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -72,7 +72,13 @@ export function Button({
     >
       {loading ? (
         <ActivityIndicator 
-          color={variant === 'primary' ? colors.textInverse : colors.primary} 
+          color={
+            variant === 'primary'
+              ? colors.textInverse
+              : variant === 'danger'
+                ? colors.error
+                : colors.primary
+          }
           size="small" 
         />
       ) : (
@@ -92,45 +98,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: 'transparent',
     gap: spacing.sm,
   },
   
   // Variants
   primary: {
     backgroundColor: colors.primary,
+    borderColor: colors.primary,
+    ...shadows.gold,
   },
   secondary: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceStrong,
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
+    ...shadows.sm,
   },
   outline: {
-    backgroundColor: 'transparent',
+    backgroundColor: colors.primarySoft,
     borderWidth: 1,
-    borderColor: colors.primary,
+    borderColor: colors.primaryLine,
   },
   ghost: {
     backgroundColor: 'transparent',
   },
   danger: {
-    backgroundColor: colors.error,
+    backgroundColor: colors.errorSoft,
+    borderColor: 'rgba(255, 122, 122, 0.34)',
   },
   
   // Sizes
   smSize: {
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    minHeight: 32,
-  },
-  mdSize: {
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
-    minHeight: 44,
+    minHeight: 40,
+  },
+  mdSize: {
+    paddingVertical: spacing.md - 2,
+    paddingHorizontal: spacing.lg,
+    minHeight: 52,
   },
   lgSize: {
     paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    minHeight: 56,
+    paddingHorizontal: spacing.xl,
+    minHeight: 58,
   },
   
   fullWidth: {
@@ -143,7 +155,8 @@ const styles = StyleSheet.create({
   
   // Text styles
   text: {
-    fontWeight: '600' as const,
+    fontWeight: typography.fontWeight.bold,
+    letterSpacing: 0.3,
     textAlign: 'center',
   },
   primaryText: {
@@ -159,7 +172,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   dangerText: {
-    color: colors.white,
+    color: colors.error,
   },
   
   smText: {

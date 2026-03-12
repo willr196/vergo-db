@@ -16,8 +16,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { colors, spacing, typography } from '../../theme';
-import { Button, Input } from '../../components';
+import { BrandBackground, Button, Input } from '../../components';
+import { borderRadius, colors, shadows, spacing, typography } from '../../theme';
 import { useAuthStore, useUIStore } from '../../store';
 import {
   isBiometricAvailable,
@@ -55,6 +55,8 @@ export function LoginScreen({ navigation, route }: Props) {
   const subtitle = isJobSeeker
     ? 'Sign in to browse and apply for event jobs'
     : 'Sign in to post jobs and manage applications';
+  const badgeLabel = isJobSeeker ? 'Job seeker access' : 'Client access';
+  const eyebrow = isJobSeeker ? 'Join the roster' : 'Hire with VERGO';
   
   const validate = (): boolean => {
     const errors: typeof validationErrors = {};
@@ -167,99 +169,110 @@ export function LoginScreen({ navigation, route }: Props) {
   
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardAvoid}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+      <BrandBackground contentStyle={styles.backgroundContent}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardAvoid}
         >
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-              <Text style={styles.backText}>← Back</Text>
-            </TouchableOpacity>
-            
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>
-                {isJobSeeker ? '👤 Job Seeker' : '🏢 Employer'}
-              </Text>
-            </View>
-          </View>
-          
-          {/* Title */}
-          <View style={styles.titleSection}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.subtitle}>{subtitle}</Text>
-          </View>
-          
-          {/* Form */}
-          <View style={styles.form}>
-            <Input
-              label="Email"
-              placeholder="you@example.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                if (validationErrors.email) {
-                  setValidationErrors((prev) => ({ ...prev, email: undefined }));
-                }
-              }}
-              onBlur={() => validateField('email')}
-              error={validationErrors.email}
-            />
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.header}>
+              <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+                <Text style={styles.backText}>← Back</Text>
+              </TouchableOpacity>
 
-            <Input
-              label="Password"
-              placeholder="Enter your password"
-              secureTextEntry
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                if (validationErrors.password) {
-                  setValidationErrors((prev) => ({ ...prev, password: undefined }));
-                }
-              }}
-              onBlur={() => validateField('password')}
-              error={validationErrors.password}
-            />
-            
-            <TouchableOpacity
-              onPress={handleForgotPassword}
-              style={styles.forgotButton}
-            >
-              <Text style={styles.forgotText}>Forgot password?</Text>
-            </TouchableOpacity>
-            
-            <Button
-              title="Sign In"
-              onPress={handleLogin}
-              loading={isLoading}
-              size="lg"
-              fullWidth
-            />
-          </View>
-          
-          {/* Register Link */}
-          <View style={styles.registerSection}>
-            <Text style={styles.registerText}>
-              {isJobSeeker
-                ? "Don't have an account?"
-                : 'Want to hire event staff?'}
-            </Text>
-            <TouchableOpacity onPress={handleRegister}>
-              <Text style={styles.registerLink}>
-                {isJobSeeker ? 'Create Account' : 'Register Your Company'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{badgeLabel}</Text>
+              </View>
+            </View>
+
+            <View style={styles.titleSection}>
+              <Text style={styles.eyebrow}>{eyebrow}</Text>
+              <Text style={styles.title}>{title}</Text>
+              <Text style={styles.subtitle}>{subtitle}</Text>
+            </View>
+
+            <View style={styles.formCard}>
+              <View style={styles.brandLockup}>
+                <View style={styles.logoMark}>
+                  <Text style={styles.logoText}>V</Text>
+                </View>
+                <View style={styles.logoCopy}>
+                  <Text style={styles.brandName}>VERGO</Text>
+                  <Text style={styles.brandMeta}>Secure sign in</Text>
+                </View>
+              </View>
+
+              <Input
+                label="Email"
+                placeholder="you@example.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="emailAddress"
+                autoComplete="email"
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  if (validationErrors.email) {
+                    setValidationErrors((prev) => ({ ...prev, email: undefined }));
+                  }
+                }}
+                onBlur={() => validateField('email')}
+                error={validationErrors.email}
+              />
+
+              <Input
+                label="Password"
+                placeholder="Enter your password"
+                secureTextEntry={true}
+                textContentType="password"
+                autoComplete="current-password"
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (validationErrors.password) {
+                    setValidationErrors((prev) => ({ ...prev, password: undefined }));
+                  }
+                }}
+                onBlur={() => validateField('password')}
+                error={validationErrors.password}
+              />
+
+              <TouchableOpacity
+                onPress={handleForgotPassword}
+                style={styles.forgotButton}
+              >
+                <Text style={styles.forgotText}>Forgot password?</Text>
+              </TouchableOpacity>
+
+              <Button
+                title="Sign In"
+                onPress={handleLogin}
+                loading={isLoading}
+                size="lg"
+                fullWidth
+              />
+
+              <View style={styles.registerSection}>
+                <Text style={styles.registerText}>
+                  {isJobSeeker
+                    ? "Don't have an account?"
+                    : 'Want to hire event staff?'}
+                </Text>
+                <TouchableOpacity onPress={handleRegister}>
+                  <Text style={styles.registerLink}>
+                    {isJobSeeker ? 'Create Account' : 'Register Your Company'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </BrandBackground>
     </SafeAreaView>
   );
 }
@@ -269,95 +282,172 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  
+
+  backgroundContent: {
+    flex: 1,
+  },
+
   keyboardAvoid: {
     flex: 1,
   },
-  
+
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xxl,
   },
-  
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: spacing.md,
     marginBottom: spacing.xl,
   },
-  
+
   backButton: {
     paddingVertical: spacing.sm,
-    paddingRight: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.surfaceLight,
   },
-  
+
   backText: {
     color: colors.textSecondary,
-    fontSize: typography.fontSize.md,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
   },
-  
+
   badge: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.primarySoft,
+    borderWidth: 1,
+    borderColor: colors.primaryLine,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
-    borderRadius: 20,
+    borderRadius: borderRadius.full,
   },
-  
+
   badgeText: {
-    color: colors.textSecondary,
-    fontSize: typography.fontSize.sm,
+    color: colors.primary,
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.heavy,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
   },
-  
+
   titleSection: {
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
+    gap: spacing.sm,
   },
-  
+
+  eyebrow: {
+    color: colors.primary,
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.heavy,
+    letterSpacing: 2.2,
+    textTransform: 'uppercase',
+  },
+
   title: {
     color: colors.textPrimary,
-    fontSize: typography.fontSize.xxxl,
-    fontWeight: '700' as const,
-    marginBottom: spacing.sm,
+    fontSize: typography.fontSize.hero,
+    fontFamily: typography.fontFamily.display,
+    lineHeight: 48,
   },
-  
+
   subtitle: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.md,
-    lineHeight: 24,
+    lineHeight: 25,
+    maxWidth: 320,
   },
-  
-  form: {
-    marginBottom: spacing.xl,
+
+  formCard: {
+    marginTop: spacing.md,
+    gap: spacing.sm,
+    padding: spacing.xl,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
+    borderRadius: borderRadius.xl,
+    backgroundColor: colors.surfaceStrong,
+    ...shadows.md,
   },
-  
+
+  brandLockup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginBottom: spacing.md,
+  },
+
+  logoMark: {
+    width: 52,
+    height: 52,
+    borderRadius: borderRadius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.primaryLine,
+    backgroundColor: colors.primarySoft,
+  },
+
+  logoText: {
+    color: colors.primary,
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.heavy,
+    letterSpacing: 3,
+  },
+
+  logoCopy: {
+    gap: 2,
+  },
+
+  brandName: {
+    color: colors.textPrimary,
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.heavy,
+    letterSpacing: 2.2,
+  },
+
+  brandMeta: {
+    color: colors.textMuted,
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.semibold,
+    letterSpacing: 1.1,
+    textTransform: 'uppercase',
+  },
+
   forgotButton: {
     alignSelf: 'flex-end',
     marginBottom: spacing.lg,
-    marginTop: -spacing.sm,
   },
-  
+
   forgotText: {
     color: colors.primary,
     fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
   },
-  
+
   registerSection: {
     alignItems: 'center',
-    marginTop: 'auto',
+    marginTop: spacing.md,
     paddingTop: spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: colors.surfaceBorder,
   },
-  
+
   registerText: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.md,
     marginBottom: spacing.xs,
   },
-  
+
   registerLink: {
     color: colors.primary,
     fontSize: typography.fontSize.md,
-    fontWeight: '600' as const,
+    fontWeight: typography.fontWeight.bold,
   },
 });
 

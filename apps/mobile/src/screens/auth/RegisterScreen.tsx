@@ -16,8 +16,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { colors, spacing, typography } from '../../theme';
-import { Button, Input } from '../../components';
+import { BrandBackground, Button, Input } from '../../components';
+import { borderRadius, colors, shadows, spacing, typography } from '../../theme';
 import { useAuthStore, useUIStore } from '../../store';
 import type { RootStackParamList } from '../../types';
 
@@ -25,10 +25,11 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
 export function RegisterScreen({ navigation, route }: Props) {
   const { userType } = route.params;
-  const { registerJobSeeker, registerClient, isLoading, error, clearError } = useAuthStore();
+  const { registerJobSeeker, registerClient, isLoading, clearError } = useAuthStore();
   const { showToast } = useUIStore();
   
   const isJobSeeker = userType === 'jobseeker';
+  const eyebrow = isJobSeeker ? 'Join the roster' : 'Client onboarding';
   
   // Common fields
   const [email, setEmail] = useState('');
@@ -174,48 +175,59 @@ export function RegisterScreen({ navigation, route }: Props) {
   
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardAvoid}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+      <BrandBackground contentStyle={styles.backgroundContent}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardAvoid}
         >
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity 
-              onPress={() => navigation.goBack()} 
-              style={styles.backButton}
-            >
-              <Text style={styles.backText}>← Back</Text>
-            </TouchableOpacity>
-          </View>
-          
-          {/* Title */}
-          <View style={styles.titleSection}>
-            <Text style={styles.title}>
-              {isJobSeeker ? 'Create Account' : 'Register Company'}
-            </Text>
-            <Text style={styles.subtitle}>
-              {isJobSeeker
-                ? 'Join VERGO and find your next event opportunity'
-                : 'Register to start hiring premium event staff'}
-            </Text>
-          </View>
-          
-          {/* Form */}
-          <View style={styles.form}>
-            {isJobSeeker ? (
-              // Job Seeker Fields
-              <>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.header}>
+              <TouchableOpacity 
+                onPress={() => navigation.goBack()} 
+                style={styles.backButton}
+              >
+                <Text style={styles.backText}>← Back</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.titleSection}>
+              <Text style={styles.eyebrow}>{eyebrow}</Text>
+              <Text style={styles.title}>
+                {isJobSeeker ? 'Create Account' : 'Register Company'}
+              </Text>
+              <Text style={styles.subtitle}>
+                {isJobSeeker
+                  ? 'Join VERGO and find your next event opportunity.'
+                  : 'Register to start hiring premium event staff.'}
+              </Text>
+            </View>
+
+            <View style={styles.formCard}>
+              <View style={styles.brandLockup}>
+                <View style={styles.logoMark}>
+                  <Text style={styles.logoText}>V</Text>
+                </View>
+                <View style={styles.logoCopy}>
+                  <Text style={styles.brandName}>VERGO</Text>
+                  <Text style={styles.brandMeta}>
+                    {isJobSeeker ? 'Staff profile setup' : 'Client setup'}
+                  </Text>
+                </View>
+              </View>
+
+              {isJobSeeker ? (
                 <View style={styles.row}>
                   <View style={styles.halfInput}>
                     <Input
                       label="First Name"
                       placeholder="John"
                       autoCapitalize="words"
+                      textContentType="givenName"
+                      autoComplete="given-name"
                       value={firstName}
                       onChangeText={(text) => { setFirstName(text); clearFieldError('firstName'); }}
                       onBlur={() => validateField('firstName', firstName)}
@@ -227,6 +239,8 @@ export function RegisterScreen({ navigation, route }: Props) {
                       label="Last Name"
                       placeholder="Smith"
                       autoCapitalize="words"
+                      textContentType="familyName"
+                      autoComplete="family-name"
                       value={lastName}
                       onChangeText={(text) => { setLastName(text); clearFieldError('lastName'); }}
                       onBlur={() => validateField('lastName', lastName)}
@@ -234,117 +248,127 @@ export function RegisterScreen({ navigation, route }: Props) {
                     />
                   </View>
                 </View>
-              </>
-            ) : (
-              // Client Fields
-              <>
-                <Input
-                  label="Company Name"
-                  placeholder="Your Company Ltd"
-                  autoCapitalize="words"
-                  value={companyName}
-                  onChangeText={(text) => { setCompanyName(text); clearFieldError('companyName'); }}
-                  onBlur={() => validateField('companyName', companyName)}
-                  error={validationErrors.companyName}
-                />
+              ) : (
+                <>
+                  <Input
+                    label="Company Name"
+                    placeholder="Your Company Ltd"
+                    autoCapitalize="words"
+                    value={companyName}
+                    onChangeText={(text) => { setCompanyName(text); clearFieldError('companyName'); }}
+                    onBlur={() => validateField('companyName', companyName)}
+                    error={validationErrors.companyName}
+                  />
 
-                <View style={styles.row}>
-                  <View style={styles.halfInput}>
-                    <Input
-                      label="Contact First Name"
-                      placeholder="John"
-                      autoCapitalize="words"
-                      value={contactFirstName}
-                      onChangeText={(text) => { setContactFirstName(text); clearFieldError('contactFirstName'); }}
-                      onBlur={() => validateField('contactFirstName', contactFirstName)}
-                      error={validationErrors.contactFirstName}
-                    />
+                  <View style={styles.row}>
+                    <View style={styles.halfInput}>
+                      <Input
+                        label="Contact First Name"
+                        placeholder="John"
+                        autoCapitalize="words"
+                        textContentType="givenName"
+                        autoComplete="given-name"
+                        value={contactFirstName}
+                        onChangeText={(text) => { setContactFirstName(text); clearFieldError('contactFirstName'); }}
+                        onBlur={() => validateField('contactFirstName', contactFirstName)}
+                        error={validationErrors.contactFirstName}
+                      />
+                    </View>
+                    <View style={styles.halfInput}>
+                      <Input
+                        label="Contact Last Name"
+                        placeholder="Smith"
+                        autoCapitalize="words"
+                        textContentType="familyName"
+                        autoComplete="family-name"
+                        value={contactLastName}
+                        onChangeText={(text) => { setContactLastName(text); clearFieldError('contactLastName'); }}
+                        onBlur={() => validateField('contactLastName', contactLastName)}
+                        error={validationErrors.contactLastName}
+                      />
+                    </View>
                   </View>
-                  <View style={styles.halfInput}>
-                    <Input
-                      label="Contact Last Name"
-                      placeholder="Smith"
-                      autoCapitalize="words"
-                      value={contactLastName}
-                      onChangeText={(text) => { setContactLastName(text); clearFieldError('contactLastName'); }}
-                      onBlur={() => validateField('contactLastName', contactLastName)}
-                      error={validationErrors.contactLastName}
-                    />
-                  </View>
+                </>
+              )}
+
+              <Input
+                label="Email"
+                placeholder="you@example.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="emailAddress"
+                autoComplete="email"
+                value={email}
+                onChangeText={(text) => { setEmail(text); clearFieldError('email'); }}
+                onBlur={() => validateField('email', email)}
+                error={validationErrors.email}
+              />
+
+              <Input
+                label="Phone (Optional)"
+                placeholder="+44 7123 456789"
+                keyboardType="phone-pad"
+                textContentType="telephoneNumber"
+                autoComplete="tel"
+                value={phone}
+                onChangeText={setPhone}
+              />
+
+              <Input
+                label="Password"
+                placeholder="Create a strong password"
+                secureTextEntry={true}
+                textContentType="newPassword"
+                autoComplete="new-password"
+                value={password}
+                onChangeText={(text) => { setPassword(text); clearFieldError('password'); }}
+                onBlur={() => validateField('password', password)}
+                error={validationErrors.password}
+                hint="Min 8 chars with uppercase, lowercase and number"
+              />
+
+              <Input
+                label="Confirm Password"
+                placeholder="Confirm your password"
+                secureTextEntry={true}
+                textContentType="newPassword"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChangeText={(text) => { setConfirmPassword(text); clearFieldError('confirmPassword'); }}
+                onBlur={() => validateField('confirmPassword', confirmPassword)}
+                error={validationErrors.confirmPassword}
+              />
+
+              {!isJobSeeker && (
+                <View style={styles.notice}>
+                  <Text style={styles.noticeTitle}>Approval required</Text>
+                  <Text style={styles.noticeText}>
+                    Company accounts are reviewed before job posting is enabled.
+                    Expect a decision within 24 hours.
+                  </Text>
                 </View>
-              </>
-            )}
-            
-            {/* Common Fields */}
-            <Input
-              label="Email"
-              placeholder="you@example.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              value={email}
-              onChangeText={(text) => { setEmail(text); clearFieldError('email'); }}
-              onBlur={() => validateField('email', email)}
-              error={validationErrors.email}
-            />
+              )}
 
-            <Input
-              label="Phone (Optional)"
-              placeholder="+44 7123 456789"
-              keyboardType="phone-pad"
-              value={phone}
-              onChangeText={setPhone}
-            />
+              <Button
+                title="Create Account"
+                onPress={handleRegister}
+                loading={isLoading}
+                size="lg"
+                fullWidth
+                style={styles.submitButton}
+              />
 
-            <Input
-              label="Password"
-              placeholder="Create a strong password"
-              secureTextEntry
-              value={password}
-              onChangeText={(text) => { setPassword(text); clearFieldError('password'); }}
-              onBlur={() => validateField('password', password)}
-              error={validationErrors.password}
-              hint="Min 8 chars with uppercase, lowercase & number"
-            />
-
-            <Input
-              label="Confirm Password"
-              placeholder="Confirm your password"
-              secureTextEntry
-              value={confirmPassword}
-              onChangeText={(text) => { setConfirmPassword(text); clearFieldError('confirmPassword'); }}
-              onBlur={() => validateField('confirmPassword', confirmPassword)}
-              error={validationErrors.confirmPassword}
-            />
-            
-            {!isJobSeeker && (
-              <View style={styles.notice}>
-                <Text style={styles.noticeText}>
-                  📋 Company accounts require admin approval before you can post jobs.
-                  We'll review your registration within 24 hours.
-                </Text>
+              <View style={styles.loginSection}>
+                <Text style={styles.loginText}>Already have an account?</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Login', { userType })}>
+                  <Text style={styles.loginLink}>Sign In</Text>
+                </TouchableOpacity>
               </View>
-            )}
-            
-            <Button
-              title="Create Account"
-              onPress={handleRegister}
-              loading={isLoading}
-              size="lg"
-              fullWidth
-              style={styles.submitButton}
-            />
-          </View>
-          
-          {/* Login Link */}
-          <View style={styles.loginSection}>
-            <Text style={styles.loginText}>Already have an account?</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Login', { userType })}>
-              <Text style={styles.loginLink}>Sign In</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </BrandBackground>
     </SafeAreaView>
   );
 }
@@ -354,99 +378,176 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  
+
+  backgroundContent: {
+    flex: 1,
+  },
+
   keyboardAvoid: {
     flex: 1,
   },
-  
+
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl,
-  },
-  
-  header: {
     paddingTop: spacing.md,
+    paddingBottom: spacing.xxl,
+  },
+
+  header: {
     marginBottom: spacing.lg,
   },
-  
+
   backButton: {
     paddingVertical: spacing.sm,
-    paddingRight: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.surfaceLight,
     alignSelf: 'flex-start',
   },
-  
+
   backText: {
     color: colors.textSecondary,
-    fontSize: typography.fontSize.md,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
   },
-  
+
   titleSection: {
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
+    gap: spacing.sm,
   },
-  
+
+  eyebrow: {
+    color: colors.primary,
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.heavy,
+    letterSpacing: 2.2,
+    textTransform: 'uppercase',
+  },
+
   title: {
     color: colors.textPrimary,
-    fontSize: typography.fontSize.xxl,
-    fontWeight: '700' as const,
-    marginBottom: spacing.sm,
+    fontSize: typography.fontSize.hero,
+    fontFamily: typography.fontFamily.display,
+    lineHeight: 48,
   },
-  
+
   subtitle: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.md,
-    lineHeight: 24,
+    lineHeight: 25,
+    maxWidth: 330,
   },
-  
-  form: {
-    marginBottom: spacing.lg,
+
+  formCard: {
+    gap: spacing.sm,
+    padding: spacing.xl,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
+    borderRadius: borderRadius.xl,
+    backgroundColor: colors.surfaceStrong,
+    ...shadows.md,
   },
-  
+
+  brandLockup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginBottom: spacing.md,
+  },
+
+  logoMark: {
+    width: 52,
+    height: 52,
+    borderRadius: borderRadius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.primaryLine,
+    backgroundColor: colors.primarySoft,
+  },
+
+  logoText: {
+    color: colors.primary,
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.heavy,
+    letterSpacing: 3,
+  },
+
+  logoCopy: {
+    gap: 2,
+  },
+
+  brandName: {
+    color: colors.textPrimary,
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.heavy,
+    letterSpacing: 2.2,
+  },
+
+  brandMeta: {
+    color: colors.textMuted,
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.semibold,
+    letterSpacing: 1.1,
+    textTransform: 'uppercase',
+  },
+
   row: {
     flexDirection: 'row',
     gap: spacing.md,
   },
-  
+
   halfInput: {
     flex: 1,
   },
-  
+
   notice: {
-    backgroundColor: colors.surface,
+    gap: spacing.xs,
+    backgroundColor: colors.primarySoft,
     padding: spacing.md,
-    borderRadius: 8,
+    borderRadius: borderRadius.md,
     marginBottom: spacing.md,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
+    borderWidth: 1,
+    borderColor: colors.primaryLine,
   },
-  
+
+  noticeTitle: {
+    color: colors.primary,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.bold,
+  },
+
   noticeText: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.sm,
     lineHeight: 20,
   },
-  
+
   submitButton: {
     marginTop: spacing.sm,
   },
-  
+
   loginSection: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    marginTop: 'auto',
+    alignItems: 'center',
+    marginTop: spacing.md,
     paddingTop: spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: colors.surfaceBorder,
   },
-  
+
   loginText: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.md,
+    marginBottom: spacing.xs,
   },
-  
+
   loginLink: {
     color: colors.primary,
     fontSize: typography.fontSize.md,
-    fontWeight: '600' as const,
+    fontWeight: typography.fontWeight.bold,
   },
 });
 

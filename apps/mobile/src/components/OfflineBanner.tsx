@@ -37,6 +37,7 @@ export function OfflineBanner() {
 
   return (
     <Animated.View
+      pointerEvents="none"
       style={[
         styles.banner,
         {
@@ -45,7 +46,6 @@ export function OfflineBanner() {
           transform: [{ translateY }],
         },
       ]}
-      pointerEvents="none"
     >
       <Text style={styles.text}>{label}</Text>
     </Animated.View>
@@ -58,9 +58,9 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#2a2a2a',
+    backgroundColor: colors.backdrop,
     borderBottomWidth: 1,
-    borderBottomColor: colors.primary,
+    borderBottomColor: colors.primaryLine,
     alignItems: 'center',
     justifyContent: 'flex-end',
     paddingBottom: spacing.xs,
@@ -71,6 +71,6 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: typography.fontSize.xs,
     fontWeight: typography.fontWeight.semibold,
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
 });

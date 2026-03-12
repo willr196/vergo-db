@@ -78,11 +78,11 @@ export function Toast() {
 
   return (
     <Animated.View
+      pointerEvents="none"
       style={[
         styles.container,
         { borderLeftColor: accentColor, opacity, transform: [{ translateY }] },
       ]}
-      pointerEvents="none"
     >
       <View style={[styles.iconContainer, { backgroundColor: accentColor + '20' }]}>
         <Text style={[styles.icon, { color: accentColor }]}>

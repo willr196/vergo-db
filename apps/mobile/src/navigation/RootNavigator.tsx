@@ -10,7 +10,7 @@ import type { LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import { colors, typography } from '../theme';
+import { borderRadius, colors, typography, shadows } from '../theme';
 import {
   useAuthStore,
   useNotificationsStore,
@@ -18,7 +18,7 @@ import {
   useApplicationsStore,
   registerRefreshCallback,
 } from '../store';
-import { Toast } from '../components';
+import { ErrorBoundary, Toast } from '../components';
 import {
   registerForPushNotifications,
   addNotificationReceivedListener,
@@ -73,7 +73,7 @@ const navigationTheme = {
     ...DarkTheme.colors,
     primary: colors.primary,
     background: colors.background,
-    card: colors.surface,
+    card: colors.surfaceStrong,
     text: colors.textPrimary,
     border: colors.surfaceBorder,
     notification: colors.primary,
@@ -142,35 +142,37 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
 function JobSeekerTabNavigator() {
   const { unreadCount, clearUnread } = useNotificationsStore();
   return (
-    <JobSeekerTab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textMuted,
-        tabBarLabelStyle: styles.tabLabel,
-        tabBarIcon: ({ focused }) => (
-          <TabIcon label={route.name} focused={focused} />
-        ),
-      })}
-    >
-      <JobSeekerTab.Screen
-        name="Jobs"
-        component={JobsScreen}
-        options={{ tabBarLabel: 'Jobs' }}
-      />
-      <JobSeekerTab.Screen
-        name="Applications"
-        component={ApplicationsScreen}
-        options={{ tabBarLabel: 'Applications', tabBarBadge: unreadCount > 0 ? unreadCount : undefined }}
-        listeners={{ tabPress: () => clearUnread() }}
-      />
-      <JobSeekerTab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{ tabBarLabel: 'Profile' }}
-      />
-    </JobSeekerTab.Navigator>
+    <ErrorBoundary>
+      <JobSeekerTab.Navigator
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarStyle: styles.tabBar,
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.textMuted,
+          tabBarLabelStyle: styles.tabLabel,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon label={route.name} focused={focused} />
+          ),
+        })}
+      >
+        <JobSeekerTab.Screen
+          name="Jobs"
+          component={JobsScreen}
+          options={{ tabBarLabel: 'Jobs' }}
+        />
+        <JobSeekerTab.Screen
+          name="Applications"
+          component={ApplicationsScreen}
+          options={{ tabBarLabel: 'Applications', tabBarBadge: unreadCount > 0 ? unreadCount : undefined }}
+          listeners={{ tabPress: () => clearUnread() }}
+        />
+        <JobSeekerTab.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{ tabBarLabel: 'Profile' }}
+        />
+      </JobSeekerTab.Navigator>
+    </ErrorBoundary>
   );
 }
 
@@ -178,40 +180,42 @@ function JobSeekerTabNavigator() {
 function ClientTabNavigator() {
   const { unreadCount, clearUnread } = useNotificationsStore();
   return (
-    <ClientTab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textMuted,
-        tabBarLabelStyle: styles.tabLabel,
-        tabBarIcon: ({ focused }) => (
-          <TabIcon label={route.name} focused={focused} />
-        ),
-      })}
-    >
-      <ClientTab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{ tabBarLabel: 'Dashboard', tabBarBadge: unreadCount > 0 ? unreadCount : undefined }}
-        listeners={{ tabPress: () => clearUnread() }}
-      />
-      <ClientTab.Screen
-        name="Browse"
-        component={BrowseStaffScreen}
-        options={{ tabBarLabel: 'Browse' }}
-      />
-      <ClientTab.Screen
-        name="Bookings"
-        component={BookingsScreen}
-        options={{ tabBarLabel: 'Bookings' }}
-      />
-      <ClientTab.Screen
-        name="Profile"
-        component={CompanyProfileScreen}
-        options={{ tabBarLabel: 'Profile' }}
-      />
-    </ClientTab.Navigator>
+    <ErrorBoundary>
+      <ClientTab.Navigator
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarStyle: styles.tabBar,
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.textMuted,
+          tabBarLabelStyle: styles.tabLabel,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon label={route.name} focused={focused} />
+          ),
+        })}
+      >
+        <ClientTab.Screen
+          name="Dashboard"
+          component={DashboardScreen}
+          options={{ tabBarLabel: 'Dashboard', tabBarBadge: unreadCount > 0 ? unreadCount : undefined }}
+          listeners={{ tabPress: () => clearUnread() }}
+        />
+        <ClientTab.Screen
+          name="Browse"
+          component={BrowseStaffScreen}
+          options={{ tabBarLabel: 'Browse' }}
+        />
+        <ClientTab.Screen
+          name="Bookings"
+          component={BookingsScreen}
+          options={{ tabBarLabel: 'Bookings' }}
+        />
+        <ClientTab.Screen
+          name="Profile"
+          component={CompanyProfileScreen}
+          options={{ tabBarLabel: 'Profile' }}
+        />
+      </ClientTab.Navigator>
+    </ErrorBoundary>
   );
 }
 
@@ -429,22 +433,26 @@ export function RootNavigator() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.backdrop,
     borderTopColor: colors.surfaceBorder,
     borderTopWidth: 1,
-    paddingTop: 8,
-    paddingBottom: 8,
-    height: 60,
+    height: 72,
+    paddingTop: 10,
+    paddingBottom: 10,
+    borderTopLeftRadius: borderRadius.lg,
+    borderTopRightRadius: borderRadius.lg,
+    ...shadows.md,
   },
 
   tabLabel: {
     fontSize: typography.fontSize.xs,
-    fontWeight: '500' as const,
+    fontWeight: typography.fontWeight.semibold,
+    letterSpacing: 0.3,
     marginTop: 4,
   },
 
   tabIcon: {
-    fontSize: 22,
+    fontSize: 20,
   },
 
   tabIconFocused: {
