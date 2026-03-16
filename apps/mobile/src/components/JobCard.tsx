@@ -19,6 +19,7 @@ interface JobCardProps {
   onPress: () => void;
   style?: ViewStyle;
   compact?: boolean;
+  skillMatchPercentage?: number | null;
 }
 
 // Role display names
@@ -40,10 +41,41 @@ const ROLE_LABELS: Record<JobRole, string> = {
   other: 'Other',
 };
 
-export const JobCard = memo(function JobCard({ job, onPress, style, compact = false }: JobCardProps) {
+function getSkillMatchColors(percentage: number): { backgroundColor: string; borderColor: string; textColor: string } {
+  if (percentage >= 75) {
+    return {
+      backgroundColor: colors.successSoft,
+      borderColor: `${colors.success}55`,
+      textColor: colors.successLight,
+    };
+  }
+
+  if (percentage >= 40) {
+    return {
+      backgroundColor: colors.warningSoft,
+      borderColor: `${colors.warning}55`,
+      textColor: colors.warning,
+    };
+  }
+
+  return {
+    backgroundColor: colors.surfaceLight,
+    borderColor: colors.surfaceBorder,
+    textColor: colors.textMuted,
+  };
+}
+
+export const JobCard = memo(function JobCard({
+  job,
+  onPress,
+  style,
+  compact = false,
+  skillMatchPercentage = null,
+}: JobCardProps) {
   const formattedDate = formatDate(job.date);
   const formattedTime = `${formatTime(job.startTime)} - ${formatTime(job.endTime)}`;
   const spotsLeft = (job.positionsAvailable || 0) - (job.positionsFilled || 0);
+  const skillMatchColors = skillMatchPercentage !== null ? getSkillMatchColors(skillMatchPercentage) : null;
   
   if (compact) {
     return (
@@ -73,14 +105,41 @@ export const JobCard = memo(function JobCard({ job, onPress, style, compact = fa
     >
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.roleBadge}>
-          <Text style={styles.roleText}>{ROLE_LABELS[job.role]}</Text>
-        </View>
-        {job.dbsRequired && (
-          <View style={styles.dbsBadge}>
-            <Text style={styles.dbsText}>DBS</Text>
+        <View style={styles.headerBadges}>
+          <View style={styles.roleBadge}>
+            <Text style={styles.roleText}>{ROLE_LABELS[job.role]}</Text>
           </View>
-        )}
+          {job.tier === 'SHORTLIST' && (
+            <View style={styles.shortlistBadge}>
+              <Text style={styles.shortlistText}>Curated</Text>
+            </View>
+          )}
+          {job.tier === 'GOLD' && (
+            <View style={styles.goldTierBadge}>
+              <Text style={styles.goldTierText}>Premium</Text>
+            </View>
+          )}
+          {job.dbsRequired && (
+            <View style={styles.dbsBadge}>
+              <Text style={styles.dbsText}>DBS</Text>
+            </View>
+          )}
+        </View>
+        {skillMatchColors ? (
+          <View
+            style={[
+              styles.skillMatchBadge,
+              {
+                backgroundColor: skillMatchColors.backgroundColor,
+                borderColor: skillMatchColors.borderColor,
+              },
+            ]}
+          >
+            <Text style={[styles.skillMatchText, { color: skillMatchColors.textColor }]}>
+              {skillMatchPercentage}% overlap
+            </Text>
+          </View>
+        ) : null}
       </View>
       
       {/* Title & Company */}
@@ -173,8 +232,16 @@ const styles = StyleSheet.create({
   
   header: {
     flexDirection: 'row',
-    gap: spacing.xs,
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
     marginBottom: spacing.sm,
+  },
+
+  headerBadges: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
   },
   
   roleBadge: {
@@ -190,6 +257,36 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
   },
   
+  shortlistBadge: {
+    backgroundColor: colors.infoSoft,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.sm,
+    borderWidth: 1,
+    borderColor: `${colors.info}55`,
+  },
+
+  shortlistText: {
+    color: colors.info,
+    fontSize: typography.fontSize.xs,
+    fontWeight: '600' as const,
+  },
+
+  goldTierBadge: {
+    backgroundColor: colors.primarySoft,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.sm,
+    borderWidth: 1,
+    borderColor: colors.primaryLine,
+  },
+
+  goldTierText: {
+    color: colors.primary,
+    fontSize: typography.fontSize.xs,
+    fontWeight: '600' as const,
+  },
+
   dbsBadge: {
     backgroundColor: colors.surfaceLight,
     paddingHorizontal: spacing.sm,
@@ -198,11 +295,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.warning,
   },
-  
+
   dbsText: {
     color: colors.warning,
     fontSize: typography.fontSize.xs,
     fontWeight: '600' as const,
+  },
+
+  skillMatchBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+  },
+
+  skillMatchText: {
+    fontSize: typography.fontSize.xs,
+    fontWeight: '700' as const,
   },
   
   title: {

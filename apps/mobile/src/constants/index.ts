@@ -37,6 +37,9 @@ export const API_TIMEOUT = 30000;
 export const DEFAULT_PAGE_SIZE = 20;
 export const DEFAULT_PAGE = 1;
 
+// Experimental matching UI is hidden by default until validated with users.
+export const ENABLE_SKILL_MATCH_EXPERIMENT = false;
+
 // Helper function to get job role label
 export function getJobRoleLabel(role: JobRole): string {
   return JOB_ROLES.find(r => r.value === role)?.label || role;

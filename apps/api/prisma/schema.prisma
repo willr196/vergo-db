@@ -427,6 +427,9 @@ model User {
   lockedUntil     DateTime?
   lastLoginAt     DateTime?
 
+  // Shortlist performance tracking (incremented each time confirmed on a SHORTLIST-tier job)
+  shortlistSelections Int          @default(0)
+
   // Staff marketplace profile
   staffTier       StaffTier?       // null = not on marketplace yet
   staffBio        String?          @db.Text
@@ -495,8 +498,9 @@ model Job {
   description   String        @db.Text
   requirements  String?       @db.Text  // What you need from applicants
   
-  // Type & Status
+  // Type, Tier & Status
   type          JobType       @default(INTERNAL)
+  tier          JobTier       @default(STANDARD)
   status        JobStatus     @default(DRAFT)
   
   // Location
@@ -524,8 +528,9 @@ model Job {
   externalUrl   String?       // Link to apply externally
   
   // Publishing
-  publishedAt   DateTime?
-  closingDate   DateTime?
+  publishedAt         DateTime?
+  closingDate         DateTime?
+  shortlistReviewedAt DateTime?  // Set when admin has reviewed applicants and sent shortlist to client
   
   // Role required
   roleId        String
@@ -549,10 +554,13 @@ model JobApplication {
   updatedAt     DateTime             @updatedAt
   
   status        JobApplicationStatus @default(PENDING)
-  
+
+  // Rate uplift for Shortlist-tier jobs: set to 1.00 when admin confirms a Shortlist applicant
+  rateUplift    Decimal?             @db.Decimal(10, 2)
+
   // Optional message from applicant
   coverNote     String?              @db.Text
-  
+
   // Admin notes (internal)
   adminNotes    String?              @db.Text
   
@@ -590,6 +598,12 @@ model SavedJob {
 enum JobType {
   INTERNAL    // Your VERGO gigs
   EXTERNAL    // Aggregated/partner jobs
+}
+
+enum JobTier {
+  STANDARD    // Standard staffing — wage + £3/hr service fee
+  SHORTLIST   // Curated matching — VERGO reviews applicants, client selects; +£1/hr worker uplift
+  GOLD        // Premium managed — senior/lead roles, fixed public rates
 }
 
 enum JobStatus {

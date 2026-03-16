@@ -24,6 +24,9 @@ export {
   getInitials,
 } from './profileUtils';
 
+export { calculateSkillMatch } from './matching';
+export type { SkillMatchResult } from './matching';
+
 export {
   registerForPushNotifications,
   addNotificationReceivedListener,

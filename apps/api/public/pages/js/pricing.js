@@ -67,46 +67,51 @@
   }
 
   function updateCalculator() {
-    const tier = tierField.value === 'STANDARD' ? 'STANDARD' : 'GOLD';
+    const tier = ['STANDARD', 'SHORTLIST'].includes(tierField.value) ? tierField.value : 'GOLD';
     const role = roleField.value in rates ? roleField.value : 'standard';
     const headcount = readPositiveNumber(headcountField);
     const hours = readPositiveNumber(hoursField);
 
-    standardRateWrap.hidden = tier !== 'STANDARD';
+    standardRateWrap.hidden = tier === 'GOLD';
 
-    if (tier === 'STANDARD') {
+    if (tier === 'STANDARD' || tier === 'SHORTLIST') {
+      const isShortlist = tier === 'SHORTLIST';
+      const serviceFeeRate = isShortlist ? 4 : 3;
+      const tierLabel = isShortlist ? 'Shortlist' : 'Standard';
       const baseRate = readPositiveNumber(standardRateField);
 
       if (!baseRate || !headcount || !hours) {
-        tierBadge.textContent = 'Standard estimate';
+        tierBadge.textContent = tierLabel + ' estimate';
         total.innerHTML = '--';
-        summary.textContent = 'Enter the staff hourly rate, staff count and hours to calculate a Standard estimate.';
+        summary.textContent = 'Enter the staff hourly rate, staff count and hours to calculate a ' + tierLabel + ' estimate.';
         rateLabel.textContent = 'Staff hourly rate';
         hourlyRate.innerHTML = '--';
         subtotal.innerHTML = '--';
         serviceLabel.textContent = 'Service fee';
         serviceFee.innerHTML = '--';
         vat.innerHTML = '--';
-        disclaimer.textContent = 'Standard pricing = agreed wage + \u00A33/hr + VAT. Use the contact form for mixed teams or more bespoke briefs.';
+        disclaimer.textContent = tierLabel + ' pricing = agreed wage + \u00A3' + serviceFeeRate + '/hr + VAT.' + (isShortlist ? ' Includes \u00A31/hr merit uplift for shortlisted workers.' : ' Use the contact form for mixed teams or more bespoke briefs.');
         quoteLink.setAttribute('href', staffRequestHref);
         return;
       }
 
       const labourSubtotal = baseRate * headcount * hours;
-      const serviceSubtotal = 3 * headcount * hours;
+      const serviceSubtotal = serviceFeeRate * headcount * hours;
       const vatAmount = (labourSubtotal + serviceSubtotal) * 0.2;
       const totalAmount = labourSubtotal + serviceSubtotal + vatAmount;
 
-      tierBadge.textContent = 'Standard estimate';
+      tierBadge.textContent = tierLabel + ' estimate';
       total.innerHTML = formatMoney(totalAmount);
-      summary.textContent = headcount + ' staff for ' + hours + ' hours on the Standard ' + roleLabels[role] + ' route.';
+      summary.textContent = headcount + ' staff for ' + hours + ' hours on the ' + tierLabel + ' ' + roleLabels[role] + ' route.';
       rateLabel.textContent = 'Staff hourly rate';
       hourlyRate.innerHTML = formatMoney(baseRate) + '/hr';
       subtotal.innerHTML = formatMoney(labourSubtotal);
-      serviceLabel.textContent = 'Service fee (\u00A33/hr)';
+      serviceLabel.textContent = 'Service fee (\u00A3' + serviceFeeRate + '/hr' + (isShortlist ? ' incl. merit uplift' : '') + ')';
       serviceFee.innerHTML = formatMoney(serviceSubtotal);
       vat.innerHTML = formatMoney(vatAmount);
-      disclaimer.textContent = 'Estimate only. Travel, late-night uplifts, mixed teams and bespoke briefs may need a full staffing conversation.';
+      disclaimer.textContent = isShortlist
+        ? 'Estimate only. Includes \u00A31/hr merit uplift for each shortlisted worker selected. Travel, late-night uplifts and bespoke briefs may need a full quote.'
+        : 'Estimate only. Travel, late-night uplifts, mixed teams and bespoke briefs may need a full staffing conversation.';
       quoteLink.setAttribute('href', staffRequestHref);
       return;
     }

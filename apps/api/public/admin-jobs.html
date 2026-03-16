@@ -61,6 +61,15 @@
             <option value="EXTERNAL">External Jobs</option>
           </select>
         </div>
+        <div class="as-filter-group">
+          <label>Tier</label>
+          <select id="filter-tier">
+            <option value="">All Tiers</option>
+            <option value="STANDARD">Standard</option>
+            <option value="SHORTLIST">Shortlist</option>
+            <option value="GOLD">Gold</option>
+          </select>
+        </div>
       </div>
 
       <!-- Table -->
@@ -179,6 +188,17 @@
                 <option value="OPEN">Open (visible)</option>
                 <option value="FILLED">Filled</option>
                 <option value="CLOSED">Closed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label class="as-label">Tier</label>
+              <select name="tier" class="as-input">
+                <option value="STANDARD">Standard — wage + £3/hr + VAT</option>
+                <option value="SHORTLIST">Shortlist — wage + £4/hr + VAT (curated matching, +£1/hr worker uplift)</option>
+                <option value="GOLD">Gold — fixed rates</option>
               </select>
             </div>
           </div>

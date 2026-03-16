@@ -40,6 +40,8 @@ function shapeMobileJob(job: any) {
     closingDate: job.closingDate,
     publishedAt: job.publishedAt,
     role: job.role,
+    tier: job.tier,
+    shortlistReviewedAt: job.shortlistReviewedAt,
     applicationCount: job._count?.applications ?? 0,
     createdAt: job.createdAt,
     updatedAt: job.updatedAt

@@ -28,10 +28,12 @@ let jobs = [];
     async function loadJobs() {
       const status = document.getElementById('filter-status').value;
       const type = document.getElementById('filter-type').value;
-      
+      const tier = document.getElementById('filter-tier').value;
+
       const params = new URLSearchParams({ limit: '50' });
       if (status) params.append('status', status);
       if (type) params.append('type', type);
+      if (tier) params.append('tier', tier);
       
       try {
         const res = await fetch(`/api/v1/jobs/admin/list?${params}`, { credentials: 'include' });
@@ -91,9 +93,14 @@ let jobs = [];
         const companyDisplay = job.companyName || (job.type === 'INTERNAL' ? 'VERGO' : '-');
         const posterEmail = job.posterEmail ? `<span class="poster-email">${escapeHtml(job.posterEmail)}</span>` : '';
         
+        // Tier badge
+        const tierLabels = { STANDARD: 'Standard', SHORTLIST: 'Shortlist', GOLD: 'Gold' };
+        const tierLabel = tierLabels[job.tier] || job.tier || 'Standard';
+        const tierClass = job.tier === 'SHORTLIST' ? 'tier-shortlist' : job.tier === 'GOLD' ? 'tier-gold' : 'tier-standard';
+
         // Determine which action buttons to show
         let actionButtons = '';
-        
+
         if (job.status === 'PENDING') {
           actionButtons = `
             <button type="button" class="btn btn-small btn-approve" data-action="approve-job" data-job-id="${job.id}">✓ Approve</button>
@@ -101,17 +108,22 @@ let jobs = [];
             <button type="button" class="btn btn-small btn-edit" data-action="edit-job" data-job-id="${job.id}">Edit</button>
           `;
         } else {
+          const reviewBtn = job.tier === 'SHORTLIST' && job.status === 'OPEN'
+            ? `<button type="button" class="btn btn-small btn-shortlist" data-action="shortlist-review" data-job-id="${job.id}" title="${job.shortlistReviewedAt ? 'Re-mark reviewed' : 'Mark shortlist reviewed'}">Review</button>`
+            : '';
           actionButtons = `
+            ${reviewBtn}
             <button type="button" class="btn btn-small btn-edit" data-action="edit-job" data-job-id="${job.id}">Edit</button>
             <button type="button" class="btn btn-small btn-delete" data-action="delete-job" data-job-id="${job.id}">Delete</button>
           `;
         }
-        
+
         return `
           <tr>
             <td class="job-title-cell">
               <strong>${escapeHtml(job.title)}</strong>
               <span>${escapeHtml(roleName)}</span>
+              <span class="tier-badge ${tierClass}">${tierLabel}</span>
             </td>
             <td>
               ${escapeHtml(companyDisplay)}
@@ -159,6 +171,7 @@ let jobs = [];
       form.payType.value = job.payType;
       form.staffNeeded.value = job.staffNeeded;
       form.status.value = job.status === 'PENDING' ? 'DRAFT' : job.status; // Can't set to PENDING manually
+      form.tier.value = job.tier || 'STANDARD';
       form.description.value = job.description;
       form.requirements.value = job.requirements || '';
       form.closingDate.value = job.closingDate ? job.closingDate.split('T')[0] : '';
@@ -194,6 +207,7 @@ let jobs = [];
         payType: form.payType.value,
         staffNeeded: parseInt(form.staffNeeded.value) || 1,
         status: form.status.value,
+        tier: form.tier.value,
         description: form.description.value.trim(),
         requirements: form.requirements.value.trim() || null,
         closingDate: form.closingDate.value || null
@@ -301,6 +315,27 @@ let jobs = [];
       }
     }
     
+    // Mark shortlist application window reviewed
+    async function shortlistReview(id) {
+      const job = jobs.find(j => j.id === id);
+      if (!confirm(`Mark shortlist reviewed for "${job?.title}"?\n\nThis records that you have reviewed applicants and are ready to present the shortlist to the client.`)) return;
+
+      try {
+        const res = await fetch(`/api/v1/jobs/${id}/shortlist-review`, { method: 'POST', credentials: 'include' });
+
+        if (!res.ok) {
+          const payload = await res.json();
+          const data = payload.data ?? payload;
+          throw new Error(data.error || 'Failed to mark reviewed');
+        }
+
+        showAlert('Shortlist marked as reviewed', 'success');
+        loadJobs();
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+
     // Aliases for AdminCore
     const escapeHtml = AdminCore.escapeHtml;
     const showAlert = AdminCore.showAlert;
@@ -322,10 +357,12 @@ let jobs = [];
       if (action === 'reject-job') return jobId && rejectJob(jobId);
       if (action === 'edit-job') return jobId && editJob(jobId);
       if (action === 'delete-job') return jobId && deleteJob(jobId);
+      if (action === 'shortlist-review') return jobId && shortlistReview(jobId);
     });
 
     document.getElementById('filter-status')?.addEventListener('change', loadJobs);
     document.getElementById('filter-type')?.addEventListener('change', loadJobs);
+    document.getElementById('filter-tier')?.addEventListener('change', loadJobs);
     document.getElementById('job-form')?.addEventListener('submit', saveJob);
     
     // Modal backdrop + Escape behavior (uses local closeModal to reset editingId)

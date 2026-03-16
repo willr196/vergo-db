@@ -54,7 +54,7 @@
     .pricing-grid {
       display: grid;
       gap: 18px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .pricing-grid .tier-card {
@@ -67,6 +67,12 @@
       background:
         radial-gradient(circle at 100% 0, rgba(212, 175, 55, 0.12), transparent 32%),
         linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(12, 12, 12, 0.98));
+    }
+
+    @media (max-width: 1120px) {
+      .pricing-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     .pricing-copy {
@@ -231,7 +237,7 @@
           <div>
             <span class="eyebrow">Pricing</span>
             <h1>Transparent Pricing</h1>
-            <p class="lede">Simple pricing for Standard and Gold staffing, with a calculator for fast estimates and a quote route for more bespoke briefs.</p>
+            <p class="lede">Clear pricing across Standard, Shortlist and Gold — with a calculator for quick estimates and a quote route for bespoke briefs.</p>
             <div class="hero-actions">
               <a href="#calculator" class="btn btn-primary">Use Price Calculator</a>
               <a href="/contact?tab=staff#contact-forms" class="btn btn-secondary">Request Staff</a>
@@ -240,28 +246,28 @@
 
           <aside class="panel hero-summary" aria-label="Pricing summary">
             <span class="status">No hidden tiers</span>
-            <h2>Know what changes between Standard and Gold.</h2>
-            <p>Standard keeps things flexible. Gold moves onto fixed client rates once a staff member has earned the upgrade.</p>
+            <h2>Know exactly what each tier costs.</h2>
+            <p>Standard and Shortlist are priced against the agreed wage. Gold uses fixed public rates. No hidden tiers, no surprises.</p>
             <div class="detail-grid">
               <article class="detail-card">
                 <p class="card-label">Standard</p>
                 <p><strong>Wage + &pound;3/hr + VAT.</strong></p>
               </article>
               <article class="detail-card">
+                <p class="card-label">Shortlist</p>
+                <p><strong>Wage + &pound;4/hr + VAT. Includes worker merit uplift.</strong></p>
+              </article>
+              <article class="detail-card">
                 <p class="card-label">Gold</p>
-                <p><strong>Fixed hourly rates by role.</strong></p>
+                <p><strong>Fixed rates from &pound;20/hr + VAT by role.</strong></p>
               </article>
               <article class="detail-card">
-                <p class="card-label">Earned</p>
-                <p><strong>Gold status is earned through performance, not bought.</strong></p>
-              </article>
-              <article class="detail-card">
-                <p class="card-label">Flexible</p>
-                <p><strong>Mix Standard and Gold staff on the same event if that suits the brief.</strong></p>
+                <p class="card-label">Mix</p>
+                <p><strong>Standard, Shortlist and Gold can work the same event.</strong></p>
               </article>
               <article class="detail-card">
                 <p class="card-label">Calculator</p>
-                <p><strong>Price up common briefs here before requesting a full quote.</strong></p>
+                <p><strong>Price up common briefs before requesting a full quote.</strong></p>
               </article>
             </div>
           </aside>
@@ -274,17 +280,33 @@
         <div class="pricing-grid">
           <article class="tier-card">
             <span class="tier-pill">Standard</span>
-            <h3 class="tier-name">The Marketplace</h3>
-            <p class="pricing-copy">Vetted, checked staff ready to work</p>
+            <h3 class="tier-name">Dependable. Flexible. Fast.</h3>
+            <p class="pricing-copy">Vetted staff, flexible pricing</p>
             <p class="price-line">Wage + &pound;3/hr + VAT</p>
             <ul class="tier-features">
-              <li><span class="mark">01</span><span>Price the brief up quickly with the calculator or quote route.</span></li>
-              <li><span class="mark">02</span><span>All staff background-checked.</span></li>
-              <li><span class="mark">03</span><span>Flexible for any event type.</span></li>
-              <li><span class="mark">04</span><span>Book as few or as many as you need.</span></li>
+              <li><span class="mark">01</span><span>Price the brief with the calculator or send it for a quote.</span></li>
+              <li><span class="mark">02</span><span>All staff background-checked and VERGO-screened.</span></li>
+              <li><span class="mark">03</span><span>Flexible for any event type or headcount.</span></li>
+              <li><span class="mark">04</span><span>Right for general cover, fast-fill needs and flexible briefs.</span></li>
             </ul>
             <div class="stacked-actions">
               <a href="#calculator" class="btn btn-primary">Use Price Calculator</a>
+            </div>
+          </article>
+
+          <article class="tier-card shortlist-card">
+            <span class="tier-pill">Shortlist</span>
+            <h3 class="tier-name">Curated. Merit-based. Worth applying for.</h3>
+            <p class="pricing-copy">VERGO reviews all applicants, you select from the shortlist</p>
+            <p class="price-line">Wage + &pound;4/hr + VAT <span>includes &pound;1/hr worker merit uplift</span></p>
+            <ul class="tier-features">
+              <li><span class="mark">01</span><span>Applications open for a fixed window. Workers apply as normal — no extra friction.</span></li>
+              <li><span class="mark">02</span><span>VERGO manually reviews every applicant and sends you a curated shortlist.</span></li>
+              <li><span class="mark">03</span><span>You make the final selection. Selected workers receive a &pound;1/hr merit uplift.</span></li>
+              <li><span class="mark">04</span><span>Best for events where fit and quality matter more than speed of fill.</span></li>
+            </ul>
+            <div class="stacked-actions">
+              <a href="/contact?tab=staff#contact-forms" class="btn btn-primary">Request a Shortlist Brief</a>
             </div>
           </article>
 
@@ -326,7 +348,7 @@
           </article>
         </div>
 
-        <p class="earned-note">Every staff member starts Standard. Gold status is earned — not bought.</p>
+        <p class="earned-note">Every staff member starts Standard. Shortlist is the performance pathway to Gold. Gold is earned — not bought.</p>
       </div>
     </section>
 
@@ -344,6 +366,7 @@
               <label for="calc-tier">Staffing route</label>
               <select id="calc-tier" name="tier">
                 <option value="GOLD" selected>Gold</option>
+                <option value="SHORTLIST">Shortlist</option>
                 <option value="STANDARD">Standard</option>
               </select>
             </div>
@@ -427,7 +450,17 @@
 
           <details class="panel faq-card">
             <summary>How do staff earn Gold status?</summary>
-            <p>Consistent high ratings, repeat bookings and a direct VERGO endorsement.</p>
+            <p>Consistent high ratings, repeat bookings and a direct VERGO endorsement. Strong Shortlist performance is the main route — it is how Gold-level candidates demonstrate their quality.</p>
+          </details>
+
+          <details class="panel faq-card">
+            <summary>What is a Shortlist brief?</summary>
+            <p>A Shortlist brief opens applications for a fixed window. VERGO manually reviews every applicant and sends the client a curated shortlist. The client makes the final selection. It suits events where fit and quality matter more than the fastest fill.</p>
+          </details>
+
+          <details class="panel faq-card">
+            <summary>How does Shortlist pricing work?</summary>
+            <p>Shortlist uses the same wage-plus-service-fee structure as Standard, with a &pound;1/hr merit uplift added for each shortlisted worker selected. The total client rate is Wage + &pound;4/hr + VAT. This reflects the extra matching quality and incentivises stronger candidates to apply.</p>
           </details>
         </div>
       </div>

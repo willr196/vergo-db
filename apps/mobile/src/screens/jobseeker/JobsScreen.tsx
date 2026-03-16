@@ -20,7 +20,9 @@ import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { JobCard, LoadingScreen, EmptyState, ErrorState, JobFiltersModal } from '../../components';
-import { useJobsStore } from '../../store';
+import { ENABLE_SKILL_MATCH_EXPERIMENT } from '../../constants';
+import { calculateSkillMatch } from '../../utils';
+import { useJobsStore, useAuthStore, selectJobSeeker } from '../../store';
 import type { RootStackParamList, JobSeekerTabParamList, Job, JobFilters } from '../../types';
 
 type Props = CompositeScreenProps<
@@ -29,6 +31,7 @@ type Props = CompositeScreenProps<
 >;
 
 export function JobsScreen({ navigation }: Props) {
+  const user = useAuthStore(selectJobSeeker);
   const {
     jobs,
     isLoading,
@@ -122,9 +125,18 @@ export function JobsScreen({ navigation }: Props) {
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
-  const renderJob = useCallback(({ item }: { item: Job }) => (
-    <JobCard job={item} onPress={() => handleJobPress(item)} />
-  ), [handleJobPress]);
+  const renderJob = useCallback(({ item }: { item: Job }) => {
+    const skillMatch =
+      ENABLE_SKILL_MATCH_EXPERIMENT && user ? calculateSkillMatch(item, user) : null;
+
+    return (
+      <JobCard
+        job={item}
+        onPress={() => handleJobPress(item)}
+        skillMatchPercentage={skillMatch?.percentage ?? null}
+      />
+    );
+  }, [handleJobPress, user]);
 
   const renderHeader = () => (
     <View style={styles.listHeader}>

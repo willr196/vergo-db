@@ -1128,3 +1128,29 @@ tbody tr:hover {
     padding: 18px;
   }
 }
+
+/* Tier badges */
+.tier-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.tier-standard {
+  background: rgba(255,255,255,0.07);
+  color: var(--as-muted);
+}
+.tier-shortlist {
+  background: var(--as-gold-bg);
+  color: var(--as-gold);
+  border: 1px solid rgba(212,175,55,0.25);
+}
+.tier-gold {
+  background: linear-gradient(90deg, rgba(212,175,55,0.2), rgba(212,175,55,0.08));
+  color: var(--as-gold);
+  border: 1px solid rgba(212,175,55,0.4);
+}
