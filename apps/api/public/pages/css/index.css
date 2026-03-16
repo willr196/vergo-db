@@ -285,6 +285,71 @@ body.homepage :is(.cta-card, .nav-strip a):focus-visible {
   outline-offset: 3px;
 }
 
+body.homepage .home-section {
+  position: relative;
+}
+
+body.homepage .home-section-intro,
+body.homepage .home-section .section-heading {
+  max-width: 760px;
+  margin-bottom: 28px;
+}
+
+body.homepage .home-section-intro p,
+body.homepage .home-section .section-heading p,
+body.homepage .home-section .detail-card p,
+body.homepage .home-section .tier-card p {
+  color: var(--home-text);
+}
+
+body.homepage .home-section .detail-card h3,
+body.homepage .home-section .tier-card h3 {
+  margin-top: 16px;
+}
+
+body.homepage .home-guidance {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 34px;
+  border: 1px solid var(--home-gold-line);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 0 0, rgba(212, 175, 55, 0.1), transparent 28%),
+    linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(12, 12, 12, 0.98));
+}
+
+body.homepage .home-guidance h3 {
+  margin: 0;
+  color: var(--home-white);
+  font-size: clamp(1.65rem, 3vw, 2.3rem);
+  line-height: 1;
+}
+
+body.homepage .home-guidance p {
+  max-width: 58ch;
+}
+
+body.homepage .home-lane-grid .tier-card,
+body.homepage .home-fit-card {
+  background:
+    radial-gradient(circle at 100% 0, rgba(212, 175, 55, 0.08), transparent 32%),
+    linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(12, 12, 12, 0.98));
+}
+
+body.homepage .home-tier-intro {
+  margin-top: 16px;
+  max-width: 34ch;
+}
+
+body.homepage .home-lane-grid .tier-features {
+  margin-top: 20px;
+}
+
+body.homepage .home-fit-card p:last-child {
+  max-width: 34ch;
+}
+
 @media (max-width: 900px) {
   body.homepage .hero {
     padding-bottom: 48px;
@@ -301,6 +366,11 @@ body.homepage :is(.cta-card, .nav-strip a):focus-visible {
     width: min(100%, 620px);
     margin-top: 30px;
     border-radius: 26px;
+  }
+
+  body.homepage .home-guidance {
+    padding: 28px;
+    border-radius: 28px;
   }
 }
 
@@ -333,6 +403,11 @@ body.homepage :is(.cta-card, .nav-strip a):focus-visible {
     padding: 0 14px;
     font-size: 0.72rem;
     letter-spacing: 0.12em;
+  }
+
+  body.homepage .home-guidance {
+    padding: 24px;
+    border-radius: 24px;
   }
 }
 

@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pricing | VERGO Events — Premium Event Staffing in London</title>
-  <meta name="description" content="Review VERGO Events pricing for premium event staffing in London, including staffing tiers, booking routes, and calculator guidance.">
+  <meta name="description" content="Review VERGO Events pricing by staffing solution, with clear explanations of Standard, Shortlist and Gold plus role-rate guidance for London event staffing.">
   <meta property="og:title" content="Pricing | VERGO Events — Premium Event Staffing in London">
-  <meta property="og:description" content="Review VERGO Events pricing for premium event staffing in London, including staffing tiers, booking routes, and calculator guidance.">
+  <meta property="og:description" content="Review VERGO Events pricing by staffing solution, with clear explanations of Standard, Shortlist and Gold plus role-rate guidance for London event staffing.">
   <meta property="og:image" content="https://vergoltd.com/logo.png">
   <meta property="og:url" content="https://vergoltd.com/pricing">
   <meta property="og:type" content="website">
@@ -132,6 +132,35 @@
       font-weight: 700;
     }
 
+    .pricing-footnote {
+      margin-top: 10px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .pricing-footnote a {
+      color: var(--gold);
+    }
+
+    .commercial-panel {
+      display: grid;
+      gap: 16px;
+      margin-top: 24px;
+      padding: 34px;
+      border: 1px solid var(--gold-line);
+      border-radius: 34px;
+      background:
+        radial-gradient(circle at 0 0, rgba(212, 175, 55, 0.1), transparent 28%),
+        linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(12, 12, 12, 0.98));
+    }
+
+    .commercial-panel h3 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.35rem);
+      line-height: 1;
+    }
+
     .calculator-section .calculator-form {
       padding: 28px;
     }
@@ -222,6 +251,11 @@
       .pricing-grid {
         grid-template-columns: 1fr;
       }
+
+      .commercial-panel {
+        padding: 28px;
+        border-radius: 28px;
+      }
     }
   </style>
 </head>
@@ -236,38 +270,34 @@
         <div class="hero-grid">
           <div>
             <span class="eyebrow">Pricing</span>
-            <h1>Transparent Pricing</h1>
-            <p class="lede">Clear pricing across Standard, Shortlist and Gold — with a calculator for quick estimates and a quote route for bespoke briefs.</p>
+            <h1>Different staffing solutions for your standards.</h1>
+            <p class="lede">VERGO pricing starts with the staffing solution behind the brief: Standard for flexible vetted staffing, Shortlist for curated client choice, and Gold for premium managed staffing on senior, lead and high-trust roles.</p>
             <div class="hero-actions">
-              <a href="#calculator" class="btn btn-primary">Use Price Calculator</a>
-              <a href="/contact?tab=staff#contact-forms" class="btn btn-secondary">Request Staff</a>
+              <a href="#lane-pricing" class="btn btn-primary">Compare Solutions</a>
+              <a href="#calculator" class="btn btn-secondary">Use Price Calculator</a>
             </div>
           </div>
 
           <aside class="panel hero-summary" aria-label="Pricing summary">
-            <span class="status">No hidden tiers</span>
-            <h2>Know exactly what each tier costs.</h2>
-            <p>Standard and Shortlist are priced against the agreed wage. Gold uses fixed public rates. No hidden tiers, no surprises.</p>
+            <span class="status">Commercial model</span>
+            <h2>Pick the solution before the role rate.</h2>
+            <p>Standard and Shortlist are wage-based solutions. Gold uses fixed public rates for premium roles. Mixed teams can sit inside the same event.</p>
             <div class="detail-grid">
               <article class="detail-card">
                 <p class="card-label">Standard</p>
-                <p><strong>Wage + &pound;3/hr + VAT.</strong></p>
+                <p><strong>Flexible vetted fulfilment priced at wage + &pound;3/hr + VAT.</strong></p>
               </article>
               <article class="detail-card">
                 <p class="card-label">Shortlist</p>
-                <p><strong>Wage + &pound;4/hr + VAT. Includes worker merit uplift.</strong></p>
+                <p><strong>Curated matching priced at wage + &pound;4/hr + VAT, including the merit uplift.</strong></p>
               </article>
               <article class="detail-card">
                 <p class="card-label">Gold</p>
-                <p><strong>Fixed rates from &pound;20/hr + VAT by role.</strong></p>
+                <p><strong>Premium managed senior cover with fixed public rates from &pound;22/hr + VAT.</strong></p>
               </article>
               <article class="detail-card">
                 <p class="card-label">Mix</p>
-                <p><strong>Standard, Shortlist and Gold can work the same event.</strong></p>
-              </article>
-              <article class="detail-card">
-                <p class="card-label">Calculator</p>
-                <p><strong>Price up common briefs before requesting a full quote.</strong></p>
+                <p><strong>Standard, Shortlist and Gold can all be combined within the same brief.</strong></p>
               </article>
             </div>
           </aside>
@@ -277,33 +307,73 @@
 
     <section class="section-block">
       <div class="page-shell">
+        <div class="section-heading">
+          <span class="eyebrow">Commercial overview</span>
+          <h2>What changes commercially between solutions?</h2>
+          <p>The solution determines how VERGO fulfils the brief, how much selection sits with the client and whether pricing flexes with the agreed wage or uses a fixed public rate.</p>
+        </div>
+
+        <div class="card-grid">
+          <article class="detail-card">
+            <p class="card-label">Standard</p>
+            <h3>Flexible vetted fulfilment</h3>
+            <p>VERGO matches and confirms the team directly, keeping staffing efficient without lowering the quality bar.</p>
+          </article>
+          <article class="detail-card">
+            <p class="card-label">Shortlist</p>
+            <h3>Curated selection with client choice</h3>
+            <p>VERGO filters the applicant pool and the client makes the final selection from a refined shortlist.</p>
+          </article>
+          <article class="detail-card">
+            <p class="card-label">Gold</p>
+            <h3>Premium managed senior cover</h3>
+            <p>VERGO manually places proven staff into high-trust, lead and premium guest-facing roles.</p>
+          </article>
+        </div>
+
+        <div class="commercial-panel">
+          <span class="status">Commercially clear</span>
+          <h3>Choose the staffing solution, not just the hourly number.</h3>
+          <p>Role rates still matter, but the bigger pricing decision is how much curation, client choice and seniority the brief needs. Once the right solution is clear, the pricing becomes straightforward.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="lane-pricing" class="section-block" style="padding-top: 8px;">
+      <div class="page-shell">
+        <div class="section-heading">
+          <span class="eyebrow">Solution pricing</span>
+          <h2>Detailed pricing by solution.</h2>
+          <p>Start with the solution that suits the brief, then use the calculator or rate guidance below to price it with more confidence.</p>
+        </div>
+
         <div class="pricing-grid">
           <article class="tier-card">
             <span class="tier-pill">Standard</span>
-            <h3 class="tier-name">Dependable. Flexible. Fast.</h3>
-            <p class="pricing-copy">Vetted staff, flexible pricing</p>
-            <p class="price-line">Wage + &pound;3/hr + VAT</p>
+            <h3 class="tier-name">Flexible vetted staffing</h3>
+            <p class="pricing-copy">Best for straightforward staffing needs, scalable teams and faster-fill roles.</p>
+            <p class="price-line">Commercial model: Wage + &pound;3/hr + VAT</p>
             <ul class="tier-features">
-              <li><span class="mark">01</span><span>Price the brief with the calculator or send it for a quote.</span></li>
-              <li><span class="mark">02</span><span>All staff background-checked and VERGO-screened.</span></li>
-              <li><span class="mark">03</span><span>Flexible for any event type or headcount.</span></li>
-              <li><span class="mark">04</span><span>Right for general cover, fast-fill needs and flexible briefs.</span></li>
+              <li><span class="mark">01</span><span>VERGO matches and confirms the team directly from its screened staffing network.</span></li>
+              <li><span class="mark">02</span><span>The agreed wage flexes by role, seniority and brief, while the VERGO fee stays clear.</span></li>
+              <li><span class="mark">03</span><span>Right for bartenders, waiters, FOH, runners and general event cover.</span></li>
+              <li><span class="mark">04</span><span>The most commercially efficient solution without feeling generic or low-quality.</span></li>
             </ul>
             <div class="stacked-actions">
-              <a href="#calculator" class="btn btn-primary">Use Price Calculator</a>
+              <a href="#calculator" class="btn btn-primary">Estimate Standard</a>
             </div>
           </article>
 
           <article class="tier-card shortlist-card">
             <span class="tier-pill">Shortlist</span>
-            <h3 class="tier-name">Curated. Merit-based. Worth applying for.</h3>
-            <p class="pricing-copy">VERGO reviews all applicants, you select from the shortlist</p>
-            <p class="price-line">Wage + &pound;4/hr + VAT <span>includes &pound;1/hr worker merit uplift</span></p>
+            <h3 class="tier-name">Curated shortlist with final client choice</h3>
+            <p class="pricing-copy">Best for guest-facing or fit-sensitive briefs where the right match matters more than the quickest fill.</p>
+            <p class="price-line">Commercial model: Wage + &pound;4/hr + VAT <span>includes &pound;1/hr merit uplift</span></p>
             <ul class="tier-features">
-              <li><span class="mark">01</span><span>Applications open for a fixed window. Workers apply as normal — no extra friction.</span></li>
-              <li><span class="mark">02</span><span>VERGO manually reviews every applicant and sends you a curated shortlist.</span></li>
-              <li><span class="mark">03</span><span>You make the final selection. Selected workers receive a &pound;1/hr merit uplift.</span></li>
-              <li><span class="mark">04</span><span>Best for events where fit and quality matter more than speed of fill.</span></li>
+              <li><span class="mark">01</span><span>Workers apply as normal during a fixed application window on the brief.</span></li>
+              <li><span class="mark">02</span><span>VERGO manually reviews applicants and sends the client a refined shortlist.</span></li>
+              <li><span class="mark">03</span><span>The client makes the final selection from that shortlist.</span></li>
+              <li><span class="mark">04</span><span>The extra &pound;1/hr uplift rewards selected workers and helps attract stronger candidates.</span></li>
             </ul>
             <div class="stacked-actions">
               <a href="/contact?tab=staff#contact-forms" class="btn btn-primary">Request a Shortlist Brief</a>
@@ -312,8 +382,9 @@
 
           <article class="tier-card gold-card">
             <span class="tier-pill">Gold</span>
-            <h3 class="tier-name">Proven Performers</h3>
-            <p class="pricing-copy">Top-rated staff who've earned their place</p>
+            <h3 class="tier-name">Premium managed senior cover</h3>
+            <p class="pricing-copy">Best for senior, lead and high-trust roles where stronger experience, sharper presentation and more consistent delivery matter.</p>
+            <p class="price-line">Published public rates by role</p>
             <table class="rate-table" aria-label="Gold fixed rates">
               <thead>
                 <tr>
@@ -324,31 +395,28 @@
               <tbody>
                 <tr>
                   <td>Bartender / Waiter / FOH / Runner</td>
-                  <td>&pound;20/hr + VAT</td>
+                  <td>&pound;22/hr + VAT</td>
                 </tr>
                 <tr>
                   <td>Chef</td>
                   <td>&pound;26/hr + VAT</td>
                 </tr>
-                <tr>
-                  <td>Supervisor</td>
-                  <td>&pound;22/hr + VAT</td>
-                </tr>
               </tbody>
             </table>
             <ul class="tier-features">
-              <li><span class="mark">01</span><span>Earned through consistent 5-star performance.</span></li>
-              <li><span class="mark">02</span><span>Experienced across premium events and productions.</span></li>
-              <li><span class="mark">03</span><span>Every Gold member personally endorsed by VERGO.</span></li>
-              <li><span class="mark">04</span><span>Priority availability for repeat clients.</span></li>
+              <li><span class="mark">01</span><span>Managed manually by VERGO for briefs where trust, consistency and leadership matter most.</span></li>
+              <li><span class="mark">02</span><span>Reserved for proven staff with the strongest review history and repeat booking quality.</span></li>
+              <li><span class="mark">03</span><span>Fixed public rates keep premium staffing easy to understand commercially.</span></li>
+              <li><span class="mark">04</span><span>Ideal for head chefs, lead bartenders, premium FOH and other key guest-facing roles rather than general event cover.</span></li>
             </ul>
             <div class="stacked-actions">
-              <a href="/contact?tab=staff#contact-forms" class="btn btn-primary">Request Staff</a>
+              <a href="/contact?tab=staff#contact-forms" class="btn btn-primary">Discuss Gold Staffing</a>
             </div>
           </article>
         </div>
 
-        <p class="earned-note">Every staff member starts Standard. Shortlist is the performance pathway to Gold. Gold is earned — not bought.</p>
+        <p class="earned-note">Standard is the flexible base solution. Shortlist adds curated client choice. Gold is the premium managed option for stronger experience, sharper presentation and more consistent delivery.</p>
+        <p class="pricing-footnote">Permanent hire placement fees from &pound;400 may apply for direct long-term hires. See the <a href="/faq">FAQ</a>.</p>
       </div>
     </section>
 
@@ -356,18 +424,18 @@
       <div class="page-shell">
         <div class="section-heading">
           <span class="eyebrow">Price calculator</span>
-          <h2>Build a quick estimate.</h2>
-          <p>For Standard, enter the agreed wage and the calculator adds &pound;3/hr plus VAT. For Gold, the fixed public role rates are applied automatically.</p>
+          <h2>Estimate a solution.</h2>
+          <p>Start with the solution, then enter the agreed worker rate for Standard or Shortlist, or use Gold's fixed public rates for premium roles.</p>
         </div>
 
         <div class="calculator-shell">
           <form id="pricing-calculator" class="panel calculator-form" novalidate>
             <div class="calc-field">
-              <label for="calc-tier">Staffing route</label>
+              <label for="calc-tier">Staffing solution</label>
               <select id="calc-tier" name="tier">
-                <option value="GOLD" selected>Gold</option>
-                <option value="SHORTLIST">Shortlist</option>
                 <option value="STANDARD">Standard</option>
+                <option value="SHORTLIST">Shortlist</option>
+                <option value="GOLD">Gold</option>
               </select>
             </div>
 
@@ -376,7 +444,6 @@
               <select id="calc-role" name="role">
                 <option value="standard">Bartender / Waiter / FOH / Runner</option>
                 <option value="chef">Chef</option>
-                <option value="supervisor">Supervisor</option>
               </select>
             </div>
 
@@ -390,38 +457,38 @@
               <input id="calc-hours" name="hours" type="number" min="1" max="24" step="0.5" value="6" inputmode="decimal">
             </div>
 
-            <div id="calc-standard-rate-wrap" class="calc-field calc-field--full" hidden>
-              <label for="calc-standard-rate">Standard hourly rate</label>
-              <input id="calc-standard-rate" name="standardRate" type="number" min="0" max="200" step="0.5" inputmode="decimal" placeholder="Enter the agreed staff hourly rate">
+            <div id="calc-standard-rate-wrap" class="calc-field calc-field--full">
+              <label for="calc-standard-rate">Agreed worker hourly rate</label>
+              <input id="calc-standard-rate" name="standardRate" type="number" min="0" max="200" step="0.5" inputmode="decimal" placeholder="Enter the agreed hourly wage">
               <p id="calc-standard-note" class="calc-muted calc-rate-note">Standard pricing = agreed wage + &pound;3/hr + VAT.</p>
             </div>
           </form>
 
           <div class="calculator-results" aria-live="polite">
-            <span id="calc-tier-badge" class="tier-pill calc-tier-badge">Gold estimate</span>
-            <p id="calc-total" class="calc-total">&pound;576</p>
-            <p id="calc-summary" class="calc-summary">4 staff for 6 hours on the Gold bartender / waiter / FOH / runner rate.</p>
+            <span id="calc-tier-badge" class="tier-pill calc-tier-badge">Standard estimate</span>
+            <p id="calc-total" class="calc-total">--</p>
+            <p id="calc-summary" class="calc-summary">Enter the agreed worker rate, team size and hours to calculate a Standard estimate.</p>
 
             <div class="calc-breakdown">
               <div class="calc-breakdown-row">
-                <span id="calc-rate-label">Hourly rate used</span>
-                <strong id="calc-hourly-rate">&pound;20/hr</strong>
+                <span id="calc-rate-label">Worker hourly rate</span>
+                <strong id="calc-hourly-rate">--</strong>
               </div>
               <div class="calc-breakdown-row">
                 <span>Shift subtotal</span>
-                <strong id="calc-subtotal">&pound;480</strong>
+                <strong id="calc-subtotal">--</strong>
               </div>
               <div class="calc-breakdown-row">
                 <span id="calc-service-label">Service fee</span>
-                <strong id="calc-service-fee">Included</strong>
+                <strong id="calc-service-fee">--</strong>
               </div>
               <div class="calc-breakdown-row">
                 <span>VAT</span>
-                <strong id="calc-vat">&pound;96</strong>
+                <strong id="calc-vat">--</strong>
               </div>
             </div>
 
-            <p id="calc-disclaimer" class="calc-muted calc-disclaimer">Estimate only. Travel, late-night uplifts, mixed teams and bespoke briefs may need a full quote.</p>
+            <p id="calc-disclaimer" class="calc-muted calc-disclaimer">Standard pricing = agreed wage + &pound;3/hr + VAT. Use the contact form for mixed teams or more bespoke briefs.</p>
             <div class="stacked-actions">
               <a id="calc-quote-link" href="/contact?tab=staff#contact-forms" class="btn btn-secondary">Request Staff</a>
             </div>
@@ -434,33 +501,43 @@
       <div class="page-shell">
         <div class="section-heading">
           <span class="eyebrow">Questions</span>
-          <h2>Quick answers.</h2>
+          <h2>Pricing questions.</h2>
         </div>
 
         <div class="faq-grid">
           <details class="panel faq-card" open>
-            <summary>What does the service fee cover?</summary>
-            <p>Vetting, coordination, insurance and the platform that keeps bookings moving cleanly.</p>
+            <summary>What does the Standard fee cover?</summary>
+            <p>VERGO's matching, vetting, booking coordination and the infrastructure that keeps the staffing process moving cleanly from brief to confirmation.</p>
           </details>
 
           <details class="panel faq-card">
-            <summary>Can I mix Standard and Gold staff?</summary>
-            <p>Yes. Book whoever fits your event, whether that means a mixed team or one tier only.</p>
+            <summary>Why is Standard priced against the agreed wage?</summary>
+            <p>Standard is built for flexible staffing briefs, so the worker rate can adjust by role, seniority and event requirements while VERGO's service fee remains clear and predictable.</p>
           </details>
 
           <details class="panel faq-card">
-            <summary>How do staff earn Gold status?</summary>
-            <p>Consistent high ratings, repeat bookings and a direct VERGO endorsement. Strong Shortlist performance is the main route — it is how Gold-level candidates demonstrate their quality.</p>
+            <summary>What exactly happens on a Shortlist brief?</summary>
+            <p>Applications open for a fixed window, workers apply as normal, VERGO manually reviews the applicant pool and the client receives a refined shortlist to make the final selection from.</p>
           </details>
 
           <details class="panel faq-card">
-            <summary>What is a Shortlist brief?</summary>
-            <p>A Shortlist brief opens applications for a fixed window. VERGO manually reviews every applicant and sends the client a curated shortlist. The client makes the final selection. It suits events where fit and quality matter more than the fastest fill.</p>
+            <summary>Why does Shortlist cost more than Standard?</summary>
+            <p>Shortlist adds a manual curation stage and includes a &pound;1/hr merit uplift for the selected workers. The extra cost reflects stronger matching and helps the brief attract higher-quality applicants.</p>
           </details>
 
           <details class="panel faq-card">
-            <summary>How does Shortlist pricing work?</summary>
-            <p>Shortlist uses the same wage-plus-service-fee structure as Standard, with a &pound;1/hr merit uplift added for each shortlisted worker selected. The total client rate is Wage + &pound;4/hr + VAT. This reflects the extra matching quality and incentivises stronger candidates to apply.</p>
+            <summary>When should I move up to Gold?</summary>
+            <p>Gold suits senior, lead and high-trust roles where consistency, judgement and guest-facing confidence are central to the event. It is not the default for general staffing cover.</p>
+          </details>
+
+          <details class="panel faq-card">
+            <summary>Can I mix solutions on one event?</summary>
+            <p>Yes. Many events use Standard for the wider team, Shortlist for more fit-sensitive roles and Gold for key senior positions. VERGO can price and structure mixed-solution briefs clearly.</p>
+          </details>
+
+          <details class="panel faq-card">
+            <summary>What if I want to hire someone directly long-term?</summary>
+            <p>Contact VERGO first. We are always pleased when great people become strong long-term fits, and we can facilitate the conversation and transition. A one-time placement fee from &pound;400 may apply.</p>
           </details>
         </div>
       </div>

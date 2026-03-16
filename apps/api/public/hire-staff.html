@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hire Staff | VERGO Events — Premium Event Staffing in London</title>
-  <meta name="description" content="Compare VERGO Events staffing routes and choose the right London event staffing option for your brief, budget, and service style.">
+  <meta name="description" content="Understand VERGO Events' Standard, Shortlist and Gold staffing solutions for London events, with guided matching and clear next steps for your brief.">
   <meta property="og:title" content="Hire Staff | VERGO Events — Premium Event Staffing in London">
-  <meta property="og:description" content="Compare VERGO Events staffing routes and choose the right London event staffing option for your brief, budget, and service style.">
+  <meta property="og:description" content="Understand VERGO Events' Standard, Shortlist and Gold staffing solutions for London events, with guided matching and clear next steps for your brief.">
   <meta property="og:image" content="https://vergoltd.com/logo.png">
   <meta property="og:url" content="https://vergoltd.com/hire-staff">
   <meta property="og:type" content="website">
@@ -93,9 +93,32 @@
       margin-top: 24px;
     }
 
+    .journey-panel {
+      display: grid;
+      gap: 16px;
+      margin-top: 24px;
+      padding: 34px;
+      border: 1px solid var(--gold-line);
+      border-radius: 34px;
+      background:
+        radial-gradient(circle at 0 0, rgba(212, 175, 55, 0.1), transparent 28%),
+        linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(12, 12, 12, 0.98));
+    }
+
+    .journey-panel h3 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.35rem);
+      line-height: 1;
+    }
+
     @media (max-width: 960px) {
       .tier-compare-grid {
         grid-template-columns: 1fr;
+      }
+
+      .journey-panel {
+        padding: 28px;
+        border-radius: 28px;
       }
     }
   </style>
@@ -103,57 +126,7 @@
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <div id="site-header" class="site-header" role="banner">
-    <div class="page-shell">
-      <div class="nav-container">
-        <a href="/" class="logo" aria-label="VERGO home">
-          <span class="logo-mark">V</span>
-          <span class="logo-copy">
-            <span class="logo-title">VERGO</span>
-            <span class="logo-subtitle">London hospitality staffing</span>
-          </span>
-        </a>
-
-        <div class="nav-frame">
-          <nav class="site-nav" aria-label="Primary">
-            <ul>
-              <li><a href="/">Home</a></li>
-              <li><a href="/hire-staff">Hire Staff</a></li>
-              <li><a href="/jobs">Job Board</a></li>
-              <li><a href="/apply">Join VERGO</a></li>
-              <li><a href="/pricing">Pricing</a></li>
-              <li><a href="/contact">Contact</a></li>
-            </ul>
-          </nav>
-          <div class="nav-actions">
-            <a href="/apply" class="btn btn-secondary">Join VERGO</a>
-            <a href="/hire-staff" class="btn btn-primary">Hire Staff</a>
-          </div>
-        </div>
-
-        <button id="mobile-menu-button" class="menu-toggle" type="button" aria-label="Toggle navigation menu" aria-controls="mobile-menu" aria-expanded="false">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      </div>
-
-      <div id="mobile-menu" class="mobile-menu" hidden>
-        <nav aria-label="Mobile">
-          <a href="/">Home</a>
-          <a href="/hire-staff">Hire Staff</a>
-          <a href="/jobs">Job Board</a>
-          <a href="/apply">Join VERGO</a>
-          <a href="/pricing">Pricing</a>
-          <a href="/contact">Contact</a>
-        </nav>
-        <div class="nav-actions">
-          <a href="/apply" class="btn btn-secondary">Join VERGO</a>
-          <a href="/hire-staff" class="btn btn-primary">Hire Staff</a>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div id="site-header" class="site-header" role="banner"></div>
 
   <main id="main-content">
     <section class="page-hero">
@@ -161,34 +134,34 @@
         <div class="hero-grid">
           <div>
             <span class="eyebrow">Hire staff</span>
-            <h1>Choose the right tier for the room.</h1>
-            <p class="lede">Three staffing routes — Standard, Shortlist and Gold — each matched to different briefs, budgets and quality requirements.</p>
+            <h1>Send the brief. VERGO recommends the right solution.</h1>
+            <p class="lede">VERGO fulfils staffing through Standard, Shortlist and Gold. We review the brief, recommend the right solution and manage the matching process end to end.</p>
             <div class="hero-actions">
-              <a href="/contact?tab=staff#contact-forms" class="btn btn-primary">Request Staff</a>
-              <a href="/pricing#calculator" class="btn btn-secondary">Use Price Calculator</a>
+              <a href="/contact?tab=staff#contact-forms" class="btn btn-primary">Send Your Brief</a>
+              <a href="/pricing#lane-pricing" class="btn btn-secondary">Compare Pricing</a>
             </div>
           </div>
 
           <aside class="panel hero-summary" aria-label="Hire staff summary">
-            <span class="status">Private staffing route</span>
-            <h2>Three routes. One vetted roster.</h2>
-            <p>All three tiers draw from the same screened roster. Shortlist and Gold add layers of curation — for briefs where match quality matters as much as availability.</p>
+            <span class="status">Guided matching</span>
+            <h2>Managed from brief to confirmation.</h2>
+            <p>Every booking starts with the brief. From there VERGO recommends the right staffing solution based on speed, fit and seniority.</p>
             <div class="detail-grid">
               <article class="detail-card">
                 <p class="card-label">Standard</p>
-                <p><strong>Flexible pricing built around role, rate and brief.</strong></p>
+                <p><strong>Flexible vetted cover for straightforward or faster-fill briefs.</strong></p>
               </article>
               <article class="detail-card">
                 <p class="card-label">Shortlist</p>
-                <p><strong>VERGO curates applicants. You make the final selection.</strong></p>
+                <p><strong>VERGO reviews applicants, then the client selects from a refined shortlist.</strong></p>
               </article>
               <article class="detail-card">
                 <p class="card-label">Gold</p>
-                <p><strong>Premium managed staffing for senior and guest-facing roles.</strong></p>
+                <p><strong>Premium managed staffing for senior, lead and high-trust roles.</strong></p>
               </article>
               <article class="detail-card">
                 <p class="card-label">Reply</p>
-                <p><strong>Clear quote and next steps within 24 hours for most briefs.</strong></p>
+                <p><strong>Clear solution recommendation, commercial model and next steps within 24 hours for most briefs.</strong></p>
               </article>
             </div>
           </aside>
@@ -199,35 +172,72 @@
     <section class="section-block">
       <div class="page-shell">
         <div class="section-heading">
-          <span class="eyebrow">Staff tiers</span>
-          <h2>Three tiers. All vetted.</h2>
+          <span class="eyebrow">How it works</span>
+          <h2>A curated staffing journey from brief to confirmation.</h2>
+          <p>You send the brief once. VERGO recommends the right solution, runs the right fulfilment process and confirms the final team.</p>
+        </div>
+
+        <div class="card-grid">
+          <article class="detail-card">
+            <p class="card-label">01</p>
+            <h3>Send the brief</h3>
+            <p>Share the date, venue, headcount, roles, timings and the level of service you need.</p>
+          </article>
+          <article class="detail-card">
+            <p class="card-label">02</p>
+            <h3>VERGO recommends the right solution</h3>
+            <p>VERGO recommends the right solution for the brief and confirms the commercial model with you.</p>
+          </article>
+          <article class="detail-card">
+            <p class="card-label">03</p>
+            <h3>Staffing is fulfilled</h3>
+            <p>VERGO handles matching, shortlist review or senior premium cover, then confirms staff details and next steps.</p>
+          </article>
+        </div>
+
+        <div class="journey-panel">
+          <span class="status">Managed by VERGO</span>
+          <h3>The quality bar stays curated in every solution.</h3>
+          <p>Standard does not mean generic. Shortlist is selective by design. Gold is premium managed staffing for senior or high-trust roles. Each solution exists to solve a different staffing problem with a different level of curation and control.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="lane-guide" class="section-block">
+      <div class="page-shell">
+        <div class="section-heading">
+          <span class="eyebrow">Staffing solutions</span>
+          <h2>The three VERGO staffing solutions.</h2>
+          <p>The same premium staffing standard sits underneath each solution. What changes is the level of selection, client involvement and seniority built into the brief.</p>
         </div>
 
         <div class="tier-compare-grid">
           <article class="tier-card">
             <span class="tier-pill">Standard</span>
-            <h3 class="tier-name">Reliable staffing. Fast fill.</h3>
-            <p class="tier-price-note">Wage + &pound;3/hr + VAT</p>
+            <h3 class="tier-name">Flexible cover for straightforward briefs.</h3>
+            <p class="tier-summary">VERGO handles matching and confirmation directly for vetted staffing that needs to move efficiently.</p>
+            <p class="tier-price-note">Wage + &pound;3/hr + VAT <span>Flexible vetted fulfilment</span></p>
             <ul class="tier-features">
-              <li><span class="mark">01</span><span>Every member of the roster passes VERGO screening before joining.</span></li>
-              <li><span class="mark">02</span><span>Flexible pricing around the role, agreed wage and brief.</span></li>
-              <li><span class="mark">03</span><span>VERGO handles matching and confirmation — no roster browsing required.</span></li>
-              <li><span class="mark">04</span><span>Right for general event cover, flexible headcount and fast-turnaround briefs.</span></li>
+              <li><span class="mark">01</span><span>Matched from VERGO's screened staffing network, with quality controlled by VERGO throughout.</span></li>
+              <li><span class="mark">02</span><span>Best for general event cover, bartenders, waiters, runners and flexible team builds.</span></li>
+              <li><span class="mark">03</span><span>Designed for straightforward staffing needs and faster-fill briefs.</span></li>
+              <li><span class="mark">04</span><span>Commercially efficient without feeling generic or low-touch.</span></li>
             </ul>
             <div class="stacked-actions">
-              <a href="/pricing#calculator" class="btn btn-primary">Use Price Calculator</a>
+              <a href="/pricing#calculator" class="btn btn-primary">Estimate Standard</a>
             </div>
           </article>
 
           <article class="tier-card shortlist-card">
             <span class="tier-pill">Shortlist</span>
-            <h3 class="tier-name">Curated matching for the right brief.</h3>
-            <p class="tier-price-note">Wage + &pound;4/hr + VAT <span>includes &pound;1/hr worker merit uplift</span></p>
+            <h3 class="tier-name">Curated selection for stronger fit.</h3>
+            <p class="tier-summary">A more selective solution for briefs where the final fit matters more than simply filling quickly.</p>
+            <p class="tier-price-note">Wage + &pound;4/hr + VAT <span>includes &pound;1/hr merit uplift for selected workers</span></p>
             <ul class="tier-features">
-              <li><span class="mark">01</span><span>You send the brief. Applications open for a fixed window — workers apply as normal.</span></li>
-              <li><span class="mark">02</span><span>VERGO manually reviews every applicant and presents a refined shortlist to you.</span></li>
-              <li><span class="mark">03</span><span>You make the final selection. Selected workers receive a merit-based rate uplift.</span></li>
-              <li><span class="mark">04</span><span>Best for events where the right fit matters more than the fastest fill.</span></li>
+              <li><span class="mark">01</span><span>Workers apply as normal during a fixed application window for the brief.</span></li>
+              <li><span class="mark">02</span><span>VERGO manually reviews every applicant and sends the client a refined shortlist.</span></li>
+              <li><span class="mark">03</span><span>The client makes the final selection from that shortlist.</span></li>
+              <li><span class="mark">04</span><span>Ideal for premium guest-facing, brand-sensitive or fit-dependent staffing briefs.</span></li>
             </ul>
             <div class="stacked-actions">
               <a href="/contact?tab=staff#contact-forms" class="btn btn-primary">Request a Shortlist Brief</a>
@@ -236,16 +246,17 @@
 
           <article class="tier-card gold-card">
             <span class="tier-pill">Gold</span>
-            <h3 class="tier-name">Proven premium staff.</h3>
-            <p class="tier-price-note">From &pound;20/hr <span>plus VAT | chefs &pound;26/hr | supervisors &pound;22/hr</span></p>
+            <h3 class="tier-name">Premium managed staffing for senior roles.</h3>
+            <p class="tier-summary">Higher-touch staffing for clients who want stronger experience, sharper presentation and more consistent delivery in senior, lead and high-trust roles.</p>
+            <p class="tier-price-note">From &pound;22/hr + VAT <span>chefs &pound;26/hr</span></p>
             <ul class="tier-features">
-              <li><span class="mark">01</span><span>Gold status is earned through reviews and repeat bookings.</span></li>
-              <li><span class="mark">02</span><span>VERGO's highest-quality, most experienced people.</span></li>
-              <li><span class="mark">03</span><span>Fixed rates: &pound;20/hr for bartenders, waiters, FOH and runners, &pound;26/hr for chefs, &pound;22/hr for supervisors.</span></li>
-              <li><span class="mark">04</span><span>Matched by VERGO to your brief for premium events and corporate hospitality.</span></li>
+              <li><span class="mark">01</span><span>Best for head chefs, lead bartenders, premium FOH and other key guest-facing roles.</span></li>
+              <li><span class="mark">02</span><span>Matched manually by VERGO for premium events, repeat clients and high-trust briefs.</span></li>
+              <li><span class="mark">03</span><span>Reserved for proven staff with the strongest review history and booking consistency.</span></li>
+              <li><span class="mark">04</span><span>Fixed public rates keep premium staffing commercially clear.</span></li>
             </ul>
             <div class="stacked-actions">
-              <a href="/contact?tab=staff#contact-forms" class="btn btn-primary">Request Staff</a>
+              <a href="/contact?tab=staff#contact-forms" class="btn btn-primary">Discuss Gold Staffing</a>
             </div>
           </article>
         </div>
@@ -255,21 +266,30 @@
     <section class="section-block">
       <div class="page-shell">
         <div class="section-heading">
-          <span class="eyebrow">How it works</span>
-          <h2>Three steps.</h2>
+          <span class="eyebrow">Brief fit</span>
+          <h2>Which solution suits which brief?</h2>
+          <p>If you are unsure, send the brief and VERGO will recommend the right solution. The examples below show the intent behind each solution.</p>
         </div>
-        <div class="card-grid">
+        <div class="card-grid card-grid--four">
           <article class="detail-card">
-            <p class="card-label">01</p>
-            <p>Send the brief — date, venue, roles, headcount, and which tier suits the booking.</p>
+            <p class="card-label">Standard</p>
+            <h3>General event staffing</h3>
+            <p>Best for full-service teams, bar cover, floor staff, runners and flexible numbers.</p>
           </article>
           <article class="detail-card">
-            <p class="card-label">02</p>
-            <p>VERGO confirms availability, handles the matching or Shortlist process, and returns a quote.</p>
+            <p class="card-label">Shortlist</p>
+            <h3>Fit-sensitive service briefs</h3>
+            <p>Best for events where the client wants final say after VERGO has filtered for quality and relevance.</p>
           </article>
           <article class="detail-card">
-            <p class="card-label">03</p>
-            <p>Confirmation, staff details and everything needed before the event — within 24 hours for most briefs.</p>
+            <p class="card-label">Gold</p>
+            <h3>Senior and key guest-facing roles</h3>
+            <p>Best for premium leadership positions where trust, maturity and consistency need to be visible from the outset.</p>
+          </article>
+          <article class="detail-card">
+            <p class="card-label">Mixed</p>
+            <h3>One event can use multiple solutions</h3>
+            <p>VERGO can combine Standard floor teams, a Shortlist guest-facing layer and Gold leads on the same event if the brief calls for it.</p>
           </article>
         </div>
       </div>
@@ -280,69 +300,20 @@
         <div class="cta-panel">
           <div>
             <span class="eyebrow">Next step</span>
-            <h2>Talk the brief through or price it up.</h2>
-            <p>Use the calculator for a fast estimate or send the event brief and VERGO will come back with the right route, rates and next steps.</p>
+            <h2>Tell VERGO what the event needs.</h2>
+            <p>We will recommend the right solution, confirm the commercial model and come back with the next steps for fulfilment.</p>
+            <p style="margin-top: 14px; color: var(--muted); max-width: 36rem;">Worked with someone great before? Ask us about preferred team requests or long-term hire options.</p>
           </div>
           <div class="stacked-actions" style="margin-top: 0;">
-            <a href="/contact?tab=staff#contact-forms" class="btn btn-primary">Request Staff</a>
-            <a href="/pricing#calculator" class="btn btn-secondary">Use Price Calculator</a>
+            <a href="/contact?tab=staff#contact-forms" class="btn btn-primary">Send Your Brief</a>
+            <a href="/pricing#lane-pricing" class="btn btn-secondary">See Pricing</a>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <footer role="contentinfo">
-    <div class="page-shell">
-      <div class="footer-grid">
-        <div>
-          <a href="/" class="logo" aria-label="VERGO home">
-            <span class="logo-mark">V</span>
-            <span class="logo-copy">
-              <span class="logo-title">VERGO</span>
-              <span class="logo-subtitle">Premium staffing, London</span>
-            </span>
-          </a>
-          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Premium London event staffing for companies who need reliable teams and workers who want better-run shifts.</p>
-        </div>
-        <div>
-          <p class="footer-title">Navigate</p>
-          <div class="footer-links">
-            <a href="/">Home</a>
-            <a href="/hire-staff">Hire Staff</a>
-            <a href="/pricing">Pricing</a>
-            <a href="/contact">Contact</a>
-          </div>
-        </div>
-        <div>
-          <p class="footer-title">Work With Us</p>
-          <div class="footer-links">
-            <a href="/jobs">Job Board</a>
-            <a href="/apply">Join VERGO</a>
-            <a href="/contact?tab=staff#contact-forms">Request Staff</a>
-            <a href="/about">About VERGO</a>
-          </div>
-        </div>
-        <div>
-          <p class="footer-title">Contact</p>
-          <div class="footer-links">
-            <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
-            <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07944 505783</a>
-            <p>Replies within 24 hours for most enquiries.</p>
-            <p>London and surrounding areas.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <p>&copy; 2026 VERGO Ltd. All rights reserved.</p>
-        <div class="footer-bottom-links">
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/terms">Terms of Service</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <footer role="contentinfo"></footer>
 
   <script src="/vergo-public-shell.js"></script>
   <script src="/vergo-analytics.js"></script>

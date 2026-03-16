@@ -2,15 +2,13 @@
   'use strict';
 
   const rates = {
-    standard: 20,
+    standard: 22,
     chef: 26,
-    supervisor: 22,
   };
 
   const roleLabels = {
-    standard: 'bartender / waiter / FOH / runner',
-    chef: 'chef',
-    supervisor: 'supervisor',
+    standard: 'bartender / waiter / FOH / runner cover',
+    chef: 'chef cover',
   };
 
   const tierField = document.getElementById('calc-tier');
@@ -19,6 +17,7 @@
   const hoursField = document.getElementById('calc-hours');
   const standardRateWrap = document.getElementById('calc-standard-rate-wrap');
   const standardRateField = document.getElementById('calc-standard-rate');
+  const standardRateNote = document.getElementById('calc-standard-note');
   const tierBadge = document.getElementById('calc-tier-badge');
   const total = document.getElementById('calc-total');
   const summary = document.getElementById('calc-summary');
@@ -39,6 +38,7 @@
     !hoursField ||
     !standardRateWrap ||
     !standardRateField ||
+    !standardRateNote ||
     !tierBadge ||
     !total ||
     !summary ||
@@ -73,6 +73,9 @@
     const hours = readPositiveNumber(hoursField);
 
     standardRateWrap.hidden = tier === 'GOLD';
+    standardRateNote.textContent = tier === 'SHORTLIST'
+      ? 'Shortlist pricing = agreed wage + \u00A34/hr + VAT, including the \u00A31/hr merit uplift.'
+      : 'Standard pricing = agreed wage + \u00A33/hr + VAT.';
 
     if (tier === 'STANDARD' || tier === 'SHORTLIST') {
       const isShortlist = tier === 'SHORTLIST';
@@ -83,8 +86,8 @@
       if (!baseRate || !headcount || !hours) {
         tierBadge.textContent = tierLabel + ' estimate';
         total.innerHTML = '--';
-        summary.textContent = 'Enter the staff hourly rate, staff count and hours to calculate a ' + tierLabel + ' estimate.';
-        rateLabel.textContent = 'Staff hourly rate';
+        summary.textContent = 'Enter the agreed worker rate, team size and hours to calculate a ' + tierLabel + ' estimate.';
+        rateLabel.textContent = 'Worker hourly rate';
         hourlyRate.innerHTML = '--';
         subtotal.innerHTML = '--';
         serviceLabel.textContent = 'Service fee';
@@ -102,8 +105,8 @@
 
       tierBadge.textContent = tierLabel + ' estimate';
       total.innerHTML = formatMoney(totalAmount);
-      summary.textContent = headcount + ' staff for ' + hours + ' hours on the ' + tierLabel + ' ' + roleLabels[role] + ' route.';
-      rateLabel.textContent = 'Staff hourly rate';
+      summary.textContent = headcount + ' staff for ' + hours + ' hours using the ' + tierLabel + ' solution for ' + roleLabels[role] + '.';
+      rateLabel.textContent = 'Worker hourly rate';
       hourlyRate.innerHTML = formatMoney(baseRate) + '/hr';
       subtotal.innerHTML = formatMoney(labourSubtotal);
       serviceLabel.textContent = 'Service fee (\u00A3' + serviceFeeRate + '/hr' + (isShortlist ? ' incl. merit uplift' : '') + ')';
@@ -123,7 +126,7 @@
 
     tierBadge.textContent = 'Gold estimate';
     total.innerHTML = formatMoney(totalAmount);
-    summary.textContent = headcount + ' staff for ' + hours + ' hours on the Gold ' + roleLabels[role] + ' rate.';
+    summary.textContent = headcount + ' staff for ' + hours + ' hours using the Gold solution for ' + roleLabels[role] + '.';
     rateLabel.textContent = 'Hourly rate used';
     hourlyRate.innerHTML = formatMoney(rate) + '/hr';
     subtotal.innerHTML = formatMoney(labourSubtotal);
