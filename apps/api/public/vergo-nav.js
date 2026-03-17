@@ -63,48 +63,100 @@
     header.innerHTML = navHTML;
   }
 
-  const injectProfileLink = async () => {
+  // Decode a JWT payload without verifying the signature (client-side only).
+  const decodeJwtPayload = (token) => {
+    try {
+      const part = token.split('.')[1];
+      if (!part) return null;
+      return JSON.parse(atob(part.replace(/-/g, '+').replace(/_/g, '/')));
+    } catch {
+      return null;
+    }
+  };
+
+  const getJwtUser = () => {
+    try {
+      const token = localStorage.getItem('vergo_jwt');
+      if (!token) return null;
+      const payload = decodeJwtPayload(token);
+      if (!payload || payload.tokenType !== 'access') return null;
+      if (payload.exp && Date.now() / 1000 > payload.exp) return null;
+      return {
+        userType: payload.type === 'user' ? 'worker' : 'client',
+        dashboardHref: payload.type === 'user' ? '/dashboard-worker.html' : '/dashboard-client.html',
+      };
+    } catch {
+      return null;
+    }
+  };
+
+  const injectAuthLinks = async () => {
     const menu = document.getElementById('nav-menu');
-    if (!menu || menu.querySelector('[data-nav-profile]')) {
+    if (!menu || menu.querySelector('[data-nav-auth]')) return;
+
+    // 1. Try JWT first (new portal auth)
+    const jwtUser = getJwtUser();
+    if (jwtUser) {
+      const dashItem = document.createElement('li');
+      dashItem.innerHTML = `<a href="${jwtUser.dashboardHref}" data-nav-auth${isActive(jwtUser.dashboardHref) ? ' aria-current="page"' : ''}>Dashboard</a>`;
+      dashItem.querySelector('a').addEventListener('click', () => {
+        if (window.innerWidth <= 960 && window.vergoNav) window.vergoNav.closeMenu();
+      });
+      menu.appendChild(dashItem);
+
+      const logoutItem = document.createElement('li');
+      logoutItem.innerHTML = `<button type="button" data-nav-auth class="nav-logout-btn" aria-label="Sign out">Sign out</button>`;
+      logoutItem.querySelector('button').addEventListener('click', () => {
+        const refreshToken = localStorage.getItem('vergo_refresh');
+        if (refreshToken) {
+          fetch('/api/v1/web/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken }),
+          }).catch(() => {});
+        }
+        localStorage.removeItem('vergo_jwt');
+        localStorage.removeItem('vergo_refresh');
+        localStorage.removeItem('vergo_user');
+        window.location.href = '/portal-login.html';
+      });
+      menu.appendChild(logoutItem);
       return;
     }
 
-    const checks = [
-      { url: '/api/v1/user/session', key: 'user' },
-      { url: '/api/v1/client/session', key: 'client' },
+    // 2. Fall back to session-based auth check (existing pages)
+    const sessionChecks = [
+      { url: '/api/v1/user/session', key: 'user', href: '/user-dashboard' },
+      { url: '/api/v1/client/session', key: 'client', href: '/client-dashboard' },
     ];
 
-    for (const check of checks) {
+    for (const check of sessionChecks) {
       try {
-        const res = await fetch(check.url, {
-          credentials: 'include',
-          cache: 'no-store',
-        });
-
-        if (!res.ok) {
-          continue;
-        }
-
+        const res = await fetch(check.url, { credentials: 'include', cache: 'no-store' });
+        if (!res.ok) continue;
         const payload = await res.json().catch(() => null);
         const data = payload && typeof payload === 'object' && 'data' in payload ? payload.data : payload;
-
-        if (!data || !data.authenticated || !data[check.key]) {
-          continue;
-        }
+        if (!data || !data.authenticated || !data[check.key]) continue;
 
         const item = document.createElement('li');
-        item.innerHTML = `<a href="/profile.html" data-nav-profile${isActive('/profile') ? ' aria-current="page"' : ''}>Profile</a>`;
-        item.querySelector('a')?.addEventListener('click', () => {
-          if (window.innerWidth <= 960 && window.vergoNav) {
-            window.vergoNav.closeMenu();
-          }
+        item.innerHTML = `<a href="${check.href}" data-nav-auth${isActive(check.href) ? ' aria-current="page"' : ''}>Dashboard</a>`;
+        item.querySelector('a').addEventListener('click', () => {
+          if (window.innerWidth <= 960 && window.vergoNav) window.vergoNav.closeMenu();
         });
         menu.appendChild(item);
         return;
-      } catch (_error) {
-        // Ignore auth lookup failures; the shared nav still renders normally.
+      } catch {
+        // ignore
       }
     }
+
+    // 3. No session or JWT — show Login link
+    const loginItem = document.createElement('li');
+    loginItem.innerHTML = `<a href="/portal-login.html" data-nav-auth${isActive('/portal-login') ? ' aria-current="page"' : ''}>Login</a>`;
+    loginItem.querySelector('a').addEventListener('click', () => {
+      if (window.innerWidth <= 960 && window.vergoNav) window.vergoNav.closeMenu();
+    });
+    menu.appendChild(loginItem);
   };
 
   // Inject shared navigation font if missing
@@ -116,7 +168,7 @@
     document.head.appendChild(fontLink);
   }
 
-  injectProfileLink();
+  injectAuthLinks();
 
   // Navigation functions
   window.vergoNav = {

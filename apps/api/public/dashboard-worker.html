@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Worker Dashboard | VERGO</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/vergo-styles.css">
+  <link rel="stylesheet" href="/vergo-a11y.css">
+  <link rel="stylesheet" href="/pages/css/dashboard-shared.css">
+</head>
+<body class="dashboard-page">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Header strip -->
+  <header class="dash-header" role="banner">
+    <div class="dash-header-inner">
+      <a href="/" class="dash-logo" aria-label="VERGO home">
+        <span class="dash-logo-mark" aria-hidden="true">V</span>
+        VERGO
+      </a>
+      <div class="dash-user-area">
+        <span class="dash-user-name" id="header-name"></span>
+        <span class="tier-badge" id="header-tier" aria-label="Your tier"></span>
+        <button class="btn-logout" id="logout-btn" type="button">Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="dash-main">
+
+    <!-- Loading -->
+    <div class="dash-loading" id="loading-state" aria-busy="true" aria-label="Loading your dashboard">
+      <div class="loading-ring" role="progressbar"></div>
+      <p>Loading your dashboard…</p>
+    </div>
+
+    <!-- Error -->
+    <div class="dash-alert dash-alert-error" id="error-state" hidden>
+      <strong>Unable to load dashboard.</strong> <span id="error-msg"></span>
+    </div>
+
+    <!-- Dashboard content (hidden until loaded) -->
+    <div id="dashboard-content" hidden>
+
+      <!-- 1. Shortlist rate strip (only for Shortlist/Gold tier) -->
+      <div id="shortlist-strip" class="pathway-box" hidden>
+        <h3 id="shortlist-strip-title">Your Shortlist performance</h3>
+        <p id="shortlist-strip-body"></p>
+      </div>
+
+      <!-- 2. Available jobs -->
+      <section class="dash-section" aria-labelledby="jobs-heading">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title" id="jobs-heading">Available Jobs</h2>
+          <span class="dash-section-count" id="jobs-count"></span>
+        </div>
+        <div class="card-grid" id="jobs-grid" aria-live="polite"></div>
+      </section>
+
+      <!-- 3. My applications -->
+      <section class="dash-section" aria-labelledby="apps-heading">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title" id="apps-heading">My Applications</h2>
+          <span class="dash-section-count" id="apps-count"></span>
+        </div>
+        <div id="confirmed-shifts" hidden>
+          <h3 style="font-size:var(--font-size-base);font-weight:var(--font-weight-semibold);color:var(--color-success);margin:0 0 var(--space-3)">Upcoming Confirmed Shifts</h3>
+          <div class="card-grid" id="confirmed-grid"></div>
+        </div>
+        <div class="card-grid" id="apps-grid" aria-live="polite"></div>
+      </section>
+
+      <!-- 4. Progression -->
+      <section class="dash-section" aria-labelledby="progress-heading">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title" id="progress-heading">Your Progression</h2>
+        </div>
+        <div class="stat-row" id="progress-stats"></div>
+        <div id="progress-pathway"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="/auth.js"></script>
+  <script src="/pages/js/dashboard-worker.js"></script>
+</body>
+</html>

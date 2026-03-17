@@ -65,71 +65,145 @@
     document.head.appendChild(fontLink);
   };
 
+  // Decode JWT payload client-side (no verification — display only)
+  const decodeJwtPayload = (token) => {
+    try {
+      const part = token.split('.')[1];
+      if (!part) return null;
+      return JSON.parse(atob(part.replace(/-/g, '+').replace(/_/g, '/')));
+    } catch {
+      return null;
+    }
+  };
+
+  const getJwtUser = () => {
+    try {
+      const token = localStorage.getItem('vergo_jwt');
+      if (!token) return null;
+      const payload = decodeJwtPayload(token);
+      if (!payload || payload.tokenType !== 'access') return null;
+      if (payload.exp && Date.now() / 1000 > payload.exp) return null;
+      return {
+        userType: payload.type === 'user' ? 'worker' : 'client',
+        dashboardHref: payload.type === 'user' ? '/dashboard-worker.html' : '/dashboard-client.html',
+      };
+    } catch {
+      return null;
+    }
+  };
+
+  const doLogout = () => {
+    const refreshToken = localStorage.getItem('vergo_refresh');
+    if (refreshToken) {
+      fetch('/api/v1/web/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      }).catch(() => {});
+    }
+    localStorage.removeItem('vergo_jwt');
+    localStorage.removeItem('vergo_refresh');
+    localStorage.removeItem('vergo_user');
+    window.location.href = '/portal-login.html';
+  };
+
   const injectProfileLinks = async () => {
-    if (!header) {
+    if (!header) return;
+
+    const closeShellMenu = () => {
+      const toggle = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+      if (toggle) { toggle.classList.remove('is-active'); toggle.setAttribute('aria-expanded', 'false'); }
+      if (mobileMenu) { mobileMenu.classList.remove('is-open'); mobileMenu.hidden = true; }
+      document.body.classList.remove('menu-open');
+    };
+
+    // 1. JWT-based (new portal auth)
+    const jwtUser = getJwtUser();
+    if (jwtUser) {
+      const desktopNav = header.querySelector('.site-nav ul');
+      if (desktopNav && !desktopNav.querySelector('[data-nav-auth]')) {
+        const dashItem = document.createElement('li');
+        dashItem.innerHTML = `<a href="${jwtUser.dashboardHref}" data-nav-auth>Dashboard</a>`;
+        desktopNav.appendChild(dashItem);
+
+        const logoutItem = document.createElement('li');
+        logoutItem.innerHTML = `<a href="#" data-nav-auth>Sign out</a>`;
+        logoutItem.querySelector('a').addEventListener('click', (e) => { e.preventDefault(); doLogout(); });
+        desktopNav.appendChild(logoutItem);
+      }
+
+      const mobileNav = header.querySelector('#mobile-menu nav');
+      if (mobileNav && !mobileNav.querySelector('[data-nav-auth]')) {
+        const dashLink = document.createElement('a');
+        dashLink.href = jwtUser.dashboardHref;
+        dashLink.setAttribute('data-nav-auth', 'true');
+        dashLink.textContent = 'Dashboard';
+        dashLink.addEventListener('click', closeShellMenu);
+        mobileNav.appendChild(dashLink);
+
+        const logoutLink = document.createElement('a');
+        logoutLink.href = '#';
+        logoutLink.setAttribute('data-nav-auth', 'true');
+        logoutLink.textContent = 'Sign out';
+        logoutLink.addEventListener('click', (e) => { e.preventDefault(); closeShellMenu(); doLogout(); });
+        mobileNav.appendChild(logoutLink);
+      }
       return;
     }
 
+    // 2. Session-based fallback (existing auth pages)
     const checks = [
-      { url: '/api/v1/user/session', key: 'user' },
-      { url: '/api/v1/client/session', key: 'client' },
+      { url: '/api/v1/user/session', key: 'user', href: '/user-dashboard' },
+      { url: '/api/v1/client/session', key: 'client', href: '/client-dashboard' },
     ];
 
     for (const check of checks) {
       try {
-        const res = await fetch(check.url, {
-          credentials: 'include',
-          cache: 'no-store',
-        });
-
-        if (!res.ok) {
-          continue;
-        }
-
+        const res = await fetch(check.url, { credentials: 'include', cache: 'no-store' });
+        if (!res.ok) continue;
         const payload = await res.json().catch(() => null);
         const data = payload && typeof payload === 'object' && 'data' in payload ? payload.data : payload;
+        if (!data || !data.authenticated || !data[check.key]) continue;
 
-        if (!data || !data.authenticated || !data[check.key]) {
-          continue;
-        }
-
-        const profileHref = '/profile.html';
         const desktopNav = header.querySelector('.site-nav ul');
-        if (desktopNav && !desktopNav.querySelector('[data-nav-profile]')) {
-          const profileItem = document.createElement('li');
-          profileItem.innerHTML = `<a href="${profileHref}" data-nav-profile${withCurrent('profile')}>Profile</a>`;
-          desktopNav.appendChild(profileItem);
+        if (desktopNav && !desktopNav.querySelector('[data-nav-auth]')) {
+          const item = document.createElement('li');
+          item.innerHTML = `<a href="${check.href}" data-nav-auth>Dashboard</a>`;
+          desktopNav.appendChild(item);
         }
 
         const mobileNav = header.querySelector('#mobile-menu nav');
-        if (mobileNav && !mobileNav.querySelector('[data-nav-profile]')) {
-          const mobileLink = document.createElement('a');
-          mobileLink.href = profileHref;
-          mobileLink.setAttribute('data-nav-profile', 'true');
-          if (isCurrent('profile')) {
-            mobileLink.setAttribute('aria-current', 'page');
-          }
-          mobileLink.textContent = 'Profile';
-          mobileLink.addEventListener('click', () => {
-            const toggle = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (toggle) {
-              toggle.classList.remove('is-active');
-              toggle.setAttribute('aria-expanded', 'false');
-            }
-            if (mobileMenu) {
-              mobileMenu.classList.remove('is-open');
-              mobileMenu.hidden = true;
-            }
-            document.body.classList.remove('menu-open');
-          });
-          mobileNav.appendChild(mobileLink);
+        if (mobileNav && !mobileNav.querySelector('[data-nav-auth]')) {
+          const link = document.createElement('a');
+          link.href = check.href;
+          link.setAttribute('data-nav-auth', 'true');
+          link.textContent = 'Dashboard';
+          link.addEventListener('click', closeShellMenu);
+          mobileNav.appendChild(link);
         }
-
         return;
-      } catch (_error) {
-        // Ignore auth lookup failures; public nav should still render.
+      } catch {
+        // ignore
       }
+    }
+
+    // 3. Not logged in — show Login link
+    const desktopNav = header.querySelector('.site-nav ul');
+    if (desktopNav && !desktopNav.querySelector('[data-nav-auth]')) {
+      const item = document.createElement('li');
+      item.innerHTML = `<a href="/portal-login.html" data-nav-auth>Login</a>`;
+      desktopNav.appendChild(item);
+    }
+
+    const mobileNav = header.querySelector('#mobile-menu nav');
+    if (mobileNav && !mobileNav.querySelector('[data-nav-auth]')) {
+      const link = document.createElement('a');
+      link.href = '/portal-login.html';
+      link.setAttribute('data-nav-auth', 'true');
+      link.textContent = 'Login';
+      link.addEventListener('click', closeShellMenu);
+      mobileNav.appendChild(link);
     }
   };
 

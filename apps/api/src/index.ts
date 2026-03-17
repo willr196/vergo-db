@@ -43,6 +43,7 @@ import adminAnalytics from './routes/adminAnalytics';
 import adminBookings from './routes/adminBookings';
 import adminMarketplace from './routes/adminMarketplace';
 import adminStaff from './routes/adminStaff';
+import webAuth from './routes/webAuth';
 import { logger, requestLogger } from './services/logger';
 import { startMemoryMonitoring, stopMemoryMonitoring } from './services/memory';
 import { initSentry, sentryErrorHandler, flushSentry } from './services/sentry';
@@ -873,6 +874,7 @@ app.get('/jobs/:id', async (req, res, next) => {
 
 // Auth endpoints
 app.use('/api/v1/auth', auth);
+app.use('/api/v1/web', webAuth);
 
 // Contact form endpoints
 app.use('/api/v1/contact', contact);

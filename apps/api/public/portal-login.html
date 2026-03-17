@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign In | VERGO — Premium Event Staffing London</title>
+  <meta name="description" content="Sign in to your VERGO account — for event staff and client companies.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/vergo-a11y.css">
+  <link rel="stylesheet" href="/vergo-public-pages.css">
+  <link rel="stylesheet" href="/pages/css/public-auth.css">
+</head>
+<body class="public-auth-page">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="site-header" class="site-header" role="banner"></div>
+
+  <main id="main-content" class="auth-main">
+    <div class="auth-container auth-container-narrow">
+      <div class="auth-box">
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Sign in to your VERGO account</p>
+
+        <div id="message" role="alert" aria-live="polite"></div>
+
+        <form id="login-form" novalidate>
+          <div class="form-group">
+            <label for="email">Email address <span class="required" aria-hidden="true">*</span></label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              autocomplete="email"
+              inputmode="email"
+              placeholder="you@example.com"
+              aria-required="true"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password <span class="required" aria-hidden="true">*</span></label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              autocomplete="current-password"
+              placeholder="Your password"
+              aria-required="true"
+            >
+          </div>
+
+          <a href="/forgot-password" class="forgot-link">Forgot password?</a>
+
+          <button type="submit" class="btn" id="submit-btn" aria-busy="false">
+            <span class="spinner" aria-hidden="true"></span>
+            <span id="btn-label">Sign In</span>
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          No account yet?&nbsp;
+          <a href="/apply">Join as event staff</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="/client-register">Register as a client</a>
+        </div>
+      </div>
+
+      <a href="/" class="back-link">← Back to home</a>
+    </div>
+  </main>
+
+  <footer role="contentinfo"></footer>
+
+  <script src="/auth.js"></script>
+  <script src="/pages/js/portal-login.js"></script>
+  <script src="/vergo-public-shell.js"></script>
+</body>
+</html>
