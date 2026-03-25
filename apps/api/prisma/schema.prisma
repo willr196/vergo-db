@@ -102,6 +102,7 @@ model AdminUser {
 // Corporate clients who hire staff
 model Client {
   id              String        @id @default(cuid())
+  seqId           Int           @default(autoincrement()) @unique
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   
@@ -391,6 +392,7 @@ model FileUploadVerification {
 // User accounts for job seekers
 model User {
   id              String           @id @default(cuid())
+  seqId           Int              @default(autoincrement()) @unique
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   
@@ -422,6 +424,9 @@ model User {
   applicantId     String?          @unique
   applicant       Applicant?       @relation(fields: [applicantId], references: [id])
   
+  // Password
+  mustChangePassword Boolean       @default(false)
+
   // Security
   failedAttempts  Int              @default(0)
   lockedUntil     DateTime?
@@ -525,6 +530,7 @@ model Job {
   clientId       String?
   client         Client?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
   companyName   String?
+  posterEmail   String?       // Email of the external submitter
   externalUrl   String?       // Link to apply externally
   
   // Publishing
@@ -607,6 +613,7 @@ enum JobTier {
 }
 
 enum JobStatus {
+  PENDING     // Awaiting admin review (external submissions)
   DRAFT       // Not visible to users
   OPEN        // Accepting applications
   FILLED      // All positions filled

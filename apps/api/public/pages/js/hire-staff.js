@@ -47,8 +47,8 @@
         ? 'Rating ' + Number(member.rating).toFixed(1) + ' from ' + Number(member.reviewCount || 0) + ' reviews'
         : 'Fresh profile or ratings pending';
       const visibilityNote = member.tier === 'ELITE'
-        ? 'Visible to all clients. Premium booking access only.'
-        : 'Available to Standard and Premium clients.';
+        ? 'Visible to all clients. Reserved for selected bookings.'
+        : 'Available to standard client bookings.';
 
       return ''
         + '<article class="staff-card">'

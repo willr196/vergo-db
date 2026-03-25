@@ -27,7 +27,8 @@ import type { RootStackParamList } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>;
 
-export function ForgotPasswordScreen({ navigation }: Props) {
+export function ForgotPasswordScreen({ navigation, route }: Props) {
+  const userType = route.params?.userType;
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -54,11 +55,7 @@ export function ForgotPasswordScreen({ navigation }: Props) {
     setIsLoading(true);
 
     try {
-      try {
-        await authApi.forgotPassword(email.trim().toLowerCase(), 'jobseeker');
-      } catch {
-        await authApi.forgotPassword(email.trim().toLowerCase(), 'client');
-      }
+      await authApi.forgotPassword(email.trim().toLowerCase(), userType === 'client' ? 'client' : 'jobseeker');
 
       setIsSuccess(true);
     } catch {
@@ -74,6 +71,10 @@ export function ForgotPasswordScreen({ navigation }: Props) {
   };
 
   const handleBackToLogin = () => {
+    if (userType === 'client' || userType === 'jobseeker') {
+      navigation.navigate('Login', { userType });
+      return;
+    }
     navigation.navigate('Welcome');
   };
 

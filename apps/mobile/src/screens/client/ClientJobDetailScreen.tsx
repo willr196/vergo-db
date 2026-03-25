@@ -21,6 +21,7 @@ import { jobsApi, applicationsApi } from '../../api';
 import { useUIStore } from '../../store';
 import { logger } from '../../utils/logger';
 import { isApplicationStatus, normalizeApplicationStatus } from '../../api/normalizers';
+import { getJobTierLabel, getJobTierPricingNote, normalizeJobTier } from '../../utils/jobTiers';
 import type { RootStackParamList, Job, Application } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientJobDetail'>;
@@ -164,6 +165,8 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
     );
   }
 
+  const tier = normalizeJobTier(job.tier);
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -215,6 +218,10 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
               );
             })()}
         </View>
+        <View style={styles.tierBadge}>
+          <Text style={styles.tierBadgeText}>{getJobTierLabel(tier)}</Text>
+        </View>
+        <Text style={styles.tierNote}>{getJobTierPricingNote(tier)}</Text>
       </View>
 
       {/* Tabs */}
@@ -360,6 +367,14 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
               </View>
             )}
             <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Service Tier</Text>
+              <Text style={styles.detailValue}>{getJobTierLabel(tier)}</Text>
+            </View>
+            <View style={styles.descriptionSection}>
+              <Text style={styles.detailLabel}>Tier Pricing</Text>
+              <Text style={styles.descriptionText}>{getJobTierPricingNote(tier)}</Text>
+            </View>
+            <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Positions</Text>
               <Text style={styles.detailValue}>{job.positions || 1}</Text>
             </View>
@@ -436,6 +451,7 @@ const styles = StyleSheet.create({
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     gap: spacing.md,
   },
   metaText: {
@@ -451,6 +467,27 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.xs,
     fontWeight: '500' as const,
     textTransform: 'capitalize',
+  },
+  tierBadge: {
+    alignSelf: 'flex-start',
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+    borderColor: colors.primaryLine,
+    backgroundColor: colors.primarySoft,
+  },
+  tierBadgeText: {
+    color: colors.primary,
+    fontSize: typography.fontSize.xs,
+    fontWeight: '700' as const,
+  },
+  tierNote: {
+    color: colors.textSecondary,
+    fontSize: typography.fontSize.sm,
+    marginTop: spacing.sm,
+    lineHeight: 20,
   },
   tabs: {
     flexDirection: 'row',

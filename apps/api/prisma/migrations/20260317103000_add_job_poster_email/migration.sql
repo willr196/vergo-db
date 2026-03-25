@@ -1,0 +1,2 @@
+ALTER TABLE "Job"
+ADD COLUMN "posterEmail" TEXT;

@@ -10,6 +10,7 @@ import type { NavigatorScreenParams } from '@react-navigation/native';
 
 export type UserType = 'jobseeker' | 'client';
 export type SubscriptionTier = 'STANDARD' | 'PREMIUM';
+export type MarketplaceAccessLane = 'FLEX' | 'SELECT';
 
 export interface User {
   id: string;
@@ -231,6 +232,7 @@ export interface MarketplaceStaff {
   id: string;
   name: string;
   tier: StaffTier;
+  bookingLane?: MarketplaceAccessLane | null;
   bio: string | null;
   avatar: string | null;
   rating: number | null;
@@ -341,7 +343,7 @@ export type RootStackParamList = {
   Welcome: undefined;
   Login: { userType: UserType };
   Register: { userType: UserType };
-  ForgotPassword: undefined;
+  ForgotPassword: { userType?: UserType } | undefined;
 
   // Job Seeker
   JobSeekerTabs: NavigatorScreenParams<JobSeekerTabParamList> | undefined;

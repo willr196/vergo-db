@@ -8,6 +8,7 @@ import type {
   Booking,
   BookingDetail,
   BookingStatus,
+  MarketplaceAccessLane,
   MarketplaceStaff,
   StaffTier,
   SubscriptionTier,
@@ -31,6 +32,10 @@ interface ApiEnvelope<T> {
 interface BrowseStaffPayload {
   staff?: BackendStaffRecord[];
   clientTier?: SubscriptionTier;
+  subscriptionTier?: SubscriptionTier | null;
+  subscriptionStatus?: string | null;
+  marketplaceAccessLane?: MarketplaceAccessLane | null;
+  premiumAccessActive?: boolean | null;
   pagination?: Partial<Pagination>;
 }
 
@@ -44,15 +49,25 @@ interface PricingPlan {
 }
 
 interface PricingRate {
-  clientTier: SubscriptionTier;
   staffTier: StaffTier;
+  bookingLane: MarketplaceAccessLane;
   hourlyRate: number;
   isBookable: boolean;
 }
 
-export interface PricingPayload {
-  plans: PricingPlan[];
-  hourlyRates: PricingRate[];
+interface MarketplaceAccessState {
+  clientTier: SubscriptionTier | null;
+  subscriptionTier: SubscriptionTier | null;
+  subscriptionStatus: string | null;
+  marketplaceAccessLane: MarketplaceAccessLane | null;
+  premiumAccessActive: boolean;
+}
+
+export interface PricingPayload extends MarketplaceAccessState {
+  plan: PricingPlan | null;
+  rates: PricingRate[];
+  subscriptionStartedAt: string | null;
+  subscriptionExpiresAt: string | null;
 }
 
 export interface BrowseStaffParams {
@@ -62,9 +77,8 @@ export interface BrowseStaffParams {
   limit?: number;
 }
 
-export interface BrowseStaffResponse {
+export interface BrowseStaffResponse extends MarketplaceAccessState {
   staff: MarketplaceStaff[];
-  clientTier: SubscriptionTier | null;
   pagination: Pagination;
 }
 
@@ -117,6 +131,7 @@ interface BackendStaffRecord {
   staffHighlights?: string | null;
   hourlyRate?: number | null;
   isBookable?: boolean | null;
+  bookingLane?: MarketplaceAccessLane | null;
 }
 
 interface BackendBookingStaffRecord {
@@ -180,6 +195,30 @@ function normalizeSubscriptionTier(tier?: SubscriptionTier | null): Subscription
   return tier === 'PREMIUM' ? 'PREMIUM' : 'STANDARD';
 }
 
+function normalizeMarketplaceAccessLane(
+  lane?: MarketplaceAccessLane | null
+): MarketplaceAccessLane {
+  return lane === 'SELECT' ? 'SELECT' : 'FLEX';
+}
+
+function normalizeAccessState(payload: {
+  clientTier?: SubscriptionTier | null;
+  subscriptionTier?: SubscriptionTier | null;
+  subscriptionStatus?: string | null;
+  marketplaceAccessLane?: MarketplaceAccessLane | null;
+  premiumAccessActive?: boolean | null;
+}): MarketplaceAccessState {
+  return {
+    clientTier: payload.clientTier ? normalizeSubscriptionTier(payload.clientTier) : null,
+    subscriptionTier: payload.subscriptionTier ? normalizeSubscriptionTier(payload.subscriptionTier) : null,
+    subscriptionStatus: payload.subscriptionStatus ?? null,
+    marketplaceAccessLane: payload.marketplaceAccessLane
+      ? normalizeMarketplaceAccessLane(payload.marketplaceAccessLane)
+      : null,
+    premiumAccessActive: coerceBoolean(payload.premiumAccessActive) ?? false,
+  };
+}
+
 function toDisplayName(staff: BackendStaffRecord | BackendBookingStaffRecord): string {
   if (staff.name && staff.name.trim().length > 0) return staff.name.trim();
   if ('fullName' in staff && typeof staff.fullName === 'string' && staff.fullName.trim().length > 0) {
@@ -198,6 +237,11 @@ function normalizeStaff(staff: BackendStaffRecord): MarketplaceStaff {
     id: staff.id,
     name: toDisplayName(staff),
     tier: normalizeTier(staff.tier ?? staff.staffTier),
+    bookingLane: staff.bookingLane
+      ? normalizeMarketplaceAccessLane(staff.bookingLane)
+      : normalizeTier(staff.tier ?? staff.staffTier) === 'ELITE'
+        ? 'SELECT'
+        : 'FLEX',
     bio: staff.bio ?? staff.staffBio ?? null,
     avatar: staff.avatar ?? staff.staffAvatar ?? null,
     rating: staff.rating ?? staff.staffRating ?? null,
@@ -294,11 +338,11 @@ export const marketplaceApi = {
     const query = new URLSearchParams();
     query.set('page', String(page));
     query.set('limit', String(limit));
-    if (params.tier) query.set('tier', params.tier);
+    if (params.tier) query.set('staffTier', params.tier);
     if (params.search) query.set('search', params.search);
 
     const response = await apiClient.get<ApiEnvelope<BrowseStaffPayload>>(
-      `/api/v1/marketplace/staff/pricing?${query.toString()}`
+      `/api/v1/client/mobile/marketplace/staff?${query.toString()}`
     );
 
     if (!response.data.ok) {
@@ -307,17 +351,18 @@ export const marketplaceApi = {
 
     const payload = response.data.data ?? {};
     const staff = (payload.staff ?? []).map(normalizeStaff);
+    const access = normalizeAccessState(payload);
 
     return {
       staff,
-      clientTier: payload.clientTier ? normalizeSubscriptionTier(payload.clientTier) : null,
+      ...access,
       pagination: normalizePagination(payload.pagination, page, limit, staff.length),
     };
   },
 
   async getStaffProfile(staffId: string): Promise<MarketplaceStaff> {
     const response = await apiClient.get<ApiEnvelope<BackendStaffRecord | { staff: BackendStaffRecord }>>(
-      `/api/v1/marketplace/staff/${staffId}/pricing`
+      `/api/v1/client/mobile/marketplace/staff/${staffId}`
     );
 
     if (!response.data.ok) {
@@ -335,53 +380,67 @@ export const marketplaceApi = {
 
   async getPricing(): Promise<PricingPayload> {
     const response = await apiClient.get<ApiEnvelope<{
-      plans?: {
+      clientTier?: SubscriptionTier;
+      subscriptionTier?: SubscriptionTier | null;
+      subscriptionStatus?: string | null;
+      marketplaceAccessLane?: MarketplaceAccessLane | null;
+      premiumAccessActive?: boolean | null;
+      subscriptionStartedAt?: string | null;
+      subscriptionExpiresAt?: string | null;
+      plan?: {
         tier: SubscriptionTier;
         name: string;
         weeklyPrice: number;
         monthlyPrice: number | null;
         annualPrice: number | null;
         features: string[] | string | null;
-      }[];
-      hourlyRates?: {
-        clientTier: SubscriptionTier;
+      } | null;
+      rates?: {
         staffTier: StaffTier;
+        bookingLane?: MarketplaceAccessLane | null;
         hourlyRate: number;
         isBookable: boolean;
       }[];
-    }>>('/api/v1/marketplace/pricing');
+    }>>('/api/v1/client/mobile/marketplace/pricing');
 
     if (!response.data.ok) {
       throw new Error(response.data.error || 'Failed to load pricing');
     }
 
     const payload = response.data.data ?? {};
+    const access = normalizeAccessState(payload);
+    const plan = payload.plan
+      ? {
+          tier: normalizeSubscriptionTier(payload.plan.tier),
+          name: payload.plan.name,
+          weeklyPrice: payload.plan.weeklyPrice,
+          monthlyPrice: payload.plan.monthlyPrice,
+          annualPrice: payload.plan.annualPrice,
+          features: Array.isArray(payload.plan.features)
+            ? payload.plan.features
+            : typeof payload.plan.features === 'string' && payload.plan.features.trim().length > 0
+              ? [payload.plan.features]
+              : [],
+        }
+      : null;
 
     return {
-      plans: (payload.plans ?? []).map((plan) => ({
-        tier: normalizeSubscriptionTier(plan.tier),
-        name: plan.name,
-        weeklyPrice: plan.weeklyPrice,
-        monthlyPrice: plan.monthlyPrice,
-        annualPrice: plan.annualPrice,
-        features: Array.isArray(plan.features)
-          ? plan.features
-          : typeof plan.features === 'string' && plan.features.trim().length > 0
-            ? [plan.features]
-            : [],
-      })),
-      hourlyRates: (payload.hourlyRates ?? []).map((rate) => ({
-        clientTier: normalizeSubscriptionTier(rate.clientTier),
+      ...access,
+      plan,
+      rates: (payload.rates ?? []).map((rate) => ({
         staffTier: normalizeTier(rate.staffTier),
+        bookingLane: normalizeMarketplaceAccessLane(rate.bookingLane),
         hourlyRate: rate.hourlyRate,
         isBookable: coerceBoolean(rate.isBookable) ?? false,
       })),
+      subscriptionStartedAt: payload.subscriptionStartedAt ?? null,
+      subscriptionExpiresAt: payload.subscriptionExpiresAt ?? null,
     };
   },
 
   async createBooking(data: CreateBookingPayload): Promise<Booking> {
     const response = await apiClient.post<ApiEnvelope<BackendBookingRecord | { id: string; status: string }>>(
-      '/api/v1/bookings',
+      '/api/v1/client/mobile/bookings',
       data
     );
 
@@ -444,7 +503,7 @@ export const marketplaceApi = {
     const response = await apiClient.get<ApiEnvelope<{
       bookings?: BackendBookingRecord[];
       pagination?: Partial<Pagination>;
-    }>>(`/api/v1/bookings?${query.toString()}`);
+    }>>(`/api/v1/client/mobile/bookings?${query.toString()}`);
 
     if (!response.data.ok) {
       throw new Error(response.data.error || 'Failed to load bookings');
@@ -460,7 +519,9 @@ export const marketplaceApi = {
   },
 
   async getBookingDetail(bookingId: string): Promise<BookingDetail> {
-    const response = await apiClient.get<ApiEnvelope<BackendBookingRecord>>(`/api/v1/bookings/${bookingId}`);
+    const response = await apiClient.get<ApiEnvelope<BackendBookingRecord>>(
+      `/api/v1/client/mobile/bookings/${bookingId}`
+    );
 
     if (!response.data.ok || !response.data.data) {
       throw new Error(response.data.error || 'Booking not found');
@@ -471,7 +532,7 @@ export const marketplaceApi = {
 
   async cancelBooking(bookingId: string): Promise<CancelBookingResponse> {
     const response = await apiClient.post<ApiEnvelope<{ id: string; status: string }>>(
-      `/api/v1/bookings/${bookingId}/cancel`
+      `/api/v1/client/mobile/bookings/${bookingId}/cancel`
     );
 
     if (!response.data.ok || !response.data.data) {

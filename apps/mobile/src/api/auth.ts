@@ -37,6 +37,25 @@ interface BackendAuthResponse {
   requiresVerification?: boolean;
 }
 
+function normalizeEditableText(value: string | undefined): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  return value.trim();
+}
+
+function buildContactName(input: {
+  contactName?: string;
+  contactFirstName?: string;
+  contactLastName?: string;
+}): string | undefined {
+  const explicitName = normalizeEditableText(input.contactName);
+  if (explicitName) return explicitName;
+
+  const firstName = normalizeEditableText(input.contactFirstName) || '';
+  const lastName = normalizeEditableText(input.contactLastName) || '';
+  const combined = `${firstName} ${lastName}`.trim();
+  return combined || undefined;
+}
+
 function parseUserType(value: string | null): UserType | null {
   if (value === 'jobseeker' || value === 'client') {
     return value;
@@ -150,7 +169,13 @@ export const authApi = {
    * Register a new client company
    */
   async registerClient(data: RegisterClientRequest): Promise<RegisterResponse> {
-    const response = await apiClient.post<BackendAuthResponse>('/api/v1/client/mobile/register', data);
+    const response = await apiClient.post<BackendAuthResponse>('/api/v1/client/mobile/register', {
+      email: data.email,
+      password: data.password,
+      companyName: data.companyName,
+      contactName: buildContactName(data),
+      phone: normalizeEditableText(data.phone),
+    });
     
     if (response.data.ok && response.data.token && response.data.user) {
       const { token, refreshToken, user } = response.data;
@@ -241,7 +266,13 @@ export const authApi = {
    * Update client company profile
    */
   async updateClientProfile(data: Partial<ClientCompany>): Promise<ClientCompany> {
-    const response = await apiClient.put<BackendAuthResponse>('/api/v1/client/mobile/profile', data);
+    const response = await apiClient.put<BackendAuthResponse>('/api/v1/client/mobile/profile', {
+      companyName: normalizeEditableText(data.companyName),
+      contactName: buildContactName(data),
+      phone: normalizeEditableText(data.phone),
+      website: normalizeEditableText(data.website),
+      postcode: normalizeEditableText(data.postcode),
+    });
     
     if (response.data.ok && response.data.user) {
       const normalizedUser = normalizeAuthUser('client', response.data.user);

@@ -4,7 +4,11 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { z } from "zod";
 import { prisma } from "../prisma";
-import { sendClientVerificationEmail, sendClientPasswordResetEmail } from "../services/email";
+import {
+  sendClientVerificationEmail,
+  sendClientPasswordResetEmail,
+  sendNewClientRegistrationNotification,
+} from "../services/email";
 import { requireClientJwt } from "../middleware/jwtAuth";
 import { signAccessToken, signRefreshToken, verifyRefreshToken, getTokenExpiresAt, hashToken } from "../utils/jwt";
 import { parseMobileImageUpload } from "../utils/mobileMediaUpload";
@@ -272,6 +276,16 @@ r.post("/register", registerLimiter, async (req, res) => {
       console.error("[EMAIL] Failed to send client verification:", err);
     });
 
+    sendNewClientRegistrationNotification({
+      companyName,
+      contactName,
+      email,
+      industry: industry || null,
+      clientId: client.id,
+    }).catch(err => {
+      console.error("[EMAIL] Failed to send new client registration notification:", err);
+    });
+
     console.log(`[CLIENT] New registration: ${companyName} (${redactEmail(email)})`);
     
     res.status(201).json({ 
@@ -408,6 +422,7 @@ r.post("/login", loginLimiter, async (req, res) => {
       where: { email },
       select: {
         id: true,
+        seqId: true,
         email: true,
         passwordHash: true,
         companyName: true,
@@ -512,6 +527,7 @@ r.post("/login", loginLimiter, async (req, res) => {
           ok: true,
           client: {
             id: client.id,
+            seqId: client.seqId,
             email: client.email,
             companyName: client.companyName,
             contactName: client.contactName
@@ -719,6 +735,16 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
       token: verifyToken
     }).catch(err => {
       console.error("[EMAIL] Failed to send mobile client verification:", err);
+    });
+
+    sendNewClientRegistrationNotification({
+      companyName,
+      contactName,
+      email,
+      industry: industry || null,
+      clientId: client.id,
+    }).catch(err => {
+      console.error("[EMAIL] Failed to send new mobile client registration notification:", err);
     });
 
     console.log(`[CLIENT] New mobile registration: ${companyName} (${redactEmail(email)})`);
@@ -951,6 +977,7 @@ r.get("/session", async (req, res) => {
       where: { id: clientId },
       select: {
         id: true,
+        seqId: true,
         email: true,
         companyName: true,
         contactName: true,

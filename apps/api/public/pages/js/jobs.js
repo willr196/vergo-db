@@ -5,20 +5,23 @@
     let filters = { roleId: '', type: '' };
     let ssrInitialRender = true;
     
-    // Check auth status
+    // Check auth status — returns true if authenticated, redirects to login if not
     async function checkAuth() {
       try {
         const res = await fetch('/api/v1/user/session');
         const payload = await res.json();
         const data = payload.data ?? payload;
-        
+
         if (data.authenticated) {
           currentUser = data.user;
           renderUserBar();
+          return true;
         }
       } catch (err) {
         console.error('Auth check failed:', err);
       }
+      window.location.href = 'user-login.html?redirect=' + encodeURIComponent(window.location.href);
+      return false;
     }
     
     // Render user bar
@@ -216,7 +219,9 @@
       }
     });
     
-    // Init
-    checkAuth();
-    loadRoles();
-    loadJobs();
+    // Init — gate behind auth
+    checkAuth().then(authenticated => {
+      if (!authenticated) return;
+      loadRoles();
+      loadJobs();
+    });

@@ -24,7 +24,6 @@
     hire: [
       '/hire-staff',
       '/browse-staff',
-      '/hire-us',
       '/event-chefs-london',
       '/front-of-house-staff-london',
       '/kitchen-porters-london',
@@ -263,10 +262,10 @@
             <span class="logo-mark">V</span>
             <span class="logo-copy">
               <span class="logo-title">VERGO</span>
-              <span class="logo-subtitle">Premium staffing, London</span>
+              <span class="logo-subtitle">Event staffing, London</span>
             </span>
           </a>
-          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Premium London event staffing for companies who need reliable teams and workers who want better-run shifts.</p>
+          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">London event staffing for companies that need reliable teams and workers who want well-run shifts.</p>
         </div>
         <div>
           <p class="footer-title">Navigate</p>
@@ -291,7 +290,7 @@
           <p class="footer-title">Contact</p>
           <div class="footer-links">
             <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
-            <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07944 505783</a>
+            <a href="https://wa.me/447506615242?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07506615242</a>
             <p>Replies within 24 hours for most enquiries.</p>
             <p>London and surrounding areas.</p>
           </div>

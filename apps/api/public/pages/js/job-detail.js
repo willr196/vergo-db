@@ -84,7 +84,7 @@ let currentUser = null;
       const typeLabel = job.type === 'INTERNAL' ? 'VERGO Job' : 'External';
       const company = job.type === 'EXTERNAL' && job.companyName ? job.companyName : 'VERGO Events';
 
-      document.title = `${job.title} | VERGO Events — Premium Event Staffing in London`;
+      document.title = `${job.title} | VERGO Events — Event Staffing in London`;
       
       document.getElementById('job-content').innerHTML = `
         <div class="job-container">
@@ -151,11 +151,12 @@ let currentUser = null;
       if (!box) return;
       
       // External job - redirect
-      if (currentJob.type === 'EXTERNAL' && currentJob.externalUrl && /^https?:\/\//i.test(currentJob.externalUrl)) {
+      if (currentJob.type === 'EXTERNAL' && currentJob.externalUrl && (/^https?:\/\//i.test(currentJob.externalUrl) || /^mailto:/i.test(currentJob.externalUrl))) {
+        const isMailto = /^mailto:/i.test(currentJob.externalUrl);
         box.innerHTML = `
           <h3>Apply for this position</h3>
-          <p style="color: var(--color-text-muted); margin-bottom: 20px;">This is an external opportunity. Click below to apply on the employer's website.</p>
-          <a href="${escapeHtml(currentJob.externalUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block">Apply on External Site →</a>
+          <p style="color: var(--color-text-muted); margin-bottom: 20px;">This is an external opportunity. Click below to ${isMailto ? 'email the employer directly.' : 'apply on the employer\'s website.'}</p>
+          <a href="${escapeHtml(currentJob.externalUrl)}" ${isMailto ? '' : 'target="_blank" rel="noopener noreferrer"'} class="btn btn-primary btn-block">${isMailto ? 'Apply by Email →' : 'Apply on External Site →'}</a>
         `;
         return;
       }

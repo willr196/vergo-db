@@ -5,6 +5,7 @@ import { getUnsubscribeUrl, canSendEmail } from './preferences';
 import * as templates from './templates';
 import type { EmailType, EmailTemplateData } from './types';
 import { prisma } from '../../prisma';
+import { TO_EMAIL } from './sender';
 
 type ScheduledEmailType = Extract<EmailType, 'quote-followup' | 'application-review-reminder' | 'shift-reminder'>;
 
@@ -184,7 +185,7 @@ export async function scheduleApplicationReviewReminder(data: {
     recipientType: 'user',
     scheduledFor,
     data: {
-      to: 'wrobb@vergoltd.com',
+      to: TO_EMAIL,
       subject: 'Application Review Reminder',
       applicantName: data.applicantName,
       applicationId: data.applicationId,

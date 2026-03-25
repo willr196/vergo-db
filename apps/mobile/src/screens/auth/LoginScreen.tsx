@@ -156,7 +156,7 @@ export function LoginScreen({ navigation, route }: Props) {
   };
   
   const handleForgotPassword = () => {
-    navigation.navigate('ForgotPassword');
+    navigation.navigate('ForgotPassword', { userType });
   };
   
   const handleRegister = () => {

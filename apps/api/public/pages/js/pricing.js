@@ -2,13 +2,24 @@
   'use strict';
 
   const rates = {
-    standard: 22,
+    waitstaff: 21,
     chef: 26,
   };
 
   const roleLabels = {
-    standard: 'bartender / waiter / FOH / runner cover',
+    waitstaff: 'wait staff / FOH / bar support',
     chef: 'chef cover',
+  };
+
+  const tierLabels = {
+    STANDARD: 'Standard',
+    SHORTLIST: 'Shortlist',
+    GOLD: 'Gold',
+  };
+
+  const serviceFeeRates = {
+    STANDARD: 2,
+    SHORTLIST: 3,
   };
 
   const tierField = document.getElementById('calc-tier');
@@ -66,35 +77,55 @@
     return Number.isFinite(value) && value > 0 ? value : 0;
   }
 
+  function writeEmptyState(tier) {
+    const tierLabel = tierLabels[tier];
+    const feeRate = serviceFeeRates[tier];
+
+    tierBadge.textContent = tierLabel + ' estimate';
+    total.innerHTML = '--';
+    summary.textContent = 'Enter the agreed wage, headcount and hours to estimate the ' + tierLabel + ' tier.';
+    rateLabel.textContent = 'Agreed wage';
+    hourlyRate.innerHTML = '--';
+    subtotal.innerHTML = '--';
+    serviceLabel.textContent = 'VERGO fee (\u00A3' + feeRate + '/hr)';
+    serviceFee.innerHTML = '--';
+    vat.innerHTML = '--';
+    disclaimer.textContent = tierLabel + ' pricing = agreed wage + \u00A3' + feeRate + '/hr + VAT.';
+    quoteLink.setAttribute('href', staffRequestHref);
+  }
+
+  function writeGoldEmptyState() {
+    tierBadge.textContent = 'Gold estimate';
+    total.innerHTML = '--';
+    summary.textContent = 'Enter headcount and hours to estimate the Gold tier.';
+    rateLabel.textContent = 'Fixed rate used';
+    hourlyRate.innerHTML = '--';
+    subtotal.innerHTML = '--';
+    serviceLabel.textContent = 'Service fee';
+    serviceFee.innerHTML = 'Included';
+    vat.innerHTML = '--';
+    disclaimer.textContent = 'Gold uses fixed public rates. Mixed teams and bespoke briefs may need a tailored quote.';
+    quoteLink.setAttribute('href', staffRequestHref);
+  }
+
   function updateCalculator() {
-    const tier = ['STANDARD', 'SHORTLIST'].includes(tierField.value) ? tierField.value : 'GOLD';
-    const role = roleField.value in rates ? roleField.value : 'standard';
+    const tier = tierField.value in tierLabels ? tierField.value : 'STANDARD';
+    const role = roleField.value in rates ? roleField.value : 'waitstaff';
     const headcount = readPositiveNumber(headcountField);
     const hours = readPositiveNumber(hoursField);
 
     standardRateWrap.hidden = tier === 'GOLD';
     standardRateNote.textContent = tier === 'SHORTLIST'
-      ? 'Shortlist pricing = agreed wage + \u00A34/hr + VAT, including the \u00A31/hr merit uplift.'
-      : 'Standard pricing = agreed wage + \u00A33/hr + VAT.';
+      ? 'Shortlist pricing = agreed wage + \u00A33/hr + VAT.'
+      : 'Standard pricing = agreed wage + \u00A32/hr + VAT.';
 
-    if (tier === 'STANDARD' || tier === 'SHORTLIST') {
-      const isShortlist = tier === 'SHORTLIST';
-      const serviceFeeRate = isShortlist ? 4 : 3;
-      const tierLabel = isShortlist ? 'Shortlist' : 'Standard';
+    if (tier !== 'GOLD') {
+      const serviceFeeRate = serviceFeeRates[tier];
+      const tierLabel = tierLabels[tier];
       const baseRate = readPositiveNumber(standardRateField);
 
       if (!baseRate || !headcount || !hours) {
-        tierBadge.textContent = tierLabel + ' estimate';
-        total.innerHTML = '--';
-        summary.textContent = 'Enter the agreed worker rate, team size and hours to calculate a ' + tierLabel + ' estimate.';
-        rateLabel.textContent = 'Worker hourly rate';
-        hourlyRate.innerHTML = '--';
-        subtotal.innerHTML = '--';
-        serviceLabel.textContent = 'Service fee';
-        serviceFee.innerHTML = '--';
-        vat.innerHTML = '--';
-        disclaimer.textContent = tierLabel + ' pricing = agreed wage + \u00A3' + serviceFeeRate + '/hr + VAT.' + (isShortlist ? ' Includes \u00A31/hr merit uplift for shortlisted workers.' : ' Use the contact form for mixed teams or more bespoke briefs.');
-        quoteLink.setAttribute('href', staffRequestHref);
+        writeEmptyState(tier);
         return;
       }
 
@@ -105,35 +136,38 @@
 
       tierBadge.textContent = tierLabel + ' estimate';
       total.innerHTML = formatMoney(totalAmount);
-      summary.textContent = headcount + ' staff for ' + hours + ' hours using the ' + tierLabel + ' solution for ' + roleLabels[role] + '.';
-      rateLabel.textContent = 'Worker hourly rate';
+      summary.textContent = headcount + ' staff for ' + hours + ' hours on the ' + tierLabel + ' tier for ' + roleLabels[role] + '.';
+      rateLabel.textContent = 'Agreed wage';
       hourlyRate.innerHTML = formatMoney(baseRate) + '/hr';
       subtotal.innerHTML = formatMoney(labourSubtotal);
-      serviceLabel.textContent = 'Service fee (\u00A3' + serviceFeeRate + '/hr' + (isShortlist ? ' incl. merit uplift' : '') + ')';
+      serviceLabel.textContent = 'VERGO fee (\u00A3' + serviceFeeRate + '/hr)';
       serviceFee.innerHTML = formatMoney(serviceSubtotal);
       vat.innerHTML = formatMoney(vatAmount);
-      disclaimer.textContent = isShortlist
-        ? 'Estimate only. Includes \u00A31/hr merit uplift for each shortlisted worker selected. Travel, late-night uplifts and bespoke briefs may need a full quote.'
-        : 'Estimate only. Travel, late-night uplifts, mixed teams and bespoke briefs may need a full staffing conversation.';
+      disclaimer.textContent = 'Estimate only. Travel, late-night uplifts, mixed teams and bespoke briefs may need a full quote.';
       quoteLink.setAttribute('href', staffRequestHref);
       return;
     }
 
     const rate = rates[role];
+    if (!headcount || !hours) {
+      writeGoldEmptyState();
+      return;
+    }
+
     const labourSubtotal = rate * headcount * hours;
     const vatAmount = labourSubtotal * 0.2;
     const totalAmount = labourSubtotal + vatAmount;
 
     tierBadge.textContent = 'Gold estimate';
     total.innerHTML = formatMoney(totalAmount);
-    summary.textContent = headcount + ' staff for ' + hours + ' hours using the Gold solution for ' + roleLabels[role] + '.';
-    rateLabel.textContent = 'Hourly rate used';
+    summary.textContent = headcount + ' staff for ' + hours + ' hours on the Gold tier for ' + roleLabels[role] + '.';
+    rateLabel.textContent = 'Fixed rate used';
     hourlyRate.innerHTML = formatMoney(rate) + '/hr';
     subtotal.innerHTML = formatMoney(labourSubtotal);
     serviceLabel.textContent = 'Service fee';
     serviceFee.innerHTML = 'Included';
     vat.innerHTML = formatMoney(vatAmount);
-    disclaimer.textContent = 'Estimate only. Gold rates shown here cover the published public roles. Use the contact form for mixed teams or bespoke support.';
+    disclaimer.textContent = 'Estimate only. Gold uses fixed public rates for the roles shown here. Mixed teams and bespoke briefs may need a tailored quote.';
     quoteLink.setAttribute('href', staffRequestHref);
   }
 

@@ -678,6 +678,9 @@ app.get('/jobs/:id', async (req, res, next) => {
     const typeClass = job.type === 'INTERNAL' ? 'internal' : 'external';
     const typeLabel = job.type === 'INTERNAL' ? 'VERGO Job' : 'External';
 
+    const isWebExternalUrl = !!(job.type === 'EXTERNAL' && job.externalUrl && /^https?:\/\//i.test(job.externalUrl));
+    const isMailtoExternalUrl = !!(job.type === 'EXTERNAL' && job.externalUrl && /^mailto:/i.test(job.externalUrl));
+
     const jobPostingJsonLd: any = {
       '@context': 'https://schema.org',
       '@type': 'JobPosting',
@@ -688,7 +691,7 @@ app.get('/jobs/:id', async (req, res, next) => {
       hiringOrganization: {
         '@type': 'Organization',
         name: company,
-        sameAs: job.type === 'EXTERNAL' && job.externalUrl ? job.externalUrl : 'https://vergoltd.com',
+        sameAs: isWebExternalUrl ? job.externalUrl : 'https://vergoltd.com',
       },
       jobLocation: {
         '@type': 'Place',
@@ -720,8 +723,8 @@ app.get('/jobs/:id', async (req, res, next) => {
     const nonce = crypto.randomBytes(16).toString('base64');
     res.setHeader('Content-Security-Policy', buildJobPageCspHeader(nonce));
 
-    const applyCta = (job.type === 'EXTERNAL' && job.externalUrl && /^https?:\/\//i.test(job.externalUrl))
-      ? `<a href="${escapeHtml(job.externalUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block">Apply on External Site →</a>`
+    const applyCta = (isWebExternalUrl || isMailtoExternalUrl)
+      ? `<a href="${escapeHtml(job.externalUrl || '')}" ${isWebExternalUrl ? 'target="_blank" rel="noopener noreferrer"' : ''} class="btn btn-primary btn-block">${isMailtoExternalUrl ? 'Apply by Email ->' : 'Apply on External Site ->'}</a>`
       : `<a href="/job-detail?id=${encodeURIComponent(job.id)}" class="btn btn-primary btn-block">View & Apply →</a>`;
 
     const html = `<!DOCTYPE html>

@@ -138,7 +138,75 @@ export const clientRejectionEmail = (data: EmailTemplateData): string => {
       <p>Thank you for your interest in registering <strong>${safe(data.companyName)}</strong> with VERGO.</p>
       ${paragraph('After reviewing your application, we\'re unable to approve your business account at this time.')}
       ${data.reason ? infoBox(`<p style="margin: 0; color: #333;"><strong>Reason:</strong> ${safe(data.reason)}</p>`, 'info') : ''}
-      ${paragraph('If you believe this was a mistake or would like more information, please reply to this email and we\'ll be happy to discuss further.')}
+      ${paragraph(`If you believe this was a mistake or would like more information, please contact ${emailLink('wrobb@vergoltd.com')} and we\'ll be happy to discuss further.`)}
+      <p>Best regards,<br><strong>The VERGO Team</strong></p>
+    `),
+  });
+};
+
+export const clientRegistrationNotificationEmail = (data: EmailTemplateData): string => {
+  const adminUrl = data.adminUrl || `${env.webOrigin}/admin-clients`;
+
+  return composeEmail({
+    body: emailBody(`
+      ${sectionHeading('New Client Registration')}
+      ${contentCard(`
+        ${detailRow('Company', data.companyName)}
+        ${detailRow('Contact', data.contactName)}
+        <p><strong>Email:</strong> ${emailLink(data.email || '')}</p>
+        ${data.industry ? detailRow('Industry', data.industry) : ''}
+      `)}
+      ${infoBox('<p style="margin: 0;">The client must still verify their email before approval.</p>', 'warning')}
+      ${primaryButton('View in Admin', adminUrl)}
+    `),
+  });
+};
+
+export const jobSubmissionNotificationEmail = (data: EmailTemplateData): string => {
+  const adminUrl = data.adminUrl || `${env.webOrigin}/admin-jobs`;
+
+  return composeEmail({
+    body: emailBody(`
+      ${sectionHeading('New Job Listing Submitted')}
+      ${contentCard(`
+        ${detailRow('Company', data.companyName)}
+        <p><strong>Poster Email:</strong> ${emailLink(data.email || '')}</p>
+        ${detailRow('Job Title', data.jobTitle)}
+        ${detailRow('Role', data.roleName)}
+        ${detailRow('Location', data.jobLocation)}
+        ${data.payRate ? detailRow('Pay Rate', `£${data.payRate}/hr`) : ''}
+        ${data.externalUrl ? `<p><strong>Apply URL:</strong> <a href="${safe(data.externalUrl)}" style="color:#D4AF37;">${safe(data.externalUrl)}</a></p>` : ''}
+      `)}
+      ${primaryButton('Review in Admin Panel', adminUrl)}
+    `),
+  });
+};
+
+export const jobApprovalEmail = (data: EmailTemplateData): string => {
+  const jobUrl = data.jobUrl || `${env.webOrigin}/jobs`;
+
+  return composeEmail({
+    body: emailBody(`
+      ${sectionHeading('Your job listing is now live')}
+      <p>Hi,</p>
+      ${paragraph(`Your job listing for <strong>${safe(data.jobTitle)}</strong> is now live on VERGO.`)}
+      ${primaryButton('View Live Listing', jobUrl)}
+      ${linkDisplay(jobUrl, 'Direct link:')}
+      ${paragraph('Applicants can now view the role and apply through the job board.')}
+      <p>Best regards,<br><strong>The VERGO Team</strong></p>
+    `),
+  });
+};
+
+export const jobRejectionEmail = (data: EmailTemplateData): string => {
+  return composeEmail({
+    body: emailBody(`
+      ${sectionHeading('Update on your VERGO job listing')}
+      <p>Hi,</p>
+      ${paragraph(`Thank you for submitting <strong>${safe(data.jobTitle)}</strong> to VERGO.`)}
+      ${paragraph('We are unable to publish this listing in its current form.')}
+      ${data.reason ? infoBox(`<p style="margin: 0; color: #333;"><strong>Reason:</strong> ${safe(data.reason)}</p>`, 'info') : ''}
+      ${paragraph(`You are welcome to revise and resubmit the listing, or contact ${emailLink('wrobb@vergoltd.com')} if you would like to discuss it.`)}
       <p>Best regards,<br><strong>The VERGO Team</strong></p>
     `),
   });
@@ -149,7 +217,7 @@ export const clientRejectionEmail = (data: EmailTemplateData): string => {
 // ============================================
 
 export const applicationNotificationEmail = (data: EmailTemplateData): string => {
-  const adminUrl = `${env.webOrigin}/admin`;
+  const adminUrl = `${env.webOrigin}/admin-job-applications`;
 
   return composeEmail({
     body: emailBody(`
@@ -196,7 +264,7 @@ export const applicationConfirmationEmail = (data: EmailTemplateData): string =>
 };
 
 export const jobApplicationNotificationEmail = (data: EmailTemplateData): string => {
-  const adminUrl = `${env.webOrigin}/admin`;
+  const adminUrl = `${env.webOrigin}/admin-job-applications`;
 
   return composeEmail({
     body: emailBody(`
@@ -298,7 +366,7 @@ export const quoteFollowupEmail = (data: EmailTemplateData): string => {
 };
 
 export const applicationReviewReminderEmail = (data: EmailTemplateData): string => {
-  const adminUrl = `${env.webOrigin}/admin`;
+  const adminUrl = `${env.webOrigin}/admin-job-applications`;
 
   return composeEmail({
     body: emailBody(`
@@ -333,5 +401,35 @@ export const shiftReminderEmail = (data: EmailTemplateData): string => {
       <p>See you there!<br><strong>The VERGO Team</strong></p>
     `),
     footer: { showUnsubscribe: true, unsubscribeUrl: data.unsubscribeUrl },
+  });
+};
+
+// ============================================
+// ROSTER APPROVAL EMAIL
+// ============================================
+
+export const rosterApprovalEmail = (data: EmailTemplateData): string => {
+  const loginUrl = `${env.webOrigin}/user-login.html`;
+
+  return composeEmail({
+    body: emailBody(`
+      ${sectionHeading('Welcome to the VERGO Roster!', '🎉')}
+      <p>Hi ${safe(data.recipientName)},</p>
+      ${paragraph("Great news — you've been approved to join the VERGO roster! Your account is ready and you can now log in to browse and apply for available shifts.")}
+      ${accentCard(`
+        <p style="margin: 0 0 8px; font-weight: 600; font-size: 15px;">Your Login Credentials</p>
+        <p style="margin: 0 0 4px;"><strong>Email:</strong> ${safe(data.email)}</p>
+        <p style="margin: 0;"><strong>Temporary Password:</strong> ${safe(data.tempPassword)}</p>
+      `)}
+      ${infoBox('<p style="margin: 0; font-size: 14px;"><strong>Important:</strong> You must change your password when you first log in.</p>', 'warning')}
+      ${primaryButton('Log In to VERGO', loginUrl)}
+      ${paragraph('Once logged in, you can:')}
+      ${listItems([
+        'Browse available VERGO shifts',
+        'Apply for jobs that match your skills',
+        'Manage your profile and availability',
+      ])}
+      <p>Welcome aboard!<br><strong>The VERGO Team</strong></p>
+    `),
   });
 };

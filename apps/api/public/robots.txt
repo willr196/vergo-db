@@ -7,6 +7,14 @@ Allow: /
 # Disallow admin and private areas
 Disallow: /api
 Disallow: /admin
+Disallow: /admin-clients
+Disallow: /admin-jobs
+Disallow: /admin-job-applications
+Disallow: /admin-marketplace
+Disallow: /admin-bookings
+Disallow: /admin-quotes
+Disallow: /admin-comms
+Disallow: /admin-analytics
 Disallow: /login
 
 # Disallow user account pages (not useful for search)

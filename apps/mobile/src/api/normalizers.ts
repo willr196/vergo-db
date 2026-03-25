@@ -9,6 +9,7 @@ import {
   type AuthUser,
   type ClientCompany,
   type Job,
+  type JobTier,
   type JobRole,
   type JobSeeker,
 } from '../types';
@@ -47,6 +48,7 @@ export type BackendJob = {
   description: string;
   requirements?: string | null;
   type?: string;
+  tier?: string | null;
   status?: string;
   location: string;
   venue?: string | null;
@@ -66,6 +68,7 @@ export type BackendJob = {
   applicationCount?: number | null;
   createdAt?: string | null;
   updatedAt?: string | null;
+  shortlistReviewedAt?: string | null;
 };
 
 function normalizeRole(value?: string | null): JobRole {
@@ -119,6 +122,17 @@ function mapStatus(status?: string | null): Job['status'] {
       return 'draft';
     default:
       return 'published';
+  }
+}
+
+function mapTier(tier?: string | null): JobTier {
+  switch ((tier || '').toUpperCase()) {
+    case 'SHORTLIST':
+      return 'SHORTLIST';
+    case 'GOLD':
+      return 'GOLD';
+    default:
+      return 'STANDARD';
   }
 }
 
@@ -176,9 +190,11 @@ export function normalizeJob(job: BackendJob): Job {
     positionsFilled: staffConfirmed || 0,
     applicationCount: job.applicationCount ?? undefined,
     status: mapStatus(job.status),
+    tier: mapTier(job.tier),
     createdAt: job.createdAt || new Date().toISOString(),
     updatedAt: job.updatedAt || new Date().toISOString(),
     applicationDeadline: job.closingDate ?? undefined,
+    shortlistReviewedAt: job.shortlistReviewedAt ?? null,
   };
 }
 

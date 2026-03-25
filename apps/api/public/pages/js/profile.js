@@ -5,7 +5,7 @@
     { value: 'Corporate Events', hint: 'Conferences, launches and brand events' },
     { value: 'Film & TV', hint: 'Production support and set hospitality' },
     { value: 'Music & Festivals', hint: 'Live events, artist areas and guest service' },
-    { value: 'Private Events', hint: 'Private dining, parties and premium service' },
+    { value: 'Private Events', hint: 'Private dining, parties and guest-facing service' },
     { value: 'Hospitality/Venues', hint: 'Restaurants, venues and front-of-house teams' },
     { value: 'Weddings', hint: 'Ceremony, reception and guest-facing service' },
   ];

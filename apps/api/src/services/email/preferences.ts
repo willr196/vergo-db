@@ -15,6 +15,10 @@ const EMAIL_TYPE_CATEGORY: Record<string, { category: EmailCategory; field: stri
   // Notification - can unsubscribe
   'application-notification': { category: 'notification', field: 'notifications' },
   'application-confirmation': { category: 'notification', field: 'notifications' },
+  'client-registration-notification': { category: 'notification', field: 'notifications' },
+  'job-submission-notification': { category: 'notification', field: 'notifications' },
+  'job-approval': { category: 'notification', field: 'notifications' },
+  'job-rejection': { category: 'notification', field: 'notifications' },
   'job-application-notification': { category: 'notification', field: 'notifications' },
   'job-application-confirmation': { category: 'notification', field: 'notifications' },
   'client-approval': { category: 'notification', field: 'notifications' },

@@ -20,6 +20,7 @@ import { Button, LoadingScreen, ErrorState } from '../../components';
 import { ENABLE_SKILL_MATCH_EXPERIMENT } from '../../constants';
 import { useJobsStore, useApplicationsStore, useAuthStore, selectJobSeeker } from '../../store';
 import { calculateSkillMatch, formatDate, formatTime } from '../../utils';
+import { getJobTierLabel, getJobTierSummary, normalizeJobTier } from '../../utils/jobTiers';
 import type { RootStackParamList, JobRole, JobTier } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'JobDetail'>;
@@ -127,6 +128,8 @@ export function JobDetailScreen({ navigation, route }: Props) {
     ENABLE_SKILL_MATCH_EXPERIMENT && user ? calculateSkillMatch(job, user) : null;
   const hasProfileSkills = Boolean(user && user.skills.length > 0);
   const skillMatchColor = skillMatch ? getSkillMatchColor(skillMatch.percentage) : colors.textMuted;
+  const tier = normalizeJobTier(job.tier);
+  const tierSummary = getJobTierSummary(tier);
   
   return (
     <SafeAreaView style={styles.container}>
@@ -153,16 +156,29 @@ export function JobDetailScreen({ navigation, route }: Props) {
           <View style={styles.roleBadge}>
             <Text style={styles.roleText}>{ROLE_LABELS[job.role]}</Text>
           </View>
-          {job.tier === 'SHORTLIST' && (
-            <View style={styles.shortlistBadge}>
-              <Text style={styles.shortlistBadgeText}>Curated Shortlist</Text>
-            </View>
-          )}
-          {job.tier === 'GOLD' && (
-            <View style={styles.goldTierBadge}>
-              <Text style={styles.goldTierBadgeText}>Premium Role</Text>
-            </View>
-          )}
+          <View
+            style={[
+              styles.tierBadge,
+              tier === 'STANDARD'
+                ? styles.standardTierBadge
+                : tier === 'SHORTLIST'
+                  ? styles.shortlistBadge
+                  : styles.goldTierBadge,
+            ]}
+          >
+            <Text
+              style={[
+                styles.tierBadgeText,
+                tier === 'STANDARD'
+                  ? styles.standardTierBadgeText
+                  : tier === 'SHORTLIST'
+                    ? styles.shortlistBadgeText
+                    : styles.goldTierBadgeText,
+              ]}
+            >
+              {getJobTierLabel(tier)}
+            </Text>
+          </View>
           {job.dbsRequired && (
             <View style={styles.dbsBadge}>
               <Text style={styles.dbsText}>DBS Required</Text>
@@ -203,23 +219,30 @@ export function JobDetailScreen({ navigation, route }: Props) {
           </View>
         </View>
 
-        {job.tier === 'SHORTLIST' && (
-          <View style={styles.shortlistCallout}>
-            <Text style={styles.shortlistCalloutTitle}>Curated Shortlist</Text>
-            <Text style={styles.shortlistCalloutText}>
-              VERGO reviews all applications after the window closes and presents a refined shortlist to the client. Selected workers earn a +£1/hr uplift on top of the standard rate. Strong performance here is the primary route to Gold.
-            </Text>
-          </View>
-        )}
-
-        {job.tier === 'GOLD' && (
-          <View style={styles.goldCallout}>
-            <Text style={styles.goldCalloutTitle}>Premium Managed Role</Text>
-            <Text style={styles.goldCalloutText}>
-              This is a senior or lead position managed directly by VERGO — suited to supervisors, head chefs, lead bartenders, and key guest-facing roles. Higher standards, higher trust, higher reward.
-            </Text>
-          </View>
-        )}
+        <View
+          style={[
+            styles.tierCallout,
+            tier === 'STANDARD'
+              ? styles.standardCallout
+              : tier === 'SHORTLIST'
+                ? styles.shortlistCallout
+                : styles.goldCallout,
+          ]}
+        >
+          <Text
+            style={[
+              styles.tierCalloutTitle,
+              tier === 'STANDARD'
+                ? styles.standardCalloutTitle
+                : tier === 'SHORTLIST'
+                  ? styles.shortlistCalloutTitle
+                  : styles.goldCalloutTitle,
+            ]}
+          >
+            {tierSummary.title}
+          </Text>
+          <Text style={styles.tierCalloutText}>{tierSummary.body}</Text>
+        </View>
 
         {ENABLE_SKILL_MATCH_EXPERIMENT && user ? (
           <View style={styles.section}>
@@ -435,53 +458,77 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
   },
   
-  shortlistBadge: {
-    backgroundColor: colors.infoSoft,
+  tierBadge: {
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderRadius: borderRadius.full,
     borderWidth: 1,
+  },
+
+  standardTierBadge: {
+    backgroundColor: colors.surfaceLight,
+    borderColor: colors.surfaceBorder,
+  },
+
+  standardTierBadgeText: {
+    color: colors.textSecondary,
+  },
+
+  shortlistBadge: {
+    backgroundColor: colors.infoSoft,
     borderColor: `${colors.info}55`,
   },
 
-  shortlistBadgeText: {
-    color: colors.info,
+  tierBadgeText: {
     fontSize: typography.fontSize.sm,
     fontWeight: '600' as const,
   },
 
+  shortlistBadgeText: {
+    color: colors.info,
+  },
+
   goldTierBadge: {
     backgroundColor: colors.primarySoft,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
-    borderWidth: 1,
     borderColor: colors.primaryLine,
   },
 
   goldTierBadgeText: {
     color: colors.primary,
-    fontSize: typography.fontSize.sm,
-    fontWeight: '600' as const,
   },
 
-  shortlistCallout: {
-    backgroundColor: colors.infoSoft,
+  tierCallout: {
     borderWidth: 1,
-    borderColor: `${colors.info}40`,
     borderRadius: borderRadius.lg,
     padding: spacing.md,
     marginBottom: spacing.lg,
     gap: spacing.xs,
   },
 
-  shortlistCalloutTitle: {
-    color: colors.info,
+  standardCallout: {
+    backgroundColor: colors.surface,
+    borderColor: colors.surfaceBorder,
+  },
+
+  standardCalloutTitle: {
+    color: colors.textPrimary,
+  },
+
+  shortlistCallout: {
+    backgroundColor: colors.infoSoft,
+    borderColor: `${colors.info}40`,
+  },
+
+  tierCalloutTitle: {
     fontSize: typography.fontSize.sm,
     fontWeight: '700' as const,
   },
 
-  shortlistCalloutText: {
+  shortlistCalloutTitle: {
+    color: colors.info,
+  },
+
+  tierCalloutText: {
     color: colors.textSecondary,
     fontSize: typography.fontSize.sm,
     lineHeight: 20,

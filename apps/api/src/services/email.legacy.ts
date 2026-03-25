@@ -610,7 +610,7 @@ export async function sendClientPasswordResetEmail(data: {
       `
     });
 
-    console.log('[EMAIL] Client password reset sent:', result);
+    console.log('[EMAIL] Client account reset email sent:', result);
     return result;
   } catch (error) {
     console.error('[EMAIL ERROR] Client password reset failed:', error);

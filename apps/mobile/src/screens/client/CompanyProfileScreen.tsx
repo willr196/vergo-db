@@ -30,6 +30,24 @@ interface MarketplaceStats {
   completedQuotes: number;
 }
 
+const SERVICE_PRICING = [
+  {
+    tier: 'Standard',
+    rate: 'Agreed wage + £2/hr + VAT',
+    note: 'Core staffing option for direct bookings.',
+  },
+  {
+    tier: 'Shortlist',
+    rate: 'Agreed wage + £3/hr + VAT',
+    note: 'Includes a £2/hr VERGO fee plus a £1/hr merit uplift for selected workers.',
+  },
+  {
+    tier: 'Gold',
+    rate: 'From £22/hr + VAT',
+    note: 'Chefs from £26/hr + VAT.',
+  },
+] as const;
+
 type Props = CompositeScreenProps<
   BottomTabScreenProps<ClientTabParamList, 'Profile'>,
   NativeStackScreenProps<RootStackParamList>
@@ -201,6 +219,25 @@ export function CompanyProfileScreen({ navigation }: Props) {
           </View>
         )}
 
+        <View style={styles.pricingCard}>
+          <Text style={styles.pricingTitle}>Service Pricing</Text>
+          <Text style={styles.pricingSubtitle}>
+            Current Standard, Shortlist, and Gold pricing shown in the mobile app.
+          </Text>
+
+          {SERVICE_PRICING.map((item) => (
+            <View key={item.tier} style={styles.pricingRow}>
+              <View style={styles.pricingTierBadge}>
+                <Text style={styles.pricingTierBadgeText}>{item.tier}</Text>
+              </View>
+              <View style={styles.pricingCopy}>
+                <Text style={styles.pricingRate}>{item.rate}</Text>
+                <Text style={styles.pricingNote}>{item.note}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+
         {/* Menu Items */}
         <View style={styles.menuSection}>
           {menuItems.map((item, index) => (
@@ -328,6 +365,60 @@ const styles = StyleSheet.create({
   statDivider: {
     width: 1,
     backgroundColor: colors.surfaceBorder,
+  },
+  pricingCard: {
+    backgroundColor: colors.surface,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
+    gap: spacing.md,
+  },
+  pricingTitle: {
+    color: colors.textPrimary,
+    fontSize: typography.fontSize.lg,
+    fontWeight: '700' as const,
+  },
+  pricingSubtitle: {
+    color: colors.textSecondary,
+    fontSize: typography.fontSize.sm,
+    lineHeight: 20,
+  },
+  pricingRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.md,
+  },
+  pricingTierBadge: {
+    minWidth: 78,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+    borderColor: colors.primaryLine,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+  },
+  pricingTierBadgeText: {
+    color: colors.primary,
+    fontSize: typography.fontSize.xs,
+    fontWeight: '700' as const,
+  },
+  pricingCopy: {
+    flex: 1,
+    gap: spacing.xs,
+  },
+  pricingRate: {
+    color: colors.textPrimary,
+    fontSize: typography.fontSize.sm,
+    fontWeight: '600' as const,
+  },
+  pricingNote: {
+    color: colors.textSecondary,
+    fontSize: typography.fontSize.sm,
+    lineHeight: 20,
   },
   menuSection: {
     marginTop: spacing.xl,

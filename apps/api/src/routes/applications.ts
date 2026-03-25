@@ -7,8 +7,10 @@ import { adminAuth } from '../middleware/adminAuth';
 import { GetObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
 import rateLimit from 'express-rate-limit';
+import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import { env } from '../env';
-import { sendApplicationNotificationEmail, sendApplicationConfirmationToApplicant } from '../services/email';
+import { sendApplicationNotificationEmail, sendApplicationConfirmationToApplicant, sendRosterApprovalEmail } from '../services/email';
 import { authLogger } from '../services/logger';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -1015,7 +1017,7 @@ r.patch('/:id/status', adminAuth, async (req, res, next) => {
 
     const existing = await prisma.application.findUnique({
       where: { id: req.params.id },
-      select: { id: true }
+      select: { id: true, applicantId: true }
     });
 
     if (!existing) {
@@ -1029,6 +1031,78 @@ r.patch('/:id/status', adminAuth, async (req, res, next) => {
 
     const adminUsername = (req.session as any)?.username || "admin";
     authLogger.info({ action: 'application_status_changed', admin: adminUsername, applicationId: req.params.id, status: parsed.data.status }, 'Admin changed application status');
+
+    // Auto-create user account when status is set to HIRED
+    if (parsed.data.status === 'HIRED') {
+      try {
+        const applicant = await prisma.applicant.findUnique({
+          where: { id: existing.applicantId },
+          select: { id: true, firstName: true, lastName: true, email: true, phone: true }
+        });
+
+        if (applicant) {
+          // Check if a User already exists for this email
+          const existingUser = await prisma.user.findUnique({
+            where: { email: applicant.email },
+            select: { id: true, applicantId: true }
+          });
+
+          if (existingUser) {
+            // Link the existing user to the applicant if not already linked
+            if (!existingUser.applicantId) {
+              await prisma.user.update({
+                where: { id: existingUser.id },
+                data: { applicantId: applicant.id }
+              });
+              console.log(`[ROSTER] Linked existing user ${existingUser.id} to applicant ${applicant.id}`);
+            }
+          } else {
+            // Create a new user account with temporary password
+            const tempPassword = crypto.randomBytes(9).toString('base64url').slice(0, 12);
+            const passwordHash = await bcrypt.hash(tempPassword, 12);
+
+            try {
+              await prisma.user.create({
+                data: {
+                  email: applicant.email,
+                  passwordHash,
+                  firstName: applicant.firstName,
+                  lastName: applicant.lastName,
+                  phone: applicant.phone,
+                  emailVerified: true,
+                  applicantId: applicant.id,
+                  mustChangePassword: true,
+                }
+              });
+
+              console.log(`[ROSTER] Created user account for approved applicant: ${applicant.email}`);
+
+              // Send welcome email with temporary password
+              try {
+                await sendRosterApprovalEmail({
+                  to: applicant.email,
+                  name: applicant.firstName,
+                  email: applicant.email,
+                  tempPassword,
+                });
+              } catch (emailErr) {
+                console.error(`[ROSTER] Failed to send welcome email to ${applicant.email}:`, emailErr);
+              }
+            } catch (createErr: any) {
+              // Handle unique constraint violation gracefully (race condition)
+              if (createErr?.code === 'P2002') {
+                console.warn(`[ROSTER] User already exists for ${applicant.email} (race condition)`);
+              } else {
+                throw createErr;
+              }
+            }
+          }
+        }
+      } catch (accountErr) {
+        console.error(`[ROSTER] Failed to create account for application ${req.params.id}:`, accountErr);
+        // Don't fail the status update — approval should succeed even if account creation fails
+      }
+    }
 
     res.json({ ok: true, id: app.id, status: app.status, data: { id: app.id, status: app.status } });
   } catch (e) { next(e); }

@@ -74,7 +74,7 @@
   function getGoldRateLabel(roles) {
     if (roleIncludes(roles, 'chef')) return '&pound;26/hr + VAT';
     if (roleIncludes(roles, 'supervisor')) return '&pound;22/hr + VAT';
-    return '&pound;20/hr + VAT';
+    return '&pound;21/hr + VAT';
   }
 
   function getRateLabel(member) {

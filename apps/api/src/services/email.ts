@@ -12,11 +12,17 @@ export {
   sendClientPasswordResetEmail,
   sendClientApprovalEmail,
   sendClientRejectionEmail,
+  sendNewClientRegistrationNotification,
   // Application emails
   sendApplicationNotificationEmail,
   sendApplicationConfirmationToApplicant,
+  sendJobSubmissionNotification,
+  sendJobApprovalEmail,
+  sendJobRejectionEmail,
   sendJobApplicationNotification,
   sendJobApplicationConfirmation,
+  // Roster emails
+  sendRosterApprovalEmail,
   // Enquiry emails
   sendStaffRequestEmail,
   sendGeneralEnquiryEmail,

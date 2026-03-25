@@ -19,7 +19,7 @@
             <img src="/logo.png" alt="VERGO Ltd" width="120" height="auto" loading="lazy" decoding="async">
           </a>
           <p class="footer-tagline">
-            Premium hospitality and event staffing for private events, corporate functions, venues, productions and premium service environments across London.
+            Event staffing for private events, corporate functions, venues and productions across London.
           </p>
           <div class="footer-roles">
             Chefs &middot; Bar Staff &middot; Front of House &middot; Baristas &middot; Kitchen Porters &middot; Event Support
@@ -58,7 +58,7 @@
         <div class="footer-column footer-contact">
           <h3>Get in Touch</h3>
           <a href="mailto:wrobb@vergoltd.com" class="footer-email">wrobb@vergoltd.com</a>
-          <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" class="footer-whatsapp" target="_blank" rel="noopener">WhatsApp: 07944 505783</a>
+          <a href="https://wa.me/447506615242?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" class="footer-whatsapp" target="_blank" rel="noopener">WhatsApp: 07506615242</a>
           <p class="footer-response">Replies within 24 hours for most enquiries</p>
           <p class="footer-coverage">London & surrounding areas</p>
         </div>

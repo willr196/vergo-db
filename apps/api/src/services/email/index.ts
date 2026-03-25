@@ -1,6 +1,7 @@
 // Email service - main entry point
 // Refactored from 810 lines to composable templates
 
+import { env } from '../../env';
 import { sendEmail, sendEmailOrThrow, sendEmailSilent, FROM_EMAIL, TO_EMAIL } from './sender';
 import * as templates from './templates';
 import type { EmailResult } from './types';
@@ -166,6 +167,110 @@ export async function sendClientRejectionEmail(data: {
   });
 }
 
+export async function sendNewClientRegistrationNotification(data: {
+  companyName: string;
+  contactName: string;
+  email: string;
+  industry?: string | null;
+  clientId?: string;
+}): Promise<EmailResult> {
+  const html = templates.clientRegistrationNotificationEmail({
+    companyName: data.companyName,
+    contactName: data.contactName,
+    email: data.email,
+    industry: data.industry ?? undefined,
+  });
+
+  return sendEmailOrThrow({
+    to: TO_EMAIL,
+    replyTo: data.email,
+    subject: `New client registration - ${data.companyName}`,
+    html,
+    emailType: 'client-registration-notification',
+    clientId: data.clientId,
+    tags: [
+      { name: 'category', value: 'client-registration' },
+      { name: 'source', value: 'website' },
+    ],
+  });
+}
+
+export async function sendJobSubmissionNotification(data: {
+  companyName: string;
+  posterEmail: string;
+  jobTitle: string;
+  roleName: string;
+  location: string;
+  payRate?: number | null;
+  externalUrl?: string | null;
+}): Promise<EmailResult> {
+  const html = templates.jobSubmissionNotificationEmail({
+    companyName: data.companyName,
+    email: data.posterEmail,
+    jobTitle: data.jobTitle,
+    roleName: data.roleName,
+    jobLocation: data.location,
+    payRate: data.payRate ?? undefined,
+    externalUrl: data.externalUrl ?? undefined,
+  });
+
+  return sendEmailOrThrow({
+    to: TO_EMAIL,
+    replyTo: data.posterEmail,
+    subject: `📋 New Job Listing Submitted - ${data.companyName}`,
+    html,
+    emailType: 'job-submission-notification',
+    tags: [
+      { name: 'category', value: 'job-submission' },
+      { name: 'source', value: 'website' },
+    ],
+  });
+}
+
+export async function sendJobApprovalEmail(data: {
+  to: string;
+  jobTitle: string;
+  jobId: string;
+}): Promise<EmailResult> {
+  const html = templates.jobApprovalEmail({
+    jobTitle: data.jobTitle,
+    jobUrl: `${env.webOrigin}/jobs/${encodeURIComponent(data.jobId)}`,
+  });
+
+  return sendEmailOrThrow({
+    to: data.to,
+    subject: 'Your job listing is now live on VERGO',
+    html,
+    emailType: 'job-approval',
+    tags: [
+      { name: 'category', value: 'job-approval' },
+      { name: 'source', value: 'admin' },
+    ],
+  });
+}
+
+export async function sendJobRejectionEmail(data: {
+  to: string;
+  jobTitle: string;
+  reason?: string;
+}): Promise<EmailResult> {
+  const html = templates.jobRejectionEmail({
+    jobTitle: data.jobTitle,
+    reason: data.reason,
+  });
+
+  return sendEmailOrThrow({
+    to: data.to,
+    subject: 'Update on your VERGO job listing',
+    html,
+    emailType: 'job-rejection',
+    tags: [
+      { name: 'category', value: 'job-rejection' },
+      { name: 'source', value: 'admin' },
+    ],
+  });
+}
+
 // ============================================
 // APPLICATION EMAILS
 // ============================================
@@ -274,6 +379,34 @@ export async function sendJobApplicationConfirmation(data: {
       { name: 'source', value: 'website' },
     ],
   });
+}
+
+// ============================================
+// ROSTER EMAILS
+// ============================================
+
+export async function sendRosterApprovalEmail(data: {
+  to: string;
+  name: string;
+  email: string;
+  tempPassword: string;
+}): Promise<EmailResult> {
+  const html = templates.rosterApprovalEmail({
+    recipientName: data.name,
+    email: data.email,
+    tempPassword: data.tempPassword,
+  });
+
+  return sendEmailSilent({
+    to: data.to,
+    subject: '\u{1F389} Welcome to the VERGO Roster!',
+    html,
+    emailType: 'roster-approval',
+    tags: [
+      { name: 'category', value: 'roster-approval' },
+      { name: 'source', value: 'admin' },
+    ],
+  }) as Promise<EmailResult>;
 }
 
 // ============================================

@@ -21,6 +21,7 @@ import { colors, spacing, borderRadius, typography } from '../../theme';
 import { LoadingScreen, EmptyState, ErrorState } from '../../components';
 import { jobsApi } from '../../api';
 import { logger } from '../../utils/logger';
+import { getJobTierLabel, normalizeJobTier } from '../../utils/jobTiers';
 import type { RootStackParamList, ClientTabParamList, Job } from '../../types';
 
 type Props = CompositeScreenProps<
@@ -138,6 +139,7 @@ export function MyJobsScreen({ navigation, route }: Props) {
   const renderJob = ({ item }: { item: Job }) => {
     const normalizedStatus = (item.status || 'active').toLowerCase();
     const statusStyle = getStatusStyle(normalizedStatus);
+    const tier = normalizeJobTier(item.tier);
     
     return (
       <TouchableOpacity
@@ -145,7 +147,12 @@ export function MyJobsScreen({ navigation, route }: Props) {
         onPress={() => handleJobPress(item)}
       >
         <View style={styles.jobHeader}>
-          <Text style={styles.jobTitle}>{item.title}</Text>
+          <View style={styles.jobHeaderCopy}>
+            <Text style={styles.jobTitle}>{item.title}</Text>
+            <View style={styles.tierBadge}>
+              <Text style={styles.tierBadgeText}>{getJobTierLabel(tier)}</Text>
+            </View>
+          </View>
           <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
             <Text style={[styles.statusText, { color: statusStyle.text }]}>
               {normalizedStatus === 'published' || normalizedStatus === 'open'
@@ -342,12 +349,29 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: spacing.sm,
   },
-  jobTitle: {
+  jobHeaderCopy: {
     flex: 1,
+    marginRight: spacing.sm,
+  },
+  jobTitle: {
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
     fontWeight: '600' as const,
-    marginRight: spacing.sm,
+  },
+  tierBadge: {
+    alignSelf: 'flex-start',
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+    borderColor: colors.primaryLine,
+    backgroundColor: colors.primarySoft,
+  },
+  tierBadgeText: {
+    color: colors.primary,
+    fontSize: typography.fontSize.xs,
+    fontWeight: '700' as const,
   },
   statusBadge: {
     paddingHorizontal: spacing.sm,

@@ -490,11 +490,13 @@ r.post("/login", loginLimiter, async (req, res) => {
       where: { email },
       select: {
         id: true,
+        seqId: true,
         email: true,
         passwordHash: true,
         firstName: true,
         lastName: true,
         emailVerified: true,
+        mustChangePassword: true,
         failedAttempts: true,
         lockedUntil: true
       }
@@ -538,12 +540,21 @@ r.post("/login", loginLimiter, async (req, res) => {
     
     // Check email verification
     if (!user.emailVerified) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         error: "Please verify your email before logging in.",
         code: "EMAIL_NOT_VERIFIED"
       });
     }
-    
+
+    // Check if user must change password
+    if (user.mustChangePassword) {
+      return res.status(403).json({
+        ok: false,
+        error: "You must change your password before continuing.",
+        code: "MUST_CHANGE_PASSWORD"
+      });
+    }
+
     // Reset failed attempts
     if (user.failedAttempts > 0 || user.lockedUntil) {
       await prisma.user.update({
@@ -582,10 +593,11 @@ r.post("/login", loginLimiter, async (req, res) => {
         
         console.log(`[USER] Login: ${redactEmail(email)}`);
         
-        res.json({ 
+        res.json({
           ok: true,
           user: {
             id: user.id,
+            seqId: user.seqId,
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName
@@ -622,6 +634,7 @@ r.post("/mobile/login", loginLimiter, async (req, res) => {
         lastName: true,
         phone: true,
         emailVerified: true,
+        mustChangePassword: true,
         applicantId: true,
         staffTier: true,
         staffBio: true,
@@ -667,6 +680,15 @@ r.post("/mobile/login", loginLimiter, async (req, res) => {
         ok: false,
         error: "Please verify your email before logging in.",
         code: "EMAIL_NOT_VERIFIED"
+      });
+    }
+
+    // Check if user must change password
+    if (user.mustChangePassword) {
+      return res.status(403).json({
+        ok: false,
+        error: "You must change your password before continuing.",
+        code: "MUST_CHANGE_PASSWORD"
       });
     }
 
@@ -1025,6 +1047,7 @@ r.get("/session", async (req, res) => {
       where: { id: req.session.userId },
       select: {
         id: true,
+        seqId: true,
         email: true,
         firstName: true,
         lastName: true,
@@ -1032,15 +1055,16 @@ r.get("/session", async (req, res) => {
         applicantId: true
       }
     });
-    
+
     if (!user) {
       return res.json({ ok: true, authenticated: false, data: { authenticated: false } });
     }
-    
+
     const payload = {
       authenticated: true,
       user: {
         id: user.id,
+        seqId: user.seqId,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -1214,6 +1238,141 @@ r.put("/profile", requireUser, async (req, res) => {
 });
 
 // ============================================
+// POST /api/v1/user/force-change-password (unauthenticated, for mustChangePassword flow)
+// POST /api/v1/user/mobile/force-change-password
+// ============================================
+const forceChangePasswordSchema = z.object({
+  email: z.string().email().max(255).toLowerCase().trim(),
+  currentPassword: z.string().min(1).max(72),
+  newPassword: z.string().min(8).max(72),
+});
+
+r.post(["/force-change-password", "/mobile/force-change-password"], loginLimiter, async (req, res) => {
+  try {
+    const parsed = forceChangePasswordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        ok: false,
+        error: "Invalid input",
+        details: parsed.error.issues.map(i => i.message),
+      });
+    }
+
+    const { email, currentPassword, newPassword } = parsed.data;
+
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ ok: false, error: "New password must be different from your current password" });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        seqId: true,
+        mustChangePassword: true,
+        applicantId: true,
+        staffTier: true,
+        staffBio: true,
+        staffAvatar: true,
+        staffAvailable: true,
+        staffRating: true,
+        staffReviewCount: true,
+        staffHighlights: true,
+      }
+    });
+
+    const hashToCompare = user?.passwordHash || DUMMY_HASH;
+    const passwordMatches = await bcrypt.compare(currentPassword, hashToCompare);
+
+    if (!user || !passwordMatches) {
+      return res.status(401).json({ ok: false, error: "Invalid email or password" });
+    }
+
+    if (!user.mustChangePassword) {
+      return res.status(400).json({ ok: false, error: "Password change not required. Please log in normally." });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        mustChangePassword: false,
+        failedAttempts: 0,
+        lockedUntil: null,
+        lastLoginAt: new Date(),
+      }
+    });
+
+    console.log(`[USER] Force password change completed: ${redactEmail(user.email)}`);
+
+    // Determine if this is a mobile or web request
+    const isMobile = req.path.includes("/mobile/");
+
+    if (isMobile) {
+      const accessToken = signAccessToken({ sub: user.id, type: 'user', email: user.email });
+      const refreshToken = signRefreshToken({ sub: user.id, type: 'user', email: user.email });
+
+      await prisma.refreshToken.create({
+        data: {
+          tokenHash: hashToken(refreshToken),
+          userId: user.id,
+          expiresAt: getTokenExpiresAt(refreshToken)
+        }
+      });
+
+      return res.json({
+        ok: true,
+        token: accessToken,
+        refreshToken,
+        user: shapeMobileUser(user)
+      });
+    }
+
+    // Web: create session
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error("[ERROR] Session regeneration failed:", err);
+        return res.status(500).json({ ok: false, error: "Login failed" });
+      }
+
+      req.session.userId = user.id;
+      req.session.userEmail = user.email;
+      req.session.isUser = true;
+      req.session.userLoginTime = Date.now();
+      req.session.userLastActivity = Date.now();
+
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error("[ERROR] Session save failed:", saveErr);
+          return res.status(500).json({ ok: false, error: "Login failed" });
+        }
+
+        res.json({
+          ok: true,
+          user: {
+            id: user.id,
+            seqId: user.seqId,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          }
+        });
+      });
+    });
+  } catch (error) {
+    console.error("[ERROR] Force change password failed:", error);
+    res.status(500).json({ ok: false, error: "Failed to change password" });
+  }
+});
+
+// ============================================
 // PUT /api/v1/user/change-password (authenticated)
 // ============================================
 r.put("/change-password", requireUser, async (req, res) => {
@@ -1258,6 +1417,7 @@ r.put("/change-password", requireUser, async (req, res) => {
       where: { id: user.id },
       data: {
         passwordHash,
+        mustChangePassword: false,
         failedAttempts: 0,
         lockedUntil: null,
         resetToken: null,

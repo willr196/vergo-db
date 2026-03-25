@@ -30,14 +30,20 @@ export type EmailType =
   | 'client-password-reset'
   | 'client-approval'
   | 'client-rejection'
+  | 'client-registration-notification'
   // Application emails
   | 'application-notification'      // To admin
   | 'application-confirmation'      // To applicant
+  | 'job-submission-notification'   // To admin
+  | 'job-approval'
+  | 'job-rejection'
   | 'job-application-notification'  // To admin
   | 'job-application-confirmation'  // To user
   // Enquiry emails
   | 'staff-request'
   | 'general-enquiry'
+  // Roster
+  | 'roster-approval'
   // Reminders
   | 'quote-followup'
   | 'application-review-reminder'
@@ -55,6 +61,8 @@ export interface EmailTemplateData {
 
   // Company/client
   companyName?: string;
+  contactName?: string;
+  industry?: string;
 
   // Application data
   applicantName?: string;
@@ -65,7 +73,12 @@ export interface EmailTemplateData {
   // Job data
   jobTitle?: string;
   jobLocation?: string;
+  roleName?: string;
   eventDate?: Date | string | null;
+  adminUrl?: string;
+  jobUrl?: string;
+  payRate?: number;
+  externalUrl?: string;
 
   // Enquiry data
   name?: string;
@@ -78,6 +91,9 @@ export interface EmailTemplateData {
   message?: string;
   company?: string;
   date?: string;
+
+  // Roster approval
+  tempPassword?: string;
 
   // Rejection
   reason?: string;

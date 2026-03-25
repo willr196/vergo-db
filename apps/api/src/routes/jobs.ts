@@ -1,9 +1,24 @@
 import { Router, type NextFunction, type Request, type Response } from "express";
+import rateLimit from "express-rate-limit";
 import { z } from "zod";
 import { prisma } from "../prisma";
 import { adminAuth } from "../middleware/adminAuth";
+import { requireUser } from "../middleware/userAuth";
+import {
+  sendJobApprovalEmail,
+  sendJobRejectionEmail,
+  sendJobSubmissionNotification,
+} from "../services/email";
 
 const r = Router();
+
+const submitLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many job submissions. Please try again later." },
+});
 
 // ============================================
 // VALIDATION SCHEMAS
@@ -32,6 +47,23 @@ const createJobSchema = z.object({
 
 const updateJobSchema = createJobSchema.partial();
 
+const submitJobSchema = z.object({
+  companyName: z.string().min(2).max(200).trim(),
+  posterEmail: z.string().email().max(255).trim(),
+  title: z.string().min(3).max(200).trim(),
+  roleId: z.string().min(1),
+  location: z.string().min(2).max(200).trim(),
+  description: z.string().min(20).max(5000).trim(),
+  payRateMin: z.number().positive().max(1000).optional(),
+  payRateMax: z.number().positive().max(1000).optional(),
+  payType: z.enum(["HOURLY", "DAILY", "FIXED"]).default("HOURLY"),
+  externalUrl: z.string().url().max(500).trim(),
+  website: z.preprocess((value) => value === "" ? undefined : value, z.string().max(200).optional()),
+  confirm: z.literal(true, {
+    errorMap: () => ({ message: "You must confirm the information is accurate" }),
+  }),
+});
+
 const listJobsQuerySchema = z.object({
   // Support legacy "PENDING" from older admin UI; map it to DRAFT server-side.
   status: z.enum(["PENDING", "DRAFT", "OPEN", "FILLED", "CLOSED"]).optional(),
@@ -42,10 +74,14 @@ const listJobsQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20)
 });
 
+function isPendingExternalSubmission(job: { status: string }) {
+  return job.status === "PENDING";
+}
+
 // ============================================
-// PUBLIC: GET /api/v1/jobs - List open jobs
+// AUTHENTICATED: GET /api/v1/jobs - List open jobs
 // ============================================
-r.get("/", async (req, res, next) => {
+r.get("/", requireUser, async (req, res, next) => {
   try {
     const query = listJobsQuerySchema.parse(req.query);
     const skip = (query.page - 1) * query.limit;
@@ -122,9 +158,9 @@ r.get("/", async (req, res, next) => {
 });
 
 // ============================================
-// PUBLIC: GET /api/v1/jobs/roles - Get available roles
+// AUTHENTICATED: GET /api/v1/jobs/roles - Get available roles
 // ============================================
-r.get("/meta/roles", async (req, res, next) => {
+r.get("/meta/roles", requireUser, async (req, res, next) => {
   try {
     const roles = await prisma.role.findMany({
       orderBy: { name: "asc" },
@@ -138,9 +174,9 @@ r.get("/meta/roles", async (req, res, next) => {
 });
 
 // ============================================
-// PUBLIC: GET /api/v1/jobs/:id - Get single job
+// AUTHENTICATED: GET /api/v1/jobs/:id - Get single job
 // ============================================
-r.get("/:id", async (req, res, next) => {
+r.get("/:id", requireUser, async (req, res, next) => {
   try {
     const job = await prisma.job.findUnique({
       where: { id: req.params.id },
@@ -206,7 +242,7 @@ async function listAdminJobs(req: Request, res: Response, next: NextFunction) {
     const skip = (query.page - 1) * query.limit;
     
     const where: any = {};
-    if (query.status) where.status = query.status === 'PENDING' ? 'DRAFT' : query.status;
+    if (query.status) where.status = query.status;
     if (query.type) where.type = query.type;
     if (query.tier) where.tier = query.tier;
     if (query.roleId) where.roleId = query.roleId;
@@ -228,9 +264,11 @@ async function listAdminJobs(req: Request, res: Response, next: NextFunction) {
       }),
       prisma.job.count({ where })
     ]);
+
+    const shapedJobs = jobs.map((job) => ({ ...job }));
     
     const payload = {
-      jobs,
+      jobs: shapedJobs,
       pagination: {
         page: query.page,
         limit: query.limit,
@@ -284,6 +322,88 @@ r.get("/admin/:id", adminAuth, async (req, res, next) => {
     res.json({ ok: true, job, data: job });
     
   } catch (error) {
+    next(error);
+  }
+});
+
+// ============================================
+// PUBLIC: POST /api/v1/jobs/submit - Submit external job for review
+// ============================================
+r.post("/submit", submitLimiter, async (req, res, next) => {
+  try {
+    const data = submitJobSchema.parse(req.body);
+
+    if (data.website) {
+      return res.status(201).json({
+        ok: true,
+        success: true,
+        message: "Job submitted for review",
+      });
+    }
+
+    const role = await prisma.role.findUnique({
+      where: { id: data.roleId },
+      select: { id: true, name: true },
+    });
+
+    if (!role) {
+      return res.status(400).json({ error: "Invalid role selected" });
+    }
+
+    const payRate = data.payRateMax || data.payRateMin || null;
+
+    const job = await prisma.job.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        type: "EXTERNAL",
+        status: "PENDING",
+        location: data.location,
+        companyName: data.companyName,
+        posterEmail: data.posterEmail,
+        payRate,
+        payType: data.payType,
+        externalUrl: data.externalUrl,
+        roleId: role.id,
+        staffNeeded: 1,
+      },
+      include: {
+        role: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+
+    console.log(`[JOB SUBMISSION] New | Company: ${data.companyName} | Email: ${data.posterEmail} | Title: ${data.title} | ID: ${job.id}`);
+
+    sendJobSubmissionNotification({
+      companyName: data.companyName,
+      posterEmail: data.posterEmail,
+      jobTitle: data.title,
+      roleName: role.name,
+      location: data.location,
+      payRate: payRate ? Number(payRate) : null,
+      externalUrl: data.externalUrl,
+    }).catch((err) => {
+      console.error("[EMAIL] Failed to send job submission notification:", err);
+    });
+
+    res.status(201).json({
+      ok: true,
+      success: true,
+      message: "Job submitted successfully! We'll review and publish it within 24 hours.",
+      id: job.id,
+      data: {
+        id: job.id,
+      },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        error: "Invalid input",
+        details: error.issues.map((issue) => issue.message),
+      });
+    }
     next(error);
   }
 });
@@ -452,6 +572,105 @@ r.post("/:id/shortlist-review", adminAuth, async (req, res, next) => {
 
     res.json({ ok: true, id: job.id, shortlistReviewedAt: job.shortlistReviewedAt, data: { id: job.id, shortlistReviewedAt: job.shortlistReviewedAt } });
 
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ============================================
+// ADMIN: POST /api/v1/jobs/:id/approve - Approve pending external job
+// ============================================
+r.post("/:id/approve", adminAuth, async (req, res, next) => {
+  try {
+    const existing = await prisma.job.findUnique({
+      where: { id: req.params.id },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        type: true,
+        posterEmail: true,
+      },
+    });
+
+    if (!existing) {
+      return res.status(404).json({ error: "Job not found" });
+    }
+
+    if (!isPendingExternalSubmission(existing)) {
+      return res.status(400).json({ error: "Job is not pending approval" });
+    }
+
+    const job = await prisma.job.update({
+      where: { id: req.params.id },
+      data: {
+        status: "OPEN",
+        publishedAt: new Date(),
+      },
+    });
+
+    console.log(`[AUDIT] Job approved | ID: ${job.id} | Title: ${existing.title} | Admin: ${req.session.username}`);
+
+    if (existing.posterEmail) {
+      sendJobApprovalEmail({
+        to: existing.posterEmail,
+        jobTitle: existing.title,
+        jobId: job.id,
+      }).catch((err) => {
+        console.error("[EMAIL] Failed to send job approval:", err);
+      });
+    }
+
+    res.json({ ok: true, job, data: job });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ============================================
+// ADMIN: POST /api/v1/jobs/:id/reject - Reject pending external job
+// ============================================
+r.post("/:id/reject", adminAuth, async (req, res, next) => {
+  try {
+    const { reason } = z.object({
+      reason: z.string().max(500).optional(),
+    }).parse(req.body);
+
+    const existing = await prisma.job.findUnique({
+      where: { id: req.params.id },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        type: true,
+        posterEmail: true,
+        companyName: true,
+      },
+    });
+
+    if (!existing) {
+      return res.status(404).json({ error: "Job not found" });
+    }
+
+    if (!isPendingExternalSubmission(existing)) {
+      return res.status(400).json({ error: "Job is not pending approval" });
+    }
+
+    await prisma.job.delete({ where: { id: req.params.id } });
+
+    console.log(`[AUDIT] Job rejected | ID: ${existing.id} | Title: ${existing.title} | Company: ${existing.companyName || "-"} | Reason: ${reason || "None provided"} | Admin: ${req.session.username}`);
+
+    if (existing.posterEmail) {
+      sendJobRejectionEmail({
+        to: existing.posterEmail,
+        jobTitle: existing.title,
+        reason,
+      }).catch((err) => {
+        console.error("[EMAIL] Failed to send job rejection:", err);
+      });
+    }
+
+    res.json({ ok: true });
   } catch (error) {
     next(error);
   }
