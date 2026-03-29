@@ -111,6 +111,44 @@
       line-height: 1;
     }
 
+    /* ─── FOUNDER PHOTO GRID ─── */
+    .founder-photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .founder-photo-slot {
+      margin: 0;
+    }
+
+    .founder-photo-slot figcaption {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .photo-placeholder {
+      aspect-ratio: 4/5;
+      background: rgba(255,255,255,0.03);
+      border: 1px dashed rgba(212,175,55,0.25);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(212,175,55,0.35);
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 960px) {
+      .founder-photo-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     @media (max-width: 960px) {
       .tier-compare-grid {
         grid-template-columns: 1fr;
@@ -145,7 +183,7 @@
           <aside class="panel hero-summary" aria-label="Hire staff summary">
             <span class="status">Guided staffing</span>
             <h2>Managed from brief to confirmation.</h2>
-            <p>VERGO reviews the brief, confirms the right staffing route and manages fulfilment end to end.</p>
+            <p>VERGO reviews the brief, confirms the right staffing route and manages fulfilment end to end. Most Standard briefs are confirmed within 24 hours.</p>
             <div class="detail-grid">
               <article class="detail-card">
                 <p class="card-label">Standard</p>
@@ -169,22 +207,6 @@
       </div>
     </section>
 
-    <section class="section-block" style="padding-top: 24px; padding-bottom: 24px;" aria-label="Photo placeholder">
-      <div class="page-shell">
-        <figure class="photo-slot" data-missing="true" style="--photo-min-height: 400px;">
-          <!-- PHOTO PLACEHOLDER: replace image file at /images/hire-staff/staff-in-uniform-hero.webp -->
-          <img src="/images/hire-staff/staff-in-uniform-hero.webp" alt="Staff in uniform with sharp presentation in a hospitality setting" width="1200" height="400" loading="lazy" decoding="async" onload="this.closest('.photo-slot').dataset.missing='false'; this.style.display='block';" onerror="this.closest('.photo-slot').dataset.missing='true'; this.style.display='none';">
-          <div class="photo-slot__fallback">
-            <div class="photo-slot__copy">
-              <strong class="photo-slot__label">Staff in uniform — sharp presentation, hospitality setting</strong>
-              <span class="photo-slot__meta">Suggested dimensions: 1200×400px</span>
-              <code class="photo-slot__path">/images/hire-staff/staff-in-uniform-hero.webp</code>
-            </div>
-          </div>
-        </figure>
-      </div>
-    </section>
-
     <section id="lane-guide" class="section-block">
       <div class="page-shell">
         <div class="section-heading">
@@ -198,11 +220,11 @@
             <span class="tier-pill">Standard</span>
             <h3 class="tier-name">VERGO matches and confirms directly.</h3>
             <p class="tier-summary">VERGO matches from its screened staffing network and confirms the team directly.</p>
-            <p class="tier-price-note">Agreed wage + &pound;2/hr + VAT <span>Designed for general event cover</span></p>
+            <p class="tier-price-note">Agreed wage + &pound;3/hr + VAT <span>Designed for general event cover</span></p>
             <ul class="tier-features">
               <li><span class="mark">01</span><span>VERGO matches from its screened staffing network and confirms the team directly.</span></li>
               <li><span class="mark">02</span><span>Designed for general event cover.</span></li>
-              <li><span class="mark">03</span><span>Agreed wage + &pound;2/hr + VAT.</span></li>
+              <li><span class="mark">03</span><span>Agreed wage + &pound;3/hr + VAT.</span></li>
             </ul>
             <div class="stacked-actions">
               <a href="/pricing#calculator" class="btn btn-primary">Estimate Standard</a>
@@ -236,10 +258,32 @@
               <li><span class="mark">03</span><span>Very strong CVs and proven experience in their industry.</span></li>
               <li><span class="mark">04</span><span>From &pound;21/hr + VAT.</span></li>
             </ul>
+            <p style="margin-top: 16px; font-size: 0.88rem; color: var(--muted);">Gold uses fixed public rates — see the <a href="/pricing#tiers" style="color: var(--gold);">pricing page</a> for the full rate table.</p>
             <div class="stacked-actions">
               <a href="/contact?tab=staff#contact-forms" class="btn btn-primary">Discuss Gold Staffing</a>
             </div>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" style="padding-top: 0; padding-bottom: 8px;">
+      <div class="page-shell">
+        <!-- PHOTO GRID: Drop in 3 photos when ready (replace each .photo-placeholder div with an <img>) -->
+        <!-- Suggested shots: Will plating / Will pouring / Will + staff group -->
+        <div class="founder-photo-grid">
+          <figure class="founder-photo-slot">
+            <div class="photo-placeholder" data-slot="photo-1">Add photo</div>
+            <figcaption>Founder quality on every Gold shift</figcaption>
+          </figure>
+          <figure class="founder-photo-slot">
+            <div class="photo-placeholder" data-slot="photo-2">Add photo</div>
+            <figcaption>Last-minute &amp; emergency cover delivered with the same standards we work to weekly</figcaption>
+          </figure>
+          <figure class="founder-photo-slot">
+            <div class="photo-placeholder" data-slot="photo-3">Add photo</div>
+            <figcaption>The team behind every brief</figcaption>
+          </figure>
         </div>
       </div>
     </section>
@@ -272,6 +316,26 @@
             <h3>One event can use multiple solutions</h3>
             <p>VERGO can combine Standard floor teams, a Shortlist guest-facing layer and Gold leads on the same event if the brief calls for it.</p>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="page-shell">
+        <div class="panel" style="border: 1px solid rgba(212,175,55,0.35); background: radial-gradient(circle at top left, rgba(212,175,55,0.07), transparent 50%), var(--panel-bg, rgba(255,255,255,0.03));">
+          <span class="eyebrow">Urgent briefs</span>
+          <h2>Last-Minute &amp; Emergency Staffing</h2>
+          <p class="lede" style="max-width: 44rem; margin-top: 8px;">Same-day response guaranteed. Access our curated network of top London hospitality talent for urgent needs.</p>
+          <ul class="tier-features" style="margin-top: 24px; max-width: 52rem;">
+            <li><span class="mark">01</span><span>Urgent brief? Same-day response via WhatsApp or email.</span></li>
+            <li><span class="mark">02</span><span>Founder-led vetting — top talent is personally known and worked with regularly.</span></li>
+            <li><span class="mark">03</span><span>Gold tier available for senior and exec roles when flawless execution matters.</span></li>
+            <li><span class="mark">04</span><span>No mass rosters. Reliable premium professionals who show up.</span></li>
+          </ul>
+          <div class="stacked-actions" style="margin-top: 28px;">
+            <a href="https://wa.me/447506615242?text=Hi%2C%20I%20need%20urgent%20event%20staff%20cover" class="btn btn-primary" target="_blank" rel="noopener">WhatsApp for Urgent Cover</a>
+            <a href="/contact?tab=staff#contact-forms" class="btn btn-secondary">Send a Brief</a>
+          </div>
         </div>
       </div>
     </section>

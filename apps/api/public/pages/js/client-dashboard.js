@@ -66,7 +66,7 @@
               <p>Estimate costs for your event using our interactive calculator.</p>
             </div>
           </a>
-          <a href="mailto:wrobb@vergoltd.com" class="action-card">
+          <a href="/contact" class="action-card">
             <span class="action-icon">💬</span>
             <div class="action-content">
               <h3>Contact Us</h3>

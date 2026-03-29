@@ -215,6 +215,29 @@
       stroke: var(--color-bg-primary);
     }
 
+    /* ─── TRUST STRIP ─── */
+    .trust-strip {
+      display: flex;
+      gap: 24px 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 28px;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.78rem;
+      letter-spacing: 0.5px;
+      color: var(--color-text-muted);
+    }
+
+    .trust-item svg {
+      stroke: var(--color-gold);
+      flex-shrink: 0;
+    }
+
     /* ─── NAV STRIP ─── */
     .nav-strip {
       position: absolute;
@@ -288,9 +311,79 @@
     .hero-headline   { animation: fadeUp 0.9s 0.3s ease both; }
     .hero-sub        { animation: fadeUp 0.9s 0.45s ease both; }
     .cta-row         { animation: fadeUp 0.9s 0.6s ease both; }
-    .nav-strip       { animation: fadeUp 0.8s 0.8s ease both; }
+    .trust-strip     { animation: fadeUp 0.8s 0.75s ease both; }
+    .nav-strip       { animation: fadeUp 0.8s 0.9s ease both; }
   </style>
   <link rel="stylesheet" href="/pages/css/index.css">
+  <style>
+    /* ─── PHOTO PLACEHOLDERS ─── */
+    .photo-placeholder {
+      background: rgba(255,255,255,0.03);
+      border: 1px dashed rgba(212,175,55,0.25);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(212,175,55,0.35);
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    /* ─── FOUNDER HERO SLOT ─── */
+    .founder-hero-slot {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .founder-hero-placeholder {
+      height: 420px;
+    }
+
+    .founder-hero-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 28px 32px;
+      background: linear-gradient(to top, rgba(10,10,10,0.92) 0%, transparent 100%);
+    }
+
+    .founder-hero-overlay h2 {
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
+      margin-top: 6px;
+      max-width: 44rem;
+    }
+
+    /* ─── RECENT WORK GRID ─── */
+    .recent-work-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .recent-work-slot {
+      margin: 0;
+    }
+
+    .recent-work-placeholder {
+      aspect-ratio: 1;
+      border-radius: 10px;
+    }
+
+    .recent-work-slot figcaption {
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    @media (max-width: 700px) {
+      .recent-work-grid { grid-template-columns: repeat(2, 1fr); }
+      .founder-hero-placeholder { height: 280px; }
+    }
+  </style>
 </head>
 <body class="homepage">
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -304,10 +397,9 @@
     <p class="brand-tagline">London Hospitality Staffing</p>
 
     <!-- Headline -->
-    <h1 class="hero-headline">London hospitality and events staffing</h1>
+    <h1 class="hero-headline">VERGO Staff. No stress included.</h1>
     <p class="hero-sub">
-      VERGO fills London events through three staffing routes: Standard for vetted flexible cover,
-      Shortlist when you want a reviewed shortlist, and Gold for senior or key roles.
+      VERGO places vetted hospitality staff across London events. Send your brief — we confirm the right team, briefed and ready.
     </p>
 
     <!-- Two CTA cards -->
@@ -316,7 +408,7 @@
       <a href="/hire-staff" class="cta-card cta-card--client">
         <span class="cta-label">For Companies</span>
         <span class="cta-title">Hire Staff For Your Event</span>
-        <span class="cta-desc">VERGO recommends Standard, Shortlist or Gold, then manages the staffing process that best suits the event.</span>
+        <span class="cta-desc">Send your brief. VERGO recommends the right tier, confirms a vetted team and manages everything to arrival.</span>
         <span class="cta-arrow">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </span>
@@ -333,6 +425,26 @@
 
     </div>
 
+    <!-- Trust strip -->
+    <div class="trust-strip" aria-label="Key commitments">
+      <div class="trust-item">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Vetted staff only</span>
+      </div>
+      <div class="trust-item">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Briefed before arrival</span>
+      </div>
+      <div class="trust-item">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Confirmed within 24 hours</span>
+      </div>
+      <div class="trust-item">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>London-based</span>
+      </div>
+    </div>
+
     <!-- Minimal nav strip -->
     <nav class="nav-strip" aria-label="Secondary">
       <a href="#home-journey">How It Works</a>
@@ -343,6 +455,19 @@
       <a href="/apply">Join VERGO</a>
     </nav>
 
+    </section>
+
+    <!-- FOUNDER PHOTO: Replace .photo-placeholder div with <img src="..." alt="Will from VERGO Events – ..."> when ready -->
+    <section class="section-block home-section" style="padding-top: 8px; padding-bottom: 8px;">
+      <div class="page-shell">
+        <div class="founder-hero-slot">
+          <div class="photo-placeholder founder-hero-placeholder" data-slot="founder-hero">Add photo — Will's strongest solo selfie, event/service setting</div>
+          <div class="founder-hero-overlay">
+            <span class="eyebrow">Founder-led</span>
+            <h2>Premium event staffing — led by Will, active in London events daily.</h2>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="home-journey" class="section-block home-section">
@@ -358,22 +483,6 @@
           <h3>The difference is how much review, seniority and client selection the brief needs.</h3>
           <p>Standard covers general event staffing. Shortlist is reviewed by VERGO before sending the strongest matches to the client. Gold is built around proven staff with strong reviews, strong CVs and proven industry experience.</p>
         </div>
-      </div>
-    </section>
-
-    <section class="section-block home-section" aria-label="Photo placeholder">
-      <div class="page-shell">
-        <figure class="photo-slot" data-missing="true" style="--photo-min-height: 500px;">
-          <!-- PHOTO PLACEHOLDER: replace image file at /images/home/event-action-strip.webp -->
-          <img src="/images/home/event-action-strip.webp" alt="Event action shot showing bartenders and front-of-house staff in a venue setting" width="1400" height="500" loading="lazy" decoding="async" onload="this.closest('.photo-slot').dataset.missing='false'; this.style.display='block';" onerror="this.closest('.photo-slot').dataset.missing='true'; this.style.display='none';">
-          <div class="photo-slot__fallback">
-            <div class="photo-slot__copy">
-              <strong class="photo-slot__label">Event action shot — bartenders/front-of-house team in a venue setting</strong>
-              <span class="photo-slot__meta">Suggested dimensions: 1400×500px</span>
-              <code class="photo-slot__path">/images/home/event-action-strip.webp</code>
-            </div>
-          </div>
-        </figure>
       </div>
     </section>
 
@@ -393,7 +502,7 @@
             <ul class="tier-features">
               <li><span class="mark">01</span><span>VERGO matches from its screened staffing network and confirms the team directly.</span></li>
               <li><span class="mark">02</span><span>Designed for general event cover.</span></li>
-              <li><span class="mark">03</span><span>Agreed wage + &pound;2/hr + VAT.</span></li>
+              <li><span class="mark">03</span><span>Agreed wage + &pound;3/hr + VAT.</span></li>
             </ul>
           </article>
 
@@ -451,41 +560,40 @@
       </div>
     </section>
 
-    <section class="section-block home-section" aria-label="Photo placeholder">
+    <section class="section-block home-section">
       <div class="page-shell">
-        <div class="photo-slot-grid">
-          <figure class="photo-slot" data-missing="true" style="--photo-min-height: 340px;">
-            <!-- PHOTO PLACEHOLDER: replace image file at /images/home/production-set-crew.webp -->
-            <img src="/images/home/production-set-crew.webp" alt="Film or TV production set crew at work" width="460" height="340" loading="lazy" decoding="async" onload="this.closest('.photo-slot').dataset.missing='false'; this.style.display='block';" onerror="this.closest('.photo-slot').dataset.missing='true'; this.style.display='none';">
-            <div class="photo-slot__fallback">
-              <div class="photo-slot__copy">
-                <strong class="photo-slot__label">Film/TV production set crew</strong>
-                <span class="photo-slot__meta">460×340px</span>
-                <code class="photo-slot__path">/images/home/production-set-crew.webp</code>
-              </div>
-            </div>
+        <div class="panel" style="border: 1px solid rgba(212,175,55,0.35); background: radial-gradient(circle at top left, rgba(212,175,55,0.07), transparent 50%), rgba(255,255,255,0.02);">
+          <span class="eyebrow">Urgent briefs</span>
+          <h2>Last-Minute &amp; Emergency Staffing</h2>
+          <p style="margin-top: 8px; max-width: 44rem; color: var(--color-text-muted);">Same-day response guaranteed. Our curated network of top London hospitality professionals is ready when you need it most. No mass rosters — just reliable people who show up.</p>
+          <div class="stacked-actions" style="margin-top: 24px;">
+            <a href="https://wa.me/447506615242?text=Hi%2C%20I%20need%20urgent%20event%20staff%20cover" class="btn btn-primary" target="_blank" rel="noopener">WhatsApp for Urgent Cover</a>
+            <a href="/hire-staff" class="btn btn-secondary">See All Options</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECENT WORK: Replace .photo-placeholder divs with <img> tags when ready (3–4 cropped selfies) -->
+    <section class="section-block home-section" style="padding-top: 8px;">
+      <div class="page-shell">
+        <div class="section-heading" style="margin-bottom: 0;">
+          <span class="eyebrow">Recent work</span>
+          <h2>Real shifts, real standards.</h2>
+          <p>Built by someone who's still on the floor.</p>
+        </div>
+        <div class="recent-work-grid">
+          <figure class="recent-work-slot">
+            <div class="photo-placeholder recent-work-placeholder" data-slot="recent-1">Add photo</div>
           </figure>
-          <figure class="photo-slot" data-missing="true" style="--photo-min-height: 340px;">
-            <!-- PHOTO PLACEHOLDER: replace image file at /images/home/private-dining-event-staff.webp -->
-            <img src="/images/home/private-dining-event-staff.webp" alt="Private dining event staff preparing or serving guests" width="460" height="340" loading="lazy" decoding="async" onload="this.closest('.photo-slot').dataset.missing='false'; this.style.display='block';" onerror="this.closest('.photo-slot').dataset.missing='true'; this.style.display='none';">
-            <div class="photo-slot__fallback">
-              <div class="photo-slot__copy">
-                <strong class="photo-slot__label">Private dining event staff</strong>
-                <span class="photo-slot__meta">460×340px</span>
-                <code class="photo-slot__path">/images/home/private-dining-event-staff.webp</code>
-              </div>
-            </div>
+          <figure class="recent-work-slot">
+            <div class="photo-placeholder recent-work-placeholder" data-slot="recent-2">Add photo</div>
           </figure>
-          <figure class="photo-slot" data-missing="true" style="--photo-min-height: 340px;">
-            <!-- PHOTO PLACEHOLDER: replace image file at /images/home/corporate-event-foh.webp -->
-            <img src="/images/home/corporate-event-foh.webp" alt="Corporate event front-of-house team in service" width="460" height="340" loading="lazy" decoding="async" onload="this.closest('.photo-slot').dataset.missing='false'; this.style.display='block';" onerror="this.closest('.photo-slot').dataset.missing='true'; this.style.display='none';">
-            <div class="photo-slot__fallback">
-              <div class="photo-slot__copy">
-                <strong class="photo-slot__label">Corporate event front-of-house</strong>
-                <span class="photo-slot__meta">460×340px</span>
-                <code class="photo-slot__path">/images/home/corporate-event-foh.webp</code>
-              </div>
-            </div>
+          <figure class="recent-work-slot">
+            <div class="photo-placeholder recent-work-placeholder" data-slot="recent-3">Add photo</div>
+          </figure>
+          <figure class="recent-work-slot">
+            <div class="photo-placeholder recent-work-placeholder" data-slot="recent-4">Add photo</div>
           </figure>
         </div>
       </div>

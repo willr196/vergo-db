@@ -223,6 +223,7 @@
               <li><a href="/"${withCurrent('home')}>Home</a></li>
               <li><a href="/jobs"${withCurrent('jobs')}>Job Board</a></li>
               <li><a href="/pricing"${withCurrent('pricing')}>Pricing</a></li>
+              <li><a href="/about"${withCurrent('about')}>About</a></li>
               <li><a href="/contact"${withCurrent('contact')}>Contact</a></li>
             </ul>
           </nav>
@@ -244,6 +245,7 @@
           <a href="/"${withCurrent('home')}>Home</a>
           <a href="/jobs"${withCurrent('jobs')}>Job Board</a>
           <a href="/pricing"${withCurrent('pricing')}>Pricing</a>
+          <a href="/about"${withCurrent('about')}>About</a>
           <a href="/contact"${withCurrent('contact')}>Contact</a>
         </nav>
         <div class="nav-actions">
@@ -289,7 +291,7 @@
         <div>
           <p class="footer-title">Contact</p>
           <div class="footer-links">
-            <a href="mailto:wrobb@vergoltd.com">wrobb@vergoltd.com</a>
+            <a href="/contact">Contact VERGO</a>
             <a href="https://wa.me/447506615242?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07506615242</a>
             <p>Replies within 24 hours for most enquiries.</p>
             <p>London and surrounding areas.</p>

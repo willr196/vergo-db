@@ -548,10 +548,18 @@ r.post("/login", loginLimiter, async (req, res) => {
 
     // Check if user must change password
     if (user.mustChangePassword) {
+      const resetToken = generateToken();
+      const resetTokenHash = hashDbToken(resetToken);
+      const resetTokenExp = new Date(Date.now() + 60 * 60 * 1000);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { resetToken: resetTokenHash, resetTokenExp }
+      });
       return res.status(403).json({
         ok: false,
         error: "You must change your password before continuing.",
-        code: "MUST_CHANGE_PASSWORD"
+        code: "MUST_CHANGE_PASSWORD",
+        token: resetToken
       });
     }
 
@@ -685,10 +693,18 @@ r.post("/mobile/login", loginLimiter, async (req, res) => {
 
     // Check if user must change password
     if (user.mustChangePassword) {
+      const resetToken = generateToken();
+      const resetTokenHash = hashDbToken(resetToken);
+      const resetTokenExp = new Date(Date.now() + 60 * 60 * 1000);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { resetToken: resetTokenHash, resetTokenExp }
+      });
       return res.status(403).json({
         ok: false,
         error: "You must change your password before continuing.",
-        code: "MUST_CHANGE_PASSWORD"
+        code: "MUST_CHANGE_PASSWORD",
+        token: resetToken
       });
     }
 
@@ -1526,11 +1542,12 @@ r.post("/reset-password", resetPasswordLimiter, async (req, res) => {
         passwordHash,
         resetToken: null,
         resetTokenExp: null,
+        mustChangePassword: false,
         failedAttempts: 0,
         lockedUntil: null
       }
     });
-    
+
     console.log(`[USER] Password reset complete: ${redactEmail(user.email)}`);
     
     res.json({ ok: true, message: "Password reset successful. You can now log in." });

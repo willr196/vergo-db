@@ -62,6 +62,11 @@
         if (data.code === 'EMAIL_NOT_VERIFIED') {
           resendSection.classList.remove('d-none');
         }
+        // Redirect to reset password page for forced password change
+        if (data.code === 'MUST_CHANGE_PASSWORD' && data.token) {
+          window.location.href = '/reset-password?token=' + encodeURIComponent(data.token);
+          return;
+        }
         throw new Error(data.error || 'Login failed');
       }
 

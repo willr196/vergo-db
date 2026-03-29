@@ -456,9 +456,9 @@
           document.getElementById('formSuccess').classList.add('active');
         } else {
           const err = await response.json();
-          alert(err.error || 'There was a problem submitting your application. Please try again or email us directly at wrobb@vergoltd.com');
+          alert(err.error || 'There was a problem submitting your application. Please try again or use the contact form at vergoltd.com/contact.');
         }
       } catch (error) {
-        alert('There was a problem submitting your application. Please try again or email us directly at wrobb@vergoltd.com');
+        alert('There was a problem submitting your application. Please try again or use the contact form at vergoltd.com/contact.');
       }
     });

@@ -187,6 +187,44 @@ body.public-auth-page footer {
   text-transform: uppercase;
 }
 
+.pw-wrap {
+  position: relative;
+}
+
+.pw-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #666;
+  line-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pw-toggle:hover,
+.pw-toggle:focus-visible {
+  color: #D4AF37;
+  outline: none;
+}
+
+.pw-eye-off {
+  display: none;
+}
+
+.pw-toggle[aria-label="Hide password"] .pw-eye {
+  display: none;
+}
+
+.pw-toggle[aria-label="Hide password"] .pw-eye-off {
+  display: block;
+}
+
 body.public-auth-page input[type="password"] {
   width: 100%;
   min-height: 52px;
@@ -195,6 +233,10 @@ body.public-auth-page input[type="password"] {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.04);
   color: var(--white);
+}
+
+body.public-auth-page .pw-wrap input {
+  padding-right: 44px;
 }
 
 body.public-auth-page input[type="password"]::placeholder {
