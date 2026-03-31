@@ -18,7 +18,7 @@
   };
 
   const serviceFeeRates = {
-    STANDARD: 3,
+    STANDARD: 2,
     SHORTLIST: 3,
   };
 
@@ -117,7 +117,7 @@
     standardRateWrap.hidden = tier === 'GOLD';
     standardRateNote.textContent = tier === 'SHORTLIST'
       ? 'Shortlist pricing = agreed wage + \u00A33/hr + VAT.'
-      : 'Standard pricing = agreed wage + \u00A33/hr + VAT.';
+      : 'Standard pricing = agreed wage + \u00A32/hr + VAT.';
 
     if (tier !== 'GOLD') {
       const serviceFeeRate = serviceFeeRates[tier];

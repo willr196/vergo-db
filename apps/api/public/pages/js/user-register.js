@@ -1,3 +1,12 @@
+document.querySelectorAll('.pw-toggle').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var input = btn.previousElementSibling;
+    var show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  });
+});
+
 const form = document.getElementById('register-form');
     const msgBox = document.getElementById('message');
     

@@ -64,6 +64,132 @@
     document.head.appendChild(fontLink);
   };
 
+  const DASH_SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA', 'CODE', 'PRE']);
+
+  const normalizeCopyValue = (value) => {
+    if (!value || !/[—–]|--/.test(value)) {
+      return value;
+    }
+
+    return value.replace(/\s(?:--|—|–)\s/g, ', ');
+  };
+
+  const normalizeTitleValue = (value) => {
+    if (!value || !/[—–]|--/.test(value)) {
+      return value;
+    }
+
+    return value.replace(/\s(?:--|—|–)\s/g, ', ');
+  };
+
+  const normalizeTextNode = (node) => {
+    if (!node || node.nodeType !== Node.TEXT_NODE) {
+      return;
+    }
+
+    const parent = node.parentElement;
+    if (!parent || DASH_SKIP_TAGS.has(parent.tagName) || parent.closest('[data-preserve-dashes]')) {
+      return;
+    }
+
+    const current = node.nodeValue;
+    const next = normalizeCopyValue(current);
+
+    if (next !== current) {
+      node.nodeValue = next;
+    }
+  };
+
+  const normalizeCopyTree = (root) => {
+    if (!root || root.nodeType !== Node.ELEMENT_NODE) {
+      return;
+    }
+
+    if (DASH_SKIP_TAGS.has(root.tagName) || (root.matches && root.matches('[data-preserve-dashes]'))) {
+      return;
+    }
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let currentNode = walker.nextNode();
+
+    while (currentNode) {
+      normalizeTextNode(currentNode);
+      currentNode = walker.nextNode();
+    }
+  };
+
+  const normalizeMetadata = () => {
+    const nextTitle = normalizeTitleValue(document.title);
+    if (nextTitle !== document.title) {
+      document.title = nextTitle;
+    }
+
+    document.querySelectorAll('meta[property="og:title"], meta[name="twitter:title"]').forEach((meta) => {
+      const current = meta.getAttribute('content') || '';
+      const next = normalizeTitleValue(current);
+      if (next !== current) {
+        meta.setAttribute('content', next);
+      }
+    });
+
+    document.querySelectorAll('meta[name="description"], meta[property="og:description"], meta[name="twitter:description"]').forEach((meta) => {
+      const current = meta.getAttribute('content') || '';
+      const next = normalizeCopyValue(current);
+      if (next !== current) {
+        meta.setAttribute('content', next);
+      }
+    });
+  };
+
+  const startDashNormalization = () => {
+    normalizeMetadata();
+    if (document.body) {
+      normalizeCopyTree(document.body);
+    }
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'characterData') {
+          normalizeTextNode(mutation.target);
+          continue;
+        }
+
+        if (mutation.type === 'attributes') {
+          if (mutation.target instanceof HTMLMetaElement || mutation.target instanceof HTMLTitleElement) {
+            normalizeMetadata();
+          }
+          continue;
+        }
+
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.TEXT_NODE) {
+            normalizeTextNode(node);
+            return;
+          }
+
+          if (node.nodeType !== Node.ELEMENT_NODE) {
+            return;
+          }
+
+          if (node instanceof HTMLMetaElement || node instanceof HTMLTitleElement) {
+            normalizeMetadata();
+            return;
+          }
+
+          normalizeCopyTree(node);
+        });
+      }
+    });
+
+    observer.observe(document.documentElement, {
+      subtree: true,
+      childList: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ['content'],
+    });
+  };
+
   // Decode JWT payload client-side (no verification — display only)
   const decodeJwtPayload = (token) => {
     try {
@@ -323,6 +449,7 @@
   }
 
   injectProfileLinks();
+  startDashNormalization();
 
   const button = document.getElementById('mobile-menu-button');
   const menu = document.getElementById('mobile-menu');

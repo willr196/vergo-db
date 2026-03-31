@@ -232,13 +232,12 @@ r.post("/register", registerLimiter, async (req, res) => {
     });
     
     if (existing) {
-      // Don't reveal that email exists (security)
-      return res.status(200).json({ 
-        ok: true,
-        message: "If this email is not registered, you will receive a verification email."
+      return res.status(409).json({
+        ok: false,
+        error: "This email address is already registered. Please log in or use a different email."
       });
     }
-    
+
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
     const verifyToken = generateToken();
@@ -450,7 +449,7 @@ r.post("/login", loginLimiter, async (req, res) => {
     if (!client || !passwordMatches) {
       if (client) {
         const newFailedAttempts = (client.failedAttempts || 0) + 1;
-        const shouldLock = newFailedAttempts >= 5;
+        const shouldLock = newFailedAttempts >= 8;
         
         await prisma.client.update({
           where: { id: client.id },
@@ -610,7 +609,7 @@ r.post("/mobile/login", loginLimiter, async (req, res) => {
     if (!client || !passwordMatches) {
       if (client) {
         const newFailedAttempts = (client.failedAttempts || 0) + 1;
-        const shouldLock = newFailedAttempts >= 5;
+        const shouldLock = newFailedAttempts >= 8;
 
         await prisma.client.update({
           where: { id: client.id },

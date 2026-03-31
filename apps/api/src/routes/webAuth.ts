@@ -21,6 +21,12 @@ const loginSchema = z.object({
   password: z.string().min(8).max(72),
 });
 
+const forceChangePasswordSchema = z.object({
+  email: z.string().email().max(255).toLowerCase().trim(),
+  currentPassword: z.string().min(1).max(72),
+  newPassword: z.string().min(8).max(72),
+});
+
 const refreshSchema = z.object({
   refreshToken: z.string().min(1),
 });
@@ -68,6 +74,7 @@ r.post('/login', loginLimiter, async (req, res) => {
         firstName: true,
         lastName: true,
         emailVerified: true,
+        mustChangePassword: true,
         staffTier: true,
         shortlistSelections: true,
         failedAttempts: true,
@@ -92,7 +99,7 @@ r.post('/login', loginLimiter, async (req, res) => {
           where: { id: user.id },
           data: {
             failedAttempts: newAttempts,
-            lockedUntil: newAttempts >= 5 ? new Date(Date.now() + 30 * 60 * 1000) : null,
+            lockedUntil: newAttempts >= 8 ? new Date(Date.now() + 30 * 60 * 1000) : null,
           },
         });
         return res.status(401).json({ ok: false, error: 'Invalid email or password' });
@@ -103,6 +110,14 @@ r.post('/login', loginLimiter, async (req, res) => {
           ok: false,
           error: 'Please verify your email before logging in.',
           code: 'EMAIL_NOT_VERIFIED',
+        });
+      }
+
+      if (user.mustChangePassword) {
+        return res.status(403).json({
+          ok: false,
+          error: 'You must set a new password before continuing.',
+          code: 'MUST_CHANGE_PASSWORD',
         });
       }
 
@@ -173,7 +188,7 @@ r.post('/login', loginLimiter, async (req, res) => {
           where: { id: client.id },
           data: {
             failedAttempts: newAttempts,
-            lockedUntil: newAttempts >= 5 ? new Date(Date.now() + 30 * 60 * 1000) : null,
+            lockedUntil: newAttempts >= 8 ? new Date(Date.now() + 30 * 60 * 1000) : null,
           },
         });
       }
@@ -331,6 +346,93 @@ r.post('/logout', async (req, res) => {
     return res.json({ ok: true });
   } catch {
     return res.status(500).json({ ok: false, error: 'Logout failed' });
+  }
+});
+
+// ============================================
+// POST /api/v1/web/force-change-password
+// ============================================
+r.post('/force-change-password', loginLimiter, async (req, res) => {
+  try {
+    const parsed = forceChangePasswordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: 'Invalid input' });
+    }
+
+    const { email, currentPassword, newPassword } = parsed.data;
+
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ ok: false, error: 'New password must be different from your temporary password' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        firstName: true,
+        lastName: true,
+        mustChangePassword: true,
+        staffTier: true,
+        shortlistSelections: true,
+        failedAttempts: true,
+        lockedUntil: true,
+      },
+    });
+
+    const hashToCompare = user?.passwordHash || DUMMY_HASH;
+    const passwordMatches = await bcrypt.compare(currentPassword, hashToCompare);
+
+    if (!user || !passwordMatches) {
+      return res.status(401).json({ ok: false, error: 'Invalid email or password' });
+    }
+
+    if (!user.mustChangePassword) {
+      return res.status(400).json({ ok: false, error: 'Password change not required. Please log in normally.' });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        mustChangePassword: false,
+        failedAttempts: 0,
+        lockedUntil: null,
+        lastLoginAt: new Date(),
+      },
+    });
+
+    console.log(`[WEB] Force password change completed: ${user.email}`);
+
+    const accessToken = signAccessToken({ sub: user.id, type: 'user', email: user.email });
+    const refreshToken = signRefreshToken({ sub: user.id, type: 'user', email: user.email });
+
+    await prisma.refreshToken.create({
+      data: {
+        tokenHash: hashToken(refreshToken),
+        userId: user.id,
+        expiresAt: getTokenExpiresAt(refreshToken),
+      },
+    });
+
+    return res.json({
+      ok: true,
+      token: accessToken,
+      refreshToken,
+      userType: 'worker',
+      user: {
+        id: user.id,
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`,
+        staffTier: user.staffTier,
+      },
+    });
+  } catch (error) {
+    console.error('[ERROR] Web force-change-password failed:', error);
+    return res.status(500).json({ ok: false, error: 'Request failed. Please try again.' });
   }
 });
 

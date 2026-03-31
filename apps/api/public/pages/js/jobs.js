@@ -5,7 +5,7 @@
     let filters = { roleId: '', type: '' };
     let ssrInitialRender = true;
     
-    // Check auth status — returns true if authenticated, redirects to login if not
+    // Check auth status — jobs page is public; auth is optional (personalises the user bar)
     async function checkAuth() {
       try {
         const res = await fetch('/api/v1/user/session');
@@ -14,14 +14,12 @@
 
         if (data.authenticated) {
           currentUser = data.user;
-          renderUserBar();
-          return true;
         }
       } catch (err) {
         console.error('Auth check failed:', err);
       }
-      window.location.href = 'user-login.html?redirect=' + encodeURIComponent(window.location.href);
-      return false;
+      renderUserBar();
+      return true;
     }
     
     // Render user bar
@@ -44,7 +42,7 @@
 	        bar.innerHTML = `
 	          <div class="user-actions">
 	            <a href="/user-login" class="btn btn-secondary btn-small">Log In</a>
-	            <a href="/user-register" class="btn btn-primary btn-small">Create Account</a>
+	            <a href="/apply" class="btn btn-primary btn-small">Create Account</a>
 	          </div>
 	        `;
 	      }
@@ -54,6 +52,9 @@
     async function logout() {
       try {
         await fetch('/api/v1/user/logout', { method: 'POST' });
+        localStorage.removeItem('vergo_jwt');
+        localStorage.removeItem('vergo_refresh');
+        localStorage.removeItem('vergo_user');
         currentUser = null;
         renderUserBar();
       } catch (err) {
@@ -219,9 +220,8 @@
       }
     });
     
-    // Init — gate behind auth
-    checkAuth().then(authenticated => {
-      if (!authenticated) return;
+    // Init — public page, auth is optional
+    checkAuth().then(() => {
       loadRoles();
       loadJobs();
     });

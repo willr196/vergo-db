@@ -63,13 +63,26 @@
       background: transparent;
     }
 
+    .brand-tagline-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 60px;
+    }
+
+    .brand-tagline-line {
+      width: 40px;
+      height: 1px;
+      background: var(--color-gold);
+      opacity: 0.6;
+    }
+
     .brand-tagline {
       font-size: 0.75rem;
-      letter-spacing: 3px;
+      letter-spacing: 2.6px;
       text-transform: uppercase;
       color: var(--color-gold);
-      margin-bottom: 60px;
-      font-weight: 400;
+      font-weight: 600;
     }
 
     /* ─── HEADLINE ─── */
@@ -307,7 +320,7 @@
     }
 
     .logo-img        { animation: fadeUp 0.8s ease both; }
-    .brand-tagline   { animation: fadeUp 0.8s 0.15s ease both; }
+    .brand-tagline-row { animation: fadeUp 0.8s 0.15s ease both; }
     .hero-headline   { animation: fadeUp 0.9s 0.3s ease both; }
     .hero-sub        { animation: fadeUp 0.9s 0.45s ease both; }
     .cta-row         { animation: fadeUp 0.9s 0.6s ease both; }
@@ -394,12 +407,16 @@
 
     <!-- Logo -->
     <img src="/logo.png" alt="VERGO Events" class="logo-img">
-    <p class="brand-tagline">London Hospitality Staffing</p>
+    <div class="brand-tagline-row">
+      <div class="brand-tagline-line"></div>
+      <p class="brand-tagline">Event Staff · Stress-Free Guarantee</p>
+      <div class="brand-tagline-line"></div>
+    </div>
 
     <!-- Headline -->
-    <h1 class="hero-headline">VERGO Staff. No stress included.</h1>
+    <h1 class="hero-headline">VERGO Event Staff. Stress-Free Guarantee.</h1>
     <p class="hero-sub">
-      VERGO places vetted hospitality staff across London events. Send your brief — we confirm the right team, briefed and ready.
+      Whether you're hiring staff or applying for work, we do our best to keep everyone happy.
     </p>
 
     <!-- Two CTA cards -->
@@ -447,7 +464,6 @@
 
     <!-- Minimal nav strip -->
     <nav class="nav-strip" aria-label="Secondary">
-      <a href="#home-journey">How It Works</a>
       <a href="#home-lanes">Staffing Solutions</a>
       <a href="/hire-staff">Hire Staff</a>
       <a href="/pricing">Pricing</a>
@@ -470,22 +486,6 @@
       </div>
     </section>
 
-    <section id="home-journey" class="section-block home-section">
-      <div class="page-shell">
-        <div class="home-section-intro">
-          <span class="eyebrow">Managed staffing</span>
-          <h2>Three staffing routes with different levels of selection.</h2>
-          <p>Standard is direct. Shortlist focuses on the best possible matches. Gold is for experienced staff who work directly for VERGO.</p>
-        </div>
-
-        <div class="home-guidance panel">
-          <span class="status">Run by VERGO</span>
-          <h3>The difference is how much review, seniority and client selection the brief needs.</h3>
-          <p>Standard covers general event staffing. Shortlist is reviewed by VERGO before sending the strongest matches to the client. Gold is built around proven staff with strong reviews, strong CVs and proven industry experience.</p>
-        </div>
-      </div>
-    </section>
-
     <section id="home-lanes" class="section-block home-section">
       <div class="page-shell">
         <div class="section-heading">
@@ -502,7 +502,7 @@
             <ul class="tier-features">
               <li><span class="mark">01</span><span>VERGO matches from its screened staffing network and confirms the team directly.</span></li>
               <li><span class="mark">02</span><span>Designed for general event cover.</span></li>
-              <li><span class="mark">03</span><span>Agreed wage + &pound;3/hr + VAT.</span></li>
+              <li><span class="mark">03</span><span>Agreed wage + &pound;2/hr + VAT.</span></li>
             </ul>
           </article>
 
@@ -534,38 +534,10 @@
 
     <section class="section-block home-section">
       <div class="page-shell">
-        <div class="section-heading">
-          <span class="eyebrow">Which solution fits?</span>
-          <h2>Choose by the level of selection the event needs.</h2>
-          <p>The quickest way to understand VERGO is to think about the brief, not just the job title.</p>
-        </div>
-
-        <div class="card-grid">
-          <article class="detail-card home-fit-card">
-            <p class="card-label">Standard</p>
-            <h3>For faster-moving event cover</h3>
-            <p>Best for bartenders, waiters, runners, kitchen support and flexible teams where reliability and speed matter.</p>
-          </article>
-          <article class="detail-card home-fit-card">
-            <p class="card-label">Shortlist</p>
-            <h3>For briefs where fit carries more weight</h3>
-            <p>Best when the client wants final say after VERGO narrows the list.</p>
-          </article>
-          <article class="detail-card home-fit-card">
-            <p class="card-label">Gold</p>
-            <h3>For senior cover</h3>
-            <p>Best for head chefs, lead bartenders and other roles where experience and judgement matter.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-block home-section">
-      <div class="page-shell">
         <div class="panel" style="border: 1px solid rgba(212,175,55,0.35); background: radial-gradient(circle at top left, rgba(212,175,55,0.07), transparent 50%), rgba(255,255,255,0.02);">
           <span class="eyebrow">Urgent briefs</span>
           <h2>Last-Minute &amp; Emergency Staffing</h2>
-          <p style="margin-top: 8px; max-width: 44rem; color: var(--color-text-muted);">Same-day response guaranteed. Our curated network of top London hospitality professionals is ready when you need it most. No mass rosters — just reliable people who show up.</p>
+          <p style="margin-top: 8px; max-width: 44rem; color: var(--color-text-muted);">Same-day response guaranteed.</p>
           <div class="stacked-actions" style="margin-top: 24px;">
             <a href="https://wa.me/447506615242?text=Hi%2C%20I%20need%20urgent%20event%20staff%20cover" class="btn btn-primary" target="_blank" rel="noopener">WhatsApp for Urgent Cover</a>
             <a href="/hire-staff" class="btn btn-secondary">See All Options</a>
@@ -574,27 +546,28 @@
       </div>
     </section>
 
-    <!-- RECENT WORK: Replace .photo-placeholder divs with <img> tags when ready (3–4 cropped selfies) -->
-    <section class="section-block home-section" style="padding-top: 8px;">
+    <section class="section-block home-section">
       <div class="page-shell">
-        <div class="section-heading" style="margin-bottom: 0;">
-          <span class="eyebrow">Recent work</span>
-          <h2>Real shifts, real standards.</h2>
-          <p>Built by someone who's still on the floor.</p>
+        <div class="section-heading">
+          <h2>Three tiers.</h2>
         </div>
-        <div class="recent-work-grid">
-          <figure class="recent-work-slot">
-            <div class="photo-placeholder recent-work-placeholder" data-slot="recent-1">Add photo</div>
-          </figure>
-          <figure class="recent-work-slot">
-            <div class="photo-placeholder recent-work-placeholder" data-slot="recent-2">Add photo</div>
-          </figure>
-          <figure class="recent-work-slot">
-            <div class="photo-placeholder recent-work-placeholder" data-slot="recent-3">Add photo</div>
-          </figure>
-          <figure class="recent-work-slot">
-            <div class="photo-placeholder recent-work-placeholder" data-slot="recent-4">Add photo</div>
-          </figure>
+
+        <div class="card-grid">
+          <article class="detail-card home-fit-card">
+            <p class="card-label">Standard</p>
+            <h3>Fast cover</h3>
+            <p>Bartenders, waiters, runners and kitchen support. Quick to fill, reliable on the day.</p>
+          </article>
+          <article class="detail-card home-fit-card">
+            <p class="card-label">Shortlist</p>
+            <h3>Curated matches</h3>
+            <p>VERGO narrows the pool. You choose from the best fits.</p>
+          </article>
+          <article class="detail-card home-fit-card">
+            <p class="card-label">Gold</p>
+            <h3>Senior roles</h3>
+            <p>Head chefs, lead bartenders and experienced specialists. Vetted and proven.</p>
+          </article>
         </div>
       </div>
     </section>
@@ -605,7 +578,7 @@
           <div>
             <span class="eyebrow">Next step</span>
             <h2>Send your staffing brief.</h2>
-            <p>We will confirm the best staffing route, the commercial model and the next steps within 24 hours for most briefs.</p>
+            <p>We will confirm within 24 hours.</p>
           </div>
           <div class="stacked-actions" style="margin-top: 0;">
             <a href="/hire-staff" class="btn btn-primary">Hire Staff</a>

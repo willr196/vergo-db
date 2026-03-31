@@ -1,6 +1,15 @@
 (function () {
   'use strict';
 
+  document.querySelectorAll('.pw-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var input = btn.previousElementSibling;
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    });
+  });
+
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token');
   const isClient = params.get('type') === 'client';

@@ -181,7 +181,7 @@ let currentUser = null;
           </div>
           <div style="display: flex; gap: 15px;">
             <a href="/user-login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}" class="btn btn-primary" style="flex: 1; text-align: center;">Log In</a>
-            <a href="/user-register?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}" class="btn btn-secondary" style="flex: 1; text-align: center;">Create Account</a>
+            <a href="/apply" class="btn btn-secondary" style="flex: 1; text-align: center;">Create Account</a>
           </div>
         `;
         return;
