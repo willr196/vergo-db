@@ -9,7 +9,7 @@
         "http://127.0.0.1:5173"
       ],
       "AllowedMethods": ["GET", "PUT", "POST", "HEAD"],
-      "AllowedHeaders": ["*"],
+      "AllowedHeaders": ["Content-Type", "Authorization", "x-amz-date", "x-amz-content-sha256", "x-amz-security-token"],
       "ExposeHeaders": ["ETag", "x-amz-request-id", "x-amz-id-2"],
       "MaxAgeSeconds": 3000
     }

@@ -138,10 +138,10 @@ if (env.nodeEnv === 'production' && !env.s3Configured && !env.allowLocalCvUpload
 }
 
 if (env.nodeEnv === 'production' && env.allowLocalCvUploads && !env.s3Configured) {
-  console.warn(`[CONFIG] Local CV uploads are enabled without S3 in production; files will be stored on local disk (${env.localCvUploadRoot})`);
   if (path.resolve(env.localCvUploadRoot).startsWith('/tmp')) {
-    console.warn('[CONFIG] LOCAL_CV_UPLOAD_ROOT points to /tmp; uploaded CVs can disappear after restarts or when requests hit a different machine');
+    throw new Error('[CONFIG] LOCAL_CV_UPLOAD_ROOT points to /tmp in production — uploaded CVs will be lost on restart. Configure S3 or set a durable LOCAL_CV_UPLOAD_ROOT.');
   }
+  console.warn(`[CONFIG] Local CV uploads are enabled without S3 in production; files will be stored on local disk (${env.localCvUploadRoot})`);
 }
 
 if (env.nodeEnv === 'production' && !env.resendConfigured) {

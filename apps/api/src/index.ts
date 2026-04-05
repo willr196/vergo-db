@@ -309,15 +309,19 @@ if (env.nodeEnv !== 'test') {
 const PgSession = connectPgSimple(session);
 const dbUsesSsl = /sslmode=require/i.test(env.dbUrl);
 const allowInsecureSessionStoreSsl = process.env.SESSION_STORE_SSL_REJECT_UNAUTHORIZED === 'false';
+
+if (dbUsesSsl && allowInsecureSessionStoreSsl) {
+  if (env.nodeEnv === 'production') {
+    throw new Error('[SECURITY] SESSION_STORE_SSL_REJECT_UNAUTHORIZED=false is not permitted in production — TLS certificate verification must be enabled');
+  }
+  console.warn('[SECURITY] SESSION_STORE_SSL_REJECT_UNAUTHORIZED=false disables TLS certificate verification for the session store');
+}
+
 const sessionStoreSsl = dbUsesSsl
   ? allowInsecureSessionStoreSsl
     ? { rejectUnauthorized: false }
     : { rejectUnauthorized: true }
   : false;
-
-if (dbUsesSsl && allowInsecureSessionStoreSsl) {
-  console.warn('[SECURITY] SESSION_STORE_SSL_REJECT_UNAUTHORIZED=false disables TLS certificate verification for the session store');
-}
 
 app.use(session({
   name: 'vergo.sid',
@@ -1094,7 +1098,7 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
     logger.warn({ err }, 'Request validation failed');
     return res.status(400).json({
       error: 'Invalid request',
-      details: err.issues,
+      ...(env.nodeEnv !== 'production' && { details: err.issues }),
     });
   }
   logger.error({ err }, 'Unhandled error');

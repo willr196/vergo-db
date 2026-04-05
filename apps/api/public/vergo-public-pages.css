@@ -3,9 +3,9 @@
   --bg-soft: #121212;
   --panel: #151515;
   --panel-strong: #1a1a1a;
-  --gold: #d4af37;
-  --gold-soft: rgba(212, 175, 55, 0.16);
-  --gold-line: rgba(212, 175, 55, 0.35);
+  --gold: #C4A24E;
+  --gold-soft: rgba(196, 162, 78, 0.16);
+  --gold-line: rgba(196, 162, 78, 0.35);
   --white: #f7f7f7;
   --text: #d6d6d6;
   --muted: #9b9b9b;
@@ -13,10 +13,10 @@
   --line-strong: rgba(255, 255, 255, 0.16);
   --danger: #ff7a7a;
   --success: #92d88d;
-  --color-gold: #d4af37;
+  --color-gold: #C4A24E;
   --color-text-muted: #9b9b9b;
   --color-success: #92d88d;
-  --color-bg-warm: rgba(212, 175, 55, 0.08);
+  --color-bg-warm: rgba(196, 162, 78, 0.08);
   --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
   --radius: 28px;
   --radius-sm: 18px;
@@ -40,8 +40,8 @@ body {
   min-height: 100vh;
   font-family: "Manrope", sans-serif;
   background:
-    radial-gradient(circle at 10% 10%, rgba(212, 175, 55, 0.12), transparent 24%),
-    radial-gradient(circle at 85% 12%, rgba(212, 175, 55, 0.08), transparent 18%),
+    radial-gradient(circle at 10% 10%, rgba(196, 162, 78, 0.12), transparent 24%),
+    radial-gradient(circle at 85% 12%, rgba(196, 162, 78, 0.08), transparent 18%),
     linear-gradient(180deg, #0a0a0a 0%, #0d0d0d 46%, #0a0a0a 100%);
   color: var(--white);
   line-height: 1.65;
@@ -288,7 +288,7 @@ textarea {
 
 .mobile-menu nav a[aria-current="page"] {
   color: var(--gold);
-  background: rgba(212, 175, 55, 0.12);
+  background: rgba(196, 162, 78, 0.12);
 }
 
 .mobile-menu .nav-actions {
@@ -341,7 +341,7 @@ button[type="submit"]:focus-visible {
   background: var(--gold);
   border-color: var(--gold);
   color: #111;
-  box-shadow: 0 18px 36px rgba(212, 175, 55, 0.16);
+  box-shadow: 0 18px 36px rgba(196, 162, 78, 0.16);
 }
 
 .btn-secondary,
@@ -371,8 +371,8 @@ button[type="submit"]:focus-visible {
 .nav-actions .btn-primary:focus-visible,
 .mobile-menu .nav-actions .btn-primary:hover,
 .mobile-menu .nav-actions .btn-primary:focus-visible {
-  background: #e3bf4f;
-  border-color: #e3bf4f;
+  background: #d4b25e;
+  border-color: #d4b25e;
   color: #111;
 }
 
@@ -385,7 +385,7 @@ button[type="submit"]:focus-visible {
 
 .nav-actions .btn[aria-current="page"] {
   border-color: var(--gold);
-  box-shadow: 0 18px 36px rgba(212, 175, 55, 0.16);
+  box-shadow: 0 18px 36px rgba(196, 162, 78, 0.16);
 }
 
 .nav-actions .btn-secondary[aria-current="page"] {
@@ -438,7 +438,7 @@ h4 {
 
 h1,
 h2 {
-  font-family: "Cormorant Garamond", serif;
+  font-family: "Playfair Display", serif;
   letter-spacing: -0.04em;
 }
 
@@ -502,7 +502,7 @@ p {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 75% 15%, rgba(212, 175, 55, 0.12), transparent 22%),
+    radial-gradient(circle at 75% 15%, rgba(196, 162, 78, 0.12), transparent 22%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 30%);
   pointer-events: none;
 }
@@ -769,7 +769,7 @@ p {
   border: 1px solid var(--gold-line);
   border-radius: 34px;
   background:
-    radial-gradient(circle at 100% 50%, rgba(212, 175, 55, 0.12), transparent 38%),
+    radial-gradient(circle at 100% 50%, rgba(196, 162, 78, 0.12), transparent 38%),
     linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(12, 12, 12, 0.98));
 }
 
@@ -876,7 +876,7 @@ button:focus-visible,
 .faq-question:focus-visible,
 .tab-btn:focus-visible,
 .apply-option:focus-within {
-  outline: 2px solid rgba(212, 175, 55, 0.5);
+  outline: 2px solid rgba(196, 162, 78, 0.5);
   outline-offset: 2px;
 }
 
@@ -1327,9 +1327,9 @@ input[type="checkbox"] {
 }
 
 .shortlist-card {
-  border-color: rgba(212, 175, 55, 0.22);
+  border-color: rgba(196, 162, 78, 0.22);
   background:
-    radial-gradient(circle at 0 60%, rgba(212, 175, 55, 0.07), transparent 30%),
+    radial-gradient(circle at 0 60%, rgba(196, 162, 78, 0.07), transparent 30%),
     linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(13, 13, 13, 0.96));
 }
 
@@ -1384,7 +1384,7 @@ input[type="checkbox"] {
   border: 1px solid var(--line);
   border-radius: 32px;
   background:
-    radial-gradient(circle at 0 0, rgba(212, 175, 55, 0.1), transparent 32%),
+    radial-gradient(circle at 0 0, rgba(196, 162, 78, 0.1), transparent 32%),
     linear-gradient(180deg, rgba(26, 26, 26, 0.96), rgba(15, 15, 15, 0.96));
   box-shadow: var(--shadow);
 }
@@ -1396,7 +1396,7 @@ input[type="checkbox"] {
   min-height: 220px;
   border-radius: 24px;
   border: 1px solid var(--line);
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.16), rgba(255, 255, 255, 0.02));
+  background: linear-gradient(135deg, rgba(196, 162, 78, 0.16), rgba(255, 255, 255, 0.02));
   color: var(--gold);
   font-size: 3.2rem;
 }
@@ -1473,7 +1473,7 @@ footer {
   border: 1px solid var(--gold-line);
   border-radius: 34px;
   background:
-    radial-gradient(circle at 100% 50%, rgba(212, 175, 55, 0.12), transparent 38%),
+    radial-gradient(circle at 100% 50%, rgba(196, 162, 78, 0.12), transparent 38%),
     linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(12, 12, 12, 0.98));
   box-shadow: var(--shadow);
   text-align: center;
