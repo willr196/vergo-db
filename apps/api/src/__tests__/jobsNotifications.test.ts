@@ -94,16 +94,22 @@ function createAdminApp() {
   return app;
 }
 
-test('admin jobs list exposes pending external drafts as PENDING for the admin UI', async () => {
+test('admin jobs list returns pending external submissions for the admin UI', async () => {
   const prismaAny = prisma as any;
   const originalFindMany = prismaAny.job.findMany;
   const originalCount = prismaAny.job.count;
+  let receivedWhere: any = null;
 
-  prismaAny.job.findMany = async () => ([
-    { id: 'job-external', title: 'Submitted role', status: 'DRAFT', type: 'EXTERNAL', posterEmail: 'hire@example.com' },
-    { id: 'job-internal', title: 'Internal draft', status: 'DRAFT', type: 'INTERNAL', posterEmail: null },
-  ]);
-  prismaAny.job.count = async () => 2;
+  prismaAny.job.findMany = async ({ where }: any) => {
+    receivedWhere = where;
+    return [
+      { id: 'job-external', title: 'Submitted role', status: 'PENDING', type: 'EXTERNAL', posterEmail: 'hire@example.com' },
+    ];
+  };
+  prismaAny.job.count = async ({ where }: any) => {
+    assert.equal(where.status, 'PENDING');
+    return 1;
+  };
 
   try {
     const response = await inject(createAdminApp(), {
@@ -114,15 +120,16 @@ test('admin jobs list exposes pending external drafts as PENDING for the admin U
     assert.equal(response.statusCode, 200);
     const body = JSON.parse(response.body || '{}') as any;
     assert.equal(body.ok, true);
+    assert.equal(receivedWhere.status, 'PENDING');
     assert.equal(body.data.jobs[0].status, 'PENDING');
-    assert.equal(body.data.jobs[1].status, 'DRAFT');
+    assert.equal(body.data.pagination.total, 1);
   } finally {
     prismaAny.job.findMany = originalFindMany;
     prismaAny.job.count = originalCount;
   }
 });
 
-test('public job submissions create pending-review drafts, normalize email applications, and notify admin', async () => {
+test('public job submissions create pending-review jobs, normalize email applications, and notify admin', async () => {
   const prismaAny = prisma as any;
   const originalFindRole = prismaAny.role.findUnique;
   const originalCreateJob = prismaAny.job.create;
@@ -167,14 +174,14 @@ test('public job submissions create pending-review drafts, normalize email appli
     });
 
     assert.equal(response.statusCode, 201);
-    assert.equal(createdData.status, 'DRAFT');
+    assert.equal(createdData.status, 'PENDING');
     assert.equal(createdData.type, 'EXTERNAL');
     assert.equal(createdData.posterEmail, 'hiring@acme.test');
     assert.equal(createdData.externalUrl, 'mailto:jobs@acme.test');
     assert.equal(sentEmails.length, 1);
     assert.equal(sentEmails[0].to, 'wrobb@vergoltd.com');
     assert.equal(sentEmails[0].replyTo, 'hiring@acme.test');
-    assert.equal(sentEmails[0].subject, 'New job submission - Acme Events - Festival Bartender');
+    assert.equal(sentEmails[0].subject, '📋 New Job Listing Submitted - Acme Events');
     assert.equal(sentEmails[0].emailType, 'job-submission-notification');
   } finally {
     prismaAny.role.findUnique = originalFindRole;
@@ -194,7 +201,7 @@ test('approving a pending external submission emails the original poster', async
   prismaAny.job.findUnique = async () => ({
     id: 'job-approve',
     title: 'Head Bartender',
-    status: 'DRAFT',
+    status: 'PENDING',
     type: 'EXTERNAL',
     posterEmail: 'hire@example.com',
   });

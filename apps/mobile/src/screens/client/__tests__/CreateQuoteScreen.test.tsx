@@ -41,7 +41,7 @@ describe('CreateQuoteScreen', () => {
       );
 
       expect(getByText('Request a Quote')).toBeTruthy();
-      expect(getByText("Tell us about your event and we'll provide a competitive quote")).toBeTruthy();
+      expect(getByText("Tell us about your staffing needs and we'll provide a competitive quote")).toBeTruthy();
     });
 
     it('should render all required form fields', () => {
@@ -49,7 +49,7 @@ describe('CreateQuoteScreen', () => {
         <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
-      expect(getByText('Event Type *')).toBeTruthy();
+      expect(getByText('Occasion Type *')).toBeTruthy();
       expect(getByText('Location *')).toBeTruthy();
       expect(getByText('Number of Staff Needed *')).toBeTruthy();
       expect(getByText('Roles Required *')).toBeTruthy();
@@ -92,7 +92,7 @@ describe('CreateQuoteScreen', () => {
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalledWith(
           'Missing Information',
-          'Please select an event type'
+          'Please select an occasion type'
         );
       });
     });
@@ -103,7 +103,7 @@ describe('CreateQuoteScreen', () => {
       );
 
       // Select event type
-      fireEvent.press(getByText('Select event type'));
+      fireEvent.press(getByText('Select occasion type'));
       fireEvent.press(getByText('Corporate Event'));
 
       // Select a role
@@ -125,7 +125,7 @@ describe('CreateQuoteScreen', () => {
       );
 
       // Select event type
-      fireEvent.press(getByText('Select event type'));
+      fireEvent.press(getByText('Select occasion type'));
       fireEvent.press(getByText('Corporate Event'));
 
       // Fill location
@@ -152,7 +152,7 @@ describe('CreateQuoteScreen', () => {
       fireEvent.press(getByText('Submit Quote Request'));
 
       await waitFor(() => {
-        expect(queryByText('Please select an event type')).toBeTruthy();
+        expect(queryByText('Please select an occasion type')).toBeTruthy();
       });
     });
 
@@ -165,15 +165,15 @@ describe('CreateQuoteScreen', () => {
       fireEvent.press(getByText('Submit Quote Request'));
 
       await waitFor(() => {
-        expect(queryByText('Please select an event type')).toBeTruthy();
+        expect(queryByText('Please select an occasion type')).toBeTruthy();
       });
 
       // Fix the error by selecting event type
-      fireEvent.press(getByText('Select event type'));
+      fireEvent.press(getByText('Select occasion type'));
       fireEvent.press(getByText('Corporate Event'));
 
       // Error should be cleared
-      expect(queryByText('Please select an event type')).toBeNull();
+      expect(queryByText('Please select an occasion type')).toBeNull();
     });
   });
 
@@ -183,7 +183,7 @@ describe('CreateQuoteScreen', () => {
         <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
-      fireEvent.press(getByText('Select event type'));
+      fireEvent.press(getByText('Select occasion type'));
 
       expect(getByText('Corporate Event')).toBeTruthy();
       expect(getByText('Wedding')).toBeTruthy();
@@ -195,7 +195,7 @@ describe('CreateQuoteScreen', () => {
         <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
-      fireEvent.press(getByText('Select event type'));
+      fireEvent.press(getByText('Select occasion type'));
       fireEvent.press(getByText('Wedding'));
 
       // Dropdown should close and show selected value
@@ -266,7 +266,7 @@ describe('CreateQuoteScreen', () => {
   describe('Form Submission', () => {
     const fillValidForm = (getByText: any, getByPlaceholderText: any) => {
       // Select event type
-      fireEvent.press(getByText('Select event type'));
+      fireEvent.press(getByText('Select occasion type'));
       fireEvent.press(getByText('Corporate Event'));
 
       // Fill location
@@ -343,7 +343,7 @@ describe('CreateQuoteScreen', () => {
 
     it('should disable submit button while submitting', async () => {
       (clientApi.createQuote as jest.Mock).mockImplementation(
-        () => new Promise((resolve) => setTimeout(resolve, 1000))
+        () => new Promise(() => {})
       );
 
       const { getByText, getByPlaceholderText } = render(

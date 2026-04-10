@@ -583,7 +583,7 @@ app.get('/jobs', async (_req, res, next) => {
         <div id="user-bar" class="user-bar logged-out">
           <div class="user-actions">
             <a href="/user-login" class="btn btn-secondary btn-small">Log In</a>
-            <a href="/apply" class="btn btn-primary btn-small">Create Account</a>
+            <a href="/apply" class="btn btn-primary btn-small">Apply to Join</a>
           </div>
         </div>
 

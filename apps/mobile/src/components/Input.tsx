@@ -57,6 +57,7 @@ export function Input({
         {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
 
         <TextInput
+          key={isPassword ? `pwd-${showPassword}` : 'text'}
           style={[
             styles.input,
             leftIcon ? styles.inputWithLeftIcon : undefined,
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
   
   inputContainerError: {
     backgroundColor: colors.errorSoft,
-    borderColor: 'rgba(255, 122, 122, 0.34)',
+    borderColor: 'rgba(197, 48, 48, 0.30)',
   },
   
   input: {

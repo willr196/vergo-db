@@ -154,7 +154,7 @@ describe('MyQuotesScreen', () => {
       });
     });
 
-    it('should navigate to CreateJob when empty state action is pressed', async () => {
+    it('should navigate to CreateQuote when empty state action is pressed', async () => {
       (clientApi.getQuotes as jest.Mock).mockResolvedValue({
         quotes: [],
         pagination: { page: 1, limit: 20, total: 0, hasMore: false },
@@ -169,7 +169,7 @@ describe('MyQuotesScreen', () => {
       });
 
       fireEvent.press(getByText('Request a Quote'));
-      expect(mockNavigation.navigate).toHaveBeenCalledWith('CreateJob');
+      expect(mockNavigation.navigate).toHaveBeenCalledWith('CreateQuote');
     });
   });
 
@@ -257,7 +257,7 @@ describe('MyQuotesScreen', () => {
   });
 
   describe('Navigation', () => {
-    it('should navigate to CreateJob when + New is pressed', async () => {
+    it('should navigate to CreateQuote when + New is pressed', async () => {
       (clientApi.getQuotes as jest.Mock).mockResolvedValue(mockPaginatedResponse);
 
       const { getByText } = render(
@@ -269,22 +269,7 @@ describe('MyQuotesScreen', () => {
       });
 
       fireEvent.press(getByText('+ New'));
-      expect(mockNavigation.navigate).toHaveBeenCalledWith('CreateJob');
-    });
-
-    it('should navigate to ClientJobDetail when quote card is pressed', async () => {
-      (clientApi.getQuotes as jest.Mock).mockResolvedValue(mockPaginatedResponse);
-
-      const { getByText } = render(
-        <MyQuotesScreen navigation={mockNavigation as never} route={mockRoute as never} />
-      );
-
-      await waitFor(() => {
-        expect(getByText('Corporate Event')).toBeTruthy();
-      });
-
-      fireEvent.press(getByText('Corporate Event'));
-      expect(mockNavigation.navigate).toHaveBeenCalledWith('ClientJobDetail', { jobId: '1' });
+      expect(mockNavigation.navigate).toHaveBeenCalledWith('CreateQuote');
     });
   });
 });

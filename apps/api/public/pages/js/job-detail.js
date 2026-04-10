@@ -177,11 +177,11 @@ let currentUser = null;
         box.innerHTML = `
           <h3>Apply for this position</h3>
           <div class="apply-status login-required">
-            Please log in or create an account to apply
+            Please log in or apply to join before creating your account.
           </div>
           <div style="display: flex; gap: 15px;">
             <a href="/user-login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}" class="btn btn-primary" style="flex: 1; text-align: center;">Log In</a>
-            <a href="/apply" class="btn btn-secondary" style="flex: 1; text-align: center;">Create Account</a>
+            <a href="/apply" class="btn btn-secondary" style="flex: 1; text-align: center;">Apply to Join</a>
           </div>
         `;
         return;

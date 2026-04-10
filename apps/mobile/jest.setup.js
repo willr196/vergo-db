@@ -19,6 +19,7 @@ jest.mock('react-native-safe-area-context', () => {
 
 // Mock @react-navigation/native
 jest.mock('@react-navigation/native', () => {
+  const React = jest.requireActual('react');
   const actualNav = jest.requireActual('@react-navigation/native');
   return {
     ...actualNav,
@@ -29,11 +30,14 @@ jest.mock('@react-navigation/native', () => {
     useRoute: () => ({
       params: {},
     }),
+    useFocusEffect: (effect) => {
+      React.useEffect(() => effect(), [effect]);
+    },
   };
 });
 
-// Mock Animated to avoid animation issues in tests
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
+// Mock Animated to avoid animation issues in tests.
+jest.mock('react-native/src/private/animated/NativeAnimatedHelper');
 
 // Silence the warning: Animated: `useNativeDriver` is not supported
 jest.mock('react-native', () => {

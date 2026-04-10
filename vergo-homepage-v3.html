@@ -2,19 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VERGO Events — Event Staffing in London</title>
   <meta name="description" content="Bartenders, waiters, chefs and front-of-house teams for London events. Vetted hospitality staff confirmed within 24 hours.">
-  <meta property="og:title" content="VERGO Events — Event Staffing in London">
-  <meta property="og:description" content="VERGO Events supplies event staffing in London, from chefs and bartenders to front-of-house teams for hospitality, private events, and productions.">
-  <meta property="og:image" content="https://vergoltd.com/logo.png">
-  <meta property="og:url" content="https://vergoltd.com/">
-  <meta property="og:type" content="website">
-  <meta name="theme-color" content="#0c0b0a">
-  <link rel="icon" href="/favicon.ico">
-  <link rel="canonical" href="https://vergoltd.com/">
-  <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-public-pages.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -32,9 +22,7 @@
       --body: 'Manrope', -apple-system, sans-serif;
     }
 
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    html, body { height: 100%; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: var(--body);
@@ -45,7 +33,7 @@
       font-weight: 300;
     }
 
-    /* Grain overlay */
+    /* Grain — barely there */
     body::after {
       content: '';
       position: fixed;
@@ -58,18 +46,14 @@
       background-size: 200px;
     }
 
-    /* Scroll reveals */
+    /* Reveals */
     .reveal {
-      opacity: 1;
-      transform: none;
-    }
-    .homepage-enhanced .reveal {
       opacity: 0;
       transform: translateY(24px);
       transition: opacity 0.9s cubic-bezier(0.25, 1, 0.5, 1),
                   transform 0.9s cubic-bezier(0.25, 1, 0.5, 1);
     }
-    .homepage-enhanced .reveal.visible { opacity: 1; transform: none; }
+    .reveal.visible { opacity: 1; transform: none; }
 
     a { color: inherit; }
 
@@ -89,10 +73,6 @@
       height: 100px;
       width: auto;
       margin-bottom: 64px;
-      opacity: 1;
-    }
-
-    .homepage-enhanced .hero-logo {
       opacity: 0;
       animation: enter 1.2s 0.1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     }
@@ -106,10 +86,6 @@
       color: #fff;
       max-width: 700px;
       margin-bottom: 56px;
-      opacity: 1;
-    }
-
-    .homepage-enhanced .hero h1 {
       opacity: 0;
       animation: enter 1.2s 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     }
@@ -124,10 +100,6 @@
       gap: 14px;
       flex-wrap: wrap;
       justify-content: center;
-      opacity: 1;
-    }
-
-    .homepage-enhanced .hero-ctas {
       opacity: 0;
       animation: enter 1.2s 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     }
@@ -362,12 +334,11 @@
     }
   </style>
 </head>
-<body class="homepage">
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-  <div id="site-header" class="site-header" role="banner"></div>
+<body>
+  <header></header>
 
-  <main id="main-content">
-    <section class="hero">
+  <main>
+    <section class="hero" id="main-content">
       <img src="/logo.png" alt="VERGO Events" class="hero-logo">
       <h1>Event staffing that<br><em>gets it right.</em></h1>
       <div class="hero-ctas">
@@ -376,7 +347,7 @@
       </div>
     </section>
 
-    <div class="credentials" aria-label="Key commitments">
+    <div class="credentials">
       <div class="credentials-row">
         <span class="cred">Vetted staff only</span>
         <span class="cred">Briefed before arrival</span>
@@ -385,14 +356,14 @@
       </div>
     </div>
 
-    <section class="section" id="tiers" aria-labelledby="tiers-heading">
+    <section class="section" id="tiers">
       <div class="section-inner reveal">
         <p class="section-eyebrow">Three solutions</p>
-        <h2 class="section-heading" id="tiers-heading">Standard from £2/hr. Shortlist from £3/hr.<br>Gold from £21/hr.</h2>
+        <h2 class="section-heading">Standard from £2/hr. Shortlist from £3/hr.<br>Gold from £21/hr.</h2>
       </div>
       <div class="section-inner">
         <div class="tiers">
-          <article class="tier reveal">
+          <div class="tier reveal">
             <h3 class="tier-name">Standard</h3>
             <p class="tier-rate">Wage + £2/hr + VAT</p>
             <p class="tier-body">VERGO matches and confirms directly. Fast, reliable cover for straightforward briefs.</p>
@@ -401,8 +372,8 @@
               <li>Bartenders, waiters, runners, kitchen support</li>
               <li>Efficient without feeling generic</li>
             </ul>
-          </article>
-          <article class="tier reveal" style="transition-delay: 0.1s">
+          </div>
+          <div class="tier reveal" style="transition-delay: 0.1s">
             <h3 class="tier-name">Shortlist</h3>
             <p class="tier-rate">Wage + £3/hr + VAT</p>
             <p class="tier-body">Workers apply. VERGO curates. You select from the strongest matches.</p>
@@ -412,8 +383,8 @@
               <li>Client makes the final selection</li>
               <li>£1/hr merit uplift for selected workers</li>
             </ul>
-          </article>
-          <article class="tier reveal" style="transition-delay: 0.2s">
+          </div>
+          <div class="tier reveal" style="transition-delay: 0.2s">
             <h3 class="tier-name">Gold</h3>
             <p class="tier-rate">From £21/hr + VAT · Chefs from £25/hr</p>
             <p class="tier-body">Premium managed staffing for senior, lead and high-trust roles.</p>
@@ -422,7 +393,7 @@
               <li>Matched manually by VERGO</li>
               <li>Strongest review history and consistency</li>
             </ul>
-          </article>
+          </div>
         </div>
       </div>
     </section>
@@ -434,17 +405,17 @@
           <p>Same-day response. Staff confirmed and briefed before they arrive.</p>
         </div>
         <div class="urgent-btns">
-          <a href="https://wa.me/447506615242?text=Hi%2C%20I%20need%20urgent%20event%20staff%20cover" class="btn btn-primary" target="_blank" rel="noopener">WhatsApp</a>
+          <a href="https://wa.me/447506615242?text=Hi%2C%20I%20need%20urgent%20event%20staff%20cover" class="btn btn-primary">WhatsApp</a>
           <a href="/hire-staff" class="btn btn-ghost">All options</a>
         </div>
       </div>
     </div>
 
-    <section class="section" aria-labelledby="sectors-heading">
+    <section class="section">
       <div class="section-inner">
         <div class="reveal">
           <p class="section-eyebrow">Where we work</p>
-          <h2 class="section-heading" id="sectors-heading">Film sets. Private dining.<br>Arena concerts. Corporate launches.</h2>
+          <h2 class="section-heading">Film sets. Private dining.<br>Arena concerts. Corporate launches.</h2>
         </div>
         <div class="sectors reveal">
           <div class="sector-card">
@@ -479,9 +450,15 @@
     </section>
   </main>
 
-  <footer role="contentinfo"></footer>
-  <script src="/vergo-public-shell.js"></script>
-  <script src="/vergo-analytics.js"></script>
-  <script src="/pages/js/index.js"></script>
+  <footer></footer>
+
+  <script>
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  </script>
 </body>
 </html>

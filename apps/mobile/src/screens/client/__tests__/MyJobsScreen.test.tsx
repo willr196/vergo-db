@@ -60,6 +60,18 @@ const mockJobs = [
   },
 ];
 
+const buildJobsResponse = (jobs = mockJobs) => ({
+  ok: true,
+  jobs,
+  pagination: {
+    page: 1,
+    limit: 20,
+    total: jobs.length,
+    totalPages: 1,
+    hasMore: false,
+  },
+});
+
 describe('MyJobsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -84,7 +96,7 @@ describe('MyJobsScreen', () => {
 
   describe('Success State', () => {
     it('should display jobs after successful fetch', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
+      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -97,7 +109,7 @@ describe('MyJobsScreen', () => {
     });
 
     it('should display job details correctly', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
+      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -111,9 +123,9 @@ describe('MyJobsScreen', () => {
     });
 
     it('should display application count with correct pluralization', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue([
-        { ...mockJobs[0], applicationCount: 1 },
-      ]);
+      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(
+        buildJobsResponse([{ ...mockJobs[0], applicationCount: 1 }])
+      );
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -125,7 +137,7 @@ describe('MyJobsScreen', () => {
     });
 
     it('should show header with title and post job button', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
+      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -138,7 +150,7 @@ describe('MyJobsScreen', () => {
     });
 
     it('should display job status badges', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
+      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -153,7 +165,7 @@ describe('MyJobsScreen', () => {
 
   describe('Empty State', () => {
     it('should show empty state when no jobs exist', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue([]);
+      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse([]));
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -166,7 +178,7 @@ describe('MyJobsScreen', () => {
     });
 
     it('should navigate to CreateJob when empty state action is pressed', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue([]);
+      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse([]));
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -230,7 +242,7 @@ describe('MyJobsScreen', () => {
 
   describe('Status Filters', () => {
     it('should display all status filter chips', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
+      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -244,7 +256,7 @@ describe('MyJobsScreen', () => {
     });
 
     it('should fetch filtered jobs when filter is changed', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
+      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
 
       const { getAllByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -261,14 +273,14 @@ describe('MyJobsScreen', () => {
       fireEvent.press(activeButtons[0]);
 
       await waitFor(() => {
-        expect(jobsApi.getClientJobs).toHaveBeenCalledWith('client-1', 'active');
+        expect(jobsApi.getClientJobs).toHaveBeenLastCalledWith('OPEN', 1);
       });
     });
   });
 
   describe('Navigation', () => {
     it('should navigate to CreateJob when + Post Job is pressed', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
+      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -283,7 +295,7 @@ describe('MyJobsScreen', () => {
     });
 
     it('should navigate to ClientJobDetail when job card is pressed', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
+      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -300,7 +312,7 @@ describe('MyJobsScreen', () => {
 
   describe('Pull to Refresh', () => {
     it('should call fetchJobs on refresh', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(mockJobs);
+      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />

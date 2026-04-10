@@ -9,10 +9,13 @@ import { Alert } from 'react-native';
 import { ClientJobDetailScreen } from '../ClientJobDetailScreen';
 import { jobsApi, applicationsApi } from '../../../api';
 
+const mockShowToast = jest.fn();
+
 // Mock the APIs
 jest.mock('../../../api', () => ({
+  registerAuthFailureHandler: jest.fn(),
   jobsApi: {
-    getJob: jest.fn(),
+    getClientJob: jest.fn(),
     closeJob: jest.fn(),
   },
   applicationsApi: {
@@ -21,6 +24,12 @@ jest.mock('../../../api', () => ({
     hireApplicant: jest.fn(),
     rejectApplicant: jest.fn(),
   },
+}));
+
+jest.mock('../../../store', () => ({
+  useUIStore: jest.fn(() => ({
+    showToast: mockShowToast,
+  })),
 }));
 
 // Mock logger
@@ -96,7 +105,7 @@ const mockApplications = [
 describe('ClientJobDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (jobsApi.getJob as jest.Mock).mockResolvedValue(mockJob);
+    (jobsApi.getClientJob as jest.Mock).mockResolvedValue(mockJob);
     (applicationsApi.getJobApplications as jest.Mock).mockResolvedValue({
       applications: mockApplications,
     });
@@ -104,7 +113,7 @@ describe('ClientJobDetailScreen', () => {
 
   describe('Loading State', () => {
     it('should show loading screen initially', async () => {
-      (jobsApi.getJob as jest.Mock).mockImplementation(
+      (jobsApi.getClientJob as jest.Mock).mockImplementation(
         () => new Promise(() => {}) // Never resolves
       );
 
@@ -186,12 +195,12 @@ describe('ClientJobDetailScreen', () => {
     });
 
     it('should display applicant initials in avatar', async () => {
-      const { getByText } = render(
+      const { getAllByText } = render(
         <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
-        expect(getByText('J')).toBeTruthy(); // John's initial
+        expect(getAllByText('J').length).toBeGreaterThan(0);
       });
     });
 
@@ -340,8 +349,8 @@ describe('ClientJobDetailScreen', () => {
       fireEvent.press(getAllByText('Shortlist')[0]);
 
       await waitFor(() => {
-        expect(applicationsApi.shortlistApplicant).toHaveBeenCalledWith('app-1');
-        expect(Alert.alert).toHaveBeenCalledWith('Success', 'Applicant shortlisted');
+        expect(applicationsApi.shortlistApplicant).toHaveBeenCalledWith('app-1', 'job-1');
+        expect(mockShowToast).toHaveBeenCalledWith('Applicant shortlisted', 'success');
       });
     });
 
@@ -362,8 +371,8 @@ describe('ClientJobDetailScreen', () => {
       fireEvent.press(getAllByText('Hire')[0]);
 
       await waitFor(() => {
-        expect(applicationsApi.hireApplicant).toHaveBeenCalledWith('app-1');
-        expect(Alert.alert).toHaveBeenCalledWith('Success', 'Applicant hired');
+        expect(applicationsApi.hireApplicant).toHaveBeenCalledWith('app-1', 'job-1');
+        expect(mockShowToast).toHaveBeenCalledWith('Applicant hired', 'success');
       });
     });
 
@@ -384,8 +393,8 @@ describe('ClientJobDetailScreen', () => {
       fireEvent.press(getAllByText('Reject')[0]);
 
       await waitFor(() => {
-        expect(applicationsApi.rejectApplicant).toHaveBeenCalledWith('app-1');
-        expect(Alert.alert).toHaveBeenCalledWith('Success', 'Applicant rejected');
+        expect(applicationsApi.rejectApplicant).toHaveBeenCalledWith('app-1', 'job-1');
+        expect(mockShowToast).toHaveBeenCalledWith('Applicant rejected', 'success');
       });
     });
 
@@ -403,7 +412,7 @@ describe('ClientJobDetailScreen', () => {
       fireEvent.press(getAllByText('Shortlist')[0]);
 
       await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalledWith('Error', 'Failed to update application');
+        expect(mockShowToast).toHaveBeenCalledWith('Failed to update application', 'error');
       });
     });
   });
@@ -415,12 +424,12 @@ describe('ClientJobDetailScreen', () => {
       );
 
       await waitFor(() => {
-        expect(getByText('Close Job')).toBeTruthy();
+        expect(getByText('Close')).toBeTruthy();
       });
     });
 
     it('should not show close job button for closed jobs', async () => {
-      (jobsApi.getJob as jest.Mock).mockResolvedValue({
+      (jobsApi.getClientJob as jest.Mock).mockResolvedValue({
         ...mockJob,
         status: 'closed',
       });
@@ -430,7 +439,7 @@ describe('ClientJobDetailScreen', () => {
       );
 
       await waitFor(() => {
-        expect(queryByText('Close Job')).toBeNull();
+        expect(queryByText('Close')).toBeNull();
       });
     });
 
@@ -440,10 +449,10 @@ describe('ClientJobDetailScreen', () => {
       );
 
       await waitFor(() => {
-        expect(getByText('Close Job')).toBeTruthy();
+        expect(getByText('Close')).toBeTruthy();
       });
 
-      fireEvent.press(getByText('Close Job'));
+      fireEvent.press(getByText('Close'));
 
       expect(Alert.alert).toHaveBeenCalledWith(
         'Close Job',
@@ -470,7 +479,7 @@ describe('ClientJobDetailScreen', () => {
 
   describe('Error State', () => {
     it('should show error message when job not found', async () => {
-      (jobsApi.getJob as jest.Mock).mockResolvedValue(null);
+      (jobsApi.getClientJob as jest.Mock).mockResolvedValue(null);
 
       const { getByText } = render(
         <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -478,19 +487,19 @@ describe('ClientJobDetailScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Job not found')).toBeTruthy();
-        expect(getByText('Go Back')).toBeTruthy();
+        expect(getByText('Try Again')).toBeTruthy();
       });
     });
 
     it('should show error alert when fetch fails', async () => {
-      (jobsApi.getJob as jest.Mock).mockRejectedValue(new Error('Network error'));
+      (jobsApi.getClientJob as jest.Mock).mockRejectedValue(new Error('Network error'));
 
       render(
         <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalledWith('Error', 'Failed to load job details');
+        expect(mockShowToast).toHaveBeenCalledWith('Failed to load job details', 'error');
       });
     });
   });

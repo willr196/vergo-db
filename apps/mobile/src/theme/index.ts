@@ -1,60 +1,60 @@
 /**
  * VERGO Design System
- * Mirrors the public website's dark editorial theme with warm gold accents.
+ * Mirrors the public website's warm ivory + gold theme.
  */
 
 import { Platform } from 'react-native';
 
 export const colors = {
-  // Core palette
-  background: '#0a0a0a',
-  backgroundRaised: '#0d0d0d',
-  backgroundSoft: '#121212',
-  surface: 'rgba(21, 21, 21, 0.94)',
-  surfaceStrong: 'rgba(26, 26, 26, 0.98)',
-  surfaceLight: 'rgba(255, 255, 255, 0.04)',
-  surfaceHighlight: 'rgba(212, 175, 55, 0.08)',
-  surfaceBorder: 'rgba(255, 255, 255, 0.10)',
-  surfaceBorderStrong: 'rgba(255, 255, 255, 0.16)',
+  // Core palette — warm ivory/cream backgrounds
+  background: '#FAF8F5',
+  backgroundRaised: '#FFFFFF',
+  backgroundSoft: '#F5F0E8',
+  surface: 'rgba(255, 255, 255, 0.96)',
+  surfaceStrong: 'rgba(255, 255, 255, 0.99)',
+  surfaceLight: 'rgba(212, 175, 55, 0.06)',
+  surfaceHighlight: 'rgba(212, 175, 55, 0.10)',
+  surfaceBorder: 'rgba(28, 28, 28, 0.08)',
+  surfaceBorderStrong: 'rgba(28, 28, 28, 0.15)',
 
   // Brand
   primary: '#D4AF37',
   primaryDark: '#B8962E',
   primaryLight: '#E0BB49',
-  primarySoft: 'rgba(212, 175, 55, 0.16)',
+  primarySoft: 'rgba(212, 175, 55, 0.10)',
   primaryLine: 'rgba(212, 175, 55, 0.35)',
 
-  // Text
-  textPrimary: '#F7F7F7',
-  textSecondary: '#D6D6D6',
-  textMuted: '#9B9B9B',
-  textSubtle: '#7F7F7F',
-  textInverse: '#111111',
+  // Text — warm charcoal
+  textPrimary: '#2C2C2C',
+  textSecondary: '#666666',
+  textMuted: '#999999',
+  textSubtle: '#BBBBBB',
+  textInverse: '#FFFFFF',
 
-  // Status
-  success: '#92D88D',
-  successLight: '#B3E5AE',
-  successSoft: 'rgba(146, 216, 141, 0.12)',
-  error: '#FF7A7A',
-  errorLight: '#FF9D9D',
-  errorSoft: 'rgba(255, 122, 122, 0.12)',
-  warning: '#F0BC63',
-  warningSoft: 'rgba(240, 188, 99, 0.12)',
-  info: '#7EB4FF',
-  infoSoft: 'rgba(126, 180, 255, 0.12)',
+  // Status — professional, website-matched
+  success: '#2D8A4E',
+  successLight: '#4FAB6D',
+  successSoft: 'rgba(45, 138, 78, 0.10)',
+  error: '#C53030',
+  errorLight: '#E05050',
+  errorSoft: 'rgba(197, 48, 48, 0.10)',
+  warning: '#B7791F',
+  warningSoft: 'rgba(183, 121, 31, 0.10)',
+  info: '#2B6CB0',
+  infoSoft: 'rgba(43, 108, 176, 0.10)',
 
   // Application status colors
-  statusReceived: '#7EB4FF',
-  statusReviewing: '#F0BC63',
-  statusShortlisted: '#D4AF37',
-  statusHired: '#92D88D',
-  statusRejected: '#FF7A7A',
+  statusReceived: '#2B6CB0',
+  statusReviewing: '#B7791F',
+  statusShortlisted: '#B8962E',
+  statusHired: '#2D8A4E',
+  statusRejected: '#C53030',
 
   // Misc
-  overlay: 'rgba(0, 0, 0, 0.72)',
-  backdrop: 'rgba(10, 10, 10, 0.92)',
+  overlay: 'rgba(0, 0, 0, 0.50)',
+  backdrop: 'rgba(250, 248, 245, 0.97)',
   transparent: 'transparent',
-  white: '#F7F7F7',
+  white: '#FFFFFF',
   black: '#000000',
 } as const;
 
@@ -120,32 +120,32 @@ export const typography = {
 
 export const shadows = {
   sm: {
-    shadowColor: '#000',
+    shadowColor: '#1C1C1C',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.24,
-    shadowRadius: 2,
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
     elevation: 2,
   },
   md: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.24,
-    shadowRadius: 18,
-    elevation: 8,
+    shadowColor: '#1C1C1C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.10,
+    shadowRadius: 12,
+    elevation: 6,
   },
   lg: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 18 },
-    shadowOpacity: 0.32,
-    shadowRadius: 28,
-    elevation: 14,
+    shadowColor: '#1C1C1C',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 20,
+    elevation: 12,
   },
   gold: {
     shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.24,
-    shadowRadius: 14,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.20,
+    shadowRadius: 12,
+    elevation: 6,
   },
 } as const;
 

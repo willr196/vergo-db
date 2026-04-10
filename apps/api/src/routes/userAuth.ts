@@ -139,6 +139,7 @@ const refreshLimiter = rateLimit({
 // HELPERS
 // ============================================
 const DUMMY_HASH = "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.G0G0G0G0G0G0G0";
+const REGISTRATION_REQUIRES_APPLICATION_MESSAGE = "Create your account after you apply. Submit the application form first, then return here.";
 
 function generateToken(): string {
   return crypto.randomBytes(32).toString("hex");
@@ -314,6 +315,41 @@ function buildVerificationResponse(
   return response;
 }
 
+async function prepareApplicantForRegistration(data: {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+}) {
+  const applicant = await prisma.applicant.findUnique({
+    where: { email: data.email },
+    select: {
+      id: true,
+      phone: true,
+    },
+  });
+
+  if (!applicant) {
+    return null;
+  }
+
+  const applicantUpdateData: Prisma.ApplicantUpdateInput = {
+    firstName: data.firstName,
+    lastName: data.lastName,
+  };
+
+  if (data.phone) {
+    applicantUpdateData.phone = data.phone;
+  }
+
+  await prisma.applicant.update({
+    where: { id: applicant.id },
+    data: applicantUpdateData,
+  });
+
+  return applicant;
+}
+
 function shapeMobileUser(user: {
   id: string;
   email: string;
@@ -376,6 +412,20 @@ r.post("/register", registerLimiter, async (req, res) => {
       });
     }
 
+    const applicant = await prepareApplicantForRegistration({
+      email,
+      firstName,
+      lastName,
+      phone,
+    });
+
+    if (!applicant) {
+      return res.status(403).json({
+        ok: false,
+        error: REGISTRATION_REQUIRES_APPLICATION_MESSAGE,
+      });
+    }
+
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
     const verifyToken = generateToken();
@@ -388,7 +438,8 @@ r.post("/register", registerLimiter, async (req, res) => {
         passwordHash,
         firstName,
         lastName,
-        phone: phone || null,
+        phone: phone || applicant.phone || null,
+        applicantId: applicant.id,
         // Store only a hash so DB read access doesn't immediately enable account verification.
         // Backwards-compatible: verify endpoint accepts both legacy raw tokens and the new hashed format.
         verifyToken: verifyTokenHash,
@@ -764,6 +815,20 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
       });
     }
 
+    const applicant = await prepareApplicantForRegistration({
+      email,
+      firstName,
+      lastName,
+      phone,
+    });
+
+    if (!applicant) {
+      return res.status(403).json({
+        ok: false,
+        error: REGISTRATION_REQUIRES_APPLICATION_MESSAGE,
+      });
+    }
+
     const passwordHash = await bcrypt.hash(password, 12);
     const verifyToken = generateToken();
     const verifyTokenHash = hashDbToken(verifyToken);
@@ -774,7 +839,8 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
         passwordHash,
         firstName,
         lastName,
-        phone: phone || null,
+        phone: phone || applicant.phone || null,
+        applicantId: applicant.id,
         verifyToken: verifyTokenHash,
         verifyTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000),
         emailVerified: false

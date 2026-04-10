@@ -194,7 +194,7 @@ test('homepage includes canonical metadata and shared shell mounts', async () =>
   const res = await inject(app, { method: 'GET', url: '/' });
   assert.equal(res.statusCode, 200);
   assert.match(res.body, /<link rel="canonical" href="https:\/\/vergoltd\.com\/">/i);
-  assert.match(res.body, /<meta name="theme-color" content="#0a0a0a">/i);
+  assert.match(res.body, /<meta name="theme-color" content="#0c0b0a">/i);
   assert.match(res.body, /id="site-header"/i);
   assert.match(res.body, /id="main-content"/i);
   assert.match(res.body, /footer role="contentinfo"/i);

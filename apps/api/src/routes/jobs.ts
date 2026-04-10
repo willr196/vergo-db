@@ -3,7 +3,7 @@ import rateLimit from "express-rate-limit";
 import { z } from "zod";
 import { prisma } from "../prisma";
 import { adminAuth } from "../middleware/adminAuth";
-import { requireUser } from "../middleware/userAuth";
+import { optionalUser } from "../middleware/userAuth";
 import {
   sendJobApprovalEmail,
   sendJobRejectionEmail,
@@ -47,6 +47,13 @@ const createJobSchema = z.object({
 
 const updateJobSchema = createJobSchema.partial();
 
+const optionalTrimmedString = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess((value) => {
+    if (typeof value !== "string") return value;
+    const trimmed = value.trim();
+    return trimmed === "" ? undefined : trimmed;
+  }, schema.optional());
+
 const submitJobSchema = z.object({
   companyName: z.string().min(2).max(200).trim(),
   posterEmail: z.string().email().max(255).trim(),
@@ -57,15 +64,34 @@ const submitJobSchema = z.object({
   payRateMin: z.number().positive().max(1000).optional(),
   payRateMax: z.number().positive().max(1000).optional(),
   payType: z.enum(["HOURLY", "DAILY", "FIXED"]).default("HOURLY"),
-  externalUrl: z.string().url().max(500).trim(),
+  applyEmail: optionalTrimmedString(z.string().email().max(255)),
+  externalUrl: optionalTrimmedString(z.string().url().max(500)),
   website: z.preprocess((value) => value === "" ? undefined : value, z.string().max(200).optional()),
   confirm: z.literal(true, {
     errorMap: () => ({ message: "You must confirm the information is accurate" }),
   }),
+}).superRefine((data, ctx) => {
+  const hasApplyEmail = Boolean(data.applyEmail);
+  const hasExternalUrl = Boolean(data.externalUrl);
+
+  if (!hasApplyEmail && !hasExternalUrl) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["applyEmail"],
+      message: "Provide an application email or external URL",
+    });
+  }
+
+  if (hasApplyEmail && hasExternalUrl) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["externalUrl"],
+      message: "Choose either an application email or an external URL",
+    });
+  }
 });
 
 const listJobsQuerySchema = z.object({
-  // Support legacy "PENDING" from older admin UI; map it to DRAFT server-side.
   status: z.enum(["PENDING", "DRAFT", "OPEN", "FILLED", "CLOSED"]).optional(),
   type: z.enum(["INTERNAL", "EXTERNAL"]).optional(),
   tier: z.enum(["STANDARD", "SHORTLIST", "GOLD"]).optional(),
@@ -79,9 +105,9 @@ function isPendingExternalSubmission(job: { status: string }) {
 }
 
 // ============================================
-// AUTHENTICATED: GET /api/v1/jobs - List open jobs
+// PUBLIC: GET /api/v1/jobs - List open jobs
 // ============================================
-r.get("/", requireUser, async (req, res, next) => {
+r.get("/", optionalUser, async (req, res, next) => {
   try {
     const query = listJobsQuerySchema.parse(req.query);
     const skip = (query.page - 1) * query.limit;
@@ -158,9 +184,9 @@ r.get("/", requireUser, async (req, res, next) => {
 });
 
 // ============================================
-// AUTHENTICATED: GET /api/v1/jobs/roles - Get available roles
+// PUBLIC: GET /api/v1/jobs/roles - Get available roles
 // ============================================
-r.get("/meta/roles", requireUser, async (req, res, next) => {
+r.get("/meta/roles", optionalUser, async (req, res, next) => {
   try {
     const roles = await prisma.role.findMany({
       orderBy: { name: "asc" },
@@ -174,9 +200,9 @@ r.get("/meta/roles", requireUser, async (req, res, next) => {
 });
 
 // ============================================
-// AUTHENTICATED: GET /api/v1/jobs/:id - Get single job
+// PUBLIC: GET /api/v1/jobs/:id - Get single job
 // ============================================
-r.get("/:id", requireUser, async (req, res, next) => {
+r.get("/:id", optionalUser, async (req, res, next) => {
   try {
     const job = await prisma.job.findUnique({
       where: { id: req.params.id },
@@ -351,6 +377,7 @@ r.post("/submit", submitLimiter, async (req, res, next) => {
     }
 
     const payRate = data.payRateMax || data.payRateMin || null;
+    const externalUrl = data.applyEmail ? `mailto:${data.applyEmail}` : data.externalUrl;
 
     const job = await prisma.job.create({
       data: {
@@ -363,7 +390,7 @@ r.post("/submit", submitLimiter, async (req, res, next) => {
         posterEmail: data.posterEmail,
         payRate,
         payType: data.payType,
-        externalUrl: data.externalUrl,
+        externalUrl,
         roleId: role.id,
         staffNeeded: 1,
       },
@@ -383,7 +410,7 @@ r.post("/submit", submitLimiter, async (req, res, next) => {
       roleName: role.name,
       location: data.location,
       payRate: payRate ? Number(payRate) : null,
-      externalUrl: data.externalUrl,
+      externalUrl,
     }).catch((err) => {
       console.error("[EMAIL] Failed to send job submission notification:", err);
     });

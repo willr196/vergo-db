@@ -1,3 +1,6 @@
+import apiClient from '../client';
+import { authApi } from '../auth';
+
 jest.mock('../client', () => ({
   __esModule: true,
   default: {
@@ -23,9 +26,6 @@ jest.mock('../../utils/biometrics', () => ({
   isBiometricAvailable: jest.fn().mockResolvedValue(false),
   authenticateWithBiometrics: jest.fn().mockResolvedValue(true),
 }));
-
-import apiClient from '../client';
-import { authApi } from '../auth';
 
 describe('authApi client payloads', () => {
   const mockedApiClient = apiClient as unknown as {

@@ -36,13 +36,17 @@
   const form = document.getElementById('login-form');
   const submitBtn = document.getElementById('submit-btn');
   const btnLabel = document.getElementById('btn-label');
+  const setPasswordToggle = document.getElementById('set-password-toggle');
   const setPasswordForm = document.getElementById('set-password-form');
+  const setPasswordClose = document.getElementById('set-password-close');
   const setPasswordBtn = document.getElementById('set-password-btn');
   const setPasswordBtnLabel = document.getElementById('set-password-btn-label');
-
-  // Stored during login for the force-change-password call
-  let pendingEmail = '';
-  let pendingTempPassword = '';
+  const emailField = document.getElementById('email');
+  const passwordField = document.getElementById('password');
+  const setPasswordEmailField = document.getElementById('set-password-email');
+  const currentPasswordField = document.getElementById('current-password');
+  const newPasswordField = document.getElementById('new-password');
+  const confirmPasswordField = document.getElementById('confirm-password');
 
   function storeSessionAndRedirect(data) {
     localStorage.setItem('vergo_jwt', data.token);
@@ -58,22 +62,58 @@
     window.location.replace(dest);
   }
 
-  function showSetPasswordPanel() {
-    if (form) form.hidden = true;
+  function showSetPasswordPanel(options) {
+    const nextOptions = options || {};
     if (setPasswordForm) setPasswordForm.hidden = false;
-    const h1 = document.querySelector('.auth-box h1');
-    if (h1) h1.textContent = 'Set Your Password';
-    if (msgEl) msgEl.className = '';
+    if (setPasswordToggle) setPasswordToggle.setAttribute('aria-expanded', 'true');
+    if (nextOptions.email && setPasswordEmailField) {
+      setPasswordEmailField.value = nextOptions.email;
+    } else if (setPasswordEmailField && !setPasswordEmailField.value && emailField) {
+      setPasswordEmailField.value = emailField.value.trim();
+    }
+    if (nextOptions.currentPassword && currentPasswordField) {
+      currentPasswordField.value = nextOptions.currentPassword;
+    } else if (currentPasswordField && !currentPasswordField.value && passwordField) {
+      currentPasswordField.value = passwordField.value;
+    }
+    if (nextOptions.focus === 'newPassword' && newPasswordField) {
+      newPasswordField.focus();
+      return;
+    }
+    if (setPasswordEmailField) {
+      setPasswordEmailField.focus();
+    }
+  }
+
+  function hideSetPasswordPanel() {
+    if (setPasswordForm) setPasswordForm.hidden = true;
+    if (setPasswordToggle) setPasswordToggle.setAttribute('aria-expanded', 'false');
   }
 
   if (!form) return;
+
+  if (setPasswordToggle) {
+    setPasswordToggle.addEventListener('click', function () {
+      if (setPasswordForm && !setPasswordForm.hidden) {
+        hideSetPasswordPanel();
+        return;
+      }
+      showSetPasswordPanel();
+    });
+  }
+
+  if (setPasswordClose) {
+    setPasswordClose.addEventListener('click', function () {
+      hideSetPasswordPanel();
+    });
+  }
 
   // ─── LOGIN ───
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
+    const email = emailField.value.trim();
+    const password = passwordField.value;
 
     if (!email || !password) {
       showMsg('Please enter your email and password.', 'error');
@@ -96,9 +136,8 @@
 
       if (!res.ok || !data.ok) {
         if (res.status === 403 && data.code === 'MUST_CHANGE_PASSWORD') {
-          pendingEmail = email;
-          pendingTempPassword = password;
-          showSetPasswordPanel();
+          showSetPasswordPanel({ email: email, currentPassword: password, focus: 'newPassword' });
+          showMsg('Use your temporary password to set a permanent one below.', 'info');
           return;
         }
 
@@ -139,8 +178,15 @@
     setPasswordForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
-      const newPassword = document.getElementById('new-password').value;
-      const confirmPassword = document.getElementById('confirm-password').value;
+      const email = setPasswordEmailField.value.trim();
+      const currentPassword = currentPasswordField.value;
+      const newPassword = newPasswordField.value;
+      const confirmPassword = confirmPasswordField.value;
+
+      if (!email || !currentPassword) {
+        showMsg('Enter the email and temporary password from your approval email.', 'error');
+        return;
+      }
 
       if (!newPassword || newPassword.length < 8) {
         showMsg('Password must be at least 8 characters.', 'error');
@@ -162,8 +208,8 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            email: pendingEmail,
-            currentPassword: pendingTempPassword,
+            email,
+            currentPassword,
             newPassword,
           }),
         });

@@ -28,7 +28,7 @@ let currentUser = null;
           <h2>Please Log In</h2>
           <p>You need to be logged in to view your applications.</p>
           <a href="/user-login?redirect=${encodeURIComponent(window.location.pathname)}" class="btn btn-primary">Log In</a>
-          <a href="/apply" class="btn btn-secondary">Create Account</a>
+          <a href="/apply" class="btn btn-secondary">Apply to Join</a>
         </div>
       `;
     }

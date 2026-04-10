@@ -32,7 +32,7 @@ import type { RootStackParamList } from '../../types';
 const _loginAttempts = {
   count: 0,
   lockedUntil: 0,
-  MAX_ATTEMPTS: 5,
+  MAX_ATTEMPTS: 8,
   LOCKOUT_MS: 30_000,
 };
 
@@ -145,7 +145,7 @@ export function LoginScreen({ navigation, route }: Props) {
       if (_loginAttempts.count >= _loginAttempts.MAX_ATTEMPTS) {
         _loginAttempts.lockedUntil = Date.now() + _loginAttempts.LOCKOUT_MS;
         _loginAttempts.count = 0;
-        showToast('Too many failed attempts. Please wait 30 seconds.', 'error');
+        showToast('Too many failed attempts. Please wait a moment.', 'error');
       } else {
         const message = err instanceof Error
           ? err.message

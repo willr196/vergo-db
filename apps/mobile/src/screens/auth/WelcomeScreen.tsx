@@ -39,18 +39,17 @@ export function WelcomeScreen({ navigation }: Props) {
 
             <View style={styles.taglineRow}>
               <View style={styles.taglineLine} />
-              <Text style={styles.tagline}>Premium Event Staffing</Text>
+              <Text style={styles.tagline}>Event Staff · Stress-Free Guarantee</Text>
               <View style={styles.taglineLine} />
             </View>
           </View>
 
           <View style={styles.messageSection}>
             <Text style={styles.welcomeTitle}>
-              Premium staffing for standout events.
+              VERGO Event Staff.
             </Text>
             <Text style={styles.welcomeSubtitle}>
-              Join VERGO to find high-quality event work, or hire vetted staff
-              with the same elevated, dark-and-gold experience as the website.
+              Whether you're hiring staff or applying for work, we do our best to keep everyone happy.
             </Text>
           </View>
 
@@ -216,7 +215,7 @@ const styles = StyleSheet.create({
   },
 
   choiceCardStaff: {
-    backgroundColor: 'rgba(35, 29, 15, 0.98)',
+    backgroundColor: colors.surfaceHighlight,
     borderColor: colors.primaryLine,
   },
 

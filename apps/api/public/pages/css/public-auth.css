@@ -130,6 +130,21 @@ body.public-auth-page footer {
   color: var(--muted);
 }
 
+.auth-utility-nav {
+  align-items: flex-start;
+}
+
+.auth-utility-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 18px;
+}
+
+.auth-inline-link {
+  font-size: 0.92rem;
+}
+
 .toggle-type a,
 .forgot-link,
 .auth-footer a,
@@ -185,6 +200,42 @@ body.public-auth-page footer {
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+}
+
+.auth-inline-panel {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.auth-inline-panel[hidden] {
+  display: none;
+}
+
+.auth-inline-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.auth-inline-panel h2 {
+  text-align: left;
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+}
+
+.auth-inline-panel-copy {
+  margin: 12px 0 0;
+  color: var(--muted);
+}
+
+.auth-inline-panel .form-group {
+  margin-top: 18px;
+}
+
+.auth-inline-panel button[type="submit"] {
+  margin-top: 20px;
 }
 
 .pw-wrap {
@@ -416,6 +467,10 @@ button:disabled .spinner {
   .toggle-type {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .auth-utility-links {
+    justify-content: flex-start;
   }
 }
 

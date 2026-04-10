@@ -30,7 +30,7 @@ type Props = CompositeScreenProps<
 
 type StatusFilter = 'ALL' | 'PENDING' | 'CONFIRMED' | 'COMPLETED';
 
-const STATUS_FILTERS: Array<{ value: StatusFilter; label: string }> = [
+const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: 'ALL', label: 'All' },
   { value: 'PENDING', label: 'Pending' },
   { value: 'CONFIRMED', label: 'Confirmed' },

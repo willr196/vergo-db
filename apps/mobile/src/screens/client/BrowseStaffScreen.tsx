@@ -36,7 +36,7 @@ type Props = CompositeScreenProps<
 
 type TierFilter = 'ALL' | StaffTier;
 
-const TIER_FILTERS: Array<{ value: TierFilter; label: string }> = [
+const TIER_FILTERS: { value: TierFilter; label: string }[] = [
   { value: 'ALL', label: 'All' },
   { value: 'STANDARD', label: 'Standard' },
   { value: 'ELITE', label: 'Elite' },

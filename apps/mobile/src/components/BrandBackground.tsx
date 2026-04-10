@@ -52,15 +52,15 @@ const styles = StyleSheet.create({
     bottom: 16,
     left: 16,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.16)',
+    borderColor: 'rgba(212, 175, 55, 0.25)',
     borderRadius: borderRadius.xl,
-    backgroundColor: 'rgba(255, 255, 255, 0.01)',
+    backgroundColor: 'transparent',
   },
   glow: {
     position: 'absolute',
     borderRadius: borderRadius.full,
     backgroundColor: colors.primary,
-    opacity: 0.12,
+    opacity: 0.08,
   },
   glowTopLeft: {
     top: -40,
@@ -73,14 +73,14 @@ const styles = StyleSheet.create({
     right: -54,
     width: 170,
     height: 170,
-    opacity: 0.09,
+    opacity: 0.06,
   },
   glowBottomRight: {
     right: -80,
     bottom: -90,
     width: 260,
     height: 260,
-    opacity: 0.14,
+    opacity: 0.10,
   },
 });
 

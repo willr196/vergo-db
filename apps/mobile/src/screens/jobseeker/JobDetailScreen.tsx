@@ -21,7 +21,7 @@ import { ENABLE_SKILL_MATCH_EXPERIMENT } from '../../constants';
 import { useJobsStore, useApplicationsStore, useAuthStore, selectJobSeeker } from '../../store';
 import { calculateSkillMatch, formatDate, formatTime } from '../../utils';
 import { getJobTierLabel, getJobTierSummary, normalizeJobTier } from '../../utils/jobTiers';
-import type { RootStackParamList, JobRole, JobTier } from '../../types';
+import type { RootStackParamList, JobRole } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'JobDetail'>;
 

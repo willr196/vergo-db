@@ -285,15 +285,28 @@ test('user registration does not expose verification links unless explicitly ena
   const envAny = env as any;
   const originalFindUnique = prismaAny.user.findUnique;
   const originalCreate = prismaAny.user.create;
+  const originalApplicantFindUnique = prismaAny.applicant.findUnique;
+  const originalApplicantUpdate = prismaAny.applicant.update;
   const originalResendConfigured = envAny.resendConfigured;
   const originalExposeDevVerificationLinks = envAny.exposeDevVerificationLinks;
 
   prismaAny.user.findUnique = async () => null;
-  prismaAny.user.create = async (args: any) => ({
-    id: 'user-register-1',
-    email: args.data.email,
-    firstName: args.data.firstName,
+  prismaAny.applicant.findUnique = async () => ({
+    id: 'applicant-register-1',
+    phone: '07123456789',
   });
+  prismaAny.applicant.update = async () => ({
+    id: 'applicant-register-1',
+  });
+  prismaAny.user.create = async (args: any) => {
+    assert.equal(args.data.applicantId, 'applicant-register-1');
+    assert.equal(args.data.phone, '07123456789');
+    return {
+      id: 'user-register-1',
+      email: args.data.email,
+      firstName: args.data.firstName,
+    };
+  };
   envAny.resendConfigured = false;
   envAny.exposeDevVerificationLinks = false;
 
@@ -322,8 +335,67 @@ test('user registration does not expose verification links unless explicitly ena
   } finally {
     prismaAny.user.findUnique = originalFindUnique;
     prismaAny.user.create = originalCreate;
+    prismaAny.applicant.findUnique = originalApplicantFindUnique;
+    prismaAny.applicant.update = originalApplicantUpdate;
     envAny.resendConfigured = originalResendConfigured;
     envAny.exposeDevVerificationLinks = originalExposeDevVerificationLinks;
+  }
+});
+
+test('user registration requires an existing application email', async () => {
+  setRequiredEnv();
+
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const express = require('express');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const userAuth = require('../routes/userAuth').default;
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { prisma } = require('../prisma');
+
+  const prismaAny = prisma as any;
+  const originalFindUnique = prismaAny.user.findUnique;
+  const originalCreate = prismaAny.user.create;
+  const originalApplicantFindUnique = prismaAny.applicant.findUnique;
+
+  let createCalled = false;
+
+  prismaAny.user.findUnique = async () => null;
+  prismaAny.applicant.findUnique = async () => null;
+  prismaAny.user.create = async () => {
+    createCalled = true;
+    return {
+      id: 'unexpected-user',
+      email: 'casey@example.com',
+      firstName: 'Casey',
+    };
+  };
+
+  const app = express();
+  app.use(express.json());
+  app.use('/api/v1/user', userAuth);
+
+  try {
+    const response = await inject(app, {
+      method: 'POST',
+      url: '/api/v1/user/register',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        firstName: 'Casey',
+        lastName: 'Tester',
+        email: 'casey@example.com',
+        password: 'correct horse battery staple',
+      }),
+    });
+
+    assert.equal(response.statusCode, 403);
+    const body = JSON.parse(response.body || '{}') as any;
+    assert.equal(body.ok, false);
+    assert.match(body.error, /after you apply/i);
+    assert.equal(createCalled, false);
+  } finally {
+    prismaAny.user.findUnique = originalFindUnique;
+    prismaAny.user.create = originalCreate;
+    prismaAny.applicant.findUnique = originalApplicantFindUnique;
   }
 });
 

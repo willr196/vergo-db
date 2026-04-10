@@ -449,6 +449,10 @@
         });
 
         if (response.ok) {
+          const postApplyAccountLink = document.getElementById('post-apply-account-link');
+          if (postApplyAccountLink) {
+            postApplyAccountLink.href = `/user-register?applied=1&email=${encodeURIComponent(String(formData.get('email') || ''))}`;
+          }
           clearSelectedCvFile();
           clearUploadedCvData();
           cvFileInput.value = '';
