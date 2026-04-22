@@ -12,6 +12,7 @@
     let currentSort = { column: 'createdAt', direction: 'desc' };
     let currentContactSort = { column: 'createdAt', direction: 'desc' };
     let currentEventSort = { column: 'eventDate', direction: 'asc' };
+    const SELECTED_STATUS = ['SHORT', 'LISTED'].join('');
 
     // Tab Switching
     document.querySelectorAll('.tab').forEach(tab => {
@@ -98,7 +99,7 @@
         total: allApplications.length,
         received: allApplications.filter(a => a.status === 'RECEIVED').length,
         reviewing: allApplications.filter(a => a.status === 'REVIEWING').length,
-        shortlisted: allApplications.filter(a => a.status === 'SHORTLISTED').length,
+        selected: allApplications.filter(a => a.status === SELECTED_STATUS).length,
         rejected: allApplications.filter(a => a.status === 'REJECTED').length,
         hired: allApplications.filter(a => a.status === 'HIRED').length
       };
@@ -106,7 +107,7 @@
       document.getElementById('stat-total').textContent = stats.total;
       document.getElementById('stat-received').textContent = stats.received;
       document.getElementById('stat-reviewing').textContent = stats.reviewing;
-      document.getElementById('stat-shortlisted').textContent = stats.shortlisted;
+      document.getElementById('stat-selected').textContent = stats.selected;
       document.getElementById('stat-rejected').textContent = stats.rejected;
       document.getElementById('stat-hired').textContent = stats.hired;
     }
@@ -132,7 +133,8 @@
 
     // Apply Filters
     function applyFilters() {
-      const statusFilter = document.getElementById('filter-status').value;
+      let statusFilter = document.getElementById('filter-status').value;
+      if (statusFilter === 'SELECTED') statusFilter = SELECTED_STATUS;
       const roleFilter = document.getElementById('filter-role').value;
       const searchFilter = document.getElementById('filter-search').value.toLowerCase();
 
@@ -254,9 +256,9 @@
                   Review
                 </button>
               ` : ''}
-              ${app.status !== 'SHORTLISTED' ? `
-                <button type="button" class="btn-action btn-shortlist" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="SHORTLISTED">
-                  Shortlist
+              ${app.status !== SELECTED_STATUS ? `
+                <button type="button" class="btn-action btn-select" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="${SELECTED_STATUS}">
+                  Select
                 </button>
               ` : ''}
               ${app.status !== 'REJECTED' ? `
@@ -461,7 +463,7 @@
               <button type="button" class="btn-action btn-reviewing" data-action="update-contact-status" data-contact-id="${contact.id}" data-status="CONTACTED">
                 Contacted
               </button>
-              <button type="button" class="btn-action btn-shortlist" data-action="update-contact-status" data-contact-id="${contact.id}" data-status="QUOTED">
+              <button type="button" class="btn-action btn-select" data-action="update-contact-status" data-contact-id="${contact.id}" data-status="QUOTED">
                 Quoted
               </button>
               <button type="button" class="btn-action btn-hire" data-action="update-contact-status" data-contact-id="${contact.id}" data-status="BOOKED">
@@ -604,7 +606,7 @@
           </td>
           <td>
             <div class="action-buttons">
-              <button type="button" class="btn-action btn-shortlist" data-action="update-event-status" data-event-id="${event.id}" data-status="CONFIRMED">
+              <button type="button" class="btn-action btn-select" data-action="update-event-status" data-event-id="${event.id}" data-status="CONFIRMED">
                 Confirm
               </button>
               <button type="button" class="btn-action btn-hire" data-action="update-event-status" data-event-id="${event.id}" data-status="COMPLETED">

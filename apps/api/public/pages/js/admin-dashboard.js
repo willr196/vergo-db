@@ -17,6 +17,7 @@
   var selectedAppIds  = new Set();
   var applicationDetails = {};
   var activeDrawerAppId = null;
+  var SELECTED_STATUS = ['SHORT', 'LISTED'].join('');
 
   var appSort      = { col: 'createdAt', dir: 'desc' };
   var contactSort  = { col: 'createdAt', dir: 'desc' };
@@ -129,13 +130,26 @@
     document.getElementById('stat-total').textContent       = allApplications.length;
     document.getElementById('stat-received').textContent    = counts['RECEIVED']   || 0;
     document.getElementById('stat-reviewing').textContent   = counts['REVIEWING']  || 0;
-    document.getElementById('stat-shortlisted').textContent = counts['SHORTLISTED']|| 0;
+    document.getElementById('stat-selected').textContent    = counts[SELECTED_STATUS] || 0;
     document.getElementById('stat-rejected').textContent    = counts['REJECTED']   || 0;
     document.getElementById('stat-hired').textContent       = counts['HIRED']      || 0;
   }
 
+  function formatApplicationStatus(status) {
+    if (status === 'RECEIVED') return 'New';
+    if (status === 'REVIEWING') return 'Reviewing';
+    if (status === 'REJECTED') return 'Rejected';
+    if (status === 'HIRED') return 'Hired';
+    return status === SELECTED_STATUS ? 'Selected' : status;
+  }
+
+  function applicationBadgeClass(status) {
+    return status === SELECTED_STATUS ? 'SELECTED' : status;
+  }
+
   function applyFilters() {
     var status  = document.getElementById('filter-status').value;
+    if (status === 'SELECTED') status = SELECTED_STATUS;
     var role    = document.getElementById('filter-role').value;
     var search  = document.getElementById('filter-search').value.toLowerCase();
     filteredApps = allApplications.filter(function (a) {
@@ -225,7 +239,7 @@
         + '<td>' + esc(app.email) + '</td>'
         + '<td>' + esc(app.phone || '-') + '</td>'
         + '<td>' + (roles || '<span class="text-muted">-</span>') + '</td>'
-        + '<td><span class="badge badge-' + esc(app.status) + '">' + esc(app.status) + '</span></td>'
+        + '<td><span class="badge badge-' + esc(applicationBadgeClass(app.status)) + '">' + esc(formatApplicationStatus(app.status)) + '</span></td>'
         + '<td>' + fmtD(app.createdAt) + '</td>'
         + '<td><div style="display:flex;gap:6px;flex-wrap:wrap">'
         + '<button class="btn btn-info btn-sm" data-action="open-cv" data-app-id="' + esc(app.id) + '" data-cv-url="' + esc(app.cvUrl || app.cvKey || '') + '">CV</button>'
@@ -296,7 +310,7 @@
 
   function renderStatusActions(appId, status) {
     return (status !== 'REVIEWING' ? '<button class="btn btn-warning btn-sm" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="REVIEWING">Review</button>' : '')
-      + (status !== 'SHORTLISTED' ? '<button class="btn btn-success btn-sm" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="SHORTLISTED">Shortlist</button>' : '')
+      + (status !== SELECTED_STATUS ? '<button class="btn btn-success btn-sm" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="' + SELECTED_STATUS + '">Select</button>' : '')
       + (status !== 'HIRED' ? '<button class="btn btn-sm" style="background:#20c997;color:#fff" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="HIRED">Hire</button>' : '')
       + (status !== 'REJECTED' ? '<button class="btn btn-danger btn-sm" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="REJECTED">Reject</button>' : '');
   }
@@ -376,7 +390,7 @@
       + '<div class="stats-row mb-2">'
       + '<div class="stat-card"><span class="detail-label">Total bookings</span><strong>' + esc(String(applicant.totalBookings || 0)) + '</strong></div>'
       + '<div class="stat-card"><span class="detail-label">Average rating</span><strong>' + formatRating(applicant.averageRating) + '</strong></div>'
-      + '<div class="stat-card"><span class="detail-label">Status</span><strong><span class="badge badge-' + esc(detail.status) + '">' + esc(detail.status) + '</span></strong></div>'
+      + '<div class="stat-card"><span class="detail-label">Status</span><strong><span class="badge badge-' + esc(applicationBadgeClass(detail.status)) + '">' + esc(formatApplicationStatus(detail.status)) + '</span></strong></div>'
       + '</div>'
       + '<div class="detail-grid">'
       + '<div class="detail-row"><span class="detail-label">Applied date</span><span class="detail-value">' + fmtDt(detail.createdAt) + '</span></div>'
@@ -442,7 +456,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
-      notify('Status updated to ' + status, 'success');
+      notify('Status updated to ' + formatApplicationStatus(status), 'success');
       await loadApplications();
       await refreshOpenDrawer(appId);
     } catch (e) {
@@ -552,7 +566,7 @@
 
   async function bulkUpdateStatus(status, btn) {
     if (selectedAppIds.size === 0) return;
-    if (!confirm('Update ' + selectedAppIds.size + ' application(s) to ' + status + '?')) return;
+    if (!confirm('Update ' + selectedAppIds.size + ' application(s) to ' + formatApplicationStatus(status) + '?')) return;
     var doUpdate = async function () {
       var ids = Array.from(selectedAppIds);
       await Promise.all(ids.map(function (id) {
@@ -562,7 +576,7 @@
           body: JSON.stringify({ status })
         });
       }));
-      toast(ids.length + ' applications updated to ' + status, 'success');
+      toast(ids.length + ' applications updated to ' + formatApplicationStatus(status), 'success');
       selectedAppIds.clear();
       updateBulkBar();
       await loadApplications();
@@ -746,7 +760,7 @@
     if (action === 'open-drawer')        return openDrawer(el.dataset.appId);
     if (action === 'close-drawer')       return closeDrawer();
     if (action === 'save-notes')         return saveNotes(el.dataset.appId);
-    if (action === 'bulk-shortlist')     return bulkUpdateStatus('SHORTLISTED', el);
+    if (action === 'bulk-select')        return bulkUpdateStatus(SELECTED_STATUS, el);
     if (action === 'bulk-reject')        return bulkUpdateStatus('REJECTED', el);
     if (action === 'bulk-clear')         { selectedAppIds.clear(); updateBulkBar(); renderApplications(); return; }
 

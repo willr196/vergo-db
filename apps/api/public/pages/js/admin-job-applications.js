@@ -1,6 +1,7 @@
 let applications = [];
     let jobs = [];
     let currentApplication = null;
+    const SELECTED_STATUS = ['SHORT', 'LISTED'].join('');
     
     // Load jobs for filter dropdown
     async function loadJobs() {
@@ -24,7 +25,8 @@ let applications = [];
     
     // Load applications
     async function loadApplications() {
-      const status = document.getElementById('filter-status').value;
+      const statusInput = document.getElementById('filter-status').value;
+      const status = statusInput === 'SELECTED' ? SELECTED_STATUS : statusInput;
       const jobId = document.getElementById('filter-job').value;
       
       const params = new URLSearchParams({ limit: '100' });
@@ -51,16 +53,31 @@ let applications = [];
       const stats = {
         total: applications.length,
         pending: applications.filter(a => a.status === 'PENDING').length,
-        shortlisted: applications.filter(a => a.status === 'SHORTLISTED').length,
+        selected: applications.filter(a => a.status === SELECTED_STATUS).length,
         confirmed: applications.filter(a => a.status === 'CONFIRMED').length,
         rejected: applications.filter(a => a.status === 'REJECTED').length
       };
       
       document.getElementById('stat-total').textContent = stats.total;
       document.getElementById('stat-pending').textContent = stats.pending;
-      document.getElementById('stat-shortlisted').textContent = stats.shortlisted;
+      document.getElementById('stat-selected').textContent = stats.selected;
       document.getElementById('stat-confirmed').textContent = stats.confirmed;
       document.getElementById('stat-rejected').textContent = stats.rejected;
+    }
+
+    function applicationStatusLabel(status) {
+      const labels = {
+        PENDING: 'Pending',
+        REVIEWED: 'Reviewed',
+        CONFIRMED: 'Confirmed',
+        REJECTED: 'Rejected',
+        WITHDRAWN: 'Withdrawn'
+      };
+      return labels[status] || 'Selected';
+    }
+
+    function applicationStatusClass(status) {
+      return status === SELECTED_STATUS ? 'selected' : status.toLowerCase();
     }
     
     // Render table
@@ -111,12 +128,11 @@ let applications = [];
                 <span class="job-type ${app.job.type === 'INTERNAL' ? 'internal' : 'external'}">
                   ${app.job.type === 'INTERNAL' ? 'VERGO' : 'External'}
                 </span>
-                ${app.job.tier === 'SHORTLIST' ? '<span class="tier-badge tier-shortlist">Shortlist</span>' : ''}
                 ${app.job.tier === 'GOLD' ? '<span class="tier-badge tier-gold">Gold</span>' : ''}
               </div>
             </td>
             <td>
-              <span class="status-badge ${app.status.toLowerCase()}">${formatStatus(app.status)}</span>
+              <span class="status-badge ${applicationStatusClass(app.status)}">${applicationStatusLabel(app.status)}</span>
             </td>
             <td class="hide-mobile">
               <div class="cover-note">
@@ -128,9 +144,9 @@ let applications = [];
               <div class="actions">
                 <button type="button" class="btn btn-secondary btn-small" data-action="open-detail" data-app-id="${escapeHtml(app.id)}">View</button>
                 ${app.status === 'PENDING' ? `
-                  <button type="button" class="btn btn-shortlist btn-small" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="SHORTLISTED">Shortlist</button>
+                  <button type="button" class="btn btn-select btn-small" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="${SELECTED_STATUS}">Select</button>
                 ` : ''}
-                ${app.status === 'SHORTLISTED' ? `
+                ${app.status === SELECTED_STATUS ? `
                   <button type="button" class="btn btn-confirm btn-small" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="CONFIRMED">Confirm</button>
                 ` : ''}
               </div>
@@ -142,15 +158,7 @@ let applications = [];
     
     // Format status
     function formatStatus(status) {
-      const labels = {
-        PENDING: 'Pending',
-        REVIEWED: 'Reviewed',
-        SHORTLISTED: 'Shortlisted',
-        CONFIRMED: 'Confirmed',
-        REJECTED: 'Rejected',
-        WITHDRAWN: 'Withdrawn'
-      };
-      return labels[status] || status;
+      return applicationStatusLabel(status);
     }
     
     // Open detail modal
@@ -191,7 +199,6 @@ let applications = [];
           <div class="detail-label">Job</div>
           <div class="detail-value">
             <strong>${escapeHtml(app.job.title)}</strong>
-            ${app.job.tier === 'SHORTLIST' ? ' <span class="tier-badge tier-shortlist">Shortlist</span>' : ''}
             ${app.job.tier === 'GOLD' ? ' <span class="tier-badge tier-gold">Gold</span>' : ''}
           </div>
         </div>
@@ -209,14 +216,8 @@ let applications = [];
         </div>
         <div class="detail-row">
           <div class="detail-label">Status</div>
-          <div class="detail-value"><span class="status-badge ${app.status.toLowerCase()}">${formatStatus(app.status)}</span></div>
+          <div class="detail-value"><span class="status-badge ${applicationStatusClass(app.status)}">${formatStatus(app.status)}</span></div>
         </div>
-        ${app.rateUplift ? `
-        <div class="detail-row">
-          <div class="detail-label">Rate Uplift</div>
-          <div class="detail-value" style="color:var(--as-gold,#D4AF37)">+£${Number(app.rateUplift).toFixed(2)}/hr (Shortlist merit)</div>
-        </div>
-        ` : ''}
         ${app.coverNote ? `
         <div class="detail-row detail-row-vertical">
           <div class="detail-label">Cover Note</div>
@@ -236,7 +237,7 @@ let applications = [];
       
       if (app.status !== 'CONFIRMED' && app.status !== 'WITHDRAWN') {
         if (app.status !== 'REVIEWED') footerActions.push(`<button type="button" class="btn btn-secondary" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="REVIEWED" data-from-modal="true">Mark Reviewed</button>`);
-        if (app.status !== 'SHORTLISTED') footerActions.push(`<button type="button" class="btn btn-shortlist" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="SHORTLISTED" data-from-modal="true">Shortlist</button>`);
+        if (app.status !== SELECTED_STATUS) footerActions.push(`<button type="button" class="btn btn-select" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="${SELECTED_STATUS}" data-from-modal="true">Select</button>`);
         footerActions.push(`<button type="button" class="btn btn-confirm" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="CONFIRMED" data-from-modal="true">Confirm</button>`);
         if (app.status !== 'REJECTED') footerActions.push(`<button type="button" class="btn btn-reject" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="REJECTED" data-from-modal="true">Reject</button>`);
       }
@@ -258,14 +259,7 @@ let applications = [];
     // Update status
     async function updateStatus(id, status, fromModal = false) {
       if (status === 'REJECTED' && !confirm('Reject this application?')) return;
-      if (status === 'CONFIRMED') {
-        const app = applications.find(a => a.id === id);
-        const isShortlist = app?.job?.tier === 'SHORTLIST';
-        const msg = isShortlist
-          ? 'Confirm this applicant for the job?\n\nThis is a Shortlist job — confirming will apply a +£1/hr merit uplift and increment the worker\'s Shortlist selection count.'
-          : 'Confirm this applicant for the job?';
-        if (!confirm(msg)) return;
-      }
+      if (status === 'CONFIRMED' && !confirm('Confirm this applicant for the job?')) return;
       
       try {
         const res = await fetch(`/api/v1/job-applications/${id}/status`, {

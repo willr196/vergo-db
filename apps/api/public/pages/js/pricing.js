@@ -13,13 +13,11 @@
 
   const tierLabels = {
     STANDARD: 'Standard',
-    SHORTLIST: 'Shortlist',
     GOLD: 'Gold',
   };
 
   const serviceFeeRates = {
     STANDARD: 2,
-    SHORTLIST: 3,
   };
 
   const tierField = document.getElementById('calc-tier');
@@ -115,9 +113,7 @@
     const hours = readPositiveNumber(hoursField);
 
     standardRateWrap.hidden = tier === 'GOLD';
-    standardRateNote.textContent = tier === 'SHORTLIST'
-      ? 'Shortlist pricing = agreed wage + \u00A33/hr + VAT.'
-      : 'Standard pricing = agreed wage + \u00A32/hr + VAT.';
+    standardRateNote.textContent = 'Standard pricing = agreed wage + \u00A32/hr + VAT.';
 
     if (tier !== 'GOLD') {
       const serviceFeeRate = serviceFeeRates[tier];

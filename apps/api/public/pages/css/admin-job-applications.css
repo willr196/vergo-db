@@ -246,7 +246,7 @@
       color: var(--color-info);
     }
     
-    .status-badge.shortlisted {
+    .status-badge.selected {
       background: rgba(212, 175, 55, 0.2);
       color: var(--color-gold);
     }
@@ -311,11 +311,11 @@
     }
     .btn-confirm:hover { background: var(--color-success); }
     
-    .btn-shortlist {
+    .btn-select {
       background: var(--color-gold);
       color: var(--color-text-primary);
     }
-    .btn-shortlist:hover { background: var(--color-gold-hover); }
+    .btn-select:hover { background: var(--color-gold-hover); }
     
     .btn-reject {
       background: var(--color-error);

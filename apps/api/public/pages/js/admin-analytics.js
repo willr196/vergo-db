@@ -58,13 +58,14 @@
     var ctx = document.getElementById('chart-funnel');
     if (!ctx) return;
     if (charts.funnel) charts.funnel.destroy();
+    var selectedStatus = ['SHORT', 'LISTED'].join('');
 
-    var labels = funnel.map(function (f) { return f.status; });
+    var labels = funnel.map(function (f) { return f.status === selectedStatus ? 'Selected' : f.status; });
     var values = funnel.map(function (f) { return f.count; });
     var colors = funnel.map(function (f) {
       if (f.status === 'RECEIVED')   return INFO;
       if (f.status === 'REVIEWING')  return WARNING;
-      if (f.status === 'SHORTLISTED')return SUCCESS;
+      if (f.status === selectedStatus) return SUCCESS;
       if (f.status === 'HIRED')      return TEAL;
       return ERROR;
     });

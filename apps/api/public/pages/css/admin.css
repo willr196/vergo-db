@@ -310,7 +310,7 @@
 
     .status-RECEIVED { background: var(--color-info-bg); color: var(--color-info); }
     .status-REVIEWING { background: var(--color-warning-bg); color: var(--color-warning); }
-    .status-SHORTLISTED { background: var(--color-success-bg); color: var(--color-success); }
+    .status-SELECTED { background: var(--color-success-bg); color: var(--color-success); }
     .status-REJECTED { background: var(--color-error-bg); color: var(--color-error); }
     .status-HIRED { background: rgba(32, 201, 151, 0.2); color: #20c997; }
     
@@ -373,12 +373,12 @@
       background: var(--color-warning);
     }
 
-    .btn-shortlist {
+    .btn-select {
       background: var(--color-success);
       color: var(--color-bg-white);
     }
 
-    .btn-shortlist:hover {
+    .btn-select:hover {
       background: var(--color-success);
     }
 

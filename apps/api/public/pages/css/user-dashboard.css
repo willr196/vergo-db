@@ -201,7 +201,7 @@
       color: var(--color-info);
     }
     
-    .status-shortlisted {
+    .status-selected {
       background: var(--color-success-bg);
       color: var(--color-success);
     }

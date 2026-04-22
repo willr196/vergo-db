@@ -95,18 +95,18 @@
       <div id="applications-tab" class="tab-content active">
         <!-- Stats -->
         <div class="kpi-grid" id="app-stats">
-          <div class="kpi-card" data-filter="all"><div class="kpi-label">Total</div><div class="kpi-value" id="stat-total">0</div></div>
-          <div class="kpi-card kpi-info" data-filter="RECEIVED"><div class="kpi-label">New</div><div class="kpi-value" id="stat-received">0</div></div>
-          <div class="kpi-card kpi-warning" data-filter="REVIEWING"><div class="kpi-label">Reviewing</div><div class="kpi-value" id="stat-reviewing">0</div></div>
-          <div class="kpi-card kpi-success" data-filter="SHORTLISTED"><div class="kpi-label">Shortlisted</div><div class="kpi-value" id="stat-shortlisted">0</div></div>
-          <div class="kpi-card kpi-error" data-filter="REJECTED"><div class="kpi-label">Rejected</div><div class="kpi-value" id="stat-rejected">0</div></div>
-          <div class="kpi-card" data-filter="HIRED"><div class="kpi-label text-gold">Hired</div><div class="kpi-value text-hired" id="stat-hired">0</div></div>
-        </div>
+        <div class="kpi-card" data-filter="all"><div class="kpi-label">Total</div><div class="kpi-value" id="stat-total">0</div></div>
+        <div class="kpi-card kpi-info" data-filter="RECEIVED"><div class="kpi-label">New</div><div class="kpi-value" id="stat-received">0</div></div>
+        <div class="kpi-card kpi-warning" data-filter="REVIEWING"><div class="kpi-label">Reviewing</div><div class="kpi-value" id="stat-reviewing">0</div></div>
+        <div class="kpi-card kpi-success" data-filter="SELECTED"><div class="kpi-label">Selected</div><div class="kpi-value" id="stat-selected">0</div></div>
+        <div class="kpi-card kpi-error" data-filter="REJECTED"><div class="kpi-label">Rejected</div><div class="kpi-value" id="stat-rejected">0</div></div>
+        <div class="kpi-card" data-filter="HIRED"><div class="kpi-label text-gold">Hired</div><div class="kpi-value text-hired" id="stat-hired">0</div></div>
+      </div>
 
         <!-- Bulk bar -->
         <div class="as-bulk-bar" id="app-bulk-bar">
           <span class="as-bulk-count"><span id="app-bulk-count">0</span> selected</span>
-          <button class="btn btn-success btn-sm" data-action="bulk-shortlist">Shortlist</button>
+          <button class="btn btn-success btn-sm" data-action="bulk-select">Select</button>
           <button class="btn btn-danger btn-sm" data-action="bulk-reject">Reject</button>
           <button class="btn btn-ghost btn-sm" data-action="bulk-clear">Clear</button>
         </div>
@@ -116,14 +116,14 @@
           <div class="as-filter-group">
             <label>Status</label>
             <select id="filter-status">
-              <option value="">All Statuses</option>
-              <option value="RECEIVED">New</option>
-              <option value="REVIEWING">Reviewing</option>
-              <option value="SHORTLISTED">Shortlisted</option>
-              <option value="REJECTED">Rejected</option>
-              <option value="HIRED">Hired</option>
-            </select>
-          </div>
+            <option value="">All Statuses</option>
+            <option value="RECEIVED">New</option>
+            <option value="REVIEWING">Reviewing</option>
+            <option value="SELECTED">Selected</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="HIRED">Hired</option>
+          </select>
+        </div>
           <div class="as-filter-group">
             <label>Role</label>
             <select id="filter-role">

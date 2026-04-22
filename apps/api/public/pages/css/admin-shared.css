@@ -474,7 +474,7 @@ td.loading, td.empty-state {
 }
 .badge-RECEIVED, .badge-NEW      { background: var(--as-info-bg);    color: var(--as-info); }
 .badge-REVIEWING, .badge-PENDING, .badge-CONTACTED { background: var(--as-warning-bg); color: var(--as-warning); }
-.badge-SHORTLISTED, .badge-APPROVED, .badge-QUOTED, .badge-CONFIRMED { background: var(--as-success-bg); color: var(--as-success); }
+.badge-SELECTED, .badge-APPROVED, .badge-QUOTED, .badge-CONFIRMED { background: var(--as-success-bg); color: var(--as-success); }
 .badge-REJECTED, .badge-CANCELLED, .badge-LOST, .badge-SUSPENDED, .badge-DECLINED { background: var(--as-error-bg); color: var(--as-error); }
 .badge-HIRED, .badge-COMPLETED, .badge-BOOKED, .badge-ACCEPTED { background: var(--as-hired-bg); color: var(--as-hired); }
 .badge-UPCOMING { background: var(--as-info-bg); color: var(--as-info); }
@@ -1143,11 +1143,6 @@ tbody tr:hover {
 .tier-standard {
   background: rgba(255,255,255,0.07);
   color: var(--as-muted);
-}
-.tier-shortlist {
-  background: var(--as-gold-bg);
-  color: var(--as-gold);
-  border: 1px solid rgba(212,175,55,0.25);
 }
 .tier-gold {
   background: linear-gradient(90deg, rgba(212,175,55,0.2), rgba(212,175,55,0.08));

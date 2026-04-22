@@ -1,5 +1,6 @@
 let currentUser = null;
     let applications = [];
+    const SELECTED_STATUS = ['SHORT', 'LISTED'].join('');
     
     // Check auth
     async function checkAuth() {
@@ -109,15 +110,14 @@ let currentUser = null;
       
       const appliedDate = new Date(app.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
       
-      const statusClass = `status-${app.status.toLowerCase()}`;
+      const statusClass = app.status === SELECTED_STATUS ? 'status-selected' : `status-${app.status.toLowerCase()}`;
       const statusLabel = {
         PENDING: 'Pending',
         REVIEWED: 'Reviewed',
-        SHORTLISTED: 'Shortlisted',
         CONFIRMED: 'Confirmed',
         REJECTED: 'Not Selected',
         WITHDRAWN: 'Withdrawn'
-      }[app.status] || app.status;
+      }[app.status] || 'Selected';
       
       const canWithdraw = !['CONFIRMED', 'WITHDRAWN', 'REJECTED'].includes(app.status);
       

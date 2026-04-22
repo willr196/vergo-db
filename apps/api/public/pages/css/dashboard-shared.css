@@ -251,12 +251,6 @@ body.dashboard-page.dashboard-shell-page .dash-header {
   text-transform: uppercase;
 }
 
-.job-tier-tag.tier-shortlist {
-  background: rgba(212, 175, 55, 0.12);
-  color: var(--color-gold-dark);
-  border: 1px solid var(--color-border-gold);
-}
-
 .job-tier-tag.tier-gold {
   background: rgba(212, 175, 55, 0.2);
   color: #8a6800;
@@ -282,7 +276,7 @@ body.dashboard-page.dashboard-shell-page .dash-header {
 
 .status-pending    { background: var(--color-warning-bg); color: var(--color-warning); }
 .status-confirmed  { background: var(--color-success-bg); color: var(--color-success); }
-.status-shortlisted { background: var(--color-info-bg);    color: var(--color-info); }
+.status-selected   { background: var(--color-info-bg);    color: var(--color-info); }
 .status-rejected, .status-not-selected { background: var(--color-error-bg); color: var(--color-error); }
 .status-withdrawn  { background: var(--color-bg-secondary); color: var(--color-text-muted); }
 .status-reviewed   { background: var(--color-info-bg); color: var(--color-info); }
@@ -463,7 +457,6 @@ body.dashboard-page.dashboard-shell-page .dash-header {
   border-left: 3px solid var(--color-gold);
 }
 
-/* ---- Shortlist uplift note ---- */
 .uplift-note {
   font-size: var(--font-size-xs);
   color: var(--color-gold-dark);
