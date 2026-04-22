@@ -29,10 +29,13 @@
 
   const defaultLinks = `
           <li><a href="/"${isActive('/') ? ' aria-current="page"' : ''}>Home</a></li>
+          <li><a href="/hire-staff"${isActive('/hire-staff') ? ' aria-current="page"' : ''}>Hire Staff</a></li>
+          <li><a href="/jobs"${isActive('/jobs') ? ' aria-current="page"' : ''}>Job Board</a></li>
+          <li><a href="/pricing"${isActive('/pricing') ? ' aria-current="page"' : ''}>Pricing</a></li>
           <li><a href="/about"${isActive('/about') ? ' aria-current="page"' : ''}>About</a></li>
-          <li><a href="/faq"${isActive('/faq') ? ' aria-current="page"' : ''}>FAQ</a></li>
+          <li><a href="/blog"${isActive('/blog') ? ' aria-current="page"' : ''}>Blog</a></li>
           <li class="nav-cta-wrapper nav-cta-secondary"><a href="/apply"${isActive('/apply') ? ' aria-current="page"' : ''} class="nav-cta nav-cta-outline">Join VERGO</a></li>
-          <li class="nav-cta-wrapper"><a href="/contact?tab=staff#contact-forms"${isActive('/contact') ? ' aria-current="page"' : ''} class="nav-cta">Request Staff</a></li>
+          <li class="nav-cta-wrapper"><a href="/contact?tab=staff#contact-forms"${isActive('/contact') ? ' aria-current="page"' : ''} class="nav-cta">Contact</a></li>
   `;
 
   // Navigation HTML - Premium structure

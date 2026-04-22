@@ -16,6 +16,8 @@
     "prisma:deploy": "node scripts/prisma-deploy-with-retry.js",
     "prisma:deploy:raw": "prisma migrate deploy",
     "seed": "tsx prisma/seed.ts",
+    "db:reset": "tsx prisma/reset.ts",
+    "seed:jobs": "tsx prisma/seed-jobs.ts",
     "seed:marketplace": "npx ts-node prisma/seed-marketplace.ts"
   },
   "dependencies": {

@@ -2,7 +2,7 @@
   'use strict';
 
   const rates = {
-    waitstaff: 21,
+    waitstaff: 22,
     chef: 26,
   };
 

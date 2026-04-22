@@ -393,7 +393,7 @@
               <span class="logo-subtitle">Event staffing, London</span>
             </span>
           </a>
-          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">London event staffing for companies that need reliable teams and workers who want well-run shifts.</p>
+          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Premium event staffing for private events, corporate hospitality, venues and productions across London.</p>
         </div>
         <div>
           <p class="footer-title">Navigate</p>
@@ -514,5 +514,46 @@
     if (window.innerWidth > 960) {
       closeMenu();
     }
+  });
+})();
+
+// Load WhatsApp floating widget on all public pages
+(function () {
+  var s = document.createElement('script');
+  s.src = '/vergo-whatsapp.js';
+  s.defer = true;
+  document.body.appendChild(s);
+})();
+
+// GDPR cookie consent banner
+(function () {
+  if (localStorage.getItem('vergo_cookie_consent')) return;
+  if (document.querySelector('.vergo-cookie-banner')) return;
+
+  var style = document.createElement('style');
+  style.textContent = [
+    '.vergo-cookie-banner{position:fixed;bottom:0;left:0;right:0;z-index:10000;background:#1a1a1a;color:#d8d3cb;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:0.88rem;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;border-top:1px solid rgba(255,255,255,0.08);}',
+    '.vergo-cookie-banner p{margin:0;line-height:1.5;flex:1;min-width:200px;}',
+    '.vergo-cookie-banner a{color:#C4A24E;text-decoration:underline;}',
+    '.vergo-cookie-banner-btns{display:flex;gap:8px;flex-shrink:0;}',
+    '.vergo-cookie-btn{padding:8px 20px;border:none;border-radius:3px;font-size:0.82rem;font-weight:500;cursor:pointer;letter-spacing:0.04em;text-transform:uppercase;}',
+    '.vergo-cookie-btn-accept{background:#C4A24E;color:#0c0b0a;}',
+    '.vergo-cookie-btn-decline{background:transparent;color:#7a756d;border:1px solid #4a463f;}'
+  ].join('');
+  document.head.appendChild(style);
+
+  var banner = document.createElement('div');
+  banner.className = 'vergo-cookie-banner';
+  banner.setAttribute('role', 'region');
+  banner.setAttribute('aria-label', 'Cookie consent');
+  banner.innerHTML = '<p>We use cookies to improve your experience. See our <a href="/privacy">Privacy Policy</a>.</p><div class="vergo-cookie-banner-btns"><button class="vergo-cookie-btn vergo-cookie-btn-accept" data-cookie="accept">Accept</button><button class="vergo-cookie-btn vergo-cookie-btn-decline" data-cookie="decline">Decline</button></div>';
+
+  document.body.appendChild(banner);
+
+  banner.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-cookie]');
+    if (!btn) return;
+    localStorage.setItem('vergo_cookie_consent', btn.dataset.cookie);
+    banner.remove();
   });
 })();

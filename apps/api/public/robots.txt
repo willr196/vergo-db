@@ -34,7 +34,6 @@ Disallow: /job-detail
 
 # Sitemap location
 Sitemap: https://vergoltd.com/sitemap.xml
-Sitemap: https://vergoltd.com/sitemap-jobs.xml
 
 # Crawl-delay (optional - be nice to server)
 Crawl-delay: 1

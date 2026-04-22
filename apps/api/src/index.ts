@@ -184,6 +184,8 @@ if (process.env.NODE_ENV === 'production') {
 app.use(enforceHttpsRedirect({
   nodeEnv: env.nodeEnv,
   webOrigin: env.webOrigin,
+  canonicalHost: 'vergoltd.com',
+  redirectHosts: ['www.vergoltd.com'],
   allowedHosts: ['vergo-app.fly.dev'],
 }));
 // Security headers

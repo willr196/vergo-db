@@ -20,8 +20,8 @@
 
   // Configuration with defaults
   const config = Object.assign({
-    phone: '447000000000', // Replace with your actual WhatsApp number
-    message: 'Hi VERGO Ltd! I\'d like to enquire about your services.',
+    phone: '447506615242',
+    message: 'Hi, I\'d like to enquire about staffing for an event.',
     position: 'right',
     offset: 20,
     showAfter: 3000,
@@ -45,8 +45,8 @@
       width: 60px;
       height: 60px;
       border-radius: 50%;
-      background: #25D366;
-      box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+      background: #C8A951;
+      box-shadow: 0 4px 20px rgba(200, 169, 81, 0.4);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -67,7 +67,7 @@
 
     .vergo-whatsapp-btn:hover {
       transform: scale(1.1);
-      box-shadow: 0 6px 25px rgba(37, 211, 102, 0.5);
+      box-shadow: 0 6px 25px rgba(200, 169, 81, 0.5);
     }
 
     .vergo-whatsapp-btn:active {
@@ -86,7 +86,7 @@
       position: absolute;
       inset: -4px;
       border-radius: 50%;
-      background: rgba(37, 211, 102, 0.3);
+      background: rgba(200, 169, 81, 0.3);
       animation: whatsapp-pulse 2s ease-out infinite;
       pointer-events: none;
     }

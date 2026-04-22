@@ -19,7 +19,7 @@
             <img src="/logo.png" alt="VERGO Ltd" width="120" height="auto" loading="lazy" decoding="async">
           </a>
           <p class="footer-tagline">
-            Event staffing for private events, corporate functions, venues and productions across London.
+            Premium event staffing for private events, corporate hospitality, venues and productions across London.
           </p>
           <div class="footer-roles">
             Chefs &middot; Bar Staff &middot; Front of House &middot; Baristas &middot; Kitchen Porters &middot; Event Support

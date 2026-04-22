@@ -8,10 +8,6 @@ datasource db {
   directUrl = env("DIRECT_DATABASE_URL")
 }
 
-// ============================================
-// EXISTING MODELS (updated with relations)
-// ============================================
-
 model Applicant {
   id                String        @id @default(cuid())
   createdAt         DateTime      @default(now())
@@ -21,38 +17,34 @@ model Applicant {
   email             String        @unique
   phone             String?
   rightToWorkUk     Boolean?
-  staffTier         String        @default("STANDARD") // "STANDARD" or "GOLD"
-  hourlyRate        Decimal?      @db.Decimal(10, 2)
-  bio               String?       @db.Text
-  profileVisible    Boolean       @default(false) // Admin toggles this to show on marketplace
-  yearsExperience   Int?
-  promotedToGoldAt  DateTime?
-  totalBookings     Int           @default(0)
   averageRating     Decimal?      @db.Decimal(3, 2)
+  bio               String?
   dateOfBirth       DateTime?
+  hourlyRate        Decimal?      @db.Decimal(10, 2)
   postcode          String?
-  preferredJobTypes String?       // Comma-separated: "Corporate Events,Film & TV,Weddings"
+  preferredJobTypes String?
+  profileVisible    Boolean       @default(false)
+  promotedToGoldAt  DateTime?
+  staffTier         String        @default("STANDARD")
+  totalBookings     Int           @default(0)
+  yearsExperience   Int?
   applications      Application[]
-  
-  // NEW: Link to user account (if they register)
-  user          User?
+  user              User?
 }
 
 model Role {
   id           String            @id @default(cuid())
   name         String            @unique
   applications ApplicationRole[]
-  
-  // NEW: Jobs for this role
   jobs         Job[]
 }
 
 model ApplicationRole {
-  application     Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   applicationId   String
-  role            Role        @relation(fields: [roleId], references: [id])
   roleId          String
   experienceLevel String?
+  application     Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  role            Role        @relation(fields: [roleId], references: [id])
 
   @@id([applicationId, roleId])
   @@map("ApplicationRole")
@@ -61,28 +53,20 @@ model ApplicationRole {
 model Application {
   id             String            @id @default(cuid())
   createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
   status         ApplicationStatus @default(RECEIVED)
   cvKey          String
-  cvOriginalName String?
-  cvFileSize     Int?              // file size in bytes
-  cvMimeType     String?           // e.g. "application/pdf"
-  cvUploadedAt   DateTime?         // when the CV was uploaded
-  notes          String?
   source         String?
-  applicant      Applicant         @relation(fields: [applicantId], references: [id])
   applicantId    String
+  cvOriginalName String?
+  notes          String?
+  updatedAt      DateTime          @updatedAt
+  cvFileSize     Int?
+  cvMimeType     String?
+  cvUploadedAt   DateTime?
+  applicant      Applicant         @relation(fields: [applicantId], references: [id])
   roles          ApplicationRole[]
 
   @@index([status, createdAt])
-}
-
-enum ApplicationStatus {
-  RECEIVED
-  REVIEWING
-  SHORTLISTED
-  REJECTED
-  HIRED
 }
 
 model AdminUser {
@@ -92,196 +76,144 @@ model AdminUser {
   createdAt      DateTime  @default(now())
   failedAttempts Int       @default(0)
   lockedUntil    DateTime?
-  
+
   @@index([username])
 }
-// ============================================
-// CLIENT/COMPANY MODELS
-// ============================================
 
-// Corporate clients who hire staff
 model Client {
-  id              String        @id @default(cuid())
-  seqId           Int           @default(autoincrement()) @unique
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  
-  // Company details
-  companyName     String
-  industry        String?
-  website         String?
-  logo            String?
-  companySize     String?       // e.g. "1-10", "11-50", "51-200", "200+"
-  
-  // Primary contact
-  contactName     String
-  email           String        @unique
-  passwordHash    String
-  phone           String?
-  postcode        String?
-  jobTitle        String?       // e.g. "Event Manager", "HR Director"
-  
-  // Approval workflow
-  status          ClientStatus  @default(PENDING)
-  approvedAt      DateTime?
-  approvedBy      String?       // Admin username who approved
-  rejectionReason String?
-  
-  // Auth
-  emailVerified   Boolean       @default(false)
-  verifyToken     String?
-  verifyTokenExp  DateTime?
-  resetToken      String?
-  resetTokenExp   DateTime?
-  
-  // Security
-  failedAttempts  Int           @default(0)
-  lockedUntil     DateTime?
-  lastLoginAt     DateTime?
-  
-  // Admin notes
-  adminNotes      String?       @db.Text
-
-  // Subscription (tiered marketplace)
+  id                    String             @id @default(cuid())
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  companyName           String
+  industry              String?
+  website               String?
+  companySize           String?
+  contactName           String
+  email                 String             @unique
+  passwordHash          String
+  phone                 String?
+  jobTitle              String?
+  status                ClientStatus       @default(PENDING)
+  approvedAt            DateTime?
+  approvedBy            String?
+  rejectionReason       String?
+  emailVerified         Boolean            @default(false)
+  verifyToken           String?
+  verifyTokenExp        DateTime?
+  resetToken            String?
+  resetTokenExp         DateTime?
+  failedAttempts        Int                @default(0)
+  lockedUntil           DateTime?
+  lastLoginAt           DateTime?
+  adminNotes            String?
   subscriptionTier      SubscriptionTier   @default(STANDARD)
   subscriptionStatus    SubscriptionStatus @default(ACTIVE)
   subscriptionStartedAt DateTime?
-  subscriptionExpiresAt DateTime?          // Null = no active paid sub (Standard is free)
-  
-  // Relations
-  quoteRequests   QuoteRequest[]
-  bookings        Booking[]
-  jobs            Job[]
-  refreshTokens   RefreshToken[]
-  pushTokens      PushToken[]
+  subscriptionExpiresAt DateTime?
+  logo                  String?
+  postcode              String?
+  seqId                 Int                @unique @default(autoincrement())
+  bookings              Booking[]
+  jobs                  Job[]
+  pushTokens            PushToken[]
+  quoteRequests         QuoteRequest[]
+  refreshTokens         RefreshToken[]
 
   @@index([email])
   @@index([status])
   @@index([createdAt])
 }
 
-// Quote requests from clients
 model QuoteRequest {
-  id            String    @id @default(cuid())
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
-  // Event details
-  eventType     String    // e.g. "Corporate Event", "Wedding", "Festival"
+  id            String       @id @default(cuid())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  eventType     String
   eventDate     DateTime?
   eventEndDate  DateTime?
   location      String
   venue         String?
-  
-  // Staffing requirements
   staffCount    Int
-  roles         String    // Comma-separated or JSON
+  roles         String
   shiftStart    String?
   shiftEnd      String?
-  
-  // Additional info
-  description   String?   @db.Text
-  budget        String?   // Budget range
-  requestedLane BookingLane?
-  
-  // Status tracking
-  status        String    @default("NEW") // NEW, QUOTED, ACCEPTED, DECLINED, COMPLETED
-  adminNotes    String?   @db.Text
-  quotedAmount  Decimal?  @db.Decimal(10, 2)
+  description   String?
+  budget        String?
+  status        String       @default("NEW")
+  adminNotes    String?
+  quotedAmount  Decimal?     @db.Decimal(10, 2)
   quoteSentAt   DateTime?
-  
-  // Relations
   clientId      String
-  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  requestedLane BookingLane?
   bookings      Booking[]
-  
+  client        Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
   @@index([clientId])
   @@index([status])
   @@index([createdAt])
   @@index([requestedLane])
 }
 
-// Pricing matrix: maps client tier x staff tier -> hourly rate
 model PricingTier {
   id           String           @id @default(cuid())
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
-
   clientTier   SubscriptionTier
   staffTier    StaffTier
-  hourlyRate   Decimal          @db.Decimal(10, 2) // What client pays per hour
-  staffPayRate Decimal?         @db.Decimal(10, 2) // What staff gets paid per hour (optional, for admin reference)
-  isBookable   Boolean          @default(true) // false = STANDARD client can't book ELITE staff
+  hourlyRate   Decimal          @db.Decimal(10, 2)
+  staffPayRate Decimal?         @db.Decimal(10, 2)
+  isBookable   Boolean          @default(true)
 
-  // Ensure one row per combination
   @@unique([clientTier, staffTier])
   @@map("PricingTier")
 }
 
-// Subscription pricing reference (for admin/display, not billing logic)
 model SubscriptionPlan {
   id           String           @id @default(cuid())
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
-
   tier         SubscriptionTier @unique
-  name         String           // "Standard", "Premium"
-  weeklyPrice  Decimal          @db.Decimal(10, 2) // £0 for Standard, £X for Premium
-  monthlyPrice Decimal?         @db.Decimal(10, 2) // Alternative billing cycle
-  annualPrice  Decimal?         @db.Decimal(10, 2) // Alternative billing cycle
-  features     String?          @db.Text // JSON array of feature strings for display
+  name         String
+  weeklyPrice  Decimal          @db.Decimal(10, 2)
+  monthlyPrice Decimal?         @db.Decimal(10, 2)
+  annualPrice  Decimal?         @db.Decimal(10, 2)
+  features     String?
   isActive     Boolean          @default(true)
 
   @@map("SubscriptionPlan")
 }
 
-// When a client requests to book a specific staff member or requests staff by tier
 model Booking {
   id                  String           @id @default(cuid())
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
-
-  // Status
   status              BookingStatus    @default(PENDING)
-  bookingLane         BookingLane      @default(FLEX)
-
-  // Event/shift details
   eventName           String?
   eventDate           DateTime
   eventEndDate        DateTime?
   location            String
   venue               String?
-  shiftStart          String           // e.g. "09:00"
-  shiftEnd            String           // e.g. "17:00"
+  shiftStart          String
+  shiftEnd            String
   hoursEstimated      Decimal?         @db.Decimal(5, 2)
-
-  // Pricing snapshot (captured at booking time so rate changes don't affect existing bookings)
   clientTierAtBooking SubscriptionTier
   staffTierAtBooking  StaffTier
-  hourlyRateCharged   Decimal          @db.Decimal(10, 2) // What client pays
-  staffPayRate        Decimal?         @db.Decimal(10, 2) // What staff gets
-  totalEstimated      Decimal?         @db.Decimal(10, 2) // hourlyRate x hours
-
-  // Notes
-  clientNotes         String?          @db.Text
-  adminNotes          String?          @db.Text
+  hourlyRateCharged   Decimal          @db.Decimal(10, 2)
+  staffPayRate        Decimal?         @db.Decimal(10, 2)
+  totalEstimated      Decimal?         @db.Decimal(10, 2)
+  clientNotes         String?
+  adminNotes          String?
   rejectionReason     String?
-
-  // Confirmation
   confirmedAt         DateTime?
-  confirmedBy         String?          // Admin username
+  confirmedBy         String?
   completedAt         DateTime?
-
-  // Relations
   clientId            String
-  client              Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
-
   staffId             String
-  staff               User             @relation(fields: [staffId], references: [id], onDelete: Cascade)
-
-  // Optional link to original quote request
   quoteRequestId      String?
-  quoteRequest        QuoteRequest?    @relation(fields: [quoteRequestId], references: [id], onDelete: SetNull)
+  bookingLane         BookingLane      @default(FLEX)
+  client              Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  quoteRequest        QuoteRequest?    @relation(fields: [quoteRequestId], references: [id])
+  staff               User             @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
   @@index([clientId])
   @@index([staffId])
@@ -292,33 +224,265 @@ model Booking {
 }
 
 model Contact {
-  id          String        @id @default(cuid())
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  
-  // Contact info
-  name        String
-  email       String
-  phone       String?
-  company     String?
-  
-  // Enquiry details
-  type        ContactType
-  eventType   String?
-  eventDate   DateTime?
-  guests      Int?
-  staffCount  Int?
-  roles       String?       // JSON array or comma-separated
-  subject     String?
-  message     String        @db.Text
-  
-  // Status tracking
-  status      ContactStatus @default(NEW)
-  adminNotes  String?       @db.Text
-  
+  id         String        @id @default(cuid())
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  name       String
+  email      String
+  phone      String?
+  company    String?
+  type       ContactType
+  eventType  String?
+  eventDate  DateTime?
+  guests     Int?
+  staffCount Int?
+  roles      String?
+  subject    String?
+  message    String
+  status     ContactStatus @default(NEW)
+  adminNotes String?
+
   @@index([status])
   @@index([type])
   @@index([createdAt])
+}
+
+model FileUploadVerification {
+  id          String   @id @default(uuid())
+  key         String   @unique @db.VarChar(500)
+  applicantId String   @db.VarChar(36)
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+  verified    Boolean  @default(false)
+
+  @@index([key])
+  @@index([expiresAt])
+}
+
+model User {
+  id                  String           @id @default(cuid())
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  email               String           @unique
+  passwordHash        String
+  emailVerified       Boolean          @default(false)
+  verifyToken         String?
+  resetToken          String?
+  resetTokenExp       DateTime?
+  firstName           String
+  lastName            String
+  phone               String?
+  applicantId         String?          @unique
+  failedAttempts      Int              @default(0)
+  lockedUntil         DateTime?
+  lastLoginAt         DateTime?
+  approvedClient      Boolean          @default(false)
+  billingAddress      String?
+  companyName         String?
+  companyWebsite      String?
+  userType            UserType         @default(JOB_SEEKER)
+  vatNumber           String?
+  verifyTokenExp      DateTime?
+  staffTier           StaffTier?
+  staffBio            String?
+  staffAvatar         String?
+  staffAvailable      Boolean          @default(false)
+  staffRating         Decimal?         @db.Decimal(3, 2)
+  staffReviewCount    Int              @default(0)
+  staffHighlights     String?
+  shortlistSelections Int              @default(0)
+  seqId               Int              @unique @default(autoincrement())
+  mustChangePassword  Boolean          @default(false)
+  bookings            Booking[]
+  jobApplications     JobApplication[]
+  pushTokens          PushToken[]
+  refreshTokens       RefreshToken[]
+  savedJobs           SavedJob[]
+  applicant           Applicant?       @relation(fields: [applicantId], references: [id])
+
+  @@index([email])
+  @@index([userType])
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  tokenHash String    @unique
+  userId    String?
+  clientId  String?
+  client    Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([clientId])
+  @@index([expiresAt])
+}
+
+model PushToken {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  token     String   @unique
+  platform  String
+  userId    String?
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([clientId])
+}
+
+model Job {
+  id                  String           @id @default(cuid())
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  title               String
+  description         String
+  location            String
+  roleId              String
+  status              JobStatus        @default(DRAFT)
+  closingDate         DateTime?
+  companyName         String?
+  eventDate           DateTime?
+  eventEndDate        DateTime?
+  externalUrl         String?
+  payRate             Decimal?         @db.Decimal(10, 2)
+  payType             PayType          @default(HOURLY)
+  publishedAt         DateTime?
+  requirements        String?
+  shiftEnd            String?
+  shiftStart          String?
+  staffConfirmed      Int              @default(0)
+  staffNeeded         Int              @default(1)
+  type                JobType          @default(INTERNAL)
+  venue               String?
+  clientId            String?
+  tier                JobTier          @default(STANDARD)
+  shortlistReviewedAt DateTime?
+  posterEmail         String?
+  client              Client?          @relation(fields: [clientId], references: [id])
+  role                Role             @relation(fields: [roleId], references: [id])
+  applications        JobApplication[]
+  savedBy             SavedJob[]
+
+  @@index([status, type])
+  @@index([clientId])
+  @@index([roleId])
+  @@index([eventDate])
+  @@index([publishedAt])
+}
+
+model JobApplication {
+  id         String               @id @default(cuid())
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+  jobId      String
+  status     JobApplicationStatus @default(PENDING)
+  adminNotes String?
+  coverNote  String?
+  userId     String
+  rateUplift Decimal?             @db.Decimal(10, 2)
+  job        Job                  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model SavedJob {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  userId    String
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+}
+
+model Email {
+  id        String       @id @default(cuid())
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  resendId  String       @unique
+  to        String
+  subject   String
+  emailType String
+  status    EmailStatus  @default(QUEUED)
+  userId    String?
+  clientId  String?
+  events    EmailEvent[]
+
+  @@index([resendId])
+  @@index([userId])
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model EmailEvent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  eventType String
+  payload   Json?
+  emailId   String
+  email     Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
+
+  @@index([emailId])
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+model EmailPreferences {
+  id               String   @id @default(cuid())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  userId           String?  @unique
+  clientId         String?  @unique
+  marketing        Boolean  @default(true)
+  notifications    Boolean  @default(true)
+  jobAlerts        Boolean  @default(true)
+  quoteUpdates     Boolean  @default(true)
+  unsubscribeToken String   @unique @default(cuid())
+
+  @@index([unsubscribeToken])
+}
+
+model ScheduledEmail {
+  id           String               @id @default(cuid())
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  jobId        String               @unique
+  scheduledFor DateTime
+  status       ScheduledEmailStatus @default(SCHEDULED)
+  emailType    String
+  recipientId  String
+  subject      String
+  metadata     Json?
+
+  @@index([status])
+  @@index([scheduledFor])
+  @@index([recipientId])
+}
+
+model user_sessions {
+  sid    String   @id(map: "session_pkey") @db.VarChar
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "IDX_session_expire")
+}
+
+enum ApplicationStatus {
+  RECEIVED
+  REVIEWING
+  SHORTLISTED
+  REJECTED
+  HIRED
 }
 
 enum ContactType {
@@ -335,10 +499,10 @@ enum ContactStatus {
 }
 
 enum ClientStatus {
-  PENDING     // Awaiting admin approval
-  APPROVED    // Can log in and use platform
-  REJECTED    // Application denied
-  SUSPENDED   // Account suspended
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
 }
 
 enum SubscriptionTier {
@@ -359,12 +523,12 @@ enum SubscriptionStatus {
 }
 
 enum BookingStatus {
-  PENDING      // Client requested, awaiting VERGO confirmation
-  CONFIRMED    // VERGO approved
-  REJECTED     // VERGO declined
-  CANCELLED    // Client or VERGO cancelled
-  COMPLETED    // Shift done
-  NO_SHOW      // Staff didn't show
+  PENDING
+  CONFIRMED
+  REJECTED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
 }
 
 enum BookingLane {
@@ -373,325 +537,43 @@ enum BookingLane {
   MANAGED
 }
 
-model FileUploadVerification {
-  id          String   @id @default(uuid())
-  key         String   @unique @db.VarChar(500)
-  applicantId String   @db.VarChar(36)
-  createdAt   DateTime @default(now())
-  expiresAt   DateTime
-  verified    Boolean  @default(false)
-  
-  @@index([key])
-  @@index([expiresAt])
-}
-
-// ============================================
-// NEW: JOB BOARD MODELS
-// ============================================
-
-// User accounts for job seekers
-model User {
-  id              String           @id @default(cuid())
-  seqId           Int              @default(autoincrement()) @unique
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  
-  // Auth
-  email           String           @unique
-  passwordHash    String
-  emailVerified   Boolean          @default(false)
-  verifyToken     String?
-  verifyTokenExp  DateTime?
-  resetToken      String?
-  resetTokenExp   DateTime?
-  
-  // Profile
-  firstName       String
-  lastName        String
-  phone           String?
-  
-  // User type (JOB_SEEKER or CLIENT)
-  userType        UserType         @default(JOB_SEEKER)
-  
-  // Client/Company fields (only used when userType = CLIENT)
-  companyName     String?
-  companyWebsite  String?
-  vatNumber       String?
-  billingAddress  String?
-  approvedClient  Boolean          @default(false)
-  
-  // Link to VERGO roster (if they've applied to join your team)
-  applicantId     String?          @unique
-  applicant       Applicant?       @relation(fields: [applicantId], references: [id])
-  
-  // Password
-  mustChangePassword Boolean       @default(false)
-
-  // Security
-  failedAttempts  Int              @default(0)
-  lockedUntil     DateTime?
-  lastLoginAt     DateTime?
-
-  // Shortlist performance tracking (incremented each time confirmed on a SHORTLIST-tier job)
-  shortlistSelections Int          @default(0)
-
-  // Staff marketplace profile
-  staffTier       StaffTier?       // null = not on marketplace yet
-  staffBio        String?          @db.Text
-  staffAvatar     String?          // S3 key for profile photo
-  staffAvailable  Boolean          @default(false)  // Visible in marketplace?
-  staffRating     Decimal?         @db.Decimal(3, 2) // e.g. 4.85 out of 5
-  staffReviewCount Int             @default(0)
-  staffHighlights String?          @db.Text // e.g. "Netflix, BBC, Glastonbury" - key credits
-  
-  // Relations
-  jobApplications JobApplication[]
-  savedJobs       SavedJob[]
-  bookings        Booking[]
-  refreshTokens   RefreshToken[]
-  pushTokens      PushToken[]
-
-  // Indexes (must be at the end)
-  @@index([email])
-  @@index([userType])
-}
-
-// Refresh tokens for mobile JWT auth
-model RefreshToken {
-  id         String   @id @default(cuid())
-  createdAt  DateTime @default(now())
-  expiresAt  DateTime
-  revokedAt  DateTime?
-  tokenHash  String   @unique
-  userId     String?
-  clientId   String?
-
-  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  client     Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([clientId])
-  @@index([expiresAt])
-}
-
-// Push notification tokens for mobile devices
-model PushToken {
-  id         String   @id @default(cuid())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  token      String   @unique
-  platform   String   // "ios" | "android"
-
-  userId     String?
-  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  clientId   String?
-  client     Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([clientId])
-}
-
-// Job listings
-model Job {
-  id            String        @id @default(cuid())
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  
-  // Core info
-  title         String
-  description   String        @db.Text
-  requirements  String?       @db.Text  // What you need from applicants
-  
-  // Type, Tier & Status
-  type          JobType       @default(INTERNAL)
-  tier          JobTier       @default(STANDARD)
-  status        JobStatus     @default(DRAFT)
-  
-  // Location
-  location      String        // e.g. "Central London", "O2 Arena"
-  venue         String?       // Specific venue name
-  
-  // Compensation
-  payRate       Decimal?      @db.Decimal(10, 2)
-  payType       PayType       @default(HOURLY)
-  
-  // Event/Shift details (primarily for INTERNAL jobs)
-  eventDate     DateTime?
-  eventEndDate  DateTime?     // For multi-day events
-  shiftStart    String?       // e.g. "18:00"
-  shiftEnd      String?       // e.g. "02:00"
-  
-  // Staffing
-  staffNeeded   Int           @default(1)
-  staffConfirmed Int          @default(0)
-  
-  // For external jobs
-  clientId       String?
-  client         Client?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  companyName   String?
-  posterEmail   String?       // Email of the external submitter
-  externalUrl   String?       // Link to apply externally
-  
-  // Publishing
-  publishedAt         DateTime?
-  closingDate         DateTime?
-  shortlistReviewedAt DateTime?  // Set when admin has reviewed applicants and sent shortlist to client
-  
-  // Role required
-  roleId        String
-  role          Role          @relation(fields: [roleId], references: [id])
-  
-  // Relations
-  applications  JobApplication[]
-  savedBy       SavedJob[]
-  
-  @@index([status, type])
-  @@index([clientId])
-  @@index([roleId])
-  @@index([eventDate])
-  @@index([publishedAt])
-}
-
-// When a user applies to a job
-model JobApplication {
-  id            String               @id @default(cuid())
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
-  
-  status        JobApplicationStatus @default(PENDING)
-
-  // Rate uplift for Shortlist-tier jobs: set to 1.00 when admin confirms a Shortlist applicant
-  rateUplift    Decimal?             @db.Decimal(10, 2)
-
-  // Optional message from applicant
-  coverNote     String?              @db.Text
-
-  // Admin notes (internal)
-  adminNotes    String?              @db.Text
-  
-  // Relations
-  userId        String
-  user          User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  jobId         String
-  job           Job                  @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
-  // Prevent duplicate applications
-  @@unique([userId, jobId])
-  @@index([status])
-  @@index([createdAt])
-}
-
-// Saved/bookmarked jobs
-model SavedJob {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  jobId     String
-  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
-  @@unique([userId, jobId])
-}
-
-// ============================================
-// ENUMS
-// ============================================
-
 enum JobType {
-  INTERNAL    // Your VERGO gigs
-  EXTERNAL    // Aggregated/partner jobs
+  INTERNAL
+  EXTERNAL
 }
 
 enum JobTier {
-  STANDARD    // Standard staffing — wage + £3/hr service fee
-  SHORTLIST   // Curated matching — VERGO reviews applicants, client selects; +£1/hr worker uplift
-  GOLD        // Premium managed — senior/lead roles, fixed public rates
+  STANDARD
+  SHORTLIST
+  GOLD
 }
 
 enum JobStatus {
-  PENDING     // Awaiting admin review (external submissions)
-  DRAFT       // Not visible to users
-  OPEN        // Accepting applications
-  FILLED      // All positions filled
-  CLOSED      // Manually closed/cancelled
+  DRAFT
+  OPEN
+  CLOSED
+  FILLED
+  PENDING
 }
 
 enum PayType {
   HOURLY
   DAILY
-  FIXED       // Fixed fee for the gig
+  FIXED
 }
 
 enum JobApplicationStatus {
-  PENDING     // Awaiting review
-  REVIEWED    // Admin has seen it
-  SHORTLISTED // Being considered
-  CONFIRMED   // Got the job
-  REJECTED    // Not selected
-  WITHDRAWN   // User cancelled
+  PENDING
+  REVIEWED
+  SHORTLISTED
+  CONFIRMED
+  REJECTED
+  WITHDRAWN
 }
-
 
 enum UserType {
   JOB_SEEKER
   CLIENT
-}
-
-// ============================================
-// EMAIL TRACKING MODELS (Phase 3)
-// ============================================
-
-// Track sent emails and their delivery status
-model Email {
-  id        String      @id @default(cuid())
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-
-  // Resend tracking
-  resendId  String      @unique
-
-  // Email details
-  to        String
-  subject   String
-  emailType String      // e.g. "user-verification", "job-application-confirmation"
-
-  // Status tracking
-  status    EmailStatus @default(QUEUED)
-
-  // Optional associations
-  userId    String?
-  clientId  String?
-
-  // Events
-  events    EmailEvent[]
-
-  @@index([resendId])
-  @@index([userId])
-  @@index([clientId])
-  @@index([status])
-  @@index([createdAt])
-}
-
-// Individual email events (sent, delivered, opened, clicked, etc.)
-model EmailEvent {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-
-  // Event details
-  eventType String   // e.g. "email.sent", "email.delivered", "email.opened"
-  payload   Json?    // Full webhook payload for debugging
-
-  // Relation
-  emailId   String
-  email     Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
-
-  @@index([emailId])
-  @@index([eventType])
-  @@index([createdAt])
 }
 
 enum EmailStatus {
@@ -703,64 +585,6 @@ enum EmailStatus {
   BOUNCED
   COMPLAINED
   FAILED
-}
-
-// ============================================
-// EMAIL PREFERENCES (Phase 4)
-// ============================================
-
-// User/client email preferences for unsubscribe management
-model EmailPreferences {
-  id               String   @id @default(cuid())
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  // One of these will be set
-  userId           String?  @unique
-  clientId         String?  @unique
-
-  // Preference categories
-  marketing        Boolean  @default(true)
-  notifications    Boolean  @default(true)
-  jobAlerts        Boolean  @default(true)
-  quoteUpdates     Boolean  @default(true)
-
-  // Unsubscribe token for one-click unsubscribe
-  unsubscribeToken String   @unique @default(cuid())
-
-  @@index([unsubscribeToken])
-}
-
-// ============================================
-// SCHEDULED EMAILS (Phase 5)
-// ============================================
-
-// Track scheduled/delayed emails
-model ScheduledEmail {
-  id           String               @id @default(cuid())
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
-
-  // BullMQ job reference
-  jobId        String               @unique
-
-  // Schedule details
-  scheduledFor DateTime
-
-  // Status
-  status       ScheduledEmailStatus @default(SCHEDULED)
-
-  // Email details
-  emailType    String               // e.g. "quote-followup", "shift-reminder"
-  recipientId  String               // User or client ID
-  subject      String
-
-  // Optional metadata
-  metadata     Json?
-
-  @@index([status])
-  @@index([scheduledFor])
-  @@index([recipientId])
 }
 
 enum ScheduledEmailStatus {

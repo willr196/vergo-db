@@ -48,6 +48,8 @@ function createApp() {
   app.use(enforceHttpsRedirect({
     nodeEnv: 'production',
     webOrigin: 'https://vergoltd.com',
+    canonicalHost: 'vergoltd.com',
+    redirectHosts: ['www.vergoltd.com'],
     allowedHosts: ['vergo-app.fly.dev'],
   }));
   app.get('/health', (_req, res) => res.status(200).send('ok'));
@@ -69,6 +71,20 @@ test('enforceHttpsRedirect redirects insecure production requests to the same al
   assert.equal(res.headers.location, 'https://vergo-app.fly.dev/jobs?campaign=spring');
 });
 
+test('enforceHttpsRedirect redirects www requests to the apex host', async () => {
+  const res = await inject(createApp(), {
+    method: 'GET',
+    url: '/jobs?campaign=spring',
+    headers: {
+      host: 'www.vergoltd.com',
+      'x-forwarded-proto': 'https',
+    },
+  });
+
+  assert.equal(res.statusCode, 308);
+  assert.equal(res.headers.location, 'https://vergoltd.com/jobs?campaign=spring');
+});
+
 test('enforceHttpsRedirect bypasses health probes and already-secure requests', async () => {
   const app = createApp();
 
@@ -76,8 +92,8 @@ test('enforceHttpsRedirect bypasses health probes and already-secure requests', 
     method: 'GET',
     url: '/health',
     headers: {
-      host: 'vergoltd.com',
-      'x-forwarded-proto': 'http',
+      host: 'www.vergoltd.com',
+      'x-forwarded-proto': 'https',
     },
   });
   assert.equal(healthRes.statusCode, 200);
