@@ -219,12 +219,12 @@ test('mobile marketplace masks staff identity, hides internal pay rates, and use
     assert.equal(response.statusCode, 200);
     const body = JSON.parse(response.body || '{}') as any;
     assert.equal(observedPricingTier, 'STANDARD');
-    assert.equal(body.clientTier, 'STANDARD');
-    assert.equal(body.subscriptionTier, 'PREMIUM');
-    assert.equal(body.premiumAccessActive, false);
-    assert.equal(body.staff[0].fullName, 'Alice S.');
-    assert.equal(body.staff[0].lastName, 'S.');
-    assert.equal('staffPayRate' in body.staff[0], false);
+    assert.equal(body.data.clientTier, 'STANDARD');
+    assert.equal(body.data.subscriptionTier, 'PREMIUM');
+    assert.equal(body.data.premiumAccessActive, false);
+    assert.equal(body.data.staff[0].fullName, 'Alice S.');
+    assert.equal(body.data.staff[0].lastName, 'S.');
+    assert.equal('staffPayRate' in body.data.staff[0], false);
   } finally {
     prismaAny.client.findUnique = originalFindUnique;
     prismaAny.user.findMany = originalFindManyUsers;

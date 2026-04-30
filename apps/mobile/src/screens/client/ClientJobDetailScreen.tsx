@@ -17,48 +17,59 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { LoadingScreen, ErrorState } from '../../components';
-import { jobsApi, applicationsApi } from '../../api';
-import { useUIStore } from '../../store';
-import { logger } from '../../utils/logger';
+import {
+  useUIStore,
+  useClientJobsStore,
+  useClientApplicationsStore,
+  selectApplicationsForJob,
+} from '../../store';
 import { isApplicationStatus, normalizeApplicationStatus } from '../../api/normalizers';
 import { getJobTierLabel, getJobTierPricingNote, normalizeJobTier } from '../../utils/jobTiers';
-import type { RootStackParamList, Job, Application } from '../../types';
+import type { RootStackParamList } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientJobDetail'>;
 
 export function ClientJobDetailScreen({ route, navigation }: Props) {
   const { jobId, initialTab } = route.params;
   const { showToast } = useUIStore();
-  const [job, setJob] = useState<Job | null>(null);
-  const [applications, setApplications] = useState<Application[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const selectedJob = useClientJobsStore((s) => s.selectedJob);
+  const fetchJob = useClientJobsStore((s) => s.fetchJob);
+  const closeJobAction = useClientJobsStore((s) => s.closeJob);
+
+  const applications = useClientApplicationsStore(selectApplicationsForJob(jobId));
+  const fetchJobApplications = useClientApplicationsStore((s) => s.fetchJobApplications);
+  const updateApplicationStatus = useClientApplicationsStore((s) => s.updateApplicationStatus);
+
+  const job = selectedJob && selectedJob.id === jobId ? selectedJob : null;
+
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'applications'>(initialTab ?? 'applications');
   const [actingOnId, setActingOnId] = useState<string | null>(null);
 
-  const fetchData = useCallback(async () => {
+  const loadAll = useCallback(async () => {
     try {
-      const [jobData, appsData] = await Promise.all([
-        jobsApi.getClientJob(jobId),
-        applicationsApi.getJobApplications(jobId),
-      ]);
-      setJob(jobData);
-      setApplications(appsData.applications || []);
-    } catch (error) {
-      logger.error('Failed to fetch job:', error);
+      await Promise.all([fetchJob(jobId), fetchJobApplications(jobId, true)]);
+    } catch {
       showToast('Failed to load job details', 'error');
-    } finally {
-      setIsLoading(false);
     }
-  }, [jobId, showToast]);
+  }, [jobId, fetchJob, fetchJobApplications, showToast]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    let mounted = true;
+    (async () => {
+      await loadAll();
+      if (mounted) setIsInitialLoading(false);
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [loadAll]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await fetchData();
+    await loadAll();
     setIsRefreshing(false);
   };
 
@@ -73,8 +84,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
           style: 'destructive',
           onPress: async () => {
             try {
-              await jobsApi.closeJob(jobId);
-              setJob((prev) => (prev ? { ...prev, status: 'closed' } : null));
+              await closeJobAction(jobId);
               showToast('Job has been closed', 'success');
             } catch {
               showToast('Failed to close job', 'error');
@@ -91,22 +101,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
   ) => {
     setActingOnId(applicationId);
     try {
-      let updatedApp: Application;
-      
-      if (action === 'shortlist') {
-        updatedApp = await applicationsApi.shortlistApplicant(applicationId, jobId);
-      } else if (action === 'hire') {
-        updatedApp = await applicationsApi.hireApplicant(applicationId, jobId);
-      } else {
-        updatedApp = await applicationsApi.rejectApplicant(applicationId, jobId);
-      }
-
-      setApplications((prev) =>
-        prev.map((app) =>
-          app.id === applicationId ? updatedApp : app
-        )
-      );
-
+      await updateApplicationStatus(applicationId, action);
       const actionLabel = action === 'hire' ? 'hired' : action === 'shortlist' ? 'shortlisted' : 'rejected';
       showToast(`Applicant ${actionLabel}`, 'success');
     } catch {
@@ -153,7 +148,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
     }
   };
 
-  if (isLoading) {
+  if (isInitialLoading && !job) {
     return <LoadingScreen message="Loading job..." />;
   }
 

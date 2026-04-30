@@ -93,7 +93,7 @@ r.post('/', async (req, res, next) => {
       ).catch(err => console.error('[PUSH]', err));
     }
 
-    res.status(201).json({ ok: true, application, data: application });
+    res.status(201).json({ ok: true, data: application });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ ok: false, error: 'Invalid input' });
@@ -123,6 +123,7 @@ r.get('/mine', async (req, res, next) => {
           job: {
             select: {
               id: true,
+              clientId: true,
               title: true,
               type: true,
               status: true,
@@ -151,8 +152,9 @@ r.get('/mine', async (req, res, next) => {
         : app.job
     }));
 
-    const payload = {
-      applications: shaped,
+    res.json({
+      ok: true,
+      data: shaped,
       pagination: {
         page: query.page,
         limit: query.limit,
@@ -160,9 +162,7 @@ r.get('/mine', async (req, res, next) => {
         totalPages: Math.ceil(total / query.limit),
         hasMore: query.page * query.limit < total
       }
-    };
-
-    res.json({ ok: true, ...payload, data: payload });
+    });
   } catch (error) {
     next(error);
   }
@@ -175,7 +175,7 @@ r.get('/check/:jobId', async (req, res, next) => {
       where: { userId_jobId: { userId: req.auth!.userId, jobId: req.params.jobId } },
       select: { id: true, status: true, createdAt: true }
     });
-    res.json({ ok: true, applied: !!application, application, data: { applied: !!application, application } });
+    res.json({ ok: true, data: { applied: !!application, application } });
   } catch (error) {
     next(error);
   }
@@ -190,6 +190,7 @@ r.get('/:id', async (req, res, next) => {
         job: {
           select: {
             id: true,
+            clientId: true,
             title: true,
             type: true,
             status: true,
@@ -220,7 +221,7 @@ r.get('/:id', async (req, res, next) => {
         : application.job
     };
 
-    res.json({ ok: true, application: shaped, data: shaped });
+    res.json({ ok: true, data: shaped });
   } catch (error) {
     next(error);
   }
@@ -255,7 +256,7 @@ r.post('/:id/withdraw', async (req, res, next) => {
       data: { status: 'WITHDRAWN' }
     });
 
-    res.json({ ok: true, application: updated, data: updated });
+    res.json({ ok: true, data: updated });
   } catch (error) {
     next(error);
   }

@@ -7,14 +7,12 @@ import apiClient from './client';
 import { normalizeJob, type BackendJob } from './normalizers';
 import type { Job, JobFilters, JobTier } from '../types';
 
-// Backend response types
+// Backend response types — see apps/api/src/routes/RESPONSE_SHAPES.md
 interface BackendResponse<T> {
   ok: boolean;
   error?: string;
-  jobs?: T[];
-  job?: T;
+  code?: string;
   data?: T;
-  cities?: string[];
   pagination?: {
     page: number;
     limit: number;
@@ -42,11 +40,11 @@ let rolesCache: { id: string; name: string }[] | null = null;
 async function fetchRoleId(roleName: string): Promise<string | undefined> {
   if (!rolesCache) {
     try {
-      const response = await apiClient.get<{ ok: boolean; roles: { id: string; name: string }[] }>(
+      const response = await apiClient.get<BackendResponse<{ id: string; name: string }[]>>(
         '/api/v1/mobile/jobs/meta/roles'
       );
-      if (response.data.ok && response.data.roles) {
-        rolesCache = response.data.roles;
+      if (response.data.ok && response.data.data) {
+        rolesCache = response.data.data;
       }
     } catch {
       return undefined;
@@ -110,11 +108,11 @@ export const jobsApi = {
       if (filters.search) params.append('search', filters.search);
     }
 
-    const response = await apiClient.get<BackendResponse<BackendJob>>(`/api/v1/mobile/jobs?${params.toString()}`);
+    const response = await apiClient.get<BackendResponse<BackendJob[]>>(`/api/v1/mobile/jobs?${params.toString()}`);
 
     return {
       ok: true,
-      jobs: (response.data.jobs || []).map(normalizeJob),
+      jobs: (response.data.data || []).map(normalizeJob),
       pagination: response.data.pagination || {
         page,
         limit,
@@ -131,10 +129,6 @@ export const jobsApi = {
   async getJob(jobId: string): Promise<Job> {
     const response = await apiClient.get<BackendResponse<BackendJob>>(`/api/v1/mobile/jobs/${jobId}`);
 
-    if (response.data.ok && response.data.job) {
-      return normalizeJob(response.data.job);
-    }
-
     if (response.data.ok && response.data.data) {
       return normalizeJob(response.data.data);
     }
@@ -150,11 +144,8 @@ export const jobsApi = {
       `/api/v1/client/mobile/jobs/${jobId}`
     );
 
-    if (response.data.ok) {
-      const job = response.data.job || response.data.data;
-      if (job) {
-        return normalizeJob(job);
-      }
+    if (response.data.ok && response.data.data) {
+      return normalizeJob(response.data.data);
     }
 
     throw new Error(response.data.error || 'Job not found');
@@ -169,11 +160,11 @@ export const jobsApi = {
     params.append('limit', limit.toString());
     if (status) params.append('status', status);
 
-    const response = await apiClient.get<BackendResponse<BackendJob>>(`/api/v1/client/mobile/jobs?${params.toString()}`);
+    const response = await apiClient.get<BackendResponse<BackendJob[]>>(`/api/v1/client/mobile/jobs?${params.toString()}`);
 
     return {
       ok: true,
-      jobs: (response.data.jobs || []).map(normalizeJob),
+      jobs: (response.data.data || []).map(normalizeJob),
       pagination: response.data.pagination || {
         page,
         limit,
@@ -196,8 +187,8 @@ export const jobsApi = {
       payload
     );
 
-    if (response.data.ok && (response.data.job || response.data.data)) {
-      return normalizeJob(response.data.job || response.data.data!);
+    if (response.data.ok && response.data.data) {
+      return normalizeJob(response.data.data);
     }
 
     throw new Error(response.data.error || 'Failed to create job');
@@ -214,8 +205,8 @@ export const jobsApi = {
       payload
     );
 
-    if (response.data.ok && (response.data.job || response.data.data)) {
-      return normalizeJob(response.data.job || response.data.data!);
+    if (response.data.ok && response.data.data) {
+      return normalizeJob(response.data.data);
     }
 
     throw new Error(response.data.error || 'Failed to update job');
@@ -229,8 +220,8 @@ export const jobsApi = {
       `/api/v1/client/mobile/jobs/${jobId}/close`
     );
 
-    if (response.data.ok && (response.data.job || response.data.data)) {
-      return normalizeJob(response.data.job || response.data.data!);
+    if (response.data.ok && response.data.data) {
+      return normalizeJob(response.data.data);
     }
 
     throw new Error(response.data.error || 'Failed to close job');
@@ -242,11 +233,11 @@ export const jobsApi = {
   async getRoles(): Promise<{ id: string; name: string }[]> {
     if (rolesCache) return rolesCache;
     try {
-      const response = await apiClient.get<{ ok: boolean; roles: { id: string; name: string }[] }>(
+      const response = await apiClient.get<BackendResponse<{ id: string; name: string }[]>>(
         '/api/v1/mobile/jobs/meta/roles'
       );
-      if (response.data.ok && response.data.roles) {
-        rolesCache = response.data.roles;
+      if (response.data.ok && response.data.data) {
+        rolesCache = response.data.data;
         return rolesCache;
       }
     } catch {
@@ -283,8 +274,8 @@ export const jobsApi = {
       `/api/v1/client/mobile/jobs/${jobId}`,
       payload
     );
-    if (response.data.ok && (response.data.job || response.data.data)) {
-      return normalizeJob(response.data.job ?? response.data.data!);
+    if (response.data.ok && response.data.data) {
+      return normalizeJob(response.data.data);
     }
     throw new Error(response.data.error || 'Failed to update job');
   },
@@ -315,8 +306,8 @@ export const jobsApi = {
       '/api/v1/client/mobile/jobs',
       body
     );
-    if (response.data.ok && (response.data.job || response.data.data)) {
-      return normalizeJob(response.data.job ?? response.data.data!);
+    if (response.data.ok && response.data.data) {
+      return normalizeJob(response.data.data);
     }
     throw new Error(response.data.error || 'Failed to create job');
   },
@@ -327,8 +318,8 @@ export const jobsApi = {
   async getCities(): Promise<string[]> {
     const response = await apiClient.get<BackendResponse<string[]>>('/api/v1/mobile/jobs/cities');
 
-    if (response.data.ok && response.data.cities) {
-      return response.data.cities;
+    if (response.data.ok && response.data.data) {
+      return response.data.data;
     }
 
     return [];
@@ -339,10 +330,10 @@ export const jobsApi = {
    */
   async getRecommendedJobs(limit = 5): Promise<Job[]> {
     try {
-      const response = await apiClient.get<BackendResponse<BackendJob>>(`/api/v1/mobile/jobs/recommended?limit=${limit}`);
+      const response = await apiClient.get<BackendResponse<BackendJob[]>>(`/api/v1/mobile/jobs/recommended?limit=${limit}`);
 
-      if (response.data.ok && response.data.jobs) {
-        return response.data.jobs.map(normalizeJob);
+      if (response.data.ok && response.data.data) {
+        return response.data.data.map(normalizeJob);
       }
     } catch {
       // Recommended jobs is optional
@@ -370,10 +361,10 @@ export const jobsApi = {
    */
   async getSavedJobs(): Promise<Job[]> {
     try {
-      const response = await apiClient.get<BackendResponse<BackendJob>>('/api/v1/mobile/jobs/saved');
+      const response = await apiClient.get<BackendResponse<BackendJob[]>>('/api/v1/mobile/jobs/saved');
 
-      if (response.data.ok && response.data.jobs) {
-        return response.data.jobs.map(normalizeJob);
+      if (response.data.ok && response.data.data) {
+        return response.data.data.map(normalizeJob);
       }
     } catch {
       // Saved jobs is optional feature

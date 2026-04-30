@@ -325,7 +325,7 @@ r.get('/marketplace/staff', async (req, res, next) => {
       premiumAccessActive: access.hasActivePremium,
     };
 
-    res.json({ ok: true, ...payload, data: payload });
+    res.json({ ok: true, data: payload });
   } catch (error) {
     next(error);
   }
@@ -403,7 +403,7 @@ r.get('/marketplace/staff/:id', async (req, res, next) => {
       premiumAccessActive: access.hasActivePremium,
     };
 
-    res.json({ ok: true, ...payload, data: payload });
+    res.json({ ok: true, data: payload });
   } catch (error) {
     next(error);
   }
@@ -555,12 +555,7 @@ r.post('/bookings', async (req, res, next) => {
     });
 
     const payload = shapeBooking(booking);
-    res.status(201).json({
-      ok: true,
-      booking: payload,
-      marketplaceAccessLane: access.marketplaceAccessLane,
-      data: payload,
-    });
+    res.status(201).json({ ok: true, data: payload });
   } catch (error) {
     if (error instanceof Error && error.message.includes('must be a valid date')) {
       return res.status(400).json({ ok: false, error: error.message });
@@ -624,18 +619,19 @@ r.get('/bookings', async (req, res, next) => {
     ]);
 
     const shaped = bookings.map(shapeBooking);
-    const payload = {
-      bookings: shaped,
-      pagination: {
-        page: query.page,
-        limit: query.limit,
-        total,
-        totalPages: Math.ceil(total / query.limit),
-        hasMore: query.page * query.limit < total,
+    res.json({
+      ok: true,
+      data: {
+        bookings: shaped,
+        pagination: {
+          page: query.page,
+          limit: query.limit,
+          total,
+          totalPages: Math.ceil(total / query.limit),
+          hasMore: query.page * query.limit < total,
+        },
       },
-    };
-
-    res.json({ ok: true, ...payload, data: payload });
+    });
   } catch (error) {
     if (error instanceof Error && error.message.includes('must be a valid date')) {
       return res.status(400).json({ ok: false, error: error.message });
@@ -689,7 +685,7 @@ r.get('/bookings/:id', async (req, res, next) => {
     }
 
     const payload = shapeBooking(booking);
-    res.json({ ok: true, booking: payload, data: payload });
+    res.json({ ok: true, data: payload });
   } catch (error) {
     next(error);
   }
@@ -765,7 +761,7 @@ r.post('/bookings/:id/cancel', async (req, res, next) => {
     });
 
     const payload = shapeBooking(booking);
-    res.json({ ok: true, booking: payload, data: payload });
+    res.json({ ok: true, data: payload });
   } catch (error) {
     next(error);
   }

@@ -20,6 +20,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const CACHE_KEYS = {
   JOBS: 'vergo_cache_jobs',
   APPLICATIONS: 'vergo_cache_applications',
+  CLIENT_JOBS: 'vergo_cache_client_jobs',
+  CLIENT_APPLICATIONS: 'vergo_cache_client_applications',
   ACTION_QUEUE: 'vergo_action_queue',
 } as const;
 
@@ -112,9 +114,4 @@ export function subscribeToNetworkState(
   return NetInfo.addEventListener((state: NetInfoState) => {
     callback(state.isConnected ?? false);
   });
-}
-
-export async function checkIsConnected(): Promise<boolean> {
-  const state = await NetInfo.fetch();
-  return state.isConnected ?? false;
 }

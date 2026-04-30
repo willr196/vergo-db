@@ -44,6 +44,7 @@ export function coerceBoolean(value: unknown): boolean | undefined {
 
 export type BackendJob = {
   id: string;
+  clientId?: string | null;
   title: string;
   description: string;
   requirements?: string | null;
@@ -151,11 +152,11 @@ export function normalizeJob(job: BackendJob): Job {
 
   return {
     id: job.id,
-    clientCompanyId: job.companyName ? job.companyName : '',
+    clientCompanyId: job.clientId ?? '',
     clientCompany: job.companyName
       ? {
           type: 'client',
-          id: '',
+          id: job.clientId ?? '',
           email: '',
           companyName: job.companyName,
           contactFirstName: '',
@@ -284,6 +285,13 @@ export function normalizeStoredUser(user: JobSeeker | ClientCompany): JobSeeker 
 // Application status normalizers (JobApplicationStatus)
 // ============================================
 
+/**
+ * Accepted backend status values on input. The canonical six are
+ * PENDING, REVIEWED, SHORTLISTED, CONFIRMED, REJECTED, WITHDRAWN.
+ * RECEIVED, REVIEWING, and HIRED are tolerated as aliases for
+ * defensive parsing only — outbound (frontend → backend) always
+ * uses the canonical six.
+ */
 export type BackendJobApplicationStatus =
   | 'PENDING'
   | 'RECEIVED'
@@ -297,6 +305,7 @@ export type BackendJobApplicationStatus =
 
 const BACKEND_TO_FRONTEND_APPLICATION_STATUS: Record<BackendJobApplicationStatus, ApplicationStatus> = {
   PENDING: 'pending',
+  // Alias mappings: collapse legacy/alternative backend values onto canonical frontend values.
   RECEIVED: 'pending',
   REVIEWED: 'reviewing',
   REVIEWING: 'reviewing',
@@ -307,6 +316,7 @@ const BACKEND_TO_FRONTEND_APPLICATION_STATUS: Record<BackendJobApplicationStatus
   WITHDRAWN: 'withdrawn',
 };
 
+// Outbound: always emits canonical backend statuses.
 const FRONTEND_TO_BACKEND_APPLICATION_STATUS: Record<ApplicationStatus, BackendJobApplicationStatus> = {
   pending: 'PENDING',
   reviewing: 'REVIEWED',

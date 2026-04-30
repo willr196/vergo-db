@@ -102,7 +102,7 @@
     serviceLabel.textContent = 'Service fee';
     serviceFee.innerHTML = 'Included';
     vat.innerHTML = '--';
-    disclaimer.textContent = 'Gold uses fixed public rates. Mixed teams and bespoke briefs may need a tailored quote.';
+    disclaimer.textContent = 'Gold uses fixed public rates. Mixed teams and bespoke requirements may need a tailored quote.';
     quoteLink.setAttribute('href', staffRequestHref);
   }
 
@@ -139,7 +139,7 @@
       serviceLabel.textContent = 'VERGO fee (\u00A3' + serviceFeeRate + '/hr)';
       serviceFee.innerHTML = formatMoney(serviceSubtotal);
       vat.innerHTML = formatMoney(vatAmount);
-      disclaimer.textContent = 'Estimate only. Travel, late-night uplifts, mixed teams and bespoke briefs may need a full quote.';
+      disclaimer.textContent = 'Estimate only. Travel, late-night uplifts, mixed teams and bespoke requirements may need a full quote.';
       quoteLink.setAttribute('href', staffRequestHref);
       return;
     }
@@ -163,7 +163,7 @@
     serviceLabel.textContent = 'Service fee';
     serviceFee.innerHTML = 'Included';
     vat.innerHTML = formatMoney(vatAmount);
-    disclaimer.textContent = 'Estimate only. Gold uses fixed public rates for the roles shown here. Mixed teams and bespoke briefs may need a tailored quote.';
+    disclaimer.textContent = 'Estimate only. Gold uses fixed public rates for the roles shown here. Mixed teams and bespoke requirements may need a tailored quote.';
     quoteLink.setAttribute('href', staffRequestHref);
   }
 

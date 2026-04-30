@@ -20,6 +20,7 @@ const listJobsQuerySchema = z.object({
 function shapeMobileJob(job: any) {
   return {
     id: job.id,
+    clientId: job.clientId ?? null,
     title: job.title,
     description: job.description,
     requirements: job.requirements,
@@ -119,8 +120,9 @@ r.get('/', async (req, res, next) => {
 
     const shaped = jobs.map((job) => shapeMobileJob(job));
 
-    const payload = {
-      jobs: shaped,
+    res.json({
+      ok: true,
+      data: shaped,
       pagination: {
         page: query.page,
         limit: query.limit,
@@ -128,9 +130,7 @@ r.get('/', async (req, res, next) => {
         totalPages: Math.ceil(total / query.limit),
         hasMore: query.page * query.limit < total
       }
-    };
-
-    res.json({ ok: true, ...payload, data: payload });
+    });
   } catch (error) {
     next(error);
   }
@@ -147,7 +147,7 @@ r.get('/cities', async (_req, res, next) => {
     });
 
     const cities = rows.map((row) => row.location).filter(Boolean);
-    res.json({ ok: true, cities, data: cities });
+    res.json({ ok: true, data: cities });
   } catch (error) {
     next(error);
   }
@@ -172,7 +172,7 @@ r.get('/recommended', async (req, res, next) => {
     });
 
     const shaped = jobs.map((job) => shapeMobileJob(job));
-    res.json({ ok: true, jobs: shaped, data: shaped });
+    res.json({ ok: true, data: shaped });
   } catch (error) {
     next(error);
   }
@@ -186,7 +186,7 @@ r.get('/meta/roles', async (_req, res, next) => {
       select: { id: true, name: true }
     });
 
-    res.json({ ok: true, roles, data: roles });
+    res.json({ ok: true, data: roles });
   } catch (error) {
     next(error);
   }
@@ -209,7 +209,7 @@ r.get('/saved', requireUserJwt, async (req, res, next) => {
     });
 
     const jobs = rows.map((row) => shapeMobileJob(row.job));
-    res.json({ ok: true, jobs, data: jobs });
+    res.json({ ok: true, data: jobs });
   } catch (error) {
     next(error);
   }
@@ -267,11 +267,7 @@ r.get('/:id', async (req, res, next) => {
       return res.status(404).json({ ok: false, error: 'Job not found' });
     }
 
-    const payload = {
-      job: shapeMobileJob(job)
-    };
-
-    res.json({ ok: true, ...payload, data: payload });
+    res.json({ ok: true, data: shapeMobileJob(job) });
   } catch (error) {
     next(error);
   }

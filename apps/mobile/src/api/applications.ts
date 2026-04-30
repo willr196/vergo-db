@@ -12,14 +12,12 @@ type BackendApplication = Omit<Application, 'status' | 'job'> & {
   job?: Parameters<typeof normalizeJob>[0];
 };
 
-// Backend response types
+// Backend response types — see apps/api/src/routes/RESPONSE_SHAPES.md
 interface BackendResponse<T> {
   ok: boolean;
   error?: string;
-  application?: T;
-  applications?: T[];
+  code?: string;
   data?: T;
-  hasApplied?: boolean;
   pagination?: {
     page: number;
     limit: number;
@@ -69,13 +67,11 @@ export const applicationsApi = {
       jobId,
       coverNote,
     });
-    
-    if (response.data.ok && (response.data.application || response.data.data)) {
-      return applicationsApi.normalizeApplication(
-        response.data.application || response.data.data!
-      );
+
+    if (response.data.ok && response.data.data) {
+      return applicationsApi.normalizeApplication(response.data.data);
     }
-    
+
     throw new Error(response.data.error || 'Failed to submit application');
   },
 
@@ -91,22 +87,25 @@ export const applicationsApi = {
     params.append('page', page.toString());
     params.append('limit', limit.toString());
     if (status) params.append('status', toBackendApplicationStatus(status));
-    
-    const response = await apiClient.get<PaginatedApplicationsResponse>(
+
+    const response = await apiClient.get<BackendResponse<BackendApplication[]>>(
       `/api/v1/mobile/job-applications/mine?${params.toString()}`
     );
-    
-    // Handle response format
-    if (response.data.ok !== undefined) {
+
+    if (response.data.ok) {
       return {
-        ...response.data,
-        applications: (response.data.applications || []).map(
-          applicationsApi.normalizeApplication
-        ),
+        ok: true,
+        applications: (response.data.data || []).map(applicationsApi.normalizeApplication),
+        pagination: response.data.pagination || {
+          page,
+          limit,
+          total: 0,
+          totalPages: 1,
+          hasMore: false,
+        },
       };
     }
-    
-    // Fallback
+
     return {
       ok: true,
       applications: [],
@@ -121,13 +120,11 @@ export const applicationsApi = {
     const response = await apiClient.get<BackendResponse<BackendApplication>>(
       `/api/v1/mobile/job-applications/${applicationId}`
     );
-    
-    if (response.data.ok && (response.data.application || response.data.data)) {
-      return applicationsApi.normalizeApplication(
-        response.data.application || response.data.data!
-      );
+
+    if (response.data.ok && response.data.data) {
+      return applicationsApi.normalizeApplication(response.data.data);
     }
-    
+
     throw new Error(response.data.error || 'Application not found');
   },
 
@@ -138,13 +135,11 @@ export const applicationsApi = {
     const response = await apiClient.post<BackendResponse<BackendApplication>>(
       `/api/v1/mobile/job-applications/${applicationId}/withdraw`
     );
-    
-    if (response.data.ok && (response.data.application || response.data.data)) {
-      return applicationsApi.normalizeApplication(
-        response.data.application || response.data.data!
-      );
+
+    if (response.data.ok && response.data.data) {
+      return applicationsApi.normalizeApplication(response.data.data);
     }
-    
+
     throw new Error(response.data.error || 'Failed to withdraw application');
   },
 
@@ -153,11 +148,11 @@ export const applicationsApi = {
    */
   async hasApplied(jobId: string): Promise<boolean> {
     try {
-      const response = await apiClient.get<BackendResponse<{ hasApplied: boolean }> & { applied?: boolean }>(
+      const response = await apiClient.get<BackendResponse<{ applied: boolean; application: unknown }>>(
         `/api/v1/mobile/job-applications/check/${jobId}`
       );
 
-      return coerceBoolean(response.data.applied) ?? coerceBoolean(response.data.hasApplied) ?? false;
+      return coerceBoolean(response.data.data?.applied) ?? false;
     } catch {
       return false;
     }
@@ -175,10 +170,8 @@ export const applicationsApi = {
       `/api/v1/client/mobile/applications/${applicationId}`
     );
 
-    if (response.data.ok && (response.data.application || response.data.data)) {
-      return applicationsApi.normalizeApplication(
-        response.data.application || response.data.data!
-      );
+    if (response.data.ok && response.data.data) {
+      return applicationsApi.normalizeApplication(response.data.data);
     }
 
     throw new Error(response.data.error || 'Application not found');
@@ -198,16 +191,21 @@ export const applicationsApi = {
     params.append('limit', limit.toString());
     if (status) params.append('status', toBackendApplicationStatus(status));
 
-    const response = await apiClient.get<PaginatedApplicationsResponse>(
+    const response = await apiClient.get<BackendResponse<BackendApplication[]>>(
       `/api/v1/client/mobile/jobs/${jobId}/applications?${params.toString()}`
     );
 
-    if (response.data.ok !== undefined) {
+    if (response.data.ok) {
       return {
-        ...response.data,
-        applications: (response.data.applications || []).map(
-          applicationsApi.normalizeApplication
-        ),
+        ok: true,
+        applications: (response.data.data || []).map(applicationsApi.normalizeApplication),
+        pagination: response.data.pagination || {
+          page,
+          limit,
+          total: 0,
+          totalPages: 1,
+          hasMore: false,
+        },
       };
     }
 
@@ -242,10 +240,8 @@ export const applicationsApi = {
       }
     );
 
-    if (response.data.ok && (response.data.application || response.data.data)) {
-      return applicationsApi.normalizeApplication(
-        response.data.application || response.data.data!
-      );
+    if (response.data.ok && response.data.data) {
+      return applicationsApi.normalizeApplication(response.data.data);
     }
 
     throw new Error(response.data.error || 'Failed to update application');

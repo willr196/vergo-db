@@ -11,7 +11,6 @@ import {
   getQueue,
   removeFromQueue,
   enqueueAction,
-  checkIsConnected,
   QueuedAction,
 } from '../utils/network';
 
@@ -55,13 +54,11 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
   queuedActionsCount: 0,
 
   initialize: () => {
-    // Resolve real connectivity on startup
-    checkIsConnected().then((isConnected) => set({ isConnected }));
-
     // Seed the queue count from persisted storage
     getQueue().then((queue) => set({ queuedActionsCount: queue.length }));
 
-    // Subscribe to live changes
+    // Subscribe to live changes — NetInfo fires once on subscribe with the
+    // current state, so no explicit initial connectivity check is needed.
     const unsubscribe = subscribeToNetworkState(async (isConnected) => {
       const wasConnected = get().isConnected;
       set({ isConnected });

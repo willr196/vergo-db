@@ -92,7 +92,7 @@ r.get('/stats', async (req, res) => {
       activeQuotes: newQuotes + quotedQuotes
     };
     
-    res.json({ ok: true, stats, data: stats });
+    res.json({ ok: true, data: stats });
     
   } catch (error) {
     console.error('[ERROR] Get client stats failed:', error);
@@ -171,23 +171,13 @@ r.get('/quotes', async (req, res) => {
     
     res.json({
       ok: true,
-      quotes: shaped,
+      data: shaped,
       pagination: {
         page: query.page,
         limit: query.limit,
         total,
         totalPages,
         hasMore: query.page < totalPages
-      },
-      data: {
-        quotes: shaped,
-        pagination: {
-          page: query.page,
-          limit: query.limit,
-          total,
-          totalPages,
-          hasMore: query.page < totalPages
-        }
       }
     });
     
@@ -256,8 +246,8 @@ r.get('/quotes/:id', async (req, res) => {
       updatedAt: quote.updatedAt.toISOString()
     };
     
-    res.json({ ok: true, quote: shaped, data: shaped });
-    
+    res.json({ ok: true, data: shaped });
+
   } catch (error) {
     console.error('[ERROR] Get quote detail failed:', error);
     res.status(500).json({ ok: false, error: 'Failed to fetch quote' });
@@ -322,7 +312,7 @@ r.post('/quotes', async (req, res) => {
       updatedAt: quote.updatedAt.toISOString()
     };
     
-    res.status(201).json({ ok: true, quote: shaped, data: shaped });
+    res.status(201).json({ ok: true, data: shaped });
     
   } catch (error) {
     console.error('[ERROR] Create quote failed:', error);
@@ -442,6 +432,7 @@ async function notifyInterestedSeekers(roleId: string, roleName: string, jobTitl
 function shapeJob(job: any) {
   return {
     id: job.id,
+    clientId: job.clientId ?? null,
     title: job.title,
     description: job.description,
     requirements: job.requirements,
@@ -534,8 +525,10 @@ r.get('/dashboard', async (req, res) => {
 
     res.json({
       ok: true,
-      stats: { activeJobs, totalApplicants, pendingReview, staffConfirmed },
-      recentApplications: shapedRecent
+      data: {
+        stats: { activeJobs, totalApplicants, pendingReview, staffConfirmed },
+        recentApplications: shapedRecent
+      }
     });
   } catch (error) {
     console.error('[ERROR] Get dashboard failed:', error);
@@ -579,7 +572,7 @@ r.get('/jobs', async (req, res) => {
 
     res.json({
       ok: true,
-      jobs: shaped,
+      data: shaped,
       pagination: {
         page: query.page,
         limit: query.limit,
@@ -618,7 +611,7 @@ r.get('/jobs/:id', async (req, res) => {
     }
 
     const shaped = shapeJob(job);
-    res.json({ ok: true, job: shaped, data: shaped });
+    res.json({ ok: true, data: shaped });
   } catch (error) {
     console.error('[ERROR] Get client job detail failed:', error);
     res.status(500).json({ ok: false, error: 'Failed to fetch job' });
@@ -691,7 +684,7 @@ r.post('/jobs', async (req, res) => {
     }
 
     const shaped = shapeJob(job);
-    res.status(201).json({ ok: true, job: shaped, data: shaped });
+    res.status(201).json({ ok: true, data: shaped });
   } catch (error) {
     console.error('[ERROR] Create client job failed:', error);
     res.status(500).json({ ok: false, error: 'Failed to create job' });
@@ -779,7 +772,7 @@ r.put('/jobs/:id', async (req, res) => {
     }
 
     const shaped = shapeJob(job);
-    res.json({ ok: true, job: shaped, data: shaped });
+    res.json({ ok: true, data: shaped });
   } catch (error) {
     console.error('[ERROR] Update client job failed:', error);
     res.status(500).json({ ok: false, error: 'Failed to update job' });
@@ -820,7 +813,7 @@ r.post('/jobs/:id/close', async (req, res) => {
     console.log(`[JOB] Client ${client.id} closed job ${job.id}`);
 
     const shaped = shapeJob(job);
-    res.json({ ok: true, job: shaped, data: shaped });
+    res.json({ ok: true, data: shaped });
   } catch (error) {
     console.error('[ERROR] Close client job failed:', error);
     res.status(500).json({ ok: false, error: 'Failed to close job' });
@@ -897,7 +890,7 @@ r.get('/jobs/:id/applications', async (req, res) => {
 
     res.json({
       ok: true,
-      applications: shaped,
+      data: shaped,
       pagination: {
         page: query.page,
         limit: query.limit,
@@ -1009,7 +1002,7 @@ r.put('/jobs/:jobId/applications/:appId/status', async (req, res) => {
       updatedAt: application.updatedAt.toISOString()
     };
 
-    res.json({ ok: true, application: shaped, data: shaped });
+    res.json({ ok: true, data: shaped });
   } catch (error) {
     console.error('[ERROR] Update application status failed:', error);
     res.status(500).json({ ok: false, error: 'Failed to update application' });
@@ -1065,7 +1058,7 @@ r.get('/applications/:appId', async (req, res) => {
       updatedAt: application.updatedAt.toISOString()
     };
 
-    res.json({ ok: true, application: shaped, data: shaped });
+    res.json({ ok: true, data: shaped });
   } catch (error) {
     console.error('[ERROR] Get client application failed:', error);
     res.status(500).json({ ok: false, error: 'Failed to fetch application' });

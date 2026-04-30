@@ -1,4 +1,5 @@
 const { spawnSync } = require('node:child_process');
+const fs = require('node:fs');
 const path = require('node:path');
 const { Client } = require('pg');
 
@@ -61,6 +62,20 @@ async function warmUpDatabase() {
 
 function runPrismaDeploy() {
   const prismaBin = path.join(process.cwd(), 'node_modules', '.bin', 'prisma');
+
+  if (!fs.existsSync(prismaBin)) {
+    const error = new Error(
+      `Prisma CLI not found at ${prismaBin}. Ensure the runtime image keeps the prisma package installed.`
+    );
+
+    return {
+      error,
+      status: 1,
+      stderr: `${error.message}\n`,
+      stdout: '',
+    };
+  }
+
   return spawnSync(prismaBin, ['migrate', 'deploy'], {
     env: process.env,
     encoding: 'utf8',

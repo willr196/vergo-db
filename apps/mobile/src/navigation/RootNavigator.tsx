@@ -16,6 +16,8 @@ import {
   useNotificationsStore,
   useJobsStore,
   useApplicationsStore,
+  useClientJobsStore,
+  useClientApplicationsStore,
   registerRefreshCallback,
 } from '../store';
 import { ErrorBoundary, Toast } from '../components';
@@ -370,15 +372,31 @@ export function RootNavigator() {
   const userTypeRef = useRef(userType);
   userTypeRef.current = userType;
 
-  // Register refresh callbacks so data reloads automatically when coming back online
+  // Register refresh callbacks so data reloads automatically when coming back online.
+  // Client stores are only registered while authed as a client.
   useEffect(() => {
     const unregisterJobs = registerRefreshCallback(() => fetchJobs(true));
     const unregisterApps = registerRefreshCallback(() => fetchApplications(true));
+
+    const clientUnregisters: (() => void)[] = [];
+    if (userType === 'client') {
+      clientUnregisters.push(
+        registerRefreshCallback(() => useClientJobsStore.getState().fetchJobs(true))
+      );
+      clientUnregisters.push(
+        registerRefreshCallback(() => {
+          const { currentJobId, fetchJobApplications } = useClientApplicationsStore.getState();
+          if (currentJobId) fetchJobApplications(currentJobId, true);
+        })
+      );
+    }
+
     return () => {
       unregisterJobs();
       unregisterApps();
+      clientUnregisters.forEach((fn) => fn());
     };
-  }, [fetchJobs, fetchApplications]);
+  }, [fetchJobs, fetchApplications, userType]);
 
   useEffect(() => {
     if (!isAuthenticated) {

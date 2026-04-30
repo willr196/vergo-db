@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import type { CompositeScreenProps } from '@react-navigation/native';
+import { useFocusEffect, type CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { JobCard, LoadingScreen, EmptyState, ErrorState, JobFiltersModal } from '../../components';
@@ -86,9 +86,11 @@ export function JobsScreen({ navigation }: Props) {
     commitSearch('');
   }, [clearSearchTimer, commitSearch]);
 
-  useEffect(() => {
-    fetchJobs();
-  }, [fetchJobs]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchJobs();
+    }, [fetchJobs])
+  );
 
   useEffect(() => {
     return () => {

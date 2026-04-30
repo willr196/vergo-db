@@ -67,7 +67,7 @@ apiClient.interceptors.request.use(
     } catch (error) {
       logger.warn('Failed to get auth token:', error);
     }
-    console.log(`[VERGO API] ${config.method?.toUpperCase()} ${config.url}`);
+    logger.debug(`[VERGO API] ${config.method?.toUpperCase()} ${config.url}`);
     return config;
   },
   (error) => {
@@ -75,82 +75,107 @@ apiClient.interceptors.request.use(
   }
 );
 
+// Single-flight refresh: concurrent 401s share one in-flight refresh attempt.
+// The first caller creates the promise; others await the existing one. Cleared
+// after settle so the next 401 starts a fresh refresh.
+let refreshPromise: Promise<string> | null = null;
+
+async function performTokenRefresh(): Promise<string> {
+  const refreshToken = await SecureStore.getItemAsync(STORAGE_KEYS.REFRESH_TOKEN);
+  if (!refreshToken) {
+    throw new Error('No refresh token available');
+  }
+  const userType = await SecureStore.getItemAsync(STORAGE_KEYS.USER_TYPE);
+  const refreshEndpoint = userType === 'client'
+    ? `${API_BASE_URL}/api/v1/client/mobile/refresh`
+    : `${API_BASE_URL}/api/v1/user/mobile/refresh`;
+  const response = await axios.post(refreshEndpoint, {
+    refreshToken,
+  }, { timeout: 10000 });
+
+  const { token: newToken, refreshToken: newRefreshToken } = response.data as { token?: string; refreshToken?: string };
+  if (!newToken) {
+    throw new Error('Token refresh response missing access token');
+  }
+  await SecureStore.setItemAsync(STORAGE_KEYS.ACCESS_TOKEN, newToken);
+  if (newRefreshToken) {
+    await SecureStore.setItemAsync(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
+  }
+  return newToken;
+}
+
+async function handleRefreshFailure(refreshError: unknown): Promise<never> {
+  logger.warn('Token refresh failed:', refreshError);
+  const formattedRefreshError = axios.isAxiosError(refreshError)
+    ? formatError(refreshError)
+    : {
+        message: refreshError instanceof Error ? refreshError.message : 'Token refresh failed',
+        code: 'TOKEN_REFRESH_FAILED',
+      };
+  const isRefreshTokenReplay = formattedRefreshError.code === 'REFRESH_TOKEN_REUSE_DETECTED';
+  const forceLogout =
+    (coerceBoolean(formattedRefreshError.forceLogout) ?? false) ||
+    (coerceBoolean(formattedRefreshError.reauthRequired) ?? false) ||
+    isRefreshTokenReplay;
+
+  await clearAuthTokens();
+
+  if (forceLogout) {
+    notifyAuthFailure({
+      message: isRefreshTokenReplay
+        ? 'Session security issue detected. Please sign in again.'
+        : formattedRefreshError.message,
+      code: formattedRefreshError.code,
+      status: formattedRefreshError.status,
+      forceLogout: true,
+      reauthRequired: true,
+    });
+  }
+
+  return Promise.reject({
+    ...formattedRefreshError,
+    forceLogout,
+    reauthRequired: forceLogout || formattedRefreshError.reauthRequired,
+  } as ApiError);
+}
+
 // Response interceptor - handle errors and token refresh
 apiClient.interceptors.response.use(
   (response) => {
-    console.log(`[VERGO API] ${response.status} ${response.config.url}`);
+    logger.debug(`[VERGO API] ${response.status} ${response.config.url}`);
     return response;
   },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-    
+
     // Handle 401 - attempt token refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
+
+      // Skip refresh entirely if there's no refresh token in storage —
+      // matches today's "no refresh attempted" pass-through behaviour.
+      const refreshToken = await SecureStore.getItemAsync(STORAGE_KEYS.REFRESH_TOKEN);
+      if (!refreshToken) {
+        return Promise.reject(formatError(error));
+      }
+
+      if (!refreshPromise) {
+        refreshPromise = performTokenRefresh().finally(() => {
+          refreshPromise = null;
+        });
+      }
+
       try {
-        const refreshToken = await SecureStore.getItemAsync(STORAGE_KEYS.REFRESH_TOKEN);
-        const userType = await SecureStore.getItemAsync(STORAGE_KEYS.USER_TYPE);
-        
-        if (refreshToken) {
-          const refreshEndpoint = userType === 'client'
-            ? `${API_BASE_URL}/api/v1/client/mobile/refresh`
-            : `${API_BASE_URL}/api/v1/user/mobile/refresh`;
-          const response = await axios.post(refreshEndpoint, {
-            refreshToken,
-          }, { timeout: 10000 });
-          
-          const { token: newToken, refreshToken: newRefreshToken } = response.data as { token?: string; refreshToken?: string };
-          if (!newToken) {
-            throw new Error('Token refresh response missing access token');
-          }
-          await SecureStore.setItemAsync(STORAGE_KEYS.ACCESS_TOKEN, newToken);
-          if (newRefreshToken) {
-            await SecureStore.setItemAsync(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
-          }
-          
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          }
-          
-          return apiClient(originalRequest);
+        const newToken = await refreshPromise;
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
         }
+        return apiClient(originalRequest);
       } catch (refreshError) {
-        logger.warn('Token refresh failed:', refreshError);
-        const formattedRefreshError = axios.isAxiosError(refreshError)
-          ? formatError(refreshError)
-          : {
-              message: refreshError instanceof Error ? refreshError.message : 'Token refresh failed',
-              code: 'TOKEN_REFRESH_FAILED',
-            };
-        const isRefreshTokenReplay = formattedRefreshError.code === 'REFRESH_TOKEN_REUSE_DETECTED';
-        const forceLogout =
-          (coerceBoolean(formattedRefreshError.forceLogout) ?? false) ||
-          (coerceBoolean(formattedRefreshError.reauthRequired) ?? false) ||
-          isRefreshTokenReplay;
-
-        await clearAuthTokens();
-
-        if (forceLogout) {
-          notifyAuthFailure({
-            message: isRefreshTokenReplay
-              ? 'Session security issue detected. Please sign in again.'
-              : formattedRefreshError.message,
-            code: formattedRefreshError.code,
-            status: formattedRefreshError.status,
-            forceLogout: true,
-            reauthRequired: true,
-          });
-        }
-
-        return Promise.reject({
-          ...formattedRefreshError,
-          forceLogout,
-          reauthRequired: forceLogout || formattedRefreshError.reauthRequired,
-        } as ApiError);
+        return handleRefreshFailure(refreshError);
       }
     }
-    
+
     return Promise.reject(formatError(error));
   }
 );

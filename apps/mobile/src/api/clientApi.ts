@@ -82,10 +82,8 @@ export interface CreateQuoteRequest {
 interface BackendResponse<T> {
   ok: boolean;
   error?: string;
-  stats?: T;
-  quote?: T;
-  quotes?: QuoteRequest[];
-  data?: T | { quotes?: QuoteRequest[]; pagination?: PaginationInfo };
+  code?: string;
+  data?: T;
   pagination?: PaginationInfo;
 }
 
@@ -112,17 +110,14 @@ export const clientApi = {
    * Get dashboard stats and recent activity (jobs-based)
    */
   async getDashboard(): Promise<ClientDashboard> {
-    const response = await apiClient.get<{
-      ok: boolean;
-      stats?: ClientDashboardStats;
-      recentApplications?: DashboardApplication[];
-      error?: string;
-    }>('/api/v1/client/mobile/dashboard');
+    const response = await apiClient.get<BackendResponse<ClientDashboard>>(
+      '/api/v1/client/mobile/dashboard'
+    );
 
-    if (response.data.ok) {
+    if (response.data.ok && response.data.data) {
       return {
-        stats: response.data.stats ?? { activeJobs: 0, totalApplicants: 0, pendingReview: 0, staffConfirmed: 0 },
-        recentApplications: response.data.recentApplications ?? [],
+        stats: response.data.data.stats ?? { activeJobs: 0, totalApplicants: 0, pendingReview: 0, staffConfirmed: 0 },
+        recentApplications: response.data.data.recentApplications ?? [],
       };
     }
 
@@ -140,8 +135,8 @@ export const clientApi = {
       '/api/v1/client/mobile/stats'
     );
 
-    if (response.data.ok && (response.data.stats || response.data.data)) {
-      const stats = response.data.stats || response.data.data as ClientStats;
+    if (response.data.ok && response.data.data) {
+      const stats = response.data.data;
       return {
         totalQuotes: stats.totalQuotes || 0,
         pending: stats.pending || 0,
@@ -181,15 +176,7 @@ export const clientApi = {
     );
 
     if (response.data.ok) {
-      let quotes: QuoteRequest[] = [];
-      if (response.data.quotes && Array.isArray(response.data.quotes)) {
-        quotes = response.data.quotes;
-      } else if (response.data.data) {
-        const dataWithQuotes = response.data.data as { quotes?: QuoteRequest[] };
-        if (dataWithQuotes.quotes && Array.isArray(dataWithQuotes.quotes)) {
-          quotes = dataWithQuotes.quotes;
-        }
-      }
+      const quotes = response.data.data ?? [];
 
       return {
         ok: true,
@@ -219,8 +206,8 @@ export const clientApi = {
       `/api/v1/client/mobile/quotes/${quoteId}`
     );
 
-    if (response.data.ok && (response.data.quote || response.data.data)) {
-      return normalizeQuote((response.data.quote || response.data.data) as QuoteRequest);
+    if (response.data.ok && response.data.data) {
+      return normalizeQuote(response.data.data);
     }
 
     throw new Error(response.data.error || 'Quote not found');
@@ -235,8 +222,8 @@ export const clientApi = {
       data
     );
 
-    if (response.data.ok && (response.data.quote || response.data.data)) {
-      return normalizeQuote((response.data.quote || response.data.data) as QuoteRequest);
+    if (response.data.ok && response.data.data) {
+      return normalizeQuote(response.data.data);
     }
 
     throw new Error(response.data.error || 'Failed to create quote request');

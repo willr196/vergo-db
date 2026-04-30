@@ -3,7 +3,7 @@
  * Track and manage job applications
  */
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import type { CompositeScreenProps } from '@react-navigation/native';
+import { useFocusEffect, type CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { StatusBadge, LoadingScreen, EmptyState, ErrorState } from '../../components';
@@ -52,9 +52,11 @@ export function ApplicationsScreen({ navigation }: Props) {
     setStatusFilter,
   } = useApplicationsStore();
 
-  useEffect(() => {
-    fetchApplications();
-  }, [fetchApplications]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchApplications();
+    }, [fetchApplications])
+  );
 
   const handleRefresh = useCallback(() => {
     fetchApplications(true);

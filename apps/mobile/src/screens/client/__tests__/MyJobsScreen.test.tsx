@@ -1,24 +1,51 @@
 /**
  * MyJobsScreen Tests
- * Tests for loading, error, empty, and success states
+ * Tests for loading, error, empty, and success states.
+ * Mocks useClientJobsStore so the screen is tested in isolation from the store.
  */
 
 import React from 'react';
 import { render, waitFor, fireEvent } from '@testing-library/react-native';
 import { MyJobsScreen } from '../MyJobsScreen';
-import { jobsApi } from '../../../api';
-import { useAuthStore } from '../../../store';
+import { useClientJobsStore } from '../../../store';
 
-// Mock the API
-jest.mock('../../../api', () => ({
-  jobsApi: {
-    getClientJobs: jest.fn(),
-  },
-}));
+const mockFetchJobs = jest.fn();
+const mockFetchMoreJobs = jest.fn();
+const mockSetStatusFilter = jest.fn();
 
-// Mock the auth store
+type ClientJobsStateMock = {
+  jobs: unknown[];
+  isLoading: boolean;
+  isRefreshing: boolean;
+  isLoadingMore: boolean;
+  hasMore: boolean;
+  statusFilter: 'all' | 'active' | 'closed';
+  error: string | null;
+  fetchJobs: typeof mockFetchJobs;
+  fetchMoreJobs: typeof mockFetchMoreJobs;
+  setStatusFilter: typeof mockSetStatusFilter;
+};
+
+let mockState: ClientJobsStateMock;
+
+const setMockState = (overrides: Partial<ClientJobsStateMock> = {}) => {
+  mockState = {
+    jobs: [],
+    isLoading: false,
+    isRefreshing: false,
+    isLoadingMore: false,
+    hasMore: false,
+    statusFilter: 'all',
+    error: null,
+    fetchJobs: mockFetchJobs,
+    fetchMoreJobs: mockFetchMoreJobs,
+    setStatusFilter: mockSetStatusFilter,
+    ...overrides,
+  };
+};
+
 jest.mock('../../../store', () => ({
-  useAuthStore: jest.fn(),
+  useClientJobsStore: jest.fn((selector: (s: ClientJobsStateMock) => unknown) => selector(mockState)),
 }));
 
 // Mock logger
@@ -60,31 +87,18 @@ const mockJobs = [
   },
 ];
 
-const buildJobsResponse = (jobs = mockJobs) => ({
-  ok: true,
-  jobs,
-  pagination: {
-    page: 1,
-    limit: 20,
-    total: jobs.length,
-    totalPages: 1,
-    hasMore: false,
-  },
-});
-
 describe('MyJobsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useAuthStore as unknown as jest.Mock).mockReturnValue({
-      user: { id: 'client-1', companyName: 'Test Company' },
-    });
+    setMockState();
+    (useClientJobsStore as unknown as jest.Mock).mockImplementation(
+      (selector: (s: ClientJobsStateMock) => unknown) => selector(mockState)
+    );
   });
 
   describe('Loading State', () => {
-    it('should show loading screen initially', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockImplementation(
-        () => new Promise(() => {}) // Never resolves
-      );
+    it('should show loading screen when loading and no jobs yet', () => {
+      setMockState({ isLoading: true });
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -92,11 +106,21 @@ describe('MyJobsScreen', () => {
 
       expect(getByText('Loading your jobs...')).toBeTruthy();
     });
+
+    it('should call fetchJobs on focus', () => {
+      setMockState({ jobs: mockJobs });
+
+      render(
+        <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
+      );
+
+      expect(mockFetchJobs).toHaveBeenCalled();
+    });
   });
 
   describe('Success State', () => {
-    it('should display jobs after successful fetch', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
+    it('should display jobs from the store', async () => {
+      setMockState({ jobs: mockJobs });
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -109,7 +133,7 @@ describe('MyJobsScreen', () => {
     });
 
     it('should display job details correctly', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
+      setMockState({ jobs: mockJobs });
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -123,9 +147,7 @@ describe('MyJobsScreen', () => {
     });
 
     it('should display application count with correct pluralization', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(
-        buildJobsResponse([{ ...mockJobs[0], applicationCount: 1 }])
-      );
+      setMockState({ jobs: [{ ...mockJobs[0], applicationCount: 1 }] });
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -137,7 +159,7 @@ describe('MyJobsScreen', () => {
     });
 
     it('should show header with title and post job button', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
+      setMockState({ jobs: mockJobs });
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -150,7 +172,7 @@ describe('MyJobsScreen', () => {
     });
 
     it('should display job status badges', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
+      setMockState({ jobs: mockJobs });
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -165,7 +187,7 @@ describe('MyJobsScreen', () => {
 
   describe('Empty State', () => {
     it('should show empty state when no jobs exist', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse([]));
+      setMockState({ jobs: [] });
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -178,7 +200,7 @@ describe('MyJobsScreen', () => {
     });
 
     it('should navigate to CreateJob when empty state action is pressed', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse([]));
+      setMockState({ jobs: [] });
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -194,8 +216,8 @@ describe('MyJobsScreen', () => {
   });
 
   describe('Error State', () => {
-    it('should display error state when API fails', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockRejectedValue(new Error('Network error'));
+    it('should display error state when store has an error and no jobs', async () => {
+      setMockState({ error: 'Network error' });
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -208,7 +230,7 @@ describe('MyJobsScreen', () => {
     });
 
     it('should show retry button on error', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockRejectedValue(new Error('Failed'));
+      setMockState({ error: 'Failed' });
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -219,10 +241,8 @@ describe('MyJobsScreen', () => {
       });
     });
 
-    it('should retry fetch when retry button is pressed', async () => {
-      (jobsApi.getClientJobs as jest.Mock)
-        .mockRejectedValueOnce(new Error('Failed'))
-        .mockResolvedValueOnce(mockJobs);
+    it('should call fetchJobs(true) when retry button is pressed', async () => {
+      setMockState({ error: 'Failed' });
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -234,15 +254,13 @@ describe('MyJobsScreen', () => {
 
       fireEvent.press(getByText('Try Again'));
 
-      await waitFor(() => {
-        expect(jobsApi.getClientJobs).toHaveBeenCalledTimes(2);
-      });
+      expect(mockFetchJobs).toHaveBeenCalledWith(true);
     });
   });
 
   describe('Status Filters', () => {
     it('should display all status filter chips', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
+      setMockState({ jobs: mockJobs });
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -255,32 +273,29 @@ describe('MyJobsScreen', () => {
       });
     });
 
-    it('should fetch filtered jobs when filter is changed', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
+    it('should call setStatusFilter when a filter chip is pressed', async () => {
+      setMockState({ jobs: mockJobs });
 
       const { getAllByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
-        // There might be multiple "Active" texts (filter + badge)
         const activeButtons = getAllByText('Active');
         expect(activeButtons.length).toBeGreaterThan(0);
       });
 
-      // Press the filter chip (first one)
+      // Press the filter chip (first occurrence is the chip button)
       const activeButtons = getAllByText('Active');
       fireEvent.press(activeButtons[0]);
 
-      await waitFor(() => {
-        expect(jobsApi.getClientJobs).toHaveBeenLastCalledWith('OPEN', 1);
-      });
+      expect(mockSetStatusFilter).toHaveBeenCalledWith('active');
     });
   });
 
   describe('Navigation', () => {
     it('should navigate to CreateJob when + Post Job is pressed', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
+      setMockState({ jobs: mockJobs });
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -295,7 +310,7 @@ describe('MyJobsScreen', () => {
     });
 
     it('should navigate to ClientJobDetail when job card is pressed', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
+      setMockState({ jobs: mockJobs });
 
       const { getByText } = render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -311,19 +326,15 @@ describe('MyJobsScreen', () => {
   });
 
   describe('Pull to Refresh', () => {
-    it('should call fetchJobs on refresh', async () => {
-      (jobsApi.getClientJobs as jest.Mock).mockResolvedValue(buildJobsResponse());
+    it('triggers store fetch on focus', async () => {
+      setMockState({ jobs: mockJobs });
 
-      const { getByText } = render(
+      render(
         <MyJobsScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
-      await waitFor(() => {
-        expect(getByText('Bartender Needed')).toBeTruthy();
-      });
-
-      // Initial call
-      expect(jobsApi.getClientJobs).toHaveBeenCalledTimes(1);
+      // The screen calls fetchJobs() on focus via useFocusEffect
+      expect(mockFetchJobs).toHaveBeenCalled();
     });
   });
 });

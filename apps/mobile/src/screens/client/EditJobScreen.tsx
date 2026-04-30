@@ -21,7 +21,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Button, DateTimePickerInput, LoadingScreen } from '../../components';
 import { jobsApi } from '../../api';
-import { useUIStore } from '../../store';
+import { useUIStore, useClientJobsStore } from '../../store';
 import { logger } from '../../utils/logger';
 import { getJobTierLabel, getJobTierPricingNote } from '../../utils/jobTiers';
 import type { RootStackParamList, JobTier } from '../../types';
@@ -57,6 +57,9 @@ function timeStringToDate(timeStr: string): Date {
 export function EditJobScreen({ route, navigation }: Props) {
   const { jobId } = route.params;
   const { showToast } = useUIStore();
+  const fetchJob = useClientJobsStore((s) => s.fetchJob);
+  const updateJob = useClientJobsStore((s) => s.updateJob);
+  const closeJobAction = useClientJobsStore((s) => s.closeJob);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingRoles, setIsLoadingRoles] = useState(true);
@@ -99,7 +102,7 @@ export function EditJobScreen({ route, navigation }: Props) {
   useEffect(() => {
     (async () => {
       try {
-        const job = await jobsApi.getClientJob(jobId);
+        const job = await fetchJob(jobId);
         const eventDate = job.date ? new Date(job.date) : new Date();
 
         setJobRoleSlug(job.role || '');
@@ -128,7 +131,7 @@ export function EditJobScreen({ route, navigation }: Props) {
         setIsLoading(false);
       }
     })();
-  }, [jobId, navigation, showToast]);
+  }, [jobId, navigation, showToast, fetchJob]);
 
   // Once both the job slug and the roles list are available, select the matching role
   useEffect(() => {
@@ -188,7 +191,7 @@ export function EditJobScreen({ route, navigation }: Props) {
       const formatDate = (d: Date) => d.toISOString().split('T')[0];
       const formatTime = (d: Date) => d.toTimeString().slice(0, 5);
 
-      await jobsApi.updateClientJob(jobId, {
+      await updateJob(jobId, {
         title: form.title.trim(),
         description: form.description.trim(),
         requirements: form.requirements.trim() || undefined,
@@ -226,7 +229,7 @@ export function EditJobScreen({ route, navigation }: Props) {
           style: 'destructive',
           onPress: async () => {
             try {
-              await jobsApi.closeJob(jobId);
+              await closeJobAction(jobId);
               showToast('Job has been closed', 'success');
               navigation.goBack();
             } catch {

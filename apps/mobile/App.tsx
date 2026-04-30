@@ -33,9 +33,7 @@ function AppContent() {
   
   useEffect(() => {
     let isMounted = true;
-    let healthCheckController: AbortController | null = null;
-    let healthCheckTimeout: ReturnType<typeof setTimeout> | null = null;
-    
+
     // Timeout to prevent infinite loading
     const timeout = setTimeout(() => {
       if (isMounted && isInitializingRef.current) {
@@ -43,31 +41,9 @@ function AppContent() {
         setIsInitializing(false);
       }
     }, AUTH_TIMEOUT);
-    
+
     async function initialize() {
       try {
-        console.log('[VERGO] Pinging backend...');
-        healthCheckController = new AbortController();
-        healthCheckTimeout = setTimeout(() => {
-          healthCheckController?.abort();
-        }, 5000);
-
-        try {
-          const health = await fetch('https://vergo-app.fly.dev/health', {
-            method: 'GET',
-            signal: healthCheckController.signal,
-          });
-          console.log('[VERGO] Backend health:', health.status);
-        } catch (e) {
-          console.log('[VERGO] Backend unreachable:', e);
-        } finally {
-          if (healthCheckTimeout) {
-            clearTimeout(healthCheckTimeout);
-            healthCheckTimeout = null;
-          }
-          healthCheckController = null;
-        }
-
         console.log('[VERGO] Starting auth check...');
         await checkAuth();
         console.log('[VERGO] Auth check complete');
@@ -84,16 +60,12 @@ function AppContent() {
         }
       }
     }
-    
+
     initialize();
-    
+
     return () => {
       isMounted = false;
       clearTimeout(timeout);
-      if (healthCheckTimeout) {
-        clearTimeout(healthCheckTimeout);
-      }
-      healthCheckController?.abort();
     };
   }, [checkAuth]);
   

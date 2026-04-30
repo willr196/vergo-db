@@ -86,6 +86,11 @@ function hasHeaderShellMount(html) {
   return /id=["']site-header["']/i.test(html);
 }
 
+function hasEmptyHeaderShellMount(html) {
+  const match = html.match(/<div\b[^>]*id=["']site-header["'][^>]*>([\s\S]*?)<\/div>/i);
+  return Boolean(match && match[1].trim() === '');
+}
+
 function hasFooterShellMount(html) {
   return /<footer\b[^>]*role=["']contentinfo["'][^>]*>/i.test(html);
 }
@@ -128,6 +133,9 @@ function validatePublicPage(rel, html) {
 
   if (!hasTitle(html)) issues.push('missing non-empty <title>');
   if (!hasHeaderShellMount(html)) issues.push('missing #site-header shell mount');
+  if (hasHeaderShellMount(html) && !hasEmptyHeaderShellMount(html)) {
+    issues.push('#site-header shell mount must be empty; shared navigation is injected by /vergo-public-shell.js');
+  }
   if (!hasFooterShellMount(html)) issues.push('missing footer[role="contentinfo"] shell mount');
   if (!hasPublicShell(html)) issues.push('missing /vergo-public-shell.js');
   if (!hasSkipLink(html)) issues.push('missing skip link to #main-content');

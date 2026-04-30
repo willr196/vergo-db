@@ -1,35 +1,67 @@
 /**
  * ClientJobDetailScreen Tests
- * Tests for job details, applications, and actions
+ * Tests for job details, applications, and actions.
+ * Mocks useClientJobsStore and useClientApplicationsStore so the screen is tested in isolation.
  */
 
 import React from 'react';
 import { render, waitFor, fireEvent } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import { ClientJobDetailScreen } from '../ClientJobDetailScreen';
-import { jobsApi, applicationsApi } from '../../../api';
 
 const mockShowToast = jest.fn();
+const mockFetchJob = jest.fn();
+const mockCloseJob = jest.fn();
+const mockFetchJobApplications = jest.fn();
+const mockUpdateApplicationStatus = jest.fn();
 
-// Mock the APIs
-jest.mock('../../../api', () => ({
-  registerAuthFailureHandler: jest.fn(),
-  jobsApi: {
-    getClientJob: jest.fn(),
-    closeJob: jest.fn(),
-  },
-  applicationsApi: {
-    getJobApplications: jest.fn(),
-    shortlistApplicant: jest.fn(),
-    hireApplicant: jest.fn(),
-    rejectApplicant: jest.fn(),
-  },
-}));
+type ClientJobsStateMock = {
+  selectedJob: unknown;
+  fetchJob: typeof mockFetchJob;
+  closeJob: typeof mockCloseJob;
+};
+
+type ClientApplicationsStateMock = {
+  applicationsByJobId: Record<string, unknown[]>;
+  fetchJobApplications: typeof mockFetchJobApplications;
+  updateApplicationStatus: typeof mockUpdateApplicationStatus;
+};
+
+let mockClientJobsState: ClientJobsStateMock;
+let mockClientApplicationsState: ClientApplicationsStateMock;
+
+const setClientJobsState = (overrides: Partial<ClientJobsStateMock> = {}) => {
+  mockClientJobsState = {
+    selectedJob: null,
+    fetchJob: mockFetchJob,
+    closeJob: mockCloseJob,
+    ...overrides,
+  };
+};
+
+const setClientApplicationsState = (
+  overrides: Partial<ClientApplicationsStateMock> = {}
+) => {
+  mockClientApplicationsState = {
+    applicationsByJobId: {},
+    fetchJobApplications: mockFetchJobApplications,
+    updateApplicationStatus: mockUpdateApplicationStatus,
+    ...overrides,
+  };
+};
 
 jest.mock('../../../store', () => ({
-  useUIStore: jest.fn(() => ({
-    showToast: mockShowToast,
-  })),
+  useUIStore: jest.fn(() => ({ showToast: mockShowToast })),
+  useClientJobsStore: jest.fn((selector: (s: ClientJobsStateMock) => unknown) =>
+    selector(mockClientJobsState)
+  ),
+  useClientApplicationsStore: jest.fn(
+    (selector: (s: ClientApplicationsStateMock) => unknown) =>
+      selector(mockClientApplicationsState)
+  ),
+  selectApplicationsForJob:
+    (jobId: string) => (state: ClientApplicationsStateMock) =>
+      state.applicationsByJobId[jobId] || [],
 }));
 
 // Mock logger
@@ -73,6 +105,7 @@ const mockJob = {
 const mockApplications = [
   {
     id: 'app-1',
+    jobId: 'job-1',
     status: 'pending',
     coverNote: 'I am very interested in this position',
     jobSeeker: {
@@ -83,6 +116,7 @@ const mockApplications = [
   },
   {
     id: 'app-2',
+    jobId: 'job-1',
     status: 'shortlisted',
     coverNote: 'Experienced bartender here',
     jobSeeker: {
@@ -93,6 +127,7 @@ const mockApplications = [
   },
   {
     id: 'app-3',
+    jobId: 'job-1',
     status: 'hired',
     jobSeeker: {
       firstName: 'Bob',
@@ -105,17 +140,16 @@ const mockApplications = [
 describe('ClientJobDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (jobsApi.getClientJob as jest.Mock).mockResolvedValue(mockJob);
-    (applicationsApi.getJobApplications as jest.Mock).mockResolvedValue({
-      applications: mockApplications,
-    });
+    setClientJobsState({ selectedJob: mockJob });
+    setClientApplicationsState({ applicationsByJobId: { 'job-1': mockApplications } });
+    mockFetchJob.mockResolvedValue(mockJob);
+    mockFetchJobApplications.mockResolvedValue(undefined);
   });
 
   describe('Loading State', () => {
-    it('should show loading screen initially', async () => {
-      (jobsApi.getClientJob as jest.Mock).mockImplementation(
-        () => new Promise(() => {}) // Never resolves
-      );
+    it('should show loading screen initially', () => {
+      setClientJobsState({ selectedJob: null });
+      mockFetchJob.mockImplementation(() => new Promise(() => {}));
 
       const { getByText } = render(
         <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -249,9 +283,7 @@ describe('ClientJobDetailScreen', () => {
     });
 
     it('should show empty state when no applications', async () => {
-      (applicationsApi.getJobApplications as jest.Mock).mockResolvedValue({
-        applications: [],
-      });
+      setClientApplicationsState({ applicationsByJobId: { 'job-1': [] } });
 
       const { getByText } = render(
         <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -332,8 +364,8 @@ describe('ClientJobDetailScreen', () => {
   });
 
   describe('Application Actions', () => {
-    it('should shortlist applicant when shortlist is pressed', async () => {
-      (applicationsApi.shortlistApplicant as jest.Mock).mockResolvedValue({
+    it('should call updateApplicationStatus with shortlist when shortlist is pressed', async () => {
+      mockUpdateApplicationStatus.mockResolvedValue({
         ...mockApplications[0],
         status: 'shortlisted',
       });
@@ -349,13 +381,13 @@ describe('ClientJobDetailScreen', () => {
       fireEvent.press(getAllByText('Shortlist')[0]);
 
       await waitFor(() => {
-        expect(applicationsApi.shortlistApplicant).toHaveBeenCalledWith('app-1', 'job-1');
+        expect(mockUpdateApplicationStatus).toHaveBeenCalledWith('app-1', 'shortlist');
         expect(mockShowToast).toHaveBeenCalledWith('Applicant shortlisted', 'success');
       });
     });
 
-    it('should hire applicant when hire is pressed', async () => {
-      (applicationsApi.hireApplicant as jest.Mock).mockResolvedValue({
+    it('should call updateApplicationStatus with hire when hire is pressed', async () => {
+      mockUpdateApplicationStatus.mockResolvedValue({
         ...mockApplications[0],
         status: 'hired',
       });
@@ -371,13 +403,13 @@ describe('ClientJobDetailScreen', () => {
       fireEvent.press(getAllByText('Hire')[0]);
 
       await waitFor(() => {
-        expect(applicationsApi.hireApplicant).toHaveBeenCalledWith('app-1', 'job-1');
+        expect(mockUpdateApplicationStatus).toHaveBeenCalledWith('app-1', 'hire');
         expect(mockShowToast).toHaveBeenCalledWith('Applicant hired', 'success');
       });
     });
 
-    it('should reject applicant when reject is pressed', async () => {
-      (applicationsApi.rejectApplicant as jest.Mock).mockResolvedValue({
+    it('should call updateApplicationStatus with reject when reject is pressed', async () => {
+      mockUpdateApplicationStatus.mockResolvedValue({
         ...mockApplications[0],
         status: 'rejected',
       });
@@ -393,13 +425,13 @@ describe('ClientJobDetailScreen', () => {
       fireEvent.press(getAllByText('Reject')[0]);
 
       await waitFor(() => {
-        expect(applicationsApi.rejectApplicant).toHaveBeenCalledWith('app-1', 'job-1');
+        expect(mockUpdateApplicationStatus).toHaveBeenCalledWith('app-1', 'reject');
         expect(mockShowToast).toHaveBeenCalledWith('Applicant rejected', 'success');
       });
     });
 
-    it('should show error alert when action fails', async () => {
-      (applicationsApi.shortlistApplicant as jest.Mock).mockRejectedValue(new Error('Failed'));
+    it('should show error toast when action fails', async () => {
+      mockUpdateApplicationStatus.mockRejectedValue(new Error('Failed'));
 
       const { getAllByText } = render(
         <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -429,10 +461,7 @@ describe('ClientJobDetailScreen', () => {
     });
 
     it('should not show close job button for closed jobs', async () => {
-      (jobsApi.getClientJob as jest.Mock).mockResolvedValue({
-        ...mockJob,
-        status: 'closed',
-      });
+      setClientJobsState({ selectedJob: { ...mockJob, status: 'closed' } });
 
       const { queryByText } = render(
         <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -479,7 +508,9 @@ describe('ClientJobDetailScreen', () => {
 
   describe('Error State', () => {
     it('should show error message when job not found', async () => {
-      (jobsApi.getClientJob as jest.Mock).mockResolvedValue(null);
+      setClientJobsState({ selectedJob: null });
+      // fetchJob resolves so the loading state ends, but selectedJob remains null
+      mockFetchJob.mockResolvedValue(null);
 
       const { getByText } = render(
         <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
@@ -491,8 +522,9 @@ describe('ClientJobDetailScreen', () => {
       });
     });
 
-    it('should show error alert when fetch fails', async () => {
-      (jobsApi.getClientJob as jest.Mock).mockRejectedValue(new Error('Network error'));
+    it('should show error toast when fetch fails', async () => {
+      setClientJobsState({ selectedJob: null });
+      mockFetchJob.mockRejectedValue(new Error('Network error'));
 
       render(
         <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />

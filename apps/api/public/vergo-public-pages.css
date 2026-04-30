@@ -264,16 +264,24 @@ textarea {
 
 .mobile-menu {
   display: none;
-  margin-top: 12px;
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  margin-top: 0;
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 24px;
   background: rgba(18, 18, 18, 0.96);
   box-shadow: var(--shadow);
+  max-height: calc(100vh - var(--nav-height) - 48px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .mobile-menu.is-open {
-  display: block;
+  display: none;
 }
 
 .mobile-menu nav {
@@ -1582,13 +1590,40 @@ footer {
   }
 }
 
-@media (max-width: 960px) {
+@media (min-width: 1024px) {
+  body.menu-open {
+    overflow: auto;
+  }
+
+  .nav-frame {
+    display: flex;
+  }
+
+  .menu-toggle {
+    display: none !important;
+  }
+
+  .mobile-menu,
+  .mobile-menu.is-open {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1023px) {
   .nav-frame {
     display: none;
   }
 
   .menu-toggle {
     display: inline-flex;
+  }
+
+  .mobile-menu.is-open {
+    display: block;
+  }
+
+  .mobile-menu .nav-actions .btn {
+    width: 100%;
   }
 
   .hero-grid,

@@ -3,7 +3,7 @@
  * List of jobs posted by the client company
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -19,8 +19,8 @@ import { useFocusEffect, type CompositeScreenProps } from '@react-navigation/nat
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { LoadingScreen, EmptyState, ErrorState } from '../../components';
-import { jobsApi } from '../../api';
-import { logger } from '../../utils/logger';
+import { useClientJobsStore } from '../../store';
+import type { JobStatusFilter } from '../../store';
 import { getJobTierLabel, normalizeJobTier } from '../../utils/jobTiers';
 import type { RootStackParamList, ClientTabParamList, Job } from '../../types';
 
@@ -29,64 +29,32 @@ type Props = CompositeScreenProps<
   NativeStackScreenProps<RootStackParamList>
 >;
 
-type JobStatusFilter = 'all' | 'active' | 'closed';
-
 const STATUS_FILTERS: { value: JobStatusFilter; label: string }[] = [
   { value: 'all', label: 'All' },
   { value: 'active', label: 'Active' },
   { value: 'closed', label: 'Closed' },
 ];
 
-// Map frontend filter values to backend enum values
-function toApiStatus(filter: JobStatusFilter): string | undefined {
-  if (filter === 'all') return undefined;
-  if (filter === 'active') return 'OPEN';
-  if (filter === 'closed') return 'CLOSED';
-  return undefined;
-}
-
 export function MyJobsScreen({ navigation, route }: Props) {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<JobStatusFilter>(
-    route.params?.initialFilter ?? 'all'
-  );
-  const [error, setError] = useState<string | null>(null);
+  const jobs = useClientJobsStore((s) => s.jobs);
+  const isLoading = useClientJobsStore((s) => s.isLoading);
+  const isRefreshing = useClientJobsStore((s) => s.isRefreshing);
+  const isLoadingMore = useClientJobsStore((s) => s.isLoadingMore);
+  const hasMore = useClientJobsStore((s) => s.hasMore);
+  const statusFilter = useClientJobsStore((s) => s.statusFilter);
+  const error = useClientJobsStore((s) => s.error);
+  const fetchJobs = useClientJobsStore((s) => s.fetchJobs);
+  const fetchMoreJobs = useClientJobsStore((s) => s.fetchMoreJobs);
+  const setStatusFilter = useClientJobsStore((s) => s.setStatusFilter);
 
-  const fetchJobs = useCallback(async () => {
-    try {
-      setError(null);
-      const result = await jobsApi.getClientJobs(toApiStatus(statusFilter), 1);
-      setJobs(result.jobs);
-      setCurrentPage(1);
-      setHasMore(result.pagination.hasMore);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load jobs';
-      setError(message);
-      logger.error('Failed to fetch jobs:', err);
-    } finally {
-      setIsLoading(false);
+  // Apply route-provided initial filter once on mount
+  useEffect(() => {
+    if (route.params?.initialFilter) {
+      setStatusFilter(route.params.initialFilter);
     }
-  }, [statusFilter]);
-
-  const fetchMoreJobs = useCallback(async () => {
-    if (!hasMore || isLoadingMore) return;
-    setIsLoadingMore(true);
-    try {
-      const result = await jobsApi.getClientJobs(toApiStatus(statusFilter), currentPage + 1);
-      setJobs(prev => [...prev, ...result.jobs]);
-      setCurrentPage(result.pagination.page);
-      setHasMore(result.pagination.hasMore);
-    } catch (err) {
-      logger.error('Failed to load more jobs:', err);
-    } finally {
-      setIsLoadingMore(false);
-    }
-  }, [hasMore, isLoadingMore, statusFilter, currentPage]);
+    // Intentionally only on first mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Refetch whenever the screen gains focus (e.g. returning from CreateJob modal)
   useFocusEffect(
@@ -95,10 +63,8 @@ export function MyJobsScreen({ navigation, route }: Props) {
     }, [fetchJobs])
   );
 
-  const handleRefresh = useCallback(async () => {
-    setIsRefreshing(true);
-    await fetchJobs();
-    setIsRefreshing(false);
+  const handleRefresh = useCallback(() => {
+    fetchJobs(true);
   }, [fetchJobs]);
 
   const handleLoadMore = useCallback(() => {
@@ -140,7 +106,7 @@ export function MyJobsScreen({ navigation, route }: Props) {
     const normalizedStatus = (item.status || 'active').toLowerCase();
     const statusStyle = getStatusStyle(normalizedStatus);
     const tier = normalizeJobTier(item.tier);
-    
+
     return (
       <TouchableOpacity
         style={styles.jobCard}
@@ -161,13 +127,13 @@ export function MyJobsScreen({ navigation, route }: Props) {
             </Text>
           </View>
         </View>
-        
+
         <View style={styles.jobMeta}>
           <Text style={styles.jobMetaText}>📍 {item.city}</Text>
           <Text style={styles.jobMetaText}>📅 {formatDate(item.date)}</Text>
           <Text style={styles.jobMetaText}>💰 £{item.hourlyRate}/hr</Text>
         </View>
-        
+
         <View style={styles.jobFooter}>
           <View style={styles.applicantCount}>
             <Text style={styles.applicantEmoji}>👥</Text>
@@ -183,7 +149,7 @@ export function MyJobsScreen({ navigation, route }: Props) {
 
   const renderEmpty = () => {
     if (isLoading) return null;
-    
+
     return (
       <EmptyState
         icon="📝"
@@ -195,7 +161,7 @@ export function MyJobsScreen({ navigation, route }: Props) {
     );
   };
 
-  if (isLoading) {
+  if (isLoading && jobs.length === 0) {
     return <LoadingScreen message="Loading your jobs..." />;
   }
 
@@ -205,10 +171,7 @@ export function MyJobsScreen({ navigation, route }: Props) {
       <SafeAreaView style={styles.container}>
         <ErrorState
           message={error}
-          onRetry={() => {
-            setIsLoading(true);
-            fetchJobs();
-          }}
+          onRetry={() => fetchJobs(true)}
         />
       </SafeAreaView>
     );

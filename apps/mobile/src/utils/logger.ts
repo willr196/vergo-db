@@ -31,6 +31,12 @@ export const logger = {
       console.warn('[info]', ...args);
     }
   },
+
+  debug: (...args: LogArgs) => {
+    if (isDevelopment) {
+      console.warn('[debug]', ...args);
+    }
+  },
 };
 
 export default logger;

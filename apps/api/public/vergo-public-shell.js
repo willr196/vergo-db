@@ -393,7 +393,7 @@
               <span class="logo-subtitle">Event staffing, London</span>
             </span>
           </a>
-          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Premium event staffing for private events, corporate hospitality, venues and productions across London.</p>
+          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Event staffing for private events, corporate hospitality, venues and productions across London.</p>
         </div>
         <div>
           <p class="footer-title">Navigate</p>
@@ -409,7 +409,7 @@
           <div class="footer-links">
             <a href="/jobs">Job Board</a>
             <a href="/apply">Join VERGO</a>
-            <a href="/staff-roles">Role Guide</a>
+            <a href="/#roles">Roles on the roster</a>
             <a href="/contact?tab=staff#contact-forms">Request Staff</a>
             <a href="/about">About VERGO</a>
           </div>
@@ -453,6 +453,7 @@
 
   const button = document.getElementById('mobile-menu-button');
   const menu = document.getElementById('mobile-menu');
+  const mobileMenuMedia = window.matchMedia('(max-width: 1023px)');
 
   if (header) {
     const syncHeader = () => {
@@ -476,6 +477,11 @@
   };
 
   const openMenu = () => {
+    if (!mobileMenuMedia.matches) {
+      closeMenu();
+      return;
+    }
+
     button.classList.add('is-active');
     button.setAttribute('aria-expanded', 'true');
     menu.hidden = false;
@@ -484,6 +490,11 @@
   };
 
   button.addEventListener('click', () => {
+    if (!mobileMenuMedia.matches) {
+      closeMenu();
+      return;
+    }
+
     if (menu.classList.contains('is-open')) {
       closeMenu();
       return;
@@ -510,11 +521,19 @@
     }
   });
 
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 960) {
+  const syncMenuToViewport = () => {
+    if (!mobileMenuMedia.matches) {
       closeMenu();
     }
-  });
+  };
+
+  window.addEventListener('resize', syncMenuToViewport);
+  if (typeof mobileMenuMedia.addEventListener === 'function') {
+    mobileMenuMedia.addEventListener('change', syncMenuToViewport);
+  } else if (typeof mobileMenuMedia.addListener === 'function') {
+    mobileMenuMedia.addListener(syncMenuToViewport);
+  }
+  syncMenuToViewport();
 })();
 
 // Load WhatsApp floating widget on all public pages

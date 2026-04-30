@@ -60,7 +60,10 @@ src/
 ## Code Patterns
 - Screens use CompositeScreenProps for nested navigation typing
 - API services return normalized data (see api/normalizers.ts)
-- Application status values: received, reviewing, shortlisted, hired, rejected, withdrawn
+- Application status (frontend, lowercase): pending, reviewing, shortlisted, hired, rejected, withdrawn
+- Application status (backend, canonical): PENDING, REVIEWED, SHORTLISTED, CONFIRMED, REJECTED, WITHDRAWN
+- Aliases tolerated on input only: RECEIVED → pending, REVIEWING → reviewing, HIRED → hired
+- See api/normalizers.ts for the mapping; outbound calls always use the canonical six.
 - All API calls go through the Axios instance in client.ts — never use raw fetch
 - Use LoadingScreen and EmptyState components for loading/empty states
 

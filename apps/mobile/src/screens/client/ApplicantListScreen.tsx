@@ -20,9 +20,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { LoadingScreen, EmptyState, ErrorState } from '../../components';
-import { applicationsApi } from '../../api';
-import { useUIStore } from '../../store';
-import { logger } from '../../utils/logger';
+import {
+  useUIStore,
+  useClientApplicationsStore,
+  selectApplicationsForJob,
+} from '../../store';
 import { isApplicationStatus, normalizeApplicationStatus } from '../../api/normalizers';
 import type { RootStackParamList, Application, ApplicationStatus } from '../../types';
 
@@ -87,62 +89,35 @@ function buildSummary(total: number, shortlisted: number, hired: number): string
 export function ApplicantListScreen({ route, navigation }: Props) {
   const { jobId } = route.params;
   const { showToast } = useUIStore();
-  const [allApplications, setAllApplications] = useState<Application[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
+
+  const allApplications = useClientApplicationsStore(selectApplicationsForJob(jobId));
+  const isLoading = useClientApplicationsStore((s) => s.isLoading);
+  const isRefreshing = useClientApplicationsStore((s) => s.isRefreshing);
+  const isLoadingMore = useClientApplicationsStore((s) => s.isLoadingMore);
+  const hasMore = useClientApplicationsStore((s) => s.hasMore);
+  const error = useClientApplicationsStore((s) => s.error);
+  const fetchJobApplications = useClientApplicationsStore((s) => s.fetchJobApplications);
+  const fetchMoreJobApplications = useClientApplicationsStore((s) => s.fetchMoreJobApplications);
+  const updateApplicationStatus = useClientApplicationsStore((s) => s.updateApplicationStatus);
+
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
-  const [error, setError] = useState<string | null>(null);
 
-  const fetchApplications = useCallback(async () => {
-    try {
-      setError(null);
-      const data = await applicationsApi.getJobApplications(jobId, undefined, 1);
-      setAllApplications(data.applications);
-      setCurrentPage(1);
-      setHasMore(data.pagination.hasMore);
-    } catch (error) {
-      logger.error('Failed to fetch applicants:', error);
-      const message = error instanceof Error ? error.message : 'Failed to load applicants';
-      setError(message);
-      showToast('Failed to load applicants', 'error');
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  }, [jobId, showToast]);
-
-  const fetchMoreApplications = useCallback(async () => {
-    if (!hasMore || isLoadingMore) return;
-    setIsLoadingMore(true);
-    try {
-      const data = await applicationsApi.getJobApplications(jobId, undefined, currentPage + 1);
-      setAllApplications(prev => [...prev, ...data.applications]);
-      setCurrentPage(data.pagination.page);
-      setHasMore(data.pagination.hasMore);
-    } catch (error) {
-      logger.error('Failed to load more applicants:', error);
-    } finally {
-      setIsLoadingMore(false);
-    }
-  }, [hasMore, isLoadingMore, jobId, currentPage]);
-
+  // The store keeps a global statusFilter; this screen filters client-side, so
+  // ensure we always fetch the unfiltered set.
   useEffect(() => {
-    fetchApplications();
-  }, [fetchApplications]);
+    useClientApplicationsStore.setState({ statusFilter: 'all' });
+    fetchJobApplications(jobId);
+  }, [jobId, fetchJobApplications]);
 
   const handleRefresh = useCallback(() => {
-    setIsRefreshing(true);
-    fetchApplications();
-  }, [fetchApplications]);
+    fetchJobApplications(jobId, true);
+  }, [jobId, fetchJobApplications]);
 
   const handleLoadMore = useCallback(() => {
     if (hasMore && !isLoadingMore && !isRefreshing) {
-      fetchMoreApplications();
+      fetchMoreJobApplications(jobId);
     }
-  }, [hasMore, isLoadingMore, isRefreshing, fetchMoreApplications]);
+  }, [hasMore, isLoadingMore, isRefreshing, jobId, fetchMoreJobApplications]);
 
   const handleShareJob = useCallback(async () => {
     try {
@@ -170,23 +145,13 @@ export function ApplicantListScreen({ route, navigation }: Props) {
     action: 'shortlist' | 'hire' | 'reject'
   ) => {
     try {
-      let updated: Application;
-      if (action === 'shortlist') {
-        updated = await applicationsApi.shortlistApplicant(applicationId, jobId);
-      } else if (action === 'hire') {
-        updated = await applicationsApi.hireApplicant(applicationId, jobId);
-      } else {
-        updated = await applicationsApi.rejectApplicant(applicationId, jobId);
-      }
-      setAllApplications((prev) =>
-        prev.map((app) => (app.id === applicationId ? updated : app))
-      );
+      await updateApplicationStatus(applicationId, action);
       const actionLabel = action === 'shortlist' ? 'shortlisted' : action === 'hire' ? 'hired' : 'rejected';
       showToast(`Applicant ${actionLabel}`, 'success');
     } catch {
       showToast('Failed to update applicant status', 'error');
     }
-  }, [jobId, showToast]);
+  }, [updateApplicationStatus, showToast]);
 
   const confirmAction = useCallback((
     applicationId: string,
@@ -285,7 +250,7 @@ export function ApplicantListScreen({ route, navigation }: Props) {
     );
   }, [navigation, confirmAction]);
 
-  if (isLoading) {
+  if (isLoading && allApplications.length === 0) {
     return <LoadingScreen message="Loading applicants..." />;
   }
 
@@ -294,10 +259,7 @@ export function ApplicantListScreen({ route, navigation }: Props) {
       <SafeAreaView style={styles.container}>
         <ErrorState
           message={error}
-          onRetry={() => {
-            setIsLoading(true);
-            fetchApplications();
-          }}
+          onRetry={() => fetchJobApplications(jobId, true)}
         />
       </SafeAreaView>
     );

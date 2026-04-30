@@ -40,7 +40,6 @@ export {
   getQueue,
   removeFromQueue,
   subscribeToNetworkState,
-  checkIsConnected,
   CACHE_KEYS,
 } from './network';
 export type { QueuedAction, QueuedActionType } from './network';
