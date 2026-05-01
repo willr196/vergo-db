@@ -24,6 +24,14 @@
       });
     }
 
+    function getSafeRedirectPath() {
+      const redirect = new URLSearchParams(window.location.search).get('redirect');
+      if (!redirect || !redirect.startsWith('/') || redirect.startsWith('//')) {
+        return '/admin-jobs';
+      }
+      return redirect;
+    }
+
     // Configuration
     const MAX_ATTEMPTS = 5;
     const LOCKOUT_DURATION = 60; // seconds
@@ -161,7 +169,7 @@
           
           // Schedule redirect. This always runs once response.ok is true.
           setTimeout(() => {
-            window.location.href = '/admin-jobs';
+            window.location.href = getSafeRedirectPath();
           }, 500);
           
           // Non-critical notification

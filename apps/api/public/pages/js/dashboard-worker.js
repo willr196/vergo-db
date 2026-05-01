@@ -278,7 +278,7 @@
     const res = await window.VERGOAuth.authFetch('/api/v1/mobile/job-applications/mine');
     if (!res) return;
     const data = await res.json().catch(() => ({}));
-    const apps = data.applications || [];
+    const apps = data.applications || data.data || [];
     appliedJobIds = new Set(apps.map(a => a.jobId));
     renderApplications(apps);
     // Re-render jobs to update apply button states
@@ -317,8 +317,8 @@
       }
 
       const workerData = profileData.user;
-      const jobs = jobsData.jobs || [];
-      const apps = appsData.applications || [];
+      const jobs = jobsData.jobs || jobsData.data || [];
+      const apps = appsData.applications || appsData.data || [];
 
       appliedJobIds = new Set(apps.map(a => a.jobId));
 

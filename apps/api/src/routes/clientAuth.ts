@@ -22,6 +22,7 @@ const registerSchema = z.object({
   companyName: z.string().min(2).max(200).trim(),
   industry: z.string().max(100).optional(),
   website: z.string().url().max(200).optional().or(z.literal("")),
+  vatNumber: z.string().max(50).optional(),
   companySize: z.string().max(50).optional(),
   contactName: z.string().min(2).max(100).trim(),
   email: z.string().email().max(100).toLowerCase().trim(),
@@ -222,7 +223,7 @@ r.post("/register", registerLimiter, async (req, res) => {
     
     const { 
       companyName, industry, website, companySize,
-      contactName, email, password, phone, jobTitle 
+      contactName, email, password, phone, jobTitle, vatNumber
     } = parsed.data;
     
     // Check if email already exists
@@ -250,6 +251,7 @@ r.post("/register", registerLimiter, async (req, res) => {
         companyName,
         industry: industry || null,
         website: website || null,
+        vatNumber: vatNumber || null,
         companySize: companySize || null,
         contactName,
         email,
@@ -270,7 +272,8 @@ r.post("/register", registerLimiter, async (req, res) => {
       to: email,
       name: contactName,
       companyName,
-      token: verifyToken
+      token: verifyToken,
+      clientId: client.id
     }).catch(err => {
       console.error("[EMAIL] Failed to send client verification:", err);
     });
@@ -389,7 +392,8 @@ r.post("/resend-verification", forgotPasswordLimiter, async (req, res) => {
       to: email,
       name: client.contactName,
       companyName: client.companyName,
-      token: verifyToken
+      token: verifyToken,
+      clientId: client.id
     }).catch(err => {
       console.error("[EMAIL] Failed to resend client verification:", err);
     });
@@ -687,7 +691,7 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
 
     const {
       companyName, industry, website, companySize,
-      contactName, email, password, phone, jobTitle
+      contactName, email, password, phone, jobTitle, vatNumber
     } = parsed.data;
 
     const existing = await prisma.client.findUnique({
@@ -713,6 +717,7 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
         companyName,
         industry: industry || null,
         website: website || null,
+        vatNumber: vatNumber || null,
         companySize: companySize || null,
         contactName,
         email,
@@ -731,7 +736,8 @@ r.post("/mobile/register", registerLimiter, async (req, res) => {
       to: email,
       name: contactName,
       companyName,
-      token: verifyToken
+      token: verifyToken,
+      clientId: client.id
     }).catch(err => {
       console.error("[EMAIL] Failed to send mobile client verification:", err);
     });

@@ -171,8 +171,9 @@
         + '<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge badge-' + esc(c.status) + '">' + esc(c.status) + '</span></span></div>'
         + '<div class="detail-row"><span class="detail-label">Email Verified</span><span class="detail-value">' + (c.emailVerified ? 'Yes ✓' : 'No ✗') + '</span></div>'
         + '<div class="detail-row"><span class="detail-label">Industry</span><span class="detail-value">' + esc(c.industry || 'Not specified') + '</span></div>'
-        + '<div class="detail-row"><span class="detail-label">Company Size</span><span class="detail-value">' + esc(c.companySize || 'Not specified') + '</span></div>'
-        + (c.website ? '<div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="' + esc(c.website) + '" target="_blank" rel="noopener noreferrer" style="color:var(--as-info)">' + esc(c.website) + '</a></span></div>' : '')
+	        + '<div class="detail-row"><span class="detail-label">Company Size</span><span class="detail-value">' + esc(c.companySize || 'Not specified') + '</span></div>'
+	        + '<div class="detail-row"><span class="detail-label">VAT Number</span><span class="detail-value">' + esc(c.vatNumber || 'Not provided') + '</span></div>'
+	        + (c.website ? '<div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="' + esc(c.website) + '" target="_blank" rel="noopener noreferrer" style="color:var(--as-info)">' + esc(c.website) + '</a></span></div>' : '')
         + '</div>'
         + '<div class="detail-grid mt-2">'
         + '<div class="detail-row"><span class="detail-label">Contact Name</span><span class="detail-value fw-600">' + esc(c.contactName) + '</span></div>'

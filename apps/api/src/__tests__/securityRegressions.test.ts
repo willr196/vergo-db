@@ -26,6 +26,8 @@ const mobileClient = require('../routes/mobileClient').default;
 const mobileMarketplace = require('../routes/mobileMarketplace').default;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const quotes = require('../routes/quotes').default;
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const webAuth = require('../routes/webAuth').default;
 
 class MockSocket extends Duplex {
   public chunks: Buffer[] = [];
@@ -153,6 +155,65 @@ test('public quote submissions ignore spoofed client identifiers and do not crea
     assert.equal(body.ok, true);
     assert.equal(body.quoteId, null);
     assert.equal(createCalled, false);
+  } finally {
+    prismaAny.quoteRequest.create = originalCreate;
+  }
+});
+
+test('authenticated web client brief creation persists a quote linked to the signed-in client', async () => {
+  const prismaAny = prisma as any;
+  const originalCreate = prismaAny.quoteRequest.create;
+
+  let observedCreate: any = null;
+  prismaAny.quoteRequest.create = async (args: any) => {
+    observedCreate = args;
+    return {
+      id: 'quote-linked',
+      eventType: args.data.eventType,
+      eventDate: args.data.eventDate,
+      eventEndDate: args.data.eventEndDate,
+      location: args.data.location,
+      venue: args.data.venue,
+      staffCount: args.data.staffCount,
+      roles: args.data.roles,
+      status: args.data.status,
+      quotedAmount: null,
+      quoteSentAt: null,
+      requestedLane: args.data.requestedLane,
+      description: args.data.description,
+      createdAt: new Date('2026-04-30T12:00:00.000Z'),
+    };
+  };
+
+  const app = express();
+  app.use(express.json());
+  app.use('/api/v1/web', webAuth);
+
+  try {
+    const token = signAccessToken({ sub: 'client-1', type: 'client', email: 'client@example.com' });
+    const response = await inject(app, {
+      method: 'POST',
+      url: '/api/v1/web/client/briefs',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        eventType: 'Corporate Event',
+        location: 'London',
+        staffCount: 8,
+        roles: 'Bartenders, hosts',
+        requestedLane: 'SELECT',
+      }),
+    });
+
+    assert.equal(response.statusCode, 201);
+    assert.equal(observedCreate.data.clientId, 'client-1');
+    assert.equal(observedCreate.data.status, 'NEW');
+    assert.equal(observedCreate.data.staffCount, 8);
+    const body = JSON.parse(response.body || '{}') as any;
+    assert.equal(body.ok, true);
+    assert.equal(body.brief.id, 'quote-linked');
   } finally {
     prismaAny.quoteRequest.create = originalCreate;
   }

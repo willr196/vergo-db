@@ -87,6 +87,7 @@ model Client {
   companyName           String
   industry              String?
   website               String?
+  vatNumber             String?
   companySize           String?
   contactName           String
   email                 String             @unique

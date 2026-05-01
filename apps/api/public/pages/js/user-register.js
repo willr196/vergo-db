@@ -11,11 +11,23 @@ const form = document.getElementById('register-form');
 const msgBox = document.getElementById('message');
 const params = new URLSearchParams(window.location.search);
 const prefillEmail = params.get('email');
+const prefillFirstName = params.get('firstName');
+const prefillLastName = params.get('lastName');
+const prefillPhone = params.get('phone');
 const hasApplied = params.get('applied') === '1';
 let lastRegisteredEmail = '';
 
 if (prefillEmail) {
   document.getElementById('email').value = prefillEmail;
+}
+if (prefillFirstName) {
+  document.getElementById('firstName').value = prefillFirstName;
+}
+if (prefillLastName) {
+  document.getElementById('lastName').value = prefillLastName;
+}
+if (prefillPhone) {
+  document.getElementById('phone').value = prefillPhone;
 }
 
 if (hasApplied) {
@@ -25,7 +37,7 @@ if (hasApplied) {
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const btn = form.querySelector('button');
+  const btn = form.querySelector('button[type="submit"]');
   const firstName = document.getElementById('firstName').value.trim();
   const lastName = document.getElementById('lastName').value.trim();
   const email = document.getElementById('email').value.trim();

@@ -269,6 +269,22 @@
     return allApplications.find(function (app) { return app.id === appId; }) || null;
   }
 
+  function getRequestedApplicationId() {
+    var params = new URLSearchParams(window.location.search || '');
+    var appId = params.get('applicationId') || params.get('appId') || params.get('application');
+    if (!appId && window.location.hash) {
+      var hashParams = new URLSearchParams(window.location.hash.slice(1));
+      appId = hashParams.get('applicationId') || hashParams.get('appId') || hashParams.get('application');
+    }
+    return appId || '';
+  }
+
+  async function openRequestedApplicationFromUrl() {
+    var appId = getRequestedApplicationId();
+    if (!appId) return;
+    await openDrawer(appId);
+  }
+
   function renderTagPills(items, className, emptyLabel) {
     if (!items || items.length === 0) {
       return '<span class="text-muted">' + esc(emptyLabel || '-') + '</span>';
@@ -844,6 +860,7 @@
       loadContacts(),
       loadEvents()
     ]);
+    await openRequestedApplicationFromUrl();
 
     scheduleRefresh();
   }

@@ -66,7 +66,7 @@ async function main() {
 
     const homepageDom = await dumpDom(browserBin, `${baseUrl}/`);
     assert.match(homepageDom, /class="nav-container"/i, 'homepage shell navigation did not hydrate');
-    assert.match(homepageDom, /Event staffing that/i, 'homepage hero copy missing');
+    assert.match(homepageDom, /High quality event staff at the ready/i, 'homepage hero copy missing');
     assert.match(homepageDom, /class="footer-grid"/i, 'homepage footer shell missing');
 
     const portalLoginDom = await dumpDom(browserBin, `${baseUrl}/portal-login`);

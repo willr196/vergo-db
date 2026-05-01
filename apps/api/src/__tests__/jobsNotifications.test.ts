@@ -241,7 +241,11 @@ test('client registration notifies both the client and the admin inbox', async (
   const sentEmails: any[] = [];
 
   prismaAny.client.findUnique = async () => null;
-  prismaAny.client.create = async () => ({ id: 'client-1' });
+  prismaAny.client.create = async (args: any) => {
+    assert.equal(args.data.website, 'https://acme.test');
+    assert.equal(args.data.vatNumber, 'GB123456789');
+    return { id: 'client-1' };
+  };
   senderModule.sendEmailOrThrow = async (payload: any) => {
     sentEmails.push(payload);
     return { id: 'email-3', success: true };
@@ -260,6 +264,7 @@ test('client registration notifies both the client and the admin inbox', async (
         companyName: 'Acme Hospitality',
         industry: 'Events',
         website: 'https://acme.test',
+        vatNumber: 'GB123456789',
         companySize: '11-50',
         contactName: 'Morgan Reed',
         email: 'morgan@acme.test',

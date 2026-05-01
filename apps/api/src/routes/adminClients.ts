@@ -64,6 +64,7 @@ r.get("/", async (req, res, next) => {
           companyName: true,
           industry: true,
           website: true,
+          vatNumber: true,
           companySize: true,
           contactName: true,
           email: true,

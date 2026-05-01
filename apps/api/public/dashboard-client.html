@@ -60,8 +60,11 @@
       <!-- 1. Active briefs -->
       <section class="dash-section" aria-labelledby="briefs-heading">
         <div class="dash-section-header">
-          <h2 class="dash-section-title" id="briefs-heading">Active Briefs</h2>
-          <span class="dash-section-count" id="briefs-count"></span>
+          <div>
+            <h2 class="dash-section-title" id="briefs-heading">Active Briefs</h2>
+            <span class="dash-section-count" id="briefs-count"></span>
+          </div>
+          <button class="btn-apply" id="new-brief-btn" type="button">New Brief</button>
         </div>
         <div class="card-grid" id="briefs-grid" aria-live="polite"></div>
       </section>
@@ -86,6 +89,82 @@
 
     </div>
   </main>
+
+  <div class="dash-modal-backdrop" id="brief-modal" hidden>
+    <div class="dash-modal" role="dialog" aria-modal="true" aria-labelledby="brief-modal-title">
+      <div class="dash-modal-header">
+        <h2 id="brief-modal-title">New Staffing Brief</h2>
+        <button class="dash-modal-close" type="button" data-action="close-brief-modal" aria-label="Close">×</button>
+      </div>
+      <form id="brief-form" class="dash-form">
+        <div class="dash-form-grid">
+          <label>
+            <span>Occasion type</span>
+            <select name="eventType" required>
+              <option value="">Select</option>
+              <option value="Corporate Event">Corporate Event</option>
+              <option value="Private Party">Private Party</option>
+              <option value="Wedding">Wedding</option>
+              <option value="Festival/Concert">Festival/Concert</option>
+              <option value="Sports Event">Sports Event</option>
+              <option value="Film/TV Production">Film/TV Production</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+          <label>
+            <span>Staff needed</span>
+            <input type="number" name="staffCount" min="1" max="500" required>
+          </label>
+          <label>
+            <span>Event date</span>
+            <input type="date" name="eventDate">
+          </label>
+          <label>
+            <span>End date</span>
+            <input type="date" name="eventEndDate">
+          </label>
+          <label class="dash-form-full">
+            <span>Location</span>
+            <input type="text" name="location" maxlength="200" required>
+          </label>
+          <label class="dash-form-full">
+            <span>Roles required</span>
+            <input type="text" name="roles" maxlength="500" required placeholder="Bartenders, waiters, hosts">
+          </label>
+          <label>
+            <span>Shift start</span>
+            <input type="time" name="shiftStart">
+          </label>
+          <label>
+            <span>Shift end</span>
+            <input type="time" name="shiftEnd">
+          </label>
+          <label>
+            <span>Service lane</span>
+            <select name="requestedLane">
+              <option value="">No preference</option>
+              <option value="FLEX">Flex</option>
+              <option value="SELECT">Select</option>
+              <option value="MANAGED">Managed</option>
+            </select>
+          </label>
+          <label>
+            <span>Budget</span>
+            <input type="text" name="budget" maxlength="100">
+          </label>
+          <label class="dash-form-full">
+            <span>Details</span>
+            <textarea name="description" maxlength="2000" rows="4"></textarea>
+          </label>
+        </div>
+        <div class="dash-form-error" id="brief-form-error" role="alert" hidden></div>
+        <div class="dash-modal-footer">
+          <button class="btn-logout" type="button" data-action="close-brief-modal">Cancel</button>
+          <button class="btn-apply" type="submit">Submit Brief</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <footer role="contentinfo"></footer>
   <script src="/auth.js"></script>

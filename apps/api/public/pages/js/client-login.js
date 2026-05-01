@@ -18,7 +18,7 @@
   if (!form || !msgBox || !resendSection) return;
 
   const params = new URLSearchParams(window.location.search);
-  const defaultRedirect = '/client-dashboard';
+  const defaultRedirect = '/dashboard-client';
   let redirect = defaultRedirect;
   const redirectParam = params.get('redirect');
   if (redirectParam) {
@@ -31,10 +31,13 @@
       redirect = defaultRedirect;
     }
   }
+  if (redirect === '/client-dashboard') redirect = defaultRedirect;
 
   // Show success if just verified
   if (params.get('verified') === 'true') {
-    msgBox.innerHTML = '<div class="success-msg">Email verified! You can now log in.</div>';
+    msgBox.innerHTML = '<div class="success-msg">Email verified. Our team will review your account next, then email you when client access is active.</div>';
+  } else if (params.get('verified') === 'already') {
+    msgBox.innerHTML = '<div class="info-msg">Your email is already verified. If your account has been approved, you can log in.</div>';
   }
 
   let lastEmail = '';
@@ -56,7 +59,7 @@
     resendSection.classList.add('d-none');
 
     try {
-      const res = await fetch('/api/v1/client/login', {
+      const res = await fetch('/api/v1/web/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -82,7 +85,22 @@
         throw new Error(data.error || 'Login failed');
       }
 
-      // Success - redirect to client dashboard
+      if (data.userType !== 'client') {
+        window.location.href = '/dashboard-worker.html';
+        return;
+      }
+
+      localStorage.setItem('vergo_jwt', data.token);
+      if (data.refreshToken) localStorage.setItem('vergo_refresh', data.refreshToken);
+      localStorage.setItem('vergo_user', JSON.stringify({
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        userType: data.userType,
+        companyName: data.user.companyName || null
+      }));
+
+      // Success - redirect to the JWT client dashboard
       window.location.href = redirect;
     } catch (err) {
       const message = (err && typeof err === 'object' && 'message' in err) ? String(err.message) : 'Login failed';
@@ -125,4 +143,3 @@
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 })();
-

@@ -35,6 +35,21 @@ const logoutSchema = z.object({
   refreshToken: z.string().min(1).optional(),
 });
 
+const createClientBriefSchema = z.object({
+  eventType: z.string().min(2).max(100).trim(),
+  eventDate: z.string().optional(),
+  eventEndDate: z.string().optional(),
+  location: z.string().min(2).max(200).trim(),
+  venue: z.string().max(200).trim().optional(),
+  requestedLane: z.enum(['FLEX', 'SELECT', 'MANAGED']).optional(),
+  staffCount: z.coerce.number().int().min(1).max(500),
+  roles: z.string().min(2).max(500).trim(),
+  shiftStart: z.string().max(10).trim().optional(),
+  shiftEnd: z.string().max(10).trim().optional(),
+  description: z.string().max(2000).trim().optional(),
+  budget: z.string().max(100).trim().optional(),
+});
+
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
@@ -51,6 +66,12 @@ const refreshLimiter = rateLimit({
   max: 30,
   message: { ok: false, error: 'Too many refresh attempts. Try again later.' },
 });
+
+function parseOptionalDate(value?: string) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
 
 // ============================================
 // POST /api/v1/web/login — unified worker + client login
@@ -558,6 +579,69 @@ r.get('/client/briefs', requireClientJwt, async (req, res) => {
   } catch (error) {
     console.error('[ERROR] Web client/briefs failed:', error);
     return res.status(500).json({ ok: false, error: 'Failed to get briefs' });
+  }
+});
+
+// ============================================
+// POST /api/v1/web/client/briefs — create authenticated client brief
+// ============================================
+r.post('/client/briefs', requireClientJwt, async (req, res) => {
+  try {
+    const parsed = createClientBriefSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Invalid brief details',
+        details: parsed.error.issues.map((i) => i.message),
+      });
+    }
+
+    const data = parsed.data;
+    const brief = await prisma.quoteRequest.create({
+      data: {
+        eventType: data.eventType,
+        eventDate: parseOptionalDate(data.eventDate),
+        eventEndDate: parseOptionalDate(data.eventEndDate),
+        location: data.location,
+        venue: data.venue || null,
+        requestedLane: data.requestedLane || null,
+        staffCount: data.staffCount,
+        roles: data.roles,
+        shiftStart: data.shiftStart || null,
+        shiftEnd: data.shiftEnd || null,
+        description: data.description || null,
+        budget: data.budget || null,
+        status: 'NEW',
+        clientId: req.auth!.userId,
+      },
+      select: {
+        id: true,
+        eventType: true,
+        eventDate: true,
+        eventEndDate: true,
+        location: true,
+        venue: true,
+        staffCount: true,
+        roles: true,
+        status: true,
+        quotedAmount: true,
+        quoteSentAt: true,
+        requestedLane: true,
+        description: true,
+        createdAt: true,
+      },
+    });
+
+    return res.status(201).json({
+      ok: true,
+      brief: {
+        ...brief,
+        quotedAmount: brief.quotedAmount ? Number(brief.quotedAmount) : null,
+      },
+    });
+  } catch (error) {
+    console.error('[ERROR] Web client brief creation failed:', error);
+    return res.status(500).json({ ok: false, error: 'Failed to create brief' });
   }
 });
 

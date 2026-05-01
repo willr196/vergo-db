@@ -163,6 +163,8 @@ test('application submissions notify the admin inbox and send applicant confirma
     assert.equal(senderCalls.critical[0].to, 'wrobb@vergoltd.com');
     assert.equal(senderCalls.critical[0].subject, 'New Job Application - Alice Nguyen');
     assert.equal(senderCalls.critical[0].emailType, 'application-notification');
+    assert.match(senderCalls.critical[0].html, /href="http:\/\/localhost:8080\/admin\?applicationId=application-1"/);
+    assert.doesNotMatch(senderCalls.critical[0].html, /admin-job-applications/);
 
     assert.equal(senderCalls.silent.length, 1);
     assert.equal(senderCalls.silent[0].to, 'alice@example.com');

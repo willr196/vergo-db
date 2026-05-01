@@ -48,6 +48,14 @@
   const newPasswordField = document.getElementById('new-password');
   const confirmPasswordField = document.getElementById('confirm-password');
 
+  const emailParam = params.get('email');
+  if (emailParam && emailField) {
+    emailField.value = emailParam;
+  }
+  if (emailParam && setPasswordEmailField) {
+    setPasswordEmailField.value = emailParam;
+  }
+
   function storeSessionAndRedirect(data) {
     localStorage.setItem('vergo_jwt', data.token);
     if (data.refreshToken) localStorage.setItem('vergo_refresh', data.refreshToken);

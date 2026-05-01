@@ -1017,7 +1017,7 @@ r.patch('/:id/status', adminAuth, async (req, res, next) => {
 
     const existing = await prisma.application.findUnique({
       where: { id: req.params.id },
-      select: { id: true, applicantId: true }
+      select: { id: true, applicantId: true, status: true }
     });
 
     if (!existing) {
@@ -1033,7 +1033,7 @@ r.patch('/:id/status', adminAuth, async (req, res, next) => {
     authLogger.info({ action: 'application_status_changed', admin: adminUsername, applicationId: req.params.id, status: parsed.data.status }, 'Admin changed application status');
 
     // Auto-create user account when status is set to HIRED
-    if (parsed.data.status === 'HIRED') {
+    if (parsed.data.status === 'HIRED' && existing.status !== 'HIRED') {
       try {
         const applicant = await prisma.applicant.findUnique({
           where: { id: existing.applicantId },
@@ -1044,17 +1044,30 @@ r.patch('/:id/status', adminAuth, async (req, res, next) => {
           // Check if a User already exists for this email
           const existingUser = await prisma.user.findUnique({
             where: { email: applicant.email },
-            select: { id: true, applicantId: true }
+            select: { id: true, applicantId: true, emailVerified: true }
           });
 
           if (existingUser) {
-            // Link the existing user to the applicant if not already linked
-            if (!existingUser.applicantId) {
+            // Link and activate the existing user so the roster approval email can lead straight to login.
+            if (!existingUser.applicantId || !existingUser.emailVerified) {
               await prisma.user.update({
                 where: { id: existingUser.id },
-                data: { applicantId: applicant.id }
+                data: {
+                  applicantId: existingUser.applicantId || applicant.id,
+                  emailVerified: true,
+                }
               });
-              console.log(`[ROSTER] Linked existing user ${existingUser.id} to applicant ${applicant.id}`);
+              console.log(`[ROSTER] Activated existing user ${existingUser.id} for applicant ${applicant.id}`);
+            }
+
+            try {
+              await sendRosterApprovalEmail({
+                to: applicant.email,
+                name: applicant.firstName,
+                email: applicant.email,
+              });
+            } catch (emailErr) {
+              console.error(`[ROSTER] Failed to send welcome email to existing user ${applicant.email}:`, emailErr);
             }
           } else {
             // Create a new user account with temporary password

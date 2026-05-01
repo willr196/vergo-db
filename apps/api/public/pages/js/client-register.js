@@ -13,14 +13,14 @@ const form = document.getElementById('register-form');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      const btn = form.querySelector('button');
+      const btn = form.querySelector('button[type="submit"]');
       const firstName = document.getElementById('firstName').value.trim();
       const lastName = document.getElementById('lastName').value.trim();
 
       const formData = {
         // Company
         companyName: document.getElementById('companyName').value.trim(),
-        companyWebsite: document.getElementById('companyWebsite').value.trim() || undefined,
+        website: document.getElementById('companyWebsite').value.trim() || undefined,
         vatNumber: document.getElementById('vatNumber').value.trim() || undefined,
         industry: document.getElementById('industry').value,
         // Contact - combine firstName + lastName into contactName for backend

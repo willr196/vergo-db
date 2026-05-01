@@ -329,6 +329,114 @@ body.dashboard-page.dashboard-shell-page .dash-header {
   transform: translateY(-1px);
 }
 
+/* ---- Dashboard modal forms ---- */
+.dash-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(17, 17, 17, 0.55);
+}
+
+.dash-modal-backdrop[hidden] {
+  display: none;
+}
+
+.dash-modal {
+  width: min(720px, 100%);
+  max-height: calc(100vh - var(--space-8));
+  overflow: auto;
+  background: var(--color-bg-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+}
+
+.dash-modal-header,
+.dash-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.dash-modal-footer {
+  border-top: 1px solid var(--color-border);
+  border-bottom: 0;
+  justify-content: flex-end;
+}
+
+.dash-modal-header h2 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+}
+
+.dash-modal-close {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.dash-form {
+  padding: 0;
+}
+
+.dash-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.dash-form label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.dash-form input,
+.dash-form select,
+.dash-form textarea {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  font: inherit;
+  color: var(--color-text-primary);
+  background: var(--color-bg-white);
+}
+
+.dash-form input:focus,
+.dash-form select:focus,
+.dash-form textarea:focus {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 1px;
+}
+
+.dash-form-full {
+  grid-column: 1 / -1;
+}
+
+.dash-form-error {
+  margin: 0 var(--space-5) var(--space-5);
+  padding: var(--space-3);
+  border: 1px solid rgba(197, 48, 48, 0.2);
+  border-radius: var(--radius-sm);
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+}
+
 /* ---- Progression / stat box ---- */
 .stat-row {
   display: flex;
@@ -487,5 +595,13 @@ body.dashboard-page.dashboard-shell-page .dash-header {
 
   .stat-row {
     flex-direction: column;
+  }
+
+  .dash-section-header {
+    align-items: flex-start;
+  }
+
+  .dash-form-grid {
+    grid-template-columns: 1fr;
   }
 }

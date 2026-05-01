@@ -45,6 +45,11 @@ export function Button({
   rightIcon,
 }: ButtonProps) {
   const isDisabled = disabled || loading;
+  const handlePress = () => {
+    if (!isDisabled) {
+      onPress();
+    }
+  };
   
   const buttonStyles = [
     styles.base,
@@ -66,7 +71,7 @@ export function Button({
   return (
     <TouchableOpacity
       style={buttonStyles}
-      onPress={onPress}
+      onPress={handlePress}
       disabled={isDisabled}
       activeOpacity={0.8}
     >

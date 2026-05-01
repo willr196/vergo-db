@@ -19,7 +19,7 @@
 
   // Get redirect URL (allow same-origin only)
   const params = new URLSearchParams(window.location.search);
-  const defaultRedirect = '/jobs';
+  const defaultRedirect = '/dashboard-worker';
   let redirect = defaultRedirect;
   const redirectParam = params.get('redirect');
   if (redirectParam) {
@@ -57,7 +57,7 @@
     resendSection.classList.add('d-none');
 
     try {
-      const res = await fetch('/api/v1/user/login', {
+      const res = await fetch('/api/v1/web/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -72,14 +72,28 @@
           resendSection.classList.remove('d-none');
         }
         // Redirect to reset password page for forced password change
-        if (data.code === 'MUST_CHANGE_PASSWORD' && data.token) {
-          window.location.href = '/reset-password?token=' + encodeURIComponent(data.token);
+        if (data.code === 'MUST_CHANGE_PASSWORD') {
+          window.location.href = '/portal-login?email=' + encodeURIComponent(email);
           return;
         }
         throw new Error(data.error || 'Login failed');
       }
 
-      // Success - redirect
+      localStorage.setItem('vergo_jwt', data.token);
+      if (data.refreshToken) localStorage.setItem('vergo_refresh', data.refreshToken);
+      localStorage.setItem('vergo_user', JSON.stringify({
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        userType: data.userType,
+        companyName: data.user.companyName || null
+      }));
+
+      if (data.userType === 'client') {
+        window.location.href = '/dashboard-client';
+        return;
+      }
+
       window.location.href = redirect;
     } catch (err) {
       const message = (err && typeof err === 'object' && 'message' in err) ? String(err.message) : 'Login failed';

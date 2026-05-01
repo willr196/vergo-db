@@ -216,8 +216,14 @@ export const jobRejectionEmail = (data: EmailTemplateData): string => {
 // APPLICATION EMAILS
 // ============================================
 
+function applicationAdminUrl(applicationId?: string) {
+  return applicationId
+    ? `${env.webOrigin}/admin?applicationId=${encodeURIComponent(applicationId)}`
+    : `${env.webOrigin}/admin`;
+}
+
 export const applicationNotificationEmail = (data: EmailTemplateData): string => {
-  const adminUrl = `${env.webOrigin}/admin-job-applications`;
+  const adminUrl = data.adminUrl || applicationAdminUrl(data.applicationId);
 
   return composeEmail({
     body: emailBody(`
@@ -366,7 +372,7 @@ export const quoteFollowupEmail = (data: EmailTemplateData): string => {
 };
 
 export const applicationReviewReminderEmail = (data: EmailTemplateData): string => {
-  const adminUrl = `${env.webOrigin}/admin-job-applications`;
+  const adminUrl = data.adminUrl || applicationAdminUrl(data.applicationId);
 
   return composeEmail({
     body: emailBody(`
@@ -409,7 +415,8 @@ export const shiftReminderEmail = (data: EmailTemplateData): string => {
 // ============================================
 
 export const rosterApprovalEmail = (data: EmailTemplateData): string => {
-  const loginUrl = `${env.webOrigin}/user-login.html`;
+  const loginUrl = `${env.webOrigin}/user-login`;
+  const hasTempPassword = Boolean(data.tempPassword);
 
   return composeEmail({
     body: emailBody(`
@@ -419,9 +426,9 @@ export const rosterApprovalEmail = (data: EmailTemplateData): string => {
       ${accentCard(`
         <p style="margin: 0 0 8px; font-weight: 600; font-size: 15px;">Your Login Credentials</p>
         <p style="margin: 0 0 4px;"><strong>Email:</strong> ${safe(data.email)}</p>
-        <p style="margin: 0;"><strong>Temporary Password:</strong> ${safe(data.tempPassword)}</p>
+        <p style="margin: 0;"><strong>${hasTempPassword ? 'Temporary Password' : 'Password'}:</strong> ${hasTempPassword ? safe(data.tempPassword) : 'Use the password you created after applying.'}</p>
       `)}
-      ${infoBox('<p style="margin: 0; font-size: 14px;"><strong>Important:</strong> You must change your password when you first log in.</p>', 'warning')}
+      ${hasTempPassword ? infoBox('<p style="margin: 0; font-size: 14px;"><strong>Important:</strong> You must change your password when you first log in.</p>', 'warning') : ''}
       ${primaryButton('Log In to VERGO', loginUrl)}
       ${paragraph('Once logged in, you can:')}
       ${listItems([

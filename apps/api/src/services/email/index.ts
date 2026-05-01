@@ -389,7 +389,7 @@ export async function sendRosterApprovalEmail(data: {
   to: string;
   name: string;
   email: string;
-  tempPassword: string;
+  tempPassword?: string;
 }): Promise<EmailResult> {
   const html = templates.rosterApprovalEmail({
     recipientName: data.name,

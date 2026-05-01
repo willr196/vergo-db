@@ -451,7 +451,15 @@
         if (response.ok) {
           const postApplyAccountLink = document.getElementById('post-apply-account-link');
           if (postApplyAccountLink) {
-            postApplyAccountLink.href = `/user-register?applied=1&email=${encodeURIComponent(String(formData.get('email') || ''))}`;
+            const accountParams = new URLSearchParams({
+              applied: '1',
+              email: String(formData.get('email') || ''),
+              firstName: String(formData.get('firstName') || ''),
+              lastName: String(formData.get('lastName') || ''),
+            });
+            const phoneValue = String(formData.get('phone') || '');
+            if (phoneValue) accountParams.set('phone', phoneValue);
+            postApplyAccountLink.href = `/user-register?${accountParams.toString()}`;
           }
           clearSelectedCvFile();
           clearUploadedCvData();
