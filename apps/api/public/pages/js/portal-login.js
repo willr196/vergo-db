@@ -56,7 +56,7 @@
     setPasswordEmailField.value = emailParam;
   }
 
-  function storeSessionAndRedirect(data) {
+  function storeSessionAndRedirect(data, destinationOverride) {
     localStorage.setItem('vergo_jwt', data.token);
     if (data.refreshToken) localStorage.setItem('vergo_refresh', data.refreshToken);
     localStorage.setItem('vergo_user', JSON.stringify({
@@ -66,7 +66,7 @@
       userType: data.userType,
       companyName: data.user.companyName || null,
     }));
-    const dest = data.userType === 'worker' ? '/dashboard-worker.html' : '/dashboard-client.html';
+    const dest = destinationOverride || (data.userType === 'worker' ? '/dashboard-worker.html' : '/dashboard-client.html');
     window.location.replace(dest);
   }
 
@@ -229,7 +229,7 @@
           return;
         }
 
-        storeSessionAndRedirect(data);
+        storeSessionAndRedirect(data, data.userType === 'worker' ? '/onboarding' : undefined);
       } catch {
         showMsg('A network error occurred. Please check your connection and try again.', 'error');
       } finally {

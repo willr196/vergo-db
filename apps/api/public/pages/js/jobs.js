@@ -51,14 +51,20 @@
     // Logout
     async function logout() {
       try {
-        await fetch('/api/v1/user/logout', { method: 'POST' });
+        const refreshToken = localStorage.getItem('vergo_refresh');
+        await fetch('/api/v1/web/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken: refreshToken || undefined }),
+        });
+      } catch (err) {
+        console.error('Logout failed:', err);
+      } finally {
         localStorage.removeItem('vergo_jwt');
         localStorage.removeItem('vergo_refresh');
         localStorage.removeItem('vergo_user');
         currentUser = null;
         renderUserBar();
-      } catch (err) {
-        console.error('Logout failed:', err);
       }
     }
     
@@ -106,8 +112,8 @@
         if (data.jobs.length === 0) {
           container.innerHTML = `
             <div class="empty-state">
-              <h3>No jobs available</h3>
-              <p>Check back soon for new opportunities!</p>
+              <h3>Applications are open</h3>
+              <p>Most VERGO shifts are sent directly to approved workers rather than listed publicly. Apply to join the roster — once accepted, you'll receive suitable shifts for bartender, waiter, runner, FOH, chef, kitchen porter and catering assistant roles across London.</p>
             </div>
           `;
           document.getElementById('pagination').classList.add('d-none');

@@ -776,7 +776,8 @@ function shapeApplicationListItem(app: any) {
     cvMimeType: app.cvMimeType ?? null,
     cvUploadedAt: app.cvUploadedAt ?? null,
     source: app.source,
-    status: app.status
+    status: app.status,
+    account: shapeRosterAccount(app.applicant.user)
   };
 }
 
@@ -837,7 +838,8 @@ async function shapeApplicationDetail(app: any) {
       dateOfBirth: app.applicant.dateOfBirth ?? null,
       postcode: app.applicant.postcode ?? '',
       preferredJobTypes: splitCommaSeparated(app.applicant.preferredJobTypes)
-    }
+    },
+    account: shapeRosterAccount(app.applicant.user)
   };
 }
 
@@ -852,7 +854,18 @@ r.get('/', adminAuth, async (req, res, next) => {
         skip,
         take: query.limit,
         include: {
-          applicant: true,
+          applicant: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  emailVerified: true,
+                  mustChangePassword: true,
+                  lastLoginAt: true
+                }
+              }
+            }
+          },
           roles: {
             include: {
               role: true
@@ -944,7 +957,19 @@ r.get('/:id', adminAuth, async (req, res, next) => {
     const app = await prisma.application.findUnique({
       where: { id: req.params.id },
       include: {
-        applicant: true,
+        applicant: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                applicantId: true,
+                emailVerified: true,
+                mustChangePassword: true,
+                lastLoginAt: true
+              }
+            }
+          }
+        },
         roles: {
           include: {
             role: true
@@ -1008,6 +1033,35 @@ const updateStatusBody = z.object({
   status: z.enum(['RECEIVED','REVIEWING','SHORTLISTED','REJECTED','HIRED'])
 });
 
+function generateTemporaryPassword(length = 12) {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+  return Array.from({ length }, () => alphabet[crypto.randomInt(0, alphabet.length)]).join('');
+}
+
+function shapeRosterAccount(user: {
+  id: string;
+  emailVerified: boolean;
+  mustChangePassword: boolean;
+  lastLoginAt: Date | null;
+} | null | undefined) {
+  if (!user) {
+    return {
+      exists: false,
+      status: 'NOT_CREATED',
+      label: 'No login email sent'
+    };
+  }
+
+  return {
+    exists: true,
+    status: user.mustChangePassword ? 'PENDING_FIRST_LOGIN' : 'ACTIVE',
+    label: user.mustChangePassword ? 'Login email sent' : 'Account active',
+    emailVerified: user.emailVerified,
+    mustChangePassword: user.mustChangePassword,
+    lastLoginAt: user.lastLoginAt
+  };
+}
+
 r.patch('/:id/status', adminAuth, async (req, res, next) => {
   try {
     const parsed = updateStatusBody.safeParse(req.body);
@@ -1032,92 +1086,141 @@ r.patch('/:id/status', adminAuth, async (req, res, next) => {
     const adminUsername = (req.session as any)?.username || "admin";
     authLogger.info({ action: 'application_status_changed', admin: adminUsername, applicationId: req.params.id, status: parsed.data.status }, 'Admin changed application status');
 
-    // Auto-create user account when status is set to HIRED
-    if (parsed.data.status === 'HIRED' && existing.status !== 'HIRED') {
-      try {
-        const applicant = await prisma.applicant.findUnique({
-          where: { id: existing.applicantId },
-          select: { id: true, firstName: true, lastName: true, email: true, phone: true }
-        });
+    res.json({ ok: true, id: app.id, status: app.status, data: { id: app.id, status: app.status } });
+  } catch (e) { next(e); }
+});
 
-        if (applicant) {
-          // Check if a User already exists for this email
-          const existingUser = await prisma.user.findUnique({
-            where: { email: applicant.email },
-            select: { id: true, applicantId: true, emailVerified: true }
-          });
-
-          if (existingUser) {
-            // Link and activate the existing user so the roster approval email can lead straight to login.
-            if (!existingUser.applicantId || !existingUser.emailVerified) {
-              await prisma.user.update({
-                where: { id: existingUser.id },
-                data: {
-                  applicantId: existingUser.applicantId || applicant.id,
-                  emailVerified: true,
-                }
-              });
-              console.log(`[ROSTER] Activated existing user ${existingUser.id} for applicant ${applicant.id}`);
-            }
-
-            try {
-              await sendRosterApprovalEmail({
-                to: applicant.email,
-                name: applicant.firstName,
-                email: applicant.email,
-              });
-            } catch (emailErr) {
-              console.error(`[ROSTER] Failed to send welcome email to existing user ${applicant.email}:`, emailErr);
-            }
-          } else {
-            // Create a new user account with temporary password
-            const tempPassword = crypto.randomBytes(9).toString('base64url').slice(0, 12);
-            const passwordHash = await bcrypt.hash(tempPassword, 12);
-
-            try {
-              await prisma.user.create({
-                data: {
-                  email: applicant.email,
-                  passwordHash,
-                  firstName: applicant.firstName,
-                  lastName: applicant.lastName,
-                  phone: applicant.phone,
-                  emailVerified: true,
-                  applicantId: applicant.id,
-                  mustChangePassword: true,
-                }
-              });
-
-              console.log(`[ROSTER] Created user account for approved applicant: ${applicant.email}`);
-
-              // Send welcome email with temporary password
-              try {
-                await sendRosterApprovalEmail({
-                  to: applicant.email,
-                  name: applicant.firstName,
-                  email: applicant.email,
-                  tempPassword,
-                });
-              } catch (emailErr) {
-                console.error(`[ROSTER] Failed to send welcome email to ${applicant.email}:`, emailErr);
-              }
-            } catch (createErr: any) {
-              // Handle unique constraint violation gracefully (race condition)
-              if (createErr?.code === 'P2002') {
-                console.warn(`[ROSTER] User already exists for ${applicant.email} (race condition)`);
-              } else {
-                throw createErr;
+// ============================================
+// SEND ROSTER LOGIN EMAIL (ADMIN)
+// ============================================
+r.post('/:id/roster-approval-email', adminAuth, async (req, res, next) => {
+  try {
+    const app = await prisma.application.findUnique({
+      where: { id: req.params.id },
+      include: {
+        applicant: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                applicantId: true,
+                emailVerified: true,
+                mustChangePassword: true,
+                lastLoginAt: true
               }
             }
           }
         }
-      } catch (accountErr) {
-        console.error(`[ROSTER] Failed to create account for application ${req.params.id}:`, accountErr);
-        // Don't fail the status update — approval should succeed even if account creation fails
       }
+    });
+
+    if (!app) {
+      return res.status(404).json({ error: 'Application not found' });
     }
 
-    res.json({ ok: true, id: app.id, status: app.status, data: { id: app.id, status: app.status } });
+    if (app.status !== 'HIRED') {
+      return res.status(409).json({ error: 'Only hired applicants can be sent a roster login email.' });
+    }
+
+    const existingUser = app.applicant.user ?? await prisma.user.findUnique({
+      where: { email: app.applicant.email },
+      select: {
+        id: true,
+        applicantId: true,
+        emailVerified: true,
+        mustChangePassword: true,
+        lastLoginAt: true
+      }
+    });
+
+    if (existingUser?.applicantId && existingUser.applicantId !== app.applicant.id) {
+      return res.status(409).json({ error: 'A different applicant is already linked to this user email.' });
+    }
+
+    if (existingUser && !existingUser.mustChangePassword) {
+      return res.status(409).json({
+        error: 'This worker has already completed first sign-in.',
+        account: shapeRosterAccount(existingUser),
+        data: { account: shapeRosterAccount(existingUser) }
+      });
+    }
+
+    const tempPassword = generateTemporaryPassword();
+    const passwordHash = await bcrypt.hash(tempPassword, 12);
+
+    const user = existingUser
+      ? await prisma.user.update({
+          where: { id: existingUser.id },
+          data: {
+            passwordHash,
+            emailVerified: true,
+            applicantId: app.applicant.id,
+            mustChangePassword: true,
+            verifyToken: null,
+            verifyTokenExp: null,
+            resetToken: null,
+            resetTokenExp: null,
+            failedAttempts: 0,
+            lockedUntil: null
+          },
+          select: { id: true, emailVerified: true, mustChangePassword: true, lastLoginAt: true }
+        })
+      : await prisma.user.create({
+          data: {
+            email: app.applicant.email,
+            passwordHash,
+            firstName: app.applicant.firstName,
+            lastName: app.applicant.lastName,
+            phone: app.applicant.phone,
+            emailVerified: true,
+            applicantId: app.applicant.id,
+            mustChangePassword: true
+          },
+          select: { id: true, emailVerified: true, mustChangePassword: true, lastLoginAt: true }
+        });
+
+    const emailResult = await sendRosterApprovalEmail({
+      to: app.applicant.email,
+      name: app.applicant.firstName,
+      email: app.applicant.email,
+      tempPassword
+    });
+
+    const account = shapeRosterAccount(user);
+    const adminUsername = (req.session as any)?.username || 'admin';
+
+    if (!emailResult || !emailResult.success) {
+      authLogger.warn({
+        action: 'roster_login_email_failed',
+        admin: adminUsername,
+        applicationId: app.id,
+        applicantEmail: app.applicant.email,
+        error: emailResult?.error || 'Unknown email error'
+      }, 'Admin roster login email failed');
+
+      return res.status(502).json({
+        ok: false,
+        error: `Account is ready, but the login email did not send: ${emailResult?.error || 'Unknown email error'}`,
+        account,
+        emailSent: false,
+        data: { account, emailSent: false }
+      });
+    }
+
+    authLogger.info({
+      action: 'roster_login_email_sent',
+      admin: adminUsername,
+      applicationId: app.id,
+      applicantEmail: app.applicant.email
+    }, 'Admin sent roster login email');
+
+    res.json({
+      ok: true,
+      message: 'Roster login email sent.',
+      account,
+      emailSent: true,
+      data: { message: 'Roster login email sent.', account, emailSent: true }
+    });
   } catch (e) { next(e); }
 });
 

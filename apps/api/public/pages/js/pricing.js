@@ -12,8 +12,8 @@
   };
 
   const tierLabels = {
-    STANDARD: 'Standard',
-    GOLD: 'Gold',
+    STANDARD: 'VERGO Freelance',
+    GOLD: 'VERGO Staff',
   };
 
   const serviceFeeRates = {
@@ -81,7 +81,7 @@
 
     tierBadge.textContent = tierLabel + ' estimate';
     total.innerHTML = '--';
-    summary.textContent = 'Enter the agreed wage, headcount and hours to estimate the ' + tierLabel + ' tier.';
+    summary.textContent = 'Enter the agreed wage, headcount and hours to estimate the ' + tierLabel + ' route.';
     rateLabel.textContent = 'Agreed wage';
     hourlyRate.innerHTML = '--';
     subtotal.innerHTML = '--';
@@ -93,16 +93,16 @@
   }
 
   function writeGoldEmptyState() {
-    tierBadge.textContent = 'Gold estimate';
+    tierBadge.textContent = 'VERGO Staff estimate';
     total.innerHTML = '--';
-    summary.textContent = 'Enter headcount and hours to estimate the Gold tier.';
+    summary.textContent = 'Enter headcount and hours to estimate the VERGO Staff route.';
     rateLabel.textContent = 'Fixed rate used';
     hourlyRate.innerHTML = '--';
     subtotal.innerHTML = '--';
     serviceLabel.textContent = 'Service fee';
     serviceFee.innerHTML = 'Included';
     vat.innerHTML = '--';
-    disclaimer.textContent = 'Gold uses fixed public rates. Mixed teams and bespoke requirements may need a tailored quote.';
+    disclaimer.textContent = 'VERGO Staff uses fixed public rates. Mixed teams and bespoke requirements may need a tailored quote.';
     quoteLink.setAttribute('href', staffRequestHref);
   }
 
@@ -113,7 +113,7 @@
     const hours = readPositiveNumber(hoursField);
 
     standardRateWrap.hidden = tier === 'GOLD';
-    standardRateNote.textContent = 'Standard pricing = agreed wage + \u00A32/hr + VAT.';
+    standardRateNote.textContent = 'VERGO Freelance pricing = agreed wage + \u00A32/hr + VAT.';
 
     if (tier !== 'GOLD') {
       const serviceFeeRate = serviceFeeRates[tier];
@@ -132,7 +132,7 @@
 
       tierBadge.textContent = tierLabel + ' estimate';
       total.innerHTML = formatMoney(totalAmount);
-      summary.textContent = headcount + ' staff for ' + hours + ' hours on the ' + tierLabel + ' tier for ' + roleLabels[role] + '.';
+      summary.textContent = headcount + ' staff for ' + hours + ' hours via ' + tierLabel + ' for ' + roleLabels[role] + '.';
       rateLabel.textContent = 'Agreed wage';
       hourlyRate.innerHTML = formatMoney(baseRate) + '/hr';
       subtotal.innerHTML = formatMoney(labourSubtotal);
@@ -154,16 +154,16 @@
     const vatAmount = labourSubtotal * 0.2;
     const totalAmount = labourSubtotal + vatAmount;
 
-    tierBadge.textContent = 'Gold estimate';
+    tierBadge.textContent = 'VERGO Staff estimate';
     total.innerHTML = formatMoney(totalAmount);
-    summary.textContent = headcount + ' staff for ' + hours + ' hours on the Gold tier for ' + roleLabels[role] + '.';
+    summary.textContent = headcount + ' staff for ' + hours + ' hours via VERGO Staff for ' + roleLabels[role] + '.';
     rateLabel.textContent = 'Fixed rate used';
     hourlyRate.innerHTML = formatMoney(rate) + '/hr';
     subtotal.innerHTML = formatMoney(labourSubtotal);
     serviceLabel.textContent = 'Service fee';
     serviceFee.innerHTML = 'Included';
     vat.innerHTML = formatMoney(vatAmount);
-    disclaimer.textContent = 'Estimate only. Gold uses fixed public rates for the roles shown here. Mixed teams and bespoke requirements may need a tailored quote.';
+    disclaimer.textContent = 'Estimate only. VERGO Staff uses fixed public rates for the roles shown here. Mixed teams and bespoke requirements may need a tailored quote.';
     quoteLink.setAttribute('href', staffRequestHref);
   }
 

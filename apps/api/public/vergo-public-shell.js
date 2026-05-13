@@ -52,9 +52,8 @@
   const withCurrent = (group) => (isCurrent(group) ? ' aria-current="page"' : '');
 
   const ensureFonts = () => {
-    const hasPublicFonts = document.querySelector('link[href*="family=Manrope"]');
-
-    if (hasPublicFonts) {
+    // Skip if the page already manages its own Google Fonts (e.g. index.html uses DM Sans)
+    if (document.querySelector('link[href*="fonts.googleapis.com"]')) {
       return;
     }
 
@@ -74,13 +73,7 @@
     return value.replace(/\s(?:--|—|–)\s/g, ', ');
   };
 
-  const normalizeTitleValue = (value) => {
-    if (!value || !/[—–]|--/.test(value)) {
-      return value;
-    }
-
-    return value.replace(/\s(?:--|—|–)\s/g, ', ');
-  };
+  const normalizeTitleValue = normalizeCopyValue;
 
   const normalizeTextNode = (node) => {
     if (!node || node.nodeType !== Node.TEXT_NODE) {
@@ -542,6 +535,16 @@
   s.src = '/vergo-whatsapp.js';
   s.defer = true;
   document.body.appendChild(s);
+})();
+
+// Hide proof briefs block if the list has no items
+(function () {
+  var list = document.querySelector('.proof-briefs__list');
+  if (!list) return;
+  if (!list.querySelector('li')) {
+    var block = list.closest('.proof-briefs');
+    if (block) block.classList.add('is-hidden');
+  }
 })();
 
 // GDPR cookie consent banner

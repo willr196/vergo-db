@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../prisma';
 import { adminAuth } from '../middleware/adminAuth';
+import { sendBookingReviewRequestEmail } from '../services/email';
 
 const r = Router();
 r.use(adminAuth);
@@ -515,7 +516,13 @@ r.post('/:id/complete', async (req, res, next) => {
   try {
     const data = completeSchema.parse(req.body);
 
-    const booking = await prisma.booking.findUnique({ where: { id: req.params.id } });
+    const booking = await prisma.booking.findUnique({
+      where: { id: req.params.id },
+      include: {
+        client: { select: { id: true, contactName: true, email: true, companyName: true } },
+        staff: { select: { firstName: true, lastName: true } },
+      },
+    });
     if (!booking) return res.status(404).json({ ok: false, error: 'Booking not found' });
     if (booking.status !== 'CONFIRMED') {
       return res.status(400).json({ ok: false, error: 'Only confirmed bookings can be completed' });
@@ -539,6 +546,18 @@ r.post('/:id/complete', async (req, res, next) => {
     });
 
     console.log(`[BOOKING] Completed: ${booking.id} | Hours: ${finalHours} | Total: £${finalTotal}`);
+
+    // Fire review request to the client (non-blocking)
+    if (booking.client) {
+      sendBookingReviewRequestEmail({
+        to: booking.client.email,
+        clientName: booking.client.contactName,
+        staffName: `${booking.staff.firstName} ${booking.staff.lastName}`,
+        eventDate: booking.eventDate,
+        bookingId: booking.id,
+      }).catch((err) => console.error('[EMAIL] Review request failed:', err));
+    }
+
     res.json({ ok: true, data: { id: updated.id, status: updated.status } });
   } catch (error) {
     next(error);

@@ -22,6 +22,8 @@
   const confirmedGrid  = document.getElementById('confirmed-grid');
   const progressStats  = document.getElementById('progress-stats');
   const progressPathway = document.getElementById('progress-pathway');
+  const profileNudge   = document.getElementById('profile-nudge');
+  const nudgeDismiss   = document.getElementById('nudge-dismiss');
 
   // Set header name immediately from cached token
   if (headerName) headerName.textContent = user.name;
@@ -229,6 +231,7 @@
 
   // ---- Render progression ----
   function renderProgression(workerData) {
+    checkProfileNudge(workerData);
     const tier = workerData.staffTier || null;
 
     // Update header tier badge
@@ -338,6 +341,21 @@
       showError('Something went wrong loading your dashboard. Please refresh.');
       console.error('[Worker Dashboard]', err);
     }
+  }
+
+  function checkProfileNudge(workerData) {
+    if (!profileNudge) return;
+    const dismissed = localStorage.getItem('vergo_nudge_dismissed');
+    if (dismissed) return;
+    const incomplete = !workerData.staffBio || !workerData.staffAvatar || !workerData.staffAvailable;
+    if (incomplete) profileNudge.hidden = false;
+  }
+
+  if (nudgeDismiss) {
+    nudgeDismiss.addEventListener('click', () => {
+      localStorage.setItem('vergo_nudge_dismissed', '1');
+      if (profileNudge) profileNudge.hidden = true;
+    });
   }
 
   loadDashboard();

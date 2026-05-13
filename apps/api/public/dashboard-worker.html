@@ -57,6 +57,20 @@
     <!-- Dashboard content (hidden until loaded) -->
     <div id="dashboard-content" hidden>
 
+      <!-- Profile completeness nudge -->
+      <div class="profile-nudge" id="profile-nudge" hidden>
+        <div class="profile-nudge-inner">
+          <div>
+            <strong>Complete your profile</strong>
+            <p>Add your bio, photo and availability so VERGO can match you to the right shifts.</p>
+          </div>
+          <div class="profile-nudge-actions">
+            <a href="/onboarding" class="btn-apply btn-gold">Set up profile</a>
+            <button type="button" id="nudge-dismiss" class="btn-logout" style="font-size:var(--font-size-xs)">Dismiss</button>
+          </div>
+        </div>
+      </div>
+
       <!-- 1. Available jobs -->
       <section class="dash-section" aria-labelledby="jobs-heading">
         <div class="dash-section-header">

@@ -60,6 +60,13 @@
       document.documentElement.classList.add('homepage-enhanced');
     }
 
+    const founderImg = document.querySelector('.proof-founder__photo');
+    if (founderImg) {
+      founderImg.addEventListener('error', function () {
+        this.src = '/images/founder-placeholder.svg';
+      }, { once: true });
+    }
+
     initRevealAnimations();
   });
 })();

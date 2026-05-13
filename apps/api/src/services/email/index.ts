@@ -528,6 +528,66 @@ export async function sendApplicationReviewReminder(data: {
   });
 }
 
+export async function sendJobInviteEmail(data: {
+  to: string;
+  workerName: string;
+  jobTitle: string;
+  roleName: string;
+  eventDate: Date | null;
+  location: string;
+  shiftStart?: string;
+  shiftEnd?: string;
+  adminNote?: string;
+  inviteId: string;
+}): Promise<EmailResult> {
+  const html = templates.jobInviteEmail({
+    recipientName: data.workerName,
+    jobTitle: data.jobTitle,
+    roleName: data.roleName,
+    eventDate: data.eventDate,
+    jobLocation: data.location,
+    shiftStart: data.shiftStart,
+    shiftEnd: data.shiftEnd,
+    adminNote: data.adminNote,
+  });
+
+  return sendEmailSilent({
+    to: data.to,
+    subject: `You've been invited to a VERGO shift — ${data.jobTitle}`,
+    html,
+    emailType: 'job-invite',
+    tags: [
+      { name: 'category', value: 'job-invite' },
+      { name: 'source', value: 'admin' },
+    ],
+  }) as Promise<EmailResult>;
+}
+
+export async function sendBookingReviewRequestEmail(data: {
+  to: string;
+  clientName: string;
+  staffName: string;
+  eventDate: Date;
+  bookingId: string;
+}): Promise<EmailResult> {
+  const html = templates.bookingReviewRequestEmail({
+    recipientName: data.clientName,
+    staffName: data.staffName,
+    eventDate: data.eventDate,
+  });
+
+  return sendEmailSilent({
+    to: data.to,
+    subject: 'How did your VERGO event go? Leave a quick review',
+    html,
+    emailType: 'booking-review-request',
+    tags: [
+      { name: 'category', value: 'booking-review-request' },
+      { name: 'source', value: 'automated' },
+    ],
+  }) as Promise<EmailResult>;
+}
+
 export async function sendShiftReminderEmail(data: {
   to: string;
   name: string;

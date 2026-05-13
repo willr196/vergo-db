@@ -73,6 +73,39 @@ function parseOptionalDate(value?: string) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+function establishWorkerSession(
+  req: import('express').Request,
+  user: { id: string; email: string }
+) {
+  return new Promise<void>((resolve, reject) => {
+    if (!req.session) {
+      resolve();
+      return;
+    }
+
+    req.session.regenerate((err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      req.session.userId = user.id;
+      req.session.userEmail = user.email;
+      req.session.isUser = true;
+      (req.session as any).userLoginTime = Date.now();
+      (req.session as any).userLastActivity = Date.now();
+
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          reject(saveErr);
+          return;
+        }
+        resolve();
+      });
+    });
+  });
+}
+
 // ============================================
 // POST /api/v1/web/login — unified worker + client login
 // ============================================
@@ -157,6 +190,8 @@ r.post('/login', loginLimiter, async (req, res) => {
           expiresAt: getTokenExpiresAt(refreshToken),
         },
       });
+
+      await establishWorkerSession(req, user);
 
       console.log(`[WEB] Worker login: ${user.email}`);
 
@@ -406,6 +441,16 @@ r.post('/force-change-password', loginLimiter, async (req, res) => {
     const passwordMatches = await bcrypt.compare(currentPassword, hashToCompare);
 
     if (!user || !passwordMatches) {
+      if (user) {
+        const newAttempts = (user.failedAttempts || 0) + 1;
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            failedAttempts: newAttempts,
+            lockedUntil: newAttempts >= 8 ? new Date(Date.now() + 30 * 60 * 1000) : null,
+          },
+        });
+      }
       return res.status(401).json({ ok: false, error: 'Invalid email or password' });
     }
 
@@ -438,6 +483,8 @@ r.post('/force-change-password', loginLimiter, async (req, res) => {
         expiresAt: getTokenExpiresAt(refreshToken),
       },
     });
+
+    await establishWorkerSession(req, user);
 
     return res.json({
       ok: true,
@@ -692,6 +739,252 @@ r.get('/client/bookings', requireClientJwt, async (req, res) => {
     console.error('[ERROR] Web client/bookings failed:', error);
     return res.status(500).json({ ok: false, error: 'Failed to get bookings' });
   }
+});
+
+// ============================================
+// WORKER AVAILABILITY
+// ============================================
+
+const availabilityBody = z.object({
+  dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'dateFrom must be YYYY-MM-DD'),
+  dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'dateTo must be YYYY-MM-DD'),
+  notes: z.string().max(200).optional(),
+});
+
+function toDateOnly(dateStr: string): Date {
+  return new Date(`${dateStr}T00:00:00.000Z`);
+}
+
+// GET /api/v1/web/worker/availability
+r.get('/worker/availability', requireUserJwt, async (req, res, next) => {
+  try {
+    const windows = await prisma.availability.findMany({
+      where: { userId: req.auth!.userId },
+      orderBy: { dateFrom: 'asc' },
+      select: { id: true, dateFrom: true, dateTo: true, notes: true, createdAt: true },
+    });
+    res.json({ ok: true, availability: windows, data: windows });
+  } catch (e) { next(e); }
+});
+
+// POST /api/v1/web/worker/availability
+r.post('/worker/availability', requireUserJwt, async (req, res, next) => {
+  try {
+    const parsed = availabilityBody.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: 'Invalid input', issues: parsed.error.issues });
+    }
+
+    const { dateFrom, dateTo, notes } = parsed.data;
+    const from = toDateOnly(dateFrom);
+    const to = toDateOnly(dateTo);
+
+    if (to < from) {
+      return res.status(400).json({ ok: false, error: 'dateTo must be on or after dateFrom' });
+    }
+
+    // Cap future window to 1 year
+    const maxDate = new Date();
+    maxDate.setFullYear(maxDate.getFullYear() + 1);
+    if (from > maxDate) {
+      return res.status(400).json({ ok: false, error: 'Availability cannot be set more than 1 year in advance' });
+    }
+
+    const window = await prisma.availability.create({
+      data: { userId: req.auth!.userId, dateFrom: from, dateTo: to, notes: notes ?? null },
+      select: { id: true, dateFrom: true, dateTo: true, notes: true, createdAt: true },
+    });
+
+    res.status(201).json({ ok: true, window, data: window });
+  } catch (e) { next(e); }
+});
+
+// DELETE /api/v1/web/worker/availability/:id
+r.delete('/worker/availability/:id', requireUserJwt, async (req, res, next) => {
+  try {
+    const existing = await prisma.availability.findUnique({
+      where: { id: req.params.id },
+      select: { id: true, userId: true },
+    });
+
+    if (!existing || existing.userId !== req.auth!.userId) {
+      return res.status(404).json({ ok: false, error: 'Availability window not found' });
+    }
+
+    await prisma.availability.delete({ where: { id: existing.id } });
+    res.json({ ok: true, data: { id: existing.id } });
+  } catch (e) { next(e); }
+});
+
+// ============================================
+// WORKER INVITES
+// ============================================
+
+// GET /api/v1/web/worker/invites
+r.get('/worker/invites', requireUserJwt, async (req, res, next) => {
+  try {
+    const invites = await prisma.jobInvite.findMany({
+      where: { userId: req.auth!.userId, status: { in: ['PENDING', 'ACCEPTED'] } },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        job: {
+          select: {
+            id: true,
+            title: true,
+            location: true,
+            venue: true,
+            eventDate: true,
+            shiftStart: true,
+            shiftEnd: true,
+            payRate: true,
+            payType: true,
+            staffNeeded: true,
+            staffConfirmed: true,
+            status: true,
+            role: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    const shaped = invites.map((i) => ({
+      id: i.id,
+      status: i.status,
+      adminNote: i.adminNote,
+      workerNote: i.workerNote,
+      createdAt: i.createdAt,
+      respondedAt: i.respondedAt,
+      job: {
+        ...i.job,
+        payRate: i.job.payRate ? Number(i.job.payRate) : null,
+        spotsLeft: Math.max(0, i.job.staffNeeded - i.job.staffConfirmed),
+      },
+    }));
+
+    res.json({ ok: true, invites: shaped, data: shaped });
+  } catch (e) { next(e); }
+});
+
+// POST /api/v1/web/worker/invites/:id/respond
+const respondInviteBody = z.object({
+  accept: z.boolean(),
+  workerNote: z.string().max(500).optional(),
+});
+
+r.post('/worker/invites/:id/respond', requireUserJwt, async (req, res, next) => {
+  try {
+    const parsed = respondInviteBody.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: 'Invalid input' });
+    }
+
+    const invite = await prisma.jobInvite.findUnique({
+      where: { id: req.params.id },
+      include: { job: { select: { id: true, title: true, status: true, staffNeeded: true, staffConfirmed: true } } },
+    });
+
+    if (!invite || invite.userId !== req.auth!.userId) {
+      return res.status(404).json({ ok: false, error: 'Invite not found' });
+    }
+    if (invite.status !== 'PENDING') {
+      return res.status(409).json({ ok: false, error: `Invite already ${invite.status.toLowerCase()}` });
+    }
+    if (!['OPEN', 'PENDING'].includes(invite.job.status)) {
+      return res.status(400).json({ ok: false, error: 'This job is no longer accepting applications' });
+    }
+
+    const newStatus = parsed.data.accept ? 'ACCEPTED' : 'DECLINED';
+
+    await prisma.$transaction(async (tx) => {
+      await tx.jobInvite.update({
+        where: { id: invite.id },
+        data: {
+          status: newStatus,
+          workerNote: parsed.data.workerNote ?? null,
+          respondedAt: new Date(),
+        },
+      });
+
+      if (parsed.data.accept) {
+        // Check not already applied
+        const existing = await tx.jobApplication.findUnique({
+          where: { userId_jobId: { userId: req.auth!.userId, jobId: invite.jobId } },
+        });
+        if (!existing) {
+          await tx.jobApplication.create({
+            data: {
+              userId: req.auth!.userId,
+              jobId: invite.jobId,
+              status: 'SHORTLISTED',
+              coverNote: parsed.data.workerNote ?? null,
+            },
+          });
+        }
+      }
+    });
+
+    res.json({ ok: true, status: newStatus, data: { status: newStatus } });
+  } catch (e) { next(e); }
+});
+
+// ============================================
+// CLIENT: Submit review for completed booking
+// ============================================
+
+const reviewBody = z.object({
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().max(1000).optional(),
+});
+
+r.post('/client/bookings/:id/review', requireClientJwt, async (req, res, next) => {
+  try {
+    const parsed = reviewBody.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: 'Rating must be 1–5', issues: parsed.error.issues });
+    }
+
+    const booking = await prisma.booking.findFirst({
+      where: { id: req.params.id, clientId: req.auth!.userId },
+      select: { id: true, staffId: true, clientId: true, status: true, review: { select: { id: true } } },
+    });
+
+    if (!booking) return res.status(404).json({ ok: false, error: 'Booking not found' });
+    if (booking.status !== 'COMPLETED') {
+      return res.status(400).json({ ok: false, error: 'Reviews can only be submitted for completed bookings' });
+    }
+    if (booking.review) {
+      return res.status(409).json({ ok: false, error: 'A review has already been submitted for this booking' });
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.bookingReview.create({
+        data: {
+          bookingId: booking.id,
+          staffId: booking.staffId,
+          clientId: booking.clientId,
+          rating: parsed.data.rating,
+          comment: parsed.data.comment ?? null,
+        },
+      });
+
+      // Recalculate worker's average rating
+      const reviews = await tx.bookingReview.findMany({
+        where: { staffId: booking.staffId },
+        select: { rating: true },
+      });
+      const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+
+      await tx.user.update({
+        where: { id: booking.staffId },
+        data: {
+          staffRating: Math.round(avg * 100) / 100,
+          staffReviewCount: reviews.length,
+        },
+      });
+    });
+
+    res.status(201).json({ ok: true, data: { message: 'Review submitted' } });
+  } catch (e) { next(e); }
 });
 
 export default r;

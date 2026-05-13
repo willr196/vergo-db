@@ -47,7 +47,10 @@ export type EmailType =
   // Reminders
   | 'quote-followup'
   | 'application-review-reminder'
-  | 'shift-reminder';
+  | 'shift-reminder'
+  // Matching / invites
+  | 'job-invite'
+  | 'booking-review-request';
 
 export interface EmailTemplateData {
   // Common fields
@@ -91,6 +94,12 @@ export interface EmailTemplateData {
   message?: string;
   company?: string;
   date?: string;
+
+  // Shift / invite
+  shiftStart?: string;
+  shiftEnd?: string;
+  adminNote?: string;
+  staffName?: string;
 
   // Roster approval
   tempPassword?: string;

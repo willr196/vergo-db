@@ -267,6 +267,184 @@
   gap: 12px;
 }
 
+/* ---- Avatar upload ---- */
+
+.profile-avatar-wrap {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+}
+
+.profile-avatar-wrap .profile-avatar {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-upload-btn {
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  background: var(--bg);
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  padding: 0;
+}
+
+.avatar-upload-btn:hover,
+.avatar-upload-btn:focus-visible {
+  background: var(--gold);
+  color: #0a0a0a;
+  outline: none;
+}
+
+/* ---- Completeness bar ---- */
+
+.profile-completeness {
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  display: grid;
+  gap: 10px;
+}
+
+.completeness-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.completeness-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--white);
+}
+
+.completeness-fraction {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.completeness-track {
+  height: 6px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.completeness-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--gold) 0%, #d4b25e 100%);
+  transition: width 0.5s ease;
+}
+
+.completeness-hint {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+/* ---- Availability ---- */
+
+.availability-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-track {
+  width: 44px;
+  height: 24px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.toggle-switch input:checked ~ .toggle-track {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.toggle-switch input:focus-visible ~ .toggle-track {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.toggle-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.toggle-switch input:checked ~ .toggle-track .toggle-thumb {
+  transform: translateX(20px);
+  background: #0a0a0a;
+}
+
+.availability-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.availability-pill.is-available {
+  color: var(--success, #5ebc76);
+}
+
+.availability-pill.is-available::before,
+.availability-pill::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
 .btn-danger-soft {
   border: 1px solid rgba(255, 122, 122, 0.45);
   background: rgba(255, 122, 122, 0.08);
@@ -314,6 +492,12 @@
     justify-items: start;
   }
 
+  .profile-avatar-wrap {
+    width: 76px;
+    height: 76px;
+  }
+
+  .profile-avatar-wrap .profile-avatar,
   .profile-avatar {
     width: 76px;
     height: 76px;

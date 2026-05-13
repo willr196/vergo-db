@@ -154,6 +154,18 @@
         grid-column: 2 / -1;
       }
     }
+
+    .how-it-works-grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 760px) {
+      .how-it-works-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -190,6 +202,25 @@
             </div>
             <p class="contact-note">Use the form below for staffing requests or general contact.</p>
           </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" style="padding-bottom: 0;">
+      <div class="page-shell">
+        <div class="panel how-it-works-grid">
+          <div>
+            <p class="card-label">1. Send the brief</p>
+            <p style="color: var(--text); margin-top: 8px;">Share the date, venue, timings, guest count and roles needed. Keep it short — we'll ask if we need more.</p>
+          </div>
+          <div>
+            <p class="card-label">2. VERGO recommends a route</p>
+            <p style="color: var(--text); margin-top: 8px;">We'll suggest VERGO Freelance, VERGO Staff or a mix — with availability and clear pricing. Usually within 24 hours.</p>
+          </div>
+          <div>
+            <p class="card-label">3. Staff briefed before arrival</p>
+            <p style="color: var(--text); margin-top: 8px;">Once confirmed, workers are matched to the role and given your event details before they arrive. No surprises on the day.</p>
+          </div>
         </div>
       </div>
     </section>

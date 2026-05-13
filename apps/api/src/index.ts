@@ -43,6 +43,7 @@ import adminAnalytics from './routes/adminAnalytics';
 import adminBookings from './routes/adminBookings';
 import adminMarketplace from './routes/adminMarketplace';
 import adminStaff from './routes/adminStaff';
+import adminMatching from './routes/adminMatching';
 import webAuth from './routes/webAuth';
 import { logger, requestLogger } from './services/logger';
 import { startMemoryMonitoring, stopMemoryMonitoring } from './services/memory';
@@ -507,8 +508,8 @@ app.get('/jobs', async (_req, res, next) => {
       ? `<div class="jobs-grid">${cards}</div>`
       : `
         <div class="empty-state">
-          <h3>No jobs available</h3>
-          <p>Check back soon for new opportunities.</p>
+          <h3>No public jobs showing right now</h3>
+          <p>VERGO shifts are released to approved workers after sign-in. Apply to join the roster; once accepted, we'll send you a sign-in link so you can access and edit your profile and receive suitable hospitality, event, bar, kitchen and front-of-house opportunities.</p>
         </div>
       `;
 
@@ -652,10 +653,22 @@ app.get('/jobs', async (_req, res, next) => {
 // ============================================
 // SEO: Server-rendered job pages (crawlable)
 // ============================================
+const jobPageCache = new Map<string, { html: string; nonce: string; generatedAtMs: number }>();
+const JOB_PAGE_TTL_MS = 60_000;
+
 app.get('/jobs/:id', async (req, res, next) => {
   try {
     const id = String(req.params.id || '').trim();
     if (!id) return res.status(404).send('Not found');
+
+    const now = Date.now();
+    const cached = jobPageCache.get(id);
+    if (cached && (now - cached.generatedAtMs) < JOB_PAGE_TTL_MS) {
+      res.type('text/html');
+      res.setHeader('Content-Security-Policy', buildJobPageCspHeader(cached.nonce));
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return res.send(cached.html);
+    }
 
     const job = await prisma.job.findUnique({
       where: { id },
@@ -874,6 +887,7 @@ app.get('/jobs/:id', async (req, res, next) => {
 </body>
 </html>`;
 
+    jobPageCache.set(id, { html, nonce, generatedAtMs: now });
     res.type('text/html');
     return res.send(html);
   } catch (err) {
@@ -980,6 +994,7 @@ app.use('/api/v1/admin/analytics', adminAnalytics);
 app.use('/api/v1/admin/bookings', adminBookings);
 app.use('/api/v1/admin/marketplace', adminMarketplace);
 app.use('/api/v1/admin/staff', adminStaff);
+app.use('/api/v1/admin/matching', adminMatching);
 
 // Legacy cleanup (must be before static)
 
@@ -1038,7 +1053,7 @@ app.get('/', (_req, res) => {
 
 // Static frontend (last)
 // Clean URLs - serve .html files without extension
-app.use((req, res, next) => {
+app.use((req, _res, next) => {
   // Skip API routes and root
   if (req.method !== 'GET' && req.method !== 'HEAD') return next();
   if (req.path.startsWith('/api') || req.path === '/') {
@@ -1069,7 +1084,7 @@ app.use(express.static(publicDir, {
       res.setHeader('Pragma', 'no-cache');
       res.setHeader('Expires', '0');
     } else if (filePath.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|webp|woff|woff2)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+      res.setHeader('Cache-Control', 'public, max-age=604800');
     }
   }
 }));

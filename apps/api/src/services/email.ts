@@ -30,4 +30,7 @@ export {
   sendQuoteFollowupEmail,
   sendApplicationReviewReminder,
   sendShiftReminderEmail,
+  // Matching / invites
+  sendJobInviteEmail,
+  sendBookingReviewRequestEmail,
 } from './email/index';

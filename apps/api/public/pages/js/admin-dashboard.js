@@ -172,7 +172,7 @@
     document.getElementById('filter-status').value = '';
     document.getElementById('filter-role').value   = '';
     document.getElementById('filter-search').value = '';
-    document.querySelectorAll('#app-stats .kpi-card').forEach(function(c){c.style.outline='';});
+    document.querySelectorAll('#app-stats .kpi-card').forEach(function(c){c.classList.remove('kpi-active');});
     filteredApps = allApplications.slice();
     appPage = 1;
     renderApplications();
@@ -244,6 +244,7 @@
         + '<td><div style="display:flex;gap:6px;flex-wrap:wrap">'
         + '<button class="btn btn-info btn-sm" data-action="open-cv" data-app-id="' + esc(app.id) + '" data-cv-url="' + esc(app.cvUrl || app.cvKey || '') + '">CV</button>'
         + renderStatusActions(app.id, app.status)
+        + renderRosterLoginEmailAction(app.id, app.status, app.account)
         + '</div></td>'
         + '</tr>';
     }).join('');
@@ -258,9 +259,28 @@
     var info = '<span class="as-pagination-info">Page ' + appPage + ' of ' + pages + ' (' + total + ' total)</span>';
     var btns = '<div class="as-pagination-controls">'
       + '<button ' + (appPage <= 1 ? 'disabled' : '') + ' data-action="app-prev-page">&#8249; Prev</button>';
-    for (var i = 1; i <= Math.min(pages, 7); i++) {
-      btns += '<button ' + (i === appPage ? 'class="active"' : '') + ' data-action="app-goto-page" data-page="' + i + '">' + i + '</button>';
+
+    var toShow = [];
+    if (pages <= 7) {
+      for (var i = 1; i <= pages; i++) toShow.push(i);
+    } else {
+      toShow.push(1);
+      if (appPage > 3) toShow.push('...');
+      var start = Math.max(2, appPage - 1);
+      var end = Math.min(pages - 1, appPage + 1);
+      for (var i = start; i <= end; i++) toShow.push(i);
+      if (appPage < pages - 2) toShow.push('...');
+      toShow.push(pages);
     }
+
+    toShow.forEach(function (item) {
+      if (item === '...') {
+        btns += '<span style="padding:0 4px;color:var(--as-muted)">…</span>';
+      } else {
+        btns += '<button ' + (item === appPage ? 'class="active"' : '') + ' data-action="app-goto-page" data-page="' + item + '">' + item + '</button>';
+      }
+    });
+
     btns += '<button ' + (appPage >= pages ? 'disabled' : '') + ' data-action="app-next-page">Next &#8250;</button></div>';
     el.innerHTML = info + btns;
   }
@@ -329,6 +349,15 @@
       + (status !== SELECTED_STATUS ? '<button class="btn btn-success btn-sm" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="' + SELECTED_STATUS + '">Select</button>' : '')
       + (status !== 'HIRED' ? '<button class="btn btn-sm" style="background:#20c997;color:#fff" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="HIRED">Hire</button>' : '')
       + (status !== 'REJECTED' ? '<button class="btn btn-danger btn-sm" data-action="update-status" data-app-id="' + esc(appId) + '" data-status="REJECTED">Reject</button>' : '');
+  }
+
+  function renderRosterLoginEmailAction(appId, status, account) {
+    if (status !== 'HIRED') return '';
+    if (account && account.status === 'ACTIVE') {
+      return '<span class="badge badge-HIRED">Account active</span>';
+    }
+    var label = account && account.exists ? 'Resend login email' : 'Send login email';
+    return '<button class="btn btn-info btn-sm" data-action="send-roster-login" data-app-id="' + esc(appId) + '">' + label + '</button>';
   }
 
   function wireDrawerNotesAutoSave(appId, savedNotes) {
@@ -417,7 +446,8 @@
       (downloadHref
         ? '<a class="btn btn-info btn-sm" href="' + esc(downloadHref) + '" target="_blank" rel="noopener noreferrer">Open CV</a>'
         : '<button class="btn btn-info btn-sm" data-action="open-cv" data-app-id="' + esc(detail.id) + '" data-cv-url="' + esc(detail.cvKey || '') + '">Open CV</button>')
-      + renderStatusActions(detail.id, detail.status);
+      + renderStatusActions(detail.id, detail.status)
+      + renderRosterLoginEmailAction(detail.id, detail.status, detail.account);
 
     wireDrawerNotesAutoSave(detail.id, notesValue);
   }
@@ -477,6 +507,26 @@
       await refreshOpenDrawer(appId);
     } catch (e) {
       notify('Failed: ' + e.message, 'error');
+    }
+  }
+
+  async function sendRosterLoginEmail(appId) {
+    var app = findApplication(appId);
+    var applicantName = app ? (app.firstName + ' ' + app.lastName).trim() : 'this applicant';
+    if (!confirm('Send a login email with a new temporary password to ' + applicantName + '?')) return;
+
+    try {
+      var result = await fetch_('/api/v1/applications/' + appId + '/roster-approval-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      notify(result.message || 'Roster login email sent.', 'success');
+      await loadApplications();
+      await refreshOpenDrawer(appId);
+    } catch (e) {
+      notify('Login email problem: ' + e.message, 'error', 7000);
+      await loadApplications();
+      await refreshOpenDrawer(appId);
     }
   }
 
@@ -771,6 +821,7 @@
 
     if (action === 'open-cv')            return openCV(el.dataset.appId, el.dataset.cvUrl || '');
     if (action === 'update-status')      return updateStatus(el.dataset.appId, el.dataset.status);
+    if (action === 'send-roster-login')  return sendRosterLoginEmail(el.dataset.appId);
     if (action === 'update-contact-status') return updateContactStatus(el.dataset.contactId, el.dataset.status);
     if (action === 'update-event-status')   return updateEventStatus(el.dataset.eventId, el.dataset.status);
     if (action === 'open-drawer')        return openDrawer(el.dataset.appId);
@@ -842,7 +893,27 @@
   var filterSearch = document.getElementById('filter-search');
   if (filterSearch) filterSearch.addEventListener('input', debouncedApplyFilters);
   var filterStatus = document.getElementById('filter-status');
-  if (filterStatus) filterStatus.addEventListener('change', applyFilters);
+  if (filterStatus) filterStatus.addEventListener('change', function() {
+    document.querySelectorAll('#app-stats .kpi-card').forEach(function(c) { c.classList.remove('kpi-active'); });
+    applyFilters();
+  });
+
+  // KPI stat card filter shortcut
+  var appStats = document.getElementById('app-stats');
+  if (appStats) appStats.addEventListener('click', function(e) {
+    var card = e.target.closest('.kpi-card[data-filter]');
+    if (!card) return;
+    var filter = card.dataset.filter;
+    var isActive = card.classList.contains('kpi-active');
+    document.querySelectorAll('#app-stats .kpi-card').forEach(function(c) { c.classList.remove('kpi-active'); });
+    if (isActive || filter === 'all') {
+      if (filterStatus) filterStatus.value = '';
+    } else {
+      card.classList.add('kpi-active');
+      if (filterStatus) filterStatus.value = filter === 'SELECTED' ? SELECTED_STATUS : filter;
+    }
+    applyFilters();
+  });
   var filterRole = document.getElementById('filter-role');
   if (filterRole) filterRole.addEventListener('change', applyFilters);
 

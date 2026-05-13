@@ -414,8 +414,64 @@ export const shiftReminderEmail = (data: EmailTemplateData): string => {
 // ROSTER APPROVAL EMAIL
 // ============================================
 
+// ============================================
+// JOB INVITE EMAIL (worker receives from admin)
+// ============================================
+
+export const jobInviteEmail = (data: EmailTemplateData): string => {
+  const dashboardUrl = `${env.webOrigin}/portal-login`;
+  const dateStr = data.eventDate
+    ? new Date(data.eventDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    : 'TBC';
+  const shiftStr = data.shiftStart && data.shiftEnd ? `${data.shiftStart} – ${data.shiftEnd}` : 'TBC';
+
+  return composeEmail({
+    body: emailBody(`
+      ${sectionHeading("You've been invited to a shift", '📋')}
+      <p>Hi ${safe(data.recipientName)},</p>
+      ${paragraph('VERGO has personally selected you for the following opportunity. Log in to your dashboard to accept or decline.')}
+      ${accentCard(`
+        <p style="margin: 0 0 6px; font-size: 17px; font-weight: 700;">${safe(data.jobTitle)}</p>
+        <p style="margin: 0 0 4px; color: #888; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">${safe(data.roleName)}</p>
+        <p style="margin: 10px 0 4px;">📅 ${safe(dateStr)}</p>
+        <p style="margin: 0 0 4px;">⏰ ${safe(shiftStr)}</p>
+        <p style="margin: 0;">📍 ${safe(data.jobLocation)}</p>
+      `)}
+      ${data.adminNote ? infoBox(`<p style="margin: 0;"><strong>Note from VERGO:</strong> ${safe(data.adminNote)}</p>`, 'info') : ''}
+      ${primaryButton('View & Respond on Dashboard', dashboardUrl)}
+      ${paragraph('Please respond as soon as possible — spots are limited.')}
+      <p>Best regards,<br><strong>The VERGO Team</strong></p>
+    `),
+  });
+};
+
+// ============================================
+// BOOKING REVIEW REQUEST (client receives after completion)
+// ============================================
+
+export const bookingReviewRequestEmail = (data: EmailTemplateData): string => {
+  const reviewUrl = `${env.webOrigin}/portal-login`;
+  const dateStr = data.eventDate
+    ? new Date(data.eventDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
+    : 'your recent event';
+
+  return composeEmail({
+    body: emailBody(`
+      ${sectionHeading('How did your event go?', '⭐')}
+      <p>Hi ${safe(data.recipientName)},</p>
+      ${paragraph(`Thank you for working with VERGO. We hope <strong>${safe(data.staffName)}</strong> delivered a great service at ${safe(dateStr)}.`)}
+      ${paragraph('Your feedback helps us maintain quality and recognise outstanding staff. It only takes a moment — just a 1–5 star rating and an optional comment.')}
+      ${primaryButton('Leave a Review', reviewUrl)}
+      ${infoBox('<p style="margin: 0; font-size: 14px;">Reviews are visible to the VERGO team and help us match the right staff to future events.</p>', 'info')}
+      <p>Thank you for choosing VERGO.<br><strong>The VERGO Team</strong></p>
+    `),
+  });
+};
+
 export const rosterApprovalEmail = (data: EmailTemplateData): string => {
-  const loginUrl = `${env.webOrigin}/user-login`;
+  const loginUrl = data.email
+    ? `${env.webOrigin}/portal-login?email=${encodeURIComponent(data.email)}`
+    : `${env.webOrigin}/portal-login`;
   const hasTempPassword = Boolean(data.tempPassword);
 
   return composeEmail({

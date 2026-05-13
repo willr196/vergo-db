@@ -80,7 +80,8 @@ const webProfileSchema = z.object({
     .optional()
     .or(z.literal("")),
   preferredJobTypes: z.array(preferredJobTypeSchema).max(preferredJobTypeValues.length).optional(),
-  experienceSummary: z.string().max(300).optional(),
+  experienceSummary: z.string().max(500).optional(),
+  staffAvailable: z.boolean().optional(),
 });
 
 const changePasswordSchema = z.object({
@@ -196,6 +197,7 @@ async function getWebProfileRecord(
       applicantId: true,
       staffAvatar: true,
       staffBio: true,
+      staffAvailable: true,
       applicant: {
         select: {
           id: true,
@@ -246,6 +248,7 @@ function shapeWebUserProfile(user: NonNullable<Awaited<ReturnType<typeof getWebP
     preferredJobTypes: splitCommaSeparated(user.applicant?.preferredJobTypes),
     experienceSummary: user.applicant?.bio || user.staffBio || "",
     yearsExperience: user.applicant?.yearsExperience ?? null,
+    staffAvailable: user.staffAvailable ?? false,
     registeredRoles,
   };
 }
@@ -1238,6 +1241,9 @@ r.put("/profile", requireUser, async (req, res) => {
       if (input.experienceSummary !== undefined) {
         userUpdateData.staffBio = stripHtml(input.experienceSummary).trim() || null;
       }
+      if (input.staffAvailable !== undefined) {
+        userUpdateData.staffAvailable = input.staffAvailable;
+      }
 
       if (Object.keys(userUpdateData).length > 0) {
         await tx.user.update({
@@ -1314,6 +1320,36 @@ r.put("/profile", requireUser, async (req, res) => {
   } catch (error) {
     console.error("[ERROR] Update user profile failed:", error);
     res.status(500).json({ error: "Failed to update profile" });
+  }
+});
+
+// ============================================
+// POST /api/v1/user/profile/avatar
+// ============================================
+r.post("/profile/avatar", requireUser, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const { dataUrl } = req.body;
+    if (!dataUrl || typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/")) {
+      return res.status(400).json({ error: "A valid image data URL is required" });
+    }
+    if (dataUrl.length > 1400000) {
+      return res.status(413).json({ error: "Image is too large. Please choose a smaller photo." });
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { staffAvatar: dataUrl },
+    });
+
+    res.json({ ok: true, data: { profileImage: dataUrl } });
+  } catch (error) {
+    console.error("[ERROR] Avatar upload failed:", error);
+    res.status(500).json({ error: "Failed to upload image" });
   }
 });
 

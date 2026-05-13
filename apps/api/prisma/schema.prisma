@@ -215,6 +215,7 @@ model Booking {
   client              Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
   quoteRequest        QuoteRequest?    @relation(fields: [quoteRequestId], references: [id])
   staff               User             @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  review              BookingReview?
 
   @@index([clientId])
   @@index([staffId])
@@ -299,6 +300,8 @@ model User {
   pushTokens          PushToken[]
   refreshTokens       RefreshToken[]
   savedJobs           SavedJob[]
+  availability        Availability[]
+  jobInvites          JobInvite[]
   applicant           Applicant?       @relation(fields: [applicantId], references: [id])
 
   @@index([email])
@@ -368,6 +371,7 @@ model Job {
   role                Role             @relation(fields: [roleId], references: [id])
   applications        JobApplication[]
   savedBy             SavedJob[]
+  invites             JobInvite[]
 
   @@index([status, type])
   @@index([clientId])
@@ -468,6 +472,53 @@ model ScheduledEmail {
   @@index([status])
   @@index([scheduledFor])
   @@index([recipientId])
+}
+
+model Availability {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  dateFrom  DateTime @db.Date
+  dateTo    DateTime @db.Date
+  notes     String?  @db.VarChar(200)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([dateFrom, dateTo])
+}
+
+model JobInvite {
+  id          String          @id @default(cuid())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  jobId       String
+  userId      String
+  status      JobInviteStatus @default(PENDING)
+  adminNote   String?         @db.VarChar(500)
+  workerNote  String?         @db.VarChar(500)
+  respondedAt DateTime?
+  job         Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, userId])
+  @@index([jobId])
+  @@index([userId])
+  @@index([status])
+}
+
+model BookingReview {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  bookingId String   @unique
+  staffId   String
+  clientId  String
+  rating    Int
+  comment   String?  @db.VarChar(1000)
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+
+  @@index([staffId])
+  @@index([clientId])
 }
 
 model user_sessions {
@@ -593,4 +644,11 @@ enum ScheduledEmailStatus {
   SENT
   CANCELLED
   FAILED
+}
+
+enum JobInviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
 }

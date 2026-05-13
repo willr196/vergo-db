@@ -33,7 +33,6 @@
       notification.show(message, type || 'info');
       return;
     }
-
     window.alert(message);
   }
 
@@ -157,6 +156,7 @@
       experienceSummary: profile.experienceSummary || '',
       registeredRoles: Array.isArray(profile.registeredRoles) ? profile.registeredRoles : [],
       yearsExperience: profile.yearsExperience ?? null,
+      staffAvailable: !!profile.staffAvailable,
     };
   }
 
@@ -183,6 +183,60 @@
     return type === 'user' ? normaliseUserProfile(result.data) : normaliseClientProfile(result.data);
   }
 
+  // ---- Completeness ----
+
+  function computeCompleteness(profile) {
+    const checks = [
+      { label: 'Phone number', done: !!profile.phone },
+      { label: 'Postcode', done: !!profile.postcode },
+      { label: 'Date of birth', done: !!profile.dateOfBirth },
+      { label: 'Bio', done: profile.experienceSummary.length >= 10 },
+      { label: 'Profile photo', done: !!profile.profileImage },
+      { label: 'Preferred sectors', done: profile.preferredJobTypes.length > 0 },
+    ];
+    const done = checks.filter((c) => c.done).length;
+    return { done, total: checks.length, checks };
+  }
+
+  function renderCompletenessBar(profile) {
+    const { done, total } = computeCompleteness(profile);
+    if (done === total) return '';
+    const pct = Math.round((done / total) * 100);
+    return `
+      <div class="profile-completeness">
+        <div class="completeness-header">
+          <span class="completeness-label">Profile completeness</span>
+          <span class="completeness-fraction">${done} of ${total}</span>
+        </div>
+        <div class="completeness-track" role="progressbar" aria-valuenow="${done}" aria-valuemin="0" aria-valuemax="${total}" aria-label="${done} of ${total} sections complete">
+          <div class="completeness-fill" style="width:${pct}%"></div>
+        </div>
+        <p class="completeness-hint">A complete profile helps VERGO match you to the right shifts.</p>
+      </div>
+    `;
+  }
+
+  // ---- Avatar ----
+
+  function renderAvatarWithUpload(imageSrc, primary, secondary) {
+    const safeSrc = resolveImageSrc(imageSrc);
+    const inner = safeSrc
+      ? `<img src="${escapeHtml(safeSrc)}" alt="Profile photo">`
+      : `<span aria-hidden="true">${escapeHtml(getInitials(primary, secondary))}</span>`;
+
+    return `
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar">${inner}</div>
+        <button type="button" class="avatar-upload-btn" data-action="upload-avatar" aria-label="Upload profile photo" title="Upload photo">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 1v9M4 5l4-4 4 4M1.5 14h13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <input type="file" id="avatar-file-input" accept="image/jpeg,image/png,image/webp" class="sr-only" aria-hidden="true" tabindex="-1">
+      </div>
+    `;
+  }
+
   function renderAvatar(imageSrc, primary, secondary) {
     const safeSrc = resolveImageSrc(imageSrc);
 
@@ -192,6 +246,70 @@
 
     return `<div class="profile-avatar" aria-hidden="true">${escapeHtml(getInitials(primary, secondary))}</div>`;
   }
+
+  // ---- Avatar upload ----
+
+  function compressImage(file, maxDim, quality) {
+    return new Promise(function (resolve, reject) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = function () { reject(new Error('Failed to read image')); };
+        img.src = e.target.result;
+      };
+      reader.onerror = function () { reject(new Error('Failed to read file')); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleAvatarUpload(file) {
+    if (!file.type.startsWith('image/')) {
+      notify('Please select an image file.', 'error');
+      return;
+    }
+
+    const uploadBtn = content.querySelector('[data-action="upload-avatar"]');
+    if (uploadBtn) {
+      uploadBtn.disabled = true;
+      uploadBtn.setAttribute('aria-label', 'Uploading...');
+    }
+
+    try {
+      const dataUrl = await compressImage(file, 800, 0.82);
+
+      if (dataUrl.length > 1400000) {
+        notify('Image is too large after compression. Please choose a smaller photo.', 'error');
+        return;
+      }
+
+      const result = await apiRequest('/api/v1/user/profile/avatar', {
+        method: 'POST',
+        body: JSON.stringify({ dataUrl }),
+      });
+
+      state.profile.profileImage = (result.data && result.data.profileImage) || dataUrl;
+      renderProfile();
+      notify('Profile photo updated.', 'success');
+    } catch (error) {
+      notify(error.message || 'Failed to upload photo.', 'error');
+    } finally {
+      const btn = content.querySelector('[data-action="upload-avatar"]');
+      if (btn) {
+        btn.disabled = false;
+        btn.setAttribute('aria-label', 'Upload profile photo');
+      }
+    }
+  }
+
+  // ---- Render helpers ----
 
   function renderRegisteredRoles(roles) {
     if (!roles.length) {
@@ -235,7 +353,7 @@
 
     return `
       <section class="panel profile-overview">
-        ${renderAvatar(profile.profileImage, profile.firstName, profile.lastName)}
+        ${renderAvatarWithUpload(profile.profileImage, profile.firstName, profile.lastName)}
         <div>
           <span class="eyebrow">Job Seeker Profile</span>
           <h2>${escapeHtml(fullName)}</h2>
@@ -244,6 +362,9 @@
             <span>${escapeHtml(profile.phone || 'Add a phone number')}</span>
             <span>${escapeHtml(profile.postcode || 'Add your postcode')}</span>
             <span>${escapeHtml(yearsExperience)}</span>
+            ${profile.staffAvailable
+              ? '<span class="availability-pill is-available">Available for work</span>'
+              : '<span class="availability-pill">Not available</span>'}
           </div>
         </div>
         <div class="profile-actions">
@@ -251,6 +372,8 @@
           <button type="button" class="btn btn-danger-soft" data-action="logout">Log Out</button>
         </div>
       </section>
+
+      ${renderCompletenessBar(profile)}
 
       <div class="profile-grid">
         <form class="panel profile-card" data-form="user-personal">
@@ -285,15 +408,27 @@
           </div>
           <div class="form-footer">
             <p class="form-status" aria-live="polite"></p>
-            <button type="submit" class="btn btn-primary" data-loading-label="Saving personal details...">Save Personal Details</button>
+            <button type="submit" class="btn btn-primary" data-loading-label="Saving...">Save Personal Details</button>
           </div>
         </form>
 
         <form class="panel profile-card" data-form="user-professional">
           <span class="eyebrow">Professional Details</span>
-          <h3>Roles and summary</h3>
-          <p class="profile-intro">Registered roles are pulled from your VERGO application history. Preferences and summary can be updated here.</p>
+          <h3>Roles, bio and availability</h3>
+          <p class="profile-intro">Your bio and sector preferences inform which jobs you're matched to and how you appear to clients.</p>
           <div class="form-grid">
+            <div class="field is-full">
+              <div class="availability-row">
+                <div>
+                  <span class="field-label">Available for work</span>
+                  <p class="field-help">Let VERGO know you're open to shifts right now.</p>
+                </div>
+                <label class="toggle-switch" aria-label="Toggle availability">
+                  <input type="checkbox" name="staffAvailable" ${profile.staffAvailable ? 'checked' : ''}>
+                  <span class="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span>
+                </label>
+              </div>
+            </div>
             <div class="chip-stack">
               <span class="field-label">Registered roles</span>
               ${renderRegisteredRoles(profile.registeredRoles)}
@@ -305,14 +440,14 @@
               </div>
             </div>
             <div class="field is-full">
-              <label for="user-experience-summary">Experience summary</label>
-              <textarea id="user-experience-summary" name="experienceSummary" maxlength="300" placeholder="Summarise the kind of service environments, events or teams you work best in.">${escapeHtml(profile.experienceSummary)}</textarea>
-              <p class="field-help">Keep this concise. It is also used as the base summary for linked staff records.</p>
+              <label for="user-experience-summary">Bio</label>
+              <textarea id="user-experience-summary" name="experienceSummary" maxlength="500" placeholder="Summarise the kind of service environments, events or teams you work best in.">${escapeHtml(profile.experienceSummary)}</textarea>
+              <p class="field-help">Up to 500 characters. Shown on your staff profile and used to match you to relevant roles.</p>
             </div>
           </div>
           <div class="form-footer">
             <p class="form-status" aria-live="polite"></p>
-            <button type="submit" class="btn btn-primary" data-loading-label="Saving professional details...">Save Professional Details</button>
+            <button type="submit" class="btn btn-primary" data-loading-label="Saving...">Save Professional Details</button>
           </div>
         </form>
 
@@ -337,7 +472,7 @@
           <div class="form-footer">
             <p class="form-note">Passwords must be at least 8 characters.</p>
             <p class="form-status" aria-live="polite"></p>
-            <button type="submit" class="btn btn-primary" data-loading-label="Updating password...">Update Password</button>
+            <button type="submit" class="btn btn-primary" data-loading-label="Updating...">Update Password</button>
           </div>
         </form>
       </div>
@@ -395,7 +530,7 @@
           </div>
           <div class="form-footer">
             <p class="form-status" aria-live="polite"></p>
-            <button type="submit" class="btn btn-primary" data-loading-label="Saving company details...">Save Company Details</button>
+            <button type="submit" class="btn btn-primary" data-loading-label="Saving...">Save Company Details</button>
           </div>
         </form>
 
@@ -425,7 +560,7 @@
           </div>
           <div class="form-footer">
             <p class="form-status" aria-live="polite"></p>
-            <button type="submit" class="btn btn-primary" data-loading-label="Saving sector details...">Save Sector Details</button>
+            <button type="submit" class="btn btn-primary" data-loading-label="Saving...">Save Sector Details</button>
           </div>
         </form>
 
@@ -450,7 +585,7 @@
           <div class="form-footer">
             <p class="form-note">Passwords must be at least 8 characters.</p>
             <p class="form-status" aria-live="polite"></p>
-            <button type="submit" class="btn btn-primary" data-loading-label="Updating password...">Update Password</button>
+            <button type="submit" class="btn btn-primary" data-loading-label="Updating...">Update Password</button>
           </div>
         </form>
       </div>
@@ -529,9 +664,11 @@
   }
 
   async function handleUserProfessionalSave(form) {
+    const availableInput = form.querySelector('input[name="staffAvailable"]');
     const payload = {
       preferredJobTypes: Array.from(form.querySelectorAll('input[name="preferredJobTypes"]:checked')).map((input) => input.value),
       experienceSummary: form.experienceSummary.value.trim(),
+      staffAvailable: availableInput ? availableInput.checked : false,
     };
 
     await saveProfileSection(form, '/api/v1/user/profile', payload, 'Professional details saved.');
@@ -636,6 +773,21 @@
       event.preventDefault();
       return logout();
     }
+
+    if (action === 'upload-avatar') {
+      event.preventDefault();
+      const fileInput = document.getElementById('avatar-file-input');
+      if (fileInput) fileInput.click();
+    }
+  }
+
+  function onFileChange(event) {
+    const input = event.target;
+    if (input.id !== 'avatar-file-input') return;
+    const file = input.files && input.files[0];
+    if (!file) return;
+    handleAvatarUpload(file);
+    input.value = '';
   }
 
   async function init() {
@@ -660,6 +812,7 @@
 
   document.addEventListener('submit', onSubmit);
   document.addEventListener('click', onClick);
+  document.addEventListener('change', onFileChange);
 
   init();
 })();

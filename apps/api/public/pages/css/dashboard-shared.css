@@ -574,6 +574,42 @@ body.dashboard-page.dashboard-shell-page .dash-header {
   gap: 4px;
 }
 
+/* ---- Profile nudge ---- */
+.profile-nudge {
+  border: 1px solid var(--color-border-gold);
+  border-radius: var(--radius-lg);
+  background: var(--color-gold-bg);
+  padding: var(--space-4) var(--space-5);
+}
+
+.profile-nudge-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.profile-nudge-inner strong {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  display: block;
+  margin-bottom: var(--space-1);
+}
+
+.profile-nudge-inner p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.profile-nudge-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 640px) {
   .dash-header {

@@ -876,6 +876,7 @@ input[type="checkbox"] { cursor: pointer; accent-color: var(--as-gold); }
 
 /* ── KPI cards with filter cursor ────────────────────── */
 .kpi-card[data-filter] { cursor: pointer; }
+.kpi-card[data-filter].kpi-active { border-color: var(--as-gold); box-shadow: 0 0 0 2px var(--as-gold-bg); }
 
 /* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 1024px) {
