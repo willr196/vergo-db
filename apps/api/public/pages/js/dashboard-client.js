@@ -97,10 +97,15 @@
 	    if (errorMsg) errorMsg.textContent = msg;
 	  }
 
+	  let briefModalOpener = null;
+
 	  function openBriefModal() {
 	    if (!briefModal) return;
 	    if (briefFormError) briefFormError.hidden = true;
+	    briefModalOpener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 	    briefModal.hidden = false;
+	    const firstField = briefForm ? briefForm.querySelector('input, select, textarea') : null;
+	    if (firstField instanceof HTMLElement) firstField.focus();
 	  }
 
 	  function closeBriefModal() {
@@ -108,6 +113,23 @@
 	    briefModal.hidden = true;
 	    if (briefForm) briefForm.reset();
 	    if (briefFormError) briefFormError.hidden = true;
+	    if (briefModalOpener && document.body.contains(briefModalOpener)) {
+	      briefModalOpener.focus();
+	    }
+	    briefModalOpener = null;
+	  }
+
+	  document.addEventListener('keydown', (e) => {
+	    if (e.key === 'Escape' && briefModal && !briefModal.hidden) {
+	      e.preventDefault();
+	      closeBriefModal();
+	    }
+	  });
+
+	  if (briefModal) {
+	    briefModal.addEventListener('click', (e) => {
+	      if (e.target === briefModal) closeBriefModal();
+	    });
 	  }
 
   // ---- Render active briefs ----
@@ -118,16 +140,16 @@
 
 	    if (!activeBriefs.length) {
 	      briefsGrid.innerHTML = `
-	        <div class="empty-state" style="grid-column:1/-1">
+	        <div class="empty-state">
 	          <div class="empty-icon" aria-hidden="true">📋</div>
-	          <p>No active briefs. <a href="#" data-action="open-brief-modal" style="color:var(--color-gold-dark)">Submit a staffing brief</a> to get started.</p>
+	          <p>No active briefs. <a href="#" data-action="open-brief-modal">Submit a staffing brief</a> to get started.</p>
 	        </div>`;
 	      return;
 	    }
 
     briefsGrid.innerHTML = activeBriefs.map(brief => `
       <article class="dash-card${brief.status === 'ACCEPTED' ? ' upcoming-event' : ''}">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div class="dash-card-header">
           <h3 class="dash-card-title">${escHtml(brief.eventType)}</h3>
           <span class="status-badge ${statusClass(brief.status)}">${briefStatusLabel(brief.status)}</span>
         </div>
@@ -137,10 +159,10 @@
           <span class="dash-card-meta-item">${brief.staffCount} staff required</span>
           ${brief.requestedLane ? `<span class="dash-card-meta-item">${laneLabel(brief.requestedLane)} lane</span>` : ''}
         </div>
-        ${brief.quotedAmount ? `<p style="font-size:var(--font-size-sm);color:var(--color-text-secondary);margin:0">Quoted: <strong>£${Number(brief.quotedAmount).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></p>` : ''}
+        ${brief.quotedAmount ? `<p class="dash-card-quote">Quoted: <strong>£${Number(brief.quotedAmount).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></p>` : ''}
         <div class="dash-card-footer">
-          <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">Submitted ${formatDate(brief.createdAt)}</span>
-	          <a href="#" class="btn-apply" data-action="open-brief-modal" style="font-size:var(--font-size-xs)">Re-brief</a>
+          <span class="dash-card-stamp">Submitted ${formatDate(brief.createdAt)}</span>
+          <a href="#" class="btn-apply btn-sm" data-action="open-brief-modal">Re-brief</a>
         </div>
       </article>`).join('');
   }
@@ -156,9 +178,9 @@
 
     if (!upcoming.length) {
 	      eventsGrid.innerHTML = `
-	        <div class="empty-state" style="grid-column:1/-1">
+	        <div class="empty-state">
 	          <div class="empty-icon" aria-hidden="true">📅</div>
-	          <p>No upcoming confirmed events. <a href="#" data-action="open-brief-modal" style="color:var(--color-gold-dark)">Request staff for your next event.</a></p>
+	          <p>No upcoming confirmed events. <a href="#" data-action="open-brief-modal">Request staff for your next event.</a></p>
 	        </div>`;
 	      return;
 	    }
@@ -171,7 +193,7 @@
 
       return `
         <article class="dash-card upcoming-event">
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+          <div class="dash-card-header">
             <h3 class="dash-card-title">${escHtml(b.eventName || b.location)}</h3>
             <span class="status-badge status-confirmed">${bookingStatusLabel(b.status)}</span>
           </div>
@@ -181,14 +203,14 @@
             <span class="dash-card-meta-item">${formatDate(b.eventDate)}</span>
             ${b.shiftStart ? `<span class="dash-card-meta-item">${b.shiftStart}${b.shiftEnd ? '–' + b.shiftEnd : ''}</span>` : ''}
           </div>
-          <div class="dash-card-meta" style="color:var(--color-text-muted)">
+          <div class="dash-card-meta dash-card-meta-muted">
             <span class="dash-card-meta-item">Staff: ${staffNames}${staffTierLabel}</span>
             ${b.hourlyRateCharged ? `<span class="dash-card-meta-item">£${b.hourlyRateCharged.toFixed(2)}/hr</span>` : ''}
             ${b.hoursEstimated ? `<span class="dash-card-meta-item">${b.hoursEstimated}h est.</span>` : ''}
           </div>
           <div class="dash-card-footer">
-            <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">Confirmed ${formatDate(b.confirmedAt)}</span>
-	            <a href="#" data-action="open-brief-modal" class="btn-apply" style="font-size:var(--font-size-xs)">Re-book</a>
+            <span class="dash-card-stamp">Confirmed ${formatDate(b.confirmedAt)}</span>
+            <a href="#" data-action="open-brief-modal" class="btn-apply btn-sm">Re-book</a>
           </div>
         </article>`;
     }).join('');
@@ -209,7 +231,7 @@
 
     if (!totalHistory) {
       historyGrid.innerHTML = `
-        <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-state">
           <div class="empty-icon" aria-hidden="true">🗂️</div>
           <p>No completed briefs or events yet.</p>
         </div>`;
@@ -218,7 +240,7 @@
 
     const briefCards = pastBriefs.map(brief => `
       <article class="dash-card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div class="dash-card-header">
           <h3 class="dash-card-title">${escHtml(brief.eventType)}</h3>
           <span class="status-badge ${statusClass(brief.status)}">${briefStatusLabel(brief.status)}</span>
         </div>
@@ -228,14 +250,14 @@
           <span class="dash-card-meta-item">${brief.staffCount} staff</span>
         </div>
         <div class="dash-card-footer">
-          <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">${formatDate(brief.createdAt)}</span>
-	          <a href="#" data-action="open-brief-modal" class="btn-apply" style="font-size:var(--font-size-xs)">Request same again</a>
+          <span class="dash-card-stamp">${formatDate(brief.createdAt)}</span>
+          <a href="#" data-action="open-brief-modal" class="btn-apply btn-sm">Request same again</a>
         </div>
       </article>`);
 
     const bookingCards = pastBookings.map(b => `
       <article class="dash-card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div class="dash-card-header">
           <h3 class="dash-card-title">${escHtml(b.eventName || b.location)}</h3>
           <span class="status-badge ${statusClass(b.status)}">${bookingStatusLabel(b.status)}</span>
         </div>
@@ -245,10 +267,10 @@
           ${b.shiftStart ? `<span class="dash-card-meta-item">${b.shiftStart}${b.shiftEnd ? '–' + b.shiftEnd : ''}</span>` : ''}
         </div>
         <div class="dash-card-footer">
-          <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">${formatDate(b.eventDate)}</span>
-	          <a href="#" data-action="open-brief-modal" class="btn-apply" style="font-size:var(--font-size-xs)">Book same team</a>
-	        </div>
-	      </article>`);
+          <span class="dash-card-stamp">${formatDate(b.eventDate)}</span>
+          <a href="#" data-action="open-brief-modal" class="btn-apply btn-sm">Book same team</a>
+        </div>
+      </article>`);
 
     historyGrid.innerHTML = [...briefCards, ...bookingCards].join('');
   }

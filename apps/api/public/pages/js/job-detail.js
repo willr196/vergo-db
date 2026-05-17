@@ -167,7 +167,7 @@ let currentUser = null;
           <div class="apply-status applied">
             ✓ You've already applied for this job
           </div>
-          <a href="/user-dashboard" class="btn btn-secondary btn-block">View My Applications</a>
+          <a href="/dashboard-worker" class="btn btn-secondary btn-block">View My Applications</a>
         `;
         return;
       }

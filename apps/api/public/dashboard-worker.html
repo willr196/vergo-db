@@ -26,20 +26,16 @@
   <a href="#main-content" class="skip-link">Skip to main content</a>
   <div id="site-header" class="site-header" role="banner"></div>
 
-  <!-- Header strip -->
-  <header class="dash-header">
+  <!-- User context bar -->
+  <div class="dash-header" role="region" aria-label="Account">
     <div class="dash-header-inner">
-      <a href="/" class="dash-logo" aria-label="VERGO home">
-        <span class="dash-logo-mark" aria-hidden="true">V</span>
-        VERGO
-      </a>
       <div class="dash-user-area">
         <span class="dash-user-name" id="header-name"></span>
         <span class="tier-badge" id="header-tier" aria-label="Your tier"></span>
         <button class="btn-logout" id="logout-btn" type="button">Sign out</button>
       </div>
     </div>
-  </header>
+  </div>
 
   <main id="main-content" class="dash-main">
 
@@ -66,7 +62,7 @@
           </div>
           <div class="profile-nudge-actions">
             <a href="/onboarding" class="btn-apply btn-gold">Set up profile</a>
-            <button type="button" id="nudge-dismiss" class="btn-logout" style="font-size:var(--font-size-xs)">Dismiss</button>
+            <button type="button" id="nudge-dismiss" class="btn-logout btn-sm">Dismiss</button>
           </div>
         </div>
       </div>
@@ -87,7 +83,7 @@
           <span class="dash-section-count" id="apps-count"></span>
         </div>
         <div id="confirmed-shifts" hidden>
-          <h3 style="font-size:var(--font-size-base);font-weight:var(--font-weight-semibold);color:var(--color-success);margin:0 0 var(--space-3)">Upcoming Confirmed Shifts</h3>
+          <h3 class="dash-subhead is-success">Upcoming Confirmed Shifts</h3>
           <div class="card-grid" id="confirmed-grid"></div>
         </div>
         <div class="card-grid" id="apps-grid" aria-live="polite"></div>
@@ -107,6 +103,7 @@
 
   <footer role="contentinfo"></footer>
   <script src="/auth.js"></script>
+  <script src="/vergo-utils.js"></script>
   <script src="/pages/js/dashboard-worker.js"></script>
   <script src="/vergo-public-shell.js"></script>
 </body>

@@ -368,7 +368,7 @@
           </div>
         </div>
         <div class="profile-actions">
-          <a href="/user-dashboard" class="btn btn-secondary">Applications</a>
+          <a href="/dashboard-worker" class="btn btn-secondary">Applications</a>
           <button type="button" class="btn btn-danger-soft" data-action="logout">Log Out</button>
         </div>
       </section>
@@ -496,7 +496,7 @@
           </div>
         </div>
         <div class="profile-actions">
-          <a href="/client-dashboard" class="btn btn-secondary">Dashboard</a>
+          <a href="/dashboard-client" class="btn btn-secondary">Dashboard</a>
           <button type="button" class="btn btn-danger-soft" data-action="logout">Log Out</button>
         </div>
       </section>
@@ -725,6 +725,13 @@
       const message = error.message || 'Unable to update password';
       setFormStatus(form, message, 'error');
       notify(message, 'error');
+      if (/current password/i.test(message)) {
+        const current = form.querySelector('input[name="currentPassword"]');
+        if (current) {
+          current.value = '';
+          current.focus();
+        }
+      }
     } finally {
       setFormLoading(form, false);
     }

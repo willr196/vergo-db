@@ -1016,6 +1016,16 @@ app.get(['/js/client-register', '/js/client-register.html'], (req, res) => {
   res.redirect(301, '/client-register' + qs);
 });
 
+app.get(['/user-dashboard', '/user-dashboard.html'], (req, res) => {
+  const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+  res.redirect(301, '/dashboard-worker' + qs);
+});
+
+app.get(['/client-dashboard', '/client-dashboard.html'], (req, res) => {
+  const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+  res.redirect(301, '/dashboard-client' + qs);
+});
+
 app.use((req, res, next) => {
   if (req.path.endsWith('.bak')) {
     return res.status(404).send('Not found');

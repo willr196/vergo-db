@@ -1,6 +1,6 @@
 /* ============================================
  * VERGO Dashboard Shared Styles
- * Light theme — uses vergo-styles.css variables
+ * Dark theme — uses vergo-styles.css variables
  * ============================================ */
 
 *,
@@ -23,55 +23,21 @@ body.dashboard-page.dashboard-shell-page {
   padding-top: var(--nav-height);
 }
 
-/* ---- Dashboard header strip ---- */
+/* ---- Dashboard user context bar ---- */
 .dash-header {
-  position: sticky;
-  top: 0;
-  z-index: 200;
-  background: var(--color-bg-white);
+  background: transparent;
   border-bottom: 1px solid var(--color-border);
   padding: 0 var(--space-6);
-}
-
-body.dashboard-page.dashboard-shell-page .dash-header {
-  top: var(--nav-height);
 }
 
 .dash-header-inner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: var(--space-4);
   max-width: 1100px;
   margin: 0 auto;
-  height: 64px;
-}
-
-.dash-logo {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  text-decoration: none;
-  font-family: var(--font-display);
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-  letter-spacing: var(--letter-spacing-tight);
-  flex-shrink: 0;
-}
-
-.dash-logo-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  background: var(--color-gold);
-  color: #111;
-  font-weight: var(--font-weight-bold);
-  font-family: var(--font-display);
-  font-size: var(--font-size-lg);
-  border-radius: var(--radius-sm);
+  height: 48px;
 }
 
 .dash-user-area {
@@ -221,6 +187,23 @@ body.dashboard-page.dashboard-shell-page .dash-header {
   gap: 4px;
 }
 
+.dash-card-meta-muted {
+  color: var(--color-text-muted);
+}
+
+.dash-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.dash-card-quote {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
 .dash-card-footer {
   display: flex;
   align-items: center;
@@ -230,6 +213,23 @@ body.dashboard-page.dashboard-shell-page .dash-header {
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-border);
   margin-top: auto;
+}
+
+.dash-card-footer.is-tight {
+  border-top: none;
+  padding-top: 0;
+}
+
+.dash-card-footer-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.dash-card-stamp {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }
 
 /* Rate & tier tags */
@@ -327,6 +327,32 @@ body.dashboard-page.dashboard-shell-page .dash-header {
   background: var(--color-gold-dark);
   color: #111;
   transform: translateY(-1px);
+}
+
+.btn-apply.btn-sm,
+.btn-apply-sm,
+.btn-logout.btn-sm {
+  padding: 4px var(--space-3);
+  font-size: var(--font-size-xs);
+}
+
+.btn-apply:focus-visible,
+.btn-logout:focus-visible,
+.dash-modal-close:focus-visible,
+.dash-card:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+.dash-subhead {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-3);
+}
+
+.dash-subhead.is-success {
+  color: var(--color-success);
 }
 
 /* ---- Dashboard modal forms ---- */
@@ -505,10 +531,20 @@ body.dashboard-page.dashboard-shell-page .dash-header {
   border-radius: var(--radius-lg);
 }
 
+/* An empty state placed directly inside a card grid spans the full row */
+.card-grid > .empty-state {
+  grid-column: 1 / -1;
+}
+
 .empty-state p {
   color: var(--color-text-muted);
   font-size: var(--font-size-base);
   margin: 0;
+}
+
+.empty-state a {
+  color: var(--color-gold-dark);
+  text-decoration: underline;
 }
 
 .empty-state .empty-icon {
@@ -611,6 +647,40 @@ body.dashboard-page.dashboard-shell-page .dash-header {
 }
 
 /* ---- Responsive ---- */
+@media (max-width: 960px) {
+  .dash-header-inner {
+    height: 44px;
+  }
+
+  .dash-main {
+    padding: var(--space-7) var(--space-5) var(--space-14);
+    gap: var(--space-10);
+  }
+
+  .dash-section-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-3);
+  }
+
+  .dash-form-grid {
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  .dash-modal {
+    width: min(640px, 100%);
+  }
+
+  .dash-modal-header,
+  .dash-modal-footer {
+    padding: var(--space-4);
+  }
+}
+
 @media (max-width: 640px) {
   .dash-header {
     padding: 0 var(--space-4);
@@ -622,7 +692,7 @@ body.dashboard-page.dashboard-shell-page .dash-header {
 
   .dash-main {
     padding: var(--space-6) var(--space-4) var(--space-12);
-    gap: var(--space-10);
+    gap: var(--space-8);
   }
 
   .card-grid {
@@ -639,5 +709,19 @@ body.dashboard-page.dashboard-shell-page .dash-header {
 
   .dash-form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .profile-nudge-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-nudge-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .dash-card-footer {
+    justify-content: flex-start;
   }
 }

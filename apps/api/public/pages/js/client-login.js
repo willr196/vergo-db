@@ -31,7 +31,7 @@
       redirect = defaultRedirect;
     }
   }
-  if (redirect === '/client-dashboard') redirect = defaultRedirect;
+  if (redirect === '/client-dashboard' || redirect === '/dashboard-client') redirect = defaultRedirect;
 
   // Show success if just verified
   if (params.get('verified') === 'true') {

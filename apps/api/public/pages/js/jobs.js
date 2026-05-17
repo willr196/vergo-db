@@ -33,7 +33,7 @@
 	            Welcome, <strong>${escapeHtml(currentUser.firstName)}</strong>
 	          </div>
 	          <div class="user-actions">
-	            <a href="/user-dashboard" class="btn btn-secondary btn-small">My Applications</a>
+	            <a href="/dashboard-worker" class="btn btn-secondary btn-small">My Applications</a>
 	            <button type="button" class="btn btn-small btn-logout" data-action="logout">Log Out</button>
 	          </div>
 	        `;

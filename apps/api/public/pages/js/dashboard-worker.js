@@ -104,11 +104,19 @@
     if (errorMsg) errorMsg.textContent = msg;
   }
 
+  function notify(message, type) {
+    if (typeof notification !== 'undefined' && notification && typeof notification.show === 'function') {
+      notification.show(message, type || 'info');
+      return;
+    }
+    window.alert(message);
+  }
+
   // ---- Render jobs ----
   function renderJobs(jobs, appliedJobIds) {
     if (!jobs.length) {
       jobsGrid.innerHTML = `
-        <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-state">
           <div class="empty-icon" aria-hidden="true">📋</div>
           <p>No open jobs at the moment. Check back soon.</p>
         </div>`;
@@ -124,7 +132,7 @@
 
       return `
         <article class="dash-card" data-job-id="${escHtml(job.id)}">
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+          <div class="dash-card-header">
             <h3 class="dash-card-title">${escHtml(job.title)}</h3>
             <span class="job-tier-tag ${jobTierClass(job.tier)}" aria-label="Job tier">${jobTierLabel(job.tier)}</span>
           </div>
@@ -168,13 +176,14 @@
       btn.textContent = 'Applied';
       btn.classList.add('applied');
       btn.setAttribute('aria-disabled', 'true');
+      notify(`Application sent for ${jobTitle}.`, 'success');
       // Reload applications section
       loadApplications();
     } else {
       const data = await res.json().catch(() => ({}));
       btn.disabled = false;
       btn.textContent = 'Apply';
-      alert(data.error || 'Failed to apply. Please try again.');
+      notify(data.error || 'Failed to apply. Please try again.', 'error');
     }
   }
 
@@ -195,7 +204,7 @@
 
     if (!rest.length && !confirmed.length) {
       appsGrid.innerHTML = `
-        <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-state">
           <div class="empty-icon" aria-hidden="true">📤</div>
           <p>No applications yet. Browse available jobs above.</p>
         </div>`;
@@ -210,10 +219,11 @@
   function renderAppCard(app, isConfirmed) {
     const job = app.job || {};
     const statusText = applicationStatusLabel(app.status);
+    const canWithdraw = !['CONFIRMED', 'WITHDRAWN', 'REJECTED'].includes(app.status);
 
     return `
       <article class="dash-card${isConfirmed ? ' confirmed-shift' : ''}">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div class="dash-card-header">
           <h3 class="dash-card-title">${escHtml(job.title || 'Unknown role')}</h3>
           <span class="status-badge ${statusClass(app.status)}">${statusText}</span>
         </div>
@@ -222,11 +232,44 @@
           ${job.eventDate ? `<span class="dash-card-meta-item">${formatDate(job.eventDate)}</span>` : ''}
           ${job.shiftStart ? `<span class="dash-card-meta-item">${formatTime(job.shiftStart)}${job.shiftEnd ? '–' + formatTime(job.shiftEnd) : ''}</span>` : ''}
         </div>
-        <div class="dash-card-footer" style="border-top:none;padding-top:0">
-          <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">Applied ${formatDate(app.createdAt)}</span>
-          ${formatRate(job.payRate, job.payType) ? `<span class="rate-tag">${formatRate(job.payRate, job.payType)}</span>` : ''}
+        <div class="dash-card-footer is-tight">
+          <span class="dash-card-stamp">Applied ${formatDate(app.createdAt)}</span>
+          <div class="dash-card-footer-group">
+            ${formatRate(job.payRate, job.payType) ? `<span class="rate-tag">${formatRate(job.payRate, job.payType)}</span>` : ''}
+            ${canWithdraw ? `<button class="btn-logout" type="button" data-action="withdraw-app" data-app-id="${escHtml(app.id)}">Withdraw</button>` : ''}
+          </div>
         </div>
       </article>`;
+  }
+
+  async function withdrawApplication(appId, btn) {
+    if (!appId) return;
+    if (!window.confirm('Withdraw this application? This cannot be undone.')) return;
+
+    const originalText = btn ? btn.textContent : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Withdrawing…';
+    }
+
+    const res = await window.VERGOAuth.authFetch(`/api/v1/mobile/job-applications/${encodeURIComponent(appId)}/withdraw`, {
+      method: 'POST',
+    });
+
+    if (!res) return; // auth redirect
+
+    const data = await res.json().catch(() => ({}));
+
+    if (res.ok) {
+      notify('Application withdrawn.', 'success');
+      loadApplications();
+    } else {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+      notify(data.error || 'Could not withdraw application.', 'error');
+    }
   }
 
   // ---- Render progression ----
@@ -357,6 +400,13 @@
       if (profileNudge) profileNudge.hidden = true;
     });
   }
+
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest('[data-action="withdraw-app"]');
+    if (!target) return;
+    e.preventDefault();
+    withdrawApplication(target.dataset.appId, target);
+  });
 
   loadDashboard();
 })();

@@ -20,14 +20,14 @@ Disallow: /login
 # Disallow user account pages (not useful for search)
 Disallow: /user-login
 Disallow: /user-register
-Disallow: /user-dashboard
+Disallow: /dashboard-worker
 Disallow: /reset-password
 Disallow: /forgot-password
 
 # Disallow client account pages (not useful for search)
 Disallow: /client-login
 Disallow: /client-register
-Disallow: /client-dashboard
+Disallow: /dashboard-client
 
 # Disallow thin templates (non-canonical pages)
 Disallow: /job-detail

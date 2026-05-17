@@ -498,11 +498,12 @@ img {
 
 .notification {
   background: var(--color-bg-secondary);
-  border-left: 4px solid var(--color-gold);
-  border-radius: var(--border-radius);
-  padding: 16px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 5px solid var(--color-gold);
+  border-radius: 10px;
+  padding: 16px 18px;
   margin-bottom: 12px;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -533,28 +534,46 @@ img {
 }
 
 .notification-success {
-  border-left-color: var(--color-success);
-  background: linear-gradient(90deg, rgba(40, 167, 69, 0.1) 0%, var(--color-bg-secondary) 100%);
+  border-left-color: #5ebc76;
+  background: linear-gradient(90deg, rgba(94, 188, 118, 0.18) 0%, var(--color-bg-secondary) 70%);
+}
+
+.notification-success .notification-icon {
+  color: #5ebc76;
 }
 
 .notification-error {
-  border-left-color: var(--color-error);
-  background: linear-gradient(90deg, rgba(220, 53, 69, 0.1) 0%, var(--color-bg-secondary) 100%);
+  border-left-color: #ff7a7a;
+  background: linear-gradient(90deg, rgba(255, 122, 122, 0.18) 0%, var(--color-bg-secondary) 70%);
+}
+
+.notification-error .notification-icon {
+  color: #ff7a7a;
 }
 
 .notification-warning {
-  border-left-color: var(--color-warning);
-  background: linear-gradient(90deg, rgba(255, 193, 7, 0.1) 0%, var(--color-bg-secondary) 100%);
+  border-left-color: #e0b250;
+  background: linear-gradient(90deg, rgba(224, 178, 80, 0.18) 0%, var(--color-bg-secondary) 70%);
+}
+
+.notification-warning .notification-icon {
+  color: #e0b250;
 }
 
 .notification-info {
-  border-left-color: var(--color-info);
-  background: linear-gradient(90deg, rgba(23, 162, 184, 0.1) 0%, var(--color-bg-secondary) 100%);
+  border-left-color: var(--color-gold);
+  background: linear-gradient(90deg, rgba(196, 162, 78, 0.16) 0%, var(--color-bg-secondary) 70%);
+}
+
+.notification-info .notification-icon {
+  color: var(--color-gold);
 }
 
 .notification-icon {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  font-weight: 700;
   flex-shrink: 0;
+  line-height: 1;
 }
 
 .notification-message {

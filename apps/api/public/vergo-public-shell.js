@@ -30,13 +30,13 @@
       '/temporary-bar-staff-london',
       '/client-login',
       '/client-register',
-      '/client-dashboard',
+      '/dashboard-client',
       '/quote',
     ],
     jobs: [
       '/jobs',
       '/job-detail',
-      '/user-dashboard',
+      '/dashboard-worker',
     ],
     profile: ['/profile'],
     pricing: ['/pricing'],
@@ -272,8 +272,8 @@
 
     // 2. Session-based fallback (existing auth pages)
     const checks = [
-      { url: '/api/v1/user/session', key: 'user', href: '/user-dashboard' },
-      { url: '/api/v1/client/session', key: 'client', href: '/client-dashboard' },
+      { url: '/api/v1/user/session', key: 'user', href: '/dashboard-worker' },
+      { url: '/api/v1/client/session', key: 'client', href: '/dashboard-client' },
     ];
 
     for (const check of checks) {

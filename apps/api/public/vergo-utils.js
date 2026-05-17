@@ -97,7 +97,10 @@ class AccessibleNotification {
     document.body.appendChild(liveRegion);
   }
   
-  async show(message, type = 'info', duration = 7000) {
+  async show(message, type = 'info', duration) {
+    if (typeof duration !== 'number') {
+      duration = type === 'error' ? 8000 : type === 'success' ? 4500 : 6000;
+    }
     // Update ARIA live region for screen readers
     const liveRegion = document.getElementById('aria-live-region');
     if (liveRegion) {
