@@ -277,6 +277,12 @@
 
   // ---- Load dashboard ----
   async function loadDashboard() {
+    const stallTimer = setTimeout(() => {
+      if (loadingState && !loadingState.hidden) {
+        showError('This is taking longer than expected. Please refresh the page.');
+      }
+    }, 12000);
+
     try {
       const [profileRes, briefsRes, bookingsRes] = await Promise.all([
         window.VERGOAuth.authFetch('/api/v1/web/client/me'),
@@ -284,7 +290,10 @@
         window.VERGOAuth.authFetch('/api/v1/web/client/bookings'),
       ]);
 
-      if (!profileRes || !briefsRes || !bookingsRes) return; // auth redirect
+      if (!profileRes || !briefsRes || !bookingsRes) {
+        clearTimeout(stallTimer);
+        return; // auth redirect already fired
+      }
 
       const [profileData, briefsData, bookingsData] = await Promise.all([
         profileRes.json().catch(() => ({})),
@@ -292,7 +301,7 @@
         bookingsRes.json().catch(() => ({})),
       ]);
 
-      if (!profileData.ok) {
+      if (!profileRes.ok || !profileData.ok) {
         showError(profileData.error || 'Failed to load your profile.');
         return;
       }
@@ -320,6 +329,8 @@
     } catch (err) {
       showError('Something went wrong loading your dashboard. Please refresh.');
       console.error('[Client Dashboard]', err);
+    } finally {
+      clearTimeout(stallTimer);
     }
 	  }
 

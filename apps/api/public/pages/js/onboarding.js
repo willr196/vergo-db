@@ -45,6 +45,29 @@
     btn.textContent = isLoading ? (btn.dataset.loadingLabel || 'Saving…') : btn.dataset.defaultLabel;
   }
 
+  // ---- Toast ----
+
+  let toastTimer = null;
+
+  function showToast(message, variant) {
+    let toast = document.getElementById('ob-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'ob-toast';
+      toast.className = 'ob-toast';
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.dataset.variant = variant || 'success';
+    toast.classList.add('is-visible');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove('is-visible');
+    }, 1800);
+  }
+
   async function apiRequest(url, options) {
     const opts = options || {};
     const headers = Object.assign({ Accept: 'application/json' }, opts.headers || {});
@@ -68,15 +91,21 @@
   }
 
   // ---- Progress ----
+  // Internal step numbers map: 1 = welcome, 2-5 = data steps 1-4 of 4, 'done' = finished.
 
-  function updateProgress(step) {
-    const pct = Math.round((step / state.totalSteps) * 100);
+  function updateProgress(stepIndex) {
+    // stepIndex is 1..totalSteps (the data-step index, NOT the internal step number).
+    const pct = Math.round((stepIndex / state.totalSteps) * 100);
     if (progressFill) progressFill.style.width = pct + '%';
-    if (progressLabel) progressLabel.textContent = `Step ${step} of ${state.totalSteps}`;
+    if (progressLabel) progressLabel.textContent = `Step ${stepIndex} of ${state.totalSteps}`;
     if (progressEl) {
-      progressEl.setAttribute('aria-valuenow', step);
-      progressEl.hidden = step < 1;
+      progressEl.setAttribute('aria-valuenow', stepIndex);
+      progressEl.hidden = false;
     }
+  }
+
+  function hideProgress() {
+    if (progressEl) progressEl.hidden = true;
   }
 
   // ---- Step navigation ----
@@ -88,11 +117,18 @@
       target.hidden = false;
       target.focus && target.focus();
     }
-    state.currentStep = typeof n === 'number' ? n : n;
-    if (typeof n === 'number') updateProgress(n - 1);
-    if (n === 'done') {
-      if (progressEl) progressEl.hidden = true;
+    state.currentStep = n;
+
+    if (n === 'done' || n === 1) {
+      // Welcome and done: no progress bar.
+      hideProgress();
+    } else if (typeof n === 'number') {
+      // Internal steps 2..5 map to data-step indices 1..4.
+      updateProgress(n - 1);
     }
+
+    // Scroll back to top so the user sees the new step header.
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ---- Render sectors ----
@@ -251,6 +287,7 @@
           dateOfBirth: form.dateOfBirth.value || '',
         }),
       });
+      showToast('Details saved');
       showStep(3);
     } catch (error) {
       showError('error-personal', error.message || 'Could not save. Please try again.');
@@ -273,6 +310,7 @@
           preferredJobTypes: sectors,
         }),
       });
+      showToast('Bio and sectors saved');
       showStep(4);
     } catch (error) {
       showError('error-professional', error.message || 'Could not save. Please try again.');
@@ -287,7 +325,10 @@
     showError('error-photo', '');
 
     try {
-      if (state.pendingPhoto) await uploadPendingPhoto();
+      if (state.pendingPhoto) {
+        await uploadPendingPhoto();
+        showToast('Photo uploaded');
+      }
       showStep(5);
     } catch (error) {
       showError('error-photo', error.message || 'Upload failed. Please try again or skip.');
@@ -307,6 +348,7 @@
         method: 'PUT',
         body: JSON.stringify({ staffAvailable: avail ? avail.checked : false }),
       });
+      showToast('Profile complete');
       showStep('done');
     } catch (error) {
       showError('error-avail', error.message || 'Could not save. Please try again.');
@@ -323,8 +365,7 @@
       const session = (sessionRes.data && typeof sessionRes.data === 'object') ? sessionRes.data : {};
 
       if (!session.authenticated) {
-        const redirect = encodeURIComponent('/onboarding');
-        window.location.href = `/user-login?redirect=${redirect}`;
+        window.location.href = '/portal-login.html?expired=1';
         return;
       }
 
@@ -349,48 +390,61 @@
 
       populateForms(state.profile);
       showStep(1);
+      bindDirectButtons();
     } catch (error) {
       if (error.status === 401 || error.status === 403) {
-        window.location.href = '/user-login?redirect=' + encodeURIComponent('/onboarding');
+        window.location.href = '/portal-login.html?expired=1';
       } else {
         if (loading) loading.innerHTML = '<p style="color:var(--muted)">Failed to load. Please <a href="/onboarding">refresh</a>.</p>';
       }
     }
   }
 
+  // Defensive direct binding for critical buttons in case event delegation
+  // is interrupted by another listener.
+  function bindDirectButtons() {
+    const finishBtn = document.getElementById('ob-finish');
+    if (finishBtn && !finishBtn.dataset.bound) {
+      finishBtn.dataset.bound = '1';
+      finishBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        finish();
+      });
+    }
+    const photoNextBtn = document.getElementById('ob-photo-next');
+    if (photoNextBtn && !photoNextBtn.dataset.bound) {
+      photoNextBtn.dataset.bound = '1';
+      photoNextBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        proceedFromPhoto();
+      });
+    }
+  }
+
   // ---- Event binding ----
 
   document.addEventListener('click', function (e) {
-    const target = e.target.closest('[data-next]');
-    if (target) { showStep(Number(target.dataset.next)); return; }
+    // Use closest so clicks on inner SVG/text inside a button still match.
+    const nextBtn = e.target.closest('[data-next]');
+    if (nextBtn) { showStep(Number(nextBtn.dataset.next)); return; }
 
-    const back = e.target.closest('[data-back]');
-    if (back) { showStep(Number(back.dataset.back)); return; }
+    const backBtn = e.target.closest('[data-back]');
+    if (backBtn) { showStep(Number(backBtn.dataset.back)); return; }
 
-    if (e.target.id === 'ob-photo-choose') {
-      document.getElementById('ob-photo-input').click();
-      return;
-    }
+    const finishBtn = e.target.closest('#ob-finish');
+    if (finishBtn) { finish(); return; }
 
-    if (e.target.id === 'ob-photo-remove') {
-      clearPhoto();
-      return;
-    }
+    const photoNextBtn = e.target.closest('#ob-photo-next');
+    if (photoNextBtn) { proceedFromPhoto(); return; }
 
-    if (e.target.id === 'ob-photo-skip') {
-      showStep(5);
-      return;
-    }
+    const photoChoose = e.target.closest('#ob-photo-choose');
+    if (photoChoose) { document.getElementById('ob-photo-input').click(); return; }
 
-    if (e.target.id === 'ob-photo-next') {
-      proceedFromPhoto();
-      return;
-    }
+    const photoRemove = e.target.closest('#ob-photo-remove');
+    if (photoRemove) { clearPhoto(); return; }
 
-    if (e.target.id === 'ob-finish') {
-      finish();
-      return;
-    }
+    const photoSkip = e.target.closest('#ob-photo-skip');
+    if (photoSkip) { showStep(5); return; }
   });
 
   document.addEventListener('submit', function (e) {

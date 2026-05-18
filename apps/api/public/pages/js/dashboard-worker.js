@@ -342,6 +342,14 @@
   }
 
   async function loadDashboard() {
+    // Safety net: if something silently stalls for >12s, surface an error
+    // instead of leaving the spinner running forever.
+    const stallTimer = setTimeout(() => {
+      if (loadingState && !loadingState.hidden) {
+        showError('This is taking longer than expected. Please refresh the page.');
+      }
+    }, 12000);
+
     try {
       const [profileRes, jobsRes, appsRes] = await Promise.all([
         window.VERGOAuth.authFetch('/api/v1/web/worker/me'),
@@ -349,7 +357,12 @@
         window.VERGOAuth.authFetch('/api/v1/mobile/job-applications/mine'),
       ]);
 
-      if (!profileRes || !appsRes) return; // auth redirect
+      // authFetch returns null only when a redirect to login has been triggered.
+      // Don't leave the loading spinner up if we're about to navigate away.
+      if (!profileRes || !appsRes) {
+        clearTimeout(stallTimer);
+        return;
+      }
 
       const [profileData, jobsData, appsData] = await Promise.all([
         profileRes.json().catch(() => ({})),
@@ -357,7 +370,7 @@
         appsRes.json().catch(() => ({})),
       ]);
 
-      if (!profileData.ok) {
+      if (!profileRes.ok || !profileData.ok) {
         showError(profileData.error || 'Failed to load your profile.');
         return;
       }
@@ -383,6 +396,8 @@
     } catch (err) {
       showError('Something went wrong loading your dashboard. Please refresh.');
       console.error('[Worker Dashboard]', err);
+    } finally {
+      clearTimeout(stallTimer);
     }
   }
 

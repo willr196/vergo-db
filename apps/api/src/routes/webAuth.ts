@@ -430,6 +430,7 @@ r.post('/force-change-password', loginLimiter, async (req, res) => {
         firstName: true,
         lastName: true,
         mustChangePassword: true,
+        emailVerified: true,
         staffTier: true,
         shortlistSelections: true,
         failedAttempts: true,
@@ -456,6 +457,10 @@ r.post('/force-change-password', loginLimiter, async (req, res) => {
 
     if (!user.mustChangePassword) {
       return res.status(400).json({ ok: false, error: 'Password change not required. Please log in normally.' });
+    }
+
+    if (!user.emailVerified) {
+      return res.status(403).json({ ok: false, error: 'Email not verified. Contact support.' });
     }
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
