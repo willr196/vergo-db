@@ -164,22 +164,21 @@
           website: formData.get('website') || undefined,
         };
 
-        try {
+        const submitBtn = staffForm.querySelector('.submit-btn');
+        await VERGOButton.runWithFeedback(submitBtn, async () => {
           const response = await fetch('/api/v1/contact/staff-request', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
           });
           const result = await response.json().catch(() => ({}));
-
           if (!response.ok) {
             throw new Error(result.error || 'There was a problem submitting your request. Please try again or email us directly.');
           }
-
           showSuccess(staffPanel);
-        } catch (error) {
+        }, { loadingText: 'Sending…', successText: 'Sent ✓', resetAfterMs: 0 }).catch((error) => {
           alert(error.message || 'There was a problem submitting your request. Please try again or email us directly.');
-        }
+        });
       });
 
       generalForm.addEventListener('submit', async function (e) {

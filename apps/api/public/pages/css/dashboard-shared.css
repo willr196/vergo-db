@@ -70,8 +70,8 @@ body.dashboard-page.dashboard-shell-page {
 }
 
 .tier-badge.tier-gold {
-  background: rgba(212, 175, 55, 0.15);
-  color: var(--color-gold-dark);
+  background: rgba(196, 162, 78, 0.15);
+  color: var(--color-gold);
 }
 
 .tier-badge.tier-standard {
@@ -81,8 +81,8 @@ body.dashboard-page.dashboard-shell-page {
 }
 
 .tier-badge.tier-premium {
-  background: rgba(212, 175, 55, 0.15);
-  color: var(--color-gold-dark);
+  background: rgba(196, 162, 78, 0.15);
+  color: var(--color-gold);
 }
 
 .btn-logout {
@@ -108,6 +108,13 @@ body.dashboard-page.dashboard-shell-page {
   max-width: 1100px;
   margin: 0 auto;
   padding: var(--space-8) var(--space-6) var(--space-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+/* The content wrapper must itself be a flex column so sections get the same gap */
+#dashboard-content {
   display: flex;
   flex-direction: column;
   gap: var(--space-12);
@@ -252,9 +259,9 @@ body.dashboard-page.dashboard-shell-page {
 }
 
 .job-tier-tag.tier-gold {
-  background: rgba(212, 175, 55, 0.2);
-  color: #8a6800;
-  border: 1px solid rgba(212, 175, 55, 0.5);
+  background: rgba(196, 162, 78, 0.15);
+  color: var(--color-gold);
+  border: 1px solid var(--color-border-gold);
 }
 
 .job-tier-tag.tier-standard {
@@ -327,6 +334,38 @@ body.dashboard-page.dashboard-shell-page {
   background: var(--color-gold-dark);
   color: #111;
   transform: translateY(-1px);
+}
+
+/* Explicit combined rule — beats .btn-apply alone and ensures gold pops on the gold-tinted nudge bg */
+.btn-apply.btn-gold {
+  background: var(--color-gold);
+  color: #111;
+  box-shadow: 0 2px 8px rgba(196, 162, 78, 0.35);
+}
+
+.btn-apply.btn-gold:hover {
+  background: var(--color-gold-dark);
+  color: #111;
+  box-shadow: 0 4px 12px rgba(196, 162, 78, 0.45);
+  transform: translateY(-1px);
+}
+
+/* Plain text-link button — used for low-emphasis actions like Dismiss */
+.btn-text-link {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  cursor: pointer;
+  padding: var(--space-2) 0;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.btn-text-link:hover {
+  color: var(--color-text-secondary);
+  text-decoration: underline;
 }
 
 .btn-apply.btn-sm,
@@ -472,6 +511,7 @@ body.dashboard-page.dashboard-shell-page {
 
 .stat-box {
   flex: 1 1 160px;
+  max-width: 240px;
   background: var(--color-bg-white);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -563,6 +603,9 @@ body.dashboard-page.dashboard-shell-page {
   min-height: 60vh;
   color: var(--color-text-muted);
 }
+
+.dash-loading[hidden] { display: none !important; }
+.dash-alert[hidden] { display: none; }
 
 .loading-ring {
   width: 40px;

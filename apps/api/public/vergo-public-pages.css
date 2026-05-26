@@ -6,6 +6,7 @@
   --panel: #151515;
   --panel-strong: #1a1a1a;
   --gold: #C4A24E;
+  --gold-dark: #a8883c;
   --gold-soft: rgba(196, 162, 78, 0.16);
   --gold-line: rgba(196, 162, 78, 0.35);
   --white: #f7f7f7;
@@ -18,6 +19,13 @@
   --color-gold: #C4A24E;
   --color-text-muted: #9b9b9b;
   --color-success: #92d88d;
+  --color-success-bg: rgba(146, 216, 141, 0.12);
+  --color-info: #63aee0;
+  --color-info-bg: rgba(99, 174, 224, 0.12);
+  --color-warning: #e8a243;
+  --color-warning-bg: rgba(232, 162, 67, 0.12);
+  --color-error: #fc8181;
+  --color-error-bg: rgba(252, 129, 129, 0.1);
   --color-bg-warm: rgba(196, 162, 78, 0.08);
   --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
   --radius: 28px;
@@ -1905,4 +1913,17 @@ footer {
   .img-strip__caption p {
     font-size: 0.9rem;
   }
+}
+
+.btn-loading {
+  opacity: 0.7;
+  cursor: wait !important;
+  transition: background-color 250ms, color 250ms, opacity 250ms;
+}
+
+.btn-success {
+  background: var(--gold-dark) !important;
+  color: #f7f7f7 !important;
+  cursor: default !important;
+  transition: background-color 250ms, color 250ms;
 }

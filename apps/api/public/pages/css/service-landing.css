@@ -68,10 +68,10 @@
 }
 
 .benefit-card {
-  border: 1px solid rgba(28, 28, 28, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   padding: 16px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .benefit-card h3 {
@@ -94,10 +94,10 @@
 }
 
 .panel {
-  border: 1px solid rgba(28, 28, 28, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   padding: 18px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .panel h3 {
@@ -113,10 +113,10 @@
 }
 
 .faq-list details {
-  border: 1px solid rgba(28, 28, 28, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   padding: 14px 16px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.04);
   margin-bottom: 12px;
 }
 
@@ -141,10 +141,10 @@
   display: inline-block;
   padding: 10px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(28, 28, 28, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   text-decoration: none;
-  color: var(--color-text);
-  background: #fff;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .related-links a:hover {
@@ -157,7 +157,7 @@
   border-radius: 18px;
   padding: 22px;
   border: 1px solid rgba(201, 162, 77, 0.35);
-  background: linear-gradient(180deg, rgba(201, 162, 77, 0.10), rgba(255, 255, 255, 1));
+  background: linear-gradient(180deg, rgba(196, 162, 78, 0.12), rgba(10, 10, 10, 0.98));
 }
 
 .service-cta-banner h2 {
@@ -195,9 +195,9 @@
   overflow: hidden;
   padding: 132px 24px 58px;
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.78), rgba(244, 236, 223, 0.98)),
-    radial-gradient(circle at 12% 18%, rgba(212, 175, 55, 0.18), transparent 30%);
-  box-shadow: inset 0 -1px 0 rgba(28, 28, 28, 0.06);
+    radial-gradient(circle at 12% 18%, rgba(196, 162, 78, 0.16), transparent 30%),
+    linear-gradient(180deg, rgba(15, 15, 15, 0.98), #0a0a0a);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .service-hero::before {
@@ -240,7 +240,7 @@
 }
 
 .service-hero p {
-  color: #5b5349;
+  color: var(--muted);
   font-size: 1.08rem;
 }
 
@@ -251,9 +251,9 @@
   margin-bottom: 18px;
   padding: 10px 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(28, 28, 28, 0.08);
-  box-shadow: 0 12px 30px rgba(28, 28, 28, 0.06);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
 
 .service-main {
@@ -268,10 +268,10 @@
 .panel,
 .faq-list details,
 .service-cta-banner {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(249, 245, 238, 0.98));
-  border: 1px solid rgba(28, 28, 28, 0.08);
+  background: linear-gradient(180deg, rgba(26, 26, 26, 0.96), rgba(15, 15, 15, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
-  box-shadow: 0 18px 48px rgba(28, 28, 28, 0.08);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.3);
 }
 
 .benefit-card,
@@ -284,8 +284,8 @@
 .panel:hover,
 .faq-list details:hover {
   transform: translateY(-4px);
-  border-color: rgba(212, 175, 55, 0.34);
-  box-shadow: 0 24px 62px rgba(28, 28, 28, 0.1);
+  border-color: rgba(196, 162, 78, 0.34);
+  box-shadow: 0 24px 62px rgba(0, 0, 0, 0.4);
 }
 
 .benefit-card,
@@ -331,12 +331,12 @@
 
 .related-links a {
   padding: 12px 16px;
-  box-shadow: 0 10px 24px rgba(28, 28, 28, 0.05);
+  box-shadow: none;
 }
 
 .service-cta-banner {
   padding: 30px;
-  box-shadow: 0 24px 66px rgba(28, 28, 28, 0.1);
+  box-shadow: 0 24px 66px rgba(0, 0, 0, 0.4);
 }
 
 @media (max-width: 768px) {

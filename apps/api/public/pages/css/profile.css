@@ -1,6 +1,6 @@
 .profile-page .profile-content {
   display: grid;
-  gap: 24px;
+  gap: 32px;
 }
 
 .profile-overview {
@@ -113,7 +113,8 @@
 .field label,
 .readonly-field label,
 .checkbox-stack .field-label,
-.chip-stack .field-label {
+.chip-stack .field-label,
+.availability-row .field-label {
   color: var(--white);
   font-size: 0.9rem;
   font-weight: 700;
@@ -163,7 +164,7 @@
 
 .field input::placeholder,
 .field textarea::placeholder {
-  color: rgba(247, 247, 247, 0.45);
+  color: var(--muted);
 }
 
 .field select {
@@ -472,6 +473,17 @@
   color: var(--muted);
   font-size: 0.84rem;
   margin: 0;
+}
+
+/* ---- Password section ---- */
+
+.profile-card--password {
+  max-width: 560px;
+}
+
+.password-fields {
+  display: grid;
+  gap: 16px;
 }
 
 @media (max-width: 960px) {

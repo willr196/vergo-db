@@ -342,14 +342,6 @@
   }
 
   async function loadDashboard() {
-    // Safety net: if something silently stalls for >12s, surface an error
-    // instead of leaving the spinner running forever.
-    const stallTimer = setTimeout(() => {
-      if (loadingState && !loadingState.hidden) {
-        showError('This is taking longer than expected. Please refresh the page.');
-      }
-    }, 12000);
-
     try {
       const [profileRes, jobsRes, appsRes] = await Promise.all([
         window.VERGOAuth.authFetch('/api/v1/web/worker/me'),
@@ -357,12 +349,7 @@
         window.VERGOAuth.authFetch('/api/v1/mobile/job-applications/mine'),
       ]);
 
-      // authFetch returns null only when a redirect to login has been triggered.
-      // Don't leave the loading spinner up if we're about to navigate away.
-      if (!profileRes || !appsRes) {
-        clearTimeout(stallTimer);
-        return;
-      }
+      if (!profileRes || !appsRes) { return; }
 
       const [profileData, jobsData, appsData] = await Promise.all([
         profileRes.json().catch(() => ({})),
@@ -370,34 +357,28 @@
         appsRes.json().catch(() => ({})),
       ]);
 
-      if (!profileRes.ok || !profileData.ok) {
+      if (!profileData.ok) {
         showError(profileData.error || 'Failed to load your profile.');
         return;
       }
 
       const workerData = profileData.user;
-      const jobs = jobsData.jobs || jobsData.data || [];
-      const apps = appsData.applications || appsData.data || [];
-
+      const jobs = jobsData.jobs || [];
+      const apps = appsData.applications || [];
       appliedJobIds = new Set(apps.map(a => a.jobId));
 
-      // Update header name (may be more complete than token)
       if (headerName) headerName.textContent = workerData.name || user.name;
 
-      // Render
       renderJobs(jobs, appliedJobIds);
       renderApplications(apps);
       renderProgression(workerData);
 
-      // Show content
       loadingState.hidden = true;
       dashContent.hidden = false;
 
     } catch (err) {
       showError('Something went wrong loading your dashboard. Please refresh.');
       console.error('[Worker Dashboard]', err);
-    } finally {
-      clearTimeout(stallTimer);
     }
   }
 

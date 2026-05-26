@@ -451,31 +451,32 @@
           </div>
         </form>
 
-        <form class="panel profile-card is-wide" data-form="user-password">
-          <span class="eyebrow">Security</span>
-          <h3>Change password</h3>
-          <p class="profile-intro">Use your current password to confirm the change.</p>
-          <div class="form-grid">
-            <div class="field">
-              <label for="user-current-password">Current password</label>
-              <input id="user-current-password" name="currentPassword" type="password" autocomplete="current-password" minlength="8" required>
-            </div>
-            <div class="field">
-              <label for="user-new-password">New password</label>
-              <input id="user-new-password" name="newPassword" type="password" autocomplete="new-password" minlength="8" required>
-            </div>
-            <div class="field">
-              <label for="user-confirm-password">Confirm new password</label>
-              <input id="user-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required>
-            </div>
-          </div>
-          <div class="form-footer">
-            <p class="form-note">Passwords must be at least 8 characters.</p>
-            <p class="form-status" aria-live="polite"></p>
-            <button type="submit" class="btn btn-primary" data-loading-label="Updating...">Update Password</button>
-          </div>
-        </form>
       </div>
+
+      <form class="panel profile-card profile-card--password" data-form="user-password">
+        <span class="eyebrow">Security</span>
+        <h3>Change password</h3>
+        <p class="profile-intro">Use your current password to confirm the change.</p>
+        <div class="password-fields">
+          <div class="field">
+            <label for="user-current-password">Current password</label>
+            <input id="user-current-password" name="currentPassword" type="password" autocomplete="current-password" minlength="8" required>
+          </div>
+          <div class="field">
+            <label for="user-new-password">New password</label>
+            <input id="user-new-password" name="newPassword" type="password" autocomplete="new-password" minlength="8" required>
+          </div>
+          <div class="field">
+            <label for="user-confirm-password">Confirm new password</label>
+            <input id="user-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required>
+          </div>
+        </div>
+        <div class="form-footer">
+          <p class="form-note">Passwords must be at least 8 characters.</p>
+          <p class="form-status" aria-live="polite"></p>
+          <button type="submit" class="btn btn-secondary" data-loading-label="Updating...">Update Password</button>
+        </div>
+      </form>
     `;
   }
 
@@ -564,31 +565,32 @@
           </div>
         </form>
 
-        <form class="panel profile-card is-wide" data-form="client-password">
-          <span class="eyebrow">Security</span>
-          <h3>Change password</h3>
-          <p class="profile-intro">Use your current password to confirm the change.</p>
-          <div class="form-grid">
-            <div class="field">
-              <label for="client-current-password">Current password</label>
-              <input id="client-current-password" name="currentPassword" type="password" autocomplete="current-password" minlength="8" required>
-            </div>
-            <div class="field">
-              <label for="client-new-password">New password</label>
-              <input id="client-new-password" name="newPassword" type="password" autocomplete="new-password" minlength="8" required>
-            </div>
-            <div class="field">
-              <label for="client-confirm-password">Confirm new password</label>
-              <input id="client-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required>
-            </div>
-          </div>
-          <div class="form-footer">
-            <p class="form-note">Passwords must be at least 8 characters.</p>
-            <p class="form-status" aria-live="polite"></p>
-            <button type="submit" class="btn btn-primary" data-loading-label="Updating...">Update Password</button>
-          </div>
-        </form>
       </div>
+
+      <form class="panel profile-card profile-card--password" data-form="client-password">
+        <span class="eyebrow">Security</span>
+        <h3>Change password</h3>
+        <p class="profile-intro">Use your current password to confirm the change.</p>
+        <div class="password-fields">
+          <div class="field">
+            <label for="client-current-password">Current password</label>
+            <input id="client-current-password" name="currentPassword" type="password" autocomplete="current-password" minlength="8" required>
+          </div>
+          <div class="field">
+            <label for="client-new-password">New password</label>
+            <input id="client-new-password" name="newPassword" type="password" autocomplete="new-password" minlength="8" required>
+          </div>
+          <div class="field">
+            <label for="client-confirm-password">Confirm new password</label>
+            <input id="client-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required>
+          </div>
+        </div>
+        <div class="form-footer">
+          <p class="form-note">Passwords must be at least 8 characters.</p>
+          <p class="form-status" aria-live="polite"></p>
+          <button type="submit" class="btn btn-secondary" data-loading-label="Updating...">Update Password</button>
+        </div>
+      </form>
     `;
   }
 
