@@ -14,6 +14,8 @@
   const headerName     = document.getElementById('header-name');
   const headerTier     = document.getElementById('header-tier');
   const logoutBtn      = document.getElementById('logout-btn');
+  const profileTrigger = document.getElementById('dash-profile-trigger');
+  const profileMenu    = document.getElementById('dash-profile-menu');
   const jobsGrid       = document.getElementById('jobs-grid');
   const jobsCount      = document.getElementById('jobs-count');
   const appsGrid       = document.getElementById('apps-grid');
@@ -31,6 +33,37 @@
   // Logout
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => window.VERGOAuth.logout());
+  }
+
+  if (profileTrigger && profileMenu) {
+    const accountMenu = profileTrigger.closest('.dash-account-menu');
+    const closeProfileMenu = () => {
+      profileMenu.hidden = true;
+      profileTrigger.setAttribute('aria-expanded', 'false');
+    };
+
+    profileTrigger.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const willOpen = profileMenu.hidden;
+      profileMenu.hidden = !willOpen;
+      profileTrigger.setAttribute('aria-expanded', String(willOpen));
+    });
+
+    profileMenu.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', closeProfileMenu);
+    });
+
+    document.addEventListener('click', (event) => {
+      if (accountMenu && !accountMenu.contains(event.target)) {
+        closeProfileMenu();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeProfileMenu();
+      }
+    });
   }
 
   // ---- Helpers ----
@@ -384,10 +417,15 @@
 
   function checkProfileNudge(workerData) {
     if (!profileNudge) return;
-    const dismissed = localStorage.getItem('vergo_nudge_dismissed');
-    if (dismissed) return;
-    const incomplete = !workerData.staffBio || !workerData.staffAvatar || !workerData.staffAvailable;
-    if (incomplete) profileNudge.hidden = false;
+    if (localStorage.getItem('vergo_nudge_dismissed')) return;
+
+    // /api/v1/web/worker/me only exposes phone + staffAvailable as completeness
+    // signals (bio/photo/roles are not part of that response), so the nudge keys
+    // off the fields that are actually returned and set during onboarding.
+    const hasPhone = typeof workerData.phone === 'string' && workerData.phone.trim() !== '';
+    const isComplete = hasPhone && !!workerData.staffAvailable;
+
+    profileNudge.hidden = isComplete;
   }
 
   if (nudgeDismiss) {

@@ -30,13 +30,11 @@
       '/temporary-bar-staff-london',
       '/client-login',
       '/client-register',
-      '/dashboard-client',
       '/quote',
     ],
     jobs: [
       '/jobs',
       '/job-detail',
-      '/dashboard-worker',
     ],
     profile: ['/profile'],
     pricing: ['/pricing'],
@@ -50,6 +48,7 @@
   };
 
   const withCurrent = (group) => (isCurrent(group) ? ' aria-current="page"' : '');
+  const withCurrentHref = (href) => (normalisePath(href) === currentPath ? ' aria-current="page"' : '');
 
   const ensureFonts = () => {
     // Skip if the page already manages its own Google Fonts (e.g. index.html uses DM Sans)
@@ -188,7 +187,9 @@
     try {
       const part = token.split('.')[1];
       if (!part) return null;
-      return JSON.parse(atob(part.replace(/-/g, '+').replace(/_/g, '/')));
+      const b64 = part.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = b64.padEnd(b64.length + ((4 - (b64.length % 4)) % 4), '=');
+      return JSON.parse(atob(padded));
     } catch {
       return null;
     }
@@ -210,13 +211,52 @@
     }
   };
 
-  const doLogout = () => {
+  const escHtml = (value) => String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+  const getStoredUserInfo = () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('vergo_user') || 'null');
+      const label = stored && (stored.name || stored.companyName || stored.contactName);
+      if (label) {
+        return { label: String(label).trim().split(/\s+/)[0] || 'Profile' };
+      }
+    } catch {
+      // ignore
+    }
+
+    try {
+      const token = localStorage.getItem('vergo_jwt');
+      const payload = token ? decodeJwtPayload(token) : null;
+      if (payload && payload.email) {
+        return { label: String(payload.email).split('@')[0] || 'Profile' };
+      }
+    } catch {
+      // ignore
+    }
+
+    return { label: 'Profile' };
+  };
+
+  const doLogout = (userType) => {
     const refreshToken = localStorage.getItem('vergo_refresh');
     if (refreshToken) {
       fetch('/api/v1/web/logout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        keepalive: true,
         body: JSON.stringify({ refreshToken }),
+      }).catch(() => {});
+    } else if (userType) {
+      const sessionLogoutUrl = userType === 'client' ? '/api/v1/client/logout' : '/api/v1/user/logout';
+      fetch(sessionLogoutUrl, {
+        method: 'POST',
+        credentials: 'include',
+        keepalive: true,
       }).catch(() => {});
     }
     localStorage.removeItem('vergo_jwt');
@@ -236,44 +276,112 @@
       document.body.classList.remove('menu-open');
     };
 
+    const addDesktopProfileMenu = (dashboardHref, userType) => {
+      const desktopNav = header.querySelector('.site-nav ul');
+      if (!desktopNav || desktopNav.querySelector('[data-nav-auth]')) return;
+
+      const info = getStoredUserInfo();
+      const profileItem = document.createElement('li');
+      profileItem.className = 'nav-profile-dropdown';
+      profileItem.setAttribute('data-nav-auth', 'true');
+      profileItem.innerHTML = `
+        <button type="button" class="nav-profile-trigger" aria-expanded="false" aria-haspopup="true">
+          <span class="nav-profile-label">${escHtml(info.label)}</span>
+          <span class="nav-profile-chevron" aria-hidden="true"></span>
+        </button>
+        <ul class="nav-profile-menu" role="menu" hidden>
+          <li role="none"><a href="${dashboardHref}" role="menuitem"${withCurrentHref(dashboardHref)}>Dashboard</a></li>
+          <li role="none"><a href="/profile" role="menuitem"${withCurrentHref('/profile')}>Edit Profile</a></li>
+          <li role="none"><button type="button" class="nav-profile-signout" role="menuitem">Sign out</button></li>
+        </ul>
+      `;
+
+      const trigger = profileItem.querySelector('.nav-profile-trigger');
+      const menu = profileItem.querySelector('.nav-profile-menu');
+      const signout = profileItem.querySelector('.nav-profile-signout');
+      if (!trigger || !menu || !signout) return;
+
+      const closeProfileMenu = () => {
+        profileItem.classList.remove('is-open');
+        trigger.setAttribute('aria-expanded', 'false');
+        menu.hidden = true;
+      };
+
+      trigger.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const willOpen = menu.hidden;
+        profileItem.classList.toggle('is-open', willOpen);
+        trigger.setAttribute('aria-expanded', String(willOpen));
+        menu.hidden = !willOpen;
+      });
+
+      profileItem.querySelectorAll('.nav-profile-menu a').forEach((link) => {
+        link.addEventListener('click', closeProfileMenu);
+      });
+
+      signout.addEventListener('click', () => {
+        closeProfileMenu();
+        doLogout(userType);
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!profileItem.contains(event.target)) {
+          closeProfileMenu();
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeProfileMenu();
+        }
+      });
+
+      desktopNav.appendChild(profileItem);
+    };
+
+    const addMobileProfileLinks = (dashboardHref, userType) => {
+      const mobileNav = header.querySelector('#mobile-menu nav');
+      if (!mobileNav || mobileNav.querySelector('[data-nav-auth]')) return;
+
+      [
+        { href: dashboardHref, label: 'Dashboard' },
+        { href: '/profile', label: 'Edit Profile' },
+      ].forEach((item) => {
+        const link = document.createElement('a');
+        link.href = item.href;
+        link.setAttribute('data-nav-auth', 'true');
+        link.textContent = item.label;
+        if (normalisePath(item.href) === currentPath) {
+          link.setAttribute('aria-current', 'page');
+        }
+        link.addEventListener('click', closeShellMenu);
+        mobileNav.appendChild(link);
+      });
+
+      const logoutLink = document.createElement('a');
+      logoutLink.href = '#';
+      logoutLink.setAttribute('data-nav-auth', 'true');
+      logoutLink.textContent = 'Sign out';
+      logoutLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        closeShellMenu();
+        doLogout(userType);
+      });
+      mobileNav.appendChild(logoutLink);
+    };
+
     // 1. JWT-based (new portal auth)
     const jwtUser = getJwtUser();
     if (jwtUser) {
-      const desktopNav = header.querySelector('.site-nav ul');
-      if (desktopNav && !desktopNav.querySelector('[data-nav-auth]')) {
-        const dashItem = document.createElement('li');
-        dashItem.innerHTML = `<a href="${jwtUser.dashboardHref}" data-nav-auth>Dashboard</a>`;
-        desktopNav.appendChild(dashItem);
-
-        const logoutItem = document.createElement('li');
-        logoutItem.innerHTML = `<a href="#" data-nav-auth>Sign out</a>`;
-        logoutItem.querySelector('a').addEventListener('click', (e) => { e.preventDefault(); doLogout(); });
-        desktopNav.appendChild(logoutItem);
-      }
-
-      const mobileNav = header.querySelector('#mobile-menu nav');
-      if (mobileNav && !mobileNav.querySelector('[data-nav-auth]')) {
-        const dashLink = document.createElement('a');
-        dashLink.href = jwtUser.dashboardHref;
-        dashLink.setAttribute('data-nav-auth', 'true');
-        dashLink.textContent = 'Dashboard';
-        dashLink.addEventListener('click', closeShellMenu);
-        mobileNav.appendChild(dashLink);
-
-        const logoutLink = document.createElement('a');
-        logoutLink.href = '#';
-        logoutLink.setAttribute('data-nav-auth', 'true');
-        logoutLink.textContent = 'Sign out';
-        logoutLink.addEventListener('click', (e) => { e.preventDefault(); closeShellMenu(); doLogout(); });
-        mobileNav.appendChild(logoutLink);
-      }
+      addDesktopProfileMenu(jwtUser.dashboardHref, jwtUser.userType);
+      addMobileProfileLinks(jwtUser.dashboardHref, jwtUser.userType);
       return;
     }
 
     // 2. Session-based fallback (existing auth pages)
     const checks = [
-      { url: '/api/v1/user/session', key: 'user', href: '/dashboard-worker' },
-      { url: '/api/v1/client/session', key: 'client', href: '/dashboard-client' },
+      { url: '/api/v1/user/session', key: 'user', href: '/dashboard-worker', type: 'worker' },
+      { url: '/api/v1/client/session', key: 'client', href: '/dashboard-client', type: 'client' },
     ];
 
     for (const check of checks) {
@@ -284,22 +392,8 @@
         const data = payload && typeof payload === 'object' && 'data' in payload ? payload.data : payload;
         if (!data || !data.authenticated || !data[check.key]) continue;
 
-        const desktopNav = header.querySelector('.site-nav ul');
-        if (desktopNav && !desktopNav.querySelector('[data-nav-auth]')) {
-          const item = document.createElement('li');
-          item.innerHTML = `<a href="${check.href}" data-nav-auth>Dashboard</a>`;
-          desktopNav.appendChild(item);
-        }
-
-        const mobileNav = header.querySelector('#mobile-menu nav');
-        if (mobileNav && !mobileNav.querySelector('[data-nav-auth]')) {
-          const link = document.createElement('a');
-          link.href = check.href;
-          link.setAttribute('data-nav-auth', 'true');
-          link.textContent = 'Dashboard';
-          link.addEventListener('click', closeShellMenu);
-          mobileNav.appendChild(link);
-        }
+        addDesktopProfileMenu(check.href, check.type);
+        addMobileProfileLinks(check.href, check.type);
         return;
       } catch {
         // ignore
@@ -340,7 +434,7 @@
           <nav class="site-nav" aria-label="Primary">
             <ul>
               <li><a href="/"${withCurrent('home')}>Home</a></li>
-              <li><a href="/jobs"${withCurrent('jobs')}>Job Board</a></li>
+              <li><a href="/jobs"${withCurrent('jobs')}>Worker Shifts</a></li>
               <li><a href="/pricing"${withCurrent('pricing')}>Pricing</a></li>
               <li><a href="/about"${withCurrent('about')}>About</a></li>
               <li><a href="/contact"${withCurrent('contact')}>Contact</a></li>
@@ -362,7 +456,7 @@
       <div id="mobile-menu" class="mobile-menu" hidden>
         <nav aria-label="Mobile">
           <a href="/"${withCurrent('home')}>Home</a>
-          <a href="/jobs"${withCurrent('jobs')}>Job Board</a>
+          <a href="/jobs"${withCurrent('jobs')}>Worker Shifts</a>
           <a href="/pricing"${withCurrent('pricing')}>Pricing</a>
           <a href="/about"${withCurrent('about')}>About</a>
           <a href="/contact"${withCurrent('contact')}>Contact</a>
@@ -400,7 +494,7 @@
         <div>
           <p class="footer-title">Work With Us</p>
           <div class="footer-links">
-            <a href="/jobs">Job Board</a>
+            <a href="/jobs">Worker Shifts</a>
             <a href="/apply">Join VERGO</a>
             <a href="/#roles">Roles on the roster</a>
             <a href="/contact?tab=staff#contact-forms">Request Staff</a>
@@ -566,6 +660,7 @@
 
   var banner = document.createElement('div');
   banner.className = 'vergo-cookie-banner';
+  banner.setAttribute('data-nosnippet', '');
   banner.setAttribute('role', 'region');
   banner.setAttribute('aria-label', 'Cookie consent');
   banner.innerHTML = '<p>We use cookies to improve your experience. See our <a href="/privacy">Privacy Policy</a>.</p><div class="vergo-cookie-banner-btns"><button class="vergo-cookie-btn vergo-cookie-btn-accept" data-cookie="accept">Accept</button><button class="vergo-cookie-btn vergo-cookie-btn-decline" data-cookie="decline">Decline</button></div>';

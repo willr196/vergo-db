@@ -1,12 +1,12 @@
 :root {
-  --gold: #D4A843;
-  --gold-soft: rgba(212, 168, 67, 0.20);
-  --bg: #0c0b0a;
+  --gold: #C4A24E;
+  --gold-soft: rgba(196, 162, 78, 0.16);
+  --bg: #0a0a0a;
   --surface: #141312;
-  --text: #dedad2;
+  --text: #d6d6d6;
   --text-secondary: #958f87;
   --text-faint: #908a82;
-  --border: rgba(212, 168, 67, 0.12);
+  --border: rgba(196, 162, 78, 0.12);
   --heading: 'DM Sans', -apple-system, sans-serif;
   --body: 'DM Sans', -apple-system, sans-serif;
 }

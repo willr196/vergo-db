@@ -34,47 +34,6 @@ export function initSentry(): void {
 }
 
 /**
- * Capture an email-related error in Sentry
- */
-export function captureEmailError(
-  error: Error,
-  context: {
-    emailType?: string;
-    recipient?: string;
-    userId?: string;
-    clientId?: string;
-  }
-): void {
-  if (!initialized) return;
-
-  Sentry.withScope((scope) => {
-    scope.setTag('service', 'email');
-    if (context.emailType) scope.setTag('email.type', context.emailType);
-    if (context.recipient) scope.setExtra('recipient', context.recipient);
-    if (context.userId) scope.setUser({ id: context.userId });
-    if (context.clientId) scope.setExtra('clientId', context.clientId);
-
-    Sentry.captureException(error);
-  });
-}
-
-/**
- * Capture a general error
- */
-export function captureError(error: Error, tags?: Record<string, string>): void {
-  if (!initialized) return;
-
-  Sentry.withScope((scope) => {
-    if (tags) {
-      for (const [key, value] of Object.entries(tags)) {
-        scope.setTag(key, value);
-      }
-    }
-    Sentry.captureException(error);
-  });
-}
-
-/**
  * Express error handler middleware for Sentry
  * Add this BEFORE your general error handler
  */
@@ -86,22 +45,9 @@ export function sentryErrorHandler() {
 }
 
 /**
- * Sentry request handler middleware
- * Add this early in the middleware chain
- */
-export function sentryRequestHandler() {
-  if (!initialized) {
-    return (_req: any, _res: any, next: any) => next();
-  }
-  return Sentry.expressIntegration().setupOnce as any;
-}
-
-/**
  * Flush pending Sentry events (for graceful shutdown)
  */
 export async function flushSentry(timeout = 2000): Promise<void> {
   if (!initialized) return;
   await Sentry.flush(timeout);
 }
-
-export { Sentry };

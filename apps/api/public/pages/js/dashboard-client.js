@@ -13,6 +13,8 @@
   const headerCompany  = document.getElementById('header-company');
   const headerTier     = document.getElementById('header-tier');
   const logoutBtn      = document.getElementById('logout-btn');
+  const profileTrigger = document.getElementById('dash-profile-trigger');
+  const profileMenu    = document.getElementById('dash-profile-menu');
   const briefsGrid     = document.getElementById('briefs-grid');
   const briefsCount    = document.getElementById('briefs-count');
   const eventsGrid     = document.getElementById('events-grid');
@@ -31,6 +33,36 @@
   if (headerCompany) headerCompany.textContent = user.companyName || user.name;
 
 	  if (logoutBtn) logoutBtn.addEventListener('click', () => window.VERGOAuth.logout());
+	  if (profileTrigger && profileMenu) {
+	    const accountMenu = profileTrigger.closest('.dash-account-menu');
+	    const closeProfileMenu = () => {
+	      profileMenu.hidden = true;
+	      profileTrigger.setAttribute('aria-expanded', 'false');
+	    };
+
+	    profileTrigger.addEventListener('click', (event) => {
+	      event.stopPropagation();
+	      const willOpen = profileMenu.hidden;
+	      profileMenu.hidden = !willOpen;
+	      profileTrigger.setAttribute('aria-expanded', String(willOpen));
+	    });
+
+	    profileMenu.querySelectorAll('a').forEach((link) => {
+	      link.addEventListener('click', closeProfileMenu);
+	    });
+
+	    document.addEventListener('click', (event) => {
+	      if (accountMenu && !accountMenu.contains(event.target)) {
+	        closeProfileMenu();
+	      }
+	    });
+
+	    document.addEventListener('keydown', (event) => {
+	      if (event.key === 'Escape') {
+	        closeProfileMenu();
+	      }
+	    });
+	  }
 	  if (newBriefBtn) newBriefBtn.addEventListener('click', openBriefModal);
 
   // ---- Helpers ----

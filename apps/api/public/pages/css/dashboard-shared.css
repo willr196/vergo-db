@@ -11,7 +11,7 @@
 
 /* Reset & base */
 body.dashboard-page {
-  font-family: var(--font-primary);
+  font-family: "DM Sans", var(--font-primary), sans-serif;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   min-height: 100vh;
@@ -103,6 +103,102 @@ body.dashboard-page.dashboard-shell-page {
   background: var(--color-error-bg);
 }
 
+.btn-dash-link {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.btn-dash-link:hover {
+  color: var(--color-gold);
+  border-color: var(--color-border-gold);
+}
+
+.dash-account-menu {
+  position: relative;
+}
+
+.dash-profile-trigger {
+  gap: var(--space-2);
+}
+
+.dash-profile-chevron {
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.15s ease;
+}
+
+.dash-profile-trigger[aria-expanded="true"] .dash-profile-chevron {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.dash-profile-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  display: grid;
+  min-width: 180px;
+  gap: 4px;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-white);
+  box-shadow: var(--shadow-lg);
+}
+
+.dash-profile-menu[hidden] {
+  display: none;
+}
+
+.dash-profile-menu a,
+.dash-profile-menu-button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 38px;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.dash-profile-menu a:hover,
+.dash-profile-menu a:focus-visible,
+.dash-profile-menu-button:hover,
+.dash-profile-menu-button:focus-visible {
+  color: var(--color-gold);
+  background: var(--color-gold-bg);
+}
+
+.dash-profile-menu-button.is-danger:hover,
+.dash-profile-menu-button.is-danger:focus-visible {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+}
+
 /* ---- Main layout ---- */
 .dash-main {
   max-width: 1100px;
@@ -136,7 +232,7 @@ body.dashboard-page.dashboard-shell-page {
 }
 
 .dash-section-title {
-  font-family: var(--font-display);
+  font-family: inherit;
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
@@ -377,6 +473,9 @@ body.dashboard-page.dashboard-shell-page {
 
 .btn-apply:focus-visible,
 .btn-logout:focus-visible,
+.btn-dash-link:focus-visible,
+.dash-profile-menu a:focus-visible,
+.dash-profile-menu-button:focus-visible,
 .dash-modal-close:focus-visible,
 .dash-card:focus-visible {
   outline: 2px solid var(--color-gold);
@@ -522,7 +621,7 @@ body.dashboard-page.dashboard-shell-page {
 }
 
 .stat-value {
-  font-family: var(--font-display);
+  font-family: inherit;
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);

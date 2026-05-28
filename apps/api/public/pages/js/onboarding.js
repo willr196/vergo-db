@@ -359,45 +359,76 @@
 
   // ---- Init ----
 
+  function isAuthError(error) {
+    return error && (error.status === 401 || error.status === 403);
+  }
+
+  // Identity cached by portal login, used to pre-fill the welcome step if the
+  // profile fetch fails for a non-auth reason.
+  function cachedIdentity() {
+    try {
+      const user = JSON.parse(localStorage.getItem('vergo_user') || 'null');
+      if (!user || typeof user.name !== 'string') return { firstName: '', lastName: '' };
+      const parts = user.name.trim().split(/\s+/);
+      return { firstName: parts[0] || '', lastName: parts.slice(1).join(' ') };
+    } catch (_) {
+      return { firstName: '', lastName: '' };
+    }
+  }
+
   async function init() {
+    // Only a genuine auth failure should bounce to login; any other error must
+    // still resolve the loading state so the user is never stuck on the spinner.
     try {
       const sessionRes = await apiRequest('/api/v1/user/session');
       const session = (sessionRes.data && typeof sessionRes.data === 'object') ? sessionRes.data : {};
-
       if (!session.authenticated) {
         window.location.href = '/portal-login.html?expired=1';
         return;
       }
+    } catch (error) {
+      if (isAuthError(error)) {
+        window.location.href = '/portal-login.html?expired=1';
+        return;
+      }
+      // Non-auth error (network/server): fall through and try to continue.
+    }
 
+    let profile = null;
+    try {
       const profileRes = await apiRequest('/api/v1/user/profile');
       const raw = profileRes.data || {};
-      const profile = raw.user || raw;
-
-      state.profile = {
-        firstName: profile.firstName || '',
-        lastName: profile.lastName || '',
-        phone: profile.phone || '',
-        postcode: profile.postcode || '',
-        dateOfBirth: profile.dateOfBirth || '',
-        experienceSummary: profile.experienceSummary || '',
-        preferredJobTypes: Array.isArray(profile.preferredJobTypes) ? profile.preferredJobTypes : [],
-        staffAvailable: !!profile.staffAvailable,
-        profileImage: profile.profileImage || '',
-      };
-
-      if (loading) loading.hidden = true;
-      if (shell) shell.hidden = false;
-
-      populateForms(state.profile);
-      showStep(1);
-      bindDirectButtons();
+      profile = raw.user || raw;
     } catch (error) {
-      if (error.status === 401 || error.status === 403) {
+      if (isAuthError(error)) {
         window.location.href = '/portal-login.html?expired=1';
-      } else {
-        if (loading) loading.innerHTML = '<p style="color:var(--muted)">Failed to load. Please <a href="/onboarding">refresh</a>.</p>';
+        return;
       }
+      // Could not load saved details — continue with empty fields.
+      showToast('Could not load your saved details. You can still continue.', 'error');
     }
+
+    const src = profile || {};
+    const fallback = profile ? { firstName: '', lastName: '' } : cachedIdentity();
+
+    state.profile = {
+      firstName: src.firstName || fallback.firstName,
+      lastName: src.lastName || fallback.lastName,
+      phone: src.phone || '',
+      postcode: src.postcode || '',
+      dateOfBirth: src.dateOfBirth || '',
+      experienceSummary: src.experienceSummary || '',
+      preferredJobTypes: Array.isArray(src.preferredJobTypes) ? src.preferredJobTypes : [],
+      staffAvailable: !!src.staffAvailable,
+      profileImage: src.profileImage || '',
+    };
+
+    if (loading) loading.hidden = true;
+    if (shell) shell.hidden = false;
+
+    populateForms(state.profile);
+    showStep(1);
+    bindDirectButtons();
   }
 
   // Defensive direct binding for critical buttons in case event delegation

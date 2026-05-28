@@ -129,7 +129,7 @@
   --border-radius: 4px;
   --transition-speed: 0.3s;
 
-  /* Nav consistency (used by vergo-header.css) */
+  /* Nav consistency for the shared public shell */
   --nav-bg: rgba(12, 11, 10, 0.96);
   --nav-text: #d8d3cb;
   --nav-text-muted: var(--color-text-muted);
@@ -1530,13 +1530,13 @@ img {
   color: var(--color-text-primary);
 }
 
-body {
+body:not(.dashboard-page):not(.onboarding-page) {
   background:
     radial-gradient(circle at top, rgba(196, 162, 78, 0.07), transparent 32%),
     linear-gradient(180deg, #fcfaf6 0%, #f7f1e7 55%, #f3eadb 100%);
 }
 
-body:not(.homepage):not(.platform) {
+body:not(.homepage):not(.platform):not(.dashboard-page):not(.onboarding-page) {
   background:
     radial-gradient(circle at top left, rgba(196, 162, 78, 0.1), transparent 26%),
     radial-gradient(circle at bottom right, rgba(44, 44, 44, 0.06), transparent 24%),
@@ -1926,4 +1926,3 @@ body:not(.homepage):not(.platform) .newsletter-form {
     padding: 24px;
   }
 }
-

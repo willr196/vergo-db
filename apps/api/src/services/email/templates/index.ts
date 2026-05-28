@@ -351,66 +351,6 @@ export const generalEnquiryEmail = (data: EmailTemplateData): string => {
 };
 
 // ============================================
-// REMINDER EMAILS (Phase 5)
-// ============================================
-
-export const quoteFollowupEmail = (data: EmailTemplateData): string => {
-  return composeEmail({
-    body: emailBody(`
-      ${sectionHeading('Following up on your quote')}
-      <p>Hi ${safe(data.recipientName)},</p>
-      ${paragraph('We sent you a quote a few days ago and wanted to check if you have any questions.')}
-      ${contentCard(`
-        ${detailRow('Event', data.eventType)}
-        ${detailRow('Date', data.date)}
-      `)}
-      ${paragraph('Please reply to this email if you\'d like to discuss the quote or proceed with booking.')}
-      <p>Best regards,<br><strong>The VERGO Team</strong></p>
-    `),
-    footer: { showUnsubscribe: true, unsubscribeUrl: data.unsubscribeUrl },
-  });
-};
-
-export const applicationReviewReminderEmail = (data: EmailTemplateData): string => {
-  const adminUrl = data.adminUrl || applicationAdminUrl(data.applicationId);
-
-  return composeEmail({
-    body: emailBody(`
-      ${sectionHeading('Application Review Reminder', '⏰')}
-      ${paragraph('The following application has been pending review for 48 hours:')}
-      ${contentCard(`
-        ${detailRow('Applicant', data.applicantName)}
-        ${detailRow('Application ID', data.applicationId)}
-        ${data.roles?.length ? `<p><strong>Roles:</strong> ${data.roles.join(', ')}</p>` : ''}
-      `)}
-      ${primaryButton('Review Application', adminUrl)}
-    `),
-  });
-};
-
-export const shiftReminderEmail = (data: EmailTemplateData): string => {
-  const dateStr = data.eventDate
-    ? new Date(data.eventDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-    : 'TBC';
-
-  return composeEmail({
-    body: emailBody(`
-      ${sectionHeading('Shift Reminder', '📅')}
-      <p>Hi ${safe(data.recipientName)},</p>
-      ${paragraph('This is a reminder about your upcoming shift:')}
-      ${accentCard(`
-        <p style="margin: 0;"><strong>${safe(data.jobTitle)}</strong></p>
-        <p style="margin: 5px 0 0; color: #666;">📍 ${safe(data.jobLocation)}</p>
-        <p style="margin: 5px 0 0; color: #666;">📅 ${safe(dateStr)}</p>
-      `)}
-      ${paragraph('Please arrive 15 minutes before your shift start time.')}
-      <p>See you there!<br><strong>The VERGO Team</strong></p>
-    `),
-    footer: { showUnsubscribe: true, unsubscribeUrl: data.unsubscribeUrl },
-  });
-};
-
-// ============================================
 // ROSTER APPROVAL EMAIL
 // ============================================
 

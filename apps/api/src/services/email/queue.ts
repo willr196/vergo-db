@@ -321,13 +321,3 @@ class EmailQueue {
 
 // Singleton instance
 export const emailQueue = new EmailQueue();
-
-// Convenience function for enqueuing emails
-export async function queueEmail(options: EmailJobData): Promise<EmailResult> {
-  return emailQueue.enqueue(options);
-}
-
-// Convenience function for bulk enqueue
-export async function queueEmails(emails: EmailJobData[]): Promise<EmailResult[]> {
-  return emailQueue.enqueueBulk(emails);
-}

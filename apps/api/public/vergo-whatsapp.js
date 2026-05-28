@@ -2,7 +2,7 @@
  * VERGO Ltd - WhatsApp Floating Button
  * Add this script to any page to show a WhatsApp contact button
  * 
- * Usage: <script src="/js/vergo-whatsapp.js"></script>
+ * Loaded automatically by vergo-public-shell.js.
  * 
  * Configuration (optional - set before loading script):
  * window.VERGO_WHATSAPP = {

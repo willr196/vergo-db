@@ -18,7 +18,7 @@
     "seed": "tsx prisma/seed.ts",
     "db:reset": "tsx prisma/reset.ts",
     "seed:jobs": "tsx prisma/seed-jobs.ts",
-    "seed:marketplace": "npx ts-node prisma/seed-marketplace.ts"
+    "seed:marketplace": "tsx prisma/seed-marketplace.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.985.0",
@@ -35,7 +35,6 @@
     "express-rate-limit": "^7.4.0",
     "express-session": "^1.18.2",
     "file-type": "^21.3.4",
-    "flyctl": "^1.2.4",
     "helmet": "^7.1.0",
     "ioredis": "^5.9.2",
     "jsonwebtoken": "^9.0.2",
@@ -59,7 +58,8 @@
   },
   "overrides": {
     "fast-xml-parser": "^5.7.2",
+    "fast-xml-builder": "^1.2.0",
     "path-to-regexp": "0.1.13",
-    "qs": "^6.14.2"
+    "qs": "^6.15.2"
   }
 }

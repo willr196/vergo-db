@@ -2,10 +2,10 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { env } from '../env';
 
-export type AuthTokenType = 'access' | 'refresh';
+type AuthTokenType = 'access' | 'refresh';
 export type AuthSubjectType = 'user' | 'client';
 
-export interface AuthTokenPayload {
+interface AuthTokenPayload {
   sub: string;
   type: AuthSubjectType;
   email?: string;

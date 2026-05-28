@@ -473,61 +473,6 @@ export async function sendGeneralEnquiryEmail(data: {
   });
 }
 
-// ============================================
-// REMINDER EMAILS (for Phase 5)
-// ============================================
-
-export async function sendQuoteFollowupEmail(data: {
-  to: string;
-  name: string;
-  eventType: string;
-  date: string;
-  unsubscribeUrl?: string;
-  clientId?: string;
-}): Promise<EmailResult> {
-  const html = templates.quoteFollowupEmail({
-    recipientName: data.name,
-    eventType: data.eventType,
-    date: data.date,
-    unsubscribeUrl: data.unsubscribeUrl,
-  });
-
-  return sendEmail({
-    to: data.to,
-    subject: 'Following up on your VERGO quote',
-    html,
-    emailType: 'quote-followup',
-    clientId: data.clientId,
-    tags: [
-      { name: 'category', value: 'quote-followup' },
-      { name: 'source', value: 'automated' },
-    ],
-  });
-}
-
-export async function sendApplicationReviewReminder(data: {
-  applicantName: string;
-  applicationId: string;
-  roles?: string[];
-}): Promise<EmailResult> {
-  const html = templates.applicationReviewReminderEmail({
-    applicantName: data.applicantName,
-    applicationId: data.applicationId,
-    roles: data.roles,
-  });
-
-  return sendEmail({
-    to: TO_EMAIL,
-    subject: 'Application Review Reminder',
-    html,
-    emailType: 'application-review-reminder',
-    tags: [
-      { name: 'category', value: 'review-reminder' },
-      { name: 'source', value: 'automated' },
-    ],
-  });
-}
-
 export async function sendJobInviteEmail(data: {
   to: string;
   workerName: string;
@@ -586,34 +531,4 @@ export async function sendBookingReviewRequestEmail(data: {
       { name: 'source', value: 'automated' },
     ],
   }) as Promise<EmailResult>;
-}
-
-export async function sendShiftReminderEmail(data: {
-  to: string;
-  name: string;
-  jobTitle: string;
-  location: string;
-  eventDate: Date;
-  unsubscribeUrl?: string;
-  userId?: string;
-}): Promise<EmailResult> {
-  const html = templates.shiftReminderEmail({
-    recipientName: data.name,
-    jobTitle: data.jobTitle,
-    jobLocation: data.location,
-    eventDate: data.eventDate,
-    unsubscribeUrl: data.unsubscribeUrl,
-  });
-
-  return sendEmail({
-    to: data.to,
-    subject: `Shift Reminder - ${data.jobTitle}`,
-    html,
-    emailType: 'shift-reminder',
-    userId: data.userId,
-    tags: [
-      { name: 'category', value: 'shift-reminder' },
-      { name: 'source', value: 'automated' },
-    ],
-  });
 }

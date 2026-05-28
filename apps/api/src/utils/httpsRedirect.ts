@@ -55,7 +55,7 @@ function buildRedirectLocation(req: Pick<Request, 'originalUrl'>, host: string) 
   return `https://${normalizeHost(host)}${path}`;
 }
 
-export function buildHttpsRedirectLocation(
+function buildHttpsRedirectLocation(
   req: Pick<Request, 'headers' | 'originalUrl'>,
   webOrigin: string,
   allowedHosts: string[] = []

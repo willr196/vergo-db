@@ -278,6 +278,7 @@
 
       const banner = document.createElement('div');
       banner.id = 'vergo-cookie-banner';
+      banner.setAttribute('data-nosnippet', '');
       banner.setAttribute('role', 'dialog');
       banner.setAttribute('aria-live', 'polite');
       banner.style.position = 'fixed';

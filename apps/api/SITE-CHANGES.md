@@ -86,7 +86,7 @@ Trust strip text:
 
 ## Phase 3 (still to do)
 
-- **Founder photo needed at `/public/images/founder.jpg`** — referenced on homepage and about page but file does not exist yet. Add a real photo to unlock both placements.
+- Founder photo: homepage and about currently use `/public/images/founder-placeholder.svg`; replace that asset with real photography when available.
 - Case studies / recent bookings page (template for future)
 - Photography: staff in action, bartender, FOH, runner, kitchen
 - Founder video (30–45 sec "why I built VERGO")

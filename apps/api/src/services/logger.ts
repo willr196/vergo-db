@@ -36,12 +36,7 @@ export const logger = pino({
   } : {}),
 });
 
-// Child loggers for specific services
-export const emailLogger = logger.child({ service: 'email' });
-export const queueLogger = logger.child({ service: 'email-queue' });
-export const webhookLogger = logger.child({ service: 'webhook' });
 export const authLogger = logger.child({ service: 'auth' });
-export const schedulerLogger = logger.child({ service: 'scheduler' });
 
 /**
  * Partially mask an email address for logging

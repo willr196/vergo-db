@@ -22,7 +22,7 @@ const COLORS = {
 } as const;
 
 // HTML escaping for security
-export const escapeHtml = (value: string): string =>
+const escapeHtml = (value: string): string =>
   value
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -34,7 +34,7 @@ export const safe = (value: string | number | null | undefined): string =>
   escapeHtml(String(value ?? ''));
 
 // Base email wrapper with consistent structure
-export const emailWrapper = (content: string): string => `
+const emailWrapper = (content: string): string => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,14 +51,14 @@ export const emailWrapper = (content: string): string => `
 `;
 
 // Gold branded header
-export const emailHeader = (): string => `
+const emailHeader = (): string => `
 <div style="background: ${COLORS.gold}; padding: 20px; text-align: center;">
   <h1 style="color: white; margin: 0; font-size: 24px;">VERGO</h1>
 </div>
 `;
 
 // Footer with optional unsubscribe link
-export const emailFooter = (options: FooterOptions = {}): string => {
+const emailFooter = (options: FooterOptions = {}): string => {
   const { showUnsubscribe = false, unsubscribeUrl } = options;
 
   return `

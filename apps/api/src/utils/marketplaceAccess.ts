@@ -5,7 +5,7 @@ type ClientAccessInput = {
   subscriptionStatus: SubscriptionStatus | null;
 };
 
-export type MarketplaceAccess = {
+type MarketplaceAccess = {
   effectiveTier: SubscriptionTier;
   subscriptionTier: SubscriptionTier;
   subscriptionStatus: SubscriptionStatus | null;

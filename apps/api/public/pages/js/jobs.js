@@ -4,20 +4,76 @@
     let totalPages = 1;
     let filters = { roleId: '', type: '' };
     let ssrInitialRender = true;
+
+    function firstToken(value, fallback) {
+      const text = String(value || '').trim();
+      if (!text) return fallback;
+      return text.split(/\s+/)[0] || fallback;
+    }
+
+    function currentJwtUser() {
+      if (!window.VERGOAuth || typeof window.VERGOAuth.getUser !== 'function') {
+        return null;
+      }
+
+      const user = window.VERGOAuth.getUser();
+      if (!user) return null;
+
+      if (user.userType === 'client') {
+        return {
+          userType: 'client',
+          firstName: firstToken(user.companyName || user.name || user.email, 'Client'),
+          dashboardHref: '/dashboard-client',
+          dashboardLabel: 'Dashboard',
+        };
+      }
+
+      return {
+        userType: 'worker',
+        firstName: firstToken(user.name || user.email, 'Worker'),
+        dashboardHref: '/dashboard-worker',
+        dashboardLabel: 'My Applications',
+      };
+    }
     
     // Check auth status — jobs page is public; auth is optional (personalises the user bar)
     async function checkAuth() {
-      try {
-        const res = await fetch('/api/v1/user/session');
-        const payload = await res.json();
-        const data = payload.data ?? payload;
+      currentUser = currentJwtUser();
+      if (currentUser) {
+        renderUserBar();
+        return true;
+      }
 
-        if (data.authenticated) {
-          currentUser = data.user;
+      const sessionChecks = [
+        { url: '/api/v1/user/session', key: 'user', userType: 'worker', dashboardHref: '/dashboard-worker', dashboardLabel: 'My Applications' },
+        { url: '/api/v1/client/session', key: 'client', userType: 'client', dashboardHref: '/dashboard-client', dashboardLabel: 'Dashboard' },
+      ];
+
+      try {
+        for (const check of sessionChecks) {
+          const res = await fetch(check.url, { credentials: 'include', cache: 'no-store' });
+          if (!res.ok) continue;
+
+          const payload = await res.json();
+          const data = payload.data ?? payload;
+          const account = data && data[check.key];
+
+          if (data && data.authenticated && account) {
+            currentUser = {
+              userType: check.userType,
+              firstName: check.userType === 'client'
+                ? firstToken(account.companyName || account.contactName || account.email, 'Client')
+                : firstToken(account.firstName || account.name || account.email, 'Worker'),
+              dashboardHref: check.dashboardHref,
+              dashboardLabel: check.dashboardLabel,
+            };
+            break;
+          }
         }
       } catch (err) {
         console.error('Auth check failed:', err);
       }
+
       renderUserBar();
       return true;
     }
@@ -33,8 +89,8 @@
 	            Welcome, <strong>${escapeHtml(currentUser.firstName)}</strong>
 	          </div>
 	          <div class="user-actions">
-	            <a href="/dashboard-worker" class="btn btn-secondary btn-small">My Applications</a>
-	            <button type="button" class="btn btn-small btn-logout" data-action="logout">Log Out</button>
+	            <a href="${escapeHtml(currentUser.dashboardHref)}" class="btn btn-secondary btn-small">${escapeHtml(currentUser.dashboardLabel)}</a>
+	            <button type="button" class="btn btn-small btn-logout" data-action="logout">Sign out</button>
 	          </div>
 	        `;
 	      } else {
@@ -52,11 +108,23 @@
     async function logout() {
       try {
         const refreshToken = localStorage.getItem('vergo_refresh');
-        await fetch('/api/v1/web/logout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refreshToken: refreshToken || undefined }),
-        });
+        if (refreshToken || localStorage.getItem('vergo_jwt')) {
+          await fetch('/api/v1/web/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken: refreshToken || undefined }),
+            keepalive: true,
+          });
+        } else {
+          const endpoint = currentUser && currentUser.userType === 'client'
+            ? '/api/v1/client/logout'
+            : '/api/v1/user/logout';
+          await fetch(endpoint, {
+            method: 'POST',
+            credentials: 'include',
+            keepalive: true,
+          });
+        }
       } catch (err) {
         console.error('Logout failed:', err);
       } finally {
@@ -112,8 +180,8 @@
         if (data.jobs.length === 0) {
           container.innerHTML = `
             <div class="empty-state">
-              <h3>Applications are open</h3>
-              <p>Most VERGO shifts are sent directly to approved workers rather than listed publicly. Apply to join the roster — once accepted, you'll receive suitable shifts for bartender, waiter, runner, FOH, chef, kitchen porter and catering assistant roles across London.</p>
+              <h3>No public shifts showing right now</h3>
+              <p>Most VERGO shifts are released privately to approved workers after sign-in. Apply to join the roster first; once accepted, you’ll receive access to suitable London hospitality, event, bar, kitchen and front-of-house opportunities.</p>
             </div>
           `;
           document.getElementById('pagination').classList.add('d-none');
@@ -196,7 +264,7 @@
     // Escape HTML
     function escapeHtml(str) {
       if (!str) return '';
-      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
     
     // Filter handlers

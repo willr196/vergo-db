@@ -26,10 +26,6 @@ export {
   // Enquiry emails
   sendStaffRequestEmail,
   sendGeneralEnquiryEmail,
-  // Reminder emails
-  sendQuoteFollowupEmail,
-  sendApplicationReviewReminder,
-  sendShiftReminderEmail,
   // Matching / invites
   sendJobInviteEmail,
   sendBookingReviewRequestEmail,

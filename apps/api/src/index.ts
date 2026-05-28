@@ -430,7 +430,7 @@ app.get('/sitemap-jobs.xml', async (_req, res, next) => {
 });
 
 // ============================================
-// SEO: Server-rendered job board (crawlable)
+// SEO: Server-rendered shift board (crawlable)
 // ============================================
 let cachedJobsIndex: { html: string; generatedAtMs: number } | null = null;
 const JOBS_INDEX_TTL_MS = 60_000;
@@ -508,8 +508,8 @@ app.get('/jobs', async (_req, res, next) => {
       ? `<div class="jobs-grid">${cards}</div>`
       : `
         <div class="empty-state">
-          <h3>No public jobs showing right now</h3>
-          <p>VERGO shifts are released to approved workers after sign-in. Apply to join the roster; once accepted, we'll send you a sign-in link so you can access and edit your profile and receive suitable hospitality, event, bar, kitchen and front-of-house opportunities.</p>
+          <h3>No public shifts showing right now</h3>
+          <p>Most VERGO shifts are released privately to approved workers after sign-in. Apply to join the roster first; once accepted, you’ll receive access to suitable London hospitality, event, bar, kitchen and front-of-house opportunities.</p>
         </div>
       `;
 
@@ -518,10 +518,10 @@ app.get('/jobs', async (_req, res, next) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Jobs | VERGO Events — Premium Event Staffing in London</title>
-  <meta name="description" content="Browse current VERGO Events hospitality and event staffing jobs in London, with live listings for premium venues, productions, and events.">
-  <meta property="og:title" content="Jobs | VERGO Events — Premium Event Staffing in London">
-  <meta property="og:description" content="Browse current VERGO Events hospitality and event staffing jobs in London, with live listings for premium venues, productions, and events.">
+  <title>VERGO Shifts | Approved Worker Opportunities in London</title>
+  <meta name="description" content="VERGO shifts are released privately to approved workers first. Apply to join the roster for London hospitality, event, bar, kitchen and front-of-house opportunities.">
+  <meta property="og:title" content="VERGO Shifts | Approved Worker Opportunities in London">
+  <meta property="og:description" content="VERGO shifts are released privately to approved workers first. Apply to join the roster for London hospitality, event, bar, kitchen and front-of-house opportunities.">
   <meta property="og:image" content="https://vergoltd.com/logo.png">
   <meta property="og:url" content="https://vergoltd.com/jobs">
   <meta property="og:type" content="website">
@@ -545,35 +545,35 @@ app.get('/jobs', async (_req, res, next) => {
       <div class="page-shell">
         <div class="hero-grid">
           <div>
-            <span class="eyebrow">Openings</span>
-            <h1>Live hospitality roles across London.</h1>
-            <p class="lede">Filter by role. View internal and external opportunities. Apply fast once the right shift shows up.</p>
+            <span class="eyebrow">Approved worker shifts</span>
+            <h1>VERGO shifts for approved workers.</h1>
+            <p class="lede">Most VERGO shifts are released privately to approved workers. Apply to join the roster first — once approved, you’ll receive suitable hospitality, event, bar, kitchen and front-of-house opportunities across London.</p>
             <div class="hero-actions">
-              <a href="/apply" class="btn btn-primary">Join VERGO</a>
-              <a href="/post-job" class="btn btn-secondary">Post a Job</a>
+              <a href="/apply" class="btn btn-primary">Apply to Join</a>
+              <a href="/user-login" class="btn btn-secondary">Worker Login</a>
             </div>
           </div>
 
           <aside class="panel hero-summary" aria-label="Jobs summary">
-            <span class="status">Platform powered</span>
-            <h2>Search cleanly. Apply without the clutter.</h2>
-            <p>Create an account for a smoother path into applications and updates.</p>
+            <span class="status">Approved worker access</span>
+            <h2>Shifts are matched after approval.</h2>
+            <p>Apply first; once approved, your role, experience and availability guide which opportunities you receive.</p>
             <div class="detail-grid">
               <article class="detail-card">
-                <p class="card-label">Filters</p>
-                <p><strong>Role and source filters update the list live.</strong></p>
+                <p class="card-label">Roster</p>
+                <p><strong>Most shifts are released privately to approved workers.</strong></p>
               </article>
               <article class="detail-card">
                 <p class="card-label">Account</p>
-                <p><strong>Log in to track applications from your dashboard.</strong></p>
+                <p><strong>Worker login gives approved roster members access to updates.</strong></p>
               </article>
               <article class="detail-card">
                 <p class="card-label">Types</p>
-                <p><strong>VERGO roles and external jobs in one place.</strong></p>
+                <p><strong>VERGO shifts are released to approved workers first. Selected external roles may be added later if they meet the same standards.</strong></p>
               </article>
               <article class="detail-card">
-                <p class="card-label">Detail</p>
-                <p><strong>Open any listing to view timing, pay and spots.</strong></p>
+                <p class="card-label">Fit</p>
+                <p><strong>Roles are shared based on experience, availability and booking needs.</strong></p>
               </article>
             </div>
           </aside>
@@ -592,9 +592,9 @@ app.get('/jobs', async (_req, res, next) => {
 
         <div class="panel">
           <div class="section-heading" style="margin-bottom: 18px;">
-            <span class="eyebrow">Job board</span>
-            <h2>Current listings.</h2>
-            <p>Use the filters first. The list updates below.</p>
+            <span class="eyebrow">Shift board</span>
+            <h2>Approved worker opportunities.</h2>
+            <p>Once you are accepted onto the VERGO roster, suitable roles and shifts can be shared with you directly.</p>
           </div>
 
           <div class="filters" aria-label="Job filters">
@@ -625,6 +625,21 @@ app.get('/jobs', async (_req, res, next) => {
           </div>
 
           <div id="pagination" class="pagination d-none"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" style="padding-top: 8px;">
+      <div class="page-shell">
+        <div class="panel">
+          <div class="section-heading" style="margin-bottom: 18px;">
+            <span class="eyebrow">Role review</span>
+            <h2>Want to share a suitable hospitality role?</h2>
+            <p>VERGO may review selected London hospitality and event opportunities for approved workers. External roles are not automatically published and must fit the board.</p>
+          </div>
+          <div class="stacked-actions">
+            <a href="/post-job" class="btn btn-secondary">Submit a Role for Review</a>
+          </div>
         </div>
       </div>
     </section>

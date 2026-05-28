@@ -24,9 +24,10 @@
     try {
       const part = token.split('.')[1];
       if (!part) return null;
-      // Base64url → base64 → JSON
+      // Base64url -> padded base64 -> JSON
       const b64 = part.replace(/-/g, '+').replace(/_/g, '/');
-      return JSON.parse(atob(b64));
+      const padded = b64.padEnd(b64.length + ((4 - (b64.length % 4)) % 4), '=');
+      return JSON.parse(atob(padded));
     } catch {
       return null;
     }

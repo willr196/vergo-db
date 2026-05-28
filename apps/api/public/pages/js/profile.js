@@ -17,6 +17,7 @@
   const state = {
     userType: null,
     profile: null,
+    isJwt: false,
   };
 
   function escapeHtml(value) {
@@ -72,6 +73,12 @@
     const requestOptions = options || {};
     const headers = Object.assign({ Accept: 'application/json' }, requestOptions.headers || {});
 
+    // Include JWT Bearer token when present (required for /api/v1/web/* endpoints)
+    const jwtToken = localStorage.getItem('vergo_jwt');
+    if (jwtToken) {
+      headers['Authorization'] = `Bearer ${jwtToken}`;
+    }
+
     if (requestOptions.body && !headers['Content-Type']) {
       headers['Content-Type'] = 'application/json';
     }
@@ -106,6 +113,25 @@
   }
 
   async function detectUserType() {
+    // 1. Try JWT first (portal-login auth)
+    const jwtToken = localStorage.getItem('vergo_jwt');
+    if (jwtToken) {
+      try {
+        const part = jwtToken.split('.')[1];
+        if (part) {
+          const b64 = part.replace(/-/g, '+').replace(/_/g, '/');
+          const padded = b64.padEnd(b64.length + ((4 - (b64.length % 4)) % 4), '=');
+          const payload = JSON.parse(atob(padded));
+          if (payload && payload.tokenType === 'access' && payload.exp && Date.now() / 1000 < payload.exp) {
+            return { type: payload.type === 'user' ? 'user' : 'client', isJwt: true };
+          }
+        }
+      } catch (_e) {
+        // fall through to session check
+      }
+    }
+
+    // 2. Fall back to session-based auth
     const checks = [
       { type: 'user', url: '/api/v1/user/session', key: 'user' },
       { type: 'client', url: '/api/v1/client/session', key: 'client' },
@@ -117,7 +143,7 @@
         const session = result.data || {};
 
         if (session.authenticated && session[check.key]) {
-          return { type: check.type, session: session[check.key] };
+          return { type: check.type, isJwt: false };
         }
       } catch (error) {
         if (error.status !== 401 && error.status !== 403) {
@@ -130,7 +156,12 @@
   }
 
   function redirectToLogin() {
-    window.location.href = `/user-login?redirect=${encodeURIComponent(redirectPath)}`;
+    const redirect = encodeURIComponent(redirectPath);
+    // Prefer portal-login for JWT users; fall back to legacy user-login for session users
+    const hasJwt = !!localStorage.getItem('vergo_jwt');
+    window.location.href = hasJwt
+      ? `/portal-login.html?redirect=${redirect}`
+      : `/user-login?redirect=${redirect}`;
   }
 
   function extractProfile(data, type) {
@@ -178,7 +209,12 @@
   }
 
   async function loadProfile(type) {
-    const endpoint = type === 'user' ? '/api/v1/user/profile' : '/api/v1/client/profile';
+    let endpoint;
+    if (state.isJwt) {
+      endpoint = type === 'user' ? '/api/v1/web/worker/profile' : '/api/v1/web/client/profile';
+    } else {
+      endpoint = type === 'user' ? '/api/v1/user/profile' : '/api/v1/client/profile';
+    }
     const result = await apiRequest(endpoint);
     return type === 'user' ? normaliseUserProfile(result.data) : normaliseClientProfile(result.data);
   }
@@ -290,7 +326,8 @@
         return;
       }
 
-      const result = await apiRequest('/api/v1/user/profile/avatar', {
+      const avatarEndpoint = state.isJwt ? '/api/v1/web/worker/profile/avatar' : '/api/v1/user/profile/avatar';
+      const result = await apiRequest(avatarEndpoint, {
         method: 'POST',
         body: JSON.stringify({ dataUrl }),
       });
@@ -636,9 +673,10 @@
         body: JSON.stringify(payload),
       });
 
-      if (state.userType === 'user' || (result.data && (result.data.client || result.data.user))) {
-        await refreshProfile(state.userType);
-      }
+    // Always refresh to re-render with saved data
+    if (result) {
+      await refreshProfile(state.userType);
+    }
 
       const currentForm = content.querySelector(`form[data-form="${formName}"]`) || form;
       setFormStatus(currentForm, successMessage, 'success');
@@ -653,6 +691,14 @@
     }
   }
 
+  function userProfileUrl() {
+    return state.isJwt ? '/api/v1/web/worker/profile' : '/api/v1/user/profile';
+  }
+
+  function clientProfileUrl() {
+    return state.isJwt ? '/api/v1/web/client/profile' : '/api/v1/client/profile';
+  }
+
   async function handleUserPersonalSave(form) {
     const payload = {
       firstName: form.firstName.value.trim(),
@@ -662,7 +708,7 @@
       dateOfBirth: form.dateOfBirth.value || '',
     };
 
-    await saveProfileSection(form, '/api/v1/user/profile', payload, 'Personal details saved.');
+    await saveProfileSection(form, userProfileUrl(), payload, 'Personal details saved.');
   }
 
   async function handleUserProfessionalSave(form) {
@@ -673,7 +719,7 @@
       staffAvailable: availableInput ? availableInput.checked : false,
     };
 
-    await saveProfileSection(form, '/api/v1/user/profile', payload, 'Professional details saved.');
+    await saveProfileSection(form, userProfileUrl(), payload, 'Professional details saved.');
   }
 
   async function handleClientCompanySave(form) {
@@ -684,7 +730,7 @@
       postcode: form.postcode.value.trim(),
     };
 
-    await saveProfileSection(form, '/api/v1/client/profile', payload, 'Company details saved.');
+    await saveProfileSection(form, clientProfileUrl(), payload, 'Company details saved.');
   }
 
   async function handleClientSectorSave(form) {
@@ -695,7 +741,7 @@
       jobTitle: form.jobTitle.value.trim(),
     };
 
-    await saveProfileSection(form, '/api/v1/client/profile', payload, 'Sector details saved.');
+    await saveProfileSection(form, clientProfileUrl(), payload, 'Sector details saved.');
   }
 
   async function handlePasswordSave(form, url) {
@@ -740,6 +786,24 @@
   }
 
   async function logout() {
+    // JWT logout: clear localStorage and hit the web logout endpoint
+    if (state.isJwt) {
+      const refreshToken = localStorage.getItem('vergo_refresh');
+      if (refreshToken) {
+        fetch('/api/v1/web/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken }),
+        }).catch(() => {});
+      }
+      localStorage.removeItem('vergo_jwt');
+      localStorage.removeItem('vergo_refresh');
+      localStorage.removeItem('vergo_user');
+      window.location.href = '/portal-login.html';
+      return;
+    }
+
+    // Session logout
     const isUser = state.userType === 'user';
     const url = isUser ? '/api/v1/user/logout' : '/api/v1/client/logout';
     const redirect = isUser ? '/user-login' : '/client-login';
@@ -763,8 +827,12 @@
     if (form.dataset.form === 'user-professional') return handleUserProfessionalSave(form);
     if (form.dataset.form === 'client-company') return handleClientCompanySave(form);
     if (form.dataset.form === 'client-sector') return handleClientSectorSave(form);
-    if (form.dataset.form === 'user-password') return handlePasswordSave(form, '/api/v1/user/change-password');
-    if (form.dataset.form === 'client-password') return handlePasswordSave(form, '/api/v1/client/change-password');
+    if (form.dataset.form === 'user-password') {
+      return handlePasswordSave(form, state.isJwt ? '/api/v1/web/worker/change-password' : '/api/v1/user/change-password');
+    }
+    if (form.dataset.form === 'client-password') {
+      return handlePasswordSave(form, state.isJwt ? '/api/v1/web/client/change-password' : '/api/v1/client/change-password');
+    }
   }
 
   async function onClick(event) {
@@ -811,6 +879,7 @@
       }
 
       state.userType = session.type;
+      state.isJwt = session.isJwt || false;
       state.profile = await loadProfile(session.type);
       renderProfile();
     } catch (error) {

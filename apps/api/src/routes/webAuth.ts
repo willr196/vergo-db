@@ -992,4 +992,257 @@ r.post('/client/bookings/:id/review', requireClientJwt, async (req, res, next) =
   } catch (e) { next(e); }
 });
 
+// ============================================
+// WORKER + CLIENT FULL PROFILE ENDPOINTS (JWT)
+// ============================================
+
+// ---- shared helpers (local copies) ----
+function _fmtDate(v: Date | null | undefined): string | null {
+  return v ? v.toISOString().slice(0, 10) : null;
+}
+function _splitCSV(v: string | null | undefined): string[] {
+  if (!v) return [];
+  return v.split(',').map((s) => s.trim()).filter(Boolean);
+}
+function _unique(arr: string[]): string[] {
+  return Array.from(new Set(arr.filter(Boolean)));
+}
+function _stripHtml(v: string): string {
+  return v.replace(/<[^>]*>/g, '');
+}
+function _parseDate(s: string): Date {
+  return new Date(`${s}T00:00:00.000Z`);
+}
+
+async function _fetchWorkerProfile(userId: string) {
+  return prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true, email: true, firstName: true, lastName: true,
+      phone: true, applicantId: true, staffAvatar: true,
+      staffBio: true, staffAvailable: true,
+      applicant: {
+        select: {
+          id: true, phone: true, dateOfBirth: true, postcode: true,
+          preferredJobTypes: true, bio: true, yearsExperience: true,
+          applications: {
+            select: { roles: { select: { role: { select: { name: true } } } } },
+          },
+        },
+      },
+    },
+  });
+}
+
+type WorkerFullRecord = NonNullable<Awaited<ReturnType<typeof _fetchWorkerProfile>>>;
+
+function _shapeWorker(u: WorkerFullRecord) {
+  const registeredRoles = _unique(
+    (u.applicant?.applications || []).flatMap((a) => a.roles.map((r) => r.role.name))
+  );
+  return {
+    id: u.id, email: u.email,
+    firstName: u.firstName, lastName: u.lastName,
+    phone: u.phone || u.applicant?.phone || '',
+    profileImage: u.staffAvatar || null,
+    applicantId: u.applicantId || null,
+    postcode: u.applicant?.postcode || '',
+    dateOfBirth: _fmtDate(u.applicant?.dateOfBirth),
+    preferredJobTypes: _splitCSV(u.applicant?.preferredJobTypes),
+    experienceSummary: u.applicant?.bio || u.staffBio || '',
+    yearsExperience: u.applicant?.yearsExperience ?? null,
+    staffAvailable: u.staffAvailable ?? false,
+    registeredRoles,
+  };
+}
+
+// GET /api/v1/web/worker/profile
+r.get('/worker/profile', requireUserJwt, async (req, res, next) => {
+  try {
+    const u = await _fetchWorkerProfile(req.auth!.userId);
+    if (!u) return res.status(404).json({ ok: false, error: 'User not found' });
+    const profile = _shapeWorker(u);
+    return res.json({ ok: true, user: profile, data: profile });
+  } catch (e) { next(e); }
+});
+
+// PUT /api/v1/web/worker/profile
+const _webWorkerSchema = z.object({
+  firstName: z.string().min(1).max(100).trim().optional(),
+  lastName: z.string().min(1).max(100).trim().optional(),
+  phone: z.string().max(20).optional(),
+  postcode: z.string().max(24).optional(),
+  dateOfBirth: z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.literal('')]).optional(),
+  preferredJobTypes: z.array(z.string().max(100)).max(20).optional(),
+  experienceSummary: z.string().max(500).optional(),
+  staffAvailable: z.boolean().optional(),
+});
+
+r.put('/worker/profile', requireUserJwt, async (req, res, next) => {
+  try {
+    const userId = req.auth!.userId;
+    const parsed = _webWorkerSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: 'Invalid input', details: parsed.error.issues.map((i) => i.message) });
+    }
+    const input = parsed.data;
+    const appTouched = input.dateOfBirth !== undefined || input.postcode !== undefined || input.preferredJobTypes !== undefined || input.experienceSummary !== undefined;
+
+    await prisma.$transaction(async (tx) => {
+      const cur = await tx.user.findUnique({
+        where: { id: userId },
+        select: { id: true, email: true, firstName: true, lastName: true, phone: true, applicantId: true },
+      });
+      if (!cur) return;
+
+      const uData: Record<string, unknown> = {};
+      if (input.firstName !== undefined) uData.firstName = input.firstName;
+      if (input.lastName !== undefined) uData.lastName = input.lastName;
+      if (input.phone !== undefined) uData.phone = input.phone || null;
+      if (input.experienceSummary !== undefined) uData.staffBio = _stripHtml(input.experienceSummary).trim() || null;
+      if (input.staffAvailable !== undefined) uData.staffAvailable = input.staffAvailable;
+      if (Object.keys(uData).length > 0) await tx.user.update({ where: { id: userId }, data: uData });
+
+      if (cur.applicantId || appTouched) {
+        const aData: Record<string, unknown> = {};
+        if (input.firstName !== undefined) aData.firstName = input.firstName;
+        if (input.lastName !== undefined) aData.lastName = input.lastName;
+        if (input.phone !== undefined) aData.phone = input.phone || null;
+        if (input.dateOfBirth !== undefined) aData.dateOfBirth = input.dateOfBirth ? _parseDate(input.dateOfBirth) : null;
+        if (input.postcode !== undefined) aData.postcode = input.postcode || null;
+        if (input.preferredJobTypes !== undefined) aData.preferredJobTypes = input.preferredJobTypes.length > 0 ? input.preferredJobTypes.join(',') : null;
+        if (input.experienceSummary !== undefined) aData.bio = _stripHtml(input.experienceSummary).trim() || null;
+
+        if (cur.applicantId) {
+          if (Object.keys(aData).length > 0) await tx.applicant.update({ where: { id: cur.applicantId }, data: aData });
+        } else {
+          const app = await tx.applicant.upsert({
+            where: { email: cur.email },
+            update: aData,
+            create: {
+              email: cur.email,
+              firstName: (input.firstName ?? cur.firstName) as string,
+              lastName: (input.lastName ?? cur.lastName) as string,
+              phone: (input.phone ?? cur.phone) || null,
+              dateOfBirth: input.dateOfBirth ? _parseDate(input.dateOfBirth) : null,
+              postcode: input.postcode || null,
+              preferredJobTypes: input.preferredJobTypes && input.preferredJobTypes.length > 0 ? input.preferredJobTypes.join(',') : null,
+              bio: input.experienceSummary ? _stripHtml(input.experienceSummary).trim() || null : null,
+            },
+            select: { id: true },
+          });
+          await tx.user.update({ where: { id: userId }, data: { applicantId: app.id } });
+        }
+      }
+    });
+
+    const updated = await _fetchWorkerProfile(userId);
+    if (!updated) return res.status(404).json({ ok: false, error: 'User not found' });
+    const profile = _shapeWorker(updated);
+    return res.json({ ok: true, user: profile, data: profile });
+  } catch (e) { next(e); }
+});
+
+// POST /api/v1/web/worker/profile/avatar
+r.post('/worker/profile/avatar', requireUserJwt, async (req, res, next) => {
+  try {
+    const { dataUrl } = req.body;
+    if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image/')) {
+      return res.status(400).json({ ok: false, error: 'A valid image data URL is required' });
+    }
+    if (dataUrl.length > 1400000) {
+      return res.status(413).json({ ok: false, error: 'Image is too large. Please choose a smaller photo.' });
+    }
+    await prisma.user.update({ where: { id: req.auth!.userId }, data: { staffAvatar: dataUrl } });
+    return res.json({ ok: true, data: { profileImage: dataUrl } });
+  } catch (e) { next(e); }
+});
+
+// PUT /api/v1/web/worker/change-password
+const _webPwSchema = z.object({
+  currentPassword: z.string().min(1).max(72),
+  newPassword: z.string().min(8).max(72),
+});
+
+r.put('/worker/change-password', requireUserJwt, async (req, res, next) => {
+  try {
+    const parsed = _webPwSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: 'Invalid input', details: parsed.error.issues.map((i) => i.message) });
+    }
+    const user = await prisma.user.findUnique({
+      where: { id: req.auth!.userId },
+      select: { id: true, email: true, passwordHash: true },
+    });
+    if (!user) return res.status(404).json({ ok: false, error: 'User not found' });
+    const ok = await bcrypt.compare(parsed.data.currentPassword, user.passwordHash);
+    if (!ok) return res.status(400).json({ ok: false, error: 'Current password is incorrect' });
+    const hash = await bcrypt.hash(parsed.data.newPassword, 12);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: hash, mustChangePassword: false, failedAttempts: 0, lockedUntil: null, resetToken: null, resetTokenExp: null },
+    });
+    return res.json({ ok: true, message: 'Password updated successfully.' });
+  } catch (e) { next(e); }
+});
+
+// GET /api/v1/web/client/profile
+r.get('/client/profile', requireClientJwt, async (req, res, next) => {
+  try {
+    const client = await prisma.client.findUnique({
+      where: { id: req.auth!.userId },
+      select: { id: true, companyName: true, contactName: true, email: true, phone: true, postcode: true, industry: true, website: true, companySize: true, jobTitle: true },
+    });
+    if (!client) return res.status(404).json({ ok: false, error: 'Client not found' });
+    return res.json({ ok: true, client, data: client });
+  } catch (e) { next(e); }
+});
+
+// PUT /api/v1/web/client/profile
+const _webClientSchema = z.object({
+  companyName: z.string().min(2).max(200).trim().optional(),
+  contactName: z.string().min(2).max(100).trim().optional(),
+  phone: z.string().max(20).optional(),
+  postcode: z.string().max(24).optional(),
+  industry: z.string().max(100).optional(),
+  website: z.union([z.string().url().max(200), z.literal('')]).optional(),
+  companySize: z.string().max(50).optional(),
+  jobTitle: z.string().max(100).optional(),
+});
+
+r.put('/client/profile', requireClientJwt, async (req, res, next) => {
+  try {
+    const parsed = _webClientSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: 'Invalid input', details: parsed.error.issues.map((i) => i.message) });
+    }
+    const client = await prisma.client.update({
+      where: { id: req.auth!.userId },
+      data: parsed.data,
+      select: { id: true, companyName: true, contactName: true, email: true, phone: true, postcode: true, industry: true, website: true, companySize: true, jobTitle: true },
+    });
+    return res.json({ ok: true, client, data: client });
+  } catch (e) { next(e); }
+});
+
+// PUT /api/v1/web/client/change-password
+r.put('/client/change-password', requireClientJwt, async (req, res, next) => {
+  try {
+    const parsed = _webPwSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: 'Invalid input', details: parsed.error.issues.map((i) => i.message) });
+    }
+    const client = await prisma.client.findUnique({
+      where: { id: req.auth!.userId },
+      select: { id: true, email: true, passwordHash: true },
+    });
+    if (!client) return res.status(404).json({ ok: false, error: 'Client not found' });
+    const ok = await bcrypt.compare(parsed.data.currentPassword, client.passwordHash);
+    if (!ok) return res.status(400).json({ ok: false, error: 'Current password is incorrect' });
+    const hash = await bcrypt.hash(parsed.data.newPassword, 12);
+    await prisma.client.update({ where: { id: client.id }, data: { passwordHash: hash } });
+    return res.json({ ok: true, message: 'Password updated successfully.' });
+  } catch (e) { next(e); }
+});
+
 export default r;
