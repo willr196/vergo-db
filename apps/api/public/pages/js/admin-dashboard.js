@@ -505,6 +505,9 @@
       + history
       + '<div class="drawer-inline-actions mt-1">'
       + '<button class="btn btn-ghost btn-sm" data-action="open-rtw-modal" data-applicant-id="' + esc(applicantId) + '">Record a check</button>'
+      + (summary.clearedToWork
+        ? ''
+        : '<button class="btn btn-ghost btn-sm" data-action="resend-rtw-request" data-applicant-id="' + esc(applicantId) + '">Re-send request</button>')
       + '</div>';
   }
 
@@ -597,6 +600,23 @@
     }
   }
 
+  async function resendRtwRequest(applicantId, btn) {
+    var detail = applicationDetails[activeDrawerAppId];
+    var name = detail && detail.applicant ? detail.applicant.fullName : 'this applicant';
+    if (!confirm('Re-send the right-to-work request email to ' + name + '?')) return;
+
+    try {
+      var result = await AdminCore.withLoading(btn, function () {
+        return fetch_('/api/v1/admin/right-to-work/' + encodeURIComponent(applicantId) + '/request', {
+          method: 'POST'
+        });
+      });
+      notify(result && result.message ? result.message : 'Request sent', 'success');
+    } catch (e) {
+      notify('Could not send request: ' + e.message, 'error');
+    }
+  }
+
   async function openRtwDocument(checkId) {
     try {
       var data = await fetch_('/api/v1/admin/right-to-work/check/' + encodeURIComponent(checkId) + '/document');
@@ -650,14 +670,19 @@
   // ── Actions ─────────────────────────────────────────────
   async function updateStatus(appId, status) {
     if (status === 'REJECTED' && !confirm('Move this application to the rejected pile?')) return;
-    if (status === 'HIRED' && !confirm('Mark this applicant as hired?')) return;
+    if (status === 'HIRED' && !confirm('Mark this applicant as hired?\n\nThis emails them asking for their right-to-work evidence (share code, or an appointment to see their passport).')) return;
     try {
-      await fetch_('/api/v1/applications/' + appId + '/status', {
+      var result = await fetch_('/api/v1/applications/' + appId + '/status', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
-      notify('Status updated to ' + formatApplicationStatus(status), 'success');
+      notify(
+        result && result.rightToWorkRequestSent
+          ? 'Hired — right-to-work request emailed'
+          : 'Status updated to ' + formatApplicationStatus(status),
+        'success'
+      );
       await loadApplications();
       await refreshOpenDrawer(appId);
     } catch (e) {
@@ -985,6 +1010,7 @@
     if (action === 'close-rtw-modal')    return AdminCore.closeModal('rtw-modal');
     if (action === 'submit-rtw-check')   return submitRtwCheck(el);
     if (action === 'open-rtw-document')  return openRtwDocument(el.dataset.checkId);
+    if (action === 'resend-rtw-request') return resendRtwRequest(el.dataset.applicantId, el);
     if (action === 'save-notes')         return saveNotes(el.dataset.appId);
     if (action === 'bulk-select')        return bulkUpdateStatus(SELECTED_STATUS, el);
     if (action === 'bulk-reject')        return bulkUpdateStatus('REJECTED', el);

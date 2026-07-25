@@ -446,6 +446,30 @@ export async function sendShiftNotSelectedEmail(data: {
 }
 
 // ============================================
+// RIGHT TO WORK
+// ============================================
+
+export async function sendRightToWorkRequestEmail(data: {
+  to: string;
+  name: string;
+}): Promise<EmailResult> {
+  const html = templates.rightToWorkRequestEmail({
+    recipientName: data.name,
+  });
+
+  return sendEmailSilent({
+    to: data.to,
+    subject: 'VERGO — one last step before your first shift',
+    html,
+    emailType: 'right-to-work-request',
+    tags: [
+      { name: 'category', value: 'right-to-work-request' },
+      { name: 'source', value: 'admin' },
+    ],
+  }) as Promise<EmailResult>;
+}
+
+// ============================================
 // ROSTER EMAILS
 // ============================================
 

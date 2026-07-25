@@ -41,6 +41,7 @@ export type EmailType =
   | 'job-application-confirmation'  // To user
   | 'shift-confirmed'               // To worker: you got the shift
   | 'shift-not-selected'            // To worker: not selected this time
+  | 'right-to-work-request'         // To hired applicant: send us your RTW evidence
   // Enquiry emails
   | 'staff-request'
   | 'general-enquiry'

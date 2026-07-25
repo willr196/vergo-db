@@ -24,6 +24,8 @@ export {
   // Shift outcome emails
   sendShiftConfirmedEmail,
   sendShiftNotSelectedEmail,
+  // Right to work
+  sendRightToWorkRequestEmail,
   // Roster emails
   sendRosterApprovalEmail,
   // Enquiry emails

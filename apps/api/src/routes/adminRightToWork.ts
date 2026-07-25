@@ -11,6 +11,7 @@ import { prisma } from '../prisma';
 import { adminAuth } from '../middleware/adminAuth';
 import { authLogger } from '../services/logger';
 import { getRightToWorkSummary, summariseChecks } from '../services/rightToWork';
+import { sendRightToWorkRequestEmail } from '../services/email';
 import { uploadBuffer, presignDownload } from '../services/s3';
 import { env } from '../env';
 
@@ -248,6 +249,49 @@ r.get('/:applicantId', adminAuth, async (req, res, next) => {
       summary: summariseChecks(checks),
     };
     res.json({ ok: true, ...payload, data: payload });
+  } catch (e) { next(e); }
+});
+
+// ============================================
+// RE-SEND THE REQUEST FOR EVIDENCE
+//
+// The request goes out automatically when an applicant is hired; this exists
+// for when it is lost, ignored, or the address needed correcting.
+// ============================================
+r.post('/:applicantId/request', adminAuth, async (req, res, next) => {
+  try {
+    const applicant = await prisma.applicant.findUnique({
+      where: { id: req.params.applicantId },
+      select: { id: true, firstName: true, email: true },
+    });
+    if (!applicant) {
+      return res.status(404).json({ error: 'Applicant not found' });
+    }
+
+    const result = await sendRightToWorkRequestEmail({
+      to: applicant.email,
+      name: applicant.firstName,
+    });
+
+    const adminUsername = (req.session as any)?.username || 'admin';
+    authLogger.info(
+      {
+        action: 'right_to_work_request_resent',
+        admin: adminUsername,
+        applicantId: applicant.id,
+        success: Boolean(result?.success),
+      },
+      'Admin re-sent right-to-work request'
+    );
+
+    if (!result || !result.success) {
+      return res.status(502).json({
+        ok: false,
+        error: `The request email did not send: ${result?.error || 'Unknown email error'}`,
+      });
+    }
+
+    res.json({ ok: true, message: `Request sent to ${applicant.email}`, data: { sent: true } });
   } catch (e) { next(e); }
 });
 
