@@ -337,7 +337,12 @@ app.use(session({
       conString: env.dbUrl,
       tableName: 'user_sessions',
       createTableIfMissing: true,
-      ssl: sessionStoreSsl
+      ssl: sessionStoreSsl,
+      // Disabled: the default 15-minute prune timer runs a DB query around the clock,
+      // which keeps the Neon compute endpoint from ever hitting its scale-to-zero idle
+      // window. Expired rows are harmless to leave around for a low-traffic app; prune
+      // manually (DELETE FROM user_sessions WHERE expire < now()) if the table grows.
+      pruneSessionInterval: false
     }),
   cookie: {
     httpOnly: true,
