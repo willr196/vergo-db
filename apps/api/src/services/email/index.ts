@@ -382,6 +382,70 @@ export async function sendJobApplicationConfirmation(data: {
 }
 
 // ============================================
+// SHIFT OUTCOME EMAILS
+// ============================================
+
+export async function sendShiftConfirmedEmail(data: {
+  to: string;
+  name: string;
+  jobTitle: string;
+  roleName?: string;
+  eventDate?: Date | string | null;
+  location?: string;
+  venue?: string | null;
+  shiftStart?: string | null;
+  shiftEnd?: string | null;
+  payRate?: number | null;
+  payType?: string | null;
+}): Promise<EmailResult> {
+  const html = templates.shiftConfirmedEmail({
+    recipientName: data.name,
+    jobTitle: data.jobTitle,
+    roleName: data.roleName,
+    eventDate: data.eventDate,
+    jobLocation: data.location,
+    venue: data.venue ?? undefined,
+    shiftStart: data.shiftStart ?? undefined,
+    shiftEnd: data.shiftEnd ?? undefined,
+    payRate: data.payRate ?? undefined,
+    payType: data.payType ?? undefined,
+  });
+
+  return sendEmailSilent({
+    to: data.to,
+    subject: `✅ You're confirmed: ${data.jobTitle}`,
+    html,
+    emailType: 'shift-confirmed',
+    tags: [
+      { name: 'category', value: 'shift-confirmed' },
+      { name: 'source', value: 'admin' },
+    ],
+  }) as Promise<EmailResult>;
+}
+
+export async function sendShiftNotSelectedEmail(data: {
+  to: string;
+  name: string;
+  jobTitle: string;
+}): Promise<EmailResult> {
+  const html = templates.shiftNotSelectedEmail({
+    recipientName: data.name,
+    jobTitle: data.jobTitle,
+  });
+
+  return sendEmailSilent({
+    to: data.to,
+    subject: `Update on your application: ${data.jobTitle}`,
+    html,
+    emailType: 'shift-not-selected',
+    tags: [
+      { name: 'category', value: 'shift-not-selected' },
+      { name: 'source', value: 'admin' },
+    ],
+  }) as Promise<EmailResult>;
+}
+
+// ============================================
 // ROSTER EMAILS
 // ============================================
 

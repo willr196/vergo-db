@@ -21,6 +21,9 @@ export {
   sendJobRejectionEmail,
   sendJobApplicationNotification,
   sendJobApplicationConfirmation,
+  // Shift outcome emails
+  sendShiftConfirmedEmail,
+  sendShiftNotSelectedEmail,
   // Roster emails
   sendRosterApprovalEmail,
   // Enquiry emails

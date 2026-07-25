@@ -3,7 +3,14 @@ import { z } from "zod";
 import { prisma } from "../prisma";
 import { adminAuth } from "../middleware/adminAuth";
 import { requireUser } from "../middleware/userAuth";
-import { sendJobApplicationNotification, sendJobApplicationConfirmation } from "../services/email";
+import {
+  sendJobApplicationNotification,
+  sendJobApplicationConfirmation,
+  sendShiftConfirmedEmail,
+  sendShiftNotSelectedEmail
+} from "../services/email";
+import { sendPushToUser } from "../services/notifications";
+import { summariseChecks } from "../services/rightToWork";
 
 const r = Router();
 
@@ -15,6 +22,71 @@ const applySchema = z.object({
 const updateStatusSchema = z.object({
   status: z.enum(["PENDING", "REVIEWED", "SHORTLISTED", "CONFIRMED", "REJECTED", "WITHDRAWN"])
 });
+
+type StatusChangeContext = {
+  jobId: string;
+  user: { id: string; email: string; firstName: string };
+  job: {
+    title: string;
+    location: string;
+    venue: string | null;
+    eventDate: Date | null;
+    shiftStart: string | null;
+    shiftEnd: string | null;
+    payRate: unknown;
+    payType: string;
+    role: { name: string };
+  };
+};
+
+/**
+ * Notify a worker when an admin changes their application outcome.
+ *
+ * Only CONFIRMED and REJECTED are surfaced — the intermediate states (REVIEWED,
+ * SHORTLISTED) are internal admin bookkeeping and would be noise to the worker.
+ * WITHDRAWN is worker-initiated, so they already know.
+ */
+function notifyWorkerOfStatusChange(
+  application: StatusChangeContext,
+  previousStatus: string,
+  newStatus: string
+) {
+  if (newStatus === previousStatus) return;
+
+  const { user, job } = application;
+
+  if (newStatus === "CONFIRMED") {
+    sendShiftConfirmedEmail({
+      to: user.email,
+      name: user.firstName,
+      jobTitle: job.title,
+      roleName: job.role?.name,
+      eventDate: job.eventDate,
+      location: job.location,
+      venue: job.venue,
+      shiftStart: job.shiftStart,
+      shiftEnd: job.shiftEnd,
+      payRate: job.payRate != null ? Number(job.payRate) : null,
+      payType: job.payType,
+    }).catch((err) => console.error("[EMAIL] shift confirmed:", err));
+
+    sendPushToUser(
+      user.id,
+      "You're confirmed for a shift",
+      `${job.title}${job.eventDate ? ` — ${new Date(job.eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : ""}`,
+      { type: "SHIFT_CONFIRMED", jobId: application.jobId }
+    ).catch((err) => console.error("[PUSH] shift confirmed:", err));
+    return;
+  }
+
+  if (newStatus === "REJECTED") {
+    sendShiftNotSelectedEmail({
+      to: user.email,
+      name: user.firstName,
+      jobTitle: job.title,
+    }).catch((err) => console.error("[EMAIL] shift not selected:", err));
+  }
+}
 
 // USER: Apply to job
 r.post("/", requireUser, async (req, res, next) => {
@@ -189,13 +261,58 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
     
     const application = await prisma.jobApplication.findUnique({
       where: { id: req.params.id },
-      include: { job: true, user: { select: { id: true } } }
+      include: {
+        job: { include: { role: { select: { name: true } } } },
+        user: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            applicant: {
+              select: {
+                id: true,
+                applications: { select: { status: true } },
+                rightToWorkChecks: {
+                  select: { outcome: true, expiresAt: true, checkedAt: true, checkedBy: true }
+                }
+              }
+            }
+          }
+        }
+      }
     });
     if (!application) return res.status(404).json({ error: "Not found" });
-    
+
     const previousStatus = application.status;
     
     if (status === "CONFIRMED" && application.status !== "CONFIRMED") {
+      // Vetting gate: a worker may only be placed on a paid shift once their CV
+      // application has actually been reviewed and marked HIRED. Registering an
+      // account only proves they submitted a CV, not that anyone approved it.
+      const isVetted = (application.user.applicant?.applications ?? [])
+        .some((cvApplication) => cvApplication.status === "HIRED");
+
+      if (!isVetted) {
+        console.log(`[AUDIT] Confirmation blocked, worker not vetted | applicationId=${req.params.id} userId=${application.user.id} admin=${req.session.username}`);
+        return res.status(409).json({
+          error: "This worker has not completed vetting. Mark their CV application as HIRED before confirming them for a shift.",
+          code: "WORKER_NOT_VETTED"
+        });
+      }
+
+      // Right-to-work gate: the check must be recorded and in date before the
+      // worker starts. Blocking at confirmation is the last point at which we
+      // can stop an unverified worker being placed on a shift.
+      const rtw = summariseChecks(application.user.applicant?.rightToWorkChecks ?? []);
+      if (!rtw.clearedToWork) {
+        console.log(`[AUDIT] Confirmation blocked, right to work not verified | applicationId=${req.params.id} userId=${application.user.id} rtwStatus=${rtw.status} admin=${req.session.username}`);
+        return res.status(409).json({
+          error: `Right to work is not verified for this worker (${rtw.label}). Record a passed check before confirming them for a shift.`,
+          code: "RIGHT_TO_WORK_NOT_VERIFIED",
+          rightToWork: rtw
+        });
+      }
+
       try {
         await prisma.$transaction(async (tx) => {
           const job = await tx.job.findUnique({
@@ -295,7 +412,11 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
     
     // AUDIT LOG
     console.log(`[AUDIT] Application status changed | applicationId=${req.params.id} userId=${application.user.id} jobId=${application.jobId} from=${previousStatus} to=${status} admin=${req.session.username}`);
-    
+
+    // Tell the worker the outcome. Fire-and-forget: a failed notification must not
+    // roll back a status change the admin has already been told succeeded.
+    notifyWorkerOfStatusChange(application, previousStatus, status);
+
     res.json({ ok: true, id: req.params.id, status, data: { id: req.params.id, status } });
   } catch (error) {
     if (error instanceof z.ZodError) return res.status(400).json({ error: "Invalid status" });

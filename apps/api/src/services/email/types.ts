@@ -39,6 +39,8 @@ export type EmailType =
   | 'job-rejection'
   | 'job-application-notification'  // To admin
   | 'job-application-confirmation'  // To user
+  | 'shift-confirmed'               // To worker: you got the shift
+  | 'shift-not-selected'            // To worker: not selected this time
   // Enquiry emails
   | 'staff-request'
   | 'general-enquiry'
@@ -81,6 +83,8 @@ export interface EmailTemplateData {
   adminUrl?: string;
   jobUrl?: string;
   payRate?: number;
+  payType?: string;
+  venue?: string;
   externalUrl?: string;
 
   // Enquiry data

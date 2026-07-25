@@ -305,6 +305,61 @@ export const jobApplicationConfirmationEmail = (data: EmailTemplateData): string
 };
 
 // ============================================
+// SHIFT OUTCOME EMAILS (worker receives from admin)
+// ============================================
+
+const formatShiftDate = (value: Date | string | null | undefined): string =>
+  value
+    ? new Date(value).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    : 'TBC';
+
+const formatPay = (data: EmailTemplateData): string => {
+  if (data.payRate == null) return '';
+  const suffix = data.payType === 'HOURLY' ? ' per hour' : data.payType === 'DAILY' ? ' per day' : '';
+  return `£${Number(data.payRate).toFixed(2)}${suffix}`;
+};
+
+export const shiftConfirmedEmail = (data: EmailTemplateData): string => {
+  const dashboardUrl = `${env.webOrigin}/portal-login`;
+  const shiftStr = data.shiftStart && data.shiftEnd ? `${data.shiftStart} – ${data.shiftEnd}` : 'TBC';
+  const pay = formatPay(data);
+
+  return composeEmail({
+    body: emailBody(`
+      ${sectionHeading("You're confirmed for this shift", '✅')}
+      <p>Hi ${safe(data.recipientName)},</p>
+      ${paragraph("Good news — you've been confirmed for the following shift. Please add it to your calendar now.")}
+      ${accentCard(`
+        <p style="margin: 0 0 6px; font-size: 17px; font-weight: 700;">${safe(data.jobTitle)}</p>
+        <p style="margin: 0 0 4px; color: #888; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">${safe(data.roleName)}</p>
+        <p style="margin: 10px 0 4px;">📅 ${safe(formatShiftDate(data.eventDate))}</p>
+        <p style="margin: 0 0 4px;">⏰ ${safe(shiftStr)}</p>
+        <p style="margin: 0 0 4px;">📍 ${safe(data.venue || data.jobLocation)}</p>
+        ${pay ? `<p style="margin: 0;">💷 ${safe(pay)}</p>` : ''}
+      `)}
+      ${infoBox('<p style="margin: 0;"><strong>Can no longer make it?</strong> Let us know as soon as possible so we can find cover — confirmed shifts cannot be withdrawn from the dashboard.</p>', 'warning')}
+      ${primaryButton('View Shift Details', dashboardUrl)}
+      <p>See you there,<br><strong>The VERGO Team</strong></p>
+    `),
+  });
+};
+
+export const shiftNotSelectedEmail = (data: EmailTemplateData): string => {
+  const dashboardUrl = `${env.webOrigin}/portal-login`;
+
+  return composeEmail({
+    body: emailBody(`
+      ${sectionHeading('Update on your application')}
+      <p>Hi ${safe(data.recipientName)},</p>
+      ${paragraph(`Thank you for applying for <strong>${safe(data.jobTitle)}</strong>. On this occasion you haven't been selected for the shift.`)}
+      ${paragraph("This isn't a reflection on your application — shifts often come down to availability and the specific mix of roles a client needs on the day. You remain on the VERGO roster and we'd encourage you to apply for other shifts.")}
+      ${primaryButton('Browse Available Shifts', dashboardUrl)}
+      <p>Best regards,<br><strong>The VERGO Team</strong></p>
+    `),
+  });
+};
+
+// ============================================
 // ENQUIRY EMAILS
 // ============================================
 

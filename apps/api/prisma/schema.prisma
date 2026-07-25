@@ -16,6 +16,8 @@ model Applicant {
   lastName          String
   email             String        @unique
   phone             String?
+  /// Self-declared on the application form. NOT evidence of a right-to-work
+  /// check — see the RightToWorkCheck records for the verified position.
   rightToWorkUk     Boolean?
   averageRating     Decimal?      @db.Decimal(3, 2)
   bio               String?
@@ -30,6 +32,39 @@ model Applicant {
   yearsExperience   Int?
   applications      Application[]
   user              User?
+  rightToWorkChecks RightToWorkCheck[]
+}
+
+/// Evidence of a completed right-to-work check. One row per check performed;
+/// List B (time-limited) permissions require a follow-up check before expiresAt,
+/// so history is retained rather than overwritten.
+model RightToWorkCheck {
+  id           String     @id @default(cuid())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  applicantId  String
+  method       RtwMethod
+  /// e.g. "UK passport", "Share code", "BRP" — free text so the List A/B
+  /// document names can change without a migration.
+  documentType String?    @db.VarChar(120)
+  /// Share code or document number.
+  reference    String?    @db.VarChar(120)
+  validFrom    DateTime?
+  /// Null means permanent right to work (List A). A date means a follow-up
+  /// check is required before it lapses.
+  expiresAt    DateTime?
+  outcome      RtwOutcome @default(PENDING)
+  /// Admin username who performed the check.
+  checkedBy    String     @db.VarChar(100)
+  checkedAt    DateTime   @default(now())
+  /// S3 key for the retained copy of the document evidence.
+  documentKey  String?    @db.VarChar(500)
+  notes        String?    @db.VarChar(1000)
+  applicant    Applicant  @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  @@index([applicantId])
+  @@index([outcome])
+  @@index([expiresAt])
 }
 
 model Role {
@@ -527,6 +562,21 @@ model user_sessions {
   expire DateTime @db.Timestamp(6)
 
   @@index([expire], map: "IDX_session_expire")
+}
+
+enum RtwMethod {
+  /// Home Office online check using a share code + date of birth.
+  SHARE_CODE
+  /// Manual check of an original List A or List B document.
+  DOCUMENT
+  /// Certified Identity Service Provider (British/Irish passport holders only).
+  IDSP
+}
+
+enum RtwOutcome {
+  PENDING
+  PASS
+  FAIL
 }
 
 enum ApplicationStatus {

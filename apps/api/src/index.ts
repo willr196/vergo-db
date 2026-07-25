@@ -44,6 +44,7 @@ import adminBookings from './routes/adminBookings';
 import adminMarketplace from './routes/adminMarketplace';
 import adminStaff from './routes/adminStaff';
 import adminMatching from './routes/adminMatching';
+import adminRightToWork from './routes/adminRightToWork';
 import webAuth from './routes/webAuth';
 import { logger, requestLogger } from './services/logger';
 import { startMemoryMonitoring, stopMemoryMonitoring } from './services/memory';
@@ -1015,6 +1016,7 @@ app.use('/api/v1/admin/bookings', adminBookings);
 app.use('/api/v1/admin/marketplace', adminMarketplace);
 app.use('/api/v1/admin/staff', adminStaff);
 app.use('/api/v1/admin/matching', adminMatching);
+app.use('/api/v1/admin/right-to-work', adminRightToWork);
 
 // Legacy cleanup (must be before static)
 
