@@ -373,17 +373,18 @@ export const rightToWorkRequestEmail = (data: EmailTemplateData): string => {
       ${sectionHeading('One last step before your first shift', '📄')}
       <p>Hi ${safe(data.recipientName)},</p>
       ${paragraph("Great news — we'd like to welcome you onto the VERGO roster. Before we can book you onto a shift, we're required by law to check that you're allowed to work in the UK. We do this for everyone we take on, without exception.")}
-      ${paragraph('There are two ways to complete it. Please use whichever applies to you:')}
+      ${paragraph('There are two ways to complete it. Please use whichever applies to you — in both cases, <strong>simply reply to this email</strong>:')}
       ${accentCard(`
         <p style="margin: 0 0 6px; font-weight: 600;">If you hold a British or Irish passport</p>
-        <p style="margin: 0;">We need to see the original document in person, and we'll arrange a short appointment before your first shift. An expired passport is still acceptable for this.</p>
+        <p style="margin: 0 0 6px;">We need to see the original document in person before your first shift. An expired passport is still acceptable for this.</p>
+        <p style="margin: 0;"><strong>Reply to this email</strong> letting us know when you're free, and we'll arrange a short appointment.</p>
       `)}
       ${accentCard(`
         <p style="margin: 0 0 6px; font-weight: 600;">If you have any other status</p>
-        <p style="margin: 0 0 6px;">This includes settled or pre-settled status, a visa, or a BRP. Please reply with a <strong>share code</strong> along with your <strong>date of birth</strong>.</p>
-        <p style="margin: 0;">You can generate one in a few minutes at <strong>gov.uk/prove-right-to-work</strong> — we can then verify it remotely, with no appointment needed.</p>
+        <p style="margin: 0 0 6px;">This includes settled or pre-settled status, a visa, or a BRP. You can generate a share code in a few minutes at <strong>gov.uk/prove-right-to-work</strong>.</p>
+        <p style="margin: 0;"><strong>Reply to this email</strong> with your <strong>share code</strong> and your <strong>date of birth</strong>, and we'll verify it remotely — no appointment needed.</p>
       `)}
-      ${paragraph("Not sure which applies to you? Just reply to this email and we'll help you work it out.")}
+      ${paragraph("Not sure which applies to you? Reply to this email and we'll help you work it out.")}
       ${infoBox('<p style="margin: 0; font-size: 14px;">We can\'t confirm you for a shift until this is complete, so getting it done early means you won\'t miss out on work.</p>', 'warning')}
       ${paragraph('We keep a copy of your document for as long as the law requires. It is stored securely and used only for this check.')}
       <p>Looking forward to working with you,<br><strong>The VERGO Team</strong></p>
