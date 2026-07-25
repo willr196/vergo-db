@@ -427,6 +427,10 @@
         : '<button class="btn btn-ghost btn-sm" data-action="open-cv" data-app-id="' + esc(detail.id) + '" data-cv-url="' + esc(detail.cvKey || '') + '">Download CV</button>')
       + '</div>'
       + '</div>'
+      + '<div class="drawer-section mb-2" id="rtw-section">'
+      + '<div class="drawer-section-header"><span class="detail-label">Right to work</span></div>'
+      + '<div class="drawer-loading">Loading right-to-work status…</div>'
+      + '</div>'
       + '<div class="drawer-section mb-2">'
       + '<label class="as-label" for="drawer-notes">Admin notes</label>'
       + '<textarea id="drawer-notes" maxlength="2000" placeholder="Internal notes for this application...">' + esc(notesValue) + '</textarea>'
@@ -450,6 +454,157 @@
       + renderRosterLoginEmailAction(detail.id, detail.status, detail.account);
 
     wireDrawerNotesAutoSave(detail.id, notesValue);
+    loadRightToWork(applicant.id);
+  }
+
+  // ── Right to work ────────────────────────────────────────
+  var RTW_STATUS_CLASS = {
+    PASSED: 'success',
+    EXPIRED: 'warning',
+    FAILED: 'danger',
+    PENDING: 'warning',
+    NOT_CHECKED: 'muted'
+  };
+
+  var RTW_METHOD_LABEL = {
+    SHARE_CODE: 'Online share code',
+    DOCUMENT: 'Manual document check',
+    IDSP: 'IDSP'
+  };
+
+  function renderRightToWork(applicantId, data) {
+    var section = document.getElementById('rtw-section');
+    if (!section) return;
+
+    var summary = data.summary || {};
+    var checks = data.checks || [];
+    var statusClass = RTW_STATUS_CLASS[summary.status] || 'muted';
+
+    var history = checks.length
+      ? '<table class="drawer-mini-table mt-1"><tbody>' + checks.map(function (check) {
+          return '<tr>'
+            + '<td>' + fmtD(check.checkedAt) + '</td>'
+            + '<td>' + esc(RTW_METHOD_LABEL[check.method] || check.method) + '</td>'
+            + '<td>' + esc(check.documentType || '—') + '</td>'
+            + '<td>' + (check.expiresAt ? 'Expires ' + fmtD(check.expiresAt) : 'No expiry') + '</td>'
+            + '<td><span class="badge badge-' + esc(check.outcome === 'PASS' ? 'success' : check.outcome === 'FAIL' ? 'danger' : 'warning') + '">' + esc(check.outcome) + '</span></td>'
+            + '<td>' + (check.hasDocument
+              ? '<button class="btn btn-ghost btn-sm" data-action="open-rtw-document" data-check-id="' + esc(check.id) + '">Evidence</button>'
+              : '<span class="text-muted fs-sm">No copy</span>') + '</td>'
+            + '</tr>';
+        }).join('') + '</tbody></table>'
+      : '<p class="drawer-copy text-muted mt-1">No checks recorded.</p>';
+
+    section.innerHTML =
+      '<div class="drawer-section-header"><span class="detail-label">Right to work</span>'
+      + '<span class="badge badge-' + esc(statusClass) + '">' + esc(summary.label || 'Unknown') + '</span>'
+      + '</div>'
+      + (!summary.clearedToWork
+        ? '<div class="alert alert-warning mt-1 fs-sm">This worker cannot be confirmed for a shift until a passed, in-date check is recorded.</div>'
+        : '')
+      + history
+      + '<div class="drawer-inline-actions mt-1">'
+      + '<button class="btn btn-ghost btn-sm" data-action="open-rtw-modal" data-applicant-id="' + esc(applicantId) + '">Record a check</button>'
+      + '</div>';
+  }
+
+  async function loadRightToWork(applicantId) {
+    if (!applicantId) return;
+    try {
+      var data = await fetch_('/api/v1/admin/right-to-work/' + encodeURIComponent(applicantId));
+      renderRightToWork(applicantId, data);
+    } catch (e) {
+      var section = document.getElementById('rtw-section');
+      if (section) {
+        section.innerHTML =
+          '<div class="drawer-section-header"><span class="detail-label">Right to work</span></div>'
+          + '<p class="drawer-copy text-muted mt-1">Could not load right-to-work status: ' + esc(e.message) + '</p>';
+      }
+    }
+  }
+
+  var rtwModalApplicantId = null;
+
+  function openRtwModal(applicantId) {
+    rtwModalApplicantId = applicantId;
+    var detail = applicationDetails[activeDrawerAppId];
+    var name = detail && detail.applicant ? detail.applicant.fullName : '';
+
+    document.getElementById('rtw-modal-subject').textContent = name ? 'Recording a check for ' + name : '';
+    document.getElementById('rtw-modal-alert').innerHTML = '';
+    document.getElementById('rtw-method').value = 'SHARE_CODE';
+    document.getElementById('rtw-outcome').value = 'PASS';
+    document.getElementById('rtw-document-type').value = '';
+    document.getElementById('rtw-reference').value = '';
+    document.getElementById('rtw-valid-from').value = '';
+    document.getElementById('rtw-expires-at').value = '';
+    document.getElementById('rtw-notes').value = '';
+    document.getElementById('rtw-document').value = '';
+
+    AdminCore.openModal('rtw-modal');
+  }
+
+  function readFileAsBase64(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () { resolve(String(reader.result)); };
+      reader.onerror = function () { reject(new Error('Could not read the selected file.')); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function submitRtwCheck(btn) {
+    if (!rtwModalApplicantId) return;
+
+    var body = {
+      method: document.getElementById('rtw-method').value,
+      outcome: document.getElementById('rtw-outcome').value,
+      documentType: document.getElementById('rtw-document-type').value.trim() || undefined,
+      reference: document.getElementById('rtw-reference').value.trim() || undefined,
+      validFrom: document.getElementById('rtw-valid-from').value || undefined,
+      expiresAt: document.getElementById('rtw-expires-at').value || undefined,
+      notes: document.getElementById('rtw-notes').value.trim() || undefined
+    };
+
+    var fileInput = document.getElementById('rtw-document');
+    var file = fileInput.files && fileInput.files[0];
+
+    try {
+      if (file) {
+        if (file.size > 10 * 1024 * 1024) {
+          throw new Error('Document is larger than 10MB.');
+        }
+        body.document = {
+          fileName: file.name,
+          contentType: file.type || 'application/octet-stream',
+          contentBase64: await readFileAsBase64(file)
+        };
+      }
+
+      await AdminCore.withLoading(btn, function () {
+        return fetch_('/api/v1/admin/right-to-work/' + encodeURIComponent(rtwModalApplicantId), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+      });
+
+      AdminCore.closeModal('rtw-modal');
+      notify('Right-to-work check recorded', 'success');
+      loadRightToWork(rtwModalApplicantId);
+    } catch (e) {
+      AdminCore.showAlert(e.message, 'error', 'rtw-modal-alert');
+    }
+  }
+
+  async function openRtwDocument(checkId) {
+    try {
+      var data = await fetch_('/api/v1/admin/right-to-work/check/' + encodeURIComponent(checkId) + '/document');
+      var url = data.signedUrl || data.url;
+      if (url) window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (e) {
+      notify('Could not open evidence: ' + e.message, 'error');
+    }
   }
 
   async function loadApplicationDetail(appId) {
@@ -826,6 +981,10 @@
     if (action === 'update-event-status')   return updateEventStatus(el.dataset.eventId, el.dataset.status);
     if (action === 'open-drawer')        return openDrawer(el.dataset.appId);
     if (action === 'close-drawer')       return closeDrawer();
+    if (action === 'open-rtw-modal')     return openRtwModal(el.dataset.applicantId);
+    if (action === 'close-rtw-modal')    return AdminCore.closeModal('rtw-modal');
+    if (action === 'submit-rtw-check')   return submitRtwCheck(el);
+    if (action === 'open-rtw-document')  return openRtwDocument(el.dataset.checkId);
     if (action === 'save-notes')         return saveNotes(el.dataset.appId);
     if (action === 'bulk-select')        return bulkUpdateStatus(SELECTED_STATUS, el);
     if (action === 'bulk-reject')        return bulkUpdateStatus('REJECTED', el);
@@ -924,6 +1083,8 @@
   async function init() {
     var session = await AdminCore.checkAuth();
     if (!session) return;
+
+    AdminCore.initModalBehavior('rtw-modal');
 
     await Promise.all([
       loadStats(),

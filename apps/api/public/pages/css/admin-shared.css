@@ -479,6 +479,16 @@ td.loading, td.empty-state {
 .badge-HIRED, .badge-COMPLETED, .badge-BOOKED, .badge-ACCEPTED { background: var(--as-hired-bg); color: var(--as-hired); }
 .badge-UPCOMING { background: var(--as-info-bg); color: var(--as-info); }
 .badge-DRAFT    { background: rgba(107,114,128,0.2); color: #6b7280; }
+/* Semantic variants, for badges whose text is a message rather than a status code. */
+.badge-success { background: var(--as-success-bg); color: var(--as-success); }
+.badge-warning { background: var(--as-warning-bg); color: var(--as-warning); }
+.badge-danger  { background: var(--as-error-bg);   color: var(--as-error); }
+.badge-muted   { background: rgba(107,114,128,0.2); color: #9ca3af; }
+/* Message badges carry sentences, so the status-code casing would be unreadable. */
+.badge-success, .badge-warning, .badge-danger, .badge-muted {
+  text-transform: none;
+  letter-spacing: 0;
+}
 .role-pill {
   display: inline-flex;
   align-items: center;
@@ -725,6 +735,19 @@ textarea { resize: vertical; min-height: 80px; }
   gap: 8px;
   flex-wrap: wrap;
 }
+/* Compact history table inside a drawer section (e.g. right-to-work checks). */
+.drawer-mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.drawer-mini-table td {
+  padding: 7px 8px 7px 0;
+  border-bottom: 1px solid var(--as-border);
+  color: var(--as-text);
+  vertical-align: middle;
+}
+.drawer-mini-table tr:last-child td { border-bottom: none; }
 .drawer-loading {
   padding: 48px 16px;
   text-align: center;

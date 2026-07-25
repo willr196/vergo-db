@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/pages/css/admin-shared.css">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=2">
 </head>
 <body>
 
@@ -294,8 +294,85 @@
     <div class="as-drawer-footer" id="drawer-footer"></div>
   </div>
 
+  <!-- Record Right to Work Check -->
+  <div id="rtw-modal" class="modal-backdrop d-none">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Record Right to Work Check</h2>
+        <button class="modal-close" data-action="close-rtw-modal" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <div id="rtw-modal-alert"></div>
+        <p class="text-muted mb-1 fs-sm" id="rtw-modal-subject"></p>
+
+        <div class="detail-grid mb-2">
+          <div class="detail-row">
+            <label class="as-label" for="rtw-method">Check method</label>
+            <select id="rtw-method" class="as-input">
+              <option value="SHARE_CODE">Online share code</option>
+              <option value="DOCUMENT">Manual document check</option>
+              <option value="IDSP">IDSP (digital identity provider)</option>
+            </select>
+          </div>
+          <div class="detail-row">
+            <label class="as-label" for="rtw-outcome">Outcome</label>
+            <select id="rtw-outcome" class="as-input">
+              <option value="PASS">Pass — cleared to work</option>
+              <option value="FAIL">Fail — not cleared</option>
+              <option value="PENDING">Pending — check not finished</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="detail-grid mb-2">
+          <div class="detail-row">
+            <label class="as-label" for="rtw-document-type">Document / evidence seen</label>
+            <input id="rtw-document-type" class="as-input" maxlength="120" placeholder="e.g. UK passport, BRP, share code">
+          </div>
+          <div class="detail-row">
+            <label class="as-label" for="rtw-reference">Reference</label>
+            <input id="rtw-reference" class="as-input" maxlength="120" placeholder="Share code or document number">
+          </div>
+        </div>
+
+        <div class="detail-grid mb-2">
+          <div class="detail-row">
+            <label class="as-label" for="rtw-valid-from">Valid from</label>
+            <input id="rtw-valid-from" class="as-input" type="date">
+          </div>
+          <div class="detail-row">
+            <label class="as-label" for="rtw-expires-at">Expires</label>
+            <input id="rtw-expires-at" class="as-input" type="date">
+          </div>
+        </div>
+        <p class="text-muted fs-sm mb-2">
+          Leave <strong>Expires</strong> blank for a permanent right to work (List A — e.g. a UK or Irish
+          passport). Enter a date for time-limited permission (List B); the worker is automatically
+          blocked from new shifts once it lapses, so a follow-up check is required before then.
+        </p>
+
+        <div class="detail-row mb-2">
+          <label class="as-label" for="rtw-document">Copy of evidence</label>
+          <input id="rtw-document" class="as-input" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
+          <p class="text-muted fs-sm mt-1">
+            Retaining a copy is required to establish the statutory excuse. PDF, JPG, PNG or HEIC, max 10MB.
+          </p>
+        </div>
+
+        <div class="detail-row">
+          <label class="as-label" for="rtw-notes">Notes</label>
+          <textarea id="rtw-notes" maxlength="1000" placeholder="Anything worth recording about this check…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-action="close-rtw-modal">Cancel</button>
+        <button class="btn btn-primary" data-action="submit-rtw-check">Save Check</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/admin-core.js"></script>
   <script src="/js/admin-nav.js"></script>
-  <script src="/pages/js/admin-dashboard.js"></script>
+  <script src="/pages/js/admin-dashboard.js?v=2"></script>
 </body>
 </html>
