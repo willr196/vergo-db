@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apply | VERGO</title>
+  <meta name="description" content="Apply for event and hospitality work across London. Two minutes to apply, then a short chat with us.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#16130f">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/vergo-site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header class="site-header" role="banner">
+    <div class="site-header-inner">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">V</span>VERGO</a>
+      <nav class="header-actions">
+        <a class="switch-link" href="/work">Back to /work</a>
+        <a class="call-link" href="tel:+447506615242" data-vergo-tel="contact.phone" aria-label="Call VERGO">
+          <span data-vergo="contact.phoneDisplay">07506 615242</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="page-hero-plain shell-form">
+      <span class="eyebrow">Apply</span>
+      <h1>Two minutes to apply</h1>
+      <p class="lede">Fill this in, then have a short chat with us before you start picking up shifts. We don't need your ID, National Insurance number or bank details yet: that's step three, after we've spoken.</p>
+    </section>
+
+    <section class="section-tight shell-form">
+      <form id="applyForm" novalidate>
+        <div class="form-field hp-field" aria-hidden="true">
+          <label for="website">Leave this field blank</label>
+          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+
+        <h2>Your details</h2>
+        <div class="form-row form-row-2">
+          <div class="form-field">
+            <label for="firstName">First name</label>
+            <input type="text" id="firstName" name="firstName" required>
+          </div>
+          <div class="form-field">
+            <label for="lastName">Last name</label>
+            <input type="text" id="lastName" name="lastName" required>
+          </div>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-field">
+            <label for="email">Email address</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div class="form-field">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" required>
+          </div>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-field">
+            <label for="postcode">Postcode</label>
+            <input type="text" id="postcode" name="postcode" autocomplete="postal-code" placeholder="e.g. E1 6AN" required>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <div class="checkbox-item">
+            <input type="checkbox" id="ageConfirm" name="ageConfirm" required>
+            <label for="ageConfirm">I confirm I am 18 or over</label>
+          </div>
+        </div>
+
+        <fieldset class="form-field">
+          <legend>Roles and experience</legend>
+          <p class="form-hint">Tick the roles you can actually work, then choose your experience level for each one.</p>
+          <div id="roles-container" class="roles-with-experience">
+            <div class="role-row">
+              <div class="checkbox-item">
+                <input type="checkbox" id="role-waiting" name="roles" value="Waiting staff">
+                <label for="role-waiting">Waiting staff</label>
+              </div>
+              <label class="sr-only" for="experience-waiting-staff">Experience level for Waiting staff</label>
+              <select id="experience-waiting-staff" class="experience-select" data-role="Waiting staff" disabled>
+                <option value="">Select experience...</option>
+                <option value="Entry level">Entry level (0–1 years)</option>
+                <option value="1-2 years">1–2 years</option>
+                <option value="3-5 years">3–5 years</option>
+                <option value="5+ years">5+ years</option>
+              </select>
+            </div>
+
+            <div class="role-row">
+              <div class="checkbox-item">
+                <input type="checkbox" id="role-bar" name="roles" value="Bar staff">
+                <label for="role-bar">Bar staff</label>
+              </div>
+              <label class="sr-only" for="experience-bar-staff">Experience level for Bar staff</label>
+              <select id="experience-bar-staff" class="experience-select" data-role="Bar staff" disabled>
+                <option value="">Select experience...</option>
+                <option value="Entry level">Entry level (0–1 years)</option>
+                <option value="1-2 years">1–2 years</option>
+                <option value="3-5 years">3–5 years</option>
+                <option value="5+ years">5+ years</option>
+              </select>
+            </div>
+
+            <div class="role-row">
+              <div class="checkbox-item">
+                <input type="checkbox" id="role-kp" name="roles" value="Kitchen porters">
+                <label for="role-kp">Kitchen porters</label>
+              </div>
+              <label class="sr-only" for="experience-kitchen-porters">Experience level for Kitchen porters</label>
+              <select id="experience-kitchen-porters" class="experience-select" data-role="Kitchen porters" disabled>
+                <option value="">Select experience...</option>
+                <option value="Entry level">Entry level (0–1 years)</option>
+                <option value="1-2 years">1–2 years</option>
+                <option value="3-5 years">3–5 years</option>
+                <option value="5+ years">5+ years</option>
+              </select>
+            </div>
+
+            <div class="role-row">
+              <div class="checkbox-item">
+                <input type="checkbox" id="role-runner" name="roles" value="Runners">
+                <label for="role-runner">Runners</label>
+              </div>
+              <label class="sr-only" for="experience-runners">Experience level for Runners</label>
+              <select id="experience-runners" class="experience-select" data-role="Runners" disabled>
+                <option value="">Select experience...</option>
+                <option value="Entry level">Entry level (0–1 years)</option>
+                <option value="1-2 years">1–2 years</option>
+                <option value="3-5 years">3–5 years</option>
+                <option value="5+ years">5+ years</option>
+              </select>
+            </div>
+
+            <div class="role-row">
+              <div class="checkbox-item">
+                <input type="checkbox" id="role-host" name="roles" value="Hosts">
+                <label for="role-host">Hosts</label>
+              </div>
+              <label class="sr-only" for="experience-hosts">Experience level for Hosts</label>
+              <select id="experience-hosts" class="experience-select" data-role="Hosts" disabled>
+                <option value="">Select experience...</option>
+                <option value="Entry level">Entry level (0–1 years)</option>
+                <option value="1-2 years">1–2 years</option>
+                <option value="3-5 years">3–5 years</option>
+                <option value="5+ years">5+ years</option>
+              </select>
+            </div>
+          </div>
+          <div id="roles-error" class="field-error-message" style="display: none;" role="alert"></div>
+        </fieldset>
+
+        <fieldset class="form-field">
+          <legend>When are you generally free?</legend>
+          <div class="checkbox-grid">
+            <div class="checkbox-item"><input type="checkbox" id="avail-weekday-day" name="availability" value="Weekday daytime"><label for="avail-weekday-day">Weekday daytime</label></div>
+            <div class="checkbox-item"><input type="checkbox" id="avail-weekday-eve" name="availability" value="Weekday evenings"><label for="avail-weekday-eve">Weekday evenings</label></div>
+            <div class="checkbox-item"><input type="checkbox" id="avail-weekend-day" name="availability" value="Weekend daytime"><label for="avail-weekend-day">Weekend daytime</label></div>
+            <div class="checkbox-item"><input type="checkbox" id="avail-weekend-eve" name="availability" value="Weekend evenings"><label for="avail-weekend-eve">Weekend evenings</label></div>
+          </div>
+        </fieldset>
+
+        <div class="form-field">
+          <label for="bio">Anything else?</label>
+          <textarea id="bio" name="bio" maxlength="300" placeholder="A sentence or two about your experience"></textarea>
+        </div>
+
+        <div class="form-field">
+          <label for="cvFile">Upload your CV</label>
+          <input type="file" id="cvFile" name="cvFile" accept=".pdf,.doc,.docx" required>
+          <p class="form-hint">PDF, DOC or DOCX. Max 10MB.</p>
+          <div id="uploadStatus" class="form-status" role="status"></div>
+        </div>
+
+        <div class="form-field consent-row">
+          <div class="checkbox-item">
+            <input type="checkbox" id="consent" name="consent" required>
+            <label for="consent">I've read the <a href="/privacy">privacy notice</a> and agree to VERGO storing my details to consider me for work</label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="applySubmit">Submit application</button>
+        <div class="form-status" id="applyStatus" role="status" hidden></div>
+      </form>
+
+      <div class="form-success" id="formSuccess" hidden>
+        <h2>Application received.</h2>
+        <p>We review fit by role, experience and availability. If there's a match, we'll be in touch to arrange a short chat.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="/hire">For clients</a>
+        <a href="/work">For workers</a>
+        <a href="/terms">Terms of business</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/legal">Legal</a>
+      </div>
+      <p class="footer-contact">
+        <a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email">wrobb@vergoltd.com</a>
+      </p>
+      <p class="footer-contact">
+        <a href="tel:+447506615242" data-vergo-tel="contact.phone">07506 615242</a>
+      </p>
+      <p class="footer-legal">
+        <span data-vergo="company.legalName">Vergo Ltd</span>, registered in
+        <span data-vergo="company.jurisdiction">England and Wales</span>, company no.
+        <span data-vergo="company.number">16627585</span>. Registered office:
+        <span data-vergo="company.registeredOffice">96 Sulivan Court, London, SW6 3DB</span>.
+        Employers' and public liability insured. All staff employed on PAYE.
+      </p>
+    </div>
+  </footer>
+
+  <script src="/vergo-site-config.js"></script>
+  <script src="/pages/js/work-apply.js"></script>
+</body>
+</html>

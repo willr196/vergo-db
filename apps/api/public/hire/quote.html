@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Get a Quote | VERGO</title>
+  <meta name="description" content="Tell us the date, times, headcount and roles. Get a running estimate at £18.50/hr per person, four-hour minimum, plus VAT.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#16130f">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/vergo-site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header class="site-header" role="banner">
+    <div class="site-header-inner">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">V</span>VERGO</a>
+      <nav class="header-actions">
+        <a class="switch-link" href="/hire">Back to /hire</a>
+        <a class="call-link" href="tel:+447506615242" data-vergo-tel="contact.phone" aria-label="Call VERGO">
+          <span data-vergo="contact.phoneDisplay">07506 615242</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="page-hero-plain shell-form">
+      <span class="eyebrow">Get a quote</span>
+      <h1>Tell us what you need</h1>
+      <p class="lede">Fill this in and we'll come back to you quickly during our 8am&ndash;10pm hours.</p>
+    </section>
+
+    <section class="section-tight shell-form">
+      <form id="quoteForm" novalidate>
+        <div class="form-field hp-field" aria-hidden="true">
+          <label for="quoteWebsite">Leave this field blank</label>
+          <input type="text" id="quoteWebsite" name="website" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-field">
+            <label for="eventDate">Event date</label>
+            <input type="date" id="eventDate" name="eventDate" required>
+          </div>
+          <div class="form-field">
+            <label for="eventType">Event type</label>
+            <select id="eventType" name="eventType" required>
+              <option value="">Select one</option>
+              <option value="Wedding">Wedding</option>
+              <option value="Corporate function">Corporate function</option>
+              <option value="Private party">Private party</option>
+              <option value="Production catering">Production catering</option>
+              <option value="Venue overflow">Venue overflow cover</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-field">
+            <label for="shiftStart">Start time</label>
+            <input type="time" id="shiftStart" name="shiftStart" required>
+          </div>
+          <div class="form-field">
+            <label for="shiftEnd">End time</label>
+            <input type="time" id="shiftEnd" name="shiftEnd" required>
+          </div>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-field">
+            <label for="staffNeeded">Number of staff</label>
+            <input type="number" id="staffNeeded" name="staffNeeded" min="1" max="500" value="1" required>
+          </div>
+          <div class="form-field">
+            <label for="venuePostcode">Venue postcode</label>
+            <input type="text" id="venuePostcode" name="venuePostcode" autocomplete="postal-code" placeholder="e.g. E1 6AN" required>
+          </div>
+        </div>
+
+        <fieldset class="form-field">
+          <legend>Roles needed</legend>
+          <div class="checkbox-grid">
+            <div class="checkbox-item"><input type="checkbox" id="role-waiting" name="roles" value="Waiting staff"><label for="role-waiting">Waiting staff</label></div>
+            <div class="checkbox-item"><input type="checkbox" id="role-bar" name="roles" value="Bar staff"><label for="role-bar">Bar staff</label></div>
+            <div class="checkbox-item"><input type="checkbox" id="role-kp" name="roles" value="Kitchen porters"><label for="role-kp">Kitchen porters</label></div>
+            <div class="checkbox-item"><input type="checkbox" id="role-runner" name="roles" value="Runners"><label for="role-runner">Runners</label></div>
+            <div class="checkbox-item"><input type="checkbox" id="role-host" name="roles" value="Hosts"><label for="role-host">Hosts</label></div>
+            <div class="checkbox-item"><input type="checkbox" id="role-senior" name="roles" value="Senior (supervisor/chef/event manager)"><label for="role-senior">Senior role</label></div>
+          </div>
+          <p class="form-hint">Senior roles (supervisors, chefs, event managers) are quoted individually.</p>
+        </fieldset>
+
+        <h2>Your details</h2>
+        <div class="form-row form-row-2">
+          <div class="form-field">
+            <label for="contactName">Name</label>
+            <input type="text" id="contactName" name="name" required>
+          </div>
+          <div class="form-field">
+            <label for="contactCompany">Company</label>
+            <input type="text" id="contactCompany" name="company">
+          </div>
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-field">
+            <label for="contactEmail">Email address</label>
+            <input type="email" id="contactEmail" name="email" required>
+          </div>
+          <div class="form-field">
+            <label for="contactPhone">Phone</label>
+            <input type="tel" id="contactPhone" name="phone" required>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="quoteMessage">Anything else we should know?</label>
+          <textarea id="quoteMessage" name="message" maxlength="2000"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="quoteSubmit">Send enquiry</button>
+        <div class="form-status" id="quoteStatus" role="status" hidden></div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="/hire">For clients</a>
+        <a href="/work">For workers</a>
+        <a href="/terms">Terms of business</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/legal">Legal</a>
+      </div>
+      <p class="footer-contact">
+        <a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email">wrobb@vergoltd.com</a>
+      </p>
+      <p class="footer-contact">
+        <a href="tel:+447506615242" data-vergo-tel="contact.phone">07506 615242</a>
+      </p>
+      <p class="footer-legal">
+        <span data-vergo="company.legalName">Vergo Ltd</span>, registered in
+        <span data-vergo="company.jurisdiction">England and Wales</span>, company no.
+        <span data-vergo="company.number">16627585</span>. Registered office:
+        <span data-vergo="company.registeredOffice">96 Sulivan Court, London, SW6 3DB</span>.
+        Employers' and public liability insured. All staff employed on PAYE.
+      </p>
+    </div>
+  </footer>
+
+  <script src="/vergo-site-config.js"></script>
+  <script src="/pages/js/quote.js"></script>
+</body>
+</html>
