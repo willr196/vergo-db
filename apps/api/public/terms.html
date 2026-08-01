@@ -31,6 +31,7 @@
     <section class="page-hero-plain shell">
       <span class="eyebrow">Terms of business</span>
       <h1>Terms of business</h1>
+      <p id="terms-version-note" class="terms-version-note" style="color: var(--muted, #999); font-size: 0.9rem;"></p>
     </section>
 
     <section class="section-tight shell legal-content">
@@ -44,25 +45,31 @@
       <p>The running total shown on our quote form is an estimate, not a binding quote. A booking is only confirmed once we send you written confirmation (email or WhatsApp) naming the staff, roles, date and times.</p>
       <p>Enquiries submitted during our confirmation hours (8am&ndash;10pm) are confirmed quickly. See our <a href="/hire">guarantees</a> for the full detail.</p>
 
-      <h2>2. Rates and charges</h2>
-      <ul class="check-list">
-        <li><span data-vergo="rates.chargeRateDisplay">£18.50</span> per hour, per person, plus VAT: one rate across waiting staff, bar staff, kitchen porters, runners and hosts</li>
-        <li><span data-vergo="rates.minimumHours">4</span>-hour minimum charge per person, per booking</li>
-        <li>Overruns beyond the confirmed end time are billed in 30-minute blocks</li>
-        <li>Senior roles (supervisors, chefs, event managers) are quoted and agreed individually before booking</li>
-        <li>No booking fees, uniform charges or other surcharges beyond what's set out here</li>
-      </ul>
+      <div id="terms-section-rates-and-charges" data-terms-section="rates-and-charges">
+        <h2>2. Rates and Charges</h2>
+        <ul class="check-list">
+          <li><span data-vergo="rates.chargeRateDisplay">£18.50</span> per hour, per person, plus VAT: one rate across waiting staff, bar staff, kitchen porters, runners and hosts</li>
+          <li><span data-vergo="rates.minimumHours">4</span>-hour minimum charge per person, per booking</li>
+          <li>Overruns beyond the confirmed end time are billed in 30-minute blocks</li>
+          <li>Senior roles (supervisors, chefs, event managers) are quoted and agreed individually before booking</li>
+          <li>No booking fees, uniform charges or other surcharges beyond what's set out here</li>
+        </ul>
+      </div>
 
-      <h2>3. Payment terms</h2>
-      <p>Invoices are payable within <span data-vergo="terms.paymentTermsDays">14</span> days of the invoice date. For a client's first booking with us, payment is required in advance of the event.</p>
+      <div id="terms-section-payment" data-terms-section="payment">
+        <h2>3. Payment</h2>
+        <p>Invoices are payable within <span data-vergo="terms.paymentTermsDays">14</span> days of the invoice date. For a client's first booking with us, payment is required in advance of the event.</p>
+      </div>
 
-      <h2>4. Cancellations</h2>
-      <ul class="check-list">
-        <li>More than 48 hours before the booking starts: no charge</li>
-        <li>Between 24 and 48 hours before: 50% of the confirmed booking charge</li>
-        <li>Less than 12 hours before: full confirmed booking charge</li>
-      </ul>
-      <p>These tiers apply to the booking as a whole. If you need to reduce staff numbers rather than cancel entirely, tell us as early as possible and we'll agree a fair adjustment.</p>
+      <div id="terms-section-changes-and-cancellation" data-terms-section="changes-and-cancellation">
+        <h2>4. Changes and Cancellation</h2>
+        <ul class="check-list">
+          <li>More than 48 hours before the booking starts: no charge</li>
+          <li>Between 24 and 48 hours before: 50% of the confirmed booking charge</li>
+          <li>Less than 12 hours before: full confirmed booking charge</li>
+        </ul>
+        <p>These tiers apply to the booking as a whole. If you need to reduce staff numbers rather than cancel entirely, tell us as early as possible and we'll agree a fair adjustment.</p>
+      </div>
 
       <h2>5. Our guarantees</h2>
       <p><strong>Quick confirmation.</strong> Enquire during our 8am&ndash;10pm hours and we'll come back to you with a confirmed booking quickly.</p>
@@ -119,5 +126,6 @@
   </footer>
 
   <script src="/vergo-site-config.js"></script>
+  <script src="/pages/js/terms.js"></script>
 </body>
 </html>

@@ -296,6 +296,21 @@ body {
 }
 .as-activity-item:last-child { border-bottom: none; }
 .as-activity-item:hover { background: var(--as-hover); }
+.as-activity-item[data-action] { cursor: pointer; }
+.as-activity-header-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: rgba(245,158,11,0.18);
+  color: #f59e0b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-left: auto;
+}
 .as-dot {
   width: 7px; height: 7px;
   border-radius: 50%;
@@ -956,19 +971,6 @@ body::before {
   pointer-events: none;
 }
 
-#admin-sidebar,
-.as-topbar,
-.kpi-card,
-.as-alert-panel,
-.as-activity,
-.as-filters,
-.as-table-wrap,
-.as-drawer,
-.pending-banner,
-.market-card {
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
 
 #admin-sidebar {
   background:
@@ -1009,7 +1011,7 @@ body::before {
 }
 
 .as-topbar {
-  background: rgba(22, 18, 14, 0.82);
+  background: rgb(22, 18, 14);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 16px 36px rgba(0,0,0,0.18);
 }

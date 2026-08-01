@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/pages/css/admin-shared.css">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=3">
   <link rel="stylesheet" href="/pages/css/admin-analytics.css">
 </head>
 <body>
@@ -41,6 +41,14 @@
         <div class="weekly-card"><div class="weekly-label">Applications</div><div class="weekly-val" id="wk-apps">-</div><div class="weekly-delta" id="wk-apps-delta"></div></div>
         <div class="weekly-card"><div class="weekly-label">New Clients</div><div class="weekly-val" id="wk-clients">-</div><div class="weekly-delta" id="wk-clients-delta"></div></div>
         <div class="weekly-card"><div class="weekly-label">Quote Requests</div><div class="weekly-val" id="wk-quotes">-</div><div class="weekly-delta" id="wk-quotes-delta"></div></div>
+      </div>
+
+      <!-- VAT tracker -->
+      <div class="as-section-hdr mb-2"><span class="as-section-title">VAT Registration Tracker</span></div>
+      <div class="vat-tracker-card" id="vat-tracker-card">
+        <div class="vat-tracker-figure" id="vat-tracker-figure">-</div>
+        <div class="vat-tracker-caption">Rolling 12-month taxable turnover (confirmed bookings)</div>
+        <div class="vat-tracker-status" id="vat-tracker-status"></div>
       </div>
 
       <!-- Charts grid -->

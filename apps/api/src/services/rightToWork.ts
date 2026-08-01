@@ -97,3 +97,46 @@ export async function getRightToWorkSummary(applicantId: string): Promise<RtwSum
   });
   return summariseChecks(checks);
 }
+
+/**
+ * Passed checks whose cover has already lapsed, or will lapse within
+ * `withinDays`, and are not superseded by a later current check.
+ */
+export async function getExpiringChecks(withinDays: number) {
+  const horizon = new Date(Date.now() + withinDays * 24 * 60 * 60 * 1000);
+
+  const checks = await prisma.rightToWorkCheck.findMany({
+    where: {
+      outcome: 'PASS',
+      expiresAt: { not: null, lte: horizon },
+    },
+    orderBy: { expiresAt: 'asc' },
+    include: {
+      applicant: { select: { id: true, firstName: true, lastName: true, email: true } },
+    },
+  });
+
+  const now = new Date();
+  const applicantIds = [...new Set(checks.map((check) => check.applicantId))];
+  const allChecks = await prisma.rightToWorkCheck.findMany({
+    where: { applicantId: { in: applicantIds } },
+    select: { applicantId: true, outcome: true, expiresAt: true, checkedAt: true, checkedBy: true },
+  });
+
+  const byApplicant = new Map<string, typeof allChecks>();
+  for (const check of allChecks) {
+    const list = byApplicant.get(check.applicantId) ?? [];
+    list.push(check);
+    byApplicant.set(check.applicantId, list);
+  }
+
+  return checks
+    .filter((check) => {
+      const summary = summariseChecks(byApplicant.get(check.applicantId) ?? [], now);
+      return !summary.clearedToWork || (summary.expiresAt !== null && summary.expiresAt <= horizon);
+    })
+    .map((check) => ({
+      ...check,
+      expired: check.expiresAt !== null && check.expiresAt <= now,
+    }));
+}

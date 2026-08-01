@@ -10,7 +10,7 @@ import { randomUUID } from 'crypto';
 import { prisma } from '../prisma';
 import { adminAuth } from '../middleware/adminAuth';
 import { authLogger } from '../services/logger';
-import { getRightToWorkSummary, summariseChecks } from '../services/rightToWork';
+import { getRightToWorkSummary, getExpiringChecks, summariseChecks } from '../services/rightToWork';
 import { sendRightToWorkRequestEmail } from '../services/email';
 import { uploadBuffer, presignDownload } from '../services/s3';
 import { env } from '../env';
@@ -179,47 +179,11 @@ r.post('/:applicantId', adminAuth, async (req, res, next) => {
 r.get('/expiring', adminAuth, async (req, res, next) => {
   try {
     const withinDays = Math.min(365, Math.max(1, Number(req.query.withinDays) || 60));
-    const horizon = new Date(Date.now() + withinDays * 24 * 60 * 60 * 1000);
-
-    const checks = await prisma.rightToWorkCheck.findMany({
-      where: {
-        outcome: 'PASS',
-        expiresAt: { not: null, lte: horizon },
-      },
-      orderBy: { expiresAt: 'asc' },
-      include: {
-        applicant: { select: { id: true, firstName: true, lastName: true, email: true } },
-      },
-    });
-
-    // Someone re-checked after an expiry is no longer due a follow-up, so drop
-    // any applicant who already has a currently-valid check.
-    const now = new Date();
-    const applicantIds = [...new Set(checks.map((check) => check.applicantId))];
-    const allChecks = await prisma.rightToWorkCheck.findMany({
-      where: { applicantId: { in: applicantIds } },
-      select: { applicantId: true, outcome: true, expiresAt: true, checkedAt: true, checkedBy: true },
-    });
-
-    const byApplicant = new Map<string, typeof allChecks>();
-    for (const check of allChecks) {
-      const list = byApplicant.get(check.applicantId) ?? [];
-      list.push(check);
-      byApplicant.set(check.applicantId, list);
-    }
-
-    const due = checks
-      .filter((check) => {
-        const summary = summariseChecks(byApplicant.get(check.applicantId) ?? [], now);
-        // Still listed if the cover has already lapsed, or if the valid check
-        // that clears them is itself the one about to expire.
-        return !summary.clearedToWork || (summary.expiresAt !== null && summary.expiresAt <= horizon);
-      })
-      .map((check) => ({
-        ...shapeCheck(check),
-        expired: check.expiresAt !== null && check.expiresAt <= now,
-        applicant: check.applicant,
-      }));
+    const due = (await getExpiringChecks(withinDays)).map((check) => ({
+      ...shapeCheck(check),
+      expired: check.expired,
+      applicant: check.applicant,
+    }));
 
     const payload = { withinDays, checks: due };
     res.json({ ok: true, ...payload, data: payload });

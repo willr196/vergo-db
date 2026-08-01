@@ -56,53 +56,16 @@ async function inject(appInstance: any, opts: { method: string; url: string; hea
   });
 }
 
-test('portal login page exposes shared metadata and shell assets', async () => {
-  const res = await inject(app, { method: 'GET', url: '/portal-login' });
-
-  assert.equal(res.statusCode, 200);
-  assert.match(res.body, /<link rel="canonical" href="https:\/\/vergoltd\.com\/portal-login">/i);
-  assert.match(res.body, /<meta name="theme-color" content="#0a0a0a">/i);
-  assert.match(res.body, /<meta property="og:title" content="Sign In \| VERGO/i);
-  assert.match(res.body, /<meta property="og:url" content="https:\/\/vergoltd\.com\/portal-login">/i);
-  assert.match(res.body, /id="site-header"/i);
-  assert.match(res.body, /footer role="contentinfo"/i);
-  assert.match(res.body, /\/vergo-public-pages\.css/i);
-  assert.match(res.body, /\/vergo-public-shell\.js/i);
-});
-
-test('jwt dashboard pages expose shell mounts and auth assets', async () => {
-  const cases = [
-    {
-      url: '/dashboard-client',
-      title: /<title>Client Dashboard \| VERGO Events/i,
-      canonical: /<link rel="canonical" href="https:\/\/vergoltd\.com\/dashboard-client">/i,
-    },
-    {
-      url: '/dashboard-worker',
-      title: /<title>Worker Dashboard \| VERGO Events/i,
-      canonical: /<link rel="canonical" href="https:\/\/vergoltd\.com\/dashboard-worker">/i,
-    },
-  ];
-
-  for (const page of cases) {
-    const res = await inject(app, { method: 'GET', url: page.url });
-
-    assert.equal(res.statusCode, 200);
-    assert.match(res.body, page.title);
-    assert.match(res.body, page.canonical);
-    assert.match(res.body, /<meta name="theme-color" content="#0a0a0a">/i);
-    assert.match(res.body, /<meta name="robots" content="noindex, nofollow">/i);
-    assert.match(res.body, /id="site-header"/i);
-    assert.match(res.body, /footer role="contentinfo"/i);
-    assert.match(res.body, /\/auth\.js/i);
-    assert.match(res.body, /\/vergo-public-pages\.css/i);
-    assert.match(res.body, /\/vergo-public-shell\.js/i);
-  }
-});
-
-test('legacy hire-us routes redirect permanently to hire-staff', async () => {
+test('legacy hire-us routes redirect permanently to hire', async () => {
   const res = await inject(app, { method: 'GET', url: '/hire-us' });
 
   assert.equal(res.statusCode, 301);
-  assert.equal(res.headers.location, '/hire-staff');
+  assert.equal(res.headers.location, '/hire');
+});
+
+test('legacy hire-staff routes redirect permanently to hire', async () => {
+  const res = await inject(app, { method: 'GET', url: '/hire-staff' });
+
+  assert.equal(res.statusCode, 301);
+  assert.equal(res.headers.location, '/hire');
 });

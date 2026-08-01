@@ -21,25 +21,8 @@
 
   const routeGroups = {
     home: ['/'],
-    hire: [
-      '/hire-staff',
-      '/browse-staff',
-      '/event-chefs-london',
-      '/front-of-house-staff-london',
-      '/kitchen-porters-london',
-      '/temporary-bar-staff-london',
-      '/client-login',
-      '/client-register',
-      '/quote',
-    ],
-    jobs: [
-      '/jobs',
-      '/job-detail',
-    ],
-    profile: ['/profile'],
-    pricing: ['/pricing'],
-    contact: ['/contact'],
-    join: ['/apply', '/staff-roles', '/user-login', '/user-register'],
+    hire: ['/hire'],
+    work: ['/work'],
   };
 
   const isCurrent = (group) => {
@@ -434,16 +417,10 @@
           <nav class="site-nav" aria-label="Primary">
             <ul>
               <li><a href="/"${withCurrent('home')}>Home</a></li>
-              <li><a href="/jobs"${withCurrent('jobs')}>Worker Shifts</a></li>
-              <li><a href="/pricing"${withCurrent('pricing')}>Pricing</a></li>
-              <li><a href="/about"${withCurrent('about')}>About</a></li>
-              <li><a href="/contact"${withCurrent('contact')}>Contact</a></li>
+              <li><a href="/hire"${withCurrent('hire')}>For clients</a></li>
+              <li><a href="/work"${withCurrent('work')}>For workers</a></li>
             </ul>
           </nav>
-          <div class="nav-actions">
-            <a href="/apply" class="btn btn-secondary"${withCurrent('join')}>Join VERGO</a>
-            <a href="/hire-staff" class="btn btn-primary"${withCurrent('hire')}>Hire Staff</a>
-          </div>
         </div>
 
         <button id="mobile-menu-button" class="menu-toggle" type="button" aria-label="Toggle navigation menu" aria-controls="mobile-menu" aria-expanded="false">
@@ -456,15 +433,9 @@
       <div id="mobile-menu" class="mobile-menu" hidden>
         <nav aria-label="Mobile">
           <a href="/"${withCurrent('home')}>Home</a>
-          <a href="/jobs"${withCurrent('jobs')}>Worker Shifts</a>
-          <a href="/pricing"${withCurrent('pricing')}>Pricing</a>
-          <a href="/about"${withCurrent('about')}>About</a>
-          <a href="/contact"${withCurrent('contact')}>Contact</a>
+          <a href="/hire"${withCurrent('hire')}>For clients</a>
+          <a href="/work"${withCurrent('work')}>For workers</a>
         </nav>
-        <div class="nav-actions">
-          <a href="/apply" class="btn btn-secondary"${withCurrent('join')}>Join VERGO</a>
-          <a href="/hire-staff" class="btn btn-primary"${withCurrent('hire')}>Hire Staff</a>
-        </div>
       </div>
     </div>
   `;
@@ -486,25 +457,13 @@
           <p class="footer-title">Navigate</p>
           <div class="footer-links">
             <a href="/">Home</a>
-            <a href="/hire-staff">Hire Staff</a>
-            <a href="/pricing">Pricing</a>
-            <a href="/contact">Contact</a>
-          </div>
-        </div>
-        <div>
-          <p class="footer-title">Work With Us</p>
-          <div class="footer-links">
-            <a href="/jobs">Worker Shifts</a>
-            <a href="/apply">Join VERGO</a>
-            <a href="/#roles">Roles on the roster</a>
-            <a href="/contact?tab=staff#contact-forms">Request Staff</a>
-            <a href="/about">About VERGO</a>
+            <a href="/hire">For clients</a>
+            <a href="/work">For workers</a>
           </div>
         </div>
         <div>
           <p class="footer-title">Contact</p>
           <div class="footer-links">
-            <a href="/contact">Contact VERGO</a>
             <a href="https://wa.me/447506615242?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07506615242</a>
             <p>Replies within 24 hours for most enquiries.</p>
             <p>London and surrounding areas.</p>
@@ -517,6 +476,7 @@
         <div class="footer-bottom-links">
           <a href="/privacy">Privacy Policy</a>
           <a href="/terms">Terms of Service</a>
+          <a href="/legal">Legal</a>
         </div>
       </div>
     </div>

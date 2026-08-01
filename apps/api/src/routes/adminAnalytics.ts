@@ -12,6 +12,7 @@ r.get("/", async (_req, res, next) => {
     const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    const twelveMonthsAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
 
     const [
       appFunnel,
@@ -24,6 +25,7 @@ r.get("/", async (_req, res, next) => {
       recentQuoteCount,
       prevQuoteCount,
       roleStats,
+      turnoverAgg,
     ] = await Promise.all([
       prisma.application.groupBy({ by: ["status"], _count: { id: true } }),
       prisma.application.count({ where: { createdAt: { gte: weekAgo } } }),
@@ -50,6 +52,12 @@ r.get("/", async (_req, res, next) => {
         _count: { applicationId: true },
         orderBy: { _count: { applicationId: "desc" } },
         take: 8,
+      }),
+      // Rolling 12-month taxable turnover from confirmed bookings — computed on
+      // page load only (no polling/background job) to stay within the DB's CU-hour budget.
+      prisma.booking.aggregate({
+        where: { status: "CONFIRMED", confirmedAt: { gte: twelveMonthsAgo } },
+        _sum: { totalEstimated: true },
       }),
     ]);
 
@@ -99,6 +107,10 @@ r.get("/", async (_req, res, next) => {
       count: funnelCountMap[s] || 0,
     }));
 
+    const VAT_REGISTRATION_THRESHOLD = 90_000;
+    const VAT_WARNING_THRESHOLD = 75_000;
+    const rollingTurnover = Number(turnoverAgg._sum.totalEstimated || 0);
+
     res.json({
       ok: true,
       data: {
@@ -110,6 +122,13 @@ r.get("/", async (_req, res, next) => {
           applications: { thisWeek: recentAppsThisWeek, prevWeek: recentAppsPrevWeek },
           clients: { thisWeek: recentClientCount, prevWeek: prevClientCount },
           quotes: { thisWeek: recentQuoteCount, prevWeek: prevQuoteCount },
+        },
+        vatTracker: {
+          rollingTurnover,
+          registrationThreshold: VAT_REGISTRATION_THRESHOLD,
+          warningThreshold: VAT_WARNING_THRESHOLD,
+          isWarning: rollingTurnover >= VAT_WARNING_THRESHOLD,
+          isOverThreshold: rollingTurnover >= VAT_REGISTRATION_THRESHOLD,
         },
       },
     });

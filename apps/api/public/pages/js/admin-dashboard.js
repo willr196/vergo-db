@@ -65,9 +65,51 @@
 
       renderAlerts(data.alerts);
       renderActivity(data.activity);
+      renderOnboarding(data.onboarding);
     } catch (e) {
       toast('Failed to load stats: ' + e.message, 'error');
     }
+  }
+
+  // ── Onboarding pipeline widget ──────────────────────────
+  function renderOnboarding(onboarding) {
+    var panel = document.getElementById('onboarding-panel');
+    if (!panel) return;
+    onboarding = onboarding || {};
+    var pendingRtw = onboarding.pendingRtw || [];
+    var pendingRosterLogin = onboarding.pendingRosterLogin || [];
+    var expiringRtw = onboarding.expiringRtw || [];
+
+    function personRow(item, meta) {
+      var attrs = item.applicationId
+        ? ' data-action="open-drawer" data-app-id="' + esc(item.applicationId) + '"'
+        : '';
+      return '<div class="as-activity-item"' + attrs + '>'
+        + '<span class="as-dot"></span>'
+        + '<span class="as-activity-text">' + esc(item.name)
+        + '<br><span class="text-muted fs-sm">' + esc(meta) + '</span></span></div>';
+    }
+
+    function section(title, items, renderRow) {
+      var body = items.length
+        ? items.map(renderRow).join('')
+        : '<div class="as-activity-item"><span class="as-activity-text text-muted">None — all clear.</span></div>';
+      return '<div class="as-activity">'
+        + '<div class="as-activity-header" style="display:flex;align-items:center;gap:8px">' + esc(title)
+        + (items.length ? '<span class="as-activity-header-count">' + items.length + '</span>' : '')
+        + '</div>' + body + '</div>';
+    }
+
+    panel.innerHTML =
+      section('Awaiting right-to-work check', pendingRtw, function (i) {
+        return personRow(i, 'Hired ' + fmtD(i.hiredAt));
+      }) +
+      section('Roster login not sent', pendingRosterLogin, function (i) {
+        return personRow(i, 'Hired ' + fmtD(i.hiredAt));
+      }) +
+      section('Right-to-work expiring soon', expiringRtw, function (i) {
+        return personRow(i, (i.expired ? 'Expired ' : 'Expires ') + fmtD(i.expiresAt));
+      });
   }
 
   function renderAlerts(alerts) {
@@ -387,6 +429,10 @@
       + '<div class="detail-row"><span class="detail-label">DOB</span><span class="detail-value">' + fmtD(applicant.dateOfBirth) + '</span></div>'
       + '<div class="detail-row"><span class="detail-label">Postcode</span><span class="detail-value">' + esc(applicant.postcode || '-') + '</span></div>'
       + '</div>'
+      + '<div class="drawer-section mb-2" id="rtw-section">'
+      + '<div class="drawer-section-header"><span class="detail-label">Right to work</span></div>'
+      + '<div class="drawer-loading">Loading right-to-work status…</div>'
+      + '</div>'
       + '<div class="drawer-section mb-2"><span class="detail-label">Preferred job types</span><div class="pill-wrap mt-1">' + preferredJobTypes + '</div></div>'
       + '<div class="drawer-section mb-2"><span class="detail-label">Roles applied for</span><div class="pill-wrap mt-1">' + rolePills + '</div></div>'
       + '<div class="drawer-section mb-2"><span class="detail-label">Bio</span><p class="drawer-copy">' + esc(applicant.bio || 'No bio provided.') + '</p></div>'
@@ -427,10 +473,6 @@
         : '<button class="btn btn-ghost btn-sm" data-action="open-cv" data-app-id="' + esc(detail.id) + '" data-cv-url="' + esc(detail.cvKey || '') + '">Download CV</button>')
       + '</div>'
       + '</div>'
-      + '<div class="drawer-section mb-2" id="rtw-section">'
-      + '<div class="drawer-section-header"><span class="detail-label">Right to work</span></div>'
-      + '<div class="drawer-loading">Loading right-to-work status…</div>'
-      + '</div>'
       + '<div class="drawer-section mb-2">'
       + '<label class="as-label" for="drawer-notes">Admin notes</label>'
       + '<textarea id="drawer-notes" maxlength="2000" placeholder="Internal notes for this application...">' + esc(notesValue) + '</textarea>'
@@ -447,14 +489,15 @@
       + '</div>';
 
     document.getElementById('drawer-footer').innerHTML =
-      (downloadHref
+      '<span id="drawer-rtw-footer-action"></span>'
+      + (downloadHref
         ? '<a class="btn btn-info btn-sm" href="' + esc(downloadHref) + '" target="_blank" rel="noopener noreferrer">Open CV</a>'
         : '<button class="btn btn-info btn-sm" data-action="open-cv" data-app-id="' + esc(detail.id) + '" data-cv-url="' + esc(detail.cvKey || '') + '">Open CV</button>')
       + renderStatusActions(detail.id, detail.status)
       + renderRosterLoginEmailAction(detail.id, detail.status, detail.account);
 
     wireDrawerNotesAutoSave(detail.id, notesValue);
-    loadRightToWork(applicant.id);
+    loadRightToWork(applicant.id, detail.status);
   }
 
   // ── Right to work ────────────────────────────────────────
@@ -472,13 +515,14 @@
     IDSP: 'IDSP'
   };
 
-  function renderRightToWork(applicantId, data) {
+  function renderRightToWork(applicantId, data, appStatus) {
     var section = document.getElementById('rtw-section');
     if (!section) return;
 
     var summary = data.summary || {};
     var checks = data.checks || [];
     var statusClass = RTW_STATUS_CLASS[summary.status] || 'muted';
+    var blocking = appStatus === 'HIRED' && !summary.clearedToWork;
 
     var history = checks.length
       ? '<table class="drawer-mini-table mt-1"><tbody>' + checks.map(function (check) {
@@ -504,18 +548,25 @@
         : '')
       + history
       + '<div class="drawer-inline-actions mt-1">'
-      + '<button class="btn btn-ghost btn-sm" data-action="open-rtw-modal" data-applicant-id="' + esc(applicantId) + '">Record a check</button>'
+      + '<button class="btn ' + (blocking ? 'btn-warning' : 'btn-ghost') + ' btn-sm" data-action="open-rtw-modal" data-applicant-id="' + esc(applicantId) + '">Record a check</button>'
       + (summary.clearedToWork
         ? ''
         : '<button class="btn btn-ghost btn-sm" data-action="resend-rtw-request" data-applicant-id="' + esc(applicantId) + '">Re-send request</button>')
       + '</div>';
+
+    var footerSlot = document.getElementById('drawer-rtw-footer-action');
+    if (footerSlot) {
+      footerSlot.innerHTML = blocking
+        ? '<button class="btn btn-warning btn-sm" data-action="open-rtw-modal" data-applicant-id="' + esc(applicantId) + '">Record right-to-work check</button>'
+        : '';
+    }
   }
 
-  async function loadRightToWork(applicantId) {
+  async function loadRightToWork(applicantId, appStatus) {
     if (!applicantId) return;
     try {
       var data = await fetch_('/api/v1/admin/right-to-work/' + encodeURIComponent(applicantId));
-      renderRightToWork(applicantId, data);
+      renderRightToWork(applicantId, data, appStatus);
     } catch (e) {
       var section = document.getElementById('rtw-section');
       if (section) {

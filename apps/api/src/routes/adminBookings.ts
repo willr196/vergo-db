@@ -342,6 +342,13 @@ r.patch('/:id/status', async (req, res, next) => {
     if (status === 'CONFIRMED') {
       updateData.confirmedAt = new Date();
       updateData.confirmedBy = req.session.username || 'admin';
+
+      const activeTerms = await prisma.termsVersion.findFirst({
+        where: { publishedAt: { not: null } },
+        orderBy: { publishedAt: 'desc' },
+        select: { version: true },
+      });
+      if (activeTerms) updateData.termsVersionAtConfirmation = activeTerms.version;
     }
 
     if (status === 'REJECTED') {

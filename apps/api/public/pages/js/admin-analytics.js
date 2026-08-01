@@ -53,6 +53,27 @@
     });
   }
 
+  // ── VAT tracker ──────────────────────────────────────────
+  function renderVatTracker(vatTracker) {
+    if (!vatTracker) return;
+    var figureEl = document.getElementById('vat-tracker-figure');
+    var statusEl = document.getElementById('vat-tracker-status');
+    if (figureEl) figureEl.textContent = '£' + Math.round(vatTracker.rollingTurnover).toLocaleString('en-GB');
+
+    if (statusEl) {
+      if (vatTracker.isOverThreshold) {
+        statusEl.textContent = 'Over £' + vatTracker.registrationThreshold.toLocaleString('en-GB') + ' — VAT registration required';
+        statusEl.className = 'vat-tracker-status over';
+      } else if (vatTracker.isWarning) {
+        statusEl.textContent = 'Above £' + vatTracker.warningThreshold.toLocaleString('en-GB') + ' — approaching VAT threshold';
+        statusEl.className = 'vat-tracker-status warning';
+      } else {
+        statusEl.textContent = 'Below £' + vatTracker.warningThreshold.toLocaleString('en-GB') + ' warning line';
+        statusEl.className = 'vat-tracker-status ok';
+      }
+    }
+  }
+
   // ── Charts ──────────────────────────────────────────────
   function createFunnelChart(funnel) {
     var ctx = document.getElementById('chart-funnel');
@@ -191,6 +212,7 @@
       lastData = data;
 
       renderWeekly(data.weekly);
+      renderVatTracker(data.vatTracker);
       createFunnelChart(data.funnel);
       createClientGrowthChart(data.clientGrowth);
       createPipelineChart(data.quotePipeline);

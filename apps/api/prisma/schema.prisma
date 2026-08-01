@@ -190,6 +190,17 @@ model QuoteRequest {
   @@index([requestedLane])
 }
 
+model TermsVersion {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  version       String    @unique
+  effectiveDate DateTime
+  sections      Json
+  publishedAt   DateTime?
+
+  @@index([publishedAt])
+}
+
 model PricingTier {
   id           String           @id @default(cuid())
   createdAt    DateTime         @default(now())
@@ -242,6 +253,7 @@ model Booking {
   rejectionReason     String?
   confirmedAt         DateTime?
   confirmedBy         String?
+  termsVersionAtConfirmation String?
   completedAt         DateTime?
   clientId            String
   staffId             String

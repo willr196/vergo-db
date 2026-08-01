@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { prisma } from "../prisma";
 import { adminAuth } from "../middleware/adminAuth";
+import { summariseChecks, getExpiringChecks } from "../services/rightToWork";
+
+const RTW_EXPIRY_HORIZON_DAYS = 30;
 
 const r = Router();
 r.use(adminAuth);
@@ -24,6 +27,8 @@ r.get("/", async (_req, res, next) => {
       recentApplications,
       recentClients,
       recentQuotes,
+      hiredApplications,
+      expiringRtwChecks,
     ] = await Promise.all([
       prisma.application.groupBy({ by: ["status"], _count: { id: true } }),
       prisma.application.count({ where: { createdAt: { gte: weekAgo } } }),
@@ -53,6 +58,28 @@ r.get("/", async (_req, res, next) => {
         orderBy: { createdAt: "desc" },
         include: { client: { select: { companyName: true } } },
       }),
+      // Onboarding pipeline: everyone currently HIRED, with what's needed to
+      // work out who is stuck waiting on an admin step.
+      prisma.application.findMany({
+        where: { status: "HIRED" },
+        select: {
+          id: true,
+          updatedAt: true,
+          applicant: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              rightToWorkChecks: {
+                select: { outcome: true, expiresAt: true, checkedAt: true, checkedBy: true },
+              },
+              user: { select: { id: true } },
+            },
+          },
+        },
+      }),
+      getExpiringChecks(RTW_EXPIRY_HORIZON_DAYS),
     ]);
 
     // Merge activity feed
@@ -104,6 +131,62 @@ r.get("/", async (_req, res, next) => {
     const contactMap = toMap(contactCounts as CountRow[]);
 
     const unansweredQuotes = quoteMap["NEW"] || 0;
+
+    // Onboarding pipeline: hired applicants who are stuck waiting on an
+    // admin to record a right-to-work check or send roster login details,
+    // plus workers whose passed check is about to lapse.
+    const pendingRtw: Array<{ applicationId: string; applicantId: string; name: string; email: string; rtwStatus: string; hiredAt: Date }> = [];
+    const pendingRosterLogin: Array<{ applicationId: string; applicantId: string; name: string; email: string; hiredAt: Date }> = [];
+    for (const app of hiredApplications) {
+      const name = `${app.applicant.firstName} ${app.applicant.lastName}`;
+      const summary = summariseChecks(app.applicant.rightToWorkChecks);
+      if (!summary.clearedToWork) {
+        pendingRtw.push({
+          applicationId: app.id,
+          applicantId: app.applicant.id,
+          name,
+          email: app.applicant.email,
+          rtwStatus: summary.status,
+          hiredAt: app.updatedAt,
+        });
+      }
+      if (!app.applicant.user) {
+        pendingRosterLogin.push({
+          applicationId: app.id,
+          applicantId: app.applicant.id,
+          name,
+          email: app.applicant.email,
+          hiredAt: app.updatedAt,
+        });
+      }
+    }
+    pendingRtw.sort((a, b) => a.hiredAt.getTime() - b.hiredAt.getTime());
+    pendingRosterLogin.sort((a, b) => a.hiredAt.getTime() - b.hiredAt.getTime());
+
+    // The check itself doesn't carry an application id, but the drawer opens
+    // by application — look up each affected applicant's most recent one.
+    const expiringApplicantIds = [...new Set(expiringRtwChecks.map((check) => check.applicant.id))];
+    const expiringApps = expiringApplicantIds.length
+      ? await prisma.application.findMany({
+          where: { applicantId: { in: expiringApplicantIds } },
+          orderBy: { createdAt: "desc" },
+          select: { id: true, applicantId: true },
+        })
+      : [];
+    const latestAppByApplicant = new Map<string, string>();
+    for (const a of expiringApps) {
+      if (!latestAppByApplicant.has(a.applicantId)) latestAppByApplicant.set(a.applicantId, a.id);
+    }
+
+    const expiringRtw = expiringRtwChecks.map((check) => ({
+      applicationId: latestAppByApplicant.get(check.applicant.id) ?? null,
+      applicantId: check.applicant.id,
+      name: `${check.applicant.firstName} ${check.applicant.lastName}`,
+      email: check.applicant.email,
+      expiresAt: check.expiresAt,
+      expired: check.expired,
+    }));
+
     const alerts: Array<{ type: string; message: string }> = [];
     if (pendingApps48hrs > 0) {
       alerts.push({
@@ -115,6 +198,24 @@ r.get("/", async (_req, res, next) => {
       alerts.push({
         type: "warning",
         message: `${unansweredQuotes} unanswered quote request${unansweredQuotes > 1 ? "s" : ""}`,
+      });
+    }
+    if (pendingRtw.length > 0) {
+      alerts.push({
+        type: "warning",
+        message: `${pendingRtw.length} hired applicant${pendingRtw.length > 1 ? "s" : ""} awaiting right-to-work verification`,
+      });
+    }
+    if (pendingRosterLogin.length > 0) {
+      alerts.push({
+        type: "warning",
+        message: `${pendingRosterLogin.length} hired applicant${pendingRosterLogin.length > 1 ? "s" : ""} without roster login sent`,
+      });
+    }
+    if (expiringRtw.length > 0) {
+      alerts.push({
+        type: "warning",
+        message: `${expiringRtw.length} right-to-work check${expiringRtw.length > 1 ? "s" : ""} expiring within ${RTW_EXPIRY_HORIZON_DAYS} days`,
       });
     }
 
@@ -156,6 +257,11 @@ r.get("/", async (_req, res, next) => {
         },
         activity,
         alerts,
+        onboarding: {
+          pendingRtw,
+          pendingRosterLogin,
+          expiringRtw,
+        },
       },
     });
   } catch (err) {
