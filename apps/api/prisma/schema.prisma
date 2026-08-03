@@ -154,6 +154,7 @@ model Client {
   postcode              String?
   seqId                 Int                @unique @default(autoincrement())
   bookings              Booking[]
+  bookingReviews        BookingReview[]
   jobs                  Job[]
   pushTokens            PushToken[]
   quoteRequests         QuoteRequest[]
@@ -375,6 +376,7 @@ model User {
   seqId               Int              @unique @default(autoincrement())
   mustChangePassword  Boolean          @default(false)
   bookings            Booking[]
+  bookingReviews      BookingReview[]
   jobApplications     JobApplication[]
   pushTokens          PushToken[]
   refreshTokens       RefreshToken[]
@@ -591,7 +593,9 @@ model BookingReview {
   clientId  String
   rating    Int
   comment   String?  @db.VarChar(1000)
-  booking   Booking  @relation(fields: [bookingId], references: [id])
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  staff     User     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@index([staffId])
   @@index([clientId])
