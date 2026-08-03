@@ -190,15 +190,15 @@ test('webhook resend route is rate-limited and request-logged', async () => {
   }
 });
 
-test('homepage includes canonical metadata and shared shell mounts', async () => {
+test('homepage includes canonical metadata and shared site shell', async () => {
   const res = await inject(app, { method: 'GET', url: '/' });
   assert.equal(res.statusCode, 200);
   assert.match(res.body, /<link rel="canonical" href="https:\/\/vergoltd\.com\/">/i);
-  assert.match(res.body, /<meta name="theme-color" content="#0c0b0a">/i);
-  assert.match(res.body, /id="site-header"/i);
+  assert.match(res.body, /<meta name="theme-color" content="#16130f">/i);
+  assert.match(res.body, /class="site-header"/i);
   assert.match(res.body, /id="main-content"/i);
-  assert.match(res.body, /footer role="contentinfo"/i);
-  assert.match(res.body, /\/vergo-public-shell\.js/i);
+  assert.match(res.body, /<footer class="site-footer" role="contentinfo">/i);
+  assert.match(res.body, /\/vergo-site-config\.js/i);
 });
 
 test('non-api unknown routes return the branded 404 page', async () => {
