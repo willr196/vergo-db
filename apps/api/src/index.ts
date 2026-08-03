@@ -9,6 +9,7 @@ import fs from 'fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import session from 'express-session';
+import cookieParser from 'cookie-parser';
 import connectPgSimple from 'connect-pg-simple';
 import { assertStrongSecret, env } from './env';
 import { prisma } from './prisma';
@@ -275,6 +276,7 @@ app.use('/api/applications/direct-upload', express.json({ limit: '16mb' }));
 // Body parsing
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser()); // required for the CSRF double-submit cookie check
 
 // Session configuration
 if (env.nodeEnv === 'production' && !process.env.SESSION_SECRET) {

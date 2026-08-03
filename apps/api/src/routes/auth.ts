@@ -3,6 +3,8 @@ import rateLimit from "express-rate-limit";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import { prisma } from "../prisma";
+import { adminAuth } from "../middleware/adminAuth";
+import { generateCsrfToken } from "../middleware/csrf";
 
 const r = Router();
 
@@ -195,6 +197,17 @@ r.get("/session", (req, res) => {
     return res.json({ ok: true, ...payload, data: payload });
   }
   res.json({ ok: true, authenticated: false, data: { authenticated: false } });
+});
+
+// ============================================
+// GET /api/v1/auth/csrf-token
+// ============================================
+// Issues the token the admin panel must echo back in the x-csrf-token header
+// on every write request. GET is exempt from the CSRF check itself, so this
+// only needs the ordinary admin session.
+r.get("/csrf-token", adminAuth, (req, res) => {
+  const csrfToken = generateCsrfToken(req, res);
+  res.json({ ok: true, csrfToken, data: { csrfToken } });
 });
 
 export default r;

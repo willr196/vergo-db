@@ -42,6 +42,65 @@
     window.location.href = '/login';
   };
 
+  // ── CSRF ──────────────────────────────────────────────────────────────
+  // Every admin write goes through window.fetch (patched below), so this is the
+  // one place that needs to know about CSRF tokens — individual page scripts don't.
+  var _nativeFetch = window.fetch.bind(window);
+  var _csrfToken = null;
+  var _csrfTokenPromise = null;
+  var MUTATING_METHODS = { POST: true, PUT: true, PATCH: true, DELETE: true };
+
+  function fetchCsrfToken() {
+    if (_csrfTokenPromise) return _csrfTokenPromise;
+    _csrfTokenPromise = _nativeFetch('/api/v1/auth/csrf-token', { credentials: 'include' })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (payload) {
+        var data = payload && (payload.data || payload);
+        _csrfToken = data ? data.csrfToken : null;
+        return _csrfToken;
+      })
+      .catch(function () { return null; })
+      .finally(function () { _csrfTokenPromise = null; });
+    return _csrfTokenPromise;
+  }
+
+  function isSameOriginApiRequest(input) {
+    var url = typeof input === 'string' ? input : (input && input.url) || '';
+    return url.indexOf('/api/') === 0 || url.indexOf(window.location.origin + '/api/') === 0;
+  }
+
+  // Transparently attaches the CSRF token to every mutating same-origin API call,
+  // including raw fetch() calls in page scripts that don't go through fetchJSON below.
+  window.fetch = async function (input, init) {
+    init = init || {};
+    var method = (init.method || 'GET').toUpperCase();
+
+    if (!MUTATING_METHODS[method] || !isSameOriginApiRequest(input)) {
+      return _nativeFetch(input, init);
+    }
+
+    if (!_csrfToken) await fetchCsrfToken();
+    init.headers = Object.assign({}, init.headers, _csrfToken ? { 'x-csrf-token': _csrfToken } : {});
+
+    var response = await _nativeFetch(input, init);
+
+    // Token missing/stale (first load, or the session rotated it) — refresh once and retry.
+    if (response.status === 403 && !init._csrfRetried) {
+      var body = await response.clone().json().catch(function () { return null; });
+      if (body && body.code === 'CSRF_TOKEN_INVALID') {
+        _csrfToken = null;
+        await fetchCsrfToken();
+        if (_csrfToken) {
+          init.headers = Object.assign({}, init.headers, { 'x-csrf-token': _csrfToken });
+          init._csrfRetried = true;
+          return _nativeFetch(input, init);
+        }
+      }
+    }
+
+    return response;
+  };
+
   // ── Fetch helper ──────────────────────────────────────────────────────
   AdminCore.fetchJSON = async function (url, opts) {
     const res = await fetch(url, { credentials: 'include', ...opts });
