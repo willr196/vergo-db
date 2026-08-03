@@ -18,6 +18,8 @@ setRequiredEnv();
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const express = require('express');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
+const cookieParser = require('cookie-parser');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { prisma } = require('../prisma');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const jobs = require('../routes/jobs').default;
@@ -25,6 +27,20 @@ const jobs = require('../routes/jobs').default;
 const clientAuth = require('../routes/clientAuth').default;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const senderModule = require('../services/email/sender');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { generateCsrfToken } = require('../middleware/csrf');
+
+const ADMIN_TEST_SESSION_ID = 'admin-test-session';
+
+// Mirrors the real double-submit handshake: the server hands the client a token tied to
+// the session id and sets the matching cookie; the client echoes the token back as a header.
+function issueCsrfToken() {
+  let cookieValue = '';
+  const fakeReq: any = { session: { id: ADMIN_TEST_SESSION_ID }, cookies: {} };
+  const fakeRes: any = { cookie: (_name: string, value: string) => { cookieValue = value; } };
+  const csrfToken = generateCsrfToken(fakeReq, fakeRes);
+  return { csrfToken, cookieHeader: `vergo.csrf=${cookieValue}` };
+}
 
 class MockSocket extends Duplex {
   public chunks: Buffer[] = [];
@@ -78,8 +94,10 @@ async function inject(app: any, opts: { method: string; url: string; headers?: R
 function createAdminApp() {
   const app = express();
   app.use(express.json());
+  app.use(cookieParser());
   app.use((req: any, _res: any, next: any) => {
     req.session = {
+      id: ADMIN_TEST_SESSION_ID,
       isAdmin: true,
       username: 'admin',
       loginTime: Date.now(),
@@ -216,9 +234,11 @@ test('approving a pending external submission emails the original poster', async
   };
 
   try {
+    const { csrfToken, cookieHeader } = issueCsrfToken();
     const response = await inject(createAdminApp(), {
       method: 'POST',
       url: '/api/v1/jobs/job-approve/approve',
+      headers: { 'x-csrf-token': csrfToken, cookie: cookieHeader },
     });
 
     assert.equal(response.statusCode, 200);

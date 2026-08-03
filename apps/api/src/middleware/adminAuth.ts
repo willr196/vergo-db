@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { csrfProtection } from './csrf';
 
 const MAX_IDLE_TIME = 30 * 60 * 1000; // 30 minutes
 const MAX_SESSION_AGE = 8 * 60 * 60 * 1000; // 8 hours
@@ -52,7 +53,7 @@ export function adminAuth(req: Request, res: Response, next: NextFunction) {
 
   req.session.lastActivity = now;
   setNoStoreHeaders(res);
-  return next();
+  return csrfProtection(req, res, next);
 }
 
 export function adminPageAuth(req: Request, res: Response, next: NextFunction) {
