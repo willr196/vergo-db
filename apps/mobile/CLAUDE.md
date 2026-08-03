@@ -23,7 +23,10 @@ src/
 ├── screens/
 │   ├── auth/       # Welcome, Login, Register, ForgotPassword
 │   ├── jobseeker/  # Jobs, JobDetail, Applications, ApplicationDetail, Profile, EditProfile, ApplyToJob
-│   └── client/     # Dashboard, MyJobs, CompanyProfile (WIP)
+│   └── client/     # Dashboard, Browse (marketplace), Bookings, CompanyProfile + stack screens
+│                   #   (MyQuotesScreen/CreateQuoteScreen — the current quote-request flow;
+│                   #   MyJobsScreen + its Create/Edit/ApplicantList/ApplicantDetail screens are
+│                   #   built but currently unreachable, superseded by the quotes flow above)
 ├── store/          # Zustand: authStore, jobsStore, applicationsStore
 ├── theme/          # Colors, spacing, typography, borderRadius
 └── types/          # All TypeScript interfaces + navigation params
@@ -41,7 +44,7 @@ src/
 ## Navigation Structure
 - Auth: Welcome → Login/Register → ForgotPassword
 - JobSeeker: Tabs(Jobs, Applications, Profile) + stack screens (JobDetail, ApplyToJob, ApplicationDetail, EditProfile)
-- Client: Tabs(Dashboard, MyJobs, CompanyProfile) — client screens still being built
+- Client: Tabs(Dashboard, Browse, Bookings, Profile) + stack screens for quotes, bookings and job management
 
 ## Design System — IMPORTANT
 - Background: #0a0a0a, Surface: #1a1a1a, Primary/Gold: #D4AF37

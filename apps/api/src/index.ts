@@ -149,23 +149,6 @@ function checkResendReadiness(): ReadinessCheck {
   };
 }
 
-function buildJobPageCspHeader(nonce: string) {
-  // Job pages include dynamic JSON-LD. Use a nonce-based CSP for these routes only.
-  const nonceToken = `'nonce-${nonce}'`;
-  const parts = [
-    `default-src 'self'`,
-    `base-uri 'self'`,
-    `frame-ancestors 'none'`,
-    `object-src 'none'`,
-    `img-src 'self' data: https:`,
-    `script-src 'self' https://www.googletagmanager.com ${nonceToken}`,
-    `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-    `font-src 'self' https://fonts.gstatic.com data:`,
-    `connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://stats.g.doubleclick.net`,
-  ];
-  return parts.join('; ');
-}
-
 // Only trust proxy in production (needed for Fly/HTTPS)
 if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);

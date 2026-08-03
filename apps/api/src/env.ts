@@ -115,7 +115,7 @@ export const env = {
   resendApiKey: process.env.RESEND_API_KEY ?? '',
   resendConfigured: Boolean(process.env.RESEND_API_KEY),
   resendFromEmail: process.env.RESEND_FROM_EMAIL ?? 'noreply@vergoltd.com',
-  resendToEmail: process.env.RESEND_TO_EMAIL ?? 'wrobb@vergoltd.com',
+  resendToEmail: process.env.RESEND_TO_EMAIL ?? 'admin@vergoltd.com',
   resendToEmailConfigured: Boolean(process.env.RESEND_TO_EMAIL),
 
   // Email Queue (Phase 2)

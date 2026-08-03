@@ -33,6 +33,5 @@ Thumbs.db
 .cache/
 coverage/
 
-# Ignore archives & scripts
+# Ignore archives
 *.zip
-*.sh

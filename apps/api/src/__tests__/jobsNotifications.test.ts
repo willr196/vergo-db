@@ -197,7 +197,7 @@ test('public job submissions create pending-review jobs, normalize email applica
     assert.equal(createdData.posterEmail, 'hiring@acme.test');
     assert.equal(createdData.externalUrl, 'mailto:jobs@acme.test');
     assert.equal(sentEmails.length, 1);
-    assert.equal(sentEmails[0].to, 'wrobb@vergoltd.com');
+    assert.equal(sentEmails[0].to, 'admin@vergoltd.com');
     assert.equal(sentEmails[0].replyTo, 'hiring@acme.test');
     assert.equal(sentEmails[0].subject, '📋 New Job Listing Submitted - Acme Events');
     assert.equal(sentEmails[0].emailType, 'job-submission-notification');
@@ -299,7 +299,7 @@ test('client registration notifies both the client and the admin inbox', async (
     assert.equal(sentEmails[0].to, 'morgan@acme.test');
     assert.equal(sentEmails[0].subject, 'Verify your VERGO business account');
     assert.equal(sentEmails[0].emailType, 'client-verification');
-    assert.equal(sentEmails[1].to, 'wrobb@vergoltd.com');
+    assert.equal(sentEmails[1].to, 'admin@vergoltd.com');
     assert.equal(sentEmails[1].replyTo, 'morgan@acme.test');
     assert.equal(sentEmails[1].subject, 'New client registration - Acme Hospitality');
     assert.equal(sentEmails[1].emailType, 'client-registration-notification');

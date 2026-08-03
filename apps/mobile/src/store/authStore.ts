@@ -6,6 +6,7 @@
 import { create } from 'zustand';
 import { authApi, registerAuthFailureHandler } from '../api';
 import { isClientCompanyUser, isJobSeekerUser } from '../types';
+import { logger } from '../utils/logger';
 import type {
   AuthUser,
   JobSeeker,
@@ -140,9 +141,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true });
     
     try {
-      console.log('[VERGO] checkAuth: reading tokens...');
+      logger.debug('[VERGO] checkAuth: reading tokens...');
       const { isAuthenticated, userType, user } = await authApi.checkAuth();
-      console.log('[VERGO] checkAuth: tokens found?', isAuthenticated);
+      logger.debug('[VERGO] checkAuth: tokens found?', isAuthenticated);
 
       if (!isAuthenticated || !userType || !user) {
         set({
@@ -154,7 +155,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return;
       }
       
-      console.log('[VERGO] checkAuth: refreshing user from server...');
+      logger.debug('[VERGO] checkAuth: refreshing user from server...');
       try {
         const freshUser = await authApi.getCurrentUser(userType);
         set({
@@ -173,7 +174,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           try {
             await authApi.logout();
           } catch (logoutError) {
-            console.log('[VERGO] checkAuth: logout after auth failure failed:', logoutError);
+            logger.warn('[VERGO] checkAuth: logout after auth failure failed:', logoutError);
           }
           set({
             isAuthenticated: false,
