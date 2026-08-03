@@ -119,7 +119,6 @@ export type JobRole =
   | 'other';
 
 export type JobStatus = 'draft' | 'published' | 'closed' | 'cancelled' | 'filled';
-export type JobTier = 'STANDARD' | 'SHORTLIST' | 'GOLD';
 
 export interface Job {
   id: string;
@@ -164,13 +163,11 @@ export interface Job {
 
   // Status
   status?: JobStatus | string;
-  tier?: JobTier;
 
   // Timestamps
   createdAt: string;
   updatedAt: string;
   applicationDeadline?: string;
-  shortlistReviewedAt?: string | null;
 }
 
 export interface JobFilters {

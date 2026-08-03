@@ -5,7 +5,7 @@
 
 import apiClient from './client';
 import { normalizeJob, type BackendJob } from './normalizers';
-import type { Job, JobFilters, JobTier } from '../types';
+import type { Job, JobFilters } from '../types';
 
 // Backend response types — see apps/api/src/routes/RESPONSE_SHAPES.md
 interface BackendResponse<T> {
@@ -75,7 +75,6 @@ async function toBackendJobPayload(jobData: Partial<Job>): Promise<Record<string
   // hourlyRate → payRate, positions → staffNeeded
   if (jobData.hourlyRate !== undefined) payload.payRate = jobData.hourlyRate;
   if (jobData.positions !== undefined) payload.staffNeeded = jobData.positions;
-  if (jobData.tier !== undefined) payload.tier = jobData.tier;
   // role name → roleId (requires API lookup)
   if (jobData.role !== undefined) {
     const roleId = await fetchRoleId(jobData.role);
@@ -261,7 +260,6 @@ export const jobsApi = {
       venue?: string;
       payRate?: number;
       payType?: 'HOURLY' | 'DAILY' | 'FIXED';
-      tier?: JobTier;
       eventDate?: string;
       eventEndDate?: string;
       shiftStart?: string;
@@ -293,7 +291,6 @@ export const jobsApi = {
     venue?: string;
     payRate?: number;
     payType?: 'HOURLY' | 'DAILY' | 'FIXED';
-    tier?: JobTier;
     eventDate?: string;
     eventEndDate?: string;
     shiftStart?: string;

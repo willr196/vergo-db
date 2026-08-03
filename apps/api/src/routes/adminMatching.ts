@@ -15,7 +15,6 @@ r.use(adminAuth);
 function computeMatchScore(worker: {
   staffRating: any;
   staffReviewCount: number;
-  shortlistSelections: number;
   staffTier: string | null;
   staffAvailable: boolean;
   applicant: { totalBookings: number } | null;
@@ -58,9 +57,6 @@ function computeMatchScore(worker: {
     score += expBonus;
     reasons.push(`${bookings} bookings`);
   }
-  if (worker.shortlistSelections > 0) {
-    score += Math.min(worker.shortlistSelections * 2, 6);
-  }
 
   return { score, reasons };
 }
@@ -86,7 +82,6 @@ r.get('/:jobId/matches', async (req, res, next) => {
         title: true,
         roleId: true,
         eventDate: true,
-        tier: true,
         staffNeeded: true,
         staffConfirmed: true,
         status: true,
@@ -151,7 +146,6 @@ r.get('/:jobId/matches', async (req, res, next) => {
         staffReviewCount: true,
         staffBio: true,
         staffAvatar: true,
-        shortlistSelections: true,
         applicant: {
           select: {
             id: true,

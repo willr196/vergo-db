@@ -20,7 +20,6 @@ import { Button, LoadingScreen, ErrorState } from '../../components';
 import { ENABLE_SKILL_MATCH_EXPERIMENT } from '../../constants';
 import { useJobsStore, useApplicationsStore, useAuthStore, selectJobSeeker } from '../../store';
 import { calculateSkillMatch, formatDate, formatTime } from '../../utils';
-import { getJobTierLabel, getJobTierSummary, normalizeJobTier } from '../../utils/jobTiers';
 import type { RootStackParamList, JobRole } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'JobDetail'>;
@@ -128,9 +127,7 @@ export function JobDetailScreen({ navigation, route }: Props) {
     ENABLE_SKILL_MATCH_EXPERIMENT && user ? calculateSkillMatch(job, user) : null;
   const hasProfileSkills = Boolean(user && user.skills.length > 0);
   const skillMatchColor = skillMatch ? getSkillMatchColor(skillMatch.percentage) : colors.textMuted;
-  const tier = normalizeJobTier(job.tier);
-  const tierSummary = getJobTierSummary(tier);
-  
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -155,29 +152,6 @@ export function JobDetailScreen({ navigation, route }: Props) {
         <View style={styles.badges}>
           <View style={styles.roleBadge}>
             <Text style={styles.roleText}>{ROLE_LABELS[job.role]}</Text>
-          </View>
-          <View
-            style={[
-              styles.tierBadge,
-              tier === 'STANDARD'
-                ? styles.standardTierBadge
-                : tier === 'SHORTLIST'
-                  ? styles.shortlistBadge
-                  : styles.goldTierBadge,
-            ]}
-          >
-            <Text
-              style={[
-                styles.tierBadgeText,
-                tier === 'STANDARD'
-                  ? styles.standardTierBadgeText
-                  : tier === 'SHORTLIST'
-                    ? styles.shortlistBadgeText
-                    : styles.goldTierBadgeText,
-              ]}
-            >
-              {getJobTierLabel(tier)}
-            </Text>
           </View>
           {job.dbsRequired && (
             <View style={styles.dbsBadge}>
@@ -217,31 +191,6 @@ export function JobDetailScreen({ navigation, route }: Props) {
             <Text style={styles.infoLabel}>Est. Earnings</Text>
             <Text style={[styles.infoValue, styles.payRate]}>£{job.estimatedPay}</Text>
           </View>
-        </View>
-
-        <View
-          style={[
-            styles.tierCallout,
-            tier === 'STANDARD'
-              ? styles.standardCallout
-              : tier === 'SHORTLIST'
-                ? styles.shortlistCallout
-                : styles.goldCallout,
-          ]}
-        >
-          <Text
-            style={[
-              styles.tierCalloutTitle,
-              tier === 'STANDARD'
-                ? styles.standardCalloutTitle
-                : tier === 'SHORTLIST'
-                  ? styles.shortlistCalloutTitle
-                  : styles.goldCalloutTitle,
-            ]}
-          >
-            {tierSummary.title}
-          </Text>
-          <Text style={styles.tierCalloutText}>{tierSummary.body}</Text>
         </View>
 
         {ENABLE_SKILL_MATCH_EXPERIMENT && user ? (

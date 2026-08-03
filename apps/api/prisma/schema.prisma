@@ -372,7 +372,6 @@ model User {
   staffRating         Decimal?         @db.Decimal(3, 2)
   staffReviewCount    Int              @default(0)
   staffHighlights     String?
-  shortlistSelections Int              @default(0)
   seqId               Int              @unique @default(autoincrement())
   mustChangePassword  Boolean          @default(false)
   bookings            Booking[]
@@ -444,8 +443,6 @@ model Job {
   type                JobType          @default(INTERNAL)
   venue               String?
   clientId            String?
-  tier                JobTier          @default(STANDARD)
-  shortlistReviewedAt DateTime?
   posterEmail         String?
   client              Client?          @relation(fields: [clientId], references: [id])
   role                Role             @relation(fields: [roleId], references: [id])
@@ -469,7 +466,6 @@ model JobApplication {
   adminNotes String?
   coverNote  String?
   userId     String
-  rateUplift Decimal?             @db.Decimal(10, 2)
   job        Job                  @relation(fields: [jobId], references: [id], onDelete: Cascade)
   user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -687,12 +683,6 @@ enum BookingLane {
 enum JobType {
   INTERNAL
   EXTERNAL
-}
-
-enum JobTier {
-  STANDARD
-  SHORTLIST
-  GOLD
 }
 
 enum JobStatus {

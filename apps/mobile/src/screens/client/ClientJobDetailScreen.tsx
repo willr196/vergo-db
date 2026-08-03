@@ -24,7 +24,6 @@ import {
   selectApplicationsForJob,
 } from '../../store';
 import { isApplicationStatus, normalizeApplicationStatus } from '../../api/normalizers';
-import { getJobTierLabel, getJobTierPricingNote, normalizeJobTier } from '../../utils/jobTiers';
 import type { RootStackParamList } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientJobDetail'>;
@@ -160,8 +159,6 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
     );
   }
 
-  const tier = normalizeJobTier(job.tier);
-
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -213,10 +210,6 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
               );
             })()}
         </View>
-        <View style={styles.tierBadge}>
-          <Text style={styles.tierBadgeText}>{getJobTierLabel(tier)}</Text>
-        </View>
-        <Text style={styles.tierNote}>{getJobTierPricingNote(tier)}</Text>
       </View>
 
       {/* Tabs */}
@@ -361,14 +354,6 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
                 <Text style={styles.detailValue}>{job.address}</Text>
               </View>
             )}
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Service Tier</Text>
-              <Text style={styles.detailValue}>{getJobTierLabel(tier)}</Text>
-            </View>
-            <View style={styles.descriptionSection}>
-              <Text style={styles.detailLabel}>Tier Pricing</Text>
-              <Text style={styles.descriptionText}>{getJobTierPricingNote(tier)}</Text>
-            </View>
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Positions</Text>
               <Text style={styles.detailValue}>{job.positions || 1}</Text>

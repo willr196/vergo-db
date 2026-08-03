@@ -28,7 +28,6 @@ const createJobSchema = z.object({
   description: z.string().min(10).max(5000).trim(),
   requirements: z.string().max(2000).trim().nullable().optional(),
   type: z.enum(["INTERNAL", "EXTERNAL"]).default("INTERNAL"),
-  tier: z.enum(["STANDARD", "SHORTLIST", "GOLD"]).default("STANDARD"),
   status: z.enum(["DRAFT", "OPEN", "FILLED", "CLOSED"]).default("DRAFT"),
   location: z.string().min(2).max(200).trim(),
   venue: z.string().max(200).trim().nullable().optional(),
@@ -94,7 +93,6 @@ const submitJobSchema = z.object({
 const listJobsQuerySchema = z.object({
   status: z.enum(["PENDING", "DRAFT", "OPEN", "FILLED", "CLOSED"]).optional(),
   type: z.enum(["INTERNAL", "EXTERNAL"]).optional(),
-  tier: z.enum(["STANDARD", "SHORTLIST", "GOLD"]).optional(),
   roleId: z.string().optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20)
@@ -146,7 +144,6 @@ r.get("/", optionalUser, async (req, res, next) => {
       description: job.description,
       requirements: job.requirements,
       type: job.type,
-      tier: job.tier,
       location: job.location,
       venue: job.venue,
       payRate: job.payRate ? Number(job.payRate) : null,
@@ -231,7 +228,6 @@ r.get("/:id", optionalUser, async (req, res, next) => {
       description: job.description,
       requirements: job.requirements,
       type: job.type,
-      tier: job.tier,
       status: job.status,
       location: job.location,
       venue: job.venue,
@@ -270,7 +266,6 @@ async function listAdminJobs(req: Request, res: Response, next: NextFunction) {
     const where: any = {};
     if (query.status) where.status = query.status;
     if (query.type) where.type = query.type;
-    if (query.tier) where.tier = query.tier;
     if (query.roleId) where.roleId = query.roleId;
     
     const [jobs, total] = await Promise.all([
@@ -457,7 +452,6 @@ r.post("/", adminAuth, async (req, res, next) => {
         description: data.description,
         requirements: data.requirements || null,
         type: data.type,
-        tier: data.tier,
         status: data.status,
         location: data.location,
         venue: data.venue || null,
@@ -533,7 +527,6 @@ r.patch("/:id", adminAuth, async (req, res, next) => {
         ...(data.description && { description: data.description }),
         ...(data.requirements !== undefined && { requirements: data.requirements || null }),
         ...(data.type && { type: data.type }),
-        ...(data.tier && { tier: data.tier }),
         ...(data.status && { status: data.status }),
         ...(data.location && { location: data.location }),
         ...(data.venue !== undefined && { venue: data.venue || null }),
@@ -567,39 +560,6 @@ r.patch("/:id", adminAuth, async (req, res, next) => {
         details: error.issues 
       });
     }
-    next(error);
-  }
-});
-
-// ============================================
-// ADMIN: POST /api/v1/jobs/:id/shortlist-review
-// Mark a Shortlist-tier job as reviewed (shortlist sent to client)
-// ============================================
-r.post("/:id/shortlist-review", adminAuth, async (req, res, next) => {
-  try {
-    const existing = await prisma.job.findUnique({
-      where: { id: req.params.id },
-      select: { id: true, title: true, tier: true, status: true }
-    });
-
-    if (!existing) {
-      return res.status(404).json({ error: "Job not found" });
-    }
-
-    if (existing.tier !== "SHORTLIST") {
-      return res.status(400).json({ error: "Only Shortlist-tier jobs can be marked as reviewed" });
-    }
-
-    const job = await prisma.job.update({
-      where: { id: req.params.id },
-      data: { shortlistReviewedAt: new Date() }
-    });
-
-    console.log(`[AUDIT] Shortlist reviewed | ID: ${job.id} | Title: ${existing.title} | Admin: ${req.session.username}`);
-
-    res.json({ ok: true, id: job.id, shortlistReviewedAt: job.shortlistReviewedAt, data: { id: job.id, shortlistReviewedAt: job.shortlistReviewedAt } });
-
-  } catch (error) {
     next(error);
   }
 });

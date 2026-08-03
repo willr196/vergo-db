@@ -28,12 +28,10 @@ let jobs = [];
     async function loadJobs() {
       const status = document.getElementById('filter-status').value;
       const type = document.getElementById('filter-type').value;
-      const tier = document.getElementById('filter-tier').value;
 
       const params = new URLSearchParams({ limit: '50' });
       if (status) params.append('status', status);
       if (type) params.append('type', type);
-      if (tier) params.append('tier', tier);
       
       try {
         const res = await fetch(`/api/v1/jobs/admin/list?${params}`, { credentials: 'include' });
@@ -92,12 +90,6 @@ let jobs = [];
         const roleName = job.role?.name || 'Unknown';
         const companyDisplay = job.companyName || (job.type === 'INTERNAL' ? 'VERGO' : '-');
         const posterEmail = job.posterEmail ? `<span class="poster-email">${escapeHtml(job.posterEmail)}</span>` : '';
-        
-        // Tier badge
-        const normalizedTier = job.tier === 'GOLD' ? 'GOLD' : 'STANDARD';
-        const tierLabels = { STANDARD: 'Standard', GOLD: 'Gold' };
-        const tierLabel = tierLabels[normalizedTier];
-        const tierClass = normalizedTier === 'GOLD' ? 'tier-gold' : 'tier-standard';
 
         // Determine which action buttons to show
         let actionButtons = '';
@@ -120,7 +112,6 @@ let jobs = [];
             <td class="job-title-cell">
               <strong>${escapeHtml(job.title)}</strong>
               <span>${escapeHtml(roleName)}</span>
-              <span class="tier-badge ${tierClass}">${tierLabel}</span>
             </td>
             <td>
               ${escapeHtml(companyDisplay)}
@@ -168,7 +159,6 @@ let jobs = [];
       form.payType.value = job.payType;
       form.staffNeeded.value = job.staffNeeded;
       form.status.value = job.status === 'PENDING' ? 'DRAFT' : job.status; // Can't set to PENDING manually
-      form.tier.value = job.tier === 'GOLD' ? 'GOLD' : 'STANDARD';
       form.description.value = job.description;
       form.requirements.value = job.requirements || '';
       form.closingDate.value = job.closingDate ? job.closingDate.split('T')[0] : '';
@@ -204,7 +194,6 @@ let jobs = [];
         payType: form.payType.value,
         staffNeeded: parseInt(form.staffNeeded.value) || 1,
         status: form.status.value,
-        tier: form.tier.value,
         description: form.description.value.trim(),
         requirements: form.requirements.value.trim() || null,
         closingDate: form.closingDate.value || null
@@ -337,7 +326,6 @@ let jobs = [];
 
     document.getElementById('filter-status')?.addEventListener('change', loadJobs);
     document.getElementById('filter-type')?.addEventListener('change', loadJobs);
-    document.getElementById('filter-tier')?.addEventListener('change', loadJobs);
     document.getElementById('job-form')?.addEventListener('submit', saveJob);
     
     // Modal backdrop + Escape behavior (uses local closeModal to reset editingId)

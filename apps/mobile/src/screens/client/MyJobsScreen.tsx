@@ -21,7 +21,6 @@ import { colors, spacing, borderRadius, typography } from '../../theme';
 import { LoadingScreen, EmptyState, ErrorState } from '../../components';
 import { useClientJobsStore } from '../../store';
 import type { JobStatusFilter } from '../../store';
-import { getJobTierLabel, normalizeJobTier } from '../../utils/jobTiers';
 import type { RootStackParamList, ClientTabParamList, Job } from '../../types';
 
 type Props = CompositeScreenProps<
@@ -105,7 +104,6 @@ export function MyJobsScreen({ navigation, route }: Props) {
   const renderJob = ({ item }: { item: Job }) => {
     const normalizedStatus = (item.status || 'active').toLowerCase();
     const statusStyle = getStatusStyle(normalizedStatus);
-    const tier = normalizeJobTier(item.tier);
 
     return (
       <TouchableOpacity
@@ -115,9 +113,6 @@ export function MyJobsScreen({ navigation, route }: Props) {
         <View style={styles.jobHeader}>
           <View style={styles.jobHeaderCopy}>
             <Text style={styles.jobTitle}>{item.title}</Text>
-            <View style={styles.tierBadge}>
-              <Text style={styles.tierBadgeText}>{getJobTierLabel(tier)}</Text>
-            </View>
           </View>
           <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
             <Text style={[styles.statusText, { color: statusStyle.text }]}>

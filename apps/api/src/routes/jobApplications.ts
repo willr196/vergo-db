@@ -223,7 +223,7 @@ r.get("/", adminAuth, async (req, res, next) => {
         take: limit,
         include: {
           user: { select: { id: true, firstName: true, lastName: true, email: true, phone: true, applicantId: true } },
-          job: { select: { id: true, title: true, type: true, tier: true, eventDate: true, location: true, role: { select: { name: true } } } }
+          job: { select: { id: true, title: true, type: true, eventDate: true, location: true, role: { select: { name: true } } } }
         }
       }),
       prisma.jobApplication.count({ where })
@@ -317,7 +317,7 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
         await prisma.$transaction(async (tx) => {
           const job = await tx.job.findUnique({
             where: { id: application.jobId },
-            select: { staffConfirmed: true, staffNeeded: true, status: true, tier: true }
+            select: { staffConfirmed: true, staffNeeded: true, status: true }
           });
           if (!job) {
             throw new Error("JOB_NOT_FOUND");
@@ -326,24 +326,10 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
             throw new Error("JOB_FILLED");
           }
 
-          // For Shortlist-tier jobs, record the £1/hr merit uplift on the application
-          const isShortlist = job.tier === "SHORTLIST";
-
           await tx.jobApplication.update({
             where: { id: req.params.id },
-            data: {
-              status,
-              ...(isShortlist && { rateUplift: 1.00 })
-            }
+            data: { status }
           });
-
-          // For Shortlist-tier jobs, increment the worker's shortlistSelections counter
-          if (isShortlist) {
-            await tx.user.update({
-              where: { id: application.user.id },
-              data: { shortlistSelections: { increment: 1 } }
-            });
-          }
 
           await tx.job.update({
             where: { id: application.jobId },

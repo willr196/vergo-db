@@ -108,7 +108,6 @@ describe('CreateJobScreen', () => {
     expect(getByText('Location')).toBeTruthy();
     expect(getByText('Date & Time')).toBeTruthy();
     expect(getByText('Pay & Positions')).toBeTruthy();
-    expect(getByText('Service Tier')).toBeTruthy();
     expect(getByText('Bartender')).toBeTruthy();
     expect(getByText('Server')).toBeTruthy();
     expect(getByText('Chef')).toBeTruthy();
@@ -169,7 +168,6 @@ describe('CreateJobScreen', () => {
           description: 'Looking for experienced bartender for event',
           location: 'London',
           venue: 'The Grand Hotel',
-          tier: 'STANDARD',
           payRate: 15,
           payType: 'HOURLY',
           staffNeeded: 1,
