@@ -1,7 +1,6 @@
 /**
  * Create Quote Screen
  * Form for clients to submit a new staffing quote request
- * REPLACES: CreateJobScreen for quotes-based MVP
  */
 
 import React, { useState } from 'react';
@@ -591,6 +590,4 @@ const styles = StyleSheet.create({
   },
 });
 
-// Export as CreateJobScreen for navigation compatibility
-export { CreateQuoteScreen as CreateJobScreen };
 export default CreateQuoteScreen;

@@ -16,8 +16,6 @@ import {
   useNotificationsStore,
   useJobsStore,
   useApplicationsStore,
-  useClientJobsStore,
-  useClientApplicationsStore,
   registerRefreshCallback,
 } from '../store';
 import { ErrorBoundary, Toast } from '../components';
@@ -60,11 +58,6 @@ import {
   CompanyProfileScreen,
   CreateQuoteScreen,
   MyQuotesScreen,
-  CreateJobScreen,
-  ClientJobDetailScreen,
-  ApplicantListScreen,
-  ApplicantDetailScreen,
-  EditJobScreen,
   EditClientProfileScreen,
 } from '../screens/client';
 
@@ -107,11 +100,6 @@ function handleNotificationTap(
     if (applicationId) {
       navigationRef.navigate('ApplicationDetail', { applicationId });
     }
-  } else if (type === 'new_applicant' && userType === 'client') {
-    const jobId = readStringDataField(data, 'jobId');
-    if (jobId) {
-      navigationRef.navigate('ClientJobDetail', { jobId, initialTab: 'applications' });
-    }
   } else if (type === 'new_job' && userType === 'jobseeker') {
     const jobId = readStringDataField(data, 'jobId');
     if (jobId) {
@@ -129,8 +117,6 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
     Dashboard: '📊',
     Browse: '👥',
     Bookings: '📋',
-    MyJobs: '📝',
-    CompanyProfile: '🏢',
   };
 
   return (
@@ -293,20 +279,6 @@ function ClientStack() {
         options={{ presentation: 'modal' }}
       />
 
-      {/* Legacy client job flow retained */}
-      <Stack.Screen name="ClientJobDetail" component={ClientJobDetailScreen} />
-      <Stack.Screen name="ApplicantList" component={ApplicantListScreen} />
-      <Stack.Screen name="ApplicantDetail" component={ApplicantDetailScreen} />
-      <Stack.Screen
-        name="CreateJob"
-        component={CreateJobScreen}
-        options={{ presentation: 'modal' }}
-      />
-      <Stack.Screen
-        name="EditJob"
-        component={EditJobScreen}
-        options={{ presentation: 'modal' }}
-      />
       <Stack.Screen
         name="EditClientProfile"
         component={EditClientProfileScreen}
@@ -356,11 +328,6 @@ export function RootNavigator() {
         BookingDetail: 'client/bookings/:bookingId',
         MyQuotes: 'client/quotes',
         CreateQuote: 'client/quotes/create',
-        ClientJobDetail: 'client/job/:jobId',
-        CreateJob: 'client/jobs/create',
-        EditJob: 'client/jobs/:jobId/edit',
-        ApplicantDetail: 'client/application/:applicationId',
-        ApplicantList: 'client/job/:jobId/applicants',
         EditClientProfile: 'client/profile/edit',
       },
     },
@@ -373,30 +340,15 @@ export function RootNavigator() {
   userTypeRef.current = userType;
 
   // Register refresh callbacks so data reloads automatically when coming back online.
-  // Client stores are only registered while authed as a client.
   useEffect(() => {
     const unregisterJobs = registerRefreshCallback(() => fetchJobs(true));
     const unregisterApps = registerRefreshCallback(() => fetchApplications(true));
 
-    const clientUnregisters: (() => void)[] = [];
-    if (userType === 'client') {
-      clientUnregisters.push(
-        registerRefreshCallback(() => useClientJobsStore.getState().fetchJobs(true))
-      );
-      clientUnregisters.push(
-        registerRefreshCallback(() => {
-          const { currentJobId, fetchJobApplications } = useClientApplicationsStore.getState();
-          if (currentJobId) fetchJobApplications(currentJobId, true);
-        })
-      );
-    }
-
     return () => {
       unregisterJobs();
       unregisterApps();
-      clientUnregisters.forEach((fn) => fn());
     };
-  }, [fetchJobs, fetchApplications, userType]);
+  }, [fetchJobs, fetchApplications]);
 
   useEffect(() => {
     if (!isAuthenticated) {

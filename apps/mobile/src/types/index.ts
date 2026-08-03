@@ -351,13 +351,8 @@ export type RootStackParamList = {
 
   // Client
   ClientTabs: NavigatorScreenParams<ClientTabParamList> | undefined;
-  ClientJobDetail: { jobId: string; initialTab?: 'applications' | 'details' };
-  CreateJob: undefined;
   CreateQuote: undefined;
   MyQuotes: undefined;
-  EditJob: { jobId: string };
-  ApplicantDetail: { applicationId: string };
-  ApplicantList: { jobId: string };
   EditClientProfile: undefined;
 
   // Marketplace + Bookings
@@ -377,10 +372,6 @@ export type ClientTabParamList = {
   Browse: undefined;
   Bookings: undefined;
   Profile: undefined;
-
-  // Legacy tabs retained for compatibility with existing screens/tests
-  MyJobs: { initialFilter?: 'all' | 'active' | 'closed' } | undefined;
-  CompanyProfile: undefined;
 };
 
 // ============================================
