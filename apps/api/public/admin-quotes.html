@@ -102,6 +102,36 @@
         </table>
         <div class="as-pagination" id="quotes-pagination"></div>
       </div>
+
+      <!-- Public leads: anonymous "get a quote" submissions with no client account yet -->
+      <div class="as-table-wrap" style="margin-top:24px">
+        <div class="as-table-toolbar">
+          <div class="as-toolbar-left">
+            <strong>Public leads</strong>
+            <span class="text-muted fs-sm">&nbsp;— from the public site's quote form, before a client account exists</span>
+          </div>
+          <div class="as-toolbar-right">
+            <input type="search" id="lead-search" class="as-input" placeholder="Name, email, company…" style="width:220px">
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Contact</th>
+              <th>Event Type</th>
+              <th>Date</th>
+              <th>Staff</th>
+              <th>Est. Total</th>
+              <th>Received</th>
+            </tr>
+          </thead>
+          <tbody id="leads-tbody">
+            <tr><td colspan="7" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
+          </tbody>
+        </table>
+        <div class="as-pagination" id="leads-pagination"></div>
+      </div>
     </div>
   </div>
 

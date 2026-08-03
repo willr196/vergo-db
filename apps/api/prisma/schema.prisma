@@ -194,6 +194,35 @@ model QuoteRequest {
   @@index([requestedLane])
 }
 
+/// Anonymous submissions from the public "get a quote" form, before a client
+/// account exists to link them to. Deliberately separate from QuoteRequest
+/// (which requires a Client) rather than making clientId optional there, so
+/// this table never has to be trusted with a caller-supplied client identity.
+model PublicQuoteLead {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now())
+  name           String
+  email          String
+  phone          String?
+  company        String?
+  eventType      String
+  eventDate      String?
+  duration       Int?
+  location       String?
+  venue          String?
+  shiftStart     String?
+  shiftEnd       String?
+  guestCount     Int?
+  requestedLane  BookingLane?
+  staffNeeded    Int
+  roles          String?
+  message        String?
+  estimatedTotal Decimal?     @db.Decimal(10, 2)
+
+  @@index([createdAt])
+  @@index([email])
+}
+
 model TermsVersion {
   id            String    @id @default(cuid())
   createdAt     DateTime  @default(now())

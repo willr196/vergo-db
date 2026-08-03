@@ -99,6 +99,52 @@ r.get("/", async (req, res, next) => {
   }
 });
 
+// GET /api/v1/admin/quotes/leads — anonymous public "get a quote" submissions,
+// kept separate from the client-linked quotes above. Read-only: there's no
+// pipeline/status to manage here, an admin follows up directly by email/phone.
+const leadsQuerySchema = z.object({
+  search: z.string().max(100).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(25),
+});
+
+r.get("/leads", async (req, res, next) => {
+  try {
+    const query = leadsQuerySchema.parse(req.query);
+    const skip = (query.page - 1) * query.limit;
+
+    const where: any = {};
+    if (query.search) {
+      where.OR = [
+        { name: { contains: query.search, mode: "insensitive" } },
+        { email: { contains: query.search, mode: "insensitive" } },
+        { company: { contains: query.search, mode: "insensitive" } },
+        { eventType: { contains: query.search, mode: "insensitive" } },
+      ];
+    }
+
+    const [leads, total] = await Promise.all([
+      prisma.publicQuoteLead.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: query.limit,
+      }),
+      prisma.publicQuoteLead.count({ where }),
+    ]);
+
+    res.json({
+      ok: true,
+      data: {
+        leads,
+        pagination: { page: query.page, limit: query.limit, total, pages: Math.ceil(total / query.limit) },
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /api/v1/admin/quotes/:id
 r.get("/:id", async (req, res, next) => {
   try {

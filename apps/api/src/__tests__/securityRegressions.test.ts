@@ -160,6 +160,58 @@ test('public quote submissions ignore spoofed client identifiers and do not crea
   }
 });
 
+test('public quote submissions persist an anonymous lead, still without any client link', async () => {
+  const prismaAny = prisma as any;
+  const originalLeadCreate = prismaAny.publicQuoteLead.create;
+  const originalQuoteCreate = prismaAny.quoteRequest.create;
+
+  let leadCreateData: any = null;
+  let quoteCreateCalled = false;
+  prismaAny.publicQuoteLead.create = async ({ data }: any) => {
+    leadCreateData = data;
+    return { id: 'lead-1' };
+  };
+  prismaAny.quoteRequest.create = async () => {
+    quoteCreateCalled = true;
+    return { id: 'quote-1' };
+  };
+
+  const app = express();
+  app.use(express.json());
+  app.use('/api/v1/quotes', quotes);
+
+  try {
+    const response = await inject(app, {
+      method: 'POST',
+      url: '/api/v1/quotes',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Jordan Lead',
+        email: 'jordan@example.com',
+        eventType: 'Wedding',
+        staffNeeded: 8,
+        location: 'London',
+      }),
+    });
+
+    assert.equal(response.statusCode, 201);
+    const body = JSON.parse(response.body || '{}') as any;
+    assert.equal(body.ok, true);
+    assert.equal(body.quoteId, null, 'no client-linked QuoteRequest is created for an anonymous submission');
+    assert.equal(body.leadId, 'lead-1', 'the anonymous lead itself is persisted and its id returned');
+    assert.equal(quoteCreateCalled, false);
+    assert.ok(leadCreateData, 'publicQuoteLead.create was called');
+    assert.equal(leadCreateData.name, 'Jordan Lead');
+    assert.equal(leadCreateData.email, 'jordan@example.com');
+    assert.equal(leadCreateData.eventType, 'Wedding');
+    assert.equal(leadCreateData.staffNeeded, 8);
+    assert.equal(leadCreateData.location, 'London');
+  } finally {
+    prismaAny.publicQuoteLead.create = originalLeadCreate;
+    prismaAny.quoteRequest.create = originalQuoteCreate;
+  }
+});
+
 test('authenticated web client brief creation persists a quote linked to the signed-in client', async () => {
   const prismaAny = prisma as any;
   const originalCreate = prismaAny.quoteRequest.create;

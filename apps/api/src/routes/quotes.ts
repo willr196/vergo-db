@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 import { Resend } from "resend";
 import { FROM_EMAIL, TO_EMAIL } from "../services/email";
 import { logger, maskEmail } from "../services/logger";
+import { prisma } from "../prisma";
 
 const r = Router();
 
@@ -223,12 +224,47 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       return res.status(201).json({ ok: true, message: "Quote request received" });
     }
     
+    // This endpoint is public/unauthenticated, so it must never create a
+    // client-linked QuoteRequest — even if a clientId shows up in the body
+    // (see the "ignore spoofed client identifiers" regression test). The
+    // lead still needs to survive if the notification email fails though,
+    // so it gets its own record; a DB failure here degrades to email-only
+    // rather than failing the whole submission.
     const savedQuoteId: string | null = null;
+    let savedLeadId: string | null = null;
+    try {
+      const lead = await prisma.publicQuoteLead.create({
+        data: {
+          name: data.name,
+          email: data.email,
+          phone: data.phone || null,
+          company: data.company || null,
+          eventType: data.eventType,
+          eventDate: data.eventDate || null,
+          duration: data.duration ?? null,
+          location: data.location || null,
+          venue: data.venue || null,
+          shiftStart: data.shiftStart || null,
+          shiftEnd: data.shiftEnd || null,
+          guestCount: data.guestCount ?? null,
+          requestedLane: data.requestedLane || null,
+          staffNeeded: data.staffNeeded,
+          roles: data.roles?.length ? data.roles.join(", ") : null,
+          message: data.message || null,
+          estimatedTotal: data.estimatedTotal ?? null,
+        },
+        select: { id: true },
+      });
+      savedLeadId = lead.id;
+    } catch (dbErr) {
+      logger.error({ err: dbErr }, 'Failed to save public quote lead; continuing with email-only notification');
+    }
+
     logger.info({ email: maskEmail(data.email) }, 'Public quote request received without client linkage');
-    
+
     // Build the quote details for logging/email
     const quoteDetails = {
-      id: savedQuoteId || 'N/A (email only)',
+      id: savedLeadId || 'N/A (email only)',
       name: data.name,
       email: data.email,
       phone: data.phone || "Not provided",
@@ -247,12 +283,13 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       message: data.message || "None",
       estimatedTotal: data.estimatedTotal ? `£${data.estimatedTotal.toLocaleString()}` : "Not calculated",
       submittedAt: new Date().toISOString(),
-      savedToDb: !!savedQuoteId
+      savedToDb: !!savedLeadId
     };
-    
+
     logger.info(
       {
         quoteId: savedQuoteId,
+        leadId: savedLeadId,
         eventType: data.eventType,
         requestedLane: data.requestedLane || null,
         staffNeeded: data.staffNeeded,
@@ -270,7 +307,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
           subject: `New Quote Request: ${data.eventType} - ${data.staffNeeded} staff`,
           html: `
             <h2>New Quote Request</h2>
-            ${savedQuoteId ? `<p style="color: green;"><strong>✅ Saved to database:</strong> ${safe(savedQuoteId)}</p>` : '<p style="color: orange;"><strong>⚠️ Email only</strong> (no linked client account)</p>'}
+            ${savedLeadId ? `<p style="color: green;"><strong>✅ Saved to database:</strong> ${safe(savedLeadId)}</p>` : '<p style="color: orange;"><strong>⚠️ Email only</strong> — the lead record failed to save, check logs</p>'}
             <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Name</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.name)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Email</td><td style="padding: 8px; border: 1px solid #ddd;"><a href="mailto:${safe(data.email)}">${safe(data.email)}</a></td></tr>
@@ -324,7 +361,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
                   ${data.eventDate ? `<p><strong>Date:</strong> ${safe(data.eventDate)}</p>` : ''}
                   ${data.location ? `<p><strong>Location:</strong> ${safe(data.location)}</p>` : ''}
                   ${data.estimatedTotal ? `<p><strong>Estimated Budget:</strong> £${safe(data.estimatedTotal.toLocaleString())}</p>` : ''}
-                  ${savedQuoteId ? `<p style="color: #666; font-size: 12px;"><strong>Reference:</strong> ${safe(savedQuoteId)}</p>` : ''}
+                  ${savedLeadId ? `<p style="color: #666; font-size: 12px;"><strong>Reference:</strong> ${safe(savedLeadId)}</p>` : ''}
                 </div>
                 
                 <p>If you have any urgent questions, please call us directly or reply to this email.</p>
@@ -344,10 +381,11 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       }
     }
     
-    res.status(201).json({ 
-      ok: true, 
+    res.status(201).json({
+      ok: true,
       message: "Quote request received. We'll be in touch within 24 hours.",
-      quoteId: savedQuoteId
+      quoteId: savedQuoteId,
+      leadId: savedLeadId
     });
     
   } catch (error) {

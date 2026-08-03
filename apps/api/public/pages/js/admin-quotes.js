@@ -128,6 +128,69 @@
     el.innerHTML = info + btns;
   }
 
+  // ── Public leads (anonymous quote submissions) ─────────
+  var leadsPage = 1;
+  var LEADS_PAGE_SIZE = 25;
+
+  async function loadLeads() {
+    var search = document.getElementById('lead-search').value;
+    var params = new URLSearchParams({ page: leadsPage, limit: LEADS_PAGE_SIZE });
+    if (search) params.set('search', search);
+
+    var tbody = document.getElementById('leads-tbody');
+    tbody.innerHTML = '<tr><td colspan="7" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>';
+
+    try {
+      var data = await get('/api/v1/admin/quotes/leads?' + params.toString());
+      var leads = data.leads || [];
+      var pagination = data.pagination || {};
+
+      if (!leads.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No public leads found</td></tr>';
+      } else {
+        tbody.innerHTML = leads.map(function (lead) {
+          return '<tr>'
+            + '<td><strong>' + esc(lead.name || '-') + '</strong>'
+            + (lead.company ? '<br><span class="text-muted fs-sm">' + esc(lead.company) + '</span>' : '')
+            + '</td>'
+            + '<td><a href="mailto:' + esc(lead.email) + '" style="color:var(--as-info)">' + esc(lead.email) + '</a>'
+            + (lead.phone ? '<br><span class="text-muted fs-sm">' + esc(lead.phone) + '</span>' : '')
+            + '</td>'
+            + '<td>' + esc(lead.eventType || '-')
+            + (lead.requestedLane ? '<br><span class="text-muted fs-sm">Lane: ' + esc(lead.requestedLane) + '</span>' : '')
+            + '</td>'
+            + '<td>' + esc(lead.eventDate || 'Flexible') + '</td>'
+            + '<td>' + esc(String(lead.staffNeeded || '-')) + '</td>'
+            + '<td>' + (lead.estimatedTotal ? '£' + Number(lead.estimatedTotal).toLocaleString('en-GB') : '-') + '</td>'
+            + '<td>' + fmtD(lead.createdAt) + '</td>'
+            + '</tr>';
+        }).join('');
+      }
+
+      renderLeadsPagination(pagination);
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Failed to load: ' + esc(e.message) + '</td></tr>';
+    }
+  }
+
+  function renderLeadsPagination(pag) {
+    var el = document.getElementById('leads-pagination');
+    if (!el) return;
+    var total = pag.total || 0;
+    var pages = pag.pages || 1;
+    if (pages <= 1) { el.innerHTML = ''; return; }
+    var info = '<span class="as-pagination-info">Page ' + leadsPage + ' of ' + pages + ' (' + total + ')</span>';
+    var btns = '<div class="as-pagination-controls">'
+      + '<button ' + (leadsPage <= 1 ? 'disabled' : '') + ' data-action="prev-lead-page">&#8249; Prev</button>'
+      + '<button ' + (leadsPage >= pages ? 'disabled' : '') + ' data-action="next-lead-page">Next &#8250;</button></div>';
+    el.innerHTML = info + btns;
+  }
+
+  document.getElementById('lead-search').addEventListener('input', AdminCore.debounce(function () {
+    leadsPage = 1;
+    loadLeads();
+  }, 300));
+
   // ── Quote detail modal ─────────────────────────────────
   async function openQuoteModal(id) {
     try {
@@ -228,6 +291,8 @@
     if (action === 'prev-page')      { currentPage--; return loadQuotes(); }
     if (action === 'next-page')      { currentPage++; return loadQuotes(); }
     if (action === 'goto-page')      { currentPage = parseInt(el.dataset.page, 10); return loadQuotes(); }
+    if (action === 'prev-lead-page') { leadsPage--; return loadLeads(); }
+    if (action === 'next-lead-page') { leadsPage++; return loadLeads(); }
     if (action === 'view-quote')     return openQuoteModal(el.dataset.id);
     if (action === 'update-status')  { document.getElementById('quote-modal').classList.add('d-none'); return openStatusModal(el.dataset.id); }
     if (action === 'close-modal')    return document.getElementById('quote-modal').classList.add('d-none');
@@ -283,7 +348,7 @@
   async function init() {
     var session = await AdminCore.checkAuth();
     if (!session) return;
-    await Promise.all([loadStats(), loadQuotes()]);
+    await Promise.all([loadStats(), loadQuotes(), loadLeads()]);
   }
 
   window.addEventListener('load', init);
