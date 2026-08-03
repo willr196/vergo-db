@@ -391,18 +391,34 @@ r.delete("/:id", async (req, res, next) => {
       where: { id: req.params.id },
       select: { id: true, companyName: true }
     });
-    
+
     if (!client) {
       return res.status(404).json({ error: "Client not found" });
     }
-    
+
+    // Client → Booking and Client → QuoteRequest both cascade at the database
+    // level, so a hard delete here would silently take the client's entire
+    // booking/financial history and lead history with it. Reserve delete for
+    // records with none of that — anything with real history should be
+    // suspended instead, which is reversible and doesn't touch the data.
+    const [bookingCount, quoteRequestCount] = await Promise.all([
+      prisma.booking.count({ where: { clientId: req.params.id } }),
+      prisma.quoteRequest.count({ where: { clientId: req.params.id } }),
+    ]);
+
+    if (bookingCount > 0 || quoteRequestCount > 0) {
+      return res.status(409).json({
+        error: `This client has ${bookingCount} booking(s) and ${quoteRequestCount} quote request(s) on record — deleting would permanently erase that history. Suspend the client instead if they shouldn't be able to book.`,
+      });
+    }
+
     await prisma.client.delete({
       where: { id: req.params.id }
     });
-    
+
     const adminUsername = (req.session as any)?.username || "admin";
     authLogger.info({ action: 'client_deleted', admin: adminUsername, clientId: req.params.id, company: client.companyName }, 'Admin deleted client');
-    
+
     res.json({ ok: true, data: { message: "Client deleted" } });
 
   } catch (error) {
