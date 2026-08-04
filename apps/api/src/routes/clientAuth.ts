@@ -185,6 +185,10 @@ function shapeMobileClient(client: {
   status: string;
   industry?: string | null;
   website?: string | null;
+  postcode?: string | null;
+  description?: string | null;
+  address?: string | null;
+  city?: string | null;
   subscriptionTier?: string | null;
   subscriptionStatus?: string | null;
   subscriptionStartedAt?: Date | null;
@@ -200,6 +204,10 @@ function shapeMobileClient(client: {
     status: client.status,
     industry: client.industry || undefined,
     website: client.website || undefined,
+    postcode: client.postcode || undefined,
+    description: client.description || undefined,
+    address: client.address || undefined,
+    city: client.city || undefined,
     subscriptionTier: client.subscriptionTier || undefined,
     subscriptionStatus: client.subscriptionStatus || undefined,
     subscriptionStartedAt: client.subscriptionStartedAt?.toISOString() || null,
@@ -876,6 +884,10 @@ r.get("/mobile/me", requireClientJwt, async (req, res) => {
         status: true,
         industry: true,
         website: true,
+        postcode: true,
+        description: true,
+        address: true,
+        city: true,
         subscriptionTier: true,
         subscriptionStatus: true,
         subscriptionStartedAt: true,
@@ -916,6 +928,10 @@ r.put("/mobile/profile", requireClientJwt, async (req, res) => {
         status: true,
         industry: true,
         website: true,
+        postcode: true,
+        description: true,
+        address: true,
+        city: true,
         subscriptionTier: true,
         subscriptionStatus: true,
         subscriptionStartedAt: true,
@@ -1165,7 +1181,10 @@ const updateProfileSchema = z.object({
   contactName: z.string().min(2).max(100).trim().optional(),
   phone: z.string().max(20).optional(),
   postcode: z.string().max(24).optional(),
-  jobTitle: z.string().max(100).optional()
+  jobTitle: z.string().max(100).optional(),
+  description: z.string().max(2000).optional(),
+  address: z.string().max(300).optional(),
+  city: z.string().max(100).optional()
 });
 
 r.put("/profile", requireClientSession, async (req, res) => {

@@ -353,6 +353,12 @@ async function prepareApplicantForRegistration(data: {
   return applicant;
 }
 
+const AVAILABILITY_STATUS_TO_MOBILE: Record<string, "available" | "limited" | "unavailable"> = {
+  AVAILABLE: "available",
+  LIMITED: "limited",
+  UNAVAILABLE: "unavailable",
+};
+
 function shapeMobileUser(user: {
   id: string;
   email: string;
@@ -364,9 +370,18 @@ function shapeMobileUser(user: {
   staffBio?: string | null;
   staffAvatar?: string | null;
   staffAvailable?: boolean;
+  availabilityStatus?: string | null;
   staffRating?: Prisma.Decimal | null;
   staffReviewCount?: number;
   staffHighlights?: string | null;
+  applicant?: {
+    city?: string | null;
+    postcode?: string | null;
+    bio?: string | null;
+    preferredRoles?: string[];
+    yearsExperience?: number | null;
+    hourlyRate?: Prisma.Decimal | null;
+  } | null;
 }) {
   return {
     id: user.id,
@@ -383,6 +398,13 @@ function shapeMobileUser(user: {
     staffRating: user.staffRating != null ? Number(user.staffRating) : null,
     staffReviewCount: user.staffReviewCount ?? 0,
     staffHighlights: user.staffHighlights || null,
+    bio: user.applicant?.bio || user.staffBio || null,
+    city: user.applicant?.city || null,
+    postcode: user.applicant?.postcode || null,
+    availability: AVAILABILITY_STATUS_TO_MOBILE[user.availabilityStatus || "UNAVAILABLE"],
+    preferredRoles: user.applicant?.preferredRoles ?? [],
+    yearsExperience: user.applicant?.yearsExperience ?? null,
+    minimumHourlyRate: user.applicant?.hourlyRate != null ? Number(user.applicant.hourlyRate) : null,
   };
 }
 
@@ -700,11 +722,15 @@ r.post("/mobile/login", loginLimiter, async (req, res) => {
         staffBio: true,
         staffAvatar: true,
         staffAvailable: true,
+        availabilityStatus: true,
         staffRating: true,
         staffReviewCount: true,
         staffHighlights: true,
         failedAttempts: true,
-        lockedUntil: true
+        lockedUntil: true,
+        applicant: {
+          select: { city: true, postcode: true, bio: true, preferredRoles: true, yearsExperience: true, hourlyRate: true }
+        }
       }
     });
 
@@ -995,9 +1021,13 @@ r.get("/mobile/me", requireUserJwt, async (req, res) => {
         staffBio: true,
         staffAvatar: true,
         staffAvailable: true,
+        availabilityStatus: true,
         staffRating: true,
         staffReviewCount: true,
         staffHighlights: true,
+        applicant: {
+          select: { city: true, postcode: true, bio: true, preferredRoles: true, yearsExperience: true, hourlyRate: true }
+        }
       }
     });
 
@@ -1014,11 +1044,30 @@ r.get("/mobile/me", requireUserJwt, async (req, res) => {
 // ============================================
 // PUT /api/v1/user/mobile/profile
 // ============================================
+const jobRoleValues = [
+  "bartender", "server", "chef", "sous_chef", "kitchen_porter",
+  "event_manager", "event_coordinator", "front_of_house", "back_of_house",
+  "runner", "barista", "sommelier", "mixologist", "catering_assistant", "other",
+] as const;
+
 const mobileProfileSchema = z.object({
   firstName: z.string().min(1).max(100).trim().optional(),
   lastName: z.string().min(1).max(100).trim().optional(),
-  phone: z.string().max(20).optional()
+  phone: z.string().max(20).optional(),
+  bio: z.string().max(500).optional(),
+  city: z.string().max(100).trim().optional(),
+  postcode: z.string().max(24).trim().optional(),
+  availability: z.enum(["available", "limited", "unavailable"]).optional(),
+  preferredRoles: z.array(z.enum(jobRoleValues)).max(jobRoleValues.length).optional(),
+  yearsExperience: z.number().int().min(0).max(80).optional(),
+  minimumHourlyRate: z.number().positive().max(1000).optional(),
 });
+
+const AVAILABILITY_STATUS_FROM_MOBILE: Record<string, "AVAILABLE" | "LIMITED" | "UNAVAILABLE"> = {
+  available: "AVAILABLE",
+  limited: "LIMITED",
+  unavailable: "UNAVAILABLE",
+};
 
 r.put("/mobile/profile", requireUserJwt, async (req, res) => {
   try {
@@ -1026,26 +1075,101 @@ r.put("/mobile/profile", requireUserJwt, async (req, res) => {
     if (!parsed.success) {
       return res.status(400).json({ ok: false, error: "Invalid input" });
     }
+    const input = parsed.data;
 
-    const user = await prisma.user.update({
-      where: { id: req.auth!.userId },
-      data: parsed.data,
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        phone: true,
-        applicantId: true,
-        staffTier: true,
-        staffBio: true,
-        staffAvatar: true,
-        staffAvailable: true,
-        staffRating: true,
-        staffReviewCount: true,
-        staffHighlights: true,
+    const userId = req.auth!.userId;
+    const applicantSpecificTouched =
+      input.city !== undefined ||
+      input.postcode !== undefined ||
+      input.preferredRoles !== undefined ||
+      input.bio !== undefined ||
+      input.yearsExperience !== undefined ||
+      input.minimumHourlyRate !== undefined;
+
+    const user = await prisma.$transaction(async (tx) => {
+      const currentUser = await tx.user.findUnique({
+        where: { id: userId },
+        select: { id: true, email: true, firstName: true, lastName: true, applicantId: true },
+      });
+      if (!currentUser) return null;
+
+      const userUpdateData: Prisma.UserUpdateInput = {};
+      if (input.firstName !== undefined) userUpdateData.firstName = input.firstName;
+      if (input.lastName !== undefined) userUpdateData.lastName = input.lastName;
+      if (input.phone !== undefined) userUpdateData.phone = input.phone || null;
+      if (input.bio !== undefined) userUpdateData.staffBio = input.bio || null;
+      if (input.availability !== undefined) {
+        const status = AVAILABILITY_STATUS_FROM_MOBILE[input.availability];
+        userUpdateData.availabilityStatus = status;
+        userUpdateData.staffAvailable = status === "AVAILABLE";
       }
+
+      if (Object.keys(userUpdateData).length > 0) {
+        await tx.user.update({ where: { id: userId }, data: userUpdateData });
+      }
+
+      if (currentUser.applicantId || applicantSpecificTouched) {
+        const applicantUpdateData: Prisma.ApplicantUpdateInput = {};
+        if (input.firstName !== undefined) applicantUpdateData.firstName = input.firstName;
+        if (input.lastName !== undefined) applicantUpdateData.lastName = input.lastName;
+        if (input.city !== undefined) applicantUpdateData.city = input.city || null;
+        if (input.postcode !== undefined) applicantUpdateData.postcode = input.postcode || null;
+        if (input.bio !== undefined) applicantUpdateData.bio = input.bio || null;
+        if (input.preferredRoles !== undefined) applicantUpdateData.preferredRoles = input.preferredRoles;
+        if (input.yearsExperience !== undefined) applicantUpdateData.yearsExperience = input.yearsExperience;
+        if (input.minimumHourlyRate !== undefined) applicantUpdateData.hourlyRate = input.minimumHourlyRate;
+
+        if (currentUser.applicantId) {
+          if (Object.keys(applicantUpdateData).length > 0) {
+            await tx.applicant.update({ where: { id: currentUser.applicantId }, data: applicantUpdateData });
+          }
+        } else {
+          const applicant = await tx.applicant.upsert({
+            where: { email: currentUser.email },
+            update: applicantUpdateData,
+            create: {
+              email: currentUser.email,
+              firstName: input.firstName ?? currentUser.firstName,
+              lastName: input.lastName ?? currentUser.lastName,
+              city: input.city || null,
+              postcode: input.postcode || null,
+              bio: input.bio || null,
+              preferredRoles: input.preferredRoles ?? [],
+              yearsExperience: input.yearsExperience,
+              hourlyRate: input.minimumHourlyRate,
+            },
+          });
+          await tx.user.update({ where: { id: userId }, data: { applicantId: applicant.id } });
+        }
+      }
+
+      return tx.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          phone: true,
+          applicantId: true,
+          staffTier: true,
+          staffBio: true,
+          staffAvatar: true,
+          staffAvailable: true,
+          availabilityStatus: true,
+          staffRating: true,
+          staffReviewCount: true,
+          staffHighlights: true,
+          applicant: {
+            select: { city: true, postcode: true, bio: true, preferredRoles: true, yearsExperience: true, hourlyRate: true }
+          }
+        }
+      });
     });
+
+    if (!user) {
+      return res.status(404).json({ ok: false, error: "User not found" });
+    }
 
     res.json({ ok: true, user: shapeMobileUser(user) });
   } catch (error) {

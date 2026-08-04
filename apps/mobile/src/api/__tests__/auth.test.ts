@@ -81,6 +81,9 @@ describe('authApi client payloads', () => {
           phone: '+44 7700 900123',
           website: '',
           postcode: 'SW1A 1AA',
+          description: 'Full-service event staffing',
+          address: '1 Example Street',
+          city: 'London',
           status: 'APPROVED',
         },
       },
@@ -93,9 +96,9 @@ describe('authApi client payloads', () => {
       phone: ' +44 7700 900123 ',
       website: ' ',
       postcode: ' SW1A 1AA ',
-      description: 'Should not be sent',
-      address: 'Should not be sent',
-      city: 'Should not be sent',
+      description: ' Full-service event staffing ',
+      address: ' 1 Example Street ',
+      city: ' London ',
     } as any);
 
     expect(mockedApiClient.put).toHaveBeenCalledWith('/api/v1/client/mobile/profile', {
@@ -104,6 +107,9 @@ describe('authApi client payloads', () => {
       phone: '+44 7700 900123',
       website: '',
       postcode: 'SW1A 1AA',
+      description: 'Full-service event staffing',
+      address: '1 Example Street',
+      city: 'London',
     });
   });
 });

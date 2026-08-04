@@ -21,10 +21,15 @@ model Applicant {
   rightToWorkUk     Boolean?
   averageRating     Decimal?      @db.Decimal(3, 2)
   bio               String?
+  city              String?
   dateOfBirth       DateTime?
   hourlyRate        Decimal?      @db.Decimal(10, 2)
   postcode          String?
+  /// Event types the applicant prefers to work (Weddings, Corporate Events, etc.)
   preferredJobTypes String?
+  /// Job roles the applicant is suited for (bartender, chef, etc.) — a
+  /// different concept from preferredJobTypes above, despite the similar name.
+  preferredRoles    String[]      @default([])
   profileVisible    Boolean       @default(false)
   promotedToGoldAt  DateTime?
   staffTier         String        @default("STANDARD")
@@ -152,6 +157,9 @@ model Client {
   subscriptionExpiresAt DateTime?
   logo                  String?
   postcode              String?
+  description           String?
+  address               String?
+  city                  String?
   seqId                 Int                @unique @default(autoincrement())
   bookings              Booking[]
   bookingReviews        BookingReview[]
@@ -370,6 +378,10 @@ model User {
   staffBio            String?
   staffAvatar         String?
   staffAvailable      Boolean          @default(false)
+  /// Richer 3-state status shown in the app; staffAvailable above is kept in
+  /// sync from this (AVAILABLE -> true, LIMITED/UNAVAILABLE -> false) since
+  /// existing matching/marketplace logic reads the boolean.
+  availabilityStatus  StaffAvailabilityStatus @default(UNAVAILABLE)
   staffRating         Decimal?         @db.Decimal(3, 2)
   staffReviewCount    Int              @default(0)
   staffHighlights     String?
@@ -660,6 +672,12 @@ enum SubscriptionTier {
 enum StaffTier {
   STANDARD
   ELITE
+}
+
+enum StaffAvailabilityStatus {
+  AVAILABLE
+  LIMITED
+  UNAVAILABLE
 }
 
 enum SubscriptionStatus {
