@@ -47,6 +47,7 @@ import adminMarketplace from './routes/adminMarketplace';
 import adminStaff from './routes/adminStaff';
 import adminMatching from './routes/adminMatching';
 import adminRightToWork from './routes/adminRightToWork';
+import adminUsers from './routes/adminUsers';
 import webAuth from './routes/webAuth';
 import { logger, requestLogger } from './services/logger';
 import { startMemoryMonitoring, stopMemoryMonitoring } from './services/memory';
@@ -389,6 +390,7 @@ app.get([
   '/admin-bookings',
   '/admin-quotes',
   '/admin-comms',
+  '/admin-settings',
 ], adminPageAuth, (req, res) => {
   const fileByPath: Record<string, string> = {
     '/admin': 'admin.html',
@@ -399,6 +401,7 @@ app.get([
     '/admin-bookings': 'admin-bookings.html',
     '/admin-quotes': 'admin-quotes.html',
     '/admin-comms': 'admin-comms.html',
+    '/admin-settings': 'admin-settings.html',
   };
   const file = fileByPath[req.path] ?? 'admin.html';
   res.sendFile(path.join(publicDir, file));
@@ -470,6 +473,7 @@ app.use('/api/v1/admin/marketplace', adminMarketplace);
 app.use('/api/v1/admin/staff', adminStaff);
 app.use('/api/v1/admin/matching', adminMatching);
 app.use('/api/v1/admin/right-to-work', adminRightToWork);
+app.use('/api/v1/admin/users', adminUsers);
 
 // Legacy cleanup (must be before static)
 
@@ -484,6 +488,19 @@ app.get(['/hire-staff', '/hire-staff.html'], (_req, res) => {
 app.get(['/quote', '/quote.html'], (_req, res) => {
   res.redirect(301, '/hire/quote');
 });
+
+app.get(['/rates', '/rates.html'], (_req, res) => {
+  res.redirect(301, '/hire');
+});
+
+// Blog was dropped from the site; these two URLs are still in Google's index
+// with no equivalent content to redirect to.
+app.get(
+  ['/blog/event-staffing-costs-london-2024', '/blog/how-to-hire-bartenders-london'],
+  (_req, res) => {
+    res.status(410).send('Gone');
+  }
+);
 
 app.use((req, res, next) => {
   if (req.path.endsWith('.bak')) {

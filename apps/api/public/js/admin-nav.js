@@ -16,6 +16,7 @@
     { href: 'admin-quotes',           icon: '📋', label: 'Quotes' },
     { href: 'admin-comms',            icon: '📬', label: 'Communications' },
     { href: 'admin-analytics',        icon: '📊', label: 'Analytics' },
+    { href: 'admin-settings',         icon: '⚙️', label: 'Settings' },
   ];
 
   var currentSlug = window.location.pathname.replace(/^\/|\.html$/g, '');

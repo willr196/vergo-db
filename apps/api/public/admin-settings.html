@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Settings | VERGO Events — Event Staffing in London</title>
+  <meta name="description" content="Manage admin accounts and account security for the VERGO Events admin panel.">
+  <meta property="og:title" content="Admin Settings | VERGO Events — Event Staffing in London">
+  <meta property="og:description" content="Manage admin accounts and account security for the VERGO Events admin panel.">
+  <meta property="og:image" content="https://vergoltd.com/logo.png">
+  <meta property="og:url" content="https://vergoltd.com/admin-settings">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="canonical" href="https://vergoltd.com/admin-settings">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=3">
+</head>
+<body>
+
+  <div class="as-main">
+    <header class="as-topbar">
+      <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
+      <span class="as-topbar-title">Settings</span>
+    </header>
+
+    <div class="as-content">
+      <div id="alert-container"></div>
+
+      <div class="as-tabs" id="settings-tabs">
+        <button class="as-tab active" data-tab="account">Account Security</button>
+        <button class="as-tab" data-tab="admins">Admin Users</button>
+      </div>
+
+      <!-- ── Account Security ───────────────────────── -->
+      <div id="account-tab" class="tab-content active">
+        <div style="max-width:480px">
+          <div class="as-section-hdr"><span class="as-section-title">Change Password</span></div>
+          <p class="text-muted fs-sm mb-2">Update the password for your own admin account.</p>
+
+          <div class="mb-2">
+            <label class="as-label">Current Password</label>
+            <input type="password" id="cp-current" class="as-input" autocomplete="current-password">
+          </div>
+          <div class="mb-2">
+            <label class="as-label">New Password</label>
+            <input type="password" id="cp-new" class="as-input" autocomplete="new-password">
+          </div>
+          <div class="mb-2">
+            <label class="as-label">Confirm New Password</label>
+            <input type="password" id="cp-confirm" class="as-input" autocomplete="new-password">
+          </div>
+          <p class="text-muted fs-sm mb-2">At least 12 characters, with uppercase, lowercase, and a number.</p>
+          <div id="cp-result" class="mb-2"></div>
+          <button class="btn btn-primary" data-action="change-password">Update Password</button>
+        </div>
+      </div>
+
+      <!-- ── Admin Users ─────────────────────────────── -->
+      <div id="admins-tab" class="tab-content">
+        <div class="as-table-wrap mb-3">
+          <div class="as-table-toolbar">
+            <div class="as-toolbar-left">
+              <span id="admins-count" class="text-muted fs-sm">Loading…</span>
+            </div>
+            <div class="as-toolbar-right">
+              <button class="btn btn-ghost btn-sm" data-action="admins-reload">&#8635; Refresh</button>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Created</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admins-tbody">
+              <tr><td colspan="4" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="max-width:480px">
+          <div class="as-section-hdr"><span class="as-section-title">Add Admin</span></div>
+          <div class="mb-2">
+            <label class="as-label">Username</label>
+            <input type="text" id="na-username" class="as-input" autocomplete="off" maxlength="100">
+          </div>
+          <div class="mb-2">
+            <label class="as-label">Password</label>
+            <input type="password" id="na-password" class="as-input" autocomplete="new-password">
+          </div>
+          <p class="text-muted fs-sm mb-2">At least 12 characters, with uppercase, lowercase, and a number. This is a temporary password — the new admin will be required to set their own on first login.</p>
+          <div id="na-result" class="mb-2"></div>
+          <button class="btn btn-primary" data-action="add-admin">Add Admin</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/js/admin-core.js"></script>
+  <script src="/js/admin-nav.js"></script>
+  <script src="/pages/js/admin-settings.js"></script>
+</body>
+</html>

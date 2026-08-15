@@ -106,12 +106,13 @@ model Application {
 }
 
 model AdminUser {
-  id             String    @id @default(cuid())
-  username       String    @unique
-  password       String
-  createdAt      DateTime  @default(now())
-  failedAttempts Int       @default(0)
-  lockedUntil    DateTime?
+  id                 String    @id @default(cuid())
+  username           String    @unique
+  password           String
+  createdAt          DateTime  @default(now())
+  failedAttempts     Int       @default(0)
+  lockedUntil        DateTime?
+  mustChangePassword Boolean   @default(false)
 
   @@index([username])
 }

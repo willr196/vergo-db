@@ -14,6 +14,17 @@ const loginSchema = z.object({
   password: z.string().min(8).max(72)
 });
 
+const strongPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{12,}$/;
+
+const forceChangePasswordSchema = z.object({
+  username: z.string().min(1).max(100).trim(),
+  currentPassword: z.string().min(1).max(72),
+  newPassword: z.string()
+    .min(12, 'Password must be at least 12 characters')
+    .max(72)
+    .regex(strongPasswordPattern, 'Password must include uppercase, lowercase, and a number')
+});
+
 function normalizeRateLimitIdentity(value: unknown): string {
   if (typeof value !== "string") return "unknown";
   const normalized = value.trim().toLowerCase();
@@ -49,7 +60,8 @@ async function verifyCredentials(username: string, password: string) {
       username: true,
       password: true,
       failedAttempts: true,
-      lockedUntil: true
+      lockedUntil: true,
+      mustChangePassword: true
     }
   });
   
@@ -114,7 +126,14 @@ r.post("/login", loginLimiter, async (req, res) => {
       
       return res.status(401).json({ error: "Invalid credentials" });
     }
-    
+
+    if (user.mustChangePassword) {
+      return res.status(403).json({
+        error: "You must set a new password before continuing.",
+        code: "MUST_CHANGE_PASSWORD"
+      });
+    }
+
     // Reset failed attempts on successful login
     if (user.failedAttempts > 0 || user.lockedUntil) {
       await prisma.adminUser.update({
@@ -152,6 +171,91 @@ r.post("/login", loginLimiter, async (req, res) => {
     
   } catch (error) {
     console.error('[ERROR] Login error:', error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ============================================
+// POST /api/v1/auth/force-change-password
+// (unauthenticated — for the mustChangePassword first-login flow)
+// ============================================
+r.post("/force-change-password", loginLimiter, async (req, res) => {
+  try {
+    const parsed = forceChangePasswordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid input" });
+    }
+
+    const { username, currentPassword, newPassword } = parsed.data;
+
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ error: "New password must be different from your temporary password" });
+    }
+
+    const { user, passwordMatches } = await verifyCredentials(username, currentPassword);
+
+    if (user?.lockedUntil && user.lockedUntil > new Date()) {
+      const minutesLeft = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
+      return res.status(423).json({
+        error: `Account temporarily locked. Try again in ${minutesLeft} minute${minutesLeft !== 1 ? 's' : ''}.`
+      });
+    }
+
+    if (!user || !passwordMatches) {
+      if (user) {
+        const newFailedAttempts = (user.failedAttempts || 0) + 1;
+        const shouldLock = newFailedAttempts >= 5;
+        await prisma.adminUser.update({
+          where: { id: user.id },
+          data: {
+            failedAttempts: newFailedAttempts,
+            lockedUntil: shouldLock ? new Date(Date.now() + 30 * 60 * 1000) : null
+          }
+        });
+      }
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    if (!user.mustChangePassword) {
+      return res.status(400).json({ error: "Password change not required. Please log in normally." });
+    }
+
+    const hash = await bcrypt.hash(newPassword, 12);
+    await prisma.adminUser.update({
+      where: { id: user.id },
+      data: {
+        password: hash,
+        mustChangePassword: false,
+        failedAttempts: 0,
+        lockedUntil: null
+      }
+    });
+
+    console.info(`[AUTH] Forced password change completed: ${username}`);
+
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error('[ERROR] Session regeneration failed:', err);
+        return res.status(500).json({ error: "Authentication error" });
+      }
+
+      req.session.isAdmin = true;
+      req.session.username = username;
+      req.session.userId = user.id;
+      req.session.loginTime = Date.now();
+      req.session.lastActivity = Date.now();
+
+      req.session.save((err) => {
+        if (err) {
+          console.error('[ERROR] Session save failed:', err);
+          return res.status(500).json({ error: "Authentication error" });
+        }
+
+        res.json({ ok: true, username });
+      });
+    });
+  } catch (error) {
+    console.error('[ERROR] Force change password error:', error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
