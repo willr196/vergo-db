@@ -69,3 +69,18 @@ test('legacy hire-staff routes redirect permanently to hire', async () => {
   assert.equal(res.statusCode, 301);
   assert.equal(res.headers.location, '/hire');
 });
+
+test('retired rates page redirects permanently to hire', async () => {
+  const res = await inject(app, { method: 'GET', url: '/rates' });
+
+  assert.equal(res.statusCode, 301);
+  assert.equal(res.headers.location, '/hire');
+});
+
+test('dead blog URLs return 410 Gone', async () => {
+  const res1 = await inject(app, { method: 'GET', url: '/blog/event-staffing-costs-london-2024' });
+  const res2 = await inject(app, { method: 'GET', url: '/blog/how-to-hire-bartenders-london' });
+
+  assert.equal(res1.statusCode, 410);
+  assert.equal(res2.statusCode, 410);
+});

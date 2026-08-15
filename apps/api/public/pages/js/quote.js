@@ -8,7 +8,7 @@
   var submitBtn = document.getElementById('quoteSubmit');
 
   function getConfig() {
-    return (window.VERGO_CONFIG && window.VERGO_CONFIG.rates) || { chargeRate: 18.50, minimumHours: 4 };
+    return (window.VERGO_CONFIG && window.VERGO_CONFIG.rates) || { chargeRate: 19.00, minimumHours: 4 };
   }
 
   function hoursBetween(start, end) {

@@ -1,20 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PRICING, calculateCharge, getVatBreakdown, formatPriceLine, resolveHourlyRate } from '../config/pricing';
+import { PRICING, calculateCharge, getVatBreakdown, formatPriceLine } from '../config/pricing';
 
-test('resolveHourlyRate applies standardRateBelowThreshold under the volume threshold', () => {
-  assert.equal(resolveHourlyRate(4), PRICING.standardRateBelowThreshold);
-  assert.equal(resolveHourlyRate(5), PRICING.volumeRate);
-  assert.equal(resolveHourlyRate(10), PRICING.volumeRate);
+test('calculateCharge uses a single flat standardRate regardless of headcount', () => {
+  assert.equal(calculateCharge({ headcount: 2, hoursPerPerson: 4 }).hourlyRate, PRICING.standardRate);
+  assert.equal(calculateCharge({ headcount: 10, hoursPerPerson: 4 }).hourlyRate, PRICING.standardRate);
 });
 
 test('calculateCharge applies the four-hour minimum and after-midnight multiplier', () => {
   const belowMinimum = calculateCharge({ headcount: 5, hoursPerPerson: 2 });
   assert.equal(belowMinimum.billedHoursPerPerson, PRICING.minimumChargeHours);
-  assert.equal(belowMinimum.net.net, PRICING.volumeRate * PRICING.minimumChargeHours * 5);
+  assert.equal(belowMinimum.net.net, PRICING.standardRate * PRICING.minimumChargeHours * 5);
 
   const midnight = calculateCharge({ headcount: 5, hoursPerPerson: 6, afterMidnight: true });
-  assert.equal(midnight.net.net, PRICING.volumeRate * PRICING.afterMidnightMultiplier * 6 * 5);
+  assert.equal(midnight.net.net, PRICING.standardRate * PRICING.afterMidnightMultiplier * 6 * 5);
 });
 
 test('VAT is driven entirely by the vatRegistered flag — flipping it is the only required change', (t) => {

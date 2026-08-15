@@ -4,14 +4,11 @@
  */
 
 export const PRICING = {
-  standardRate: 18.50,
-  volumeRate: 18.50,
-  volumeThreshold: 5, // staff on one booking at/above this qualify for volumeRate
-  standardRateBelowThreshold: 19.50,
+  standardRate: 19.00,
   minimumChargeHours: 4,
   afterMidnightMultiplier: 1.25,
   /** Internal only — never render this on any public page. */
-  accountRate: 18.50,
+  accountRate: 19.00,
   vatRegistered: false,
   vatRate: 0.20,
 } as const;
@@ -25,14 +22,6 @@ export interface VatBreakdown {
 /** Rounds to pence to avoid floating-point drift in displayed money values. */
 function round2(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
-}
-
-/**
- * The per-person hourly rate for a booking, before any after-midnight uplift.
- * Below the volume threshold, standardRateBelowThreshold applies instead of standardRate.
- */
-export function resolveHourlyRate(headcount: number): number {
-  return headcount >= PRICING.volumeThreshold ? PRICING.volumeRate : PRICING.standardRateBelowThreshold;
 }
 
 export interface ChargeInput {
@@ -52,7 +41,7 @@ export interface ChargeResult {
  * and the after-midnight multiplier, then the VAT breakdown driven by vatRegistered.
  */
 export function calculateCharge({ headcount, hoursPerPerson, afterMidnight = false }: ChargeInput): ChargeResult {
-  const hourlyRate = resolveHourlyRate(headcount);
+  const hourlyRate = PRICING.standardRate;
   const billedHoursPerPerson = Math.max(hoursPerPerson, PRICING.minimumChargeHours);
   const effectiveRate = afterMidnight ? hourlyRate * PRICING.afterMidnightMultiplier : hourlyRate;
   const netTotal = round2(effectiveRate * billedHoursPerPerson * headcount);
@@ -88,9 +77,6 @@ export function formatPriceLine(net: number, currency = '£'): string {
 export function getPublicRateCard() {
   return {
     standardRate: PRICING.standardRate,
-    volumeRate: PRICING.volumeRate,
-    volumeThreshold: PRICING.volumeThreshold,
-    standardRateBelowThreshold: PRICING.standardRateBelowThreshold,
     minimumChargeHours: PRICING.minimumChargeHours,
     afterMidnightMultiplier: PRICING.afterMidnightMultiplier,
     vatRegistered: PRICING.vatRegistered,
