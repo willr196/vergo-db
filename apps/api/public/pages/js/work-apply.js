@@ -324,13 +324,19 @@
     }
     rolesError.style.display = 'none';
 
-    var availability = Array.prototype.slice.call(form.querySelectorAll('input[name="availability"]:checked')).map(function (el) {
-      return el.value;
-    });
+    var postcode = (form.postcode.value || '').trim();
+    if (!postcode) {
+      showFormStatus('Please enter your postcode.', 'error');
+      return;
+    }
 
-    var bioParts = [];
-    if (form.bio.value) bioParts.push(form.bio.value);
-    if (availability.length) bioParts.push('Availability: ' + availability.join(', '));
+    var dateOfBirth = form.dateOfBirth.value;
+    if (!dateOfBirth) {
+      showFormStatus('Please enter your date of birth.', 'error');
+      return;
+    }
+
+    var availability = (form.availability.value || '').trim();
 
     var data = {
       applicantId: uploadedCvData.applicantId,
@@ -338,8 +344,10 @@
       lastName: form.lastName.value,
       email: form.email.value,
       phone: form.phone.value || undefined,
-      postcode: form.postcode.value || undefined,
-      bio: bioParts.join(' — ') || undefined,
+      postcode: postcode,
+      dateOfBirth: dateOfBirth,
+      bio: form.bio.value || undefined,
+      availability: availability || undefined,
       roles: rolesWithExp,
       cvKey: uploadedCvData.cvKey,
       cvOriginalName: uploadedCvData.cvOriginalName,

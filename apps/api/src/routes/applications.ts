@@ -244,13 +244,15 @@ const optionalSanitizedString = (max: number) =>
     z.string().max(max).optional()
   );
 
-const optionalDateString = z.preprocess(
-  (value) => {
-    if (typeof value !== 'string') return value;
-    const trimmed = value.trim();
-    return trimmed === '' ? undefined : trimmed;
-  },
-  z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional()
+const requiredString = (max: number) =>
+  z.preprocess(
+    (value) => (typeof value === 'string' ? value.trim() : value),
+    z.string().min(1).max(max)
+  );
+
+const requiredDateString = z.preprocess(
+  (value) => (typeof value === 'string' ? value.trim() : value),
+  z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
 );
 
 const preferredJobTypeValues = [
@@ -604,10 +606,11 @@ const createBody = z.object({
   cvFileSize: z.number().int().positive().max(10485760).optional(),
   cvMimeType: z.string().max(100).optional(),
   source: z.string().max(100).optional(),
-  dateOfBirth: optionalDateString,
-  postcode: optionalString(24),
+  dateOfBirth: requiredDateString,
+  postcode: requiredString(24),
   preferredJobTypes: z.array(preferredJobTypeSchema).max(preferredJobTypeValues.length).optional(),
   bio: optionalSanitizedString(300),
+  availability: optionalSanitizedString(80),
   yearsExperience: z.number().int().min(0).max(40).optional()
 });
 
@@ -650,12 +653,13 @@ r.post('/', applicationLimiter, async (req, res, next) => {
       email: d.email,
       phone: d.phone ?? null,
       rightToWorkUk: d.rightToWorkUk ?? null,
-      dateOfBirth: d.dateOfBirth ? parseDateOnlyToUtc(d.dateOfBirth) : null,
-      postcode: d.postcode ?? null,
+      dateOfBirth: parseDateOnlyToUtc(d.dateOfBirth),
+      postcode: d.postcode,
       preferredJobTypes: d.preferredJobTypes && d.preferredJobTypes.length > 0
         ? d.preferredJobTypes.join(',')
         : null,
       bio: d.bio ?? null,
+      availability: d.availability ?? null,
       yearsExperience: d.yearsExperience ?? null
     };
 
@@ -666,14 +670,15 @@ r.post('/', applicationLimiter, async (req, res, next) => {
 
     if (d.phone !== undefined) applicantUpdateData.phone = d.phone;
     if (d.rightToWorkUk !== undefined) applicantUpdateData.rightToWorkUk = d.rightToWorkUk;
-    if (d.dateOfBirth !== undefined) applicantUpdateData.dateOfBirth = parseDateOnlyToUtc(d.dateOfBirth);
-    if (d.postcode !== undefined) applicantUpdateData.postcode = d.postcode;
+    applicantUpdateData.dateOfBirth = parseDateOnlyToUtc(d.dateOfBirth);
+    applicantUpdateData.postcode = d.postcode;
     if (d.preferredJobTypes !== undefined) {
       applicantUpdateData.preferredJobTypes = d.preferredJobTypes.length > 0
         ? d.preferredJobTypes.join(',')
         : null;
     }
     if (d.bio !== undefined) applicantUpdateData.bio = d.bio;
+    if (d.availability !== undefined) applicantUpdateData.availability = d.availability;
     if (d.yearsExperience !== undefined) applicantUpdateData.yearsExperience = d.yearsExperience;
 
     const applicant = await prisma.applicant.upsert({
@@ -751,10 +756,119 @@ r.post('/', applicationLimiter, async (req, res, next) => {
 // ============================================
 // LIST APPLICATIONS (ADMIN)
 // ============================================
+const APPLICATION_STATUSES = ['RECEIVED', 'REVIEWING', 'SHORTLISTED', 'REJECTED', 'HIRED'] as const;
+
 const listQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(50).default(50)
+  limit: z.coerce.number().int().min(1).max(50).default(50),
+  status: z.enum(APPLICATION_STATUSES).optional(),
+  role: z.string().trim().min(1).max(100).optional(),
+  search: z.string().trim().min(1).max(200).optional(),
+  sortCol: z.enum(['fullName', 'email', 'phone', 'postcode', 'status', 'createdAt']).default('createdAt'),
+  sortDir: z.enum(['asc', 'desc']).default('desc')
 });
+
+// ============================================
+// MANUALLY ADD A CANDIDATE TO THE ROSTER (ADMIN)
+// ============================================
+// Admin-entered candidates, sourced off-platform, get one Application row
+// same as a public applicant — no separate "profile only" record type.
+const manualCreateBody = z.object({
+  firstName: z.string().min(1).max(100).trim(),
+  lastName: z.string().min(1).max(100).trim(),
+  email: z.string().email().max(255).toLowerCase(),
+  phone: optionalString(20),
+  postcode: optionalString(24),
+  roles: z.array(roleWithExperience).min(1).max(10),
+  status: z.enum(APPLICATION_STATUSES).default('RECEIVED'),
+  source: z.string().max(100).optional(),
+  notes: optionalSanitizedString(2000)
+});
+
+r.post('/manual', adminAuth, async (req, res, next) => {
+  try {
+    const d = manualCreateBody.parse(req.body);
+
+    const applicant = await prisma.applicant.upsert({
+      where: { email: d.email },
+      update: {
+        firstName: d.firstName,
+        lastName: d.lastName,
+        ...(d.phone !== undefined ? { phone: d.phone } : {}),
+        ...(d.postcode !== undefined ? { postcode: d.postcode } : {})
+      },
+      create: {
+        firstName: d.firstName,
+        lastName: d.lastName,
+        email: d.email,
+        phone: d.phone ?? null,
+        postcode: d.postcode ?? null
+      }
+    });
+
+    const app = await prisma.application.create({
+      data: {
+        applicant: { connect: { id: applicant.id } },
+        cvKey: '',
+        source: d.source ?? 'manual',
+        status: d.status,
+        notes: d.notes ?? null,
+        roles: {
+          create: d.roles.map(r => ({
+            experienceLevel: r.experienceLevel,
+            role: {
+              connectOrCreate: {
+                where: { name: r.role },
+                create: { name: r.role }
+              }
+            }
+          }))
+        }
+      },
+      include: {
+        applicant: true,
+        roles: { include: { role: true } }
+      }
+    });
+
+    const adminUsername = (req.session as any)?.username || 'admin';
+    console.log(`[APPLICATION] Manually added by ${adminUsername}: ${app.id}`);
+    res.status(201).json({ ok: true, id: app.id, data: { id: app.id } });
+  } catch (e) { next(e); }
+});
+
+const statsQuerySchema = z.object({
+  role: z.string().trim().min(1).max(100).optional(),
+  search: z.string().trim().min(1).max(200).optional()
+});
+
+function buildApplicationWhere(filters: { status?: string; role?: string; search?: string }) {
+  const where: any = {};
+  if (filters.status) where.status = filters.status;
+  if (filters.role) where.roles = { some: { role: { name: filters.role } } };
+  if (filters.search) {
+    where.applicant = {
+      OR: [
+        { firstName: { contains: filters.search, mode: 'insensitive' } },
+        { lastName: { contains: filters.search, mode: 'insensitive' } },
+        { email: { contains: filters.search, mode: 'insensitive' } },
+        { phone: { contains: filters.search, mode: 'insensitive' } }
+      ]
+    };
+  }
+  return where;
+}
+
+function buildApplicationOrderBy(sortCol: string, sortDir: 'asc' | 'desc') {
+  switch (sortCol) {
+    case 'fullName': return [{ applicant: { firstName: sortDir } }, { applicant: { lastName: sortDir } }];
+    case 'email': return { applicant: { email: sortDir } };
+    case 'phone': return { applicant: { phone: sortDir } };
+    case 'postcode': return { applicant: { postcode: sortDir } };
+    case 'status': return { status: sortDir };
+    default: return { createdAt: sortDir };
+  }
+}
 
 function shapeApplicationListItem(app: any) {
   return {
@@ -766,6 +880,7 @@ function shapeApplicationListItem(app: any) {
     lastName: app.applicant.lastName,
     email: app.applicant.email,
     phone: app.applicant.phone ?? '',
+    postcode: app.applicant.postcode ?? '',
     roles: app.roles.map((role: any) => ({
       name: role.role.name,
       experienceLevel: role.experienceLevel ?? null
@@ -831,6 +946,7 @@ async function shapeApplicationDetail(app: any) {
       staffTier: app.applicant.staffTier ?? 'STANDARD',
       hourlyRate: app.applicant.hourlyRate?.toString() ?? null,
       bio: app.applicant.bio ?? '',
+      availability: app.applicant.availability ?? '',
       profileVisible: Boolean(app.applicant.profileVisible),
       yearsExperience: app.applicant.yearsExperience ?? null,
       promotedToGoldAt: app.applicant.promotedToGoldAt ?? null,
@@ -848,10 +964,13 @@ r.get('/', adminAuth, async (req, res, next) => {
   try {
     const query = listQuerySchema.parse(req.query);
     const skip = (query.page - 1) * query.limit;
+    const where = buildApplicationWhere(query);
+    const orderBy = buildApplicationOrderBy(query.sortCol, query.sortDir) as any;
 
     const [apps, total] = await Promise.all([
       prisma.application.findMany({
-        orderBy: { createdAt: 'desc' },
+        where,
+        orderBy,
         skip,
         take: query.limit,
         include: {
@@ -874,7 +993,7 @@ r.get('/', adminAuth, async (req, res, next) => {
           }
         }
       }),
-      prisma.application.count()
+      prisma.application.count({ where })
     ]);
 
     const shaped = apps.map(shapeApplicationListItem);
@@ -884,6 +1003,32 @@ r.get('/', adminAuth, async (req, res, next) => {
       pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) }
     };
 
+    res.json({ ok: true, ...payload, data: payload });
+  } catch (e) { next(e); }
+});
+
+// ============================================
+// STATUS COUNTS (ADMIN) — DB aggregate, honours filters, ignores pagination
+// ============================================
+r.get('/stats', adminAuth, async (req, res, next) => {
+  try {
+    const query = statsQuerySchema.parse(req.query);
+    const where = buildApplicationWhere({ role: query.role, search: query.search });
+
+    const grouped = await prisma.application.groupBy({
+      by: ['status'],
+      where,
+      _count: { _all: true }
+    });
+
+    const counts: Record<string, number> = Object.fromEntries(APPLICATION_STATUSES.map((s) => [s, 0]));
+    let total = 0;
+    for (const row of grouped) {
+      counts[row.status] = row._count._all;
+      total += row._count._all;
+    }
+
+    const payload = { total, counts };
     res.json({ ok: true, ...payload, data: payload });
   } catch (e) { next(e); }
 });

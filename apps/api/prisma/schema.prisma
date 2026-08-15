@@ -20,6 +20,7 @@ model Applicant {
   /// check — see the RightToWorkCheck records for the verified position.
   rightToWorkUk     Boolean?
   averageRating     Decimal?      @db.Decimal(3, 2)
+  availability      String?
   bio               String?
   dateOfBirth       DateTime?
   hourlyRate        Decimal?      @db.Decimal(10, 2)

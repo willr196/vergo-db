@@ -284,6 +284,8 @@ test('applications create accepts a verified local CV key', async () => {
         lastName: 'Applicant',
         email: 'casey@example.com',
         phone: '07123456789',
+        postcode: 'SW1A 1AA',
+        dateOfBirth: '1992-03-10',
         roles: [{ role: 'Bartender', experienceLevel: '3-5 years' }],
         cvKey: localCvKey,
         cvOriginalName: 'casey-cv.pdf',

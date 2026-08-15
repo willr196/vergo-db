@@ -144,6 +144,8 @@ test('application submissions notify the admin inbox and send applicant confirma
         email: 'alice@example.com',
         phone: '07123456789',
         rightToWorkUk: true,
+        postcode: 'E1 6AN',
+        dateOfBirth: '1995-06-15',
         roles: [{ role: 'Bartender', experienceLevel: 'Senior' }],
         cvKey: 'cv/alice-nguyen.pdf',
         cvOriginalName: 'alice-nguyen.pdf',
