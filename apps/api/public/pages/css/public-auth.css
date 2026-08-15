@@ -418,6 +418,15 @@ body.public-auth-page input.field-error {
   display: block;
 }
 
+.force-change-group {
+  display: none;
+}
+
+.force-change-group.show {
+  display: block;
+  margin-bottom: 20px;
+}
+
 .field-error-message {
   display: block;
   margin-top: 8px;

@@ -54,7 +54,8 @@
     let attemptCount = 0;
     let lockoutUntil = null;
     let retryInterval = null;
-    
+    let forceChangeMode = false;
+
     // Elements
     const form = document.getElementById('login-form');
     const usernameInput = document.getElementById('username');
@@ -64,6 +65,9 @@
     const rateLimitWarning = document.getElementById('rate-limit-warning');
     const retryTimeSpan = document.getElementById('retry-time');
     const formStatus = document.getElementById('form-status');
+    const forceChangeGroup = document.getElementById('force-change-group');
+    const newPasswordInput = document.getElementById('new-password');
+    const newPasswordConfirmInput = document.getElementById('new-password-confirm');
     
     // Check for existing lockout on page load
     checkLockoutStatus();
@@ -88,8 +92,12 @@
         console.warn('Bot detected');
         return;
       }
-      
-      await handleLogin();
+
+      if (forceChangeMode) {
+        await handleForceChangePassword();
+      } else {
+        await handleLogin();
+      }
     });
     
     // Validation
@@ -200,10 +208,87 @@
         buttonText.textContent = 'Login';
       }
     }
-    
+
+    // Switch the form into "set a new password" mode after a MUST_CHANGE_PASSWORD response
+    function enterForceChangeMode() {
+      forceChangeMode = true;
+      forceChangeGroup.classList.add('show');
+      newPasswordInput.setAttribute('required', 'true');
+      newPasswordConfirmInput.setAttribute('required', 'true');
+      buttonText.textContent = 'Set Password & Sign In';
+      newPasswordInput.focus();
+    }
+
+    async function handleForceChangePassword() {
+      const newPassword = newPasswordInput.value;
+      const confirmPassword = newPasswordConfirmInput.value;
+
+      if (!newPassword || newPassword.length < 12) {
+        showFieldError(newPasswordInput, 'Password must be at least 12 characters');
+        return;
+      }
+      clearFieldError(newPasswordInput);
+
+      if (newPassword !== confirmPassword) {
+        showFieldError(newPasswordConfirmInput, 'Passwords do not match');
+        return;
+      }
+      clearFieldError(newPasswordConfirmInput);
+
+      submitBtn.disabled = true;
+      buttonText.textContent = 'Setting password...';
+      updateFormStatus('Setting new password...');
+
+      try {
+        const response = await secureFetch('/api/v1/auth/force-change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: usernameInput.value.trim(),
+            currentPassword: passwordInput.value,
+            newPassword
+          })
+        });
+
+        const contentType = response.headers.get('content-type');
+        let data = {};
+
+        if (contentType && contentType.includes('application/json')) {
+          const payload = await response.json();
+          data = payload.data ?? payload;
+        }
+
+        if (response.ok) {
+          updateFormStatus('Password set! Redirecting...');
+          clearLoginAttempts();
+          safeNotify('Password updated successfully!', 'success');
+          setTimeout(() => {
+            window.location.href = getSafeRedirectPath();
+          }, 500);
+        } else {
+          safeNotify(data.error || 'Failed to set new password.', 'error');
+          updateFormStatus(data.error || 'Failed to set new password');
+        }
+      } catch (err) {
+        console.error('Force change password error:', err);
+        safeNotify('Connection error. Please check your internet and try again.', 'error');
+        updateFormStatus('Connection error occurred');
+      } finally {
+        submitBtn.disabled = false;
+        buttonText.textContent = 'Set Password & Sign In';
+      }
+    }
+
     function handleLoginError(response, data) {
+      if (response.status === 403 && data.code === 'MUST_CHANGE_PASSWORD') {
+        enterForceChangeMode();
+        safeNotify(data.error || 'You must set a new password before continuing.', 'warning');
+        updateFormStatus('This account has a temporary password. Please set a new password.');
+        return;
+      }
+
       incrementAttempts();
-      
+
       if (response.status === 423) {
         const lockDuration = data.lockDuration || 900;
         setLockout(lockDuration);

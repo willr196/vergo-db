@@ -89,17 +89,49 @@
             </div>
           </div>
           
+          <!-- Shown only when the account has a temporary password that must be replaced -->
+          <div id="force-change-group" class="force-change-group">
+            <p class="text-muted fs-sm">This account has a temporary password. Set a new password to continue.</p>
+            <div class="form-group">
+              <label for="new-password">
+                New Password <span class="required" aria-label="required">*</span>
+              </label>
+              <input
+                type="password"
+                id="new-password"
+                name="new-password"
+                autocomplete="new-password"
+                aria-describedby="new-password-error"
+                minlength="12"
+              />
+            </div>
+            <div class="form-group">
+              <label for="new-password-confirm">
+                Confirm New Password <span class="required" aria-label="required">*</span>
+              </label>
+              <input
+                type="password"
+                id="new-password-confirm"
+                name="new-password-confirm"
+                autocomplete="new-password"
+                aria-describedby="new-password-confirm-error"
+                minlength="12"
+              />
+            </div>
+            <p class="text-muted fs-sm">At least 12 characters, with uppercase, lowercase, and a number.</p>
+          </div>
+
           <!-- Honeypot field (hidden from users, catches bots) -->
           <div style="position: absolute; left: -9999px; opacity: 0;" aria-hidden="true">
             <label for="website">Website (leave blank)</label>
             <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
           </div>
-          
+
           <!-- Rate limit warning -->
           <div id="rate-limit-warning" class="rate-limit-warning" role="alert">
             <strong>Too many attempts.</strong> Please wait <span id="retry-time">60</span> seconds before trying again.
           </div>
-          
+
           <button type="submit" aria-label="Login to admin dashboard">
             <span class="spinner" aria-hidden="true"></span>
             <span id="button-text">Login</span>
