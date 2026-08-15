@@ -104,6 +104,7 @@
       <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
       <span class="as-topbar-title">Bookings</span>
       <div class="as-topbar-right">
+        <button class="btn btn-primary btn-sm" data-action="open-new-booking">+ New Booking</button>
         <button class="btn btn-ghost btn-sm" data-action="refresh-bookings">&#8635; Refresh</button>
       </div>
     </header>
@@ -221,6 +222,124 @@
       <div class="modal-footer">
         <button class="btn btn-ghost" data-action="close-complete-modal">Cancel</button>
         <button class="btn btn-info" data-action="confirm-complete">Mark Completed</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="new-booking-modal" class="modal-backdrop d-none">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2>New Booking</h2>
+        <button class="modal-close" data-action="close-new-booking-modal" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <div id="new-booking-alert"></div>
+
+        <div class="modal-section">
+          <h3>Who</h3>
+          <div class="detail-grid mb-2">
+            <div class="detail-row">
+              <label class="as-label" for="nb-client">Client</label>
+              <select id="nb-client" class="as-input"><option value="">Loading clients…</option></select>
+            </div>
+            <div class="detail-row">
+              <label class="as-label" for="nb-staff">Staff</label>
+              <select id="nb-staff" class="as-input"><option value="">Loading staff…</option></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <h3>Event</h3>
+          <div class="detail-grid mb-2">
+            <div class="detail-row">
+              <label class="as-label" for="nb-event-name">Event name (optional)</label>
+              <input id="nb-event-name" class="as-input" maxlength="200">
+            </div>
+            <div class="detail-row">
+              <label class="as-label" for="nb-booking-lane">Booking lane</label>
+              <select id="nb-booking-lane" class="as-input">
+                <option value="FLEX">Flex</option>
+                <option value="SELECT">Select</option>
+                <option value="MANAGED">Managed</option>
+              </select>
+            </div>
+          </div>
+          <div class="detail-grid mb-2">
+            <div class="detail-row">
+              <label class="as-label" for="nb-event-date">Event date</label>
+              <input id="nb-event-date" class="as-input" type="date">
+            </div>
+            <div class="detail-row">
+              <label class="as-label" for="nb-event-end-date">Event end date (optional)</label>
+              <input id="nb-event-end-date" class="as-input" type="date">
+            </div>
+          </div>
+          <div class="detail-grid mb-2">
+            <div class="detail-row">
+              <label class="as-label" for="nb-location">Location</label>
+              <input id="nb-location" class="as-input" maxlength="200">
+            </div>
+            <div class="detail-row">
+              <label class="as-label" for="nb-venue">Venue (optional)</label>
+              <input id="nb-venue" class="as-input" maxlength="200">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <h3>Shift &amp; Pricing</h3>
+          <div class="detail-grid mb-2">
+            <div class="detail-row">
+              <label class="as-label" for="nb-shift-start">Shift start</label>
+              <input id="nb-shift-start" class="as-input" type="time">
+            </div>
+            <div class="detail-row">
+              <label class="as-label" for="nb-shift-end">Shift end</label>
+              <input id="nb-shift-end" class="as-input" type="time">
+            </div>
+          </div>
+          <div class="detail-grid mb-2">
+            <div class="detail-row">
+              <label class="as-label" for="nb-hours-estimated">Estimated hours (optional)</label>
+              <input id="nb-hours-estimated" class="as-input" type="number" min="0.1" max="24" step="0.25">
+            </div>
+            <div class="detail-row"></div>
+          </div>
+          <div class="detail-grid mb-2">
+            <div class="detail-row">
+              <label class="as-label" for="nb-hourly-rate">Hourly rate charged (£)</label>
+              <input id="nb-hourly-rate" class="as-input" type="number" min="0.01" step="0.01">
+            </div>
+            <div class="detail-row">
+              <label class="as-label" for="nb-staff-pay-rate">Staff pay rate (£, optional)</label>
+              <input id="nb-staff-pay-rate" class="as-input" type="number" min="0.01" step="0.01">
+            </div>
+          </div>
+          <div class="detail-row">
+            <label class="as-label" for="nb-status">Status</label>
+            <select id="nb-status" class="as-input">
+              <option value="CONFIRMED">Confirmed</option>
+              <option value="PENDING">Pending</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <h3>Notes</h3>
+          <div class="detail-row mb-1">
+            <label class="as-label" for="nb-client-notes">Client notes (optional)</label>
+            <textarea id="nb-client-notes" maxlength="2000"></textarea>
+          </div>
+          <div class="detail-row">
+            <label class="as-label" for="nb-admin-notes">Admin notes (optional)</label>
+            <textarea id="nb-admin-notes" maxlength="2000"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-action="close-new-booking-modal">Cancel</button>
+        <button class="btn btn-primary" data-action="submit-new-booking">Create Booking</button>
       </div>
     </div>
   </div>

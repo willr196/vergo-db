@@ -430,6 +430,121 @@
     }
   }
 
+  // ── New Booking (manual entry) ────────────────────────────
+  async function loadNewBookingOptions() {
+    const clientSel = document.getElementById('nb-client');
+    const staffSel = document.getElementById('nb-staff');
+    clientSel.innerHTML = '<option value="">Loading clients…</option>';
+    staffSel.innerHTML = '<option value="">Loading staff…</option>';
+
+    try {
+      const [clientsRes, staffRes] = await Promise.all([
+        get('/api/v1/admin/clients?status=APPROVED&limit=100'),
+        get('/api/v1/admin/bookings/staff-options'),
+      ]);
+
+      const clients = clientsRes.clients || [];
+      const staff = Array.isArray(staffRes) ? staffRes : [];
+
+      clientSel.innerHTML = clients.length
+        ? '<option value="">Select a client…</option>' + clients.map((c) =>
+            '<option value="' + esc(c.id) + '">' + esc(c.companyName) + ' (' + esc(c.subscriptionTier) + ')</option>'
+          ).join('')
+        : '<option value="">No approved clients found</option>';
+
+      staffSel.innerHTML = staff.length
+        ? '<option value="">Select a staff member…</option>' + staff.map((s) =>
+            '<option value="' + esc(s.id) + '">' + esc(s.firstName + ' ' + s.lastName) + ' (' + esc(s.staffTier) + ')</option>'
+          ).join('')
+        : '<option value="">No eligible roster members found</option>';
+    } catch (err) {
+      clientSel.innerHTML = '<option value="">Failed to load clients</option>';
+      staffSel.innerHTML = '<option value="">Failed to load staff</option>';
+      toast('Failed to load clients/staff: ' + err.message, 'error');
+    }
+  }
+
+  function resetNewBookingForm() {
+    document.getElementById('new-booking-alert').innerHTML = '';
+    ['nb-event-name', 'nb-event-date', 'nb-event-end-date', 'nb-location', 'nb-venue',
+     'nb-shift-start', 'nb-shift-end', 'nb-hours-estimated', 'nb-hourly-rate', 'nb-staff-pay-rate',
+     'nb-client-notes', 'nb-admin-notes'].forEach((id) => { document.getElementById(id).value = ''; });
+    document.getElementById('nb-booking-lane').value = 'FLEX';
+    document.getElementById('nb-status').value = 'CONFIRMED';
+  }
+
+  function openNewBookingModal() {
+    resetNewBookingForm();
+    AdminCore.openModal('new-booking-modal');
+    loadNewBookingOptions();
+  }
+
+  function closeNewBookingModal() {
+    AdminCore.closeModal('new-booking-modal');
+  }
+
+  async function submitNewBooking(btn) {
+    const clientId = document.getElementById('nb-client').value;
+    const staffId = document.getElementById('nb-staff').value;
+    const eventDate = document.getElementById('nb-event-date').value;
+    const location = document.getElementById('nb-location').value.trim();
+    const shiftStart = document.getElementById('nb-shift-start').value;
+    const shiftEnd = document.getElementById('nb-shift-end').value;
+    const hourlyRateRaw = document.getElementById('nb-hourly-rate').value;
+
+    if (!clientId || !staffId || !eventDate || !location || !shiftStart || !shiftEnd || !hourlyRateRaw) {
+      AdminCore.showAlert('Client, staff, event date, location, shift times and hourly rate are all required.', 'error', 'new-booking-alert');
+      return;
+    }
+
+    const body = {
+      clientId,
+      staffId,
+      eventDate: new Date(eventDate).toISOString(),
+      location,
+      shiftStart,
+      shiftEnd,
+      hourlyRateCharged: Number(hourlyRateRaw),
+      bookingLane: document.getElementById('nb-booking-lane').value,
+      status: document.getElementById('nb-status').value,
+    };
+
+    const eventName = document.getElementById('nb-event-name').value.trim();
+    if (eventName) body.eventName = eventName;
+
+    const eventEndDate = document.getElementById('nb-event-end-date').value;
+    if (eventEndDate) body.eventEndDate = new Date(eventEndDate).toISOString();
+
+    const venue = document.getElementById('nb-venue').value.trim();
+    if (venue) body.venue = venue;
+
+    const hoursEstimated = document.getElementById('nb-hours-estimated').value;
+    if (hoursEstimated) body.hoursEstimated = Number(hoursEstimated);
+
+    const staffPayRate = document.getElementById('nb-staff-pay-rate').value;
+    if (staffPayRate) body.staffPayRate = Number(staffPayRate);
+
+    const clientNotes = document.getElementById('nb-client-notes').value.trim();
+    if (clientNotes) body.clientNotes = clientNotes;
+
+    const adminNotes = document.getElementById('nb-admin-notes').value.trim();
+    if (adminNotes) body.adminNotes = adminNotes;
+
+    try {
+      await AdminCore.withLoading(btn, () => get('/api/v1/admin/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }));
+
+      closeNewBookingModal();
+      toast('Booking created', 'success');
+      await refreshData();
+    } catch (err) {
+      AdminCore.showAlert(err.message, 'error', 'new-booking-alert');
+    }
+  }
+
   document.addEventListener('click', (event) => {
     const el = event.target.closest('[data-action]');
     if (!el) return;
@@ -469,6 +584,10 @@
     if (action === 'view-booking') return viewBooking(id);
     if (action === 'close-booking-modal') return closeBookingModal();
     if (action === 'save-booking-notes') return saveBookingNotes();
+
+    if (action === 'open-new-booking') return openNewBookingModal();
+    if (action === 'close-new-booking-modal') return closeNewBookingModal();
+    if (action === 'submit-new-booking') return submitNewBooking(el);
   });
 
   document.getElementById('filter-search').addEventListener('keydown', (event) => {
@@ -485,6 +604,7 @@
     AdminCore.initModalBehavior('booking-modal');
     AdminCore.initModalBehavior('reject-modal');
     AdminCore.initModalBehavior('complete-modal');
+    AdminCore.initModalBehavior('new-booking-modal');
 
     await Promise.all([loadStats(), loadBookings(1)]);
   })();

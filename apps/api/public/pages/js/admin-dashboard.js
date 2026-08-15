@@ -10,10 +10,9 @@
   var toast    = notify;
 
   // ── State ────────────────────────────────────────────────
-  var allApplications = [];
+  var allApplications = []; // current page only — the server paginates
   var allContacts     = [];
   var allEvents       = [];
-  var filteredApps    = [];
   var selectedAppIds  = new Set();
   var applicationDetails = {};
   var activeDrawerAppId = null;
@@ -23,7 +22,10 @@
   var contactSort  = { col: 'createdAt', dir: 'desc' };
   var eventSort    = { col: 'eventDate',  dir: 'asc'  };
 
+  var appFilters = { status: '', role: '', search: '' };
   var appPage = 1;
+  var appTotal = 0;
+  var appTotalPages = 1;
   var APP_PAGE_SIZE = 25;
 
   // ── Auto-refresh ────────────────────────────────────────
@@ -151,25 +153,58 @@
   AdminCore.initTabs('#roster-tabs');
 
   // ── Applications ─────────────────────────────────────────
+  // The list endpoint is properly paginated server-side (filters + sort +
+  // page/limit all honoured in the DB query) — only the current page is
+  // ever fetched here. Status counters come from a separate DB aggregate
+  // (loadAppStats) that ignores pagination, so they always reflect the
+  // whole filtered table, not just the rows on screen.
+  function buildAppQueryParams(extra) {
+    var params = new URLSearchParams();
+    if (appFilters.status) params.set('status', appFilters.status);
+    if (appFilters.role)   params.set('role', appFilters.role);
+    if (appFilters.search) params.set('search', appFilters.search);
+    if (extra) {
+      Object.keys(extra).forEach(function (k) { params.set(k, extra[k]); });
+    }
+    return params;
+  }
+
   async function loadApplications() {
     try {
-      var data = await fetch_('/api/v1/applications');
+      var params = buildAppQueryParams({
+        page: appPage,
+        limit: APP_PAGE_SIZE,
+        sortCol: appSort.col,
+        sortDir: appSort.dir
+      });
+      var data = await fetch_('/api/v1/applications?' + params.toString());
       allApplications = Array.isArray(data) ? data : (data.applications || []);
-      filteredApps = allApplications.slice();
-      updateAppStats();
+      appTotal = data.pagination ? data.pagination.total : allApplications.length;
+      appTotalPages = data.pagination ? data.pagination.totalPages : 1;
+      if (appPage > appTotalPages) appPage = Math.max(1, appTotalPages);
       renderApplications();
     } catch (e) {
       document.getElementById('applications-body').innerHTML =
-        '<tr><td colspan="8" class="empty-state">Failed to load: ' + esc(e.message) + '</td></tr>';
+        '<tr><td colspan="9" class="empty-state">Failed to load: ' + esc(e.message) + '</td></tr>';
     }
   }
 
-  function updateAppStats() {
-    var counts = allApplications.reduce(function (acc, a) {
-      acc[a.status] = (acc[a.status] || 0) + 1;
-      return acc;
-    }, {});
-    document.getElementById('stat-total').textContent       = allApplications.length;
+  async function loadAppStats() {
+    try {
+      var params = new URLSearchParams();
+      if (appFilters.role)   params.set('role', appFilters.role);
+      if (appFilters.search) params.set('search', appFilters.search);
+      var qs = params.toString();
+      var data = await fetch_('/api/v1/applications/stats' + (qs ? '?' + qs : ''));
+      updateAppStats(data);
+    } catch (e) {
+      toast('Failed to load application stats: ' + e.message, 'error');
+    }
+  }
+
+  function updateAppStats(data) {
+    var counts = (data && data.counts) || {};
+    document.getElementById('stat-total').textContent       = (data && data.total) || 0;
     document.getElementById('stat-received').textContent    = counts['RECEIVED']   || 0;
     document.getElementById('stat-reviewing').textContent   = counts['REVIEWING']  || 0;
     document.getElementById('stat-selected').textContent    = counts[SELECTED_STATUS] || 0;
@@ -192,22 +227,12 @@
   function applyFilters() {
     var status  = document.getElementById('filter-status').value;
     if (status === 'SELECTED') status = SELECTED_STATUS;
-    var role    = document.getElementById('filter-role').value;
-    var search  = document.getElementById('filter-search').value.toLowerCase();
-    filteredApps = allApplications.filter(function (a) {
-      if (status && a.status !== status) return false;
-      if (role) {
-        var names = (a.roles || []).map(function(r){ return typeof r === 'string' ? r : r.name; });
-        if (!names.includes(role)) return false;
-      }
-      if (search) {
-        var txt = (a.firstName + ' ' + a.lastName + ' ' + (a.email||'') + ' ' + (a.phone||'')).toLowerCase();
-        if (!txt.includes(search)) return false;
-      }
-      return true;
-    });
+    appFilters.status = status;
+    appFilters.role   = document.getElementById('filter-role').value;
+    appFilters.search = document.getElementById('filter-search').value.trim();
     appPage = 1;
-    renderApplications();
+    loadApplications();
+    loadAppStats();
   }
 
   function clearFilters() {
@@ -215,56 +240,35 @@
     document.getElementById('filter-role').value   = '';
     document.getElementById('filter-search').value = '';
     document.querySelectorAll('#app-stats .kpi-card').forEach(function(c){c.classList.remove('kpi-active');});
-    filteredApps = allApplications.slice();
+    appFilters = { status: '', role: '', search: '' };
     appPage = 1;
-    renderApplications();
+    loadApplications();
+    loadAppStats();
   }
 
   function sortApplications(col) {
+    if (!['fullName', 'email', 'phone', 'postcode', 'status', 'createdAt'].includes(col)) return;
     if (appSort.col === col) {
       appSort.dir = appSort.dir === 'asc' ? 'desc' : 'asc';
     } else {
       appSort.col = col;
       appSort.dir = 'asc';
     }
-    renderApplications();
+    appPage = 1;
+    loadApplications();
   }
 
   function renderApplications() {
-    var apps = filteredApps.slice();
-
-    // Sort
-    apps.sort(function (a, b) {
-      var av, bv;
-      if (appSort.col === 'fullName') {
-        av = (a.firstName + ' ' + a.lastName).toLowerCase();
-        bv = (b.firstName + ' ' + b.lastName).toLowerCase();
-      } else if (appSort.col === 'createdAt') {
-        av = new Date(a.createdAt); bv = new Date(b.createdAt);
-      } else if (appSort.col === 'roles') {
-        av = (a.roles||[]).map(function(r){return typeof r==='string'?r:r.name;}).join('');
-        bv = (b.roles||[]).map(function(r){return typeof r==='string'?r:r.name;}).join('');
-      } else {
-        av = a[appSort.col]; bv = b[appSort.col];
-      }
-      if (av < bv) return appSort.dir === 'asc' ? -1 : 1;
-      if (av > bv) return appSort.dir === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    // Pagination
-    var total = apps.length;
-    var pages = Math.max(1, Math.ceil(total / APP_PAGE_SIZE));
-    if (appPage > pages) appPage = pages;
-    var start = (appPage - 1) * APP_PAGE_SIZE;
-    var pageApps = apps.slice(start, start + APP_PAGE_SIZE);
+    var pageApps = allApplications;
+    var total = appTotal;
+    var pages = appTotalPages;
 
     var countEl = document.getElementById('app-count');
     if (countEl) countEl.textContent = total + ' result' + (total !== 1 ? 's' : '');
 
     var tbody = document.getElementById('applications-body');
     if (!pageApps.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No applications found</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No applications found</td></tr>';
       renderAppPagination(total, pages);
       return;
     }
@@ -281,6 +285,7 @@
         + '<td>' + esc(app.email) + '</td>'
         + '<td>' + esc(app.phone || '-') + '</td>'
         + '<td>' + (roles || '<span class="text-muted">-</span>') + '</td>'
+        + '<td>' + esc(app.postcode || '-') + '</td>'
         + '<td><span class="badge badge-' + esc(applicationBadgeClass(app.status)) + '">' + esc(formatApplicationStatus(app.status)) + '</span></td>'
         + '<td>' + fmtD(app.createdAt) + '</td>'
         + '<td><div style="display:flex;gap:6px;flex-wrap:wrap">'
@@ -428,6 +433,7 @@
       + '<div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">' + esc(applicant.phone || '-') + '</span></div>'
       + '<div class="detail-row"><span class="detail-label">DOB</span><span class="detail-value">' + fmtD(applicant.dateOfBirth) + '</span></div>'
       + '<div class="detail-row"><span class="detail-label">Postcode</span><span class="detail-value">' + esc(applicant.postcode || '-') + '</span></div>'
+      + '<div class="detail-row"><span class="detail-label">Availability</span><span class="detail-value">' + esc(applicant.availability || '-') + '</span></div>'
       + '</div>'
       + '<div class="drawer-section mb-2" id="rtw-section">'
       + '<div class="drawer-section-header"><span class="detail-label">Right to work</span></div>'
@@ -651,6 +657,64 @@
     }
   }
 
+  // ── Add Candidate (manual roster entry) ──────────────────
+  function openAddCandidateModal() {
+    document.getElementById('add-candidate-alert').innerHTML = '';
+    document.getElementById('cand-first-name').value = '';
+    document.getElementById('cand-last-name').value = '';
+    document.getElementById('cand-email').value = '';
+    document.getElementById('cand-phone').value = '';
+    document.getElementById('cand-postcode').value = '';
+    document.getElementById('cand-status').value = 'RECEIVED';
+    document.getElementById('cand-role').selectedIndex = 0;
+    document.getElementById('cand-experience').selectedIndex = 0;
+    document.getElementById('cand-notes').value = '';
+    AdminCore.openModal('add-candidate-modal');
+  }
+
+  async function submitAddCandidate(btn) {
+    var firstName = document.getElementById('cand-first-name').value.trim();
+    var lastName  = document.getElementById('cand-last-name').value.trim();
+    var email     = document.getElementById('cand-email').value.trim();
+
+    if (!firstName || !lastName || !email) {
+      AdminCore.showAlert('First name, last name and email are required.', 'error', 'add-candidate-alert');
+      return;
+    }
+
+    var body = {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      phone: document.getElementById('cand-phone').value.trim() || undefined,
+      postcode: document.getElementById('cand-postcode').value.trim() || undefined,
+      status: document.getElementById('cand-status').value,
+      notes: document.getElementById('cand-notes').value.trim() || undefined,
+      roles: [{
+        role: document.getElementById('cand-role').value,
+        experienceLevel: document.getElementById('cand-experience').value
+      }]
+    };
+
+    try {
+      await AdminCore.withLoading(btn, function () {
+        return fetch_('/api/v1/applications/manual', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+      });
+
+      AdminCore.closeModal('add-candidate-modal');
+      notify('Candidate added to the roster', 'success');
+      appPage = 1;
+      loadApplications();
+      loadAppStats();
+    } catch (e) {
+      AdminCore.showAlert(e.message, 'error', 'add-candidate-alert');
+    }
+  }
+
   async function resendRtwRequest(applicantId, btn) {
     var detail = applicationDetails[activeDrawerAppId];
     var name = detail && detail.applicant ? detail.applicant.fullName : 'this applicant';
@@ -735,6 +799,7 @@
         'success'
       );
       await loadApplications();
+      await loadAppStats();
       await refreshOpenDrawer(appId);
     } catch (e) {
       notify('Failed: ' + e.message, 'error');
@@ -877,9 +942,53 @@
       selectedAppIds.clear();
       updateBulkBar();
       await loadApplications();
+      await loadAppStats();
     };
     var run = btn ? AdminCore.withLoading(btn, doUpdate) : doUpdate();
     run.catch(function (e) { toast('Bulk update failed: ' + e.message, 'error'); });
+  }
+
+  // CSV export must cover the full filtered result set, not just the page
+  // on screen — walk every server page (same filters/sort as the table).
+  async function fetchAllFilteredApplications() {
+    var page = 1;
+    var limit = 50;
+    var combined = [];
+    while (true) {
+      var params = buildAppQueryParams({
+        page: page,
+        limit: limit,
+        sortCol: appSort.col,
+        sortDir: appSort.dir
+      });
+      var data = await fetch_('/api/v1/applications?' + params.toString());
+      var batch = Array.isArray(data) ? data : (data.applications || []);
+      combined = combined.concat(batch);
+      var totalPages = data.pagination ? data.pagination.totalPages : 1;
+      if (page >= totalPages || batch.length === 0) break;
+      page++;
+    }
+    return combined;
+  }
+
+  async function exportApplicationsCsv(btn) {
+    try {
+      var apps = await AdminCore.withLoading(btn, fetchAllFilteredApplications);
+      var rows = apps.map(function (a) {
+        return {
+          Name: a.firstName + ' ' + a.lastName,
+          Email: a.email,
+          Phone: a.phone || '',
+          Roles: (a.roles || []).map(function (r) { return typeof r === 'string' ? r : r.name; }).join('; '),
+          Postcode: a.postcode || '',
+          Status: a.status,
+          Applied: fmtD(a.createdAt)
+        };
+      });
+      AdminCore.exportCSV(rows, 'applicants');
+    } catch (e) {
+      notify('Export failed: ' + e.message, 'error');
+    }
   }
 
   // ── Contacts ────────────────────────────────────────────
@@ -1060,6 +1169,9 @@
     if (action === 'open-rtw-modal')     return openRtwModal(el.dataset.applicantId);
     if (action === 'close-rtw-modal')    return AdminCore.closeModal('rtw-modal');
     if (action === 'submit-rtw-check')   return submitRtwCheck(el);
+    if (action === 'open-add-candidate')  return openAddCandidateModal();
+    if (action === 'close-add-candidate-modal') return AdminCore.closeModal('add-candidate-modal');
+    if (action === 'submit-add-candidate') return submitAddCandidate(el);
     if (action === 'open-rtw-document')  return openRtwDocument(el.dataset.checkId);
     if (action === 'resend-rtw-request') return resendRtwRequest(el.dataset.applicantId, el);
     if (action === 'save-notes')         return saveNotes(el.dataset.appId);
@@ -1067,23 +1179,11 @@
     if (action === 'bulk-reject')        return bulkUpdateStatus('REJECTED', el);
     if (action === 'bulk-clear')         { selectedAppIds.clear(); updateBulkBar(); renderApplications(); return; }
 
-    if (action === 'app-prev-page') { appPage--; renderApplications(); return; }
-    if (action === 'app-next-page') { appPage++; renderApplications(); return; }
-    if (action === 'app-goto-page') { appPage = parseInt(el.dataset.page, 10); renderApplications(); return; }
+    if (action === 'app-prev-page') { appPage--; loadApplications(); return; }
+    if (action === 'app-next-page') { appPage++; loadApplications(); return; }
+    if (action === 'app-goto-page') { appPage = parseInt(el.dataset.page, 10); loadApplications(); return; }
 
-    if (action === 'export-apps-csv') {
-      var rows = filteredApps.map(function(a) {
-        return {
-          Name: a.firstName + ' ' + a.lastName,
-          Email: a.email,
-          Phone: a.phone || '',
-          Roles: (a.roles||[]).map(function(r){return typeof r==='string'?r:r.name;}).join('; '),
-          Status: a.status,
-          Applied: fmtD(a.createdAt)
-        };
-      });
-      return AdminCore.exportCSV(rows, 'applicants');
-    }
+    if (action === 'export-apps-csv') return exportApplicationsCsv(el);
   });
 
   // Checkbox delegation
@@ -1162,10 +1262,12 @@
     if (!session) return;
 
     AdminCore.initModalBehavior('rtw-modal');
+    AdminCore.initModalBehavior('add-candidate-modal');
 
     await Promise.all([
       loadStats(),
       loadApplications(),
+      loadAppStats(),
       loadContacts(),
       loadEvents()
     ]);

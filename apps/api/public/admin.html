@@ -164,6 +164,7 @@
               <span id="app-count" class="text-muted fs-sm">Loading…</span>
             </div>
             <div class="as-toolbar-right">
+              <button class="btn btn-primary btn-sm" data-action="open-add-candidate">+ Add Candidate</button>
               <button class="btn btn-ghost btn-sm" data-action="export-apps-csv">↓ CSV</button>
             </div>
           </div>
@@ -175,13 +176,14 @@
                 <th data-sort="email">Email <span class="sort-icon">↕</span></th>
                 <th data-sort="phone">Phone <span class="sort-icon">↕</span></th>
                 <th data-sort="roles">Roles <span class="sort-icon">↕</span></th>
+                <th data-sort="postcode">Postcode <span class="sort-icon">↕</span></th>
                 <th data-sort="status">Status <span class="sort-icon">↕</span></th>
                 <th data-sort="createdAt">Applied <span class="sort-icon">↕</span></th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody id="applications-body">
-              <tr><td colspan="8" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
+              <tr><td colspan="9" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
             </tbody>
           </table>
           <div class="as-pagination" id="app-pagination"></div>
@@ -377,6 +379,86 @@
       <div class="modal-footer">
         <button class="btn btn-ghost" data-action="close-rtw-modal">Cancel</button>
         <button class="btn btn-primary" data-action="submit-rtw-check">Save Check</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Candidate Manually -->
+  <div id="add-candidate-modal" class="modal-backdrop d-none">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Add Candidate</h2>
+        <button class="modal-close" data-action="close-add-candidate-modal" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <div id="add-candidate-alert"></div>
+        <div class="detail-grid mb-2">
+          <div class="detail-row">
+            <label class="as-label" for="cand-first-name">First name</label>
+            <input id="cand-first-name" class="as-input" maxlength="100">
+          </div>
+          <div class="detail-row">
+            <label class="as-label" for="cand-last-name">Last name</label>
+            <input id="cand-last-name" class="as-input" maxlength="100">
+          </div>
+        </div>
+        <div class="detail-grid mb-2">
+          <div class="detail-row">
+            <label class="as-label" for="cand-email">Email</label>
+            <input id="cand-email" class="as-input" type="email" maxlength="255">
+          </div>
+          <div class="detail-row">
+            <label class="as-label" for="cand-phone">Phone</label>
+            <input id="cand-phone" class="as-input" maxlength="20">
+          </div>
+        </div>
+        <div class="detail-grid mb-2">
+          <div class="detail-row">
+            <label class="as-label" for="cand-postcode">Postcode</label>
+            <input id="cand-postcode" class="as-input" maxlength="24">
+          </div>
+          <div class="detail-row">
+            <label class="as-label" for="cand-status">Status</label>
+            <select id="cand-status" class="as-input">
+              <option value="RECEIVED">New</option>
+              <option value="REVIEWING">Reviewing</option>
+              <option value="SHORTLISTED">Selected</option>
+              <option value="HIRED">Hired</option>
+              <option value="REJECTED">Rejected</option>
+            </select>
+          </div>
+        </div>
+        <div class="detail-grid mb-2">
+          <div class="detail-row">
+            <label class="as-label" for="cand-role">Role</label>
+            <select id="cand-role" class="as-input">
+              <option value="Bartender">Bartender</option>
+              <option value="Barista">Barista</option>
+              <option value="Front of House">Front of House</option>
+              <option value="Waiter">Waiter</option>
+              <option value="Chef">Chef</option>
+              <option value="Kitchen Porter">Kitchen Porter</option>
+              <option value="Runner">Runner</option>
+            </select>
+          </div>
+          <div class="detail-row">
+            <label class="as-label" for="cand-experience">Experience</label>
+            <select id="cand-experience" class="as-input">
+              <option value="Entry level">Entry level (0–1 years)</option>
+              <option value="1-2 years">1–2 years</option>
+              <option value="3-5 years">3–5 years</option>
+              <option value="5+ years">5+ years</option>
+            </select>
+          </div>
+        </div>
+        <div class="detail-row">
+          <label class="as-label" for="cand-notes">Notes</label>
+          <textarea id="cand-notes" maxlength="2000" placeholder="How this candidate was sourced, anything worth recording…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-action="close-add-candidate-modal">Cancel</button>
+        <button class="btn btn-primary" data-action="submit-add-candidate">Add Candidate</button>
       </div>
     </div>
   </div>

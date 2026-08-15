@@ -260,6 +260,135 @@ r.get('/', async (req, res, next) => {
   }
 });
 
+// GET /api/v1/admin/bookings/staff-options - roster members eligible to be booked
+r.get('/staff-options', async (req, res, next) => {
+  try {
+    const search = typeof req.query.search === 'string' ? req.query.search.trim() : '';
+    const where: any = {
+      userType: 'JOB_SEEKER',
+      staffTier: { not: null }
+    };
+    if (search) {
+      where.OR = [
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } }
+      ];
+    }
+
+    const staff = await prisma.user.findMany({
+      where,
+      orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
+      take: 100,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        staffTier: true,
+        staffAvailable: true
+      }
+    });
+
+    res.json({ ok: true, data: staff });
+  } catch (error) {
+    next(error);
+  }
+});
+
+const createBookingSchema = z.object({
+  clientId: z.string().min(1),
+  staffId: z.string().min(1),
+  eventName: z.string().max(200).optional(),
+  eventDate: z.string(),
+  eventEndDate: z.string().optional(),
+  location: z.string().min(1).max(200),
+  venue: z.string().max(200).optional(),
+  shiftStart: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+  shiftEnd: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+  hoursEstimated: z.number().positive().max(24).optional(),
+  hourlyRateCharged: z.number().positive(),
+  staffPayRate: z.number().positive().optional(),
+  bookingLane: z.enum(['FLEX', 'SELECT', 'MANAGED']).optional(),
+  status: z.enum(['PENDING', 'CONFIRMED']).default('CONFIRMED'),
+  clientNotes: z.string().max(2000).optional(),
+  adminNotes: z.string().max(2000).optional()
+});
+
+// POST /api/v1/admin/bookings - manually create a booking (rates entered by hand,
+// bypassing the client marketplace flow / PricingTier lookup)
+r.post('/', async (req, res, next) => {
+  try {
+    const data = createBookingSchema.parse(req.body);
+
+    const [client, staff] = await Promise.all([
+      prisma.client.findUnique({ where: { id: data.clientId }, select: { id: true, subscriptionTier: true } }),
+      prisma.user.findUnique({ where: { id: data.staffId }, select: { id: true, staffTier: true } })
+    ]);
+    if (!client) return res.status(404).json({ ok: false, error: 'Client not found' });
+    if (!staff) return res.status(404).json({ ok: false, error: 'Staff member not found' });
+    if (!staff.staffTier) {
+      return res.status(400).json({ ok: false, error: 'This roster member has no staff tier set — set one before booking them.' });
+    }
+
+    const eventDate = parseDateString(data.eventDate, 'eventDate');
+    const eventEndDate = data.eventEndDate ? parseDateString(data.eventEndDate, 'eventEndDate') : null;
+    if (eventEndDate && eventEndDate < eventDate) {
+      return res.status(400).json({ ok: false, error: 'eventEndDate cannot be before eventDate' });
+    }
+
+    const hoursEstimated = data.hoursEstimated != null ? new Prisma.Decimal(data.hoursEstimated) : null;
+    const totalEstimated = hoursEstimated != null
+      ? new Prisma.Decimal((data.hourlyRateCharged * data.hoursEstimated!).toFixed(2))
+      : null;
+
+    const booking = await prisma.booking.create({
+      data: {
+        clientId: client.id,
+        staffId: staff.id,
+        eventName: data.eventName,
+        eventDate,
+        eventEndDate,
+        location: data.location,
+        venue: data.venue,
+        shiftStart: data.shiftStart,
+        shiftEnd: data.shiftEnd,
+        hoursEstimated,
+        clientTierAtBooking: client.subscriptionTier,
+        staffTierAtBooking: staff.staffTier,
+        hourlyRateCharged: new Prisma.Decimal(data.hourlyRateCharged),
+        staffPayRate: data.staffPayRate != null ? new Prisma.Decimal(data.staffPayRate) : null,
+        totalEstimated,
+        bookingLane: data.bookingLane || 'FLEX',
+        clientNotes: data.clientNotes,
+        adminNotes: data.adminNotes,
+        status: data.status,
+        confirmedAt: data.status === 'CONFIRMED' ? new Date() : null,
+        confirmedBy: data.status === 'CONFIRMED' ? (req.session.username || 'admin') : null
+      },
+      include: {
+        client: {
+          select: { id: true, companyName: true, contactName: true, email: true, subscriptionTier: true, subscriptionStatus: true }
+        },
+        staff: {
+          select: {
+            id: true, firstName: true, lastName: true, email: true, staffTier: true,
+            staffAvailable: true, staffRating: true, staffReviewCount: true, staffBio: true, staffHighlights: true
+          }
+        }
+      }
+    });
+
+    console.log(`[BOOKING] Manually created: ${booking.id} by ${req.session.username || 'admin'}`);
+    res.status(201).json({ ok: true, data: shapeBooking(booking) });
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('must be a valid date')) {
+      return res.status(400).json({ ok: false, error: error.message });
+    }
+    next(error);
+  }
+});
+
 // GET /api/v1/admin/bookings/:id
 r.get('/:id', async (req, res, next) => {
   try {
