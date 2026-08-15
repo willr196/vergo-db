@@ -8,7 +8,7 @@ async function main() {
       key: 'rates-and-charges',
       heading: 'Rates and Charges',
       items: [
-        '£18.50 per hour, per person, plus VAT: one rate across waiting staff, bar staff, kitchen porters, runners and hosts',
+        '£19.00 per hour, per person: one rate across waiting staff, bar staff, kitchen porters, runners and hosts',
         '4-hour minimum charge per person, per booking',
         'Overruns beyond the confirmed end time are billed in 30-minute blocks',
         'Senior roles (supervisors, chefs, event managers) are quoted and agreed individually before booking',

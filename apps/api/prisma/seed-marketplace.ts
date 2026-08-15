@@ -1,9 +1,9 @@
 import { prisma } from '../src/prisma';
 
 const PRICING_MATRIX = [
-  { clientTier: 'STANDARD', staffTier: 'STANDARD', hourlyRate: '20.00', staffPayRate: '12.50', isBookable: true },
+  { clientTier: 'STANDARD', staffTier: 'STANDARD', hourlyRate: '19.00', staffPayRate: '12.50', isBookable: true },
   { clientTier: 'STANDARD', staffTier: 'ELITE', hourlyRate: '28.00', staffPayRate: '18.00', isBookable: false },
-  { clientTier: 'PREMIUM', staffTier: 'STANDARD', hourlyRate: '20.00', staffPayRate: '12.50', isBookable: true },
+  { clientTier: 'PREMIUM', staffTier: 'STANDARD', hourlyRate: '19.00', staffPayRate: '12.50', isBookable: true },
   { clientTier: 'PREMIUM', staffTier: 'ELITE', hourlyRate: '28.00', staffPayRate: '18.00', isBookable: true },
 ] as const;
 
