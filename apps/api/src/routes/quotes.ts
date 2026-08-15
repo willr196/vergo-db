@@ -323,7 +323,6 @@ r.post("/", quoteLimiter, async (req, res, next) => {
                   <p><strong>Staff Needed:</strong> ${safe(data.staffNeeded)}</p>
                   ${data.eventDate ? `<p><strong>Date:</strong> ${safe(data.eventDate)}</p>` : ''}
                   ${data.location ? `<p><strong>Location:</strong> ${safe(data.location)}</p>` : ''}
-                  ${data.estimatedTotal ? `<p><strong>Estimated Budget:</strong> £${safe(data.estimatedTotal.toLocaleString())}</p>` : ''}
                   ${savedQuoteId ? `<p style="color: #666; font-size: 12px;"><strong>Reference:</strong> ${safe(savedQuoteId)}</p>` : ''}
                 </div>
                 
