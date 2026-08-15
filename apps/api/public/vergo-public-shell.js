@@ -464,7 +464,7 @@
         <div>
           <p class="footer-title">Contact</p>
           <div class="footer-links">
-            <a href="https://wa.me/447506615242?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07506615242</a>
+            <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07944 505783</a>
             <p>Replies within 24 hours for most enquiries.</p>
             <p>London and surrounding areas.</p>
           </div>

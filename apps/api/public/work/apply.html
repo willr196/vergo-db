@@ -21,8 +21,8 @@
       <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">V</span>VERGO</a>
       <nav class="header-actions">
         <a class="switch-link" href="/work">Back to /work</a>
-        <a class="call-link" href="tel:+447506615242" data-vergo-tel="contact.phone" aria-label="Call VERGO">
-          <span data-vergo="contact.phoneDisplay">07506 615242</span>
+        <a class="call-link" href="tel:+447944505783" data-vergo-tel="contact.phone" aria-label="Call VERGO">
+          <span data-vergo="contact.phoneDisplay">07944 505783</span>
         </a>
       </nav>
     </div>
@@ -69,6 +69,10 @@
           <div class="form-field">
             <label for="postcode">Postcode</label>
             <input type="text" id="postcode" name="postcode" autocomplete="postal-code" placeholder="e.g. E1 6AN" required>
+          </div>
+          <div class="form-field">
+            <label for="dateOfBirth">Date of birth</label>
+            <input type="date" id="dateOfBirth" name="dateOfBirth" autocomplete="bday" required>
           </div>
         </div>
 
@@ -161,19 +165,14 @@
           <div id="roles-error" class="field-error-message" style="display: none;" role="alert"></div>
         </fieldset>
 
-        <fieldset class="form-field">
-          <legend>When are you generally free?</legend>
-          <div class="checkbox-grid">
-            <div class="checkbox-item"><input type="checkbox" id="avail-weekday-day" name="availability" value="Weekday daytime"><label for="avail-weekday-day">Weekday daytime</label></div>
-            <div class="checkbox-item"><input type="checkbox" id="avail-weekday-eve" name="availability" value="Weekday evenings"><label for="avail-weekday-eve">Weekday evenings</label></div>
-            <div class="checkbox-item"><input type="checkbox" id="avail-weekend-day" name="availability" value="Weekend daytime"><label for="avail-weekend-day">Weekend daytime</label></div>
-            <div class="checkbox-item"><input type="checkbox" id="avail-weekend-eve" name="availability" value="Weekend evenings"><label for="avail-weekend-eve">Weekend evenings</label></div>
-          </div>
-        </fieldset>
+        <div class="form-field">
+          <label for="availability">When are you generally free? (optional)</label>
+          <input type="text" id="availability" name="availability" maxlength="80" placeholder="e.g. weekends and weekday evenings">
+        </div>
 
         <div class="form-field">
-          <label for="bio">Anything else?</label>
-          <textarea id="bio" name="bio" maxlength="300" placeholder="A sentence or two about your experience"></textarea>
+          <label for="bio">Anything else? (optional)</label>
+          <textarea id="bio" name="bio" maxlength="200" placeholder="A sentence or two about your experience"></textarea>
         </div>
 
         <div class="form-field">
@@ -214,14 +213,14 @@
         <a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email">wrobb@vergoltd.com</a>
       </p>
       <p class="footer-contact">
-        <a href="tel:+447506615242" data-vergo-tel="contact.phone">07506 615242</a>
+        <a href="tel:+447944505783" data-vergo-tel="contact.phone">07944 505783</a>
       </p>
       <p class="footer-legal">
         <span data-vergo="company.legalName">Vergo Ltd</span>, registered in
         <span data-vergo="company.jurisdiction">England and Wales</span>, company no.
         <span data-vergo="company.number">16627585</span>. Registered office:
         <span data-vergo="company.registeredOffice">96 Sulivan Court, London, SW6 3DB</span>.
-        Employers' and public liability insured. All staff employed on PAYE.
+        Employers' and public liability insured.
       </p>
     </div>
   </footer>

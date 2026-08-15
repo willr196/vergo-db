@@ -20,7 +20,7 @@
 
   // Configuration with defaults
   const config = Object.assign({
-    phone: '447506615242',
+    phone: '447944505783',
     message: 'Hi, I\'d like to enquire about staffing for an event.',
     position: 'right',
     offset: 20,

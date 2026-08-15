@@ -15,16 +15,15 @@
     },
 
     contact: {
-      phone: '+44 7506 615242',
-      phoneDisplay: '07506 615242',
+      phone: '+44 7944 505783',
+      phoneDisplay: '07944 505783',
       email: 'wrobb@vergoltd.com',
     },
 
     rates: {
-      chargeRate: 18.50,
-      chargeRateDisplay: '£18.50',
+      chargeRate: 19.00,
+      chargeRateDisplay: '£19.00',
       minimumHours: 4,
-      vatNote: 'plus VAT',
       holidayPayPercent: 12.07,
     },
 
