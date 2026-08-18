@@ -13,6 +13,30 @@ export const PRICING = {
   vatRate: 0.20,
 } as const;
 
+/**
+ * Employer on-costs used by src/lib/money.ts booking margin calculations.
+ * All staff are PAYE — there is no self-employed engagement type.
+ */
+export const ON_COSTS = {
+  /** Statutory holiday accrual — exact, applies to every booking's wage. */
+  holidayAccrualRate: 0.1207,
+  /**
+   * Employer NI rate above the secondary threshold, gated per-person via
+   * User.niLiable since threshold status depends on a person's total
+   * earnings across the pay period, which isn't tracked here.
+   * NOT VERIFIED — confirm against HMRC rates for the current tax year
+   * before relying on this for real invoicing.
+   */
+  employerNiRate: 0.138,
+  /**
+   * Employer minimum auto-enrolment pension contribution on qualifying
+   * earnings, gated per-person via User.pensionEnrolled.
+   * NOT VERIFIED — confirm against the current scheme rules before relying
+   * on this for real invoicing.
+   */
+  employerPensionRate: 0.03,
+} as const;
+
 export interface VatBreakdown {
   net: number;
   vat: number;
