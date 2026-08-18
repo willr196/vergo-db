@@ -261,6 +261,13 @@ model Booking {
   staffId             String
   quoteRequestId      String?
   bookingLane         BookingLane      @default(FLEX)
+  /// Set when the client is invoiced for this booking; starts the float clock.
+  invoicedAt          DateTime?
+  /// +14 days from invoicedAt — when staff pay for this booking falls due.
+  staffPayDueAt       DateTime?
+  invoiceRef          String?
+  clientPaidAt        DateTime?
+  staffPaidAt         DateTime?
   client              Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
   quoteRequest        QuoteRequest?    @relation(fields: [quoteRequestId], references: [id])
   staff               User             @relation(fields: [staffId], references: [id], onDelete: Cascade)
@@ -272,6 +279,7 @@ model Booking {
   @@index([bookingLane])
   @@index([eventDate])
   @@index([createdAt])
+  @@index([clientPaidAt, staffPaidAt])
 }
 
 model Contact {
@@ -341,6 +349,12 @@ model User {
   staffRating         Decimal?         @db.Decimal(3, 2)
   staffReviewCount    Int              @default(0)
   staffHighlights     String?
+  /// Gates employer NI on this person's bookings — casual/low-hours staff are
+  /// nowhere near the NI threshold, so this defaults off rather than being
+  /// inferred from hours worked.
+  niLiable            Boolean          @default(false)
+  /// Gates employer pension contributions, same reasoning as niLiable.
+  pensionEnrolled     Boolean          @default(false)
   shortlistSelections Int              @default(0)
   seqId               Int              @unique @default(autoincrement())
   mustChangePassword  Boolean          @default(false)
