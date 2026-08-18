@@ -152,6 +152,7 @@ model Client {
   postcode              String?
   seqId                 Int                @unique @default(autoincrement())
   bookings              Booking[]
+  bookingTemplates      BookingTemplate[]
   jobs                  Job[]
   pushTokens            PushToken[]
   quoteRequests         QuoteRequest[]
@@ -268,11 +269,16 @@ model Booking {
   invoiceRef          String?
   clientPaidAt        DateTime?
   staffPaidAt         DateTime?
+  /// Set when this booking was generated from a BookingTemplate, so a
+  /// re-run of that template's generation can't double-book the same day.
+  templateId          String?
   client              Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
   quoteRequest        QuoteRequest?    @relation(fields: [quoteRequestId], references: [id])
   staff               User             @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  template            BookingTemplate? @relation(fields: [templateId], references: [id])
   review              BookingReview?
 
+  @@unique([templateId, eventDate])
   @@index([clientId])
   @@index([staffId])
   @@index([status])
@@ -280,6 +286,34 @@ model Booking {
   @@index([eventDate])
   @@index([createdAt])
   @@index([clientPaidAt, staffPaidAt])
+}
+
+model BookingTemplate {
+  id                String       @id @default(cuid())
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  name              String
+  clientId          String
+  staffId           String
+  role              String?
+  /// 1 = Monday .. 7 = Sunday (ISO weekday numbering).
+  weekdays          Int[]
+  shiftStart        String
+  shiftEnd          String
+  breakMins         Int          @default(0)
+  /// Explicit rates take precedence over the client/staff tier's PricingTier
+  /// rate, same precedence as manual booking creation.
+  hourlyRateCharged Decimal?     @db.Decimal(10, 2)
+  staffPayRate      Decimal?     @db.Decimal(10, 2)
+  bookingLane       BookingLane  @default(FLEX)
+  active            Boolean      @default(true)
+  client            Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  staff             User         @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  bookings          Booking[]
+
+  @@index([clientId])
+  @@index([staffId])
+  @@index([active])
 }
 
 model Contact {
@@ -359,6 +393,7 @@ model User {
   seqId               Int              @unique @default(autoincrement())
   mustChangePassword  Boolean          @default(false)
   bookings            Booking[]
+  bookingTemplates    BookingTemplate[]
   jobApplications     JobApplication[]
   pushTokens          PushToken[]
   refreshTokens       RefreshToken[]
