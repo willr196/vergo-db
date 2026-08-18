@@ -98,4 +98,23 @@
   } else {
     applyVergoConfig();
   }
+
+  // The rates block above is a fallback only, used until this resolves (or if
+  // it fails) — /api/v1/rates, backed by config/pricing.ts, is the actual
+  // source of truth. Re-applies once loaded so any figure already rendered
+  // from the fallback gets corrected rather than left stale.
+  fetch('/api/v1/rates')
+    .then(function (res) { return res.ok ? res.json() : null; })
+    .then(function (body) {
+      if (!body || !body.ok || !body.data) return;
+      var rate = body.data.standardRate;
+      window.VERGO_CONFIG.rates.chargeRate = rate;
+      window.VERGO_CONFIG.rates.chargeRateDisplay = '£' + Number(rate).toFixed(2);
+      window.VERGO_CONFIG.rates.minimumHours = body.data.minimumChargeHours;
+      window.VERGO_CONFIG.rates.holidayPayPercent = body.data.holidayPayPercent;
+      applyVergoConfig();
+    })
+    .catch(function () {
+      // Offline or the API is unreachable — the fallback above stands.
+    });
 })();

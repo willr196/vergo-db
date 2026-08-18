@@ -8,7 +8,9 @@
   var submitBtn = document.getElementById('quoteSubmit');
 
   function getConfig() {
-    return (window.VERGO_CONFIG && window.VERGO_CONFIG.rates) || { chargeRate: 19.00, minimumHours: 4 };
+    // vergo-site-config.js always runs first and always defines this — no
+    // second copy of the rate lives here.
+    return window.VERGO_CONFIG.rates;
   }
 
   function hoursBetween(start, end) {

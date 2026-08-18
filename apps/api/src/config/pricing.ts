@@ -105,5 +105,6 @@ export function getPublicRateCard() {
     afterMidnightMultiplier: PRICING.afterMidnightMultiplier,
     vatRegistered: PRICING.vatRegistered,
     vatRate: PRICING.vatRate,
+    holidayPayPercent: round2(ON_COSTS.holidayAccrualRate * 100),
   };
 }
