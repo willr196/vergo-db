@@ -96,6 +96,175 @@
       text-transform: uppercase;
       letter-spacing: 0.45px;
     }
+
+    /* ── Float band ─────────────────────────────────────────────────── */
+    .float-band {
+      background: var(--as-card);
+      border: 1px solid var(--as-border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+    }
+
+    .float-band-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .float-band-header h2 {
+      margin: 0;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--as-text);
+    }
+
+    .float-band-note {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--as-muted);
+    }
+
+    .float-band-figures {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .float-figure {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .float-figure-label {
+      font-size: 0.72rem;
+      color: var(--as-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .float-figure-value {
+      font-size: 1.35rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--as-text);
+    }
+
+    .float-figure-free .float-figure-value { color: var(--as-gold); }
+
+    .float-bar {
+      height: 10px;
+      border-radius: 6px;
+      background: var(--as-gold-bg);
+      overflow: hidden;
+    }
+
+    .float-bar-committed {
+      height: 100%;
+      width: 0%;
+      background: var(--as-muted);
+      border-radius: 6px 0 0 6px;
+      transition: width var(--as-transition-mid, 250ms) ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .float-bar-committed { transition: none; }
+    }
+
+    /* ── Needs you queue ────────────────────────────────────────────── */
+    .needs-you {
+      margin-bottom: 20px;
+    }
+
+    .needs-you h2 {
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--as-text);
+    }
+
+    .queue-empty {
+      color: var(--as-muted);
+      font-size: 0.9rem;
+      padding: 14px 0;
+    }
+
+    .queue-section {
+      margin-bottom: 14px;
+    }
+
+    .queue-section-label {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--as-gold);
+      margin: 0 0 6px;
+    }
+
+    .queue-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--as-card);
+      border: 1px solid var(--as-border);
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    .queue-row-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .queue-row-title {
+      font-size: 0.88rem;
+      color: var(--as-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .queue-row-meta {
+      font-size: 0.76rem;
+      color: var(--as-muted);
+    }
+
+    .queue-row-margin {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .queue-row-margin.margin-low {
+      color: var(--as-warning);
+    }
+
+    .queue-row-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .queue-row a.btn,
+    .queue-row button.btn {
+      white-space: nowrap;
+    }
+
+    @media (max-width: 640px) {
+      .float-band-figures { grid-template-columns: 1fr; }
+      .queue-row { flex-direction: column; align-items: stretch; }
+      .queue-row-actions { flex-wrap: wrap; }
+    }
   </style>
 </head>
 <body>
@@ -126,6 +295,37 @@
         </div>
         <button class="btn btn-warning btn-sm" data-action="view-pending">View Pending</button>
       </div>
+
+      <section class="float-band" aria-labelledby="float-band-title">
+        <div class="float-band-header">
+          <h2 id="float-band-title">Float</h2>
+          <p class="float-band-note" id="float-unwind-note">&nbsp;</p>
+        </div>
+        <div class="float-band-figures">
+          <div class="float-figure">
+            <span class="float-figure-label">Held</span>
+            <span class="float-figure-value" id="float-held">£0.00</span>
+          </div>
+          <div class="float-figure">
+            <span class="float-figure-label">Committed</span>
+            <span class="float-figure-value" id="float-committed">£0.00</span>
+          </div>
+          <div class="float-figure float-figure-free">
+            <span class="float-figure-label">Free</span>
+            <span class="float-figure-value" id="float-free">£0.00</span>
+          </div>
+        </div>
+        <div class="float-bar" role="img" aria-label="Proportion of held money that is free versus committed to staff pay and on-costs">
+          <div class="float-bar-committed" id="float-bar-committed"></div>
+        </div>
+      </section>
+
+      <section class="needs-you" aria-labelledby="needs-you-title">
+        <h2 id="needs-you-title">Needs you</h2>
+        <div id="needs-you-body">
+          <div class="as-skeleton" style="max-width:100%;height:60px"></div>
+        </div>
+      </section>
 
       <div class="as-filters">
         <div class="as-filter-group">

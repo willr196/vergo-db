@@ -26,6 +26,35 @@
     return '£' + num.toFixed(2);
   }
 
+  const gbpFormatter = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' });
+
+  /** Formats whole pence (as returned by the dashboard/money endpoints) as £-GBP. */
+  function gbp(pence) {
+    if (pence == null || !Number.isFinite(Number(pence))) return '-';
+    return gbpFormatter.format(Number(pence) / 100);
+  }
+
+  function shiftTimes(booking) {
+    if (!booking.shiftStart || !booking.shiftEnd) return '';
+    return booking.shiftStart + '–' + booking.shiftEnd;
+  }
+
+  function bookingLabel(booking) {
+    const who = booking.client ? booking.client.companyName : 'Unknown client';
+    const staff = booking.staff ? (booking.staff.firstName + ' ' + booking.staff.lastName) : 'unassigned';
+    return esc(who) + ' — ' + esc(staff);
+  }
+
+  function whatsappChaseUrl(booking) {
+    const staff = booking.staff;
+    if (!staff || !staff.phone) return null;
+    const digits = String(staff.phone).replace(/[^\d+]/g, '').replace(/^\+/, '');
+    const when = formatDate(booking.eventDate) + (shiftTimes(booking) ? ' (' + shiftTimes(booking) + ')' : '');
+    const message = 'Hi ' + staff.firstName + ', can you confirm you\'re still good for ' +
+      (booking.eventName || 'the shift') + ' on ' + when + '?';
+    return 'https://wa.me/' + digits + '?text=' + encodeURIComponent(message);
+  }
+
   function setText(id, value) {
     const el = document.getElementById(id);
     if (el) el.textContent = String(value);
@@ -182,7 +211,170 @@
   }
 
   async function refreshData() {
-    await Promise.all([loadStats(), loadBookings(currentPage)]);
+    await Promise.all([loadStats(), loadBookings(currentPage), loadDashboard()]);
+  }
+
+  // ── Float band + Needs You queue ─────────────────────────────────────
+
+  let dashboardBookingsById = {};
+
+  function renderFloatBand(float) {
+    setText('float-held', gbp(float.heldPence));
+    setText('float-committed', gbp(float.committedPence));
+    setText('float-free', gbp(float.freePence));
+
+    const bar = document.getElementById('float-bar-committed');
+    const pct = float.heldPence > 0 ? Math.min(100, Math.round((float.committedPence / float.heldPence) * 100)) : 0;
+    if (bar) bar.style.width = pct + '%';
+
+    const note = document.getElementById('float-unwind-note');
+    if (!note) return;
+    if (!float.unwindsFrom) {
+      note.textContent = 'Nothing held right now.';
+    } else if (float.daysToUnwind <= 0) {
+      note.textContent = 'Staff pay on held bookings is due — starts leaving now.';
+    } else {
+      note.textContent = 'Starts leaving in ' + float.daysToUnwind + (float.daysToUnwind === 1 ? ' day' : ' days') +
+        ' (' + formatDate(float.unwindsFrom) + ').';
+    }
+  }
+
+  function queueRowActions(booking) {
+    const id = esc(booking.id);
+    switch (booking.status) {
+      case 'PENDING': {
+        const chase = whatsappChaseUrl(booking);
+        return (chase ? '<a class="btn btn-ghost btn-sm" href="' + esc(chase) + '" target="_blank" rel="noopener noreferrer">Chase via WhatsApp</a>' : '') +
+          '<button class="btn btn-success btn-sm" data-action="confirm-booking" data-id="' + id + '">Confirm</button>' +
+          '<button class="btn btn-danger btn-sm" data-action="open-reject" data-id="' + id + '">Reject</button>';
+      }
+      case 'CONFIRMED':
+        return '<button class="btn btn-info btn-sm" data-action="open-complete" data-id="' + id + '">Log hours</button>';
+      case 'COMPLETED':
+        if (!booking.invoicedAt) {
+          return '<button class="btn btn-primary btn-sm" data-action="send-invoice" data-id="' + id + '">Send invoice</button>';
+        }
+        if (!booking.clientPaidAt) {
+          return '<button class="btn btn-primary btn-sm" data-action="mark-client-paid" data-id="' + id + '">Mark client paid</button>';
+        }
+        if (!booking.staffPaidAt) {
+          return '<button class="btn btn-primary btn-sm" data-action="mark-staff-paid" data-id="' + id + '">Mark staff paid</button>';
+        }
+        return '';
+      default:
+        return '';
+    }
+  }
+
+  function renderQueueRow(booking) {
+    const margin = booking.money ? booking.money.netMarginPence : null;
+    const marginLow = booking.money && booking.money.revenuePence > 0 &&
+      (booking.money.netMarginPence / booking.money.revenuePence) < 0.1;
+    const provisional = booking.money && booking.money.provisional;
+
+    return '<div class="queue-row">' +
+      '<div class="queue-row-info">' +
+        '<span class="queue-row-title">' + bookingLabel(booking) + (booking.eventName ? ' — ' + esc(booking.eventName) : '') + '</span>' +
+        '<span class="queue-row-meta">' + esc(formatDate(booking.eventDate)) + (shiftTimes(booking) ? ' · ' + esc(shiftTimes(booking)) : '') +
+          (margin != null ? ' · <span class="queue-row-margin' + (marginLow ? ' margin-low' : '') + '">' + gbp(margin) + ' net' + (provisional ? ' (est.)' : '') + '</span>' : '') +
+        '</span>' +
+      '</div>' +
+      '<div class="queue-row-actions">' + queueRowActions(booking) + '</div>' +
+    '</div>';
+  }
+
+  function renderNeedsStaffRow(item) {
+    return '<div class="queue-row">' +
+      '<div class="queue-row-info">' +
+        '<span class="queue-row-title">' + esc(item.eventType || 'Event') + '</span>' +
+        '<span class="queue-row-meta">' + esc(formatDate(item.eventDate)) + ' · ' + item.staffed + '/' + item.staffCount + ' staffed</span>' +
+      '</div>' +
+      '<div class="queue-row-actions">' +
+        '<button class="btn btn-ghost btn-sm" data-action="assign-staff" data-id="' + esc(item.quoteRequestId) + '">Assign staff</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  const QUEUE_LABELS = {
+    needsStaff: 'Needs staff',
+    staffNotConfirmed: 'Staff not confirmed',
+    logHours: 'Log hours',
+    sendInvoice: 'Send invoice',
+    chasePayment: 'Chase payment',
+    runPayroll: 'Run payroll',
+  };
+
+  function renderQueue(sections) {
+    const body = document.getElementById('needs-you-body');
+    if (!body) return;
+
+    if (!sections || sections.length === 0) {
+      body.innerHTML = '<div class="queue-empty">Nothing needs you.</div>';
+      return;
+    }
+
+    body.innerHTML = sections.map((section) => {
+      const label = QUEUE_LABELS[section.key] || section.key;
+      const rows = section.key === 'needsStaff'
+        ? section.items.map(renderNeedsStaffRow)
+        : section.items.map((item) => renderQueueRow(dashboardBookingsById[item.id] || item));
+      return '<div class="queue-section">' +
+        '<p class="queue-section-label">' + esc(label) + ' (' + section.items.length + ')</p>' +
+        rows.join('') +
+        '</div>';
+    }).join('');
+  }
+
+  async function loadDashboard() {
+    try {
+      const data = await get('/api/v1/admin/bookings/dashboard');
+      dashboardBookingsById = {};
+      (data.bookings || []).forEach((b) => { dashboardBookingsById[b.id] = b; });
+      renderFloatBand(data.float);
+      renderQueue(data.queue);
+    } catch (err) {
+      console.error('[ADMIN] Failed to load dashboard', err);
+      toast('Failed to load the float/queue: ' + err.message, 'error');
+    }
+  }
+
+  async function sendInvoice(id) {
+    if (!confirm('Mark this booking as invoiced? This starts the 14-day staff pay clock.')) return;
+    try {
+      await get('/api/v1/admin/bookings/' + encodeURIComponent(id) + '/invoice', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}),
+      });
+      toast('Booking invoiced', 'success');
+      await refreshData();
+    } catch (err) {
+      toast('Failed to invoice booking: ' + err.message, 'error');
+    }
+  }
+
+  async function markClientPaid(id) {
+    if (!confirm('Mark the client as paid for this booking?')) return;
+    try {
+      await get('/api/v1/admin/bookings/' + encodeURIComponent(id) + '/mark-client-paid', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}),
+      });
+      toast('Client payment recorded', 'success');
+      await refreshData();
+    } catch (err) {
+      toast('Failed to record client payment: ' + err.message, 'error');
+    }
+  }
+
+  async function markStaffPaid(id) {
+    if (!confirm('Mark staff as paid for this booking?')) return;
+    try {
+      await get('/api/v1/admin/bookings/' + encodeURIComponent(id) + '/mark-staff-paid', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}),
+      });
+      toast('Staff payment recorded', 'success');
+      await refreshData();
+    } catch (err) {
+      toast('Failed to record staff payment: ' + err.message, 'error');
+    }
   }
 
   async function confirmBooking(id) {
@@ -588,6 +780,11 @@
     if (action === 'open-new-booking') return openNewBookingModal();
     if (action === 'close-new-booking-modal') return closeNewBookingModal();
     if (action === 'submit-new-booking') return submitNewBooking(el);
+
+    if (action === 'send-invoice') return sendInvoice(id);
+    if (action === 'mark-client-paid') return markClientPaid(id);
+    if (action === 'mark-staff-paid') return markStaffPaid(id);
+    if (action === 'assign-staff') return toast('Staff assignment picker isn\'t built yet — create the booking manually via "New Booking".', 'info');
   });
 
   document.getElementById('filter-search').addEventListener('keydown', (event) => {
@@ -606,6 +803,6 @@
     AdminCore.initModalBehavior('complete-modal');
     AdminCore.initModalBehavior('new-booking-modal');
 
-    await Promise.all([loadStats(), loadBookings(1)]);
+    await Promise.all([loadStats(), loadBookings(1), loadDashboard()]);
   })();
 })();
