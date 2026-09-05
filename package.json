@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "blog:build": "node tools/blog/build.js",
+    "blog:check": "node tools/blog/build.js --check",
+    "blog:drafts": "node tools/blog/build.js --drafts"
+  },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.929.0",
     "cookie-parser": "^1.4.7",

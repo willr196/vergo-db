@@ -459,6 +459,7 @@
             <a href="/">Home</a>
             <a href="/hire">For clients</a>
             <a href="/work">For workers</a>
+            <a href="/blog">Blog</a>
           </div>
         </div>
         <div>
