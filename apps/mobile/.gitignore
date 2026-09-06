@@ -15,3 +15,11 @@ Thumbs.db
 google-services-key.json
 google-services.json
 GoogleService-Info.plist
+
+# Local Metro export used to verify the bundle builds
+dist-export/
+
+# Native projects are generated from app.json by prebuild/EAS (CNG).
+# Never commit them: they go stale and start overriding app.json.
+/android/
+/ios/

@@ -29,7 +29,8 @@
         }
       ],
       "expo-local-authentication",
-      "@sentry/react-native/expo"
+      "@sentry/react-native/expo",
+      "@react-native-community/datetimepicker"
     ],
     "ios": {
       "supportsTablet": false,

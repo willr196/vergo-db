@@ -3,6 +3,11 @@ import '@testing-library/jest-native/extend-expect';
 // Mock expo-secure-store
 // Sentry ships untranspiled ESM and must never fire in tests, so it is mocked
 // rather than added to transformIgnorePatterns.
+// AsyncStorage 2.x throws 'NativeModule: AsyncStorage is null' under Jest
+// unless the mock the package ships is registered. Suites that need to assert
+// on storage calls still mock it themselves; a local jest.mock wins over this.
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock'));
 jest.mock('@sentry/react-native', () => ({
   init: jest.fn(),
   setUser: jest.fn(),
