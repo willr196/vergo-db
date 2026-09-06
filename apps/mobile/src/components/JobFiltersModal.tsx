@@ -1,6 +1,6 @@
 /**
  * Job Filters Modal
- * Modal for filtering job listings by role, rate, and DBS requirement
+ * Modal for filtering job listings by role and rate
  */
 
 import React, { useState } from 'react';
@@ -133,32 +133,6 @@ export function JobFiltersModal({
               </TouchableOpacity>
             ))}
           </View>
-
-          {/* DBS Filter */}
-          <TouchableOpacity
-            style={styles.checkboxRow}
-            onPress={() =>
-              setTempFilters({
-                ...tempFilters,
-                dbsRequired:
-                  tempFilters.dbsRequired === false ? undefined : false,
-              })
-            }
-          >
-            <View
-              style={[
-                styles.checkbox,
-                tempFilters.dbsRequired === false && styles.checkboxActive,
-              ]}
-            >
-              {tempFilters.dbsRequired === false && (
-                <Text style={styles.checkmark}>✓</Text>
-              )}
-            </View>
-            <Text style={styles.checkboxLabel}>
-              Hide jobs requiring DBS check
-            </Text>
-          </TouchableOpacity>
         </View>
 
         {/* Footer */}
@@ -272,39 +246,6 @@ const styles = StyleSheet.create({
 
   rateChipTextActive: {
     color: colors.textInverse,
-  },
-
-  checkboxRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: spacing.lg,
-    gap: spacing.sm,
-  },
-
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: colors.surfaceBorder,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  checkboxActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-
-  checkmark: {
-    color: colors.textInverse,
-    fontSize: 14,
-    fontWeight: '700' as const,
-  },
-
-  checkboxLabel: {
-    color: colors.textPrimary,
-    fontSize: typography.fontSize.md,
   },
 
   footer: {

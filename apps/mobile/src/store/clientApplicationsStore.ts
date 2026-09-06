@@ -49,11 +49,13 @@ interface ClientApplicationsState {
   fetchApplication: (applicationId: string) => Promise<Application>;
   updateApplicationStatus: (
     applicationId: string,
-    action: ClientApplicationAction
+    action: ClientApplicationAction,
+    rejectionReason?: string
   ) => Promise<Application>;
   setStatusFilter: (filter: ClientApplicationStatusFilter) => void;
   clearSelectedApplication: () => void;
   clearError: () => void;
+  reset: () => void;
 }
 
 // Find the jobId an application currently lives under (used so callers don't
@@ -189,7 +191,7 @@ export const useClientApplicationsStore = create<ClientApplicationsState>((set, 
     }
   },
 
-  updateApplicationStatus: async (applicationId, action) => {
+  updateApplicationStatus: async (applicationId, action, rejectionReason) => {
     const { applicationsByJobId, selectedApplication } = get();
     const jobId = findJobIdForApplication(
       applicationsByJobId,
@@ -210,7 +212,12 @@ export const useClientApplicationsStore = create<ClientApplicationsState>((set, 
       } else if (action === 'hire') {
         updated = await applicationsApi.hireApplicant(applicationId, jobId);
       } else if (action === 'reject') {
-        updated = await applicationsApi.rejectApplicant(applicationId, jobId);
+        if (!rejectionReason?.trim()) {
+          const message = 'A rejection reason is required';
+          set({ error: message });
+          throw new Error(message);
+        }
+        updated = await applicationsApi.rejectApplicant(applicationId, jobId, rejectionReason.trim());
       } else {
         updated = await applicationsApi.updateApplicationStatus(
           applicationId,
@@ -259,6 +266,14 @@ export const useClientApplicationsStore = create<ClientApplicationsState>((set, 
 
   clearError: () => {
     set({ error: null });
+  },
+
+  reset: () => {
+    set({
+      applicationsByJobId: {}, selectedApplication: null, isLoading: false,
+      isRefreshing: false, isLoadingMore: false, error: null, currentPage: 1,
+      totalPages: 1, hasMore: false, currentJobId: null, statusFilter: 'all',
+    });
   },
 }));
 

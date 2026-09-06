@@ -36,6 +36,10 @@ export {
 export {
   saveCache,
   loadCache,
+  activateUserCache,
+  deactivateUserCache,
+  clearUserCache,
+  updateQueuedAction,
   enqueueAction,
   getQueue,
   removeFromQueue,

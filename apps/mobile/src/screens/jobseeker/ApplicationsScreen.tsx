@@ -18,8 +18,8 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { useFocusEffect, type CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { StatusBadge, LoadingScreen, EmptyState, ErrorState } from '../../components';
-import { useApplicationsStore } from '../../store';
+import { Button, StatusBadge, LoadingScreen, EmptyState, ErrorState } from '../../components';
+import { useApplicationsStore, useNetworkStore } from '../../store';
 import { formatDate, formatRelativeDate } from '../../utils';
 import type { RootStackParamList, JobSeekerTabParamList, Application, ApplicationStatus } from '../../types';
 
@@ -51,6 +51,10 @@ export function ApplicationsScreen({ navigation }: Props) {
     fetchMoreApplications,
     setStatusFilter,
   } = useApplicationsStore();
+  const queuedActionsCount = useNetworkStore((state) => state.queuedActionsCount);
+  const actionsNeedingAttention = useNetworkStore((state) => state.actionsNeedingAttention);
+  const isReplayingQueue = useNetworkStore((state) => state.isReplayingQueue);
+  const retryFailedActions = useNetworkStore((state) => state.retryFailedActions);
 
   useFocusEffect(
     useCallback(() => {
@@ -151,6 +155,33 @@ export function ApplicationsScreen({ navigation }: Props) {
         </Text>
       </View>
 
+      {queuedActionsCount > 0 && (
+        <View style={[
+          styles.queueNotice,
+          actionsNeedingAttention > 0 && styles.queueNoticeAttention,
+        ]}>
+          <View style={styles.queueNoticeCopy}>
+            <Text style={styles.queueNoticeTitle}>
+              {actionsNeedingAttention > 0 ? 'Action needed' : 'Application change queued'}
+            </Text>
+            <Text style={styles.queueNoticeText}>
+              {actionsNeedingAttention > 0
+                ? `${actionsNeedingAttention} change${actionsNeedingAttention === 1 ? '' : 's'} could not be completed. Review the job and try again.`
+                : `${queuedActionsCount} change${queuedActionsCount === 1 ? '' : 's'} will be sent when you are back online.`}
+            </Text>
+          </View>
+          {actionsNeedingAttention > 0 && (
+            <Button
+              title={isReplayingQueue ? 'Retrying…' : 'Retry'}
+              onPress={retryFailedActions}
+              disabled={isReplayingQueue}
+              variant="outline"
+              style={styles.retryButton}
+            />
+          )}
+        </View>
+      )}
+
       {/* Status Filter */}
       <View style={styles.filterContainer}>
         <FlatList
@@ -239,6 +270,45 @@ const styles = StyleSheet.create({
   filterContainer: {
     borderBottomWidth: 1,
     borderBottomColor: colors.surfaceBorder,
+  },
+
+  queueNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+    padding: spacing.md,
+    backgroundColor: colors.infoSoft,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.info,
+  },
+
+  queueNoticeAttention: {
+    backgroundColor: colors.warningSoft,
+    borderColor: colors.warning,
+  },
+
+  queueNoticeCopy: {
+    flex: 1,
+  },
+
+  queueNoticeTitle: {
+    color: colors.textPrimary,
+    fontSize: typography.fontSize.sm,
+    fontWeight: '700' as const,
+  },
+
+  queueNoticeText: {
+    color: colors.textSecondary,
+    fontSize: typography.fontSize.xs,
+    lineHeight: 18,
+    marginTop: spacing.xs,
+  },
+
+  retryButton: {
+    minWidth: 72,
   },
 
   filterList: {

@@ -10,6 +10,8 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  Modal,
+  TextInput,
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -52,6 +54,8 @@ export function BookingDetailScreen({ navigation, route }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [isCancelling, setIsCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState('');
 
   const fetchBooking = useCallback(async () => {
     try {
@@ -79,19 +83,36 @@ export function BookingDetailScreen({ navigation, route }: Props) {
   const handleCancelBooking = () => {
     if (!booking) return;
 
+    setCancellationReason('');
+    setShowCancelModal(true);
+  };
+
+  const submitCancellation = async () => {
+    if (!booking) return;
+    const reason = cancellationReason.trim();
+    if (!reason) {
+      Alert.alert('Reason required', 'Please explain why this booking is being cancelled.');
+      return;
+    }
+
     Alert.alert(
       'Cancel Booking',
-      'Are you sure you want to cancel this booking?',
+      'This will cancel the booking and notify the worker.',
       [
         { text: 'Keep Booking', style: 'cancel' },
         {
           text: 'Cancel Booking',
           style: 'destructive',
           onPress: async () => {
+            setShowCancelModal(false);
             setIsCancelling(true);
             try {
-              const result = await marketplaceApi.cancelBooking(booking.id);
-              setBooking((current) => current ? { ...current, status: result.status } : current);
+              const result = await marketplaceApi.cancelBooking(booking.id, reason);
+              setBooking((current) => current ? {
+                ...current,
+                status: result.status,
+                rejectionReason: result.rejectionReason,
+              } : current);
               Alert.alert('Booking Cancelled', 'This booking has been cancelled.');
             } catch (err) {
               const message = err instanceof Error ? err.message : 'Failed to cancel booking';
@@ -130,6 +151,32 @@ export function BookingDetailScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Modal visible={showCancelModal} transparent animationType="fade" onRequestClose={() => setShowCancelModal(false)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.cancelModal}>
+            <Text style={styles.modalTitle}>Cancel booking</Text>
+            <Text style={styles.modalText}>This reason will be visible to the worker.</Text>
+            <TextInput
+              value={cancellationReason}
+              onChangeText={setCancellationReason}
+              placeholder="Explain the cancellation"
+              placeholderTextColor={colors.textMuted}
+              multiline
+              maxLength={500}
+              autoFocus
+              style={styles.reasonInput}
+            />
+            <View style={styles.modalActions}>
+              <TouchableOpacity onPress={() => setShowCancelModal(false)} style={styles.modalCancelButton}>
+                <Text style={styles.modalCancelText}>Keep booking</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={submitCancellation} style={styles.modalConfirmButton}>
+                <Text style={styles.modalConfirmText}>Continue</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>‹ Back</Text>
@@ -188,9 +235,9 @@ export function BookingDetailScreen({ navigation, route }: Props) {
           </View>
         ) : null}
 
-        {booking.status === 'REJECTED' && booking.rejectionReason ? (
+        {(booking.status === 'REJECTED' || booking.status === 'CANCELLED') && booking.rejectionReason ? (
           <View style={styles.rejectionCard}>
-            <Text style={styles.rejectionTitle}>Rejection Reason</Text>
+            <Text style={styles.rejectionTitle}>{booking.status === 'CANCELLED' ? 'Cancellation reason' : 'Worker decline reason'}</Text>
             <Text style={styles.rejectionText}>{booking.rejectionReason}</Text>
           </View>
         ) : null}
@@ -313,6 +360,49 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.sm,
     lineHeight: 20,
   },
+  modalBackdrop: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: spacing.lg,
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+  },
+  cancelModal: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+  },
+  modalTitle: {
+    color: colors.textPrimary,
+    fontSize: typography.fontSize.lg,
+    fontWeight: '700' as const,
+  },
+  modalText: {
+    color: colors.textSecondary,
+    fontSize: typography.fontSize.sm,
+    marginTop: spacing.xs,
+  },
+  reasonInput: {
+    minHeight: 112,
+    marginTop: spacing.md,
+    padding: spacing.md,
+    color: colors.textPrimary,
+    backgroundColor: colors.background,
+    borderColor: colors.surfaceBorder,
+    borderWidth: 1,
+    borderRadius: borderRadius.md,
+    fontSize: typography.fontSize.md,
+    textAlignVertical: 'top',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: spacing.sm,
+    marginTop: spacing.lg,
+  },
+  modalCancelButton: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
+  modalCancelText: { color: colors.textSecondary, fontSize: typography.fontSize.md, fontWeight: '600' as const },
+  modalConfirmButton: { backgroundColor: colors.error, borderRadius: borderRadius.md, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
+  modalConfirmText: { color: colors.textInverse, fontSize: typography.fontSize.md, fontWeight: '600' as const },
   timelineRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

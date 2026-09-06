@@ -7,6 +7,7 @@ import apiClient, { setAuthTokens, clearAuthTokens, STORAGE_KEYS } from './clien
 import * as SecureStore from 'expo-secure-store';
 import { normalizeClientCompany, normalizeJobSeeker } from './normalizers';
 import { logger } from '../utils/logger';
+import { activateUserCache } from '../utils/network';
 import {
   isBiometricEnabled,
   isBiometricAvailable,
@@ -119,6 +120,7 @@ export const authApi = {
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_TYPE, credentials.userType);
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, JSON.stringify(normalizedUser));
       await SecureStore.setItemAsync(STORAGE_KEYS.LAST_ACTIVE, Date.now().toString());
+      activateUserCache(credentials.userType, normalizedUser.id);
 
       return {
         token,
@@ -146,6 +148,7 @@ export const authApi = {
       await setAuthTokens(token, refreshToken);
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_TYPE, 'jobseeker');
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, JSON.stringify(normalizedUser));
+      activateUserCache('jobseeker', normalizedUser.id);
 
       return {
         token,
@@ -186,6 +189,7 @@ export const authApi = {
       await setAuthTokens(token, refreshToken);
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_TYPE, 'client');
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, JSON.stringify(normalizedUser));
+      activateUserCache('client', normalizedUser.id);
 
       return {
         token,
@@ -308,6 +312,7 @@ export const authApi = {
         try {
           const parsedUser = JSON.parse(userData) as Partial<JobSeeker> | Partial<ClientCompany>;
           const user = normalizeAuthUser(userType, parsedUser);
+          activateUserCache(userType, user.id);
 
           // Biometric gate: if the user has enabled biometric unlock, require it
           const biometricEnabled = await isBiometricEnabled();

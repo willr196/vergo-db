@@ -109,6 +109,7 @@ export interface CreateBookingPayload {
 export interface CancelBookingResponse {
   id: string;
   status: BookingStatus;
+  rejectionReason: string | null;
 }
 
 interface BackendStaffRecord {
@@ -530,9 +531,10 @@ export const marketplaceApi = {
     return normalizeBookingDetail(response.data.data);
   },
 
-  async cancelBooking(bookingId: string): Promise<CancelBookingResponse> {
-    const response = await apiClient.post<ApiEnvelope<{ id: string; status: string }>>(
-      `/api/v1/client/mobile/bookings/${bookingId}/cancel`
+  async cancelBooking(bookingId: string, reason: string): Promise<CancelBookingResponse> {
+    const response = await apiClient.post<ApiEnvelope<{ id: string; status: string; rejectionReason?: string | null }>>(
+      `/api/v1/client/mobile/bookings/${bookingId}/cancel`,
+      { reason }
     );
 
     if (!response.data.ok || !response.data.data) {
@@ -542,6 +544,7 @@ export const marketplaceApi = {
     return {
       id: response.data.data.id,
       status: normalizeBookingStatus(response.data.data.status),
+      rejectionReason: response.data.data.rejectionReason ?? null,
     };
   },
 };

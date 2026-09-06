@@ -50,6 +50,7 @@ interface ClientJobsState {
   createJob: (payload: CreateJobPayload) => Promise<Job>;
   clearSelectedJob: () => void;
   clearError: () => void;
+  reset: () => void;
 }
 
 export const useClientJobsStore = create<ClientJobsState>((set, get) => ({
@@ -214,6 +215,14 @@ export const useClientJobsStore = create<ClientJobsState>((set, get) => ({
 
   clearError: () => {
     set({ error: null });
+  },
+
+  reset: () => {
+    set({
+      jobs: [], selectedJob: null, isLoading: false, isRefreshing: false,
+      isLoadingMore: false, error: null, currentPage: 1, totalPages: 1,
+      hasMore: false, statusFilter: 'all',
+    });
   },
 }));
 

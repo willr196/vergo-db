@@ -6,6 +6,12 @@
 import { create } from 'zustand';
 import { authApi, registerAuthFailureHandler } from '../api';
 import { isClientCompanyUser, isJobSeekerUser } from '../types';
+import { useJobsStore } from './jobsStore';
+import { useApplicationsStore } from './applicationsStore';
+import { useClientJobsStore } from './clientJobsStore';
+import { useClientApplicationsStore } from './clientApplicationsStore';
+import { useNetworkStore } from './networkStore';
+import { useNotificationsStore } from './notificationsStore';
 import type {
   AuthUser,
   JobSeeker,
@@ -77,6 +83,15 @@ async function handleRegistration(
   }
 }
 
+function resetUserData(): void {
+  useJobsStore.getState().reset();
+  useApplicationsStore.getState().reset();
+  useClientJobsStore.getState().reset();
+  useClientApplicationsStore.getState().reset();
+  useNetworkStore.getState().clearQueueState();
+  useNotificationsStore.getState().reset();
+}
+
 export const useAuthStore = create<AuthState>((set, get) => ({
   // Initial state
   isAuthenticated: false,
@@ -126,6 +141,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       await authApi.logout();
     } finally {
+      resetUserData();
       set({
         isAuthenticated: false,
         isLoading: false,
@@ -145,6 +161,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.log('[VERGO] checkAuth: tokens found?', isAuthenticated);
 
       if (!isAuthenticated || !userType || !user) {
+        resetUserData();
         set({
           isAuthenticated: false,
           isLoading: false,
@@ -182,12 +199,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             user: null,
             error: error instanceof Error ? error.message : 'Authentication expired',
           });
+          resetUserData();
         } else {
           // Network or server error — stay logged in with cached data
           set({ isAuthenticated: true, isLoading: false, userType, user });
         }
       }
     } catch {
+      resetUserData();
       set({
         isAuthenticated: false,
         isLoading: false,
@@ -238,6 +257,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 }));
 
 registerAuthFailureHandler((info) => {
+  resetUserData();
   useAuthStore.setState({
     isAuthenticated: false,
     isLoading: false,

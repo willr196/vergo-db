@@ -104,7 +104,6 @@ export const jobsApi = {
       if (filters.dateTo) params.append('dateTo', filters.dateTo);
       if (filters.minHourlyRate) params.append('minHourlyRate', filters.minHourlyRate.toString());
       if (filters.maxHourlyRate) params.append('maxHourlyRate', filters.maxHourlyRate.toString());
-      if (filters.dbsRequired !== undefined) params.append('dbsRequired', filters.dbsRequired.toString());
       if (filters.search) params.append('search', filters.search);
     }
 
@@ -326,17 +325,18 @@ export const jobsApi = {
   },
 
   /**
-   * Get recommended jobs for user (based on profile)
+   * Get the latest open jobs, ordered by event date.
+   * This list is not personalised.
    */
-  async getRecommendedJobs(limit = 5): Promise<Job[]> {
+  async getLatestJobs(limit = 5): Promise<Job[]> {
     try {
-      const response = await apiClient.get<BackendResponse<BackendJob[]>>(`/api/v1/mobile/jobs/recommended?limit=${limit}`);
+      const response = await apiClient.get<BackendResponse<BackendJob[]>>(`/api/v1/mobile/jobs/latest?limit=${limit}`);
 
       if (response.data.ok && response.data.data) {
         return response.data.data.map(normalizeJob);
       }
     } catch {
-      // Recommended jobs is optional
+      // Latest jobs is an optional supplementary list
     }
 
     return [];
@@ -360,17 +360,13 @@ export const jobsApi = {
    * Get saved jobs
    */
   async getSavedJobs(): Promise<Job[]> {
-    try {
-      const response = await apiClient.get<BackendResponse<BackendJob[]>>('/api/v1/mobile/jobs/saved');
+    const response = await apiClient.get<BackendResponse<BackendJob[]>>('/api/v1/mobile/jobs/saved');
 
-      if (response.data.ok && response.data.data) {
-        return response.data.data.map(normalizeJob);
-      }
-    } catch {
-      // Saved jobs is optional feature
+    if (response.data.ok && response.data.data) {
+      return response.data.data.map(normalizeJob);
     }
 
-    return [];
+    throw new Error(response.data.error || 'Failed to load saved jobs');
   },
 };
 

@@ -37,6 +37,7 @@ interface ApplicationsState {
   setStatusFilter: (status: ApplicationStatus | null) => void;
   hasAppliedToJob: (jobId: string) => boolean;
   clearError: () => void;
+  reset: () => void;
 }
 
 export const useApplicationsStore = create<ApplicationsState>((set, get) => ({
@@ -245,6 +246,14 @@ export const useApplicationsStore = create<ApplicationsState>((set, get) => ({
   
   clearError: () => {
     set({ error: null });
+  },
+
+  reset: () => {
+    set({
+      applications: [], selectedApplication: null, isLoading: false,
+      isRefreshing: false, isLoadingMore: false, isSubmitting: false, error: null,
+      currentPage: 1, totalPages: 1, hasMore: false, statusFilter: null,
+    });
   },
 }));
 

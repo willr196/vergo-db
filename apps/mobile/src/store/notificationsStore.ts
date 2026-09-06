@@ -4,10 +4,12 @@ interface NotificationsState {
   unreadCount: number;
   incrementUnread: () => void;
   clearUnread: () => void;
+  reset: () => void;
 }
 
 export const useNotificationsStore = create<NotificationsState>((set) => ({
   unreadCount: 0,
   incrementUnread: () => set((state) => ({ unreadCount: state.unreadCount + 1 })),
   clearUnread: () => set({ unreadCount: 0 }),
+  reset: () => set({ unreadCount: 0 }),
 }));

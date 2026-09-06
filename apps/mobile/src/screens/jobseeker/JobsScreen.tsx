@@ -39,6 +39,8 @@ export function JobsScreen({ navigation }: Props) {
     isLoadingMore,
     hasMore,
     error,
+    isShowingOfflineCache,
+    offlineCacheTimestamp,
     filters,
     fetchJobs,
     fetchMoreJobs,
@@ -126,6 +128,11 @@ export function JobsScreen({ navigation }: Props) {
   }, [clearSearchTimer, clearFilters]);
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
+  const offlineUpdatedAt = offlineCacheTimestamp
+    ? new Date(offlineCacheTimestamp).toLocaleString('en-GB', {
+      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+    })
+    : null;
 
   const renderJob = useCallback(({ item }: { item: Job }) => {
     const skillMatch =
@@ -179,6 +186,9 @@ export function JobsScreen({ navigation }: Props) {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Jobs</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('SavedJobs')}>
+          <Text style={styles.savedJobsLink}>Saved</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Search & Filter */}
@@ -216,6 +226,15 @@ export function JobsScreen({ navigation }: Props) {
           )}
         </TouchableOpacity>
       </View>
+
+      {isShowingOfflineCache ? (
+        <View style={styles.offlineNotice}>
+          <Text style={styles.offlineNoticeTitle}>Offline results</Text>
+          <Text style={styles.offlineNoticeText}>
+            Showing results last updated {offlineUpdatedAt}. Connect to refresh.
+          </Text>
+        </View>
+      ) : null}
 
       {/* Job List */}
       <FlatList
@@ -265,6 +284,9 @@ const styles = StyleSheet.create({
   },
 
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.sm,
@@ -274,6 +296,34 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSize.xxl,
     fontWeight: '700' as const,
+  },
+
+  savedJobsLink: {
+    color: colors.primary,
+    fontSize: typography.fontSize.md,
+    fontWeight: '600' as const,
+  },
+
+  offlineNotice: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+    padding: spacing.sm,
+    backgroundColor: colors.warningSoft,
+    borderRadius: borderRadius.md,
+    borderColor: colors.warning,
+    borderWidth: 1,
+  },
+
+  offlineNoticeTitle: {
+    color: colors.textPrimary,
+    fontSize: typography.fontSize.sm,
+    fontWeight: '700' as const,
+  },
+
+  offlineNoticeText: {
+    color: colors.textSecondary,
+    fontSize: typography.fontSize.xs,
+    marginTop: spacing.xs,
   },
 
   searchContainer: {
