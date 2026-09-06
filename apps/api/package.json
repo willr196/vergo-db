@@ -12,13 +12,14 @@
     "test": "npm run build && node --test dist/src/__tests__/*.test.js",
     "validate:pages": "node scripts/validate-page-consistency.js",
     "validate:seo": "node scripts/validate-seo.js",
-    "prisma": "prisma",
-    "prisma:deploy": "node scripts/prisma-deploy-with-retry.js",
-    "prisma:deploy:raw": "prisma migrate deploy",
-    "seed": "tsx prisma/seed.ts",
-    "db:reset": "tsx prisma/reset.ts",
-    "seed:jobs": "tsx prisma/seed-jobs.ts",
-    "seed:marketplace": "tsx prisma/seed-marketplace.ts"
+    "prisma": "node scripts/guard-db-target.js \"prisma (raw CLI)\" && prisma",
+    "prisma:deploy": "node scripts/guard-db-target.js \"prisma migrate deploy\" && node scripts/prisma-deploy-with-retry.js",
+    "prisma:deploy:raw": "node scripts/guard-db-target.js \"prisma migrate deploy (raw)\" && prisma migrate deploy",
+    "seed": "node scripts/guard-db-target.js \"seed\" && tsx prisma/seed.ts",
+    "db:reset": "node scripts/guard-db-target.js \"db:reset (DESTRUCTIVE)\" && tsx prisma/reset.ts",
+    "seed:jobs": "node scripts/guard-db-target.js \"seed:jobs\" && tsx prisma/seed-jobs.ts",
+    "seed:marketplace": "node scripts/guard-db-target.js \"seed:marketplace\" && tsx prisma/seed-marketplace.ts",
+    "migrate": "node scripts/guard-db-target.js \"prisma migrate dev\" && prisma migrate dev"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.985.0",

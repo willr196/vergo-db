@@ -12,6 +12,13 @@ primary_region = "lhr"
   min_machines_running = 1
   processes = ["app"]
 
+[env]
+  # The release command below migrates this app's own database, which is
+  # remote by definition. scripts/guard-db-target.js refuses a remote target
+  # unless this is set, so that a migration run from a developer's laptop
+  # cannot reach production by accident. See docs/database-environments.md.
+  ALLOW_REMOTE_DB = "1"
+
 [deploy]
   release_command = "npm run prisma:deploy"
 

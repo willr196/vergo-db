@@ -1,11 +1,47 @@
-version: '3.9'
+# Local databases for development and tests.
+#
+# Nothing here talks to Neon. Local work should point apps/api/.env at the `db`
+# service below rather than at the live database. See
+# docs/database-environments.md.
+#
+#   docker compose -f infra/docker-compose.yml up -d db
+#   docker compose -f infra/docker-compose.yml up -d db-test
+#
+# Postgres 16 matches what Neon runs, so a migration that applies here applies
+# there. The previous Postgres 15 image did not.
+
 services:
   db:
-    image: postgres:15
+    image: postgres:16-alpine
+    container_name: vergo-dev-db
     environment:
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: vergo
+      POSTGRES_PASSWORD: vergo
       POSTGRES_DB: vergo
-    ports: ["5432:5432"]
+    ports: ["5435:5432"]
     volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vergo -d vergo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Integration tests only. No volume, so every `down` throws the data away and
+  # a test run always starts from a schema built by the real migrations.
+  db-test:
+    image: postgres:16-alpine
+    container_name: vergo-test-db
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: vergo_test
+    ports: ["5434:5432"]
+    tmpfs: ["/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser -d vergo_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
 volumes:
   pgdata:

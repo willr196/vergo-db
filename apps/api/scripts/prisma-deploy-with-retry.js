@@ -61,11 +61,16 @@ async function warmUpDatabase() {
 }
 
 function runPrismaDeploy() {
-  const prismaBin = path.join(process.cwd(), 'node_modules', '.bin', 'prisma');
+  // Run Prisma's JS entry point with the current Node rather than the .bin
+  // shim. The shims are platform-specific: on Windows the extensionless one
+  // fails with ENOENT (no shebang handling) and spawning prisma.cmd without a
+  // shell fails with EINVAL on Node 20+. The entry point has neither problem
+  // and needs no shell, so this behaves the same on a laptop and on Fly.
+  const prismaEntry = path.join(process.cwd(), 'node_modules', 'prisma', 'build', 'index.js');
 
-  if (!fs.existsSync(prismaBin)) {
+  if (!fs.existsSync(prismaEntry)) {
     const error = new Error(
-      `Prisma CLI not found at ${prismaBin}. Ensure the runtime image keeps the prisma package installed.`
+      `Prisma CLI not found at ${prismaEntry}. Ensure the runtime image keeps the prisma package installed.`
     );
 
     return {
@@ -76,7 +81,7 @@ function runPrismaDeploy() {
     };
   }
 
-  return spawnSync(prismaBin, ['migrate', 'deploy'], {
+  return spawnSync(process.execPath, [prismaEntry, 'migrate', 'deploy'], {
     env: process.env,
     encoding: 'utf8',
   });
