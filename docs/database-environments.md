@@ -86,6 +86,31 @@ have been applied by the next deploy of this branch in any case.
 Two changes came out of it: the guard above, and pointing local development at a
 local database instead of production.
 
+## Integration tests
+
+`src/__tests__` stubs Prisma. Those tests prove handler logic quickly, but they
+cannot prove that a query compiles, that a column exists, or that a
+`Decimal(5,2)` survives a round trip.
+
+`src/__integration__` runs the same routes against a real Postgres:
+
+```
+docker compose -f infra/docker-compose.yml up -d db-test
+cd apps/api
+npm run test:integration      # real database
+npm run test                  # mocked, fast
+npm run test:all              # both
+```
+
+The test database is truncated between every test, so `helpers.ts` refuses to
+start unless the target is on a local host **and** its name contains "test".
+Both rails are exercised: pointing them at the dev database or at Neon aborts
+before a single query runs.
+
+`RESEND_API_KEY` is blanked in the harness. Completing a booking sends the
+client a review request, and the first run of these tests called Resend for
+real before that was fixed.
+
 ## Still worth doing
 
 - **A Neon dev branch.** Neon can branch a database cheaply. A dev branch would
