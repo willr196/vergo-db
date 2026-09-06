@@ -288,3 +288,193 @@ test('a worker can decline their pending shift with an optional client-facing re
     prismaAny.pushToken.findMany = originalTokens;
   }
 });
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { isWithinCheckInWindow, hoursBetween } = require('../routes/mobileShifts');
+
+function shiftRow(overrides: any = {}) {
+  const at = new Date('2026-09-01T18:00:00.000Z');
+  return {
+    id: 'shift-1', status: 'CONFIRMED', eventName: 'Summer Festival',
+    eventDate: new Date('2026-09-01T00:00:00.000Z'), eventEndDate: null,
+    location: 'London', venue: 'Victoria Park', shiftStart: '09:00', shiftEnd: '17:00',
+    hoursEstimated: new Prisma.Decimal(8), staffPayRate: new Prisma.Decimal(15),
+    clientNotes: null, rejectionReason: null, confirmedAt: at, completedAt: null,
+    checkedInAt: null, checkedOutAt: null, hoursWorked: null, workerShiftNotes: null,
+    createdAt: at, updatedAt: at,
+    client: { id: 'client-1', companyName: 'Event Co', contactName: 'Jamie Smith' },
+    ...overrides,
+  };
+}
+
+test('the check-in window opens four hours early and closes 36 hours after the event date', () => {
+  const eventDate = new Date('2026-09-01T00:00:00.000Z');
+  assert.equal(isWithinCheckInWindow(eventDate, new Date('2026-08-31T20:00:00.000Z')), true);
+  assert.equal(isWithinCheckInWindow(eventDate, new Date('2026-08-31T19:59:00.000Z')), false);
+  assert.equal(isWithinCheckInWindow(eventDate, new Date('2026-09-02T11:59:00.000Z')), true);
+  assert.equal(isWithinCheckInWindow(eventDate, new Date('2026-09-02T12:01:00.000Z')), false);
+});
+
+test('hoursBetween rounds to two decimal places', () => {
+  assert.equal(hoursBetween(new Date('2026-09-01T09:00:00Z'), new Date('2026-09-01T17:00:00Z')), 8);
+  assert.equal(hoursBetween(new Date('2026-09-01T09:00:00Z'), new Date('2026-09-01T17:20:00Z')), 8.33);
+});
+
+test('a worker cannot check in to a shift that is not confirmed', async () => {
+  const app = createApp();
+  const prismaAny = prisma as any;
+  const original = prismaAny.booking.findFirst;
+  prismaAny.booking.findFirst = async () => ({
+    id: 'shift-1', status: 'PENDING', eventDate: new Date(), checkedInAt: null, clientId: 'c1', eventName: 'X',
+  });
+  try {
+    const res = await inject(app, {
+      method: 'POST', url: '/api/v1/mobile/shifts/shift-1/check-in',
+      headers: { authorization: `Bearer ${userToken()}` }, body: '{}',
+    });
+    assert.equal(res.statusCode, 409);
+    assert.match(JSON.parse(res.body).error, /confirmed shifts/);
+  } finally {
+    prismaAny.booking.findFirst = original;
+  }
+});
+
+test('a worker cannot check in twice', async () => {
+  const app = createApp();
+  const prismaAny = prisma as any;
+  const original = prismaAny.booking.findFirst;
+  prismaAny.booking.findFirst = async () => ({
+    id: 'shift-1', status: 'CONFIRMED', eventDate: new Date(),
+    checkedInAt: new Date(), clientId: 'c1', eventName: 'X',
+  });
+  try {
+    const res = await inject(app, {
+      method: 'POST', url: '/api/v1/mobile/shifts/shift-1/check-in',
+      headers: { authorization: `Bearer ${userToken()}` }, body: '{}',
+    });
+    assert.equal(res.statusCode, 409);
+    assert.match(JSON.parse(res.body).error, /already checked in/);
+  } finally {
+    prismaAny.booking.findFirst = original;
+  }
+});
+
+test('checking in records the time and leaves the shift confirmed', async () => {
+  const app = createApp();
+  const prismaAny = prisma as any;
+  const originalFindFirst = prismaAny.booking.findFirst;
+  const originalUpdate = prismaAny.booking.update;
+  const originalTokens = prismaAny.pushToken.findMany;
+  let updateData: any;
+
+  prismaAny.booking.findFirst = async () => ({
+    id: 'shift-1', status: 'CONFIRMED', eventDate: new Date(),
+    checkedInAt: null, clientId: 'client-1', eventName: 'Summer Festival',
+  });
+  prismaAny.pushToken.findMany = async () => [];
+  prismaAny.booking.update = async ({ data }: any) => {
+    updateData = data;
+    return shiftRow({ checkedInAt: data.checkedInAt });
+  };
+
+  try {
+    const res = await inject(app, {
+      method: 'POST', url: '/api/v1/mobile/shifts/shift-1/check-in',
+      headers: { authorization: `Bearer ${userToken()}` }, body: '{}',
+    });
+    assert.equal(res.statusCode, 200);
+    assert.ok(updateData.checkedInAt instanceof Date);
+    assert.equal(updateData.status, undefined);
+    const body = JSON.parse(res.body);
+    assert.ok(body.data.checkedInAt);
+    assert.equal(body.data.status, 'CONFIRMED');
+  } finally {
+    prismaAny.booking.findFirst = originalFindFirst;
+    prismaAny.booking.update = originalUpdate;
+    prismaAny.pushToken.findMany = originalTokens;
+  }
+});
+
+test('a worker cannot check out without checking in first', async () => {
+  const app = createApp();
+  const prismaAny = prisma as any;
+  const original = prismaAny.booking.findFirst;
+  prismaAny.booking.findFirst = async () => ({
+    id: 'shift-1', status: 'CONFIRMED', checkedInAt: null, checkedOutAt: null, clientId: 'c1', eventName: 'X',
+  });
+  try {
+    const res = await inject(app, {
+      method: 'POST', url: '/api/v1/mobile/shifts/shift-1/check-out',
+      headers: { authorization: `Bearer ${userToken()}` }, body: '{}',
+    });
+    assert.equal(res.statusCode, 409);
+    assert.match(JSON.parse(res.body).error, /check in before/);
+  } finally {
+    prismaAny.booking.findFirst = original;
+  }
+});
+
+test('checking out computes hours worked, completes the shift and keeps the note', async () => {
+  const app = createApp();
+  const prismaAny = prisma as any;
+  const originalFindFirst = prismaAny.booking.findFirst;
+  const originalUpdate = prismaAny.booking.update;
+  const originalTokens = prismaAny.pushToken.findMany;
+  const checkedInAt = new Date(Date.now() - 8 * 60 * 60 * 1000);
+  let updateData: any;
+
+  prismaAny.booking.findFirst = async () => ({
+    id: 'shift-1', status: 'CONFIRMED', checkedInAt, checkedOutAt: null,
+    clientId: 'client-1', eventName: 'Summer Festival',
+  });
+  prismaAny.pushToken.findMany = async () => [];
+  prismaAny.booking.update = async ({ data }: any) => {
+    updateData = data;
+    return shiftRow({
+      status: data.status, checkedInAt, checkedOutAt: data.checkedOutAt,
+      hoursWorked: data.hoursWorked, workerShiftNotes: data.workerShiftNotes ?? null,
+      completedAt: data.completedAt,
+    });
+  };
+
+  try {
+    const res = await inject(app, {
+      method: 'POST', url: '/api/v1/mobile/shifts/shift-1/check-out',
+      headers: { authorization: `Bearer ${userToken()}` },
+      body: JSON.stringify({ notes: 'Service overran by twenty minutes.' }),
+    });
+    assert.equal(res.statusCode, 200);
+    assert.equal(updateData.status, 'COMPLETED');
+    assert.equal(Number(updateData.hoursWorked), 8);
+    assert.equal(updateData.workerShiftNotes, 'Service overran by twenty minutes.');
+    assert.ok(updateData.completedAt instanceof Date);
+    const body = JSON.parse(res.body);
+    assert.equal(body.data.hoursWorked, 8);
+    assert.equal(body.data.status, 'COMPLETED');
+  } finally {
+    prismaAny.booking.findFirst = originalFindFirst;
+    prismaAny.booking.update = originalUpdate;
+    prismaAny.pushToken.findMany = originalTokens;
+  }
+});
+
+test('an implausibly long shift is refused rather than written to the timesheet', async () => {
+  const app = createApp();
+  const prismaAny = prisma as any;
+  const originalFindFirst = prismaAny.booking.findFirst;
+  prismaAny.booking.findFirst = async () => ({
+    id: 'shift-1', status: 'CONFIRMED',
+    checkedInAt: new Date(Date.now() - 30 * 60 * 60 * 1000), checkedOutAt: null,
+    clientId: 'client-1', eventName: 'Summer Festival',
+  });
+  try {
+    const res = await inject(app, {
+      method: 'POST', url: '/api/v1/mobile/shifts/shift-1/check-out',
+      headers: { authorization: `Bearer ${userToken()}` }, body: '{}',
+    });
+    assert.equal(res.statusCode, 409);
+    assert.match(JSON.parse(res.body).error, /Contact the office/);
+  } finally {
+    prismaAny.booking.findFirst = originalFindFirst;
+  }
+});

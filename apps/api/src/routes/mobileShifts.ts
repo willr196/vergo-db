@@ -25,6 +25,35 @@ const declineSchema = z.object({
   reason: z.string().trim().min(1).max(500).optional(),
 });
 
+const checkOutSchema = z.object({
+  notes: z.string().trim().min(1).max(1000).optional(),
+});
+
+// How far either side of the event date a worker may check in. Bookings store
+// the date and the shift times separately, and shiftStart is free text, so the
+// window is anchored to the date rather than parsed from the string. Four hours
+// early covers setup calls; 36 hours late covers shifts that run past midnight
+// and anyone who forgets until the following morning.
+const CHECK_IN_WINDOW_BEFORE_MS = 4 * 60 * 60 * 1000;
+const CHECK_IN_WINDOW_AFTER_MS = 36 * 60 * 60 * 1000;
+
+// A shift longer than this is almost certainly a forgotten check-out rather
+// than a real 24-hour stint, so it is rejected and left for the office to fix.
+const MAX_SHIFT_HOURS = 20;
+
+export function isWithinCheckInWindow(eventDate: Date, now: Date): boolean {
+  const day = new Date(eventDate);
+  day.setUTCHours(0, 0, 0, 0);
+  return (
+    now.getTime() >= day.getTime() - CHECK_IN_WINDOW_BEFORE_MS
+    && now.getTime() <= day.getTime() + CHECK_IN_WINDOW_AFTER_MS
+  );
+}
+
+export function hoursBetween(from: Date, to: Date): number {
+  return Math.round(((to.getTime() - from.getTime()) / 3_600_000) * 100) / 100;
+}
+
 const bookingInclude = {
   client: {
     select: {
@@ -59,6 +88,10 @@ function shapeShift(booking: Prisma.BookingGetPayload<{ include: typeof bookingI
     rejectionReason: booking.rejectionReason,
     confirmedAt: booking.confirmedAt?.toISOString() ?? null,
     completedAt: booking.completedAt?.toISOString() ?? null,
+    checkedInAt: booking.checkedInAt?.toISOString() ?? null,
+    checkedOutAt: booking.checkedOutAt?.toISOString() ?? null,
+    hoursWorked: numberOrNull(booking.hoursWorked),
+    workerShiftNotes: booking.workerShiftNotes,
     createdAt: booking.createdAt.toISOString(),
     updatedAt: booking.updatedAt.toISOString(),
     client: {
@@ -225,6 +258,116 @@ r.post('/:id/decline', async (req, res, next) => {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ ok: false, error: 'Invalid decline reason' });
+    }
+    next(error);
+  }
+});
+
+// POST /api/v1/mobile/shifts/:id/check-in
+r.post('/:id/check-in', async (req, res, next) => {
+  try {
+    const existing = await prisma.booking.findFirst({
+      where: { id: req.params.id, staffId: req.auth!.userId },
+      select: {
+        id: true,
+        status: true,
+        eventDate: true,
+        checkedInAt: true,
+        clientId: true,
+        eventName: true,
+      },
+    });
+    if (!existing) return res.status(404).json({ ok: false, error: 'Shift not found' });
+
+    if (existing.status !== 'CONFIRMED') {
+      return res.status(409).json({ ok: false, error: 'Only confirmed shifts can be checked in to' });
+    }
+    if (existing.checkedInAt) {
+      return res.status(409).json({ ok: false, error: 'You have already checked in to this shift' });
+    }
+    if (!isWithinCheckInWindow(existing.eventDate, new Date())) {
+      return res.status(409).json({
+        ok: false,
+        error: 'This shift is not open for check-in yet. Check in from four hours before the start.',
+      });
+    }
+
+    const booking = await prisma.booking.update({
+      where: { id: existing.id },
+      data: { checkedInAt: new Date() },
+      include: bookingInclude,
+    });
+
+    sendPushToClient(
+      existing.clientId,
+      'Staff On Site',
+      `A staff member has checked in for ${booking.eventName || 'your booking'}.`,
+      { type: 'shift_checked_in', bookingId: booking.id }
+    ).catch((error) => console.error('[PUSH] shift check-in:', error));
+
+    res.json({ ok: true, data: shapeShift(booking) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/v1/mobile/shifts/:id/check-out
+r.post('/:id/check-out', async (req, res, next) => {
+  try {
+    const { notes } = checkOutSchema.parse(req.body ?? {});
+
+    const existing = await prisma.booking.findFirst({
+      where: { id: req.params.id, staffId: req.auth!.userId },
+      select: {
+        id: true,
+        status: true,
+        checkedInAt: true,
+        checkedOutAt: true,
+        clientId: true,
+        eventName: true,
+      },
+    });
+    if (!existing) return res.status(404).json({ ok: false, error: 'Shift not found' });
+
+    if (!existing.checkedInAt) {
+      return res.status(409).json({ ok: false, error: 'You need to check in before you can check out' });
+    }
+    if (existing.checkedOutAt) {
+      return res.status(409).json({ ok: false, error: 'You have already checked out of this shift' });
+    }
+
+    const checkedOutAt = new Date();
+    const hoursWorked = hoursBetween(existing.checkedInAt, checkedOutAt);
+    if (hoursWorked > MAX_SHIFT_HOURS) {
+      return res.status(409).json({
+        ok: false,
+        error: 'This shift has been open too long to close from the app. Contact the office so it can be corrected.',
+      });
+    }
+
+    const booking = await prisma.booking.update({
+      where: { id: existing.id },
+      data: {
+        checkedOutAt,
+        hoursWorked: new Prisma.Decimal(hoursWorked),
+        status: 'COMPLETED',
+        completedAt: checkedOutAt,
+        ...(notes ? { workerShiftNotes: notes } : {}),
+      },
+      include: bookingInclude,
+    });
+
+    sendPushToClient(
+      existing.clientId,
+      'Shift Completed',
+      `${booking.eventName || 'A shift'} was completed after ${hoursWorked} hours on site.`,
+      { type: 'shift_checked_out', bookingId: booking.id }
+    ).catch((error) => console.error('[PUSH] shift check-out:', error));
+
+    res.json({ ok: true, data: shapeShift(booking) });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ ok: false, error: 'Invalid check-out notes' });
     }
     next(error);
   }

@@ -299,6 +299,12 @@ export interface Shift {
   rejectionReason: string | null;
   confirmedAt: string | null;
   completedAt: string | null;
+  /// Attendance. hoursWorked is computed by the server at check-out and is what
+  /// the timesheet reads, so the app never calculates it locally.
+  checkedInAt: string | null;
+  checkedOutAt: string | null;
+  hoursWorked: number | null;
+  workerShiftNotes: string | null;
   createdAt: string;
   updatedAt: string;
   client: {

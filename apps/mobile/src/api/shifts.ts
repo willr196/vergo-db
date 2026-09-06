@@ -70,6 +70,28 @@ export const shiftsApi = {
     }
     return response.data.data;
   },
+
+  async checkIn(shiftId: string): Promise<Shift> {
+    const response = await apiClient.post<ApiEnvelope<Shift>>(
+      `/api/v1/mobile/shifts/${shiftId}/check-in`,
+      {}
+    );
+    if (!response.data.ok || !response.data.data) {
+      throw new Error(response.data.error || 'Failed to check in');
+    }
+    return response.data.data;
+  },
+
+  async checkOut(shiftId: string, notes?: string): Promise<Shift> {
+    const response = await apiClient.post<ApiEnvelope<Shift>>(
+      `/api/v1/mobile/shifts/${shiftId}/check-out`,
+      notes ? { notes } : {}
+    );
+    if (!response.data.ok || !response.data.data) {
+      throw new Error(response.data.error || 'Failed to check out');
+    }
+    return response.data.data;
+  },
 };
 
 export default shiftsApi;

@@ -62,4 +62,48 @@ describe('shiftsApi', () => {
     );
     expect(result.status).toBe('REJECTED');
   });
+  it('checks in with an empty body', async () => {
+    mockedApiClient.post.mockResolvedValue({
+      data: { ok: true, data: { id: 'shift-1', status: 'CONFIRMED', checkedInAt: '2026-09-01T09:02:00.000Z' } },
+    });
+
+    const result = await shiftsApi.checkIn('shift-1');
+
+    expect(mockedApiClient.post).toHaveBeenCalledWith('/api/v1/mobile/shifts/shift-1/check-in', {});
+    expect(result.checkedInAt).toBe('2026-09-01T09:02:00.000Z');
+  });
+
+  it('checks out with an optional note and reads hours back from the server', async () => {
+    mockedApiClient.post.mockResolvedValue({
+      data: {
+        ok: true,
+        data: { id: 'shift-1', status: 'COMPLETED', hoursWorked: 8.33, workerShiftNotes: 'Service overran.' },
+      },
+    });
+
+    const result = await shiftsApi.checkOut('shift-1', 'Service overran.');
+
+    expect(mockedApiClient.post).toHaveBeenCalledWith(
+      '/api/v1/mobile/shifts/shift-1/check-out',
+      { notes: 'Service overran.' }
+    );
+    expect(result.hoursWorked).toBe(8.33);
+    expect(result.status).toBe('COMPLETED');
+  });
+
+  it('omits the notes key entirely when checking out without a note', async () => {
+    mockedApiClient.post.mockResolvedValue({ data: { ok: true, data: { id: 'shift-1', status: 'COMPLETED' } } });
+
+    await shiftsApi.checkOut('shift-1');
+
+    expect(mockedApiClient.post).toHaveBeenCalledWith('/api/v1/mobile/shifts/shift-1/check-out', {});
+  });
+
+  it('surfaces the server message when check-in is refused', async () => {
+    mockedApiClient.post.mockResolvedValue({
+      data: { ok: false, error: 'This shift is not open for check-in yet.' },
+    });
+
+    await expect(shiftsApi.checkIn('shift-1')).rejects.toThrow('This shift is not open for check-in yet.');
+  });
 });

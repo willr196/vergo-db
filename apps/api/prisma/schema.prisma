@@ -258,6 +258,16 @@ model Booking {
   confirmedBy         String?
   termsVersionAtConfirmation String?
   completedAt         DateTime?
+  /// Worker check-in and check-out, recorded from the mobile app. hoursWorked
+  /// is computed at check-out from these two and is what the timesheet reads.
+  /// It records what was actually worked, so it is not floored at the four-hour
+  /// minimum the client is charged for.
+  checkedInAt         DateTime?
+  checkedOutAt        DateTime?
+  hoursWorked         Decimal?         @db.Decimal(5, 2)
+  /// Anything the worker needs to flag at check-out: overrun, a problem on
+  /// site, a task that took longer than briefed.
+  workerShiftNotes    String?
   clientId            String
   staffId             String
   quoteRequestId      String?
@@ -286,6 +296,7 @@ model Booking {
   @@index([eventDate])
   @@index([createdAt])
   @@index([clientPaidAt, staffPaidAt])
+  @@index([checkedInAt, checkedOutAt])
 }
 
 model BookingTemplate {
