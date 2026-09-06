@@ -71,6 +71,7 @@ import {
   EditJobScreen,
   EditClientProfileScreen,
 } from '../screens/client';
+import { ClientOnWebScreen } from '../screens/ClientOnWebScreen';
 
 // Navigation theme
 const navigationTheme = {
@@ -365,25 +366,6 @@ export function RootNavigator() {
         ApplicationDetail: 'application/:applicationId',
         ShiftDetail: 'shift/:shiftId',
         EditProfile: 'profile/edit',
-        ClientTabs: {
-          screens: {
-            Dashboard: 'client/dashboard',
-            Browse: 'client/browse',
-            Bookings: 'client/bookings',
-            Profile: 'client/profile',
-          },
-        },
-        StaffDetail: 'client/staff/:staffId',
-        CreateBooking: 'client/staff/:staffId/book',
-        BookingDetail: 'client/bookings/:bookingId',
-        MyQuotes: 'client/quotes',
-        CreateQuote: 'client/quotes/create',
-        ClientJobDetail: 'client/job/:jobId',
-        CreateJob: 'client/jobs/create',
-        EditJob: 'client/jobs/:jobId/edit',
-        ApplicantDetail: 'client/application/:applicationId',
-        ApplicantList: 'client/job/:jobId/applicants',
-        EditClientProfile: 'client/profile/edit',
       },
     },
   }), []);
@@ -464,12 +446,15 @@ export function RootNavigator() {
   return (
     <View style={{ flex: 1 }}>
       <NavigationContainer ref={navigationRef} theme={navigationTheme} linking={linking}>
+        {/* Worker-only release. A client session lands on an explainer rather
+            than the client stack, which is still in the tree but unreferenced.
+            See docs/mobile-mvp-scope.md. */}
         {!isAuthenticated ? (
           <AuthStack />
         ) : userType === 'jobseeker' ? (
           <JobSeekerStack />
         ) : (
-          <ClientStack />
+          <ClientOnWebScreen />
         )}
       </NavigationContainer>
       <Toast />
