@@ -165,9 +165,10 @@ function shapeBooking(booking: any) {
     confirmedBy: booking.confirmedBy,
     completedAt: booking.completedAt?.toISOString() || null,
     // Attendance recorded by the worker in the mobile app. hoursWorked is what
-    // actually happened; hoursEstimated is what was scheduled. They are shown
-    // side by side rather than reconciled, because whether the four-hour
-    // minimum applies to pay, to the invoice, or to both is a policy call.
+    // actually happened and hoursEstimated is what was scheduled; both are the
+    // real figures. The four-hour minimum is applied to money only, in
+    // bookingMoney(), so a short shift shows its true hours and still bills
+    // and pays four.
     checkedInAt: booking.checkedInAt?.toISOString() || null,
     checkedOutAt: booking.checkedOutAt?.toISOString() || null,
     hoursWorked: toNumber(booking.hoursWorked),
@@ -1253,9 +1254,15 @@ r.post('/:id/complete', async (req, res, next) => {
     const finalHours = data.hoursActual
       ?? (booking.hoursWorked != null ? Number(booking.hoursWorked) : null)
       ?? (booking.hoursEstimated != null ? Number(booking.hoursEstimated) : null);
+    // The four-hour minimum always applies, so a short shift is still invoiced
+    // (and paid) as four. hoursEstimated keeps the real figure; only the total
+    // is floored.
+    const billableHours = finalHours != null
+      ? Math.max(finalHours, PRICING.minimumChargeHours)
+      : null;
     const finalTotal =
-      finalHours != null
-        ? new Prisma.Decimal((Number(booking.hourlyRateCharged) * finalHours).toFixed(2))
+      billableHours != null
+        ? new Prisma.Decimal((Number(booking.hourlyRateCharged) * billableHours).toFixed(2))
         : booking.totalEstimated;
 
     const updated = await prisma.booking.update({
@@ -1269,7 +1276,7 @@ r.post('/:id/complete', async (req, res, next) => {
       },
     });
 
-    console.log(`[BOOKING] Completed: ${booking.id} | Hours: ${finalHours} | Total: £${finalTotal}`);
+    console.log(`[BOOKING] Completed: ${booking.id} | Hours: ${finalHours} (billed ${billableHours}) | Total: £${finalTotal}`);
 
     // Fire review request to the client (non-blocking)
     if (booking.client) {

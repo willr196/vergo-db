@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { prisma } from '../prisma';
 import { requireUserJwt } from '../middleware/jwtAuth';
 import { sendPushToClient } from '../services/notifications';
+import { PRICING } from '../config/pricing';
 
 const r = Router();
 
@@ -81,8 +82,16 @@ function shapeShift(booking: Prisma.BookingGetPayload<{ include: typeof bookingI
     shiftEnd: booking.shiftEnd,
     hoursEstimated: numberOrNull(booking.hoursEstimated),
     staffPayRate: numberOrNull(booking.staffPayRate),
+    // Billed at the four-hour minimum, which is what the worker is actually
+    // paid, so a three-hour shift does not show three hours of pay.
+    billableHours: booking.hoursEstimated
+      ? Math.max(Number(booking.hoursEstimated), PRICING.minimumChargeHours)
+      : null,
     expectedPay: booking.hoursEstimated && booking.staffPayRate
-      ? Number(booking.hoursEstimated.mul(booking.staffPayRate))
+      ? Math.round(
+        Math.max(Number(booking.hoursEstimated), PRICING.minimumChargeHours)
+        * Number(booking.staffPayRate) * 100
+      ) / 100
       : null,
     clientNotes: booking.clientNotes,
     rejectionReason: booking.rejectionReason,

@@ -8,7 +8,7 @@
  * money in between.
  */
 
-import { ON_COSTS } from '../config/pricing';
+import { ON_COSTS, PRICING } from '../config/pricing';
 
 const CLOCK_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
@@ -71,7 +71,14 @@ export interface BookingMoneyInput {
 }
 
 export interface BookingMoney {
+  /** What was actually worked, or scheduled while provisional. */
   hours: number;
+  /**
+   * What both sides are settled on: `hours` floored at the four-hour minimum.
+   * The minimum always applies, to the client's invoice and to the worker's
+   * pay alike, so a three-hour shift is charged and paid as four.
+   */
+  billableHours: number;
   revenuePence: number;
   wagePence: number;
   onCostsPence: number;
@@ -93,9 +100,13 @@ export interface BookingMoney {
  * pension are charged on wage plus holiday pay, not wage alone.
  */
 export function bookingMoney(input: BookingMoneyInput): BookingMoney {
-  const revenuePence = roundPence(input.hourlyRateChargedPence * input.hours);
+  // The four-hour minimum applies to both sides. Charging it and not paying it
+  // would mean billing for hours nobody is paid for, so the same floored figure
+  // drives revenue and wage.
+  const billableHours = Math.max(input.hours, PRICING.minimumChargeHours);
+  const revenuePence = roundPence(input.hourlyRateChargedPence * billableHours);
   const wagePence = input.staffPayRatePence != null
-    ? roundPence(input.staffPayRatePence * input.hours)
+    ? roundPence(input.staffPayRatePence * billableHours)
     : 0;
 
   const holidayPence = roundPence(wagePence * ON_COSTS.holidayAccrualRate);
@@ -114,6 +125,7 @@ export function bookingMoney(input: BookingMoneyInput): BookingMoney {
 
   return {
     hours: input.hours,
+    billableHours,
     revenuePence,
     wagePence,
     onCostsPence,

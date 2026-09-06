@@ -153,3 +153,50 @@ test('floatPosition returns nulls/zeroes when nothing is held', () => {
   assert.equal(result.unwindsFrom, null);
   assert.equal(result.daysToUnwind, null);
 });
+
+test('bookingMoney floors a short shift at the four-hour minimum on both sides', () => {
+  const result = bookingMoney({
+    hours: 2.5,
+    hourlyRateChargedPence: 1900,
+    staffPayRatePence: 1300,
+    niLiable: false,
+    pensionEnrolled: false,
+    provisional: false,
+  });
+
+  // The worked figure is preserved for the timesheet; the money uses four hours.
+  assert.equal(result.hours, 2.5);
+  assert.equal(result.billableHours, 4);
+  assert.equal(result.revenuePence, 7600);
+  assert.equal(result.wagePence, 5200);
+});
+
+test('bookingMoney leaves a shift over the minimum alone', () => {
+  const result = bookingMoney({
+    hours: 8,
+    hourlyRateChargedPence: 1900,
+    staffPayRatePence: 1300,
+    niLiable: false,
+    pensionEnrolled: false,
+    provisional: false,
+  });
+
+  assert.equal(result.billableHours, 8);
+  assert.equal(result.revenuePence, 15200);
+  assert.equal(result.wagePence, 10400);
+});
+
+test('the minimum applies to on-costs too, since they are computed off the floored wage', () => {
+  const result = bookingMoney({
+    hours: 1,
+    hourlyRateChargedPence: 1900,
+    staffPayRatePence: 1300,
+    niLiable: true,
+    pensionEnrolled: true,
+    provisional: false,
+  });
+
+  // Wage is 4h at 13.00 = 52.00, holiday 12.07% of that = 6.28.
+  assert.equal(result.wagePence, 5200);
+  assert.equal(result.onCostBreakdown.holidayPence, 628);
+});

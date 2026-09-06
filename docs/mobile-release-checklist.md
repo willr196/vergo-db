@@ -117,9 +117,12 @@ From the audit's definition of a safe first release, narrowed to worker-only:
 
 - Client screens are in the repo but unreachable. See
   [mobile-mvp-scope.md](./mobile-mvp-scope.md).
-- `hoursWorked` and `hoursEstimated` are shown side by side and nothing applies
-  the four-hour minimum automatically. That rule is still an open policy
-  question.
-- `readinessAndWebhook.test.ts` fails on a homepage `theme-color` assertion.
-  Pre-existing, unrelated to the app: the test expects `#0c0b0a`, `index.html`
-  says `#16130f`, and the blog pages use `#0a0a0a`.
+- The four-hour minimum always applies, to the client invoice and the worker's
+  pay alike. It is enforced in bookingMoney() only, so hoursWorked and
+  hoursEstimated always show the real figures and only the money is floored.
+- Every page now uses `#0a0a0a` for `theme-color`, matching CLAUDE.md and the
+  gold accent. The `#16130f` and `#0c0b0a` variants are gone.
+- `readinessAndWebhook.test.ts` still fails, now on `id="site-header"` rather
+  than the colour. The marketing pages have never been migrated to
+  `/vergo-public-shell.js`, and `npm run validate:pages` reports the same gap
+  for eight public pages. That migration is a separate piece of work.
