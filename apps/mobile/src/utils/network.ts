@@ -6,6 +6,7 @@
 import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { UserType } from '../types';
+import { setErrorReportingUser } from './errorReporting';
 
 // ============================================
 // Cache Keys
@@ -42,12 +43,17 @@ function scopedKey(key: CacheKey): string | null {
   return activeCacheScope ? `${activeCacheScope}:${key}` : null;
 }
 
+// Error reporting identity is bound to the cache scope rather than set at each
+// login site, so the two can never disagree about who is signed in. Only the id
+// and account type are sent; see setErrorReportingUser.
 export function activateUserCache(userType: UserType, userId: string): void {
   activeCacheScope = cacheScopeFor(userType, userId);
+  setErrorReportingUser(userId, userType);
 }
 
 export function deactivateUserCache(): void {
   activeCacheScope = null;
+  setErrorReportingUser(null);
 }
 
 /**

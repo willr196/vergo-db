@@ -13,6 +13,10 @@ import { ErrorBoundary, LoadingScreen, OfflineBanner } from './src/components';
 import { useAuthStore, useNetworkStore } from './src/store';
 import { colors, typography, spacing } from './src/theme';
 import { AUTH_TIMEOUT } from './src/constants';
+import { initErrorReporting } from './src/utils/errorReporting';
+
+// Before anything else renders, so a crash during startup is still reported.
+initErrorReporting();
 
 function AppContent() {
   const { checkAuth } = useAuthStore();

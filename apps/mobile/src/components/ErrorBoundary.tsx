@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { clearAuthTokens } from '../api';
 import { useAuthStore } from '../store';
 import { borderRadius, colors, shadows, spacing, typography } from '../theme';
+import { reportError } from '../utils/errorReporting';
 import { Button } from './Button';
 
 type ErrorBoundaryState = {
@@ -28,6 +29,9 @@ export class ErrorBoundary extends Component<PropsWithChildren, ErrorBoundarySta
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('[VERGO] Render crash:', error, errorInfo);
+    // A caught render crash never reaches the native handler, so without this
+    // the screen the user actually lost is invisible to us.
+    reportError(error, { componentStack: errorInfo.componentStack });
   }
 
   private resetErrorState = () => {

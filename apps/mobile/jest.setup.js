@@ -1,6 +1,14 @@
 import '@testing-library/jest-native/extend-expect';
 
 // Mock expo-secure-store
+// Sentry ships untranspiled ESM and must never fire in tests, so it is mocked
+// rather than added to transformIgnorePatterns.
+jest.mock('@sentry/react-native', () => ({
+  init: jest.fn(),
+  setUser: jest.fn(),
+  captureException: jest.fn(),
+  addBreadcrumb: jest.fn(),
+}));
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(),
   setItemAsync: jest.fn(),

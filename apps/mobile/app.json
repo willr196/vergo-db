@@ -28,7 +28,8 @@
           "cameraPermission": "VERGO needs access to your camera to take a profile photo."
         }
       ],
-      "expo-local-authentication"
+      "expo-local-authentication",
+      "@sentry/react-native/expo"
     ],
     "ios": {
       "supportsTablet": false,
@@ -75,7 +76,10 @@
               "pathPrefix": "/app"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },

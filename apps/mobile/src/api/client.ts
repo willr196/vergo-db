@@ -8,6 +8,7 @@ import * as SecureStore from 'expo-secure-store';
 import { coerceBoolean } from './normalizers';
 import { logger } from '../utils/logger';
 import { clearUserCache, deactivateUserCache } from '../utils/network';
+import { reportError } from '../utils/errorReporting';
 import type { AuthUser, UserType } from '../types';
 
 // VERGO Backend API
@@ -178,9 +179,29 @@ apiClient.interceptors.response.use(
       }
     }
 
+    reportApiFailure(error);
     return Promise.reject(formatError(error));
   }
 );
+
+/**
+ * Reports the API failures the team needs to see and stays quiet about the
+ * rest. A 4xx is usually the user (wrong password, already checked in) and a
+ * request that never got a response is almost always a venue's wifi rather
+ * than a bug. A 5xx is ours, so that is what gets reported.
+ */
+function reportApiFailure(error: AxiosError): void {
+  const status = error.response?.status;
+  const isServerFault = status != null && status >= 500;
+  if (!isServerFault) return;
+
+  reportError(error, {
+    url: error.config?.url,
+    method: error.config?.method,
+    status,
+    code: error.code,
+  });
+}
 
 // Error formatting
 export interface ApiError {

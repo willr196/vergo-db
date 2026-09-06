@@ -42,7 +42,8 @@
         "buildType": "apk"
       },
       "env": {
-        "APP_ENV": "preview"
+        "APP_ENV": "preview",
+        "EXPO_PUBLIC_SENTRY_DSN": ""
       }
     },
     "production": {
@@ -54,7 +55,8 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "APP_ENV": "production"
+        "APP_ENV": "production",
+        "EXPO_PUBLIC_SENTRY_DSN": ""
       }
     }
   },
