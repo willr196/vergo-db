@@ -22,7 +22,8 @@
   var contactSort  = { col: 'createdAt', dir: 'desc' };
   var eventSort    = { col: 'eventDate',  dir: 'asc'  };
 
-  var appFilters = { status: '', role: '', search: '' };
+  var appFilters = { status: '', role: '', search: '', location: '' };
+  var appView = 'main'; // rejected applications deliberately live outside the main roster.
   var appPage = 1;
   var appTotal = 0;
   var appTotalPages = 1;
@@ -163,6 +164,8 @@
     if (appFilters.status) params.set('status', appFilters.status);
     if (appFilters.role)   params.set('role', appFilters.role);
     if (appFilters.search) params.set('search', appFilters.search);
+    if (appFilters.location) params.set('location', appFilters.location);
+    if (appView === 'main') params.set('includeRejected', 'false');
     if (extra) {
       Object.keys(extra).forEach(function (k) { params.set(k, extra[k]); });
     }
@@ -174,18 +177,22 @@
       var params = buildAppQueryParams({
         page: appPage,
         limit: APP_PAGE_SIZE,
-        sortCol: appSort.col,
+        // A location search always ranks the closest people first.
+        sortCol: appFilters.location ? 'distance' : appSort.col,
         sortDir: appSort.dir
       });
       var data = await fetch_('/api/v1/applications?' + params.toString());
       allApplications = Array.isArray(data) ? data : (data.applications || []);
       appTotal = data.pagination ? data.pagination.total : allApplications.length;
       appTotalPages = data.pagination ? data.pagination.totalPages : 1;
-      if (appPage > appTotalPages) appPage = Math.max(1, appTotalPages);
+      if (appPage > appTotalPages) {
+        appPage = Math.max(1, appTotalPages);
+        return loadApplications();
+      }
       renderApplications();
     } catch (e) {
       document.getElementById('applications-body').innerHTML =
-        '<tr><td colspan="9" class="empty-state">Failed to load: ' + esc(e.message) + '</td></tr>';
+        '<tr><td colspan="10" class="empty-state">Failed to load: ' + esc(e.message) + '</td></tr>';
     }
   }
 
@@ -204,12 +211,14 @@
 
   function updateAppStats(data) {
     var counts = (data && data.counts) || {};
-    document.getElementById('stat-total').textContent       = (data && data.total) || 0;
+    var activeTotal = Math.max(0, ((data && data.total) || 0) - (counts['REJECTED'] || 0));
+    document.getElementById('stat-total').textContent       = activeTotal;
     document.getElementById('stat-received').textContent    = counts['RECEIVED']   || 0;
     document.getElementById('stat-reviewing').textContent   = counts['REVIEWING']  || 0;
     document.getElementById('stat-selected').textContent    = counts[SELECTED_STATUS] || 0;
     document.getElementById('stat-rejected').textContent    = counts['REJECTED']   || 0;
     document.getElementById('stat-hired').textContent       = counts['HIRED']      || 0;
+    document.getElementById('rejected-pile-count').textContent = counts['REJECTED'] || 0;
   }
 
   function formatApplicationStatus(status) {
@@ -227,9 +236,16 @@
   function applyFilters() {
     var status  = document.getElementById('filter-status').value;
     if (status === 'SELECTED') status = SELECTED_STATUS;
+    if (status === 'REJECTED') appView = 'rejected';
+    if (status && status !== 'REJECTED') {
+      appView = 'main';
+      document.getElementById('rejected-pile-banner').style.display = 'none';
+    }
+    if (appView === 'rejected') status = 'REJECTED';
     appFilters.status = status;
     appFilters.role   = document.getElementById('filter-role').value;
     appFilters.search = document.getElementById('filter-search').value.trim();
+    appFilters.location = document.getElementById('filter-location').value.trim();
     appPage = 1;
     loadApplications();
     loadAppStats();
@@ -239,15 +255,20 @@
     document.getElementById('filter-status').value = '';
     document.getElementById('filter-role').value   = '';
     document.getElementById('filter-search').value = '';
+    document.getElementById('filter-location').value = '';
     document.querySelectorAll('#app-stats .kpi-card').forEach(function(c){c.classList.remove('kpi-active');});
-    appFilters = { status: '', role: '', search: '' };
+    appFilters = { status: appView === 'rejected' ? 'REJECTED' : '', role: '', search: '', location: '' };
     appPage = 1;
     loadApplications();
     loadAppStats();
   }
 
   function sortApplications(col) {
-    if (!['fullName', 'email', 'phone', 'postcode', 'status', 'createdAt'].includes(col)) return;
+    if (!['fullName', 'email', 'phone', 'postcode', 'distance', 'status', 'createdAt'].includes(col)) return;
+    if (col === 'distance' && !appFilters.location) {
+      notify('Enter a location postcode or area first.', 'info');
+      return;
+    }
     if (appSort.col === col) {
       appSort.dir = appSort.dir === 'asc' ? 'desc' : 'asc';
     } else {
@@ -264,11 +285,15 @@
     var pages = appTotalPages;
 
     var countEl = document.getElementById('app-count');
-    if (countEl) countEl.textContent = total + ' result' + (total !== 1 ? 's' : '');
+    if (countEl) {
+      var label = appView === 'rejected' ? 'rejected application' : 'application';
+      countEl.textContent = total + ' ' + label + (total !== 1 ? 's' : '')
+        + (appFilters.location ? ' · closest first' : '');
+    }
 
     var tbody = document.getElementById('applications-body');
     if (!pageApps.length) {
-      tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No applications found</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" class="empty-state">No ' + (appView === 'rejected' ? 'rejected ' : '') + 'applications found</td></tr>';
       renderAppPagination(total, pages);
       return;
     }
@@ -286,6 +311,7 @@
         + '<td>' + esc(app.phone || '-') + '</td>'
         + '<td>' + (roles || '<span class="text-muted">-</span>') + '</td>'
         + '<td>' + esc(app.postcode || '-') + '</td>'
+        + '<td>' + (typeof app.distanceMiles === 'number' ? esc(app.distanceMiles.toFixed(1) + ' mi') : '<span class="text-muted">-</span>') + '</td>'
         + '<td><span class="badge badge-' + esc(applicationBadgeClass(app.status)) + '">' + esc(formatApplicationStatus(app.status)) + '</span></td>'
         + '<td>' + fmtD(app.createdAt) + '</td>'
         + '<td><div style="display:flex;gap:6px;flex-wrap:wrap">'
@@ -334,6 +360,28 @@
 
   function findApplication(appId) {
     return allApplications.find(function (app) { return app.id === appId; }) || null;
+  }
+
+  function showRejectedPile() {
+    appView = 'rejected';
+    appFilters.status = 'REJECTED';
+    document.getElementById('filter-status').value = '';
+    document.getElementById('rejected-pile-banner').style.display = '';
+    appPage = 1;
+    selectedAppIds.clear();
+    updateBulkBar();
+    loadApplications();
+  }
+
+  function showMainApplications() {
+    appView = 'main';
+    appFilters.status = '';
+    document.getElementById('filter-status').value = '';
+    document.getElementById('rejected-pile-banner').style.display = 'none';
+    appPage = 1;
+    selectedAppIds.clear();
+    updateBulkBar();
+    loadApplications();
   }
 
   function getRequestedApplicationId() {
@@ -439,6 +487,10 @@
       + '<div class="drawer-section-header"><span class="detail-label">Right to work</span></div>'
       + '<div class="drawer-loading">Loading right-to-work status…</div>'
       + '</div>'
+      + '<div class="drawer-section mb-2" id="schedule-section">'
+      + '<div class="drawer-section-header"><span class="detail-label">Jobs &amp; days working</span></div>'
+      + '<div class="drawer-loading">Loading schedule…</div>'
+      + '</div>'
       + '<div class="drawer-section mb-2"><span class="detail-label">Preferred job types</span><div class="pill-wrap mt-1">' + preferredJobTypes + '</div></div>'
       + '<div class="drawer-section mb-2"><span class="detail-label">Roles applied for</span><div class="pill-wrap mt-1">' + rolePills + '</div></div>'
       + '<div class="drawer-section mb-2"><span class="detail-label">Bio</span><p class="drawer-copy">' + esc(applicant.bio || 'No bio provided.') + '</p></div>'
@@ -504,6 +556,85 @@
 
     wireDrawerNotesAutoSave(detail.id, notesValue);
     loadRightToWork(applicant.id, detail.status);
+    loadSchedule(applicant.id);
+  }
+
+  // ── Jobs and days worked ─────────────────────────────────
+  // Answers "which jobs and days is this person on?" from the per-day job
+  // roster. Days are bare YYYY-MM-DD keys, compared as strings against today
+  // so past days grey out without any timezone arithmetic.
+
+  function scheduleDayChip(date) {
+    var today = new Date().toISOString().slice(0, 10);
+    var label = new Date(date + 'T12:00:00Z').toLocaleDateString('en-GB', {
+      weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC'
+    });
+    return '<span class="schedule-day-chip' + (date < today ? ' is-past' : '') + '">' + esc(label) + '</span>';
+  }
+
+  function renderSchedule(data) {
+    var section = document.getElementById('schedule-section');
+    if (!section) return;
+
+    var header = '<div class="drawer-section-header"><span class="detail-label">Jobs &amp; days working</span>'
+      + '<span class="detail-meta">' + esc(String(data.totals.dayCount)) + ' day(s) across '
+      + esc(String(data.totals.jobCount)) + ' job(s)</span></div>';
+
+    if (!data.hasAccount) {
+      section.innerHTML = header
+        + '<p class="drawer-copy text-muted mt-1">No worker account yet, so there is nothing to roster. '
+        + 'Send a login email first.</p>';
+      return;
+    }
+
+    if (data.jobs.length === 0) {
+      section.innerHTML = header
+        + '<p class="drawer-copy text-muted mt-1">Not rostered on any job days yet. '
+        + 'Add them from the Staffing screen on a job.</p>';
+      return;
+    }
+
+    var next = data.totals.nextDate
+      ? '<p class="drawer-copy mt-1">Next day on: <strong>' + esc(
+          new Date(data.totals.nextDate + 'T12:00:00Z').toLocaleDateString('en-GB', {
+            weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC'
+          })
+        ) + '</strong></p>'
+      : '<p class="drawer-copy text-muted mt-1">No upcoming days — everything rostered is in the past.</p>';
+
+    var jobs = data.jobs.map(function (job) {
+      var where = [job.venue, job.location].filter(Boolean).join(', ');
+      var shift = job.shiftStart && job.shiftEnd ? job.shiftStart + '–' + job.shiftEnd : null;
+      var meta = [job.roleName, where, shift, job.companyName].filter(Boolean).join(' · ');
+
+      return '<div class="schedule-job">'
+        + '<div class="drawer-section-header">'
+        + '<strong>' + esc(job.title) + '</strong>'
+        + '<span class="badge badge-' + esc(job.status === 'OPEN' ? 'success' : 'muted') + '">' + esc(job.status) + '</span>'
+        + '</div>'
+        + (meta ? '<span class="detail-meta">' + esc(meta) + '</span>' : '')
+        + '<div class="schedule-day-list">' + job.days.map(function (day) {
+            return scheduleDayChip(day.date);
+          }).join('') + '</div>'
+        + '</div>';
+    }).join('');
+
+    section.innerHTML = header + next + jobs;
+  }
+
+  async function loadSchedule(applicantId) {
+    if (!applicantId) return;
+    try {
+      var data = await fetch_('/api/v1/admin/staff/' + encodeURIComponent(applicantId) + '/schedule');
+      renderSchedule(data);
+    } catch (e) {
+      var section = document.getElementById('schedule-section');
+      if (section) {
+        section.innerHTML =
+          '<div class="drawer-section-header"><span class="detail-label">Jobs &amp; days working</span></div>'
+          + '<p class="drawer-copy text-muted mt-1">Could not load schedule: ' + esc(e.message) + '</p>';
+      }
+    }
   }
 
   // ── Right to work ────────────────────────────────────────
@@ -1137,6 +1268,8 @@
     if (action === 'refresh-stats')        return loadStats();
     if (action === 'apply-filters')        return applyFilters();
     if (action === 'clear-filters')        return clearFilters();
+    if (action === 'show-rejected-pile')   return showRejectedPile();
+    if (action === 'show-main-applications') return showMainApplications();
     if (action === 'apply-contact-filters') return applyContactFilters();
     if (action === 'clear-contact-filters') {
       document.getElementById('filter-contact-status').value = '';
@@ -1233,6 +1366,8 @@
     document.querySelectorAll('#app-stats .kpi-card').forEach(function(c) { c.classList.remove('kpi-active'); });
     applyFilters();
   });
+  var filterLocation = document.getElementById('filter-location');
+  if (filterLocation) filterLocation.addEventListener('input', debouncedApplyFilters);
 
   // KPI stat card filter shortcut
   var appStats = document.getElementById('app-stats');
@@ -1240,8 +1375,11 @@
     var card = e.target.closest('.kpi-card[data-filter]');
     if (!card) return;
     var filter = card.dataset.filter;
+    if (filter === 'REJECTED') return showRejectedPile();
     var isActive = card.classList.contains('kpi-active');
     document.querySelectorAll('#app-stats .kpi-card').forEach(function(c) { c.classList.remove('kpi-active'); });
+    appView = 'main';
+    document.getElementById('rejected-pile-banner').style.display = 'none';
     if (isActive || filter === 'all') {
       if (filterStatus) filterStatus.value = '';
     } else {

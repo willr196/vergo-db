@@ -31,6 +31,7 @@ import staffBrowse from './routes/staffBrowse';
 import bookings from './routes/bookings';
 import mobileJobs from './routes/mobileJobs';
 import mobileJobApplications from './routes/mobileJobApplications';
+import mobileShifts from './routes/mobileShifts';
 import mobileClient from './routes/mobileClient';
 import mobileMarketplace from './routes/mobileMarketplace';
 import mobileNotifications from './routes/mobileNotifications';
@@ -450,6 +451,7 @@ app.use('/api/v1/bookings', bookings);
 // Mobile app endpoints (JWT)
 app.use('/api/v1/mobile/jobs', mobileJobs);
 app.use('/api/v1/mobile/job-applications', mobileJobApplications);
+app.use('/api/v1/mobile/shifts', mobileShifts);
 app.use('/api/v1/client/mobile', mobileClient);
 app.use('/api/v1/client/mobile', mobileMarketplace);
 

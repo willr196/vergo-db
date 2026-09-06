@@ -12,6 +12,13 @@ const applySchema = z.object({
   coverNote: z.string().max(2000).optional()
 });
 
+const idempotencyKeySchema = z.string().trim().min(16).max(128);
+
+function readIdempotencyKey(req: { get(name: string): string | undefined }): string | undefined {
+  const key = req.get('Idempotency-Key');
+  return key ? idempotencyKeySchema.parse(key) : undefined;
+}
+
 const listQuerySchema = z.object({
   status: z.string().optional(),
   page: z.coerce.number().int().min(1).default(1),
@@ -25,6 +32,17 @@ r.post('/', async (req, res, next) => {
   try {
     const data = applySchema.parse(req.body);
     const userId = req.auth!.userId;
+    const idempotencyKey = readIdempotencyKey(req);
+
+    const existing = await prisma.jobApplication.findUnique({
+      where: { userId_jobId: { userId, jobId: data.jobId } }
+    });
+    if (existing) {
+      if (idempotencyKey && existing.applyIdempotencyKey === idempotencyKey) {
+        return res.status(200).json({ ok: true, data: existing, idempotent: true });
+      }
+      return res.status(400).json({ ok: false, error: 'Already applied' });
+    }
 
     const job = await prisma.job.findUnique({
       where: { id: data.jobId },
@@ -37,13 +55,6 @@ r.post('/', async (req, res, next) => {
 
     if (job.status !== 'OPEN') {
       return res.status(400).json({ ok: false, error: 'Job no longer accepting applications' });
-    }
-
-    const existing = await prisma.jobApplication.findUnique({
-      where: { userId_jobId: { userId, jobId: data.jobId } }
-    });
-    if (existing) {
-      return res.status(400).json({ ok: false, error: 'Already applied' });
     }
 
     if (job.staffConfirmed >= job.staffNeeded) {
@@ -63,7 +74,8 @@ r.post('/', async (req, res, next) => {
         userId,
         jobId: data.jobId,
         coverNote: data.coverNote || null,
-        status: 'PENDING'
+        status: 'PENDING',
+        applyIdempotencyKey: idempotencyKey,
       },
       include: { job: { select: { id: true, title: true, eventDate: true, location: true, role: { select: { name: true } } } } }
     });
@@ -230,6 +242,7 @@ r.get('/:id', async (req, res, next) => {
 // POST /api/v1/mobile/job-applications/:id/withdraw
 r.post('/:id/withdraw', async (req, res, next) => {
   try {
+    readIdempotencyKey(req);
     const application = await prisma.jobApplication.findUnique({
       where: { id: req.params.id },
       select: { id: true, userId: true, status: true, job: { select: { title: true } } }
@@ -248,7 +261,7 @@ r.post('/:id/withdraw', async (req, res, next) => {
     }
 
     if (application.status === 'WITHDRAWN') {
-      return res.status(400).json({ ok: false, error: 'Already withdrawn' });
+      return res.json({ ok: true, data: application, idempotent: true });
     }
 
     const updated = await prisma.jobApplication.update({

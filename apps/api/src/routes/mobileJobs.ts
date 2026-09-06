@@ -153,8 +153,7 @@ r.get('/cities', async (_req, res, next) => {
   }
 });
 
-// GET /api/v1/mobile/jobs/recommended
-r.get('/recommended', async (req, res, next) => {
+async function listLatestJobs(req: any, res: any, next: any) {
   try {
     const limit = Math.min(Math.max(Number(req.query.limit) || 5, 1), 20);
 
@@ -176,7 +175,15 @@ r.get('/recommended', async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-});
+}
+
+// GET /api/v1/mobile/jobs/latest
+// This is intentionally a date-sorted open-jobs list, not personalised matching.
+r.get('/latest', listLatestJobs);
+
+// Deprecated compatibility alias. Clients should use /latest so the endpoint
+// name does not imply profile-based recommendations.
+r.get('/recommended', listLatestJobs);
 
 // GET /api/v1/mobile/jobs/meta/roles
 r.get('/meta/roles', async (_req, res, next) => {

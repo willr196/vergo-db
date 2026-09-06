@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../prisma';
+import { ensureJobDays, refitJobDaysToRange } from '../services/jobStaffing';
 import { requireClientJwt } from '../middleware/jwtAuth';
 import { sendPushToUser } from '../services/notifications';
 
@@ -63,7 +64,8 @@ const listClientJobsSchema = z.object({
 
 const updateApplicationStatusSchema = z.object({
   status: z.enum(["PENDING", "REVIEWED", "SHORTLISTED", "CONFIRMED", "REJECTED"]),
-  adminNotes: z.string().max(2000).optional()
+  adminNotes: z.string().max(2000).optional(),
+  rejectionReason: z.string().trim().max(500).optional()
 });
 
 // ============================================
@@ -675,6 +677,11 @@ r.post('/jobs', async (req, res) => {
       }
     });
 
+    // Seed the per-day staffing plan so the admin staffing screen has days to
+    // work with. Clients don't set headcount per day from the app, so every day
+    // starts at the job's overall figure.
+    await ensureJobDays(job.id);
+
     console.log(`[JOB] Client ${client.id} created job ${job.id}: ${job.title}`);
 
     // Push notification: notify seekers interested in this role when job is published
@@ -762,6 +769,10 @@ r.put('/jobs/:id', async (req, res) => {
         _count: { select: { applications: true } }
       }
     });
+
+    // Keep the day plan on the event dates, preserving anyone already rostered
+    // on days that survive the move.
+    await refitJobDaysToRange(job.id);
 
     console.log(`[JOB] Client ${client.id} updated job ${job.id}`);
 
@@ -879,6 +890,7 @@ r.get('/jobs/:id/applications', async (req, res) => {
       userId: app.userId,
       status: app.status.toLowerCase(),
       coverNote: app.coverNote,
+      rejectionReason: app.rejectionReason,
       user: app.user,
       jobSeeker: app.user,
       job: app.job,
@@ -933,6 +945,13 @@ r.put('/jobs/:jobId/applications/:appId/status', async (req, res) => {
       });
     }
 
+    if (parsed.data.status === 'REJECTED' && !parsed.data.rejectionReason) {
+      return res.status(400).json({
+        ok: false,
+        error: 'A rejection reason is required when rejecting an application'
+      });
+    }
+
     const existing = await prisma.jobApplication.findFirst({
       where: { id: req.params.appId, jobId: req.params.jobId }
     });
@@ -945,7 +964,10 @@ r.put('/jobs/:jobId/applications/:appId/status', async (req, res) => {
       where: { id: req.params.appId },
       data: {
         status: parsed.data.status,
-        ...(parsed.data.adminNotes && { adminNotes: parsed.data.adminNotes })
+        ...(parsed.data.adminNotes && { adminNotes: parsed.data.adminNotes }),
+        ...(parsed.data.status === 'REJECTED' && {
+          rejectionReason: parsed.data.rejectionReason
+        })
       },
       include: {
         user: {
@@ -995,6 +1017,7 @@ r.put('/jobs/:jobId/applications/:appId/status', async (req, res) => {
       userId: application.userId,
       status: application.status.toLowerCase(),
       coverNote: application.coverNote,
+      rejectionReason: application.rejectionReason,
       user: application.user,
       jobSeeker: application.user,
       job: application.job,
@@ -1051,6 +1074,7 @@ r.get('/applications/:appId', async (req, res) => {
       userId: application.userId,
       status: application.status.toLowerCase(),
       coverNote: application.coverNote,
+      rejectionReason: application.rejectionReason,
       user: application.user,
       jobSeeker: application.user,
       job: application.job,

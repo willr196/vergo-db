@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../prisma';
 import { adminAuth } from '../middleware/adminAuth';
 import { authLogger } from '../services/logger';
+import { getStaffSchedule } from '../services/jobStaffing';
 
 const r = Router();
 
@@ -96,6 +97,46 @@ r.patch('/:applicantId/visibility', adminAuth, async (req, res, next) => {
     }, 'Admin updated applicant visibility');
 
     res.json({ ok: true, applicant, data: applicant });
+  } catch (e) { next(e); }
+});
+
+/**
+ * GET /api/v1/admin/staff/:applicantId/schedule
+ *
+ * Which jobs this person is working and on which days. Keyed by applicant id
+ * because that is what the roster drawer has; the days themselves hang off the
+ * User account, so someone who has never been sent a login email simply has an
+ * empty schedule rather than a 404.
+ */
+r.get('/:applicantId/schedule', adminAuth, async (req, res, next) => {
+  try {
+    const applicant = await prisma.applicant.findUnique({
+      where: { id: req.params.applicantId },
+      select: { id: true }
+    });
+
+    if (!applicant) {
+      return res.status(404).json({ error: 'Applicant not found' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { applicantId: applicant.id },
+      select: { id: true, firstName: true, lastName: true }
+    });
+
+    if (!user) {
+      const empty = {
+        hasAccount: false,
+        jobs: [],
+        totals: { jobCount: 0, dayCount: 0, upcomingDayCount: 0, nextDate: null }
+      };
+      return res.json({ ok: true, ...empty, data: empty });
+    }
+
+    const schedule = await getStaffSchedule(user.id);
+    const payload = { hasAccount: true, userId: user.id, ...schedule };
+
+    res.json({ ok: true, ...payload, data: payload });
   } catch (e) { next(e); }
 });
 

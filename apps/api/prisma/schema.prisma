@@ -395,6 +395,7 @@ model User {
   bookings            Booking[]
   bookingTemplates    BookingTemplate[]
   jobApplications     JobApplication[]
+  jobAssignments      JobAssignment[]
   pushTokens          PushToken[]
   refreshTokens       RefreshToken[]
   savedJobs           SavedJob[]
@@ -470,6 +471,7 @@ model Job {
   applications        JobApplication[]
   savedBy             SavedJob[]
   invites             JobInvite[]
+  days                JobDay[]
 
   @@index([status, type])
   @@index([clientId])
@@ -479,21 +481,55 @@ model Job {
 }
 
 model JobApplication {
-  id         String               @id @default(cuid())
-  createdAt  DateTime             @default(now())
-  updatedAt  DateTime             @updatedAt
-  jobId      String
-  status     JobApplicationStatus @default(PENDING)
-  adminNotes String?
-  coverNote  String?
-  userId     String
-  rateUplift Decimal?             @db.Decimal(10, 2)
+  id                  String               @id @default(cuid())
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  jobId               String
+  status              JobApplicationStatus @default(PENDING)
+  adminNotes          String?
+  rejectionReason     String?
+  coverNote           String?
+  userId              String
+  rateUplift          Decimal?             @db.Decimal(10, 2)
+  applyIdempotencyKey String?              @unique
   job        Job                  @relation(fields: [jobId], references: [id], onDelete: Cascade)
   user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, jobId])
   @@index([status])
   @@index([createdAt])
+}
+
+/// One calendar day of a job. A multi-day event rarely needs the same crew size
+/// on the build day as on the show day, so headcount lives here rather than only
+/// on the job. Job.staffNeeded is kept in sync with the busiest single day.
+model JobDay {
+  id          String          @id @default(cuid())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  jobId       String
+  date        DateTime        @db.Date
+  staffNeeded Int             @default(1)
+  job         Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  assignments JobAssignment[]
+
+  @@unique([jobId, date])
+  @@index([jobId])
+  @@index([date])
+}
+
+/// A named worker rostered onto one specific day of a job.
+model JobAssignment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  jobDayId  String
+  userId    String
+  jobDay    JobDay   @relation(fields: [jobDayId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([jobDayId, userId])
+  @@index([jobDayId])
+  @@index([userId])
 }
 
 model SavedJob {

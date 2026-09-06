@@ -108,7 +108,8 @@ All routes below now emit the canonical envelope unless marked **(unchanged)**.
 |--------|----------------|-----------------------------------------------------------------------------------------------|
 | GET    | `/`            | `{ ok, data: Job[], pagination }`                                                             |
 | GET    | `/cities`      | `{ ok, data: string[] }`                                                                      |
-| GET    | `/recommended` | `{ ok, data: Job[] }`                                                                         |
+| GET    | `/latest`      | `{ ok, data: Job[] }` — date-sorted open jobs; not personalised                              |
+| GET    | `/recommended` | `{ ok, data: Job[] }` — deprecated compatibility alias for `/latest`                         |
 | GET    | `/meta/roles`  | `{ ok, data: { id, name }[] }`                                                                |
 | GET    | `/saved`       | `{ ok, data: Job[] }`                                                                         |
 | POST   | `/:id/save`    | `{ ok }`                                                                                      |

@@ -764,7 +764,11 @@ const listQuerySchema = z.object({
   status: z.enum(APPLICATION_STATUSES).optional(),
   role: z.string().trim().min(1).max(100).optional(),
   search: z.string().trim().min(1).max(200).optional(),
-  sortCol: z.enum(['fullName', 'email', 'phone', 'postcode', 'status', 'createdAt']).default('createdAt'),
+  location: z.string().trim().min(2).max(100).optional(),
+  // Keep rejected applicants out of the active roster unless the rejected pile
+  // explicitly asks for them. z.coerce.boolean() treats "false" as truthy.
+  includeRejected: z.preprocess((value) => value === true || value === 'true', z.boolean()).default(false),
+  sortCol: z.enum(['fullName', 'email', 'phone', 'postcode', 'distance', 'status', 'createdAt']).default('createdAt'),
   sortDir: z.enum(['asc', 'desc']).default('desc')
 });
 
@@ -842,10 +846,33 @@ const statsQuerySchema = z.object({
   search: z.string().trim().min(1).max(200).optional()
 });
 
-function buildApplicationWhere(filters: { status?: string; role?: string; search?: string }) {
+function roleNameVariants(roleName: string) {
+  const name = roleName.trim();
+  if (!name) return [];
+
+  // Historical imports contain both singular and plural role names (for
+  // example, "Kitchen Porter" and "Kitchen porters"). Treat those as the
+  // same admin filter while retaining the original role records.
+  const singular = name.replace(/s$/i, '');
+  return [...new Set([singular, singular + 's'])];
+}
+
+function buildApplicationWhere(filters: { status?: string; role?: string; search?: string; includeRejected?: boolean }) {
   const where: any = {};
   if (filters.status) where.status = filters.status;
-  if (filters.role) where.roles = { some: { role: { name: filters.role } } };
+  else if (!filters.includeRejected) where.status = { not: 'REJECTED' };
+  if (filters.role) {
+    where.roles = {
+      some: {
+        role: {
+          name: {
+            in: roleNameVariants(filters.role),
+            mode: 'insensitive'
+          }
+        }
+      }
+    };
+  }
   if (filters.search) {
     where.applicant = {
       OR: [
@@ -866,8 +893,94 @@ function buildApplicationOrderBy(sortCol: string, sortDir: 'asc' | 'desc') {
     case 'phone': return { applicant: { phone: sortDir } };
     case 'postcode': return { applicant: { postcode: sortDir } };
     case 'status': return { status: sortDir };
-    default: return { createdAt: sortDir };
+    // createdAt alone is not unique; the tie-breaker keeps pagination stable
+    // so newly submitted applications cannot be skipped between pages.
+    default: return [{ createdAt: sortDir }, { id: sortDir }];
   }
+}
+
+type PostcodePoint = { latitude: number; longitude: number };
+const POSTCODE_LOOKUP_BASE_URL = 'https://api.postcodes.io';
+const POSTCODE_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const postcodeCache = new Map<string, { expiresAt: number; point: PostcodePoint | null }>();
+
+function normalisePostcode(value: string) {
+  return value.trim().replace(/\s+/g, '').toUpperCase();
+}
+
+function readCachedPostcode(key: string) {
+  const cached = postcodeCache.get(key);
+  if (!cached || cached.expiresAt < Date.now()) return undefined;
+  return cached.point;
+}
+
+function cachePostcode(key: string, point: PostcodePoint | null) {
+  postcodeCache.set(key, { point, expiresAt: Date.now() + POSTCODE_CACHE_TTL_MS });
+}
+
+function toPostcodePoint(result: any): PostcodePoint | null {
+  const latitude = Number(result?.latitude);
+  const longitude = Number(result?.longitude);
+  return Number.isFinite(latitude) && Number.isFinite(longitude) ? { latitude, longitude } : null;
+}
+
+async function lookupLocation(location: string): Promise<PostcodePoint | null> {
+  const key = normalisePostcode(location);
+  const cached = readCachedPostcode(key);
+  if (cached !== undefined) return cached;
+
+  const path = /^([A-Z]{1,2}\d[A-Z\d]?)$/.test(key) ? '/outcodes/' : '/postcodes/';
+  const response = await fetch(POSTCODE_LOOKUP_BASE_URL + path + encodeURIComponent(key), {
+    signal: AbortSignal.timeout(5000)
+  });
+  if (response.status === 404) {
+    cachePostcode(key, null);
+    return null;
+  }
+  if (!response.ok) throw new Error('Location lookup is temporarily unavailable');
+  const payload = await response.json() as any;
+  const point = toPostcodePoint(payload.result);
+  cachePostcode(key, point);
+  return point;
+}
+
+async function lookupApplicantPostcodes(postcodes: string[]) {
+  const points = new Map<string, PostcodePoint | null>();
+  const uncached = postcodes.filter((postcode) => {
+    const cached = readCachedPostcode(postcode);
+    if (cached === undefined) return true;
+    points.set(postcode, cached);
+    return false;
+  });
+
+  for (let index = 0; index < uncached.length; index += 100) {
+    const batch = uncached.slice(index, index + 100);
+    const response = await fetch(POSTCODE_LOOKUP_BASE_URL + '/postcodes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postcodes: batch }),
+      signal: AbortSignal.timeout(5000)
+    });
+    if (!response.ok) throw new Error('Location lookup is temporarily unavailable');
+    const payload = await response.json() as any;
+    for (const item of payload.result || []) {
+      const key = normalisePostcode(String(item.query || ''));
+      const point = toPostcodePoint(item.result);
+      cachePostcode(key, point);
+      points.set(key, point);
+    }
+  }
+  return points;
+}
+
+function distanceInMiles(from: PostcodePoint, to: PostcodePoint) {
+  const radians = (degrees: number) => degrees * Math.PI / 180;
+  const earthRadiusMiles = 3958.8;
+  const latitudeDelta = radians(to.latitude - from.latitude);
+  const longitudeDelta = radians(to.longitude - from.longitude);
+  const a = Math.sin(latitudeDelta / 2) ** 2
+    + Math.cos(radians(from.latitude)) * Math.cos(radians(to.latitude)) * Math.sin(longitudeDelta / 2) ** 2;
+  return earthRadiusMiles * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 function shapeApplicationListItem(app: any) {
@@ -963,9 +1076,39 @@ async function shapeApplicationDetail(app: any) {
 r.get('/', adminAuth, async (req, res, next) => {
   try {
     const query = listQuerySchema.parse(req.query);
-    const skip = (query.page - 1) * query.limit;
     const where = buildApplicationWhere(query);
     const orderBy = buildApplicationOrderBy(query.sortCol, query.sortDir) as any;
+
+    if (query.location) {
+      const searchPoint = await lookupLocation(query.location);
+      if (!searchPoint) return res.status(400).json({ error: 'Enter a valid UK postcode or area, such as SW1A 1AA or SW1A.' });
+
+      const apps = await prisma.application.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          applicant: { include: { user: { select: { id: true, emailVerified: true, mustChangePassword: true, lastLoginAt: true } } } },
+          roles: { include: { role: true } }
+        }
+      });
+      const postcodes = [...new Set(apps.map((app) => normalisePostcode(app.applicant.postcode || '')).filter(Boolean))];
+      const postcodePoints = await lookupApplicantPostcodes(postcodes);
+      const ranked = apps.map((app) => {
+        const point = postcodePoints.get(normalisePostcode(app.applicant.postcode || ''));
+        return { app, distanceMiles: point ? distanceInMiles(searchPoint, point) : null };
+      }).sort((a, b) => (a.distanceMiles ?? Infinity) - (b.distanceMiles ?? Infinity)
+        || Number(b.app.createdAt) - Number(a.app.createdAt));
+      const total = ranked.length;
+      const start = (query.page - 1) * query.limit;
+      const shaped = ranked.slice(start, start + query.limit).map(({ app, distanceMiles }) => ({
+        ...shapeApplicationListItem(app),
+        distanceMiles: distanceMiles === null ? null : Math.round(distanceMiles * 10) / 10
+      }));
+      const payload = { applications: shaped, pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
+      return res.json({ ok: true, ...payload, data: payload });
+    }
+
+    const skip = (query.page - 1) * query.limit;
 
     const [apps, total] = await Promise.all([
       prisma.application.findMany({
@@ -1013,7 +1156,7 @@ r.get('/', adminAuth, async (req, res, next) => {
 r.get('/stats', adminAuth, async (req, res, next) => {
   try {
     const query = statsQuerySchema.parse(req.query);
-    const where = buildApplicationWhere({ role: query.role, search: query.search });
+    const where = buildApplicationWhere({ role: query.role, search: query.search, includeRejected: true });
 
     const grouped = await prisma.application.groupBy({
       by: ['status'],

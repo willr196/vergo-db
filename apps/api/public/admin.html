@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=3">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=4">
 </head>
 <body>
 
@@ -105,7 +105,7 @@
       <div id="applications-tab" class="tab-content active">
         <!-- Stats -->
         <div class="kpi-grid" id="app-stats">
-        <div class="kpi-card" data-filter="all"><div class="kpi-label">Total</div><div class="kpi-value" id="stat-total">0</div></div>
+        <div class="kpi-card" data-filter="all"><div class="kpi-label">Active roster</div><div class="kpi-value" id="stat-total">0</div></div>
         <div class="kpi-card kpi-info" data-filter="RECEIVED"><div class="kpi-label">New</div><div class="kpi-value" id="stat-received">0</div></div>
         <div class="kpi-card kpi-warning" data-filter="REVIEWING"><div class="kpi-label">Reviewing</div><div class="kpi-value" id="stat-reviewing">0</div></div>
         <div class="kpi-card kpi-success" data-filter="SELECTED"><div class="kpi-label">Selected</div><div class="kpi-value" id="stat-selected">0</div></div>
@@ -126,11 +126,10 @@
           <div class="as-filter-group">
             <label>Status</label>
             <select id="filter-status">
-            <option value="">All Statuses</option>
+            <option value="">All active statuses</option>
             <option value="RECEIVED">New</option>
             <option value="REVIEWING">Reviewing</option>
             <option value="SELECTED">Selected</option>
-            <option value="REJECTED">Rejected</option>
             <option value="HIRED">Hired</option>
           </select>
         </div>
@@ -151,6 +150,10 @@
             <label>Search</label>
             <input type="search" id="filter-search" placeholder="Name, email, phone…">
           </div>
+          <div class="as-filter-group">
+            <label>Location</label>
+            <input type="search" id="filter-location" placeholder="Postcode or area, e.g. SW1A 1AA">
+          </div>
           <div class="as-filter-actions">
             <button class="btn btn-primary" data-action="apply-filters">Apply</button>
             <button class="btn btn-ghost" data-action="clear-filters">Clear</button>
@@ -164,9 +167,14 @@
               <span id="app-count" class="text-muted fs-sm">Loading…</span>
             </div>
             <div class="as-toolbar-right">
+              <button class="btn btn-ghost btn-sm" data-action="show-rejected-pile">Rejected pile (<span id="rejected-pile-count">0</span>)</button>
               <button class="btn btn-primary btn-sm" data-action="open-add-candidate">+ Add Candidate</button>
               <button class="btn btn-ghost btn-sm" data-action="export-apps-csv">↓ CSV</button>
             </div>
+          </div>
+          <div id="rejected-pile-banner" class="as-alert-panel" style="display:none;margin:0 0 12px">
+            <div class="as-alert-header">Rejected pile</div>
+            <div class="as-alert-item"><span class="as-alert-text text-muted">Rejected applicants are kept here and do not appear in the active roster.</span><button class="btn btn-ghost btn-sm" data-action="show-main-applications">Back to active roster</button></div>
           </div>
           <table>
             <thead>
@@ -177,13 +185,14 @@
                 <th data-sort="phone">Phone <span class="sort-icon">↕</span></th>
                 <th data-sort="roles">Roles <span class="sort-icon">↕</span></th>
                 <th data-sort="postcode">Postcode <span class="sort-icon">↕</span></th>
+                <th data-sort="distance">Distance <span class="sort-icon">↕</span></th>
                 <th data-sort="status">Status <span class="sort-icon">↕</span></th>
                 <th data-sort="createdAt">Applied <span class="sort-icon">↕</span></th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody id="applications-body">
-              <tr><td colspan="9" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
+              <tr><td colspan="10" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
             </tbody>
           </table>
           <div class="as-pagination" id="app-pagination"></div>
@@ -465,6 +474,6 @@
 
   <script src="/js/admin-core.js"></script>
   <script src="/js/admin-nav.js"></script>
-  <script src="/pages/js/admin-dashboard.js?v=3"></script>
+  <script src="/pages/js/admin-dashboard.js?v=4"></script>
 </body>
 </html>

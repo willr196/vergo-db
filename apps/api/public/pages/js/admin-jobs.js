@@ -48,7 +48,7 @@ let jobs = [];
         renderTable();
       } catch (err) {
         console.error('Failed to load jobs:', err);
-        document.getElementById('jobs-table').innerHTML = '<tr><td colspan="7" class="empty-state">Failed to load jobs</td></tr>';
+        document.getElementById('jobs-table').innerHTML = '<tr><td colspan="8" class="empty-state">Failed to load jobs</td></tr>';
       }
     }
     
@@ -76,14 +76,23 @@ let jobs = [];
       const tbody = document.getElementById('jobs-table');
       
       if (jobs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><h3>No jobs yet</h3><p>Click "Add Job" to create your first listing</p></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><h3>No jobs yet</h3><p>Click "Add Job" to create your first listing</p></td></tr>';
         return;
       }
       
       tbody.innerHTML = jobs.map(job => {
-        const date = job.eventDate 
-          ? new Date(job.eventDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-          : '-';
+        const staffing = job.staffing || { dayCount: 0, slots: 0, filled: 0, fullyStaffed: false };
+        const date = staffing.dayCount > 1
+          ? `${JobStaffing.formatDayShort(staffing.firstDate)} – ${JobStaffing.formatDayShort(staffing.lastDate)}`
+          : job.eventDate
+            ? new Date(job.eventDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+            : '-';
+
+        // Day-slots, not people: a 3-day job needing 4 heads a day is 12 slots.
+        const staffedCell = staffing.dayCount === 0
+          ? '<span class="text-muted">No days</span>'
+          : `<span class="badge badge-${staffing.fullyStaffed ? 'success' : 'warning'}">${staffing.filled}/${staffing.slots}</span>`
+            + ` <span class="text-muted fs-sm">${staffing.dayCount}d</span>`;
         
         const pay = job.payRate 
           ? `£${Number(job.payRate).toFixed(0)}/${job.payType === 'HOURLY' ? 'hr' : job.payType === 'DAILY' ? 'day' : 'fee'}`
@@ -110,6 +119,7 @@ let jobs = [];
           `;
         } else {
           actionButtons = `
+            <button type="button" class="btn btn-small btn-primary" data-action="open-staffing" data-job-id="${job.id}">Staffing</button>
             <button type="button" class="btn btn-small btn-edit" data-action="edit-job" data-job-id="${job.id}">Edit</button>
             <button type="button" class="btn btn-small btn-delete" data-action="delete-job" data-job-id="${job.id}">Delete</button>
           `;
@@ -118,7 +128,7 @@ let jobs = [];
         return `
           <tr>
             <td class="job-title-cell">
-              <strong>${escapeHtml(job.title)}</strong>
+              <strong><button type="button" class="applicant-link" data-action="open-staffing" data-job-id="${job.id}" title="Open staffing for this job">${escapeHtml(job.title)}</button></strong>
               <span>${escapeHtml(roleName)}</span>
               <span class="tier-badge ${tierClass}">${tierLabel}</span>
             </td>
@@ -129,6 +139,7 @@ let jobs = [];
             <td>${date}</td>
             <td class="hide-mobile">${pay}</td>
             <td class="hide-mobile">${job._count?.applications || 0}</td>
+            <td>${staffedCell}</td>
             <td><span class="status status-${job.status.toLowerCase()}">${job.status}</span></td>
             <td class="actions">${actionButtons}</td>
           </tr>
@@ -142,6 +153,7 @@ let jobs = [];
       document.getElementById('modal-title').textContent = 'Add New Job';
       document.getElementById('job-form').reset();
       document.getElementById('form-alert').innerHTML = '';
+      JobStaffing.renderDayPlan();
       AdminCore.openModal('job-modal');
     }
     
@@ -162,6 +174,7 @@ let jobs = [];
       form.location.value = job.location;
       form.venue.value = job.venue || '';
       form.eventDate.value = job.eventDate ? job.eventDate.split('T')[0] : '';
+      form.eventEndDate.value = job.eventEndDate ? job.eventEndDate.split('T')[0] : '';
       form.shiftStart.value = job.shiftStart || '';
       form.shiftEnd.value = job.shiftEnd || '';
       form.payRate.value = job.payRate || '';
@@ -172,7 +185,11 @@ let jobs = [];
       form.description.value = job.description;
       form.requirements.value = job.requirements || '';
       form.closingDate.value = job.closingDate ? job.closingDate.split('T')[0] : '';
-      
+
+      // Fetched rather than taken from the row: the saved plan may differ from
+      // what the date range alone would imply.
+      JobStaffing.loadDayPlanForJob(id);
+
       AdminCore.openModal('job-modal');
     }
     
@@ -198,6 +215,7 @@ let jobs = [];
         location: form.location.value.trim(),
         venue: form.venue.value.trim() || null,
         eventDate: form.eventDate.value || null,
+        eventEndDate: form.eventEndDate.value || null,
         shiftStart: form.shiftStart.value || null,
         shiftEnd: form.shiftEnd.value || null,
         payRate: form.payRate.value ? parseFloat(form.payRate.value) : null,
@@ -209,6 +227,9 @@ let jobs = [];
         requirements: form.requirements.value.trim() || null,
         closingDate: form.closingDate.value || null
       };
+
+      const dayPlan = JobStaffing.readDayPlan();
+      if (dayPlan.length > 0) data.days = dayPlan;
       
       btn.disabled = true;
       btn.textContent = 'Saving...';
@@ -334,6 +355,10 @@ let jobs = [];
       if (action === 'edit-job') return jobId && editJob(jobId);
       if (action === 'delete-job') return jobId && deleteJob(jobId);
     });
+
+    // The staffing modal changes headcounts and rosters, so the Staffed column
+    // is stale by the time it closes.
+    window.onStaffingClosed = loadJobs;
 
     document.getElementById('filter-status')?.addEventListener('change', loadJobs);
     document.getElementById('filter-type')?.addEventListener('change', loadJobs);

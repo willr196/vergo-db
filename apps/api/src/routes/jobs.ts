@@ -4,6 +4,17 @@ import { z } from "zod";
 import { prisma } from "../prisma";
 import { adminAuth } from "../middleware/adminAuth";
 import { optionalUser } from "../middleware/userAuth";
+import { crewSizeFromDays, toDayKey } from "../lib/jobDays";
+import {
+  JobStaffingError,
+  assignStaffToDay,
+  ensureJobDays,
+  getJobCandidates,
+  getJobDays,
+  refitJobDaysToRange,
+  replaceJobDays,
+  unassignStaffFromDay,
+} from "../services/jobStaffing";
 import {
   sendJobApprovalEmail,
   sendJobRejectionEmail,
@@ -39,6 +50,17 @@ const createJobSchema = z.object({
   shiftStart: z.string().max(10).trim().nullable().optional(), // "18:00"
   shiftEnd: z.string().max(10).trim().nullable().optional(),
   staffNeeded: z.number().int().min(1).max(100).default(1),
+  /// Optional per-day staffing plan. Omit it and the days are derived from the
+  /// event date range at the job's overall headcount.
+  days: z
+    .array(
+      z.object({
+        date: z.string().regex(/^d{4}-d{2}-d{2}$/, "Expected YYYY-MM-DD"),
+        staffNeeded: z.number().int().min(1).max(100),
+      })
+    )
+    .max(366)
+    .optional(),
   companyName: z.string().max(200).trim().nullable().optional(), // For external jobs
   externalUrl: z.string().url().max(500).trim().nullable().optional(),
   closingDate: z.string().nullable().optional(),
@@ -285,13 +307,37 @@ async function listAdminJobs(req: Request, res: Response, next: NextFunction) {
           },
           _count: {
             select: { applications: true }
+          },
+          days: {
+            select: { id: true, date: true, staffNeeded: true, _count: { select: { assignments: true } } },
+            orderBy: { date: "asc" }
           }
         }
       }),
       prisma.job.count({ where })
     ]);
 
-    const shapedJobs = jobs.map((job) => ({ ...job }));
+    // The list only needs the shape of the roster, not the names on it: how
+    // many day-slots exist and how many are filled, so the table can show
+    // "11/14 staffed" without a request per job.
+    const shapedJobs = jobs.map(({ days, ...job }) => {
+      // Defensive: a job that predates per-day staffing, or a caller that
+      // selected without the relation, must still shape rather than throw.
+      const jobDays = days ?? [];
+      const slots = jobDays.reduce((sum, day) => sum + day.staffNeeded, 0);
+      const filled = jobDays.reduce((sum, day) => sum + day._count.assignments, 0);
+      return {
+        ...job,
+        staffing: {
+          dayCount: jobDays.length,
+          slots,
+          filled,
+          fullyStaffed: jobDays.length > 0 && filled >= slots,
+          firstDate: jobDays.length > 0 ? toDayKey(jobDays[0].date) : null,
+          lastDate: jobDays.length > 0 ? toDayKey(jobDays[jobDays.length - 1].date) : null
+        }
+      };
+    });
     
     const payload = {
       jobs: shapedJobs,
@@ -349,6 +395,111 @@ r.get("/admin/:id", adminAuth, async (req, res, next) => {
     
   } catch (error) {
     next(error);
+  }
+});
+
+// ============================================
+// ADMIN: per-day staffing for one job
+//
+// Mounted under /admin so the two-segment public GET /:id can't swallow them.
+// ============================================
+const daysBodySchema = z.object({
+  days: z
+    .array(
+      z.object({
+        date: z.string().regex(/^d{4}-d{2}-d{2}$/, "Expected YYYY-MM-DD"),
+        staffNeeded: z.number().int().min(1).max(100),
+      })
+    )
+    .max(366),
+});
+
+const assignBodySchema = z.object({ userId: z.string().min(1) });
+
+async function findAdminJob(id: string) {
+  return prisma.job.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      staffNeeded: true,
+      eventDate: true,
+      eventEndDate: true,
+      shiftStart: true,
+      shiftEnd: true,
+    },
+  });
+}
+
+function handleStaffingError(error: unknown, res: Response, next: NextFunction) {
+  if (error instanceof JobStaffingError) {
+    return res.status(error.status).json({ error: error.message });
+  }
+  if (error instanceof z.ZodError) {
+    return res.status(400).json({ error: "Invalid input", details: error.issues });
+  }
+  next(error);
+}
+
+// GET /api/v1/jobs/admin/:id/days - the day plan plus who can be rostered
+r.get("/admin/:id/days", adminAuth, async (req, res, next) => {
+  try {
+    const job = await findAdminJob(req.params.id);
+    if (!job) return res.status(404).json({ error: "Job not found" });
+
+    // Jobs created before per-day staffing have no days; seed them on first view.
+    const days = await ensureJobDays(job.id);
+    const candidates = await getJobCandidates(job.id);
+
+    const payload = { job, days, candidates };
+    res.json({ ok: true, ...payload, data: payload });
+  } catch (error) {
+    handleStaffingError(error, res, next);
+  }
+});
+
+// PUT /api/v1/jobs/admin/:id/days - replace the day plan wholesale
+r.put("/admin/:id/days", adminAuth, async (req, res, next) => {
+  try {
+    const job = await findAdminJob(req.params.id);
+    if (!job) return res.status(404).json({ error: "Job not found" });
+
+    const body = daysBodySchema.parse(req.body);
+    const days = await replaceJobDays(job.id, body.days);
+
+    console.log(`[AUDIT] Job days updated | ID: ${job.id} | Admin: ${req.session.username} | Days: ${days.length}`);
+
+    res.json({ ok: true, days, data: { days } });
+  } catch (error) {
+    handleStaffingError(error, res, next);
+  }
+});
+
+// POST /api/v1/jobs/admin/:id/days/:dayId/assignments - roster someone on
+r.post("/admin/:id/days/:dayId/assignments", adminAuth, async (req, res, next) => {
+  try {
+    const body = assignBodySchema.parse(req.body);
+    const days = await assignStaffToDay(req.params.id, req.params.dayId, body.userId);
+
+    console.log(`[AUDIT] Job day assignment added | Job: ${req.params.id} | Day: ${req.params.dayId} | User: ${body.userId} | Admin: ${req.session.username}`);
+
+    res.json({ ok: true, days, data: { days } });
+  } catch (error) {
+    handleStaffingError(error, res, next);
+  }
+});
+
+// DELETE /api/v1/jobs/admin/:id/days/:dayId/assignments/:userId - take them off
+r.delete("/admin/:id/days/:dayId/assignments/:userId", adminAuth, async (req, res, next) => {
+  try {
+    const days = await unassignStaffFromDay(req.params.id, req.params.dayId, req.params.userId);
+
+    console.log(`[AUDIT] Job day assignment removed | Job: ${req.params.id} | Day: ${req.params.dayId} | User: ${req.params.userId} | Admin: ${req.session.username}`);
+
+    res.json({ ok: true, days, data: { days } });
+  } catch (error) {
+    handleStaffingError(error, res, next);
   }
 });
 
@@ -479,10 +630,15 @@ r.post("/", adminAuth, async (req, res, next) => {
       }
     });
     
+    // A job is only staffable once it has days, so seed them now: the caller's
+    // explicit plan if it sent one, otherwise one day per day of the event.
+    const days = data.days ? await replaceJobDays(job.id, data.days) : await ensureJobDays(job.id);
+
     // AUDIT LOG
     console.log(`[AUDIT] Job created | ID: ${job.id} | Title: ${job.title} | Admin: ${req.session.username} | Type: ${data.type} | Status: ${data.status}`);
-    
-    res.status(201).json({ ok: true, job, data: job });
+
+    const created = { ...job, staffNeeded: crewSizeFromDays(days, job.staffNeeded), days };
+    res.status(201).json({ ok: true, job: created, data: created });
     
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -555,10 +711,26 @@ r.patch("/:id", adminAuth, async (req, res, next) => {
       }
     });
     
+    // An explicit plan wins. Failing that, a moved event date drags the days
+    // along with it, keeping the people already rostered on days that survive.
+    const datesChanged =
+      (data.eventDate !== undefined && `${existing.eventDate?.toISOString() ?? ''}` !== `${job.eventDate?.toISOString() ?? ''}`) ||
+      (data.eventEndDate !== undefined && `${existing.eventEndDate?.toISOString() ?? ''}` !== `${job.eventEndDate?.toISOString() ?? ''}`);
+
+    let days;
+    if (data.days) {
+      days = await replaceJobDays(job.id, data.days);
+    } else if (datesChanged) {
+      days = await refitJobDaysToRange(job.id);
+    } else {
+      days = await ensureJobDays(job.id);
+    }
+
     // AUDIT LOG
     console.log(`[AUDIT] Job updated | ID: ${job.id} | Admin: ${req.session.username} | Fields: ${Object.keys(data).join(', ')}`);
-    
-    res.json({ ok: true, job, data: job });
+
+    const updated = { ...job, staffNeeded: crewSizeFromDays(days, job.staffNeeded), days };
+    res.json({ ok: true, job: updated, data: updated });
     
   } catch (error) {
     if (error instanceof z.ZodError) {

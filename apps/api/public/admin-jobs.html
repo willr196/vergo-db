@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=3">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=4">
 </head>
 <body>
 
@@ -81,12 +81,13 @@
               <th>Date</th>
               <th>Pay</th>
               <th>Apps</th>
+              <th>Staffed</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="jobs-table">
-            <tr><td colspan="7" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
+            <tr><td colspan="8" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
           </tbody>
         </table>
       </div>
@@ -151,6 +152,15 @@
 
           <div class="form-row">
             <div class="form-group">
+              <label class="as-label">Event End Date</label>
+              <input type="date" name="eventEndDate" class="as-input">
+              <span class="text-muted fs-sm">Leave blank for a single-day job.</span>
+            </div>
+            <div class="form-group"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
               <label class="as-label">Shift Start</label>
               <input type="time" name="shiftStart" class="as-input">
             </div>
@@ -177,8 +187,9 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="as-label">Staff Needed</label>
-              <input type="number" name="staffNeeded" min="1" value="1" class="as-input">
+              <label class="as-label">Staff Needed (per day)</label>
+              <input type="number" name="staffNeeded" min="1" max="100" value="1" class="as-input">
+              <span class="text-muted fs-sm">Applies to every day; adjust individual days below.</span>
             </div>
             <div class="form-group">
               <label class="as-label">Status *</label>
@@ -199,6 +210,11 @@
                 <option value="GOLD">Gold - fixed rates</option>
               </select>
             </div>
+          </div>
+
+          <div class="form-group" id="day-plan-group">
+            <label class="as-label">People needed each day</label>
+            <div id="day-plan" class="day-plan"></div>
           </div>
 
           <div class="form-group">
@@ -225,8 +241,27 @@
     </div>
   </div>
 
+  <!-- Staffing Modal -->
+  <div id="staffing-modal" class="modal-backdrop d-none">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 id="staffing-title">Staffing</h2>
+        <button class="modal-close" type="button" data-action="close-staffing">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <div id="staffing-alert"></div>
+        <p id="staffing-sub" class="text-muted fs-sm mb-2"></p>
+        <div id="staffing-days"><div class="drawer-loading">Loading days…</div></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" data-action="close-staffing">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/admin-core.js"></script>
   <script src="/js/admin-nav.js"></script>
+  <script src="/pages/js/admin-jobs-staffing.js"></script>
   <script src="/pages/js/admin-jobs.js"></script>
 </body>
 </html>

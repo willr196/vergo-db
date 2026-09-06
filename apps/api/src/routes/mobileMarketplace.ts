@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../prisma';
 import { requireClientJwt } from '../middleware/jwtAuth';
+import { sendPushToUser } from '../services/notifications';
 import {
   resolveMarketplaceAccess,
   resolveMarketplaceBookingLane,
@@ -43,7 +44,7 @@ const createBookingSchema = z.object({
 });
 
 const cancelBookingSchema = z.object({
-  reason: z.string().max(500).optional(),
+  reason: z.string().trim().min(1).max(500).optional(),
 });
 
 function toNumber(value: Prisma.Decimal | null | undefined): number | null {
@@ -555,6 +556,12 @@ r.post('/bookings', async (req, res, next) => {
     });
 
     const payload = shapeBooking(booking);
+    sendPushToUser(
+      booking.staffId,
+      'New shift request',
+      `${booking.eventName || 'A new shift'} is waiting for your confirmation.`,
+      { type: 'shift_request', bookingId: booking.id }
+    ).catch((error) => console.error('[PUSH] shift request:', error));
     res.status(201).json({ ok: true, data: payload });
   } catch (error) {
     if (error instanceof Error && error.message.includes('must be a valid date')) {
