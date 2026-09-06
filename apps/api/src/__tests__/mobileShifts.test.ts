@@ -414,7 +414,7 @@ test('a worker cannot check out without checking in first', async () => {
   }
 });
 
-test('checking out computes hours worked, completes the shift and keeps the note', async () => {
+test('checking out computes hours worked and keeps the note, leaving completion to the office', async () => {
   const app = createApp();
   const prismaAny = prisma as any;
   const originalFindFirst = prismaAny.booking.findFirst;
@@ -431,9 +431,8 @@ test('checking out computes hours worked, completes the shift and keeps the note
   prismaAny.booking.update = async ({ data }: any) => {
     updateData = data;
     return shiftRow({
-      status: data.status, checkedInAt, checkedOutAt: data.checkedOutAt,
+      checkedInAt, checkedOutAt: data.checkedOutAt,
       hoursWorked: data.hoursWorked, workerShiftNotes: data.workerShiftNotes ?? null,
-      completedAt: data.completedAt,
     });
   };
 
@@ -444,13 +443,13 @@ test('checking out computes hours worked, completes the shift and keeps the note
       body: JSON.stringify({ notes: 'Service overran by twenty minutes.' }),
     });
     assert.equal(res.statusCode, 200);
-    assert.equal(updateData.status, 'COMPLETED');
+    assert.equal(updateData.status, undefined, 'check-out must not complete the booking');
+    assert.equal(updateData.completedAt, undefined, 'completion is an office action');
     assert.equal(Number(updateData.hoursWorked), 8);
     assert.equal(updateData.workerShiftNotes, 'Service overran by twenty minutes.');
-    assert.ok(updateData.completedAt instanceof Date);
     const body = JSON.parse(res.body);
     assert.equal(body.data.hoursWorked, 8);
-    assert.equal(body.data.status, 'COMPLETED');
+    assert.equal(body.data.status, 'CONFIRMED');
   } finally {
     prismaAny.booking.findFirst = originalFindFirst;
     prismaAny.booking.update = originalUpdate;

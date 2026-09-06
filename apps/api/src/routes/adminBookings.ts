@@ -164,6 +164,14 @@ function shapeBooking(booking: any) {
     confirmedAt: booking.confirmedAt?.toISOString() || null,
     confirmedBy: booking.confirmedBy,
     completedAt: booking.completedAt?.toISOString() || null,
+    // Attendance recorded by the worker in the mobile app. hoursWorked is what
+    // actually happened; hoursEstimated is what was scheduled. They are shown
+    // side by side rather than reconciled, because whether the four-hour
+    // minimum applies to pay, to the invoice, or to both is a policy call.
+    checkedInAt: booking.checkedInAt?.toISOString() || null,
+    checkedOutAt: booking.checkedOutAt?.toISOString() || null,
+    hoursWorked: toNumber(booking.hoursWorked),
+    workerShiftNotes: booking.workerShiftNotes ?? null,
     quoteRequestId: booking.quoteRequestId || null,
     createdAt: booking.createdAt?.toISOString() || null,
     updatedAt: booking.updatedAt?.toISOString() || null,
@@ -380,6 +388,155 @@ r.get('/', async (req, res, next) => {
   } catch (error) {
     if (error instanceof Error && error.message.includes('must be a valid date')) {
       return res.status(400).json({ ok: false, error: error.message });
+    }
+    next(error);
+  }
+});
+
+const timesheetQuerySchema = z.object({
+  from: z.string().optional(),
+  to: z.string().optional(),
+  filter: z.enum(['all', 'open', 'ready', 'variance']).default('all'),
+  limit: z.coerce.number().int().min(1).max(200).default(100),
+});
+
+// Anything beyond this many hours either side of the scheduled figure is worth
+// the office looking at before it is invoiced or paid.
+const HOURS_VARIANCE_THRESHOLD = 1;
+
+// GET /api/v1/admin/bookings/timesheets - attendance recorded from the app
+//
+// "open" is someone still checked in, which after the event date means a
+// forgotten check-out. "ready" is checked out and waiting to be completed.
+// "variance" is where worked hours differ materially from scheduled, which is
+// what decides whether the invoice or the pay run needs a second look.
+r.get('/timesheets', async (req, res, next) => {
+  try {
+    const query = timesheetQuerySchema.parse(req.query);
+
+    const where: any = { checkedInAt: { not: null } };
+    if (query.from || query.to) {
+      where.eventDate = {};
+      if (query.from) where.eventDate.gte = parseDateString(query.from, 'from');
+      if (query.to) where.eventDate.lte = parseDateString(query.to, 'to');
+    }
+    if (query.filter === 'open') where.checkedOutAt = null;
+    if (query.filter === 'ready') {
+      where.checkedOutAt = { not: null };
+      where.status = 'CONFIRMED';
+    }
+
+    const bookings = await prisma.booking.findMany({
+      where,
+      orderBy: [{ eventDate: 'desc' }],
+      take: query.limit,
+      include: {
+        client: { select: clientSelectForMoney },
+        staff: { select: staffSelectForMoney },
+      },
+    });
+
+    const rows = bookings.map((booking) => {
+      const shaped = shapeBooking(booking);
+      const worked = shaped.hoursWorked;
+      const scheduled = shaped.hoursEstimated;
+      const variance = worked != null && scheduled != null
+        ? Math.round((worked - scheduled) * 100) / 100
+        : null;
+      return {
+        ...shaped,
+        hoursVariance: variance,
+        needsReview:
+          shaped.checkedOutAt == null
+          || (variance != null && Math.abs(variance) >= HOURS_VARIANCE_THRESHOLD),
+      };
+    });
+
+    const filtered = query.filter === 'variance'
+      ? rows.filter((row) => row.hoursVariance != null && Math.abs(row.hoursVariance) >= HOURS_VARIANCE_THRESHOLD)
+      : rows;
+
+    const totalHoursWorked = filtered.reduce((sum, row) => sum + (row.hoursWorked ?? 0), 0);
+
+    res.json({
+      ok: true,
+      data: {
+        timesheets: filtered,
+        summary: {
+          count: filtered.length,
+          openCount: rows.filter((row) => row.checkedOutAt == null).length,
+          readyCount: rows.filter((row) => row.checkedOutAt != null && row.status === 'CONFIRMED').length,
+          varianceCount: rows.filter(
+            (row) => row.hoursVariance != null && Math.abs(row.hoursVariance) >= HOURS_VARIANCE_THRESHOLD
+          ).length,
+          totalHoursWorked: Math.round(totalHoursWorked * 100) / 100,
+        },
+      },
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('must be a valid date')) {
+      return res.status(400).json({ ok: false, error: error.message });
+    }
+    next(error);
+  }
+});
+
+const correctTimesheetSchema = z.object({
+  hoursWorked: z.number().min(0).max(24).nullable().optional(),
+  checkedInAt: z.string().datetime().nullable().optional(),
+  checkedOutAt: z.string().datetime().nullable().optional(),
+  adminNotes: z.string().max(2000).optional(),
+});
+
+// PATCH /api/v1/admin/bookings/:id/timesheet - correct what the worker recorded
+//
+// Workers forget to check out, check in late, or tap the wrong shift. This
+// corrects the attendance record only. It does not complete the booking or
+// touch the money, so a correction here is followed by the usual complete call.
+r.patch('/:id/timesheet', async (req, res, next) => {
+  try {
+    const data = correctTimesheetSchema.parse(req.body);
+    if (Object.keys(data).length === 0) {
+      return res.status(400).json({ ok: false, error: 'Nothing to update' });
+    }
+
+    const existing = await prisma.booking.findUnique({
+      where: { id: req.params.id },
+      select: { id: true, checkedInAt: true, checkedOutAt: true },
+    });
+    if (!existing) return res.status(404).json({ ok: false, error: 'Booking not found' });
+
+    const nextIn = data.checkedInAt !== undefined
+      ? (data.checkedInAt ? new Date(data.checkedInAt) : null)
+      : existing.checkedInAt;
+    const nextOut = data.checkedOutAt !== undefined
+      ? (data.checkedOutAt ? new Date(data.checkedOutAt) : null)
+      : existing.checkedOutAt;
+
+    if (nextIn && nextOut && nextOut.getTime() < nextIn.getTime()) {
+      return res.status(400).json({ ok: false, error: 'Check-out cannot be before check-in' });
+    }
+
+    const booking = await prisma.booking.update({
+      where: { id: existing.id },
+      data: {
+        ...(data.checkedInAt !== undefined ? { checkedInAt: nextIn } : {}),
+        ...(data.checkedOutAt !== undefined ? { checkedOutAt: nextOut } : {}),
+        ...(data.hoursWorked !== undefined
+          ? { hoursWorked: data.hoursWorked == null ? null : new Prisma.Decimal(data.hoursWorked) }
+          : {}),
+        ...(data.adminNotes !== undefined ? { adminNotes: data.adminNotes } : {}),
+      },
+      include: {
+        client: { select: clientSelectForMoney },
+        staff: { select: staffSelectForMoney },
+      },
+    });
+
+    res.json({ ok: true, data: shapeBooking(booking) });
+  } catch (error: any) {
+    if (error?.code === 'P2025') {
+      return res.status(404).json({ ok: false, error: 'Booking not found' });
     }
     next(error);
   }
@@ -1090,7 +1247,12 @@ r.post('/:id/complete', async (req, res, next) => {
       return res.status(400).json({ ok: false, error: 'Only confirmed bookings can be completed' });
     }
 
-    const finalHours = data.hoursActual ?? (booking.hoursEstimated ? Number(booking.hoursEstimated) : null);
+    // Precedence: what the office types wins, then what the worker recorded at
+    // check-out, then the scheduled figure. Attendance is a better default than
+    // the estimate, but it is still a default the office can override.
+    const finalHours = data.hoursActual
+      ?? (booking.hoursWorked != null ? Number(booking.hoursWorked) : null)
+      ?? (booking.hoursEstimated != null ? Number(booking.hoursEstimated) : null);
     const finalTotal =
       finalHours != null
         ? new Prisma.Decimal((Number(booking.hourlyRateCharged) * finalHours).toFixed(2))

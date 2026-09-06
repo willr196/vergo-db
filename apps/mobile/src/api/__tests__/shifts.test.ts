@@ -77,7 +77,7 @@ describe('shiftsApi', () => {
     mockedApiClient.post.mockResolvedValue({
       data: {
         ok: true,
-        data: { id: 'shift-1', status: 'COMPLETED', hoursWorked: 8.33, workerShiftNotes: 'Service overran.' },
+        data: { id: 'shift-1', status: 'CONFIRMED', hoursWorked: 8.33, workerShiftNotes: 'Service overran.' },
       },
     });
 
@@ -88,11 +88,11 @@ describe('shiftsApi', () => {
       { notes: 'Service overran.' }
     );
     expect(result.hoursWorked).toBe(8.33);
-    expect(result.status).toBe('COMPLETED');
+    expect(result.status).toBe('CONFIRMED');
   });
 
   it('omits the notes key entirely when checking out without a note', async () => {
-    mockedApiClient.post.mockResolvedValue({ data: { ok: true, data: { id: 'shift-1', status: 'COMPLETED' } } });
+    mockedApiClient.post.mockResolvedValue({ data: { ok: true, data: { id: 'shift-1', status: 'CONFIRMED' } } });
 
     await shiftsApi.checkOut('shift-1');
 

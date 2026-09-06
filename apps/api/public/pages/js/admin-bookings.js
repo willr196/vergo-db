@@ -211,7 +211,7 @@
   }
 
   async function refreshData() {
-    await Promise.all([loadStats(), loadBookings(currentPage), loadDashboard()]);
+    await Promise.all([loadStats(), loadBookings(currentPage), loadDashboard(), loadTimesheets()]);
   }
 
   // ── Float band + Needs You queue ─────────────────────────────────────
@@ -784,8 +784,175 @@
     if (action === 'send-invoice') return sendInvoice(id);
     if (action === 'mark-client-paid') return markClientPaid(id);
     if (action === 'mark-staff-paid') return markStaffPaid(id);
+    if (action === 'timesheet-filter') return setTimesheetFilter(el.dataset.filter || 'all', el);
+    if (action === 'open-timesheet') return openTimesheetModal(id);
+    if (action === 'close-timesheet-modal') return closeTimesheetModal();
+    if (action === 'save-timesheet') return saveTimesheet();
+
     if (action === 'assign-staff') return toast('Staff assignment picker isn\'t built yet — create the booking manually via "New Booking".', 'info');
   });
+
+
+  // ============================================
+  // Timesheets
+  // ============================================
+
+  let timesheetFilter = 'all';
+  let timesheetsById = {};
+  let editingTimesheetId = null;
+
+  function hoursLabel(value) {
+    if (value == null) return '-';
+    return Number(value).toFixed(2).replace(/\.00$/, '') + 'h';
+  }
+
+  function varianceLabel(row) {
+    if (row.hoursVariance == null) return '';
+    if (row.hoursVariance === 0) return '<span class="ts-variance ts-variance-ok">on schedule</span>';
+    const sign = row.hoursVariance > 0 ? '+' : '';
+    const cls = Math.abs(row.hoursVariance) >= 1 ? ' ts-variance-high' : '';
+    return '<span class="ts-variance' + cls + '">' + sign + hoursLabel(row.hoursVariance) + ' vs scheduled</span>';
+  }
+
+  function renderTimesheetRow(row) {
+    const stillOn = row.checkedOutAt == null;
+    const worked = stillOn
+      ? '<span class="ts-onsite">On site since ' + esc(formatDate(row.checkedInAt)) + '</span>'
+      : hoursLabel(row.hoursWorked) + ' worked';
+
+    const actions = [
+      '<button class="btn btn-ghost btn-sm" data-action="open-timesheet" data-id="' + esc(row.id) + '">Correct</button>',
+    ];
+    // Only a checked-out shift that is still CONFIRMED is waiting to be completed.
+    if (!stillOn && row.status === 'CONFIRMED') {
+      actions.push('<button class="btn btn-primary btn-sm" data-action="open-complete" data-id="' + esc(row.id) + '">Complete</button>');
+    }
+
+    return '<div class="queue-row">' +
+      '<div class="queue-row-info">' +
+        '<span class="queue-row-title">' + bookingLabel(row) + (row.eventName ? ' — ' + esc(row.eventName) : '') + '</span>' +
+        '<span class="queue-row-meta">' + esc(formatDate(row.eventDate)) +
+          ' · scheduled ' + hoursLabel(row.hoursEstimated) +
+          ' · ' + worked +
+          (varianceLabel(row) ? ' · ' + varianceLabel(row) : '') +
+        '</span>' +
+        (row.workerShiftNotes ? '<span class="queue-row-meta ts-note">Note: ' + esc(row.workerShiftNotes) + '</span>' : '') +
+      '</div>' +
+      '<div class="queue-row-actions">' + actions.join('') + '</div>' +
+    '</div>';
+  }
+
+  function renderTimesheets(payload) {
+    const body = document.getElementById('timesheets-body');
+    if (!body) return;
+
+    const rows = (payload && payload.timesheets) || [];
+    const summary = (payload && payload.summary) || {};
+
+    setText('ts-count-open', summary.openCount ? '(' + summary.openCount + ')' : '');
+    setText('ts-count-ready', summary.readyCount ? '(' + summary.readyCount + ')' : '');
+    setText('ts-count-variance', summary.varianceCount ? '(' + summary.varianceCount + ')' : '');
+
+    const summaryEl = document.getElementById('timesheet-summary');
+    if (summaryEl) {
+      summaryEl.textContent = rows.length
+        ? rows.length + ' shift(s), ' + hoursLabel(summary.totalHoursWorked) + ' recorded'
+        : '';
+    }
+
+    if (!rows.length) {
+      body.innerHTML = '<div class="queue-empty">No attendance recorded for this filter.</div>';
+      return;
+    }
+
+    body.innerHTML = rows.map(renderTimesheetRow).join('');
+  }
+
+  async function loadTimesheets() {
+    try {
+      const data = await get('/api/v1/admin/bookings/timesheets?filter=' + encodeURIComponent(timesheetFilter));
+      timesheetsById = {};
+      (data.timesheets || []).forEach((row) => { timesheetsById[row.id] = row; });
+      renderTimesheets(data);
+    } catch (err) {
+      console.error('[ADMIN] Failed to load timesheets', err);
+      const body = document.getElementById('timesheets-body');
+      if (body) body.innerHTML = '<div class="queue-empty">Could not load timesheets.</div>';
+    }
+  }
+
+  function setTimesheetFilter(filter, button) {
+    timesheetFilter = filter;
+    document.querySelectorAll('[data-action="timesheet-filter"]').forEach((el) => {
+      el.classList.toggle('is-active', el === button);
+    });
+    loadTimesheets();
+  }
+
+  // datetime-local wants local wall-clock with no zone, so the ISO string is
+  // shifted by the offset before slicing rather than sliced directly.
+  function toLocalInputValue(iso) {
+    if (!iso) return '';
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return '';
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 16);
+  }
+
+  function fromLocalInputValue(value) {
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date.toISOString();
+  }
+
+  function openTimesheetModal(id) {
+    const row = timesheetsById[id];
+    if (!row) return;
+    editingTimesheetId = id;
+    document.getElementById('ts-checked-in').value = toLocalInputValue(row.checkedInAt);
+    document.getElementById('ts-checked-out').value = toLocalInputValue(row.checkedOutAt);
+    document.getElementById('ts-hours').value = row.hoursWorked == null ? '' : String(row.hoursWorked);
+    setText('timesheet-modal-context', bookingLabel(row) + ' · ' + formatDate(row.eventDate));
+    AdminCore.openModal('timesheet-modal');
+  }
+
+  function closeTimesheetModal() {
+    editingTimesheetId = null;
+    AdminCore.closeModal('timesheet-modal');
+  }
+
+  async function saveTimesheet() {
+    if (!editingTimesheetId) return;
+
+    const checkedInAt = fromLocalInputValue(document.getElementById('ts-checked-in').value);
+    const checkedOutAt = fromLocalInputValue(document.getElementById('ts-checked-out').value);
+    const hoursRaw = document.getElementById('ts-hours').value.trim();
+
+    const payload = { checkedInAt: checkedInAt, checkedOutAt: checkedOutAt };
+    if (hoursRaw) {
+      const parsed = Number(hoursRaw);
+      if (!Number.isFinite(parsed) || parsed < 0 || parsed > 24) {
+        toast('Hours worked must be between 0 and 24', 'warning');
+        return;
+      }
+      payload.hoursWorked = parsed;
+    } else {
+      payload.hoursWorked = null;
+    }
+
+    try {
+      await get('/api/v1/admin/bookings/' + encodeURIComponent(editingTimesheetId) + '/timesheet', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      closeTimesheetModal();
+      toast('Timesheet corrected', 'success');
+      await loadTimesheets();
+    } catch (err) {
+      toast('Failed to correct the timesheet: ' + err.message, 'error');
+    }
+  }
 
   document.getElementById('filter-search').addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
@@ -802,7 +969,8 @@
     AdminCore.initModalBehavior('reject-modal');
     AdminCore.initModalBehavior('complete-modal');
     AdminCore.initModalBehavior('new-booking-modal');
+    AdminCore.initModalBehavior('timesheet-modal');
 
-    await Promise.all([loadStats(), loadBookings(1), loadDashboard()]);
+    await Promise.all([loadStats(), loadBookings(1), loadDashboard(), loadTimesheets()]);
   })();
 })();

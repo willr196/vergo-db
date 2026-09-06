@@ -345,13 +345,16 @@ r.post('/:id/check-out', async (req, res, next) => {
       });
     }
 
+    // Check-out records attendance; it does not complete the booking. Marking a
+    // booking COMPLETED overwrites hoursEstimated with the worked figure,
+    // recomputes the client total and sends the review request, and that is the
+    // office's call after it has seen the hours. See POST /:id/complete in
+    // adminBookings.ts, which reads hoursWorked as its default.
     const booking = await prisma.booking.update({
       where: { id: existing.id },
       data: {
         checkedOutAt,
         hoursWorked: new Prisma.Decimal(hoursWorked),
-        status: 'COMPLETED',
-        completedAt: checkedOutAt,
         ...(notes ? { workerShiftNotes: notes } : {}),
       },
       include: bookingInclude,
@@ -359,8 +362,8 @@ r.post('/:id/check-out', async (req, res, next) => {
 
     sendPushToClient(
       existing.clientId,
-      'Shift Completed',
-      `${booking.eventName || 'A shift'} was completed after ${hoursWorked} hours on site.`,
+      'Shift Finished',
+      `${booking.eventName || 'A shift'} finished after ${hoursWorked} hours on site.`,
       { type: 'shift_checked_out', bookingId: booking.id }
     ).catch((error) => console.error('[PUSH] shift check-out:', error));
 

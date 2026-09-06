@@ -260,6 +260,53 @@
       white-space: nowrap;
     }
 
+    /* ── Timesheets ─────────────────────────────────────────────────── */
+    .timesheet-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .timesheet-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .timesheet-tabs .btn.is-active {
+      background: var(--as-gold);
+      color: #10100e;
+      border-color: var(--as-gold);
+    }
+
+    .timesheet-note {
+      margin: 0 0 10px;
+      font-size: 0.76rem;
+      color: var(--as-muted);
+    }
+
+    .ts-variance {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ts-variance-ok {
+      color: var(--as-success, #6fbf73);
+    }
+
+    .ts-variance-high {
+      color: var(--as-warning);
+    }
+
+    .ts-onsite {
+      color: var(--as-gold);
+    }
+
+    .ts-note {
+      font-style: italic;
+    }
+
     @media (max-width: 640px) {
       .float-band-figures { grid-template-columns: 1fr; }
       .queue-row { flex-direction: column; align-items: stretch; }
@@ -323,6 +370,22 @@
       <section class="needs-you" aria-labelledby="needs-you-title">
         <h2 id="needs-you-title">Needs you</h2>
         <div id="needs-you-body">
+          <div class="as-skeleton" style="max-width:100%;height:60px"></div>
+        </div>
+      </section>
+
+      <section class="needs-you" aria-labelledby="timesheets-title">
+        <div class="timesheet-header">
+          <h2 id="timesheets-title">Timesheets</h2>
+          <div class="timesheet-tabs" role="group" aria-label="Filter timesheets">
+            <button class="btn btn-ghost btn-sm is-active" data-action="timesheet-filter" data-filter="all">All</button>
+            <button class="btn btn-ghost btn-sm" data-action="timesheet-filter" data-filter="open">Still on site <span id="ts-count-open"></span></button>
+            <button class="btn btn-ghost btn-sm" data-action="timesheet-filter" data-filter="ready">Ready to complete <span id="ts-count-ready"></span></button>
+            <button class="btn btn-ghost btn-sm" data-action="timesheet-filter" data-filter="variance">Hours differ <span id="ts-count-variance"></span></button>
+          </div>
+        </div>
+        <p class="timesheet-note" id="timesheet-summary">&nbsp;</p>
+        <div id="timesheets-body">
           <div class="as-skeleton" style="max-width:100%;height:60px"></div>
         </div>
       </section>
@@ -422,6 +485,29 @@
       <div class="modal-footer">
         <button class="btn btn-ghost" data-action="close-complete-modal">Cancel</button>
         <button class="btn btn-info" data-action="confirm-complete">Mark Completed</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="timesheet-modal" class="modal-backdrop d-none">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="timesheet-modal-title">
+      <div class="modal-header">
+        <h2 id="timesheet-modal-title">Correct timesheet</h2>
+        <button class="modal-close" data-action="close-timesheet-modal" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted fs-sm" id="timesheet-modal-context"></p>
+        <label class="as-label" for="ts-checked-in">Checked in</label>
+        <input id="ts-checked-in" class="as-input" type="datetime-local">
+        <label class="as-label" for="ts-checked-out">Checked out</label>
+        <input id="ts-checked-out" class="as-input" type="datetime-local">
+        <label class="as-label" for="ts-hours">Hours worked</label>
+        <input id="ts-hours" class="as-input" type="number" min="0" max="24" step="0.25" placeholder="e.g. 8.5">
+        <p class="text-muted fs-sm">This corrects the attendance record only. Complete the booking afterwards to update the invoice figures.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-action="close-timesheet-modal">Cancel</button>
+        <button class="btn btn-primary" data-action="save-timesheet">Save correction</button>
       </div>
     </div>
   </div>
