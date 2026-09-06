@@ -16,6 +16,8 @@ export type { ApiError, AuthFailureInfo } from './client';
 export { authApi } from './auth';
 export { jobsApi } from './jobs';
 export { applicationsApi } from './applications';
+export { shiftsApi } from './shifts';
+export type { ShiftListResponse } from './shifts';
 
 // NEW: Client API for quotes-based dashboard
 export {

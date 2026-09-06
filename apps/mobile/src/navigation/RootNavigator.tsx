@@ -18,6 +18,7 @@ import {
   useApplicationsStore,
   useClientJobsStore,
   useClientApplicationsStore,
+  useNetworkStore,
   registerRefreshCallback,
 } from '../store';
 import { ErrorBoundary, Toast } from '../components';
@@ -42,8 +43,11 @@ import {
 import {
   JobsScreen,
   JobDetailScreen,
+  SavedJobsScreen,
   ApplicationsScreen,
   ApplicationDetailScreen,
+  ShiftsScreen,
+  ShiftDetailScreen,
   ProfileScreen,
   EditProfileScreen,
   ApplyToJobScreen,
@@ -117,6 +121,12 @@ function handleNotificationTap(
     if (jobId) {
       navigationRef.navigate('JobDetail', { jobId });
     }
+  } else if (type === 'shift_request' && userType === 'jobseeker') {
+    const bookingId = readStringDataField(data, 'bookingId');
+    if (bookingId) navigationRef.navigate('ShiftDetail', { shiftId: bookingId });
+  } else if ((type === 'shift_confirmed' || type === 'shift_declined') && userType === 'client') {
+    const bookingId = readStringDataField(data, 'bookingId');
+    if (bookingId) navigationRef.navigate('BookingDetail', { bookingId });
   }
 }
 
@@ -124,6 +134,7 @@ function handleNotificationTap(
 function TabIcon({ label, focused }: { label: string; focused: boolean }) {
   const icons: Record<string, string> = {
     Jobs: '💼',
+    Shifts: '🗓️',
     Applications: '📋',
     Profile: '🏢',
     Dashboard: '📊',
@@ -161,6 +172,11 @@ function JobSeekerTabNavigator() {
           name="Jobs"
           component={JobsScreen}
           options={{ tabBarLabel: 'Jobs' }}
+        />
+        <JobSeekerTab.Screen
+          name="Shifts"
+          component={ShiftsScreen}
+          options={{ tabBarLabel: 'Shifts' }}
         />
         <JobSeekerTab.Screen
           name="Applications"
@@ -251,12 +267,14 @@ function JobSeekerStack() {
     >
       <Stack.Screen name="JobSeekerTabs" component={JobSeekerTabNavigator} />
       <Stack.Screen name="JobDetail" component={JobDetailScreen} />
+      <Stack.Screen name="SavedJobs" component={SavedJobsScreen} />
       <Stack.Screen
         name="ApplyToJob"
         component={ApplyToJobScreen}
         options={{ presentation: 'modal' }}
       />
       <Stack.Screen name="ApplicationDetail" component={ApplicationDetailScreen} />
+      <Stack.Screen name="ShiftDetail" component={ShiftDetailScreen} />
       <Stack.Screen
         name="EditProfile"
         component={EditProfileScreen}
@@ -323,9 +341,10 @@ export function RootNavigator() {
   const { incrementUnread } = useNotificationsStore();
   const { fetchJobs } = useJobsStore();
   const { fetchApplications } = useApplicationsStore();
+  const refreshQueueCounts = useNetworkStore((state) => state.refreshQueueCounts);
 
   const linking = useMemo<LinkingOptions<RootStackParamList>>(() => ({
-    prefixes: ['vergo://', 'https://vergo-app.fly.dev/app'],
+    prefixes: ['vergo://', 'https://vergoltd.com/app'],
     config: {
       screens: {
         Welcome: 'welcome',
@@ -335,13 +354,16 @@ export function RootNavigator() {
         JobSeekerTabs: {
           screens: {
             Jobs: 'jobs',
+            Shifts: 'shifts',
             Applications: 'applications',
             Profile: 'profile',
           },
         },
         JobDetail: 'job/:jobId',
+        SavedJobs: 'jobs/saved',
         ApplyToJob: 'job/:jobId/apply',
         ApplicationDetail: 'application/:applicationId',
+        ShiftDetail: 'shift/:shiftId',
         EditProfile: 'profile/edit',
         ClientTabs: {
           screens: {
@@ -397,6 +419,12 @@ export function RootNavigator() {
       clientUnregisters.forEach((fn) => fn());
     };
   }, [fetchJobs, fetchApplications, userType]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      refreshQueueCounts();
+    }
+  }, [isAuthenticated, refreshQueueCounts]);
 
   useEffect(() => {
     if (!isAuthenticated) {

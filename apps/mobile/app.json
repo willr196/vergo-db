@@ -44,8 +44,7 @@
         "aps-environment": "production"
       },
       "associatedDomains": [
-        "applinks:vergoevents.com",
-        "applinks:vergo-app.fly.dev"
+        "applinks:vergoltd.com"
       ]
     },
     "android": {
@@ -72,12 +71,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "vergoevents.com",
-              "pathPrefix": "/app"
-            },
-            {
-              "scheme": "https",
-              "host": "vergo-app.fly.dev",
+              "host": "vergoltd.com",
               "pathPrefix": "/app"
             }
           ],

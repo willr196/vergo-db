@@ -180,7 +180,6 @@ export interface JobFilters {
   dateTo?: string;
   minHourlyRate?: number;
   maxHourlyRate?: number;
-  dbsRequired?: boolean;
   search?: string;
 }
 
@@ -281,6 +280,34 @@ export interface BookingDetail extends Booking {
   };
 }
 
+// Worker-facing assignment data. Unlike client bookings this intentionally
+// contains only the worker's own pay and the assignment contact details.
+export interface Shift {
+  id: string;
+  status: BookingStatus;
+  eventName: string | null;
+  eventDate: string;
+  eventEndDate: string | null;
+  location: string;
+  venue: string | null;
+  shiftStart: string;
+  shiftEnd: string;
+  hoursEstimated: number | null;
+  staffPayRate: number | null;
+  expectedPay: number | null;
+  clientNotes: string | null;
+  rejectionReason: string | null;
+  confirmedAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  client: {
+    id: string;
+    companyName: string;
+    contactName: string;
+  };
+}
+
 // ============================================
 // API Types
 // ============================================
@@ -348,8 +375,10 @@ export type RootStackParamList = {
   // Job Seeker
   JobSeekerTabs: NavigatorScreenParams<JobSeekerTabParamList> | undefined;
   JobDetail: { jobId: string };
+  SavedJobs: undefined;
   ApplyToJob: { jobId: string; job: Job };
   ApplicationDetail: { applicationId: string };
+  ShiftDetail: { shiftId: string };
   EditProfile: undefined;
 
   // Client
@@ -371,6 +400,7 @@ export type RootStackParamList = {
 
 export type JobSeekerTabParamList = {
   Jobs: undefined;
+  Shifts: undefined;
   Applications: undefined;
   Profile: undefined;
 };
@@ -395,7 +425,9 @@ export type NotificationType =
   | 'application_update'
   | 'job_reminder'
   | 'new_applicant'
-  | 'job_filled';
+  | 'job_filled'
+  | 'shift_request'
+  | 'shift_confirmed';
 
 export interface PushNotification {
   id: string;

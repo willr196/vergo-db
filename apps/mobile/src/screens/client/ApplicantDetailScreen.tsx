@@ -11,8 +11,10 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Modal,
   RefreshControl,
   Linking,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -79,6 +81,8 @@ export function ApplicantDetailScreen({ route, navigation }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isActing, setIsActing] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
 
   const fetchApplication = useCallback(async () => {
     try {
@@ -102,7 +106,7 @@ export function ApplicantDetailScreen({ route, navigation }: Props) {
     fetchApplication();
   };
 
-  const handleAction = async (action: 'shortlist' | 'hire' | 'reject') => {
+  const handleAction = async (action: 'shortlist' | 'hire' | 'reject', reason?: string) => {
     if (!application) return;
     const jobId = application.jobId;
 
@@ -114,7 +118,10 @@ export function ApplicantDetailScreen({ route, navigation }: Props) {
       } else if (action === 'hire') {
         updated = await applicationsApi.hireApplicant(applicationId, jobId);
       } else {
-        updated = await applicationsApi.rejectApplicant(applicationId, jobId);
+        if (!reason?.trim()) {
+          throw new Error('A rejection reason is required');
+        }
+        updated = await applicationsApi.rejectApplicant(applicationId, jobId, reason.trim());
       }
       setApplication(updated);
       const actionLabel = action === 'shortlist' ? 'Shortlisted' : action === 'hire' ? 'Hired' : 'Rejected';
@@ -151,20 +158,36 @@ export function ApplicantDetailScreen({ route, navigation }: Props) {
   };
 
   const confirmAction = (action: 'shortlist' | 'hire' | 'reject') => {
+    if (action === 'reject') {
+      setRejectionReason('');
+      setShowRejectModal(true);
+      return;
+    }
+
     const name = applicantName();
     const labels = {
       shortlist: { title: 'Shortlist', message: `Shortlist ${name}?` },
       hire: { title: 'Hire', message: `Hire ${name} for this position?` },
-      reject: { title: 'Reject', message: `Reject ${name}'s application?` },
     };
     Alert.alert(labels[action].title, labels[action].message, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: labels[action].title,
-        style: action === 'reject' ? 'destructive' : 'default',
+        style: 'default',
         onPress: () => handleAction(action),
       },
     ]);
+  };
+
+  const submitRejection = () => {
+    const reason = rejectionReason.trim();
+    if (!reason) {
+      showToast('Enter a reason for the applicant', 'error');
+      return;
+    }
+
+    setShowRejectModal(false);
+    void handleAction('reject', reason);
   };
 
   const applicantName = () => {
@@ -197,6 +220,39 @@ export function ApplicantDetailScreen({ route, navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Modal
+        visible={showRejectModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowRejectModal(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.rejectModal}>
+            <Text style={styles.rejectModalTitle}>Reject applicant</Text>
+            <Text style={styles.rejectModalText}>
+              This feedback will be visible to the applicant.
+            </Text>
+            <TextInput
+              value={rejectionReason}
+              onChangeText={setRejectionReason}
+              placeholder="Explain the decision"
+              placeholderTextColor={colors.textMuted}
+              multiline
+              maxLength={500}
+              autoFocus
+              style={styles.reasonInput}
+            />
+            <View style={styles.modalActions}>
+              <TouchableOpacity onPress={() => setShowRejectModal(false)} style={styles.modalCancelButton}>
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={submitRejection} style={styles.modalRejectButton}>
+                <Text style={styles.modalRejectText}>Reject</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -585,6 +641,65 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.md,
     padding: spacing.lg,
     lineHeight: 22,
+  },
+  modalBackdrop: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: spacing.lg,
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+  },
+  rejectModal: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+  },
+  rejectModalTitle: {
+    color: colors.textPrimary,
+    fontSize: typography.fontSize.lg,
+    fontWeight: '700' as const,
+  },
+  rejectModalText: {
+    color: colors.textSecondary,
+    fontSize: typography.fontSize.sm,
+    marginTop: spacing.xs,
+  },
+  reasonInput: {
+    minHeight: 112,
+    marginTop: spacing.md,
+    padding: spacing.md,
+    color: colors.textPrimary,
+    backgroundColor: colors.background,
+    borderColor: colors.surfaceBorder,
+    borderWidth: 1,
+    borderRadius: borderRadius.md,
+    fontSize: typography.fontSize.md,
+    textAlignVertical: 'top',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: spacing.sm,
+    marginTop: spacing.lg,
+  },
+  modalCancelButton: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  modalCancelText: {
+    color: colors.textSecondary,
+    fontSize: typography.fontSize.md,
+    fontWeight: '600' as const,
+  },
+  modalRejectButton: {
+    backgroundColor: colors.error,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  modalRejectText: {
+    color: colors.textInverse,
+    fontSize: typography.fontSize.md,
+    fontWeight: '600' as const,
   },
   actionsSection: {
     paddingHorizontal: spacing.lg,

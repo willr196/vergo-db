@@ -7,6 +7,8 @@ import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'ax
 import * as SecureStore from 'expo-secure-store';
 import { coerceBoolean } from './normalizers';
 import { logger } from '../utils/logger';
+import { clearUserCache, deactivateUserCache } from '../utils/network';
+import type { AuthUser, UserType } from '../types';
 
 // VERGO Backend API
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://vergo-app.fly.dev';
@@ -226,6 +228,10 @@ export async function setAuthTokens(accessToken: string, refreshToken: string): 
 }
 
 export async function clearAuthTokens(): Promise<void> {
+  const [storedUserType, storedUserData] = await Promise.all([
+    SecureStore.getItemAsync(STORAGE_KEYS.USER_TYPE),
+    SecureStore.getItemAsync(STORAGE_KEYS.USER_DATA),
+  ]);
   await SecureStore.deleteItemAsync(STORAGE_KEYS.ACCESS_TOKEN);
   await SecureStore.deleteItemAsync(STORAGE_KEYS.REFRESH_TOKEN);
   await SecureStore.deleteItemAsync(STORAGE_KEYS.USER_TYPE);
@@ -233,6 +239,21 @@ export async function clearAuthTokens(): Promise<void> {
   await SecureStore.deleteItemAsync(STORAGE_KEYS.LAST_ACTIVE);
   await SecureStore.deleteItemAsync(STORAGE_KEYS.BIOMETRIC_ENABLED);
   await SecureStore.deleteItemAsync(STORAGE_KEYS.BIOMETRIC_ASKED);
+
+  try {
+    const userType: UserType | null = storedUserType === 'jobseeker' || storedUserType === 'client'
+      ? storedUserType
+      : null;
+    const user = storedUserData ? JSON.parse(storedUserData) as Partial<AuthUser> : null;
+    if (userType && typeof user?.id === 'string') {
+      await clearUserCache(userType, user.id);
+    } else {
+      deactivateUserCache();
+    }
+  } catch (error) {
+    deactivateUserCache();
+    logger.warn('Failed to clear user cache:', error);
+  }
 }
 
 export async function getAccessToken(): Promise<string | null> {

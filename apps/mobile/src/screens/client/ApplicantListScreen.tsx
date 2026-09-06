@@ -158,20 +158,24 @@ export function ApplicantListScreen({ route, navigation }: Props) {
     action: 'shortlist' | 'hire' | 'reject',
     name: string
   ) => {
+    if (action === 'reject') {
+      navigation.navigate('ApplicantDetail', { applicationId });
+      return;
+    }
+
     const labels = {
       shortlist: { title: 'Shortlist', message: `Shortlist ${name}?` },
       hire: { title: 'Hire', message: `Hire ${name} for this position?` },
-      reject: { title: 'Reject', message: `Reject ${name}'s application?` },
     };
     Alert.alert(labels[action].title, labels[action].message, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: labels[action].title,
-        style: action === 'reject' ? 'destructive' : 'default',
+        style: 'default',
         onPress: () => handleAction(applicationId, action),
       },
     ]);
-  }, [handleAction]);
+  }, [handleAction, navigation]);
 
   const renderApplicant = useCallback(({ item: app }: { item: Application }) => {
     const name =
@@ -231,7 +235,7 @@ export function ApplicantListScreen({ route, navigation }: Props) {
               style={[styles.actionBtn, styles.rejectBtn]}
               onPress={() => confirmAction(app.id, 'reject', name)}
             >
-              <Text style={styles.rejectBtnText}>Reject</Text>
+              <Text style={styles.rejectBtnText}>Review & reject</Text>
             </TouchableOpacity>
           </View>
         )}

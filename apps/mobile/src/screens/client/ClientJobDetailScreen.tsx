@@ -99,6 +99,11 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
     applicationId: string,
     action: 'shortlist' | 'hire' | 'reject'
   ) => {
+    if (action === 'reject') {
+      navigation.navigate('ApplicantDetail', { applicationId });
+      return;
+    }
+
     setActingOnId(applicationId);
     try {
       await updateApplicationStatus(applicationId, action);
@@ -319,7 +324,7 @@ export function ClientJobDetailScreen({ route, navigation }: Props) {
                         onPress={() => handleApplicationAction(app.id, 'reject')}
                         disabled={actingOnId !== null}
                       >
-                        <Text style={styles.rejectButtonText}>Reject</Text>
+                        <Text style={styles.rejectButtonText}>Review & reject</Text>
                       </TouchableOpacity>
                     </View>
                   )}

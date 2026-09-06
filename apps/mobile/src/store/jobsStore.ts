@@ -6,7 +6,7 @@
 import { create } from 'zustand';
 import { jobsApi } from '../api';
 import { logger } from '../utils/logger';
-import { saveCache, loadCache, CACHE_KEYS } from '../utils/network';
+import { saveCache, loadCacheEntry, CACHE_KEYS } from '../utils/network';
 import { useNetworkStore } from './networkStore';
 import type { Job, JobFilters } from '../types';
 
@@ -19,6 +19,8 @@ interface JobsState {
   isRefreshing: boolean;
   isLoadingMore: boolean;
   error: string | null;
+  isShowingOfflineCache: boolean;
+  offlineCacheTimestamp: number | null;
   
   // Pagination
   currentPage: number;
@@ -38,9 +40,42 @@ interface JobsState {
   unsaveJob: (jobId: string) => Promise<void>;
   fetchSavedJobs: () => Promise<void>;
   clearSelectedJob: () => void;
+  reset: () => void;
 }
 
 const DEFAULT_FILTERS: JobFilters = {};
+const JOB_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+interface CachedJobsPayload {
+  jobs: Job[];
+  filters: JobFilters;
+}
+
+function filterKey(filters: JobFilters): string {
+  return JSON.stringify(
+    Object.entries(filters)
+      .filter(([, value]) => value !== undefined && value !== '')
+      .sort(([left], [right]) => left.localeCompare(right))
+  );
+}
+
+async function loadUsableCachedJobs(filters: JobFilters): Promise<{ jobs: Job[]; timestamp: number } | null> {
+  const entry = await loadCacheEntry<CachedJobsPayload | Job[]>(CACHE_KEYS.JOBS);
+  if (!entry || Date.now() - entry.timestamp > JOB_CACHE_MAX_AGE_MS) return null;
+
+  // Caches written before filter-aware caching only represent an unfiltered list.
+  if (Array.isArray(entry.data)) {
+    return filterKey(filters) === filterKey(DEFAULT_FILTERS)
+      ? { jobs: entry.data, timestamp: entry.timestamp }
+      : null;
+  }
+
+  if (!Array.isArray(entry.data.jobs) || filterKey(entry.data.filters || {}) !== filterKey(filters)) {
+    return null;
+  }
+
+  return { jobs: entry.data.jobs, timestamp: entry.timestamp };
+}
 
 export const useJobsStore = create<JobsState>((set, get) => ({
   // Initial state
@@ -51,6 +86,8 @@ export const useJobsStore = create<JobsState>((set, get) => ({
   isRefreshing: false,
   isLoadingMore: false,
   error: null,
+  isShowingOfflineCache: false,
+  offlineCacheTimestamp: null,
   
   currentPage: 1,
   totalPages: 1,
@@ -68,16 +105,24 @@ export const useJobsStore = create<JobsState>((set, get) => ({
       isRefreshing: refresh,
       isLoadingMore: false,
       error: null,
+      isShowingOfflineCache: false,
+      offlineCacheTimestamp: null,
     });
 
     // Offline — serve cached data immediately
     if (!isConnected) {
-      const cached = await loadCache<Job[]>(CACHE_KEYS.JOBS);
+      const cached = await loadUsableCachedJobs(filters);
       set({
-        jobs: cached || [],
+        jobs: cached?.jobs || [],
         isLoading: false,
         isRefreshing: false,
         isLoadingMore: false,
+        currentPage: 1,
+        totalPages: 1,
+        hasMore: false,
+        isShowingOfflineCache: Boolean(cached),
+        offlineCacheTimestamp: cached?.timestamp ?? null,
+        error: cached ? null : 'No recent offline results are available for these filters.',
       });
       return;
     }
@@ -87,7 +132,7 @@ export const useJobsStore = create<JobsState>((set, get) => ({
       const jobs = response.jobs || [];
 
       // Persist to cache for offline use
-      await saveCache(CACHE_KEYS.JOBS, jobs);
+      await saveCache<CachedJobsPayload>(CACHE_KEYS.JOBS, { jobs, filters });
 
       set({
         jobs,
@@ -97,15 +142,34 @@ export const useJobsStore = create<JobsState>((set, get) => ({
         currentPage: response.pagination?.page || 1,
         totalPages: response.pagination?.totalPages || 1,
         hasMore: response.pagination?.hasMore || false,
+        isShowingOfflineCache: false,
+        offlineCacheTimestamp: null,
       });
     } catch (error) {
       // Network error — try cache fallback
-      const cached = await loadCache<Job[]>(CACHE_KEYS.JOBS);
+      const cached = await loadUsableCachedJobs(filters);
       if (cached) {
-        set({ jobs: cached, isLoading: false, isRefreshing: false, isLoadingMore: false });
+        set({
+          jobs: cached.jobs,
+          isLoading: false,
+          isRefreshing: false,
+          isLoadingMore: false,
+          currentPage: 1,
+          totalPages: 1,
+          hasMore: false,
+          isShowingOfflineCache: true,
+          offlineCacheTimestamp: cached.timestamp,
+        });
       } else {
         const message = error instanceof Error ? error.message : 'Failed to fetch jobs';
-        set({ isLoading: false, isRefreshing: false, isLoadingMore: false, error: message });
+        set({
+          isLoading: false,
+          isRefreshing: false,
+          isLoadingMore: false,
+          error: message,
+          isShowingOfflineCache: false,
+          offlineCacheTimestamp: null,
+        });
       }
     }
   },
@@ -168,8 +232,9 @@ export const useJobsStore = create<JobsState>((set, get) => ({
       await jobsApi.saveJob(jobId);
       
       // Update local state
-      const { jobs, savedJobs } = get();
-      const job = jobs.find(j => j.id === jobId);
+      const { jobs, savedJobs, selectedJob } = get();
+      const job = jobs.find(j => j.id === jobId)
+        ?? (selectedJob?.id === jobId ? selectedJob : undefined);
       
       if (job && !savedJobs.find(j => j.id === jobId)) {
         set({ savedJobs: [...savedJobs, job] });
@@ -202,11 +267,21 @@ export const useJobsStore = create<JobsState>((set, get) => ({
       set({ savedJobs });
     } catch (error) {
       logger.warn('Failed to fetch saved jobs:', error);
+      throw error;
     }
   },
   
   clearSelectedJob: () => {
     set({ selectedJob: null });
+  },
+
+  reset: () => {
+    set({
+      jobs: [], selectedJob: null, savedJobs: [], isLoading: false,
+      isRefreshing: false, isLoadingMore: false, error: null,
+      isShowingOfflineCache: false, offlineCacheTimestamp: null,
+      currentPage: 1, totalPages: 1, hasMore: false, filters: DEFAULT_FILTERS,
+    });
   },
 }));
 

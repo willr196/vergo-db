@@ -12,10 +12,12 @@ jest.mock('../client', () => ({
 describe('marketplaceApi mobile contract', () => {
   const mockedApiClient = apiClient as unknown as {
     get: jest.Mock;
+    post: jest.Mock;
   };
 
   beforeEach(() => {
     mockedApiClient.get.mockReset();
+    mockedApiClient.post.mockReset();
   });
 
   it('uses the mobile browse endpoint and normalizes marketplace access data', async () => {
@@ -125,5 +127,30 @@ describe('marketplaceApi mobile contract', () => {
     ]);
     expect(result.marketplaceAccessLane).toBe('SELECT');
     expect(result.premiumAccessActive).toBe(true);
+  });
+
+  it('sends a worker-visible cancellation reason', async () => {
+    mockedApiClient.post.mockResolvedValue({
+      data: {
+        ok: true,
+        data: {
+          id: 'booking-1',
+          status: 'CANCELLED',
+          rejectionReason: 'The event has been postponed.',
+        },
+      },
+    });
+
+    const result = await marketplaceApi.cancelBooking('booking-1', 'The event has been postponed.');
+
+    expect(mockedApiClient.post).toHaveBeenCalledWith(
+      '/api/v1/client/mobile/bookings/booking-1/cancel',
+      { reason: 'The event has been postponed.' }
+    );
+    expect(result).toEqual({
+      id: 'booking-1',
+      status: 'CANCELLED',
+      rejectionReason: 'The event has been postponed.',
+    });
   });
 });

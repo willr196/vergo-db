@@ -55,6 +55,10 @@ cp .env.example .env
 Required:
 - `EXPO_PUBLIC_API_URL` (example: `https://vergo-app.fly.dev`)
 
+The canonical public deep-link domain is `https://vergoltd.com/app`. The API
+host may remain `vergo-app.fly.dev`; it is intentionally separate from the
+public link domain.
+
 Optional (for Firebase push setup if used in your environment):
 - `EXPO_PUBLIC_FIREBASE_API_KEY`
 - `EXPO_PUBLIC_FIREBASE_PROJECT_ID`

@@ -51,17 +51,29 @@ function getSkillMatchColor(percentage: number): string {
 
 export function JobDetailScreen({ navigation, route }: Props) {
   const { jobId } = route.params;
-  const { selectedJob, isLoading, error, fetchJob, clearSelectedJob } = useJobsStore();
+  const {
+    selectedJob,
+    savedJobs,
+    isLoading,
+    error,
+    fetchJob,
+    fetchSavedJobs,
+    saveJob,
+    unsaveJob,
+    clearSelectedJob,
+  } = useJobsStore();
   const { hasAppliedToJob } = useApplicationsStore();
   const { isAuthenticated } = useAuthStore();
   const user = useAuthStore(selectJobSeeker);
   
   const [refreshing, setRefreshing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   
   const hasApplied = hasAppliedToJob(jobId);
   
   useEffect(() => {
     fetchJob(jobId);
+    void fetchSavedJobs().catch(() => undefined);
     
     return () => {
       clearSelectedJob();
@@ -90,6 +102,29 @@ export function JobDetailScreen({ navigation, route }: Props) {
     }
     
     navigation.navigate('ApplyToJob', { jobId, job: selectedJob });
+  };
+
+  const handleToggleSaved = async () => {
+    if (!isAuthenticated) {
+      Alert.alert('Sign In Required', 'Please sign in to save jobs.');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      if (savedJobs.some((savedJob) => savedJob.id === jobId)) {
+        await unsaveJob(jobId);
+      } else {
+        await saveJob(jobId);
+      }
+    } catch (saveError) {
+      Alert.alert(
+        'Could not update saved jobs',
+        saveError instanceof Error ? saveError.message : 'Please try again.'
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
   
   const handleBack = () => {
@@ -120,6 +155,7 @@ export function JobDetailScreen({ navigation, route }: Props) {
   }
   
   const job = selectedJob;
+  const isSaved = savedJobs.some((savedJob) => savedJob.id === job.id);
   const positionsAvailable = job.positionsAvailable ?? job.positions ?? 1;
   const positionsFilled = job.positionsFilled ?? 0;
   const spotsLeft = positionsAvailable - positionsFilled;
@@ -137,6 +173,15 @@ export function JobDetailScreen({ navigation, route }: Props) {
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <Text style={styles.backText}>← Back</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleToggleSaved}
+          disabled={isSaving}
+          style={styles.saveButton}
+        >
+          <Text style={styles.saveButtonText}>
+            {isSaving ? 'Saving…' : isSaved ? '♥ Saved' : '♡ Save'}
+          </Text>
         </TouchableOpacity>
       </View>
       
@@ -416,6 +461,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
@@ -430,6 +476,16 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: typography.fontSize.md,
     fontWeight: '500' as const,
+  },
+
+  saveButton: {
+    paddingVertical: spacing.xs,
+  },
+
+  saveButtonText: {
+    color: colors.primary,
+    fontSize: typography.fontSize.md,
+    fontWeight: '600' as const,
   },
   
   content: {

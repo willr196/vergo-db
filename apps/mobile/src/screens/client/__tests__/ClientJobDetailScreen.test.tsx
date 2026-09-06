@@ -268,7 +268,7 @@ describe('ClientJobDetailScreen', () => {
       await waitFor(() => {
         expect(getAllByText('Shortlist').length).toBeGreaterThan(0);
         expect(getAllByText('Hire').length).toBeGreaterThan(0);
-        expect(getAllByText('Reject').length).toBeGreaterThan(0);
+        expect(getAllByText('Review & reject').length).toBeGreaterThan(0);
       });
     });
 
@@ -408,26 +408,25 @@ describe('ClientJobDetailScreen', () => {
       });
     });
 
-    it('should call updateApplicationStatus with reject when reject is pressed', async () => {
-      mockUpdateApplicationStatus.mockResolvedValue({
-        ...mockApplications[0],
-        status: 'rejected',
-      });
-
+    // Rejecting requires a reason, so this button opens the applicant detail
+    // screen rather than changing the status from the list.
+    it('should open applicant detail rather than reject directly', async () => {
       const { getAllByText } = render(
         <ClientJobDetailScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
       await waitFor(() => {
-        expect(getAllByText('Reject').length).toBeGreaterThan(0);
+        expect(getAllByText('Review & reject').length).toBeGreaterThan(0);
       });
 
-      fireEvent.press(getAllByText('Reject')[0]);
+      fireEvent.press(getAllByText('Review & reject')[0]);
 
       await waitFor(() => {
-        expect(mockUpdateApplicationStatus).toHaveBeenCalledWith('app-1', 'reject');
-        expect(mockShowToast).toHaveBeenCalledWith('Applicant rejected', 'success');
+        expect(mockNavigation.navigate).toHaveBeenCalledWith('ApplicantDetail', {
+          applicationId: 'app-1',
+        });
       });
+      expect(mockUpdateApplicationStatus).not.toHaveBeenCalled();
     });
 
     it('should show error toast when action fails', async () => {

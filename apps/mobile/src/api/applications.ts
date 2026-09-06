@@ -62,11 +62,11 @@ export const applicationsApi = {
   /**
    * Apply to a job
    */
-  async applyToJob(jobId: string, coverNote?: string): Promise<Application> {
+  async applyToJob(jobId: string, coverNote?: string, idempotencyKey?: string): Promise<Application> {
     const response = await apiClient.post<BackendResponse<BackendApplication>>('/api/v1/mobile/job-applications', {
       jobId,
       coverNote,
-    });
+    }, idempotencyKey ? { headers: { 'Idempotency-Key': idempotencyKey } } : undefined);
 
     if (response.data.ok && response.data.data) {
       return applicationsApi.normalizeApplication(response.data.data);
@@ -131,9 +131,11 @@ export const applicationsApi = {
   /**
    * Withdraw an application
    */
-  async withdrawApplication(applicationId: string): Promise<Application> {
+  async withdrawApplication(applicationId: string, idempotencyKey?: string): Promise<Application> {
     const response = await apiClient.post<BackendResponse<BackendApplication>>(
-      `/api/v1/mobile/job-applications/${applicationId}/withdraw`
+      `/api/v1/mobile/job-applications/${applicationId}/withdraw`,
+      undefined,
+      idempotencyKey ? { headers: { 'Idempotency-Key': idempotencyKey } } : undefined
     );
 
     if (response.data.ok && response.data.data) {
@@ -237,6 +239,7 @@ export const applicationsApi = {
       {
         status: toBackendApplicationStatus(status),
         adminNotes: notes,
+        rejectionReason,
       }
     );
 
@@ -267,7 +270,7 @@ export const applicationsApi = {
   async rejectApplicant(
     applicationId: string,
     jobId: string,
-    rejectionReason?: string,
+    rejectionReason: string,
     notes?: string
   ): Promise<Application> {
     return this.updateApplicationStatus(applicationId, 'rejected', notes, rejectionReason, jobId);
