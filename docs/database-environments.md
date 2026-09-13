@@ -47,8 +47,14 @@ To act on production on purpose:
 ALLOW_REMOTE_DB=1 npm run prisma:deploy
 ```
 
-Fly sets `ALLOW_REMOTE_DB = "1"` in `fly.toml`, so the release command still
-migrates production on deploy. Nothing about normal deployment changed.
+Fly sets `ALLOW_REMOTE_DB = "1"` in `apps/api/fly.toml`, so the release command
+still migrates production on deploy. Nothing about normal deployment changed.
+
+That path matters. The app is deployed from `apps/api`, so `apps/api/fly.toml` is
+the only config `fly deploy` reads. A stale duplicate of the same app once sat at
+the repository root; the flag was originally set there, nothing read it, and the
+first deploy after the guard landed was aborted by the guard itself. The root copy
+has been deleted — `apps/api/fly.toml` is the single source.
 
 Guarded scripts: `prisma`, `prisma:deploy`, `prisma:deploy:raw`, `migrate`,
 `seed`, `seed:jobs`, `seed:marketplace`, `db:reset`.

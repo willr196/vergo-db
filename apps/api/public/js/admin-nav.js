@@ -5,26 +5,51 @@
 (function () {
   'use strict';
 
+  // The admin panel is deliberately scoped to staffing for now: roster, jobs,
+  // applications, and the messages that go with them. The client-side sections
+  // still exist and their pages still work if you type the URL — they are just
+  // out of the way. Flip STAFF_ONLY to false to bring them back into the sidebar.
+  var STAFF_ONLY = true;
+  AdminCore.staffOnly = STAFF_ONLY;
+
   var NAV = [
-    { href: 'admin',                  icon: '◈', label: 'Dashboard' },
-    { href: 'admin',                  icon: '👤', label: 'Roster',          slug: 'admin' },
+    { group: 'Staffing' },
+    { href: 'admin',                  icon: '📥', label: 'Pipeline' },
+    { href: 'admin-staff',            icon: '👤', label: 'Staff' },
     { href: 'admin-jobs',             icon: '💼', label: 'Jobs' },
     { href: 'admin-job-applications', icon: '📝', label: 'Applications' },
-    { href: 'admin-clients',          icon: '🏢', label: 'Clients' },
-    { href: 'admin-marketplace',      icon: '⭐', label: 'Marketplace' },
-    { href: 'admin-bookings',         icon: '📅', label: 'Bookings' },
-    { href: 'admin-quotes',           icon: '📋', label: 'Quotes' },
-    { href: 'admin-comms',            icon: '📬', label: 'Communications' },
+
+    { group: 'Admin' },
+    { href: 'admin-comms',            icon: '📬', label: 'Messages' },
     { href: 'admin-analytics',        icon: '📊', label: 'Analytics' },
     { href: 'admin-settings',         icon: '⚙️', label: 'Settings' },
+
+    { group: 'Client side', clientSide: true },
+    { href: 'admin-clients',          icon: '🏢', label: 'Clients', clientSide: true },
+    { href: 'admin-marketplace',      icon: '⭐', label: 'Marketplace', clientSide: true },
+    { href: 'admin-bookings',         icon: '📅', label: 'Bookings', clientSide: true },
+    { href: 'admin-quotes',           icon: '📋', label: 'Quotes', clientSide: true },
   ];
 
   var currentSlug = window.location.pathname.replace(/^\/|\.html$/g, '');
 
   function buildNav() {
-    return NAV.map(function (item) {
-      var slug = item.slug || item.href;
-      var active = currentSlug === slug;
+    var visible = NAV.filter(function (item) {
+      // A hidden entry still appears while you are standing on it, so the page
+      // you are looking at is never missing from the nav.
+      return !(STAFF_ONLY && item.clientSide) || currentSlug === item.href;
+    });
+
+    // A group heading with nothing under it is noise, so drop it.
+    return visible.filter(function (item, i) {
+      if (!item.group) return true;
+      var next = visible[i + 1];
+      return next && !next.group;
+    }).map(function (item) {
+      if (item.group) {
+        return '<div class="as-nav-group">' + item.group + '</div>';
+      }
+      var active = currentSlug === item.href;
       return '<a href="' + item.href + '" class="as-nav-link' + (active ? ' active' : '') + '">'
         + '<span class="as-nav-icon">' + item.icon + '</span>'
         + '<span>' + item.label + '</span>'
@@ -141,17 +166,6 @@
         if (item.parentNode) item.parentNode.removeChild(item);
       }, 300);
     }, ms);
-  };
-
-  // Alias AdminCore.notify to toast for backward compat
-  var _originalNotify = AdminCore.notify;
-  AdminCore.notify = function (message, type, timeout) {
-    // Use new toast if #as-toast exists, else legacy
-    if (document.getElementById('as-toast')) {
-      AdminCore.toast(message, type, timeout);
-    } else if (_originalNotify) {
-      _originalNotify(message, type, timeout);
-    }
   };
 
   // ── CSV export utility ─────────────────────────────────

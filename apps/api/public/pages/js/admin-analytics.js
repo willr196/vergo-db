@@ -37,9 +37,7 @@
 
   function renderWeekly(weekly) {
     var metrics = [
-      { id: 'wk-apps',    valId: 'wk-apps-delta',    data: weekly.applications },
-      { id: 'wk-clients', valId: 'wk-clients-delta',  data: weekly.clients },
-      { id: 'wk-quotes',  valId: 'wk-quotes-delta',   data: weekly.quotes }
+      { id: 'wk-apps', valId: 'wk-apps-delta', data: weekly.applications }
     ];
     metrics.forEach(function (m) {
       var valEl   = document.getElementById(m.id);
@@ -51,27 +49,6 @@
         deltaEl.className    = 'weekly-delta ' + d.cls;
       }
     });
-  }
-
-  // ── VAT tracker ──────────────────────────────────────────
-  function renderVatTracker(vatTracker) {
-    if (!vatTracker) return;
-    var figureEl = document.getElementById('vat-tracker-figure');
-    var statusEl = document.getElementById('vat-tracker-status');
-    if (figureEl) figureEl.textContent = '£' + Math.round(vatTracker.rollingTurnover).toLocaleString('en-GB');
-
-    if (statusEl) {
-      if (vatTracker.isOverThreshold) {
-        statusEl.textContent = 'Over £' + vatTracker.registrationThreshold.toLocaleString('en-GB') + ' — VAT registration required';
-        statusEl.className = 'vat-tracker-status over';
-      } else if (vatTracker.isWarning) {
-        statusEl.textContent = 'Above £' + vatTracker.warningThreshold.toLocaleString('en-GB') + ' — approaching VAT threshold';
-        statusEl.className = 'vat-tracker-status warning';
-      } else {
-        statusEl.textContent = 'Below £' + vatTracker.warningThreshold.toLocaleString('en-GB') + ' warning line';
-        statusEl.className = 'vat-tracker-status ok';
-      }
-    }
   }
 
   // ── Charts ──────────────────────────────────────────────
@@ -103,75 +80,6 @@
         scales: {
           y: { beginAtZero: true, grid: { color: gridColor() }, ticks: { precision: 0 } },
           x: { grid: { display: false } }
-        }
-      }
-    });
-  }
-
-  function createClientGrowthChart(growth) {
-    var ctx = document.getElementById('chart-clients');
-    if (!ctx) return;
-    if (charts.clients) charts.clients.destroy();
-
-    charts.clients = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: growth.labels,
-        datasets: [{
-          label: 'New Clients',
-          data: growth.data,
-          borderColor: GOLD,
-          backgroundColor: 'rgba(212,175,55,0.1)',
-          borderWidth: 2,
-          tension: 0.35,
-          fill: true,
-          pointBackgroundColor: GOLD
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, grid: { color: gridColor() }, ticks: { precision: 0 } },
-          x: { grid: { display: false } }
-        }
-      }
-    });
-  }
-
-  function createPipelineChart(pipeline) {
-    var ctx = document.getElementById('chart-pipeline');
-    if (!ctx) return;
-    if (charts.pipeline) charts.pipeline.destroy();
-
-    var statuses = Object.keys(pipeline);
-    var counts   = statuses.map(function (s) { return pipeline[s].count; });
-    var palette  = [INFO, WARNING, SUCCESS, ERROR, TEAL];
-
-    charts.pipeline = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: statuses,
-        datasets: [{
-          data: counts,
-          backgroundColor: statuses.map(function (_, i) { return palette[i % palette.length]; }),
-          borderWidth: 2,
-          borderColor: '#181818'
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14 } },
-          tooltip: {
-            callbacks: {
-              label: function (ctx) {
-                var s = statuses[ctx.dataIndex];
-                var v = pipeline[s].value;
-                return ' ' + ctx.label + ': ' + ctx.raw + ' (£' + v.toLocaleString('en-GB') + ')';
-              }
-            }
-          }
         }
       }
     });
@@ -212,10 +120,7 @@
       lastData = data;
 
       renderWeekly(data.weekly);
-      renderVatTracker(data.vatTracker);
       createFunnelChart(data.funnel);
-      createClientGrowthChart(data.clientGrowth);
-      createPipelineChart(data.quotePipeline);
       createRolesChart(data.topRoles);
     } catch (e) {
       toast('Failed to load analytics: ' + e.message, 'error');

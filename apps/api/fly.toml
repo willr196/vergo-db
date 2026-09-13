@@ -13,6 +13,12 @@ primary_region = "lhr"
   processes = ["app"]
 
 [env]
+  # The release command below migrates this app's own database, which is
+  # remote by definition. scripts/guard-db-target.js refuses a remote target
+  # unless this is set, so that a migration run from a developer's laptop
+  # cannot reach production by accident. See docs/database-environments.md.
+  ALLOW_REMOTE_DB = "1"
+
   # Wait for an existing Prisma migration session to release its advisory lock.
   PRISMA_DEPLOY_LOCK_WAIT_TIMEOUT_MS = "180000"
   PRISMA_DEPLOY_LOCK_POLL_INTERVAL_MS = "2000"

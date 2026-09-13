@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=4">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
 </head>
 <body>
 
@@ -28,23 +28,21 @@
     </header>
 
     <div class="as-content">
-      <div id="alert-container"></div>
-
-      <!-- Stats -->
+      <!-- Stats — click a card to filter -->
       <div class="kpi-grid" id="stats-row">
-        <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-value" id="stat-total">-</div></div>
-        <div class="kpi-card kpi-warning"><div class="kpi-label">Pending</div><div class="kpi-value" id="stat-pending">-</div></div>
-        <div class="kpi-card"><div class="kpi-label">Selected</div><div class="kpi-value" id="stat-selected">-</div></div>
-        <div class="kpi-card kpi-success"><div class="kpi-label">Confirmed</div><div class="kpi-value" id="stat-confirmed">-</div></div>
-        <div class="kpi-card kpi-error"><div class="kpi-label">Rejected</div><div class="kpi-value" id="stat-rejected">-</div></div>
+        <div class="kpi-card" data-filter="all"><div class="kpi-label">Total</div><div class="kpi-value" id="stat-total">-</div></div>
+        <div class="kpi-card kpi-warning" data-filter="PENDING"><div class="kpi-label">Pending</div><div class="kpi-value" id="stat-pending">-</div></div>
+        <div class="kpi-card kpi-info" data-filter="SELECTED"><div class="kpi-label">Selected</div><div class="kpi-value" id="stat-selected">-</div></div>
+        <div class="kpi-card kpi-success" data-filter="CONFIRMED"><div class="kpi-label">Confirmed</div><div class="kpi-value" id="stat-confirmed">-</div></div>
+        <div class="kpi-card kpi-error" data-filter="REJECTED"><div class="kpi-label">Rejected</div><div class="kpi-value" id="stat-rejected">-</div></div>
       </div>
 
       <!-- Filters -->
       <div class="as-filters">
         <div class="as-filter-group">
-          <label>Status</label>
+          <label for="filter-status">Status</label>
           <select id="filter-status">
-            <option value="">All Statuses</option>
+            <option value="">All statuses</option>
             <option value="PENDING">Pending</option>
             <option value="REVIEWED">Reviewed</option>
             <option value="SELECTED">Selected</option>
@@ -54,28 +52,36 @@
           </select>
         </div>
         <div class="as-filter-group">
-          <label>Job</label>
+          <label for="filter-job">Job</label>
           <select id="filter-job">
-            <option value="">All Jobs</option>
+            <option value="">All jobs</option>
           </select>
+        </div>
+        <div class="as-filter-group">
+          <label for="filter-search">Search</label>
+          <input type="search" id="filter-search" placeholder="Name, email, phone, job…">
         </div>
       </div>
 
       <!-- Table -->
       <div class="as-table-wrap">
+        <div class="as-table-toolbar">
+          <div class="as-toolbar-left">
+            <span id="app-count" class="text-muted fs-sm">Loading…</span>
+          </div>
+        </div>
         <table>
           <thead>
             <tr>
               <th>Applicant</th>
               <th>Job</th>
               <th>Status</th>
-              <th>Note</th>
               <th>Applied</th>
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody id="applications-table">
-            <tr><td colspan="6" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
+          <tbody id="applications-body">
+            <tr><td colspan="5" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
           </tbody>
         </table>
       </div>
@@ -86,12 +92,37 @@
   <div id="detail-modal" class="modal-backdrop d-none">
     <div class="modal">
       <div class="modal-header">
-        <h2>Application Details</h2>
-        <button class="modal-close" type="button" data-action="close-modal">&#x2715;</button>
+        <h2>Application</h2>
+        <button class="modal-close" type="button" data-action="close-detail" aria-label="Close">&#x2715;</button>
       </div>
       <div class="modal-body" id="modal-body"></div>
       <div class="modal-footer" id="modal-footer">
-        <button class="btn btn-ghost" data-action="close-modal">Close</button>
+        <button class="btn btn-ghost" data-action="close-detail">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reject Modal -->
+  <div id="reject-modal" class="modal-backdrop d-none">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Reject application</h2>
+        <button class="modal-close" type="button" data-action="close-reject" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <p class="detail-value mb-2" id="reject-subject"></p>
+        <label class="as-check">
+          <input type="checkbox" id="reject-notify">
+          <span>Email the applicant to tell them they were not selected</span>
+        </label>
+        <p class="text-muted fs-sm mt-1">
+          Left unticked, the application simply moves to Rejected — nothing is sent and
+          the applicant is not told.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" type="button" data-action="close-reject">Cancel</button>
+        <button class="btn btn-danger" type="button" data-action="confirm-reject">Reject</button>
       </div>
     </div>
   </div>

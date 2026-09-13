@@ -74,6 +74,16 @@ body {
 }
 
 .as-nav { flex: 1; padding: 10px 0; }
+.as-nav-group {
+  padding: 14px 18px 6px;
+  font-size: 0.63rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--as-muted);
+  opacity: 0.65;
+}
+.as-nav-group:first-child { padding-top: 4px; }
 
 .as-nav-link {
   display: flex;
@@ -272,32 +282,58 @@ body {
 .as-alert-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
 .as-alert-text { flex: 1; }
 
-/* ── Activity feed ─────────────────────────────────── */
-.as-activity {
+/* ── Needs-attention panel ─────────────────────────── */
+/* One list of everything waiting on an admin. Hidden until the topbar
+   button opens it, so a quiet day shows a clean page. */
+.as-attention {
   background: var(--as-card);
-  border: 1px solid var(--as-border);
+  border: 1px solid rgba(245,158,11,0.28);
   border-radius: 8px;
   overflow: hidden;
+  margin-bottom: 20px;
 }
-.as-activity-header {
+.as-attention-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   padding: 11px 16px;
   border-bottom: 1px solid var(--as-border);
   font-size: 0.85rem;
   font-weight: 600;
+  color: var(--as-warning);
 }
-.as-activity-item {
+.as-attention-group-head {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--as-muted);
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.as-attention-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
   padding: 10px 16px;
   border-bottom: 1px solid rgba(255,255,255,0.04);
   font-size: 0.85rem;
   transition: background 0.15s;
 }
-.as-activity-item:last-child { border-bottom: none; }
-.as-activity-item:hover { background: var(--as-hover); }
-.as-activity-item[data-action] { cursor: pointer; }
-.as-activity-header-count {
+.as-attention-item:last-child { border-bottom: none; }
+.as-attention-item[data-action] { cursor: pointer; }
+.as-attention-item[data-action]:hover { background: var(--as-hover); }
+.as-attention-name { color: var(--as-text); line-height: 1.4; }
+.as-attention-warning .as-attention-name { color: var(--as-warning); }
+
+/* Count chip, in the topbar button and on each group heading. */
+.as-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -306,23 +342,10 @@ body {
   padding: 0 6px;
   border-radius: 10px;
   background: rgba(245,158,11,0.18);
-  color: #f59e0b;
+  color: var(--as-warning);
   font-size: 0.75rem;
   font-weight: 700;
-  margin-left: auto;
 }
-.as-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--as-gold);
-  margin-top: 5px;
-  flex-shrink: 0;
-}
-.as-dot.success { background: var(--as-success); }
-.as-dot.error   { background: var(--as-error); }
-.as-dot.info    { background: var(--as-info); }
-.as-activity-text { flex: 1; color: var(--as-text); line-height: 1.4; }
-.as-activity-time { font-size: 0.72rem; color: var(--as-muted); white-space: nowrap; margin-left: 6px; }
 
 /* ── Section headers ───────────────────────────────── */
 .as-section-hdr {
@@ -406,6 +429,10 @@ body {
 .btn-info:hover { filter: brightness(1.1); }
 .btn-ghost     { background: transparent; color: var(--as-muted); border: 1px solid var(--as-border); }
 .btn-ghost:hover { color: var(--as-text); border-color: var(--as-muted); }
+/* Routine-but-destructive, e.g. rejecting one applicant of many. Reads as an
+   option rather than an alarm; the solid .btn-danger is for confirming it. */
+.btn-danger-quiet { background: transparent; color: var(--as-error); border: 1px solid rgba(239,68,68,0.35); }
+.btn-danger-quiet:hover { background: var(--as-error); color: #fff; border-color: var(--as-error); }
 .btn-sm        { padding: 5px 10px; font-size: 0.8rem; }
 
 /* ── Table ─────────────────────────────────────────── */
@@ -880,6 +907,26 @@ textarea { resize: vertical; min-height: 80px; }
 /* ── Flex button groups ──────────────────────────────── */
 .btn-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
+/* ── Stacked cell content ────────────────────────────── */
+/* A table cell that carries a headline plus one or two lines of context. */
+.as-stack { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; }
+.as-stack-title { font-weight: 600; color: var(--as-text); }
+
+/* ── Per-row action buttons ──────────────────────────── */
+.as-row-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+/* ── Inline checkbox + label ─────────────────────────── */
+.as-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 0.875rem;
+  color: var(--as-text);
+  cursor: pointer;
+  line-height: 1.45;
+}
+.as-check input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; }
+
 /* ── Divider ─────────────────────────────────────────── */
 .as-divider { border: none; border-top: 1px solid var(--as-border); margin: 24px 0; }
 
@@ -1033,7 +1080,7 @@ body::before {
 
 .kpi-card,
 .as-alert-panel,
-.as-activity,
+.as-attention,
 .as-filters,
 .as-table-wrap,
 .market-card {
@@ -1062,7 +1109,7 @@ body::before {
 }
 
 .as-alert-header,
-.as-activity-header {
+.as-attention-head {
   background: rgba(255,255,255,0.03);
 }
 

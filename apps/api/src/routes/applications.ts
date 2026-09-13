@@ -765,6 +765,10 @@ const listQuerySchema = z.object({
   role: z.string().trim().min(1).max(100).optional(),
   search: z.string().trim().min(1).max(200).optional(),
   location: z.string().trim().min(2).max(100).optional(),
+  // The roster is two different lists doing two different jobs: people you are
+  // still deciding about, and people who already work for you. `group` picks
+  // one. Omitted, you get the old behaviour — everything but rejected.
+  group: z.enum(['pipeline', 'staff']).optional(),
   // Keep rejected applicants out of the active roster unless the rejected pile
   // explicitly asks for them. z.coerce.boolean() treats "false" as truthy.
   includeRejected: z.preprocess((value) => value === true || value === 'true', z.boolean()).default(false),
@@ -857,9 +861,14 @@ function roleNameVariants(roleName: string) {
   return [...new Set([singular, singular + 's'])];
 }
 
-function buildApplicationWhere(filters: { status?: string; role?: string; search?: string; includeRejected?: boolean }) {
+const PIPELINE_STATUSES = ['RECEIVED', 'REVIEWING', 'SHORTLISTED'] as const;
+
+function buildApplicationWhere(filters: { status?: string; role?: string; search?: string; group?: 'pipeline' | 'staff'; includeRejected?: boolean }) {
   const where: any = {};
+  // An explicit status is always narrower than a group, so it wins.
   if (filters.status) where.status = filters.status;
+  else if (filters.group === 'staff') where.status = 'HIRED';
+  else if (filters.group === 'pipeline') where.status = { in: [...PIPELINE_STATUSES] };
   else if (!filters.includeRejected) where.status = { not: 'REJECTED' };
   if (filters.role) {
     where.roles = {
@@ -1006,7 +1015,8 @@ function shapeApplicationListItem(app: any) {
     cvUploadedAt: app.cvUploadedAt ?? null,
     source: app.source,
     status: app.status,
-    account: shapeRosterAccount(app.applicant.user)
+    account: shapeRosterAccount(app.applicant.user),
+    rightToWork: summariseChecks(app.applicant.rightToWorkChecks ?? [])
   };
 }
 
@@ -1087,7 +1097,12 @@ r.get('/', adminAuth, async (req, res, next) => {
         where,
         orderBy: { createdAt: 'desc' },
         include: {
-          applicant: { include: { user: { select: { id: true, emailVerified: true, mustChangePassword: true, lastLoginAt: true } } } },
+          applicant: {
+            include: {
+              user: { select: { id: true, emailVerified: true, mustChangePassword: true, lastLoginAt: true } },
+              rightToWorkChecks: { select: { outcome: true, expiresAt: true, checkedAt: true, checkedBy: true } }
+            }
+          },
           roles: { include: { role: true } }
         }
       });
@@ -1126,6 +1141,9 @@ r.get('/', adminAuth, async (req, res, next) => {
                   mustChangePassword: true,
                   lastLoginAt: true
                 }
+              },
+              rightToWorkChecks: {
+                select: { outcome: true, expiresAt: true, checkedAt: true, checkedBy: true }
               }
             }
           },

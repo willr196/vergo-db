@@ -20,7 +20,11 @@ const applySchema = z.object({
 });
 
 const updateStatusSchema = z.object({
-  status: z.enum(["PENDING", "REVIEWED", "SHORTLISTED", "CONFIRMED", "REJECTED", "WITHDRAWN"])
+  status: z.enum(["PENDING", "REVIEWED", "SHORTLISTED", "CONFIRMED", "REJECTED", "WITHDRAWN"]),
+  // Admins often move an application to REJECTED for their own bookkeeping — a
+  // duplicate, a mistake, someone they have already spoken to — and telling the
+  // worker would be noise at best. Defaults true so existing callers are unchanged.
+  notifyApplicant: z.boolean().optional().default(true)
 });
 
 type StatusChangeContext = {
@@ -45,13 +49,18 @@ type StatusChangeContext = {
  * Only CONFIRMED and REJECTED are surfaced — the intermediate states (REVIEWED,
  * SHORTLISTED) are internal admin bookkeeping and would be noise to the worker.
  * WITHDRAWN is worker-initiated, so they already know.
+ *
+ * `notify` false silences the outbound message entirely: the status still
+ * changes and is still audited, the worker just is not told.
  */
 function notifyWorkerOfStatusChange(
   application: StatusChangeContext,
   previousStatus: string,
-  newStatus: string
+  newStatus: string,
+  notify = true
 ) {
   if (newStatus === previousStatus) return;
+  if (!notify) return;
 
   const { user, job } = application;
 
@@ -257,7 +266,7 @@ r.get("/:id", adminAuth, async (req, res, next) => {
 // ADMIN: Update status
 r.patch("/:id/status", adminAuth, async (req, res, next) => {
   try {
-    const { status } = updateStatusSchema.parse(req.body);
+    const { status, notifyApplicant } = updateStatusSchema.parse(req.body);
     
     const application = await prisma.jobApplication.findUnique({
       where: { id: req.params.id },
@@ -411,13 +420,14 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
     }
     
     // AUDIT LOG
-    console.log(`[AUDIT] Application status changed | applicationId=${req.params.id} userId=${application.user.id} jobId=${application.jobId} from=${previousStatus} to=${status} admin=${req.session.username}`);
+    console.log(`[AUDIT] Application status changed | applicationId=${req.params.id} userId=${application.user.id} jobId=${application.jobId} from=${previousStatus} to=${status} notified=${notifyApplicant} admin=${req.session.username}`);
 
     // Tell the worker the outcome. Fire-and-forget: a failed notification must not
     // roll back a status change the admin has already been told succeeded.
-    notifyWorkerOfStatusChange(application, previousStatus, status);
+    notifyWorkerOfStatusChange(application, previousStatus, status, notifyApplicant);
 
-    res.json({ ok: true, id: req.params.id, status, data: { id: req.params.id, status } });
+    const statusPayload = { id: req.params.id, status, applicantNotified: notifyApplicant };
+    res.json({ ok: true, ...statusPayload, data: statusPayload });
   } catch (error) {
     if (error instanceof z.ZodError) return res.status(400).json({ error: "Invalid status" });
     next(error);

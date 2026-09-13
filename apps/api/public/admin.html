@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin Dashboard | VERGO Events — Event Staffing in London</title>
-  <meta name="description" content="Access the VERGO Events admin dashboard for staffing operations, approvals, reporting, and client activity.">
-  <meta property="og:title" content="Admin Dashboard | VERGO Events — Event Staffing in London">
-  <meta property="og:description" content="Access the VERGO Events admin dashboard for staffing operations, approvals, reporting, and client activity.">
+  <title>Pipeline | VERGO Events — Event Staffing in London</title>
+  <meta name="description" content="Review and progress candidate applications to join the VERGO Events staffing roster.">
+  <meta property="og:title" content="Pipeline | VERGO Events — Event Staffing in London">
+  <meta property="og:description" content="Review and progress candidate applications to join the VERGO Events staffing roster.">
   <meta property="og:image" content="https://vergoltd.com/logo.png">
   <meta property="og:url" content="https://vergoltd.com/admin">
   <meta property="og:type" content="website">
@@ -17,126 +17,79 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=4">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
 </head>
 <body>
 
   <div class="as-main">
     <header class="as-topbar">
       <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
-      <span class="as-topbar-title">Dashboard</span>
+      <span class="as-topbar-title">Pipeline</span>
       <div class="as-topbar-right">
+        <button class="btn btn-ghost btn-sm d-none" id="attention-btn" data-action="toggle-attention" aria-expanded="false">
+          &#9888; Needs attention <span class="as-count" id="attention-count">0</span>
+        </button>
         <span id="as-refresh-label" class="text-muted fs-sm"></span>
-        <button class="btn btn-ghost btn-sm" data-action="refresh-stats">&#8635; Refresh</button>
-        <a href="index" class="btn btn-ghost btn-sm">View Site</a>
+        <button class="btn btn-ghost btn-sm" data-action="refresh-stats" aria-label="Refresh">&#8635;</button>
       </div>
     </header>
 
     <div class="as-content">
-      <div id="alert-container"></div>
-
-      <!-- KPI Cards -->
-      <div class="kpi-grid" id="kpi-grid">
-        <div class="kpi-card"><div class="kpi-label">Total Applicants</div><div class="kpi-value" id="kpi-applicants">-</div><div class="kpi-sub" id="kpi-applicants-sub">Loading…</div></div>
-        <div class="kpi-card kpi-warning"><div class="kpi-label">Pending Review</div><div class="kpi-value" id="kpi-pending">-</div><div class="kpi-sub">Received</div></div>
-        <div class="kpi-card kpi-success"><div class="kpi-label">Hired</div><div class="kpi-value" id="kpi-hired">-</div><div class="kpi-sub">All time</div></div>
-        <div class="kpi-card"><div class="kpi-label">Total Clients</div><div class="kpi-value" id="kpi-clients">-</div><div class="kpi-sub" id="kpi-clients-sub">Loading…</div></div>
-        <div class="kpi-card kpi-warning"><div class="kpi-label">Pending Clients</div><div class="kpi-value" id="kpi-clients-pending">-</div><div class="kpi-sub">Awaiting approval</div></div>
-        <div class="kpi-card"><div class="kpi-label">Active Quotes</div><div class="kpi-value" id="kpi-quotes">-</div><div class="kpi-sub" id="kpi-quotes-sub">Loading…</div></div>
-        <div class="kpi-card kpi-success"><div class="kpi-label">Revenue Est.</div><div class="kpi-value" id="kpi-revenue">-</div><div class="kpi-sub">Accepted &amp; completed</div></div>
-        <div class="kpi-card kpi-info"><div class="kpi-label">New This Week</div><div class="kpi-value" id="kpi-week">-</div><div class="kpi-sub">Apps + clients</div></div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="mb-3">
-        <div class="as-section-hdr"><span class="as-section-title">Quick Actions</span></div>
-        <div class="btn-group">
-          <a href="/admin" class="btn btn-primary">View Roster</a>
-          <a href="/admin-clients" class="btn btn-secondary">Manage Clients</a>
-          <a href="/admin-quotes" class="btn btn-secondary">Manage Quotes</a>
-          <a href="/admin-comms" class="btn btn-secondary">Communications</a>
-          <a href="/admin-analytics" class="btn btn-secondary">Analytics</a>
-          <a href="/admin-jobs" class="btn btn-ghost">Jobs Board</a>
+      <!-- Everything waiting on a decision, folded away until it needs one.
+           Opened from the topbar button. -->
+      <section class="as-attention d-none" id="attention-panel">
+        <div class="as-attention-head">
+          <span>Needs attention</span>
+          <button class="btn btn-ghost btn-sm" data-action="toggle-attention">Hide</button>
         </div>
-      </div>
+        <div id="attention-body"></div>
+      </section>
 
-      <!-- Alerts + Activity Feed -->
-      <div class="col-2 mb-3">
-        <!-- Alerts -->
-        <div>
-          <div class="as-section-hdr"><span class="as-section-title">Needs Attention</span></div>
-          <div id="alerts-panel">
-            <div class="as-alert-panel">
-              <div class="as-alert-header">⚠ Alerts</div>
-              <div class="as-alert-item"><span class="as-alert-icon">⏳</span><span class="as-alert-text text-muted">Loading alerts…</span></div>
-            </div>
-          </div>
-        </div>
-        <!-- Activity Feed -->
-        <div>
-          <div class="as-section-hdr"><span class="as-section-title">Recent Activity</span></div>
-          <div class="as-activity" id="activity-feed">
-            <div class="as-activity-header">Last 10 actions</div>
-            <div class="as-activity-item"><span class="as-dot info"></span><span class="as-activity-text text-muted">Loading activity…</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Onboarding Pipeline -->
-      <div class="mb-3">
-        <div class="as-section-hdr"><span class="as-section-title">Onboarding Pipeline</span></div>
-        <div id="onboarding-panel" class="col-3">
-          <div class="as-activity">
-            <div class="as-activity-header">Loading…</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Roster Section (Tabs) -->
-      <hr class="as-divider">
-
-      <div class="as-tabs" id="roster-tabs">
-        <button class="as-tab active" data-tab="applications">Applications</button>
-        <button class="as-tab" data-tab="contacts">Contacts</button>
-        <button class="as-tab" data-tab="events">Events</button>
-      </div>
-
-      <!-- Applications Tab -->
-      <div id="applications-tab" class="tab-content active">
-        <!-- Stats -->
+      <div id="applications-panel">
+        <!-- Every card is a filter -->
         <div class="kpi-grid" id="app-stats">
-        <div class="kpi-card" data-filter="all"><div class="kpi-label">Active roster</div><div class="kpi-value" id="stat-total">0</div></div>
-        <div class="kpi-card kpi-info" data-filter="RECEIVED"><div class="kpi-label">New</div><div class="kpi-value" id="stat-received">0</div></div>
-        <div class="kpi-card kpi-warning" data-filter="REVIEWING"><div class="kpi-label">Reviewing</div><div class="kpi-value" id="stat-reviewing">0</div></div>
-        <div class="kpi-card kpi-success" data-filter="SELECTED"><div class="kpi-label">Selected</div><div class="kpi-value" id="stat-selected">0</div></div>
-        <div class="kpi-card kpi-error" data-filter="REJECTED"><div class="kpi-label">Rejected</div><div class="kpi-value" id="stat-rejected">0</div></div>
-        <div class="kpi-card" data-filter="HIRED"><div class="kpi-label text-gold">Hired</div><div class="kpi-value text-hired" id="stat-hired">0</div></div>
-      </div>
+          <div class="kpi-card" data-filter="all">
+            <div class="kpi-label">In pipeline</div>
+            <div class="kpi-value" id="stat-total">0</div>
+            <div class="kpi-sub" id="kpi-week-sub">&nbsp;</div>
+          </div>
+          <div class="kpi-card kpi-info" data-filter="RECEIVED">
+            <div class="kpi-label">New</div>
+            <div class="kpi-value" id="stat-received">0</div>
+          </div>
+          <div class="kpi-card kpi-warning" data-filter="REVIEWING">
+            <div class="kpi-label">Reviewing</div>
+            <div class="kpi-value" id="stat-reviewing">0</div>
+          </div>
+          <div class="kpi-card kpi-success" data-filter="SELECTED">
+            <div class="kpi-label">Selected</div>
+            <div class="kpi-value" id="stat-selected">0</div>
+          </div>
+        </div>
 
         <!-- Bulk bar -->
         <div class="as-bulk-bar" id="app-bulk-bar">
           <span class="as-bulk-count"><span id="app-bulk-count">0</span> selected</span>
           <button class="btn btn-success btn-sm" data-action="bulk-select">Select</button>
-          <button class="btn btn-danger btn-sm" data-action="bulk-reject">Reject</button>
+          <button class="btn btn-danger-quiet btn-sm" data-action="bulk-reject">Reject</button>
           <button class="btn btn-ghost btn-sm" data-action="bulk-clear">Clear</button>
         </div>
 
         <!-- Filters -->
         <div class="as-filters">
           <div class="as-filter-group">
-            <label>Status</label>
+            <label for="filter-status">Status</label>
             <select id="filter-status">
-            <option value="">All active statuses</option>
-            <option value="RECEIVED">New</option>
-            <option value="REVIEWING">Reviewing</option>
-            <option value="SELECTED">Selected</option>
-            <option value="HIRED">Hired</option>
-          </select>
-        </div>
+              <option value="">All in pipeline</option>
+              <option value="RECEIVED">New</option>
+              <option value="REVIEWING">Reviewing</option>
+              <option value="SHORTLISTED">Selected</option>
+            </select>
+          </div>
           <div class="as-filter-group">
-            <label>Role</label>
+            <label for="filter-role">Role</label>
             <select id="filter-role">
-              <option value="">All Roles</option>
+              <option value="">All roles</option>
               <option value="Bartender">Bartender</option>
               <option value="Barista">Barista</option>
               <option value="Front of House">Front of House</option>
@@ -147,15 +100,14 @@
             </select>
           </div>
           <div class="as-filter-group">
-            <label>Search</label>
+            <label for="filter-search">Search</label>
             <input type="search" id="filter-search" placeholder="Name, email, phone…">
           </div>
           <div class="as-filter-group">
-            <label>Location</label>
+            <label for="filter-location">Near</label>
             <input type="search" id="filter-location" placeholder="Postcode or area, e.g. SW1A 1AA">
           </div>
           <div class="as-filter-actions">
-            <button class="btn btn-primary" data-action="apply-filters">Apply</button>
             <button class="btn btn-ghost" data-action="clear-filters">Clear</button>
           </div>
         </div>
@@ -167,313 +119,44 @@
               <span id="app-count" class="text-muted fs-sm">Loading…</span>
             </div>
             <div class="as-toolbar-right">
-              <button class="btn btn-ghost btn-sm" data-action="show-rejected-pile">Rejected pile (<span id="rejected-pile-count">0</span>)</button>
-              <button class="btn btn-primary btn-sm" data-action="open-add-candidate">+ Add Candidate</button>
-              <button class="btn btn-ghost btn-sm" data-action="export-apps-csv">↓ CSV</button>
+              <a href="admin-staff" class="btn btn-ghost btn-sm">Hired staff <span class="badge badge-muted" id="staff-count">0</span></a>
+              <button class="btn btn-ghost btn-sm" data-action="show-rejected-pile">Rejected <span class="badge badge-muted" id="rejected-pile-count">0</span></button>
+              <button class="btn btn-primary btn-sm" data-action="open-add-candidate">+ Add candidate</button>
+              <button class="btn btn-ghost btn-sm" data-action="export-csv">&darr; CSV</button>
             </div>
           </div>
           <div id="rejected-pile-banner" class="as-alert-panel" style="display:none;margin:0 0 12px">
             <div class="as-alert-header">Rejected pile</div>
-            <div class="as-alert-item"><span class="as-alert-text text-muted">Rejected applicants are kept here and do not appear in the active roster.</span><button class="btn btn-ghost btn-sm" data-action="show-main-applications">Back to active roster</button></div>
+            <div class="as-alert-item">
+              <span class="as-alert-text text-muted">Rejected candidates are kept here and stay out of the pipeline.</span>
+              <button class="btn btn-ghost btn-sm" data-action="show-pipeline">Back to pipeline</button>
+            </div>
           </div>
           <table>
             <thead>
               <tr>
                 <th class="checkbox-col"><input type="checkbox" id="app-select-all" title="Select all"></th>
-                <th data-sort="fullName">Name <span class="sort-icon">↕</span></th>
-                <th data-sort="email">Email <span class="sort-icon">↕</span></th>
-                <th data-sort="phone">Phone <span class="sort-icon">↕</span></th>
-                <th data-sort="roles">Roles <span class="sort-icon">↕</span></th>
-                <th data-sort="postcode">Postcode <span class="sort-icon">↕</span></th>
-                <th data-sort="distance">Distance <span class="sort-icon">↕</span></th>
-                <th data-sort="status">Status <span class="sort-icon">↕</span></th>
-                <th data-sort="createdAt">Applied <span class="sort-icon">↕</span></th>
+                <th data-sort="fullName">Candidate <span class="sort-icon">&#8597;</span></th>
+                <th>Roles</th>
+                <th data-sort="postcode">Location <span class="sort-icon">&#8597;</span></th>
+                <th data-sort="status">Status <span class="sort-icon">&#8597;</span></th>
+                <th data-sort="createdAt">Applied <span class="sort-icon">&#8597;</span></th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody id="applications-body">
-              <tr><td colspan="10" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
+              <tr><td colspan="7" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
             </tbody>
           </table>
           <div class="as-pagination" id="app-pagination"></div>
         </div>
       </div>
-
-      <!-- Contacts Tab -->
-      <div id="contacts-tab" class="tab-content">
-        <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-value" id="stat-contacts-total">0</div></div>
-          <div class="kpi-card kpi-info"><div class="kpi-label">New</div><div class="kpi-value" id="stat-contacts-new">0</div></div>
-          <div class="kpi-card kpi-warning"><div class="kpi-label">Quoted</div><div class="kpi-value" id="stat-contacts-quoted">0</div></div>
-          <div class="kpi-card kpi-success"><div class="kpi-label">Booked</div><div class="kpi-value" id="stat-contacts-booked">0</div></div>
-        </div>
-        <div class="as-filters">
-          <div class="as-filter-group">
-            <label>Status</label>
-            <select id="filter-contact-status">
-              <option value="">All Statuses</option>
-              <option value="NEW">New</option>
-              <option value="CONTACTED">Contacted</option>
-              <option value="QUOTED">Quoted</option>
-              <option value="BOOKED">Booked</option>
-              <option value="LOST">Lost</option>
-            </select>
-          </div>
-          <div class="as-filter-group">
-            <label>Type</label>
-            <select id="filter-contact-type">
-              <option value="">All Types</option>
-              <option value="STAFF_REQUEST">Staff Request</option>
-              <option value="GENERAL">General</option>
-            </select>
-          </div>
-          <div class="as-filter-group">
-            <label>Search</label>
-            <input type="search" id="filter-contact-search" placeholder="Name, email…">
-          </div>
-          <div class="as-filter-actions">
-            <button class="btn btn-primary" data-action="apply-contact-filters">Apply</button>
-            <button class="btn btn-ghost" data-action="clear-contact-filters">Clear</button>
-          </div>
-        </div>
-        <div class="as-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th data-sort="name">Name <span class="sort-icon">↕</span></th>
-                <th data-sort="email">Email <span class="sort-icon">↕</span></th>
-                <th data-sort="type">Type <span class="sort-icon">↕</span></th>
-                <th data-sort="status">Status <span class="sort-icon">↕</span></th>
-                <th data-sort="createdAt">Date <span class="sort-icon">↕</span></th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="contacts-body">
-              <tr><td colspan="6" class="loading">Loading…</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Events Tab -->
-      <div id="events-tab" class="tab-content">
-        <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-value" id="stat-events-total">0</div></div>
-          <div class="kpi-card kpi-info"><div class="kpi-label">Upcoming</div><div class="kpi-value" id="stat-events-upcoming">0</div></div>
-          <div class="kpi-card kpi-success"><div class="kpi-label">Confirmed</div><div class="kpi-value" id="stat-events-confirmed">0</div></div>
-          <div class="kpi-card"><div class="kpi-label text-hired">Completed</div><div class="kpi-value text-hired" id="stat-events-completed">0</div></div>
-        </div>
-        <div class="as-filters">
-          <div class="as-filter-group">
-            <label>Status</label>
-            <select id="filter-event-status">
-              <option value="">All</option>
-              <option value="UPCOMING">Upcoming</option>
-              <option value="CONFIRMED">Confirmed</option>
-              <option value="COMPLETED">Completed</option>
-              <option value="CANCELLED">Cancelled</option>
-            </select>
-          </div>
-          <div class="as-filter-group">
-            <label>Search</label>
-            <input type="search" id="filter-event-search" placeholder="Event, client…">
-          </div>
-          <div class="as-filter-actions">
-            <button class="btn btn-primary" data-action="apply-event-filters">Apply</button>
-            <button class="btn btn-ghost" data-action="clear-event-filters">Clear</button>
-          </div>
-        </div>
-        <div class="as-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th data-sort="eventName">Event <span class="sort-icon">↕</span></th>
-                <th data-sort="eventDate">Date <span class="sort-icon">↕</span></th>
-                <th data-sort="clientName">Client <span class="sort-icon">↕</span></th>
-                <th data-sort="status">Status <span class="sort-icon">↕</span></th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="events-body">
-              <tr><td colspan="5" class="loading">Loading…</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
     </div><!-- .as-content -->
   </div><!-- .as-main -->
 
-  <!-- Applicant Detail Drawer -->
-  <div class="as-drawer-backdrop" id="app-drawer-backdrop"></div>
-  <div class="as-drawer" id="app-drawer">
-    <div class="as-drawer-header">
-      <h2 id="drawer-name">Applicant</h2>
-      <button class="as-drawer-close" data-action="close-drawer" aria-label="Close">&#x2715;</button>
-    </div>
-    <div class="as-drawer-body" id="drawer-body"></div>
-    <div class="as-drawer-footer" id="drawer-footer"></div>
-  </div>
-
-  <!-- Record Right to Work Check -->
-  <div id="rtw-modal" class="modal-backdrop d-none">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>Record Right to Work Check</h2>
-        <button class="modal-close" data-action="close-rtw-modal" aria-label="Close">&#x2715;</button>
-      </div>
-      <div class="modal-body">
-        <div id="rtw-modal-alert"></div>
-        <p class="text-muted mb-1 fs-sm" id="rtw-modal-subject"></p>
-
-        <div class="detail-grid mb-2">
-          <div class="detail-row">
-            <label class="as-label" for="rtw-method">Check method</label>
-            <select id="rtw-method" class="as-input">
-              <option value="SHARE_CODE">Online share code</option>
-              <option value="DOCUMENT">Manual document check</option>
-              <option value="IDSP">IDSP (digital identity provider)</option>
-            </select>
-          </div>
-          <div class="detail-row">
-            <label class="as-label" for="rtw-outcome">Outcome</label>
-            <select id="rtw-outcome" class="as-input">
-              <option value="PASS">Pass — cleared to work</option>
-              <option value="FAIL">Fail — not cleared</option>
-              <option value="PENDING">Pending — check not finished</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="detail-grid mb-2">
-          <div class="detail-row">
-            <label class="as-label" for="rtw-document-type">Document / evidence seen</label>
-            <input id="rtw-document-type" class="as-input" maxlength="120" placeholder="e.g. UK passport, BRP, share code">
-          </div>
-          <div class="detail-row">
-            <label class="as-label" for="rtw-reference">Reference</label>
-            <input id="rtw-reference" class="as-input" maxlength="120" placeholder="Share code or document number">
-          </div>
-        </div>
-
-        <div class="detail-grid mb-2">
-          <div class="detail-row">
-            <label class="as-label" for="rtw-valid-from">Valid from</label>
-            <input id="rtw-valid-from" class="as-input" type="date">
-          </div>
-          <div class="detail-row">
-            <label class="as-label" for="rtw-expires-at">Expires</label>
-            <input id="rtw-expires-at" class="as-input" type="date">
-          </div>
-        </div>
-        <p class="text-muted fs-sm mb-2">
-          Leave <strong>Expires</strong> blank for a permanent right to work (List A — e.g. a UK or Irish
-          passport). Enter a date for time-limited permission (List B); the worker is automatically
-          blocked from new shifts once it lapses, so a follow-up check is required before then.
-        </p>
-
-        <div class="detail-row mb-2">
-          <label class="as-label" for="rtw-document">Copy of evidence</label>
-          <input id="rtw-document" class="as-input" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
-          <p class="text-muted fs-sm mt-1">
-            Retaining a copy is required to establish the statutory excuse. PDF, JPG, PNG or HEIC, max 10MB.
-          </p>
-        </div>
-
-        <div class="detail-row">
-          <label class="as-label" for="rtw-notes">Notes</label>
-          <textarea id="rtw-notes" maxlength="1000" placeholder="Anything worth recording about this check…"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" data-action="close-rtw-modal">Cancel</button>
-        <button class="btn btn-primary" data-action="submit-rtw-check">Save Check</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Add Candidate Manually -->
-  <div id="add-candidate-modal" class="modal-backdrop d-none">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>Add Candidate</h2>
-        <button class="modal-close" data-action="close-add-candidate-modal" aria-label="Close">&#x2715;</button>
-      </div>
-      <div class="modal-body">
-        <div id="add-candidate-alert"></div>
-        <div class="detail-grid mb-2">
-          <div class="detail-row">
-            <label class="as-label" for="cand-first-name">First name</label>
-            <input id="cand-first-name" class="as-input" maxlength="100">
-          </div>
-          <div class="detail-row">
-            <label class="as-label" for="cand-last-name">Last name</label>
-            <input id="cand-last-name" class="as-input" maxlength="100">
-          </div>
-        </div>
-        <div class="detail-grid mb-2">
-          <div class="detail-row">
-            <label class="as-label" for="cand-email">Email</label>
-            <input id="cand-email" class="as-input" type="email" maxlength="255">
-          </div>
-          <div class="detail-row">
-            <label class="as-label" for="cand-phone">Phone</label>
-            <input id="cand-phone" class="as-input" maxlength="20">
-          </div>
-        </div>
-        <div class="detail-grid mb-2">
-          <div class="detail-row">
-            <label class="as-label" for="cand-postcode">Postcode</label>
-            <input id="cand-postcode" class="as-input" maxlength="24">
-          </div>
-          <div class="detail-row">
-            <label class="as-label" for="cand-status">Status</label>
-            <select id="cand-status" class="as-input">
-              <option value="RECEIVED">New</option>
-              <option value="REVIEWING">Reviewing</option>
-              <option value="SHORTLISTED">Selected</option>
-              <option value="HIRED">Hired</option>
-              <option value="REJECTED">Rejected</option>
-            </select>
-          </div>
-        </div>
-        <div class="detail-grid mb-2">
-          <div class="detail-row">
-            <label class="as-label" for="cand-role">Role</label>
-            <select id="cand-role" class="as-input">
-              <option value="Bartender">Bartender</option>
-              <option value="Barista">Barista</option>
-              <option value="Front of House">Front of House</option>
-              <option value="Waiter">Waiter</option>
-              <option value="Chef">Chef</option>
-              <option value="Kitchen Porter">Kitchen Porter</option>
-              <option value="Runner">Runner</option>
-            </select>
-          </div>
-          <div class="detail-row">
-            <label class="as-label" for="cand-experience">Experience</label>
-            <select id="cand-experience" class="as-input">
-              <option value="Entry level">Entry level (0–1 years)</option>
-              <option value="1-2 years">1–2 years</option>
-              <option value="3-5 years">3–5 years</option>
-              <option value="5+ years">5+ years</option>
-            </select>
-          </div>
-        </div>
-        <div class="detail-row">
-          <label class="as-label" for="cand-notes">Notes</label>
-          <textarea id="cand-notes" maxlength="2000" placeholder="How this candidate was sourced, anything worth recording…"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" data-action="close-add-candidate-modal">Cancel</button>
-        <button class="btn btn-primary" data-action="submit-add-candidate">Add Candidate</button>
-      </div>
-    </div>
-  </div>
-
   <script src="/js/admin-core.js"></script>
   <script src="/js/admin-nav.js"></script>
-  <script src="/pages/js/admin-dashboard.js?v=4"></script>
+  <script src="/js/admin-applicant.js"></script>
+  <script src="/pages/js/admin-pipeline.js"></script>
 </body>
 </html>

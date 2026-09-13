@@ -2,13 +2,14 @@
 
 import { Resend } from 'resend';
 import { env } from '../../env';
+import { emailSendingSuppressed } from './suppression';
 import { prisma } from '../../prisma';
 import type { SendEmailOptions, EmailResult, EmailType } from './types';
 
 let resend: Resend | null = null;
 
 function getResendClient(): Resend | null {
-  if (!env.resendApiKey) {
+  if (emailSendingSuppressed() || !env.resendApiKey) {
     return null;
   }
   if (!resend) {

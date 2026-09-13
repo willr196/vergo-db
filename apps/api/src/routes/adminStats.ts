@@ -187,34 +187,41 @@ r.get("/", async (_req, res, next) => {
       expired: check.expired,
     }));
 
-    const alerts: Array<{ type: string; message: string }> = [];
+    // `category` lets a caller show only the half of the business it covers —
+    // the admin panel is staffing-only at the moment and drops the client ones.
+    const alerts: Array<{ type: string; category: "staffing" | "client"; message: string }> = [];
     if (pendingApps48hrs > 0) {
       alerts.push({
         type: "warning",
+        category: "staffing",
         message: `${pendingApps48hrs} application${pendingApps48hrs > 1 ? "s" : ""} pending for over 48 hours`,
       });
     }
     if (unansweredQuotes > 0) {
       alerts.push({
         type: "warning",
+        category: "client",
         message: `${unansweredQuotes} unanswered quote request${unansweredQuotes > 1 ? "s" : ""}`,
       });
     }
     if (pendingRtw.length > 0) {
       alerts.push({
         type: "warning",
+        category: "staffing",
         message: `${pendingRtw.length} hired applicant${pendingRtw.length > 1 ? "s" : ""} awaiting right-to-work verification`,
       });
     }
     if (pendingRosterLogin.length > 0) {
       alerts.push({
         type: "warning",
+        category: "staffing",
         message: `${pendingRosterLogin.length} hired applicant${pendingRosterLogin.length > 1 ? "s" : ""} without roster login sent`,
       });
     }
     if (expiringRtw.length > 0) {
       alerts.push({
         type: "warning",
+        category: "staffing",
         message: `${expiringRtw.length} right-to-work check${expiringRtw.length > 1 ? "s" : ""} expiring within ${RTW_EXPIRY_HORIZON_DAYS} days`,
       });
     }

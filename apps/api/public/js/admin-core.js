@@ -7,6 +7,13 @@
 
   const AdminCore = {};
 
+  // Real implementation is installed by admin-nav.js once the toast stack
+  // exists in the DOM; until then, feedback goes to the console rather than
+  // throwing at a caller that fired early.
+  AdminCore.toast = function (message, type) {
+    console.log('[admin] ' + (type || 'info') + ': ' + message);
+  };
+
   // ── Escaping ──────────────────────────────────────────────────────────
   AdminCore.escapeHtml = function (str) {
     if (str == null) return '';
@@ -57,14 +64,22 @@
   var _alertTimers = {};
 
   /**
-   * Show an alert inside a container element (inline banner style).
+   * Feedback about something the admin just did.
+   *
+   * There is one place transient feedback appears — the toast stack — and that
+   * is what you get when no container is named. Passing a containerId is for
+   * validation that has to sit next to the field it is about, inside a modal:
+   * a toast for "email is required" would be read after the eye has already
+   * moved back to the form.
+   *
    * @param {string} message
    * @param {'success'|'error'} type
-   * @param {string} [containerId='alert-container']
+   * @param {string} [containerId] - an in-modal alert slot; omit for a toast
    * @param {number} [timeout=5000]
    */
   AdminCore.showAlert = function (message, type, containerId, timeout) {
-    var key = containerId || 'alert-container';
+    if (!containerId) return AdminCore.toast(message, type, timeout);
+    var key = containerId;
     var container = document.getElementById(key);
     if (!container) return;
     clearTimeout(_alertTimers[key]);
@@ -74,18 +89,11 @@
   };
 
   /**
-   * Slide-in notification (used by admin.html).
-   * Requires an element with id="notification".
-   * @param {string} message
-   * @param {'success'|'error'|'warning'|'info'} type
-   * @param {number} [timeout=3000]
+   * Legacy alias kept so older page scripts keep working. Everything transient
+   * goes through the toast stack.
    */
   AdminCore.notify = function (message, type, timeout) {
-    var notif = document.getElementById('notification');
-    if (!notif) return;
-    notif.textContent = message;
-    notif.className = 'notification ' + (type || 'success') + ' show';
-    setTimeout(function () { notif.classList.remove('show'); }, timeout || 3000);
+    AdminCore.toast(message, type, timeout);
   };
 
   // ── Date formatting ───────────────────────────────────────────────────

@@ -4,6 +4,7 @@ import { prisma } from "../prisma";
 import { adminAuth } from "../middleware/adminAuth";
 import { Resend } from "resend";
 import { FROM_EMAIL } from "../services/email";
+import { emailSendingSuppressed } from "../services/email/suppression";
 import { logger } from "../services/logger";
 
 function escapeHtml(str: string): string {
@@ -18,7 +19,10 @@ function escapeHtml(str: string): string {
 const r = Router();
 r.use(adminAuth);
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+const resend =
+  !emailSendingSuppressed() && process.env.RESEND_API_KEY
+    ? new Resend(process.env.RESEND_API_KEY)
+    : null;
 const RECIPIENT_BATCH_SIZE = 500;
 const PUSH_SEND_BATCH_SIZE = 100;
 const ERROR_SAMPLE_LIMIT = 25;

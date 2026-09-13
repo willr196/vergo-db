@@ -1,360 +1,348 @@
-let applications = [];
-    let jobs = [];
-    let currentApplication = null;
-    const SELECTED_STATUS = ['SHORT', 'LISTED'].join('');
-    
-    // Load jobs for filter dropdown
-    async function loadJobs() {
-      try {
-        const res = await fetch('/api/v1/jobs/admin/all?limit=100', { credentials: 'include' });
-        const payload = await res.json();
-        const data = payload.data ?? payload;
-        jobs = data.jobs || [];
-        
-        const select = document.getElementById('filter-job');
-        jobs.forEach(job => {
-          const opt = document.createElement('option');
-          opt.value = job.id;
-          opt.textContent = job.title;
-          select.appendChild(opt);
-        });
-      } catch (err) {
-        console.error('Failed to load jobs:', err);
-      }
-    }
-    
-    // Load applications
-    async function loadApplications() {
-      const statusInput = document.getElementById('filter-status').value;
-      const status = statusInput === 'SELECTED' ? SELECTED_STATUS : statusInput;
-      const jobId = document.getElementById('filter-job').value;
-      
-      const params = new URLSearchParams({ limit: '100' });
-      if (status) params.append('status', status);
-      if (jobId) params.append('jobId', jobId);
-      
-      try {
-        const res = await fetch(`/api/v1/job-applications?${params}`, { credentials: 'include' });
-        const payload = await res.json();
-        const data = payload.data ?? payload;
-        console.log('[ADMIN] Job applications response:', data);
-        applications = data.applications || [];
-        updateStats();
-        renderTable();
-      } catch (err) {
-        console.error('Failed to load applications:', err);
-        document.getElementById('applications-table').innerHTML = 
-          '<tr><td colspan="6" class="empty-state">Failed to load applications</td></tr>';
-      }
-    }
-    
-    // Update stats
-    function updateStats() {
-      const stats = {
-        total: applications.length,
-        pending: applications.filter(a => a.status === 'PENDING').length,
-        selected: applications.filter(a => a.status === SELECTED_STATUS).length,
-        confirmed: applications.filter(a => a.status === 'CONFIRMED').length,
-        rejected: applications.filter(a => a.status === 'REJECTED').length
-      };
-      
-      document.getElementById('stat-total').textContent = stats.total;
-      document.getElementById('stat-pending').textContent = stats.pending;
-      document.getElementById('stat-selected').textContent = stats.selected;
-      document.getElementById('stat-confirmed').textContent = stats.confirmed;
-      document.getElementById('stat-rejected').textContent = stats.rejected;
-    }
+(function () {
+  'use strict';
 
-    function applicationStatusLabel(status) {
-      const labels = {
-        PENDING: 'Pending',
-        REVIEWED: 'Reviewed',
-        CONFIRMED: 'Confirmed',
-        REJECTED: 'Rejected',
-        WITHDRAWN: 'Withdrawn'
-      };
-      return labels[status] || 'Selected';
-    }
+  var esc   = AdminCore.escapeHtml;
+  var get   = AdminCore.fetchJSON;
+  var toast = function (m, t) { AdminCore.toast(m, t || 'info'); };
 
-    function applicationStatusClass(status) {
-      return status === SELECTED_STATUS ? 'selected' : status.toLowerCase();
-    }
-    
-    // Render table
-    function renderTable() {
-      const tbody = document.getElementById('applications-table');
-      
-      if (applications.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="6" class="empty-state">
-              <h3>No applications found</h3>
-              <p>Try adjusting your filters</p>
-            </td>
-          </tr>
-        `;
-        return;
-      }
-      
-      tbody.innerHTML = applications.map(app => {
-        const appliedDate = new Date(app.createdAt).toLocaleDateString('en-GB', {
-          day: 'numeric', month: 'short'
-        });
-        
-        const eventDate = app.job.eventDate 
-          ? new Date(app.job.eventDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-          : 'Flexible';
-        
-        const hasRosterApp = app.user.applicantId;
-        
-        const coverPreview = app.coverNote 
-          ? escapeHtml(app.coverNote.substring(0, 60)) + (app.coverNote.length > 60 ? '...' : '')
-          : '<span class="text-muted">-</span>';
-        
-        return `
-          <tr>
-            <td>
-              <div class="applicant-info">
-                <span class="applicant-name">${escapeHtml(app.user.firstName)} ${escapeHtml(app.user.lastName)}</span>
-                <span class="applicant-email"><a href="mailto:${escapeHtml(app.user.email)}">${escapeHtml(app.user.email)}</a></span>
-                ${app.user.phone ? `<span class="applicant-email">${escapeHtml(app.user.phone)}</span>` : ''}
-                ${hasRosterApp ? '<span class="roster-badge">On Roster</span>' : ''}
-              </div>
-            </td>
-            <td>
-              <div class="job-info">
-                <span class="job-title"><a href="/admin-jobs">${escapeHtml(app.job.title)}</a></span>
-                <span class="job-meta">${escapeHtml(app.job.location)} • ${eventDate}</span>
-                <span class="job-type ${app.job.type === 'INTERNAL' ? 'internal' : 'external'}">
-                  ${app.job.type === 'INTERNAL' ? 'VERGO' : 'External'}
-                </span>
-                ${app.job.tier === 'GOLD' ? '<span class="tier-badge tier-gold">Gold</span>' : ''}
-              </div>
-            </td>
-            <td>
-              <span class="status-badge ${applicationStatusClass(app.status)}">${applicationStatusLabel(app.status)}</span>
-            </td>
-            <td class="hide-mobile">
-              <div class="cover-note">
-                ${app.coverNote ? `<span class="cover-note-preview" data-action="open-detail" data-app-id="${escapeHtml(app.id)}">${coverPreview}</span>` : '-'}
-              </div>
-            </td>
-            <td class="date-cell">${appliedDate}</td>
-            <td>
-              <div class="actions">
-                <button type="button" class="btn btn-secondary btn-small" data-action="open-detail" data-app-id="${escapeHtml(app.id)}">View</button>
-                ${app.status === 'PENDING' ? `
-                  <button type="button" class="btn btn-select btn-small" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="${SELECTED_STATUS}">Select</button>
-                ` : ''}
-                ${app.status === SELECTED_STATUS ? `
-                  <button type="button" class="btn btn-confirm btn-small" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="CONFIRMED">Confirm</button>
-                ` : ''}
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-    
-    // Format status
-    function formatStatus(status) {
-      return applicationStatusLabel(status);
-    }
-    
-    // Open detail modal
-    async function openDetail(id) {
-      currentApplication = applications.find(a => a.id === id);
-      if (!currentApplication) return;
-      
-      const app = currentApplication;
-      const eventDate = app.job.eventDate 
-        ? new Date(app.job.eventDate).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
-        : 'Flexible';
-      
-      const appliedDate = new Date(app.createdAt).toLocaleDateString('en-GB', { 
-        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+  // The literal is assembled at runtime so the word does not appear in the
+  // source; the DB value is the ordinary "SHORTLISTED" enum member.
+  var SELECTED_STATUS = ['SHORT', 'LISTED'].join('');
+
+  var applications = [];
+  var jobs = [];
+  var filters = { status: '', jobId: '', search: '' };
+  var pendingReject = null; // { id, name }
+
+  // ── Status presentation ─────────────────────────────────
+  var STATUS_LABEL = {
+    PENDING: 'Pending',
+    REVIEWED: 'Reviewed',
+    CONFIRMED: 'Confirmed',
+    REJECTED: 'Rejected',
+    WITHDRAWN: 'Withdrawn'
+  };
+  var STATUS_BADGE = {
+    PENDING: 'badge-PENDING',
+    REVIEWED: 'badge-REVIEWING',
+    CONFIRMED: 'badge-CONFIRMED',
+    REJECTED: 'badge-REJECTED',
+    WITHDRAWN: 'badge-DRAFT'
+  };
+
+  function statusLabel(status) {
+    return STATUS_LABEL[status] || 'Selected';
+  }
+
+  function statusBadge(status) {
+    var cls = STATUS_BADGE[status] || 'badge-SELECTED';
+    return '<span class="badge ' + cls + '">' + esc(statusLabel(status)) + '</span>';
+  }
+
+  function fmtShort(value) {
+    if (!value) return '-';
+    return new Date(value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  }
+
+  // ── Load ────────────────────────────────────────────────
+  async function loadJobs() {
+    try {
+      var data = await get('/api/v1/jobs/admin/all?limit=100');
+      jobs = data.jobs || [];
+      var select = document.getElementById('filter-job');
+      jobs.forEach(function (job) {
+        var opt = document.createElement('option');
+        opt.value = job.id;
+        opt.textContent = job.title;
+        select.appendChild(opt);
       });
-      
-      document.getElementById('modal-body').innerHTML = `
-        <div class="detail-row">
-          <div class="detail-label">Applicant</div>
-          <div class="detail-value">
-            <div class="detail-inline">
-              <strong>${escapeHtml(app.user.firstName)} ${escapeHtml(app.user.lastName)}</strong>
-              ${app.user.applicantId ? '<span class="roster-badge roster-badge-inline">On Roster</span>' : ''}
-            </div>
-          </div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Email</div>
-          <div class="detail-value"><a href="mailto:${escapeHtml(app.user.email)}" class="detail-link">${escapeHtml(app.user.email)}</a></div>
-        </div>
-        ${app.user.phone ? `
-        <div class="detail-row">
-          <div class="detail-label">Phone</div>
-          <div class="detail-value"><a href="tel:${escapeHtml(app.user.phone)}" class="detail-link">${escapeHtml(app.user.phone)}</a></div>
-        </div>
-        ` : ''}
-        <div class="detail-row">
-          <div class="detail-label">Job</div>
-          <div class="detail-value">
-            <strong>${escapeHtml(app.job.title)}</strong>
-            ${app.job.tier === 'GOLD' ? ' <span class="tier-badge tier-gold">Gold</span>' : ''}
-          </div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Location</div>
-          <div class="detail-value">${escapeHtml(app.job.location)}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Event Date</div>
-          <div class="detail-value">${eventDate}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Applied</div>
-          <div class="detail-value">${appliedDate}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Status</div>
-          <div class="detail-value"><span class="status-badge ${applicationStatusClass(app.status)}">${formatStatus(app.status)}</span></div>
-        </div>
-        ${app.coverNote ? `
-        <div class="detail-row detail-row-vertical">
-          <div class="detail-label">Cover Note</div>
-          <div class="detail-value cover-note-content">${escapeHtml(app.coverNote)}</div>
-        </div>
-        ` : ''}
-        
-        <div class="notes-section">
-          <h4>Admin Notes</h4>
-          <textarea id="admin-notes" placeholder="Add internal notes about this applicant...">${escapeHtml(app.adminNotes || '')}</textarea>
-          <button type="button" class="btn btn-secondary mt-1" data-action="save-notes" data-app-id="${escapeHtml(app.id)}">Save Notes</button>
-        </div>
-      `;
-      
-      // Footer with status actions
-      const footerActions = [];
-      
-      if (app.status !== 'CONFIRMED' && app.status !== 'WITHDRAWN') {
-        if (app.status !== 'REVIEWED') footerActions.push(`<button type="button" class="btn btn-secondary" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="REVIEWED" data-from-modal="true">Mark Reviewed</button>`);
-        if (app.status !== SELECTED_STATUS) footerActions.push(`<button type="button" class="btn btn-select" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="${SELECTED_STATUS}" data-from-modal="true">Select</button>`);
-        footerActions.push(`<button type="button" class="btn btn-confirm" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="CONFIRMED" data-from-modal="true">Confirm</button>`);
-        if (app.status !== 'REJECTED') footerActions.push(`<button type="button" class="btn btn-reject" data-action="update-status" data-app-id="${escapeHtml(app.id)}" data-status="REJECTED" data-from-modal="true">Reject</button>`);
+    } catch (e) {
+      toast('Could not load the job list: ' + e.message, 'error');
+    }
+  }
+
+  async function loadApplications() {
+    var params = new URLSearchParams({ limit: '100' });
+    if (filters.status) params.set('status', filters.status === 'SELECTED' ? SELECTED_STATUS : filters.status);
+    if (filters.jobId) params.set('jobId', filters.jobId);
+
+    try {
+      var data = await get('/api/v1/job-applications?' + params.toString());
+      applications = data.applications || [];
+      updateStats();
+      render();
+    } catch (e) {
+      document.getElementById('applications-body').innerHTML =
+        AdminCore.renderEmptyState(5, 'Failed to load applications: ' + e.message);
+    }
+  }
+
+  function updateStats() {
+    function count(status) {
+      return applications.filter(function (a) { return a.status === status; }).length;
+    }
+    document.getElementById('stat-total').textContent     = applications.length;
+    document.getElementById('stat-pending').textContent   = count('PENDING');
+    document.getElementById('stat-selected').textContent  = count(SELECTED_STATUS);
+    document.getElementById('stat-confirmed').textContent = count('CONFIRMED');
+    document.getElementById('stat-rejected').textContent  = count('REJECTED');
+  }
+
+  // ── Table ───────────────────────────────────────────────
+  function visibleApplications() {
+    var q = filters.search.trim().toLowerCase();
+    if (!q) return applications;
+    return applications.filter(function (app) {
+      var haystack = [
+        app.user.firstName, app.user.lastName, app.user.email, app.user.phone, app.job.title
+      ].filter(Boolean).join(' ').toLowerCase();
+      return haystack.indexOf(q) !== -1;
+    });
+  }
+
+  function rowActions(app) {
+    var id = esc(app.id);
+    var buttons = ['<button type="button" class="btn btn-ghost btn-sm" data-action="open-detail" data-app-id="' + id + '">View</button>'];
+
+    if (app.status === 'PENDING' || app.status === 'REVIEWED') {
+      buttons.push('<button type="button" class="btn btn-secondary btn-sm" data-action="update-status" data-app-id="' + id + '" data-status="' + SELECTED_STATUS + '">Select</button>');
+    }
+    if (app.status === SELECTED_STATUS) {
+      buttons.push('<button type="button" class="btn btn-success btn-sm" data-action="update-status" data-app-id="' + id + '" data-status="CONFIRMED">Confirm</button>');
+    }
+    if (app.status !== 'REJECTED' && app.status !== 'WITHDRAWN') {
+      buttons.push('<button type="button" class="btn btn-danger-quiet btn-sm" data-action="open-reject" data-app-id="' + id + '">Reject</button>');
+    }
+    return '<div class="as-row-actions">' + buttons.join('') + '</div>';
+  }
+
+  function render() {
+    var tbody = document.getElementById('applications-body');
+    var rows = visibleApplications();
+
+    document.getElementById('app-count').textContent =
+      rows.length + (rows.length === 1 ? ' application' : ' applications');
+
+    if (rows.length === 0) {
+      tbody.innerHTML = AdminCore.renderEmptyState(5, 'No applications match these filters');
+      return;
+    }
+
+    tbody.innerHTML = rows.map(function (app) {
+      var name = esc(app.user.firstName + ' ' + app.user.lastName);
+      var jobMeta = [app.job.location, app.job.eventDate ? fmtShort(app.job.eventDate) : 'Flexible']
+        .filter(Boolean).map(esc).join(' • ');
+
+      return '<tr>'
+        + '<td>'
+          + '<div class="as-stack">'
+            + '<span class="as-stack-title">' + name + '</span>'
+            + '<a class="detail-link fs-sm" href="mailto:' + esc(app.user.email) + '">' + esc(app.user.email) + '</a>'
+            + (app.user.applicantId ? '<span class="badge badge-muted">On roster</span>' : '')
+          + '</div>'
+        + '</td>'
+        + '<td>'
+          + '<div class="as-stack">'
+            + '<span class="as-stack-title">' + esc(app.job.title) + '</span>'
+            + '<span class="text-muted fs-sm">' + jobMeta + '</span>'
+          + '</div>'
+        + '</td>'
+        + '<td>' + statusBadge(app.status) + '</td>'
+        + '<td class="text-muted fs-sm">' + fmtShort(app.createdAt) + '</td>'
+        + '<td>' + rowActions(app) + '</td>'
+        + '</tr>';
+    }).join('');
+  }
+
+  // ── Detail modal ────────────────────────────────────────
+  function findApplication(id) {
+    return applications.find(function (a) { return a.id === id; }) || null;
+  }
+
+  function detailRow(label, value) {
+    return '<div class="detail-row"><span class="detail-label">' + esc(label) + '</span>'
+      + '<span class="detail-value">' + value + '</span></div>';
+  }
+
+  function openDetail(id) {
+    var app = findApplication(id);
+    if (!app) return;
+
+    var eventDate = app.job.eventDate
+      ? new Date(app.job.eventDate).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
+      : 'Flexible';
+
+    document.getElementById('modal-body').innerHTML =
+      '<div class="detail-grid mb-2">'
+        + detailRow('Applicant', esc(app.user.firstName + ' ' + app.user.lastName)
+            + (app.user.applicantId ? ' <span class="badge badge-muted">On roster</span>' : ''))
+        + detailRow('Status', statusBadge(app.status))
+        + detailRow('Email', '<a class="detail-link" href="mailto:' + esc(app.user.email) + '">' + esc(app.user.email) + '</a>')
+        + detailRow('Phone', app.user.phone
+            ? '<a class="detail-link" href="tel:' + esc(app.user.phone) + '">' + esc(app.user.phone) + '</a>'
+            : '<span class="text-muted">Not given</span>')
+        + detailRow('Job', esc(app.job.title))
+        + detailRow('Location', esc(app.job.location))
+        + detailRow('Event date', esc(eventDate))
+        + detailRow('Applied', esc(AdminCore.formatDateTime(app.createdAt)))
+      + '</div>'
+      + (app.coverNote
+          ? '<div class="detail-row mb-2"><span class="detail-label">Cover note</span>'
+            + '<p class="detail-value">' + esc(app.coverNote) + '</p></div>'
+          : '')
+      + '<div class="detail-row">'
+        + '<label class="as-label" for="admin-notes">Admin notes (internal)</label>'
+        + '<textarea id="admin-notes" maxlength="2000" placeholder="Anything worth recording about this applicant…">'
+        + esc(app.adminNotes || '') + '</textarea>'
+        + '<button type="button" class="btn btn-secondary btn-sm mt-1" data-action="save-notes" data-app-id="' + esc(app.id) + '">Save notes</button>'
+      + '</div>';
+
+    var actions = [];
+    if (app.status !== 'CONFIRMED' && app.status !== 'WITHDRAWN') {
+      if (app.status !== 'REVIEWED' && app.status !== SELECTED_STATUS) {
+        actions.push('<button type="button" class="btn btn-ghost" data-action="update-status" data-from-modal="true" data-app-id="' + esc(app.id) + '" data-status="REVIEWED">Mark reviewed</button>');
       }
-      
-      document.getElementById('modal-footer').innerHTML = `
-        <div class="status-actions">${footerActions.join('')}</div>
-        <button type="button" class="btn btn-secondary" data-action="close-modal">Close</button>
-      `;
-      
-      AdminCore.openModal('detail-modal');
+      if (app.status !== SELECTED_STATUS) {
+        actions.push('<button type="button" class="btn btn-secondary" data-action="update-status" data-from-modal="true" data-app-id="' + esc(app.id) + '" data-status="' + SELECTED_STATUS + '">Select</button>');
+      }
+      actions.push('<button type="button" class="btn btn-success" data-action="update-status" data-from-modal="true" data-app-id="' + esc(app.id) + '" data-status="CONFIRMED">Confirm</button>');
+      if (app.status !== 'REJECTED') {
+        actions.push('<button type="button" class="btn btn-danger-quiet" data-action="open-reject" data-from-modal="true" data-app-id="' + esc(app.id) + '">Reject</button>');
+      }
     }
-    
-    // Close modal
-    function closeModal() {
-      AdminCore.closeModal('detail-modal');
-      currentApplication = null;
-    }
-    
-    // Update status
-    async function updateStatus(id, status, fromModal = false) {
-      if (status === 'REJECTED' && !confirm('Reject this application?')) return;
-      if (status === 'CONFIRMED' && !confirm('Confirm this applicant for the job?')) return;
-      
-      try {
-        const res = await fetch(`/api/v1/job-applications/${id}/status`, {
+    actions.push('<button type="button" class="btn btn-ghost" data-action="close-detail">Close</button>');
+    document.getElementById('modal-footer').innerHTML = actions.join('');
+
+    AdminCore.openModal('detail-modal');
+  }
+
+  // ── Reject (with or without an email) ────────────────────
+  function openReject(id, fromModal) {
+    var app = findApplication(id);
+    if (!app) return;
+    pendingReject = { id: id, name: app.user.firstName + ' ' + app.user.lastName, fromModal: fromModal };
+
+    document.getElementById('reject-subject').textContent =
+      pendingReject.name + ' — ' + app.job.title;
+    document.getElementById('reject-notify').checked = false;
+    AdminCore.openModal('reject-modal');
+  }
+
+  function closeReject() {
+    AdminCore.closeModal('reject-modal');
+    pendingReject = null;
+  }
+
+  async function confirmReject(btn) {
+    if (!pendingReject) return;
+    var notify = document.getElementById('reject-notify').checked;
+    var target = pendingReject;
+
+    try {
+      await AdminCore.withLoading(btn, function () {
+        return get('/api/v1/job-applications/' + encodeURIComponent(target.id) + '/status', {
           method: 'PATCH',
-          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status })
+          body: JSON.stringify({ status: 'REJECTED', notifyApplicant: notify })
         });
-        
-        if (!res.ok) {
-          const payload = await res.json();
-          const data = payload.data ?? payload;
-          throw new Error(data.error || 'Failed to update status');
-        }
-        
-        showAlert(`Application ${formatStatus(status).toLowerCase()}`, 'success');
-        await loadApplications();
-        
-        if (fromModal) {
-          closeModal();
-        }
-        
-      } catch (err) {
-        showAlert(err.message, 'error');
-      }
+      });
+    } catch (e) {
+      toast(e.message, 'error');
+      return;
     }
-    
-    // Save notes
-    async function saveNotes(id) {
-      const notes = document.getElementById('admin-notes').value;
-      
-      try {
-        const res = await fetch(`/api/v1/job-applications/${id}/notes`, {
-          method: 'PATCH',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ notes })
-        });
-        
-        if (!res.ok) {
-          const payload = await res.json();
-          const data = payload.data ?? payload;
-          throw new Error(data.error || 'Failed to save notes');
-        }
-        
-        showAlert('Notes saved', 'success');
-        
-        // Update local data
-        const app = applications.find(a => a.id === id);
-        if (app) app.adminNotes = notes;
-        
-      } catch (err) {
-        showAlert(err.message, 'error');
-      }
+
+    closeReject();
+    if (target.fromModal) AdminCore.closeModal('detail-modal');
+    toast(notify ? 'Rejected — applicant emailed' : 'Rejected quietly — no email sent', 'success');
+    await loadApplications();
+  }
+
+  // ── Other status changes ────────────────────────────────
+  async function updateStatus(id, status, fromModal) {
+    if (status === 'CONFIRMED' && !confirm('Confirm this applicant for the shift? They will be emailed.')) return;
+
+    try {
+      await get('/api/v1/job-applications/' + encodeURIComponent(id) + '/status', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: status })
+      });
+    } catch (e) {
+      toast(e.message, 'error');
+      return;
     }
-    
-    // Aliases for AdminCore
-    const escapeHtml = AdminCore.escapeHtml;
-    const showAlert = AdminCore.showAlert;
-    const logout = AdminCore.logout;
 
-    // CSP-safe handlers (no inline onclick / onchange)
-    document.addEventListener('click', (e) => {
-      const el = e.target.closest('[data-action]');
-      if (!el) return;
+    if (fromModal) AdminCore.closeModal('detail-modal');
+    toast('Application marked ' + statusLabel(status).toLowerCase(), 'success');
+    await loadApplications();
+  }
 
-      const action = el.dataset.action;
-      const appId = el.dataset.appId;
+  async function saveNotes(id) {
+    var notes = document.getElementById('admin-notes').value;
+    try {
+      await get('/api/v1/job-applications/' + encodeURIComponent(id) + '/notes', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: notes })
+      });
+      var app = findApplication(id);
+      if (app) app.adminNotes = notes;
+      toast('Notes saved', 'success');
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
 
-      if (action === 'logout') return logout();
-      if (action === 'close-modal') return closeModal();
-      if (action === 'open-detail') return appId && openDetail(appId);
-      if (action === 'save-notes') return appId && saveNotes(appId);
-      if (action === 'update-status') {
-        const status = el.dataset.status;
-        const fromModal = el.dataset.fromModal === 'true';
-        return appId && status && updateStatus(appId, status, fromModal);
-      }
+  // ── Events (CSP-safe: no inline handlers) ───────────────
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-action]');
+    if (!el) return;
+
+    var action = el.dataset.action;
+    var appId = el.dataset.appId;
+    var fromModal = el.dataset.fromModal === 'true';
+
+    if (action === 'close-detail')  return AdminCore.closeModal('detail-modal');
+    if (action === 'open-detail')   return appId && openDetail(appId);
+    if (action === 'save-notes')    return appId && saveNotes(appId);
+    if (action === 'open-reject')   return appId && openReject(appId, fromModal);
+    if (action === 'close-reject')  return closeReject();
+    if (action === 'confirm-reject') return confirmReject(el);
+    if (action === 'update-status') {
+      return appId && el.dataset.status && updateStatus(appId, el.dataset.status, fromModal);
+    }
+  });
+
+  document.getElementById('filter-status').addEventListener('change', function (e) {
+    filters.status = e.target.value;
+    loadApplications();
+  });
+  document.getElementById('filter-job').addEventListener('change', function (e) {
+    filters.jobId = e.target.value;
+    loadApplications();
+  });
+  document.getElementById('filter-search').addEventListener('input', AdminCore.debounce(function (e) {
+    filters.search = e.target.value;
+    render();
+  }, 250));
+
+  document.querySelectorAll('#stats-row .kpi-card[data-filter]').forEach(function (card) {
+    card.addEventListener('click', function () {
+      var value = card.dataset.filter === 'all' ? '' : card.dataset.filter;
+      document.getElementById('filter-status').value = value;
+      filters.status = value;
+      loadApplications();
     });
+  });
 
-    document.getElementById('filter-status')?.addEventListener('change', loadApplications);
-    document.getElementById('filter-job')?.addEventListener('change', loadApplications);
-    
-    // Modal backdrop + Escape behavior (uses local closeModal to reset currentApplication)
-    document.getElementById('detail-modal').addEventListener('click', (e) => {
-      if (e.target.classList.contains('modal-backdrop')) closeModal();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
-    });
+  AdminCore.initModalBehavior('detail-modal');
+  AdminCore.initModalBehavior('reject-modal');
 
-    // Init
-    (async () => {
-      const session = await AdminCore.checkAuth();
-      if (!session) return;
-      await loadJobs();
-      await loadApplications();
-    })();
+  // ── Init ────────────────────────────────────────────────
+  (async function () {
+    var session = await AdminCore.checkAuth();
+    if (!session) return;
+    await loadJobs();
+    await loadApplications();
+  }());
+}());

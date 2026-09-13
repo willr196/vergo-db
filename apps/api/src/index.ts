@@ -384,6 +384,7 @@ app.use('/api/v1/jobs', jobs);
 // Protect admin.html BEFORE static middleware
 app.get([
   '/admin',
+  '/admin-staff',
   '/admin-clients',
   '/admin-jobs',
   '/admin-job-applications',
@@ -395,6 +396,7 @@ app.get([
 ], adminPageAuth, (req, res) => {
   const fileByPath: Record<string, string> = {
     '/admin': 'admin.html',
+    '/admin-staff': 'admin-staff.html',
     '/admin-clients': 'admin-clients.html',
     '/admin-jobs': 'admin-jobs.html',
     '/admin-job-applications': 'admin-job-applications.html',

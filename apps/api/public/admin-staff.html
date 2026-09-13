@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staff | VERGO Events — Event Staffing in London</title>
+  <meta name="description" content="The VERGO Events staff directory: right-to-work status, account status, roles and availability for everyone on the roster.">
+  <meta property="og:title" content="Staff | VERGO Events — Event Staffing in London">
+  <meta property="og:description" content="The VERGO Events staff directory: right-to-work status, account status, roles and availability for everyone on the roster.">
+  <meta property="og:image" content="https://vergoltd.com/logo.png">
+  <meta property="og:url" content="https://vergoltd.com/admin-staff">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="canonical" href="https://vergoltd.com/admin-staff">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
+</head>
+<body>
+
+  <div class="as-main">
+    <header class="as-topbar">
+      <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
+      <span class="as-topbar-title">Staff</span>
+      <div class="as-topbar-right">
+        <span id="as-refresh-label" class="text-muted fs-sm"></span>
+        <button class="btn btn-ghost btn-sm" data-action="refresh-stats" aria-label="Refresh">&#8635;</button>
+      </div>
+    </header>
+
+    <div class="as-content">
+      <div id="staff-panel">
+        <!-- The three concern cards narrow the list to what they count -->
+        <div class="kpi-grid" id="staff-stats">
+          <div class="kpi-card">
+            <div class="kpi-label">On the roster</div>
+            <div class="kpi-value" id="stat-total">0</div>
+          </div>
+          <div class="kpi-card kpi-success">
+            <div class="kpi-label">Cleared to work</div>
+            <div class="kpi-value" id="stat-cleared">0</div>
+          </div>
+          <div class="kpi-card kpi-error" data-concern="rtw-missing">
+            <div class="kpi-label">Awaiting right to work</div>
+            <div class="kpi-value" id="stat-awaiting">0</div>
+          </div>
+          <div class="kpi-card kpi-warning" data-concern="rtw-expiring">
+            <div class="kpi-label">Expiring within 30 days</div>
+            <div class="kpi-value" id="stat-expiring">0</div>
+          </div>
+          <div class="kpi-card kpi-info" data-concern="no-login">
+            <div class="kpi-label">No login sent</div>
+            <div class="kpi-value" id="stat-nologin">0</div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="as-filters">
+          <div class="as-filter-group">
+            <label for="filter-search">Search</label>
+            <input type="search" id="filter-search" placeholder="Name, email, phone…">
+          </div>
+          <div class="as-filter-group">
+            <label for="filter-role">Role</label>
+            <select id="filter-role">
+              <option value="">All roles</option>
+              <option value="Bartender">Bartender</option>
+              <option value="Barista">Barista</option>
+              <option value="Front of House">Front of House</option>
+              <option value="Waiter">Waiter</option>
+              <option value="Chef">Chef</option>
+              <option value="Kitchen Porter">Kitchen Porter</option>
+              <option value="Runner">Runner</option>
+            </select>
+          </div>
+          <div class="as-filter-group">
+            <label for="filter-location">Near</label>
+            <input type="search" id="filter-location" placeholder="Postcode or area, e.g. SW1A 1AA">
+          </div>
+          <div class="as-filter-actions">
+            <button class="btn btn-ghost" data-action="clear-filters">Clear</button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="as-table-wrap">
+          <div class="as-table-toolbar">
+            <div class="as-toolbar-left">
+              <span id="staff-count" class="text-muted fs-sm">Loading…</span>
+            </div>
+            <div class="as-toolbar-right">
+              <a href="admin" class="btn btn-ghost btn-sm">&larr; Pipeline</a>
+              <button class="btn btn-ghost btn-sm" data-action="export-csv">&darr; CSV</button>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th data-sort="fullName">Name <span class="sort-icon">&#8597;</span></th>
+                <th>Roles</th>
+                <th data-sort="postcode">Location <span class="sort-icon">&#8597;</span></th>
+                <th>Right to work</th>
+                <th>Account</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="staff-body">
+              <tr><td colspan="6" class="loading"><div class="as-skeleton" style="margin:auto;max-width:200px"></div></td></tr>
+            </tbody>
+          </table>
+          <div class="as-pagination" id="staff-pagination"></div>
+        </div>
+      </div>
+    </div><!-- .as-content -->
+  </div><!-- .as-main -->
+
+  <script src="/js/admin-core.js"></script>
+  <script src="/js/admin-nav.js"></script>
+  <script src="/js/admin-applicant.js"></script>
+  <script src="/pages/js/admin-staff.js"></script>
+</body>
+</html>
