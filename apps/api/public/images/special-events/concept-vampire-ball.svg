@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="presentation" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="vb-field" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#2d1318"/>
+      <stop offset="58%" stop-color="#150a0d"/>
+      <stop offset="100%" stop-color="#08070a"/>
+    </linearGradient>
+    <radialGradient id="vb-flame" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#f6e3b8" stop-opacity="0.95"/>
+      <stop offset="35%" stop-color="#ed7a33" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#ed7a33" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="vb-vig" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#09080a" stop-opacity="0.34"/>
+      <stop offset="52%" stop-color="#09080a" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#09080a" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#vb-field)"/>
+
+  <!-- Chandelier: a gold ring with drops, the room's only real light. -->
+  <g stroke="#d4af37" stroke-opacity="0.4" fill="none" stroke-width="2.5">
+    <path d="M600 0 L600 96"/>
+    <ellipse cx="600" cy="150" rx="182" ry="34"/>
+    <ellipse cx="600" cy="112" rx="104" ry="20"/>
+    <path d="M600 96 L418 150 M600 96 L782 150 M600 96 L496 112 M600 96 L704 112"/>
+  </g>
+  <g stroke="#d4af37" stroke-opacity="0.26" stroke-width="1.5">
+    <path d="M452 160 L452 196 M526 172 L526 210 M600 176 L600 214 M674 172 L674 210 M748 160 L748 196"/>
+  </g>
+
+  <g>
+    <circle cx="452" cy="150" r="52" fill="url(#vb-flame)"/>
+    <circle cx="526" cy="162" r="52" fill="url(#vb-flame)"/>
+    <circle cx="600" cy="166" r="58" fill="url(#vb-flame)"/>
+    <circle cx="674" cy="162" r="52" fill="url(#vb-flame)"/>
+    <circle cx="748" cy="150" r="52" fill="url(#vb-flame)"/>
+  </g>
+
+  <!-- Arched windows behind, a ballroom's bones. -->
+  <g fill="none" stroke="#d4af37" stroke-opacity="0.11" stroke-width="2">
+    <path d="M150 640 L150 400 Q150 320 218 320 Q286 320 286 400 L286 640"/>
+    <path d="M914 640 L914 400 Q914 320 982 320 Q1050 320 1050 400 L1050 640"/>
+  </g>
+
+  <!-- Two coupes raised. Elegant, and a little dangerous. -->
+  <g stroke="#d4af37" stroke-opacity="0.5" stroke-width="3" fill="none">
+    <path d="M410 470 Q410 534 466 534 Q522 534 522 470 Z" fill="#2d1318" fill-opacity="0.8"/>
+    <path d="M466 534 L466 592 M430 596 L502 596"/>
+    <path d="M678 470 Q678 534 734 534 Q790 534 790 470 Z" fill="#2d1318" fill-opacity="0.8"/>
+    <path d="M734 534 L734 592 M698 596 L770 596"/>
+  </g>
+  <g fill="#ed7a33" fill-opacity="0.34">
+    <path d="M414 478 Q414 526 466 526 Q518 526 518 478 Z"/>
+    <path d="M682 478 Q682 526 734 526 Q786 526 786 478 Z"/>
+  </g>
+
+  <rect width="1200" height="675" fill="url(#vb-vig)"/>
+</svg>

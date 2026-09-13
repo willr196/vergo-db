@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="presentation" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="tc-field" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#33220f"/>
+      <stop offset="62%" stop-color="#170f08"/>
+      <stop offset="100%" stop-color="#08070a"/>
+    </linearGradient>
+    <radialGradient id="tc-bulb" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#f6e3b8" stop-opacity="0.9"/>
+      <stop offset="40%" stop-color="#ed7a33" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#ed7a33" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tc-vig" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#09080a" stop-opacity="0.4"/>
+      <stop offset="50%" stop-color="#09080a" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#09080a" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#tc-field)"/>
+
+  <!-- Big top canopy: alternating panels radiating from the peak. -->
+  <g fill="#ed7a33" fill-opacity="0.12">
+    <path d="M600 70 L268 470 L390 470 Z"/>
+    <path d="M600 70 L508 470 L600 470 Z"/>
+    <path d="M600 70 L692 470 L784 470 Z"/>
+    <path d="M600 70 L932 470 L1050 470 Z"/>
+  </g>
+  <g fill="none" stroke="#d4af37" stroke-opacity="0.2" stroke-width="2">
+    <path d="M600 70 L200 480 M600 70 L1000 480"/>
+    <path d="M600 70 L330 478 M600 70 L450 476 M600 70 L600 474 M600 70 L750 476 M600 70 L870 478"/>
+    <path d="M170 484 Q600 428 1030 484"/>
+  </g>
+
+  <!-- Pennant on the peak. -->
+  <path d="M600 70 L600 20 L666 40 L600 58 Z" fill="#d4af37" fill-opacity="0.45"/>
+  <circle cx="600" cy="70" r="8" fill="#d4af37" fill-opacity="0.5"/>
+
+  <!-- Ring of bulbs across the front of the tent. -->
+  <path d="M100 520 Q600 462 1100 520" fill="none" stroke="#d4af37" stroke-opacity="0.22" stroke-width="2"/>
+  <g>
+    <circle cx="140" cy="516" r="22" fill="url(#tc-bulb)"/>
+    <circle cx="270" cy="500" r="22" fill="url(#tc-bulb)"/>
+    <circle cx="400" cy="486" r="22" fill="url(#tc-bulb)"/>
+    <circle cx="530" cy="474" r="22" fill="url(#tc-bulb)"/>
+    <circle cx="670" cy="474" r="22" fill="url(#tc-bulb)"/>
+    <circle cx="800" cy="486" r="22" fill="url(#tc-bulb)"/>
+    <circle cx="930" cy="500" r="22" fill="url(#tc-bulb)"/>
+    <circle cx="1060" cy="516" r="22" fill="url(#tc-bulb)"/>
+  </g>
+
+  <!-- Ringmaster silhouette in the entrance: top hat, tails, cane. -->
+  <g fill="#07060a" fill-opacity="0.9">
+    <rect x="566" y="476" width="68" height="52" rx="4"/>
+    <rect x="548" y="524" width="104" height="10" rx="4"/>
+    <ellipse cx="600" cy="558" rx="26" ry="30"/>
+    <path d="M540 675 Q552 592 600 592 Q648 592 660 675 Z"/>
+  </g>
+  <path d="M656 600 L692 675" stroke="#d4af37" stroke-opacity="0.35" stroke-width="4" fill="none"/>
+
+  <rect width="1200" height="675" fill="url(#tc-vig)"/>
+</svg>

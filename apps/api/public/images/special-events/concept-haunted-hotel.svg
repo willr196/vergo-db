@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="presentation" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="hh-wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#181209"/>
+      <stop offset="60%" stop-color="#100c08"/>
+      <stop offset="100%" stop-color="#08070a"/>
+    </linearGradient>
+    <linearGradient id="hh-spill" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#d4af37" stop-opacity="0.55"/>
+      <stop offset="55%" stop-color="#ed7a33" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ed7a33" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="hh-lamp" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#f6e3b8" stop-opacity="0.85"/>
+      <stop offset="40%" stop-color="#d4af37" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#d4af37" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hh-vig" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#09080a" stop-opacity="0.5"/>
+      <stop offset="45%" stop-color="#09080a" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#09080a" stop-opacity="0.8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#hh-wall)"/>
+
+  <!-- Corridor: receding wall panels, a run of closed doors, one ajar. -->
+  <g stroke="#d4af37" stroke-opacity="0.1" fill="none" stroke-width="2">
+    <path d="M0 250 L1600 200"/>
+    <path d="M0 700 L1600 760"/>
+  </g>
+
+  <g fill="#0b0908" stroke="#d4af37" stroke-opacity="0.14" stroke-width="2">
+    <rect x="150" y="300" width="150" height="380" rx="3"/>
+    <rect x="400" y="292" width="160" height="396" rx="3"/>
+    <rect x="960" y="284" width="165" height="410" rx="3"/>
+  </g>
+
+  <!-- The one that is open. Light from a room nobody booked. -->
+  <path d="M660 286 L860 280 L860 700 L660 694 Z" fill="#0a0806"/>
+  <path d="M700 288 L860 282 L860 698 L700 692 Z" fill="url(#hh-spill)"/>
+  <path d="M860 282 L1180 830 L700 860 L700 692 Z" fill="url(#hh-spill)" opacity="0.5"/>
+
+  <!-- A figure standing in it. -->
+  <g fill="#07060a" fill-opacity="0.92">
+    <ellipse cx="792" cy="400" rx="30" ry="37"/>
+    <path d="M742 690 Q750 470 792 470 Q834 470 842 690 Z"/>
+  </g>
+
+  <!-- Wall sconces. -->
+  <circle cx="255" cy="360" r="90" fill="url(#hh-lamp)"/>
+  <circle cx="1085" cy="345" r="105" fill="url(#hh-lamp)"/>
+  <g fill="#d4af37" fill-opacity="0.5">
+    <rect x="250" y="352" width="10" height="26" rx="3"/>
+    <rect x="1080" y="336" width="10" height="28" rx="3"/>
+  </g>
+
+  <!-- Room numbers, just legible enough to register as a hotel. -->
+  <g fill="#d4af37" fill-opacity="0.3" font-family="Georgia, serif" font-size="30">
+    <text x="205" y="345">203</text>
+    <text x="455" y="338">204</text>
+    <text x="1015" y="330">207</text>
+  </g>
+
+  <rect width="1600" height="900" fill="url(#hh-vig)"/>
+</svg>

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" width="420" height="420" role="img" aria-label="A carved pumpkin with the VERGO V glowing inside it.">
+  <defs>
+    <radialGradient id="pk-halo" cx="0.5" cy="0.58" r="0.5">
+      <stop offset="0%" stop-color="#ed7a33" stop-opacity="0.55"/>
+      <stop offset="40%" stop-color="#ed7a33" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#ed7a33" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="pk-body" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#2a1a0d"/>
+      <stop offset="48%" stop-color="#160f09"/>
+      <stop offset="100%" stop-color="#0b0806"/>
+    </linearGradient>
+    <linearGradient id="pk-cut" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff3d6"/>
+      <stop offset="38%" stop-color="#f6c357"/>
+      <stop offset="100%" stop-color="#ed7a33"/>
+    </linearGradient>
+    <radialGradient id="pk-spill" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#f6c357" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#ed7a33" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="pk-stem" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4a3a1c"/>
+      <stop offset="100%" stop-color="#1d1509"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="210" cy="245" r="205" fill="url(#pk-halo)"/>
+
+  <!-- Stem -->
+  <path d="M186 116 Q182 70 204 48 Q224 28 250 36 Q230 48 222 68 Q214 88 218 118 Z"
+        fill="url(#pk-stem)" stroke="#d4af37" stroke-opacity="0.3" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M196 112 Q194 78 208 58" fill="none" stroke="#d4af37" stroke-opacity="0.22" stroke-width="2"/>
+
+  <!-- Body: a centre lobe with two flanking ribs each side. -->
+  <g>
+    <ellipse cx="118" cy="248" rx="66" ry="112" fill="url(#pk-body)"/>
+    <ellipse cx="302" cy="248" rx="66" ry="112" fill="url(#pk-body)"/>
+    <ellipse cx="158" cy="246" rx="82" ry="122" fill="url(#pk-body)"/>
+    <ellipse cx="262" cy="246" rx="82" ry="122" fill="url(#pk-body)"/>
+    <ellipse cx="210" cy="244" rx="98" ry="128" fill="url(#pk-body)"/>
+  </g>
+
+  <!-- Rib seams, and the gold rim along the top-left shoulder. -->
+  <g fill="none" stroke="#d4af37" stroke-opacity="0.16" stroke-width="2">
+    <path d="M156 130 Q132 244 156 358"/>
+    <path d="M264 130 Q288 244 264 358"/>
+    <path d="M120 152 Q100 246 120 340"/>
+    <path d="M300 152 Q320 246 300 340"/>
+  </g>
+  <g fill="none" stroke="#d4af37" stroke-opacity="0.5" stroke-width="2.5" stroke-linecap="round">
+    <path d="M112 186 Q150 126 210 118 Q252 114 286 138"/>
+    <path d="M52 250 Q54 200 78 168"/>
+  </g>
+
+  <!-- The carving. The V is the whole face — this is a VERGO pumpkin, not a
+       jack-o'-lantern, so there are no eyes competing with it. -->
+  <ellipse cx="210" cy="258" rx="118" ry="96" fill="url(#pk-spill)" opacity="0.5"/>
+  <path d="M146 196 L182 196 L210 286 L238 196 L274 196 L230 322 L190 322 Z" fill="url(#pk-cut)"/>
+  <path d="M146 196 L182 196 L210 286 L238 196 L274 196 L230 322 L190 322 Z"
+        fill="none" stroke="#fff3d6" stroke-opacity="0.55" stroke-width="2"/>
+
+  <!-- Light thrown onto the ground in front. -->
+  <ellipse cx="210" cy="372" rx="130" ry="20" fill="url(#pk-spill)" opacity="0.35"/>
+</svg>

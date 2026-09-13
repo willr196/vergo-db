@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="presentation" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sc-field" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#221e19"/>
+      <stop offset="60%" stop-color="#110f0c"/>
+      <stop offset="100%" stop-color="#08080a"/>
+    </linearGradient>
+    <radialGradient id="sc-flame" cx="0.5" cy="0.55" r="0.5">
+      <stop offset="0%" stop-color="#f6e3b8" stop-opacity="0.95"/>
+      <stop offset="32%" stop-color="#ed7a33" stop-opacity="0.42"/>
+      <stop offset="100%" stop-color="#ed7a33" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sc-pool" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#d4af37" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#d4af37" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sc-vig" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#09080a" stop-opacity="0.52"/>
+      <stop offset="50%" stop-color="#09080a" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#09080a" stop-opacity="0.8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#sc-field)"/>
+  <ellipse cx="600" cy="470" rx="520" ry="230" fill="url(#sc-pool)"/>
+
+  <!-- The table, seen low and close. -->
+  <ellipse cx="600" cy="500" rx="430" ry="112" fill="#0d0b08"/>
+  <ellipse cx="600" cy="492" rx="430" ry="112" fill="#191309"/>
+  <ellipse cx="600" cy="492" rx="430" ry="112" fill="none" stroke="#d4af37" stroke-opacity="0.22" stroke-width="2"/>
+
+  <!-- Three candles, unevenly spaced. -->
+  <g>
+    <rect x="392" y="410" width="17" height="62" rx="5" fill="#0e0c09" stroke="#d4af37" stroke-opacity="0.25"/>
+    <rect x="592" y="392" width="17" height="80" rx="5" fill="#0e0c09" stroke="#d4af37" stroke-opacity="0.25"/>
+    <rect x="778" y="418" width="17" height="54" rx="5" fill="#0e0c09" stroke="#d4af37" stroke-opacity="0.25"/>
+    <path d="M400 386 Q392 404 400 410 Q409 404 400 386Z" fill="#f6e3b8" fill-opacity="0.9"/>
+    <path d="M600 366 Q591 386 600 392 Q610 386 600 366Z" fill="#f6e3b8" fill-opacity="0.9"/>
+    <path d="M786 394 Q778 412 786 418 Q795 412 786 394Z" fill="#f6e3b8" fill-opacity="0.9"/>
+    <circle cx="400" cy="396" r="66" fill="url(#sc-flame)"/>
+    <circle cx="600" cy="376" r="78" fill="url(#sc-flame)"/>
+    <circle cx="786" cy="404" r="62" fill="url(#sc-flame)"/>
+  </g>
+
+  <!-- Planchette on the board, mid-move. -->
+  <g transform="rotate(-8 640 520)">
+    <path d="M590 496 L690 496 L664 552 L616 552 Z" fill="#120e09" stroke="#d4af37" stroke-opacity="0.4" stroke-width="2"/>
+    <circle cx="640" cy="518" r="14" fill="none" stroke="#d4af37" stroke-opacity="0.5" stroke-width="2"/>
+  </g>
+
+  <!-- Hands resting at the table edge, cropped by the frame. -->
+  <g fill="#07060a" fill-opacity="0.85">
+    <path d="M230 540 Q268 500 318 520 Q352 534 348 566 L232 588 Z"/>
+    <path d="M970 548 Q932 508 882 528 Q848 542 852 574 L968 596 Z"/>
+  </g>
+
+  <!-- Smoke drifting off the tallest candle. -->
+  <g fill="none" stroke="#d4af37" stroke-opacity="0.14" stroke-width="2">
+    <path d="M600 352 Q582 300 604 258 Q626 214 606 168"/>
+    <path d="M400 374 Q388 336 404 306"/>
+  </g>
+
+  <rect width="1200" height="675" fill="url(#sc-vig)"/>
+</svg>

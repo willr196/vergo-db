@@ -1,0 +1,774 @@
+/**
+ * VERGO — Special Events theme layer.
+ *
+ * Loaded AFTER /vergo-site.css and scoped to `body.se-page`, so every token
+ * override here dies at the edge of these pages. Nothing in this file may
+ * change /hire, /work or the homepage.
+ *
+ * Seasonal themes are a second class on the same body element
+ * (`se-page se-theme-halloween`). To add Christmas later, copy the
+ * `.se-theme-halloween` token block and change the colour values — the
+ * component layer below reads from tokens, never from hex.
+ *
+ * IMAGE SLOTS. Every photographic area is a CSS custom property with a
+ * gradient fallback, so dropping in real photography is a one-line change:
+ *   --se-hero-img      hero backdrop     (see .se-hero)
+ *   --se-concept-img   per-concept card  (set on the .se-concept element)
+ * Expected filenames live in /images/special-events/README.md.
+ */
+
+/* ------------------------------------------------------------------ *
+ * Theme tokens
+ * ------------------------------------------------------------------ */
+
+body.se-page {
+  --hairline: rgba(242, 239, 232, 0.10);
+  --hairline-soft: rgba(242, 239, 232, 0.07);
+  --hairline-strong: rgba(242, 239, 232, 0.14);
+  --panel-fill: rgba(242, 239, 232, 0.025);
+  --card-fill: linear-gradient(180deg, rgba(242, 239, 232, 0.05), rgba(242, 239, 232, 0.008));
+}
+
+/* Black, gold and orange — and each one has exactly one job, which is the only
+ * thing stopping a three-colour scheme turning to mud:
+ *
+ *   BLACK   the ground. Everything sits on it.
+ *   GOLD    the frame. Type and rules only — eyebrows, section labels, the
+ *           headline accent, index numerals, hairlines. This is the VERGO
+ *           signature and it is what carries over to Christmas and NYE.
+ *   ORANGE  the action. Every control, every state: buttons, hovers, checked
+ *           boxes, selected pills — plus the ember glow in the backdrop.
+ *
+ * Gold never becomes a button and orange never becomes a heading. Keep it that
+ * way and the page stays premium rather than seasonal-aisle.
+ */
+body.se-theme-halloween {
+  --bg: #09080a;
+  --footer-bg: #060507;
+  --header-bg: rgba(9, 8, 10, 0.9);
+
+  /* Halloween ember. 6.6:1 against --accent-ink, so .btn-primary stays AA. */
+  --accent: #ed7a33;
+  --accent-hover: #f79355;
+  --accent-ink: #17110c;
+  --accent-rgb: 237, 122, 51;
+
+  /* VERGO gold — the same value as the brand mark in vergo-site.css.
+     9.4:1 on this background, so it is safe for small type. */
+  --se-gold: #d4af37;
+  --se-gold-hover: #e5c45f;
+  --se-gold-rgb: 212, 175, 55;
+
+  background-image:
+    radial-gradient(90% 50% at 78% -8%, rgba(var(--se-gold-rgb), 0.10), rgba(var(--se-gold-rgb), 0) 62%),
+    radial-gradient(80% 45% at 8% 4%, rgba(var(--accent-rgb), 0.11), rgba(var(--accent-rgb), 0) 60%);
+  background-attachment: fixed;
+}
+
+/* The header mark becomes the pumpkin for the length of these pages. The V is
+   still the V — it is just carved now. Scoped, so the logo is untouched
+   everywhere else on the site. */
+.se-page .brand-mark {
+  background: transparent url('/images/special-events/vergo-pumpkin.svg') center / contain no-repeat;
+  border: none;
+  border-radius: 0;
+  width: 30px;
+  height: 30px;
+  color: transparent;
+  font-size: 0;
+}
+
+/* Divider ornament — the same motif, small, between two bands. */
+.se-ornament {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 8px 40px 0;
+}
+.se-ornament::before,
+.se-ornament::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(var(--se-gold-rgb), 0.34), transparent);
+}
+.se-ornament span {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+  background: url('/images/special-events/vergo-pumpkin.svg') center / contain no-repeat;
+}
+@media (max-width: 640px) {
+  .se-ornament { padding: 4px 20px 0; gap: 14px; }
+  .se-ornament span { width: 42px; height: 42px; }
+}
+
+/* Gold owns the eyebrow and the section labels — the two bits of type that
+   appear on every section and say "VERGO" before the heading does. */
+.se-page .eyebrow { color: var(--se-gold); }
+.se-page .section-label { color: var(--se-gold); opacity: 0.72; }
+
+/* The site's secondary button picks up gold on hover, so the hero shows both
+   colours side by side without either one shouting. */
+.se-page .btn-secondary:hover,
+.se-page .btn-secondary:focus-visible {
+  border-color: var(--se-gold);
+  color: var(--se-gold-hover);
+}
+
+/* Smooth in-page jumps for the hero's "Explore what we can do" link, without
+   touching scroll behaviour anywhere else on the site. */
+html:has(body.se-page) { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html:has(body.se-page) { scroll-behavior: auto; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Shared bits
+ * ------------------------------------------------------------------ */
+
+/* Section headings carry the page now that the standfirst paragraphs are gone,
+   so they run bigger than the site default. */
+.se-h2 {
+  font-size: clamp(32px, 5vw, 54px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  max-width: 20ch;
+  margin: 0 0 4px;
+  text-wrap: balance;
+}
+
+.se-intro { max-width: 46ch; }
+.se-intro h2 { margin: 0 0 16px; }
+.se-intro p { color: var(--text-secondary); margin: 0; font-size: 18px; }
+
+.se-band { border-top: 1px solid var(--hairline-soft); }
+.se-band--deep { background: linear-gradient(180deg, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.15)); }
+
+
+/* ------------------------------------------------------------------ *
+ * Hero
+ * ------------------------------------------------------------------ */
+
+.se-hero {
+  position: relative;
+  /* Point this at a real photograph to replace the stand-in backdrop.
+     Nothing else in the hero needs to change. */
+  --se-hero-img: url('/images/special-events/halloween-hero-cast.svg');
+  /* Layers paint top-down, so the pumpkin sits ABOVE the scrim and keeps its
+     glow, while the cast artwork underneath stays knocked back.
+     Keep the scrim light: the artwork carries its own left-side and vertical
+     scrims for headline legibility, so a heavy layer here double-darkens and
+     the cast disappears. */
+  background-image:
+    radial-gradient(70% 55% at 20% 20%, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0) 62%),
+    radial-gradient(55% 45% at 85% 6%, rgba(var(--se-gold-rgb), 0.09), rgba(var(--se-gold-rgb), 0) 60%),
+    var(--se-pumpkin),
+    linear-gradient(to top, var(--bg) 0%, rgba(9, 8, 10, 0.34) 30%, rgba(9, 8, 10, 0.1) 100%),
+    var(--se-hero-img);
+  background-size: cover, cover, 360px auto, cover, cover;
+  /* Bottom-anchored so the cast stands on the hero's edge instead of being
+     cropped through the middle. */
+  /* Bottom offset clears the noun strip, which is inside the hero — at a
+     smaller offset the pumpkin gets its base clipped off. */
+  background-position: center, center, right 7% bottom 92px, center, center bottom;
+  background-repeat: no-repeat;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+/* The VERGO pumpkin: a jack-o'-lantern carved with the brand V rather than a
+   face. One motif, used at size, instead of Halloween clip art everywhere. */
+body.se-theme-halloween { --se-pumpkin: url('/images/special-events/vergo-pumpkin.svg'); }
+
+@media (max-width: 900px) {
+  .se-hero { background-size: cover, cover, 190px auto, cover, cover; }
+}
+/* On a phone there is no side room, so the pumpkin gets a band of its own
+   under the buttons rather than sitting on top of them. The space comes from
+   .se-hero-inner's own padding rule below — setting padding-bottom here would
+   be wiped by that later `padding:` shorthand. */
+@media (max-width: 640px) {
+  .se-hero { background-size: cover, cover, 150px auto, cover, cover; }
+  .se-hero { background-position: center, center, right 7% bottom 132px, center, center bottom; }
+}
+
+.se-hero-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 96px 40px 80px;
+}
+@media (min-width: 900px) { .se-hero-inner { padding: 150px 40px 120px; } }
+/* The deep bottom padding is deliberate: it is the band the pumpkin sits in,
+   clear of the buttons above and the noun strip below. */
+@media (max-width: 640px) { .se-hero-inner { padding: 64px 20px 200px; } }
+
+/* Three stacked words, set as large as the viewport will take. The headline is
+   the whole message now, so it gets the room the copy used to take. */
+.se-hero h1 {
+  font-size: clamp(52px, 11vw, 132px);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  margin: 0 0 22px;
+}
+.se-hero h1 .se-hero-line2 { color: var(--se-gold); }
+
+.se-hero .lede { max-width: 42ch; font-size: clamp(17px, 2.2vw, 21px); margin-top: 0; }
+.se-hero .btn-row { margin-top: 34px; }
+
+/* Gold rule of plain nouns under the hero — says what the page sells without
+   another sentence, and gives the fold an edge to sit on. */
+.se-hero-strip {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  border-top: 1px solid rgba(var(--se-gold-rgb), 0.22);
+}
+.se-hero-strip li {
+  flex: 1 1 auto;
+  padding: 18px 22px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--se-gold);
+  white-space: nowrap;
+  border-right: 1px solid rgba(var(--se-gold-rgb), 0.14);
+  text-align: center;
+}
+.se-hero-strip li:last-child { border-right: none; }
+@media (max-width: 760px) {
+  .se-hero-strip li { flex: 1 0 50%; border-right: none; font-size: 11px; padding: 14px 16px; text-align: left; }
+}
+
+/* ------------------------------------------------------------------ *
+ * How involved do you want us to be? — three prominent tiers
+ * ------------------------------------------------------------------ */
+
+.se-involve-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+  margin-top: 44px;
+}
+@media (min-width: 900px) { .se-involve-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.se-involve {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 34px 30px 30px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+  background: var(--card-fill);
+  overflow: hidden;
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+.se-involve::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, var(--se-gold), rgba(var(--accent-rgb), 0.55));
+  opacity: 0.55;
+}
+.se-involve:hover { border-color: rgba(var(--accent-rgb), 0.55); transform: translateY(-3px); }
+
+.se-involve-num {
+  font-family: var(--font-serif);
+  font-size: 76px;
+  line-height: 0.85;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(var(--se-gold-rgb), 0.55);
+  display: block;
+  margin-bottom: 6px;
+}
+.se-involve h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 31px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 14px 0 10px;
+  color: var(--text);
+}
+/* One short line under the heading, in gold, then straight into the list. */
+.se-involve-sub {
+  margin: 0 0 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--hairline-soft);
+  color: var(--se-gold);
+  font-size: 15px;
+}
+
+.se-involve-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+.se-involve-list li { padding-left: 18px; position: relative; }
+.se-involve-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 6px;
+  height: 1px;
+  background: var(--se-gold);
+}
+
+
+/* ------------------------------------------------------------------ *
+ * What can VERGO provide? — service grid
+ * ------------------------------------------------------------------ */
+
+.se-service-grid {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: 1fr;
+  margin-top: 44px;
+  background: var(--hairline-soft);
+  border: 1px solid var(--hairline-soft);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+@media (min-width: 620px) { .se-service-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1000px) { .se-service-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.se-service {
+  background: var(--bg);
+  padding: 30px 26px 32px;
+  transition: background-color 180ms ease;
+}
+.se-service:hover { background: rgba(242, 239, 232, 0.035); }
+
+/* Gold line glyph per service. Reads faster than a number and does the job the
+   deleted sentences used to. currentColor keeps the SVGs themeable. */
+.se-service-ico {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(var(--se-gold-rgb), 0.3);
+  border-radius: 50%;
+  color: var(--se-gold);
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+.se-service-ico svg { width: 23px; height: 23px; stroke-linecap: round; stroke-linejoin: round; }
+.se-service:hover .se-service-ico {
+  border-color: var(--se-gold);
+  background: rgba(var(--se-gold-rgb), 0.1);
+}
+
+.se-service-idx {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--se-gold);
+}
+.se-service h3 { margin: 20px 0 8px; font-size: 17px; color: var(--text); }
+.se-service p { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--text-muted); }
+
+/* ------------------------------------------------------------------ *
+ * Concepts — "Choose a world"
+ * ------------------------------------------------------------------ */
+
+.se-concept-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+  margin-top: 44px;
+}
+@media (min-width: 700px) { .se-concept-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1000px) { .se-concept-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.se-concept {
+  --se-c1: #2b2015;
+  --se-c2: #0a0908;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--card-fill);
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+.se-concept:hover { border-color: rgba(var(--accent-rgb), 0.5); transform: translateY(-3px); }
+.se-concept-inner { height: 100%; display: flex; flex-direction: column; }
+
+/* The first concept is the flagship — full row, art running the whole width
+   with the title over it. */
+@media (min-width: 1000px) {
+  .se-concept--feature { grid-column: span 3; }
+  .se-concept--feature .se-concept-media { aspect-ratio: 32 / 9; }
+  .se-concept--feature .se-concept-title { font-size: clamp(34px, 4vw, 58px); }
+  .se-concept--feature .se-concept-body { padding: 24px 30px 28px; }
+}
+
+/* Image slot. Set --se-concept-img on the .se-concept element to swap the
+   artwork for real photography; the tint is the fallback if a file goes
+   missing. The title sits on the image, so the scrim below is load-bearing. */
+.se-concept-media {
+  aspect-ratio: 4 / 3;
+  background-image: var(--se-concept-img, linear-gradient(145deg, var(--se-c1), var(--se-c2)));
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+.se-concept-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(6, 5, 8, 0.92) 2%, rgba(6, 5, 8, 0.45) 34%, rgba(6, 5, 8, 0) 62%);
+}
+
+.se-concept-title {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 0 24px 20px;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(26px, 3.4vw, 34px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.se-concept-body { padding: 22px 24px 26px; display: flex; flex-direction: column; flex: 1; }
+
+.se-chip-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 10px;
+}
+.se-chips { display: flex; flex-wrap: wrap; gap: 7px; list-style: none; margin: 0; padding: 0; }
+.se-chip {
+  font-size: 13px;
+  line-height: 1.2;
+  color: var(--text-secondary);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-pill);
+  padding: 6px 12px;
+  background: rgba(242, 239, 232, 0.03);
+}
+
+/* Tighter than the site default — these are four short lines, not prose. */
+.se-fact-list { margin-top: 26px; gap: 12px; font-size: 16px; }
+.se-fact-list li { padding-bottom: 12px; border-bottom: 1px solid var(--hairline-soft); }
+.se-fact-list li:last-child { border-bottom: none; padding-bottom: 0; }
+
+.se-concept-note {
+  margin-top: 28px;
+  padding: 22px 24px;
+  border: 1px solid var(--hairline-strong);
+  border-left: 2px solid var(--se-gold);
+  border-radius: var(--radius);
+  background: var(--panel-fill);
+  color: var(--text-secondary);
+  font-size: 16px;
+  /* The shell is 1180px; unconstrained this ran to ~135 characters a line. */
+  max-width: 78ch;
+}
+.se-concept-note strong { color: var(--text); font-weight: 600; }
+
+/* Full-width caveats under a section. Same job as .form-hint, but these sit in
+   a 1180px shell rather than a form column, so they need a measure of their
+   own — otherwise they run to 180+ characters a line. */
+.se-page .se-caveat {
+  max-width: 76ch;
+  margin-top: 26px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------------ *
+ * Makeup
+ * ------------------------------------------------------------------ */
+
+.se-makeup-figure {
+  margin: 0 0 40px;
+  border: 1px solid var(--hairline-soft);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #0d0b09;
+}
+.se-makeup-figure img { width: 100%; height: auto; aspect-ratio: 21 / 9; object-fit: cover; }
+/* A 21:9 band is ~165px tall on a phone, which reads as an empty box rather
+   than an image. Give it more height where the page is narrow. */
+@media (max-width: 640px) {
+  .se-makeup-figure img { aspect-ratio: 3 / 2; }
+}
+
+.se-makeup-split {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 820px) { .se-makeup-split { grid-template-columns: 1fr 1fr; } }
+
+.se-makeup-panel {
+  padding: 32px 30px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+  background: var(--card-fill);
+}
+.se-makeup-panel h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 27px;
+  line-height: 1.1;
+  margin: 0 0 12px;
+  color: var(--text);
+}
+/* :not() for the same reason as .se-involve above — a bare `> p` is (0,1,1)
+   and would quietly win over .se-chip-label's own colour and margin. */
+.se-makeup-panel > p:not(.se-chip-label) { color: var(--text-secondary); margin: 0 0 20px; }
+.se-makeup-panel .se-chip-label { margin: 0 0 12px; }
+
+.se-makeup-cta { margin-top: 32px; }
+
+/* ------------------------------------------------------------------ *
+ * Build your Halloween team — the enquiry
+ * ------------------------------------------------------------------ */
+
+.se-form-section {
+  border-top: 1px solid var(--hairline-soft);
+  background:
+    radial-gradient(60% 40% at 50% 0%, rgba(var(--accent-rgb), 0.09), rgba(var(--accent-rgb), 0) 70%),
+    rgba(0, 0, 0, 0.28);
+}
+.se-form-shell { max-width: 860px; margin: 0 auto; padding: 0 40px; }
+@media (max-width: 640px) { .se-form-shell { padding: 0 20px; } }
+
+.se-form-head { text-align: center; max-width: 40ch; margin: 0 auto 44px; }
+.se-form-head h2 { margin: 0 0 14px; }
+.se-form-head p { color: var(--text-secondary); margin: 0; }
+
+.se-fieldset { border: none; padding: 0; margin: 0 0 34px; }
+.se-fieldset > legend {
+  display: block;
+  padding: 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 25px;
+  line-height: 1.15;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.se-fieldset .form-hint { margin: 0 0 16px; font-size: 0.88rem; }
+
+/* Multi-select needs. Built on the site's .checkbox-item so the control, its
+   hit area and its focus ring stay identical to the other forms. */
+.se-need-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 560px) { .se-need-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 860px) { .se-need-grid { grid-template-columns: repeat(3, 1fr); } }
+.se-need-grid .checkbox-item { transition: border-color 140ms ease, background-color 140ms ease; }
+.se-need-grid .checkbox-item:hover { border-color: rgba(var(--accent-rgb), 0.45); }
+.se-need-grid .checkbox-item input { accent-color: var(--accent); }
+.se-need-grid .checkbox-item:has(input:checked) {
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.10);
+}
+.se-need-grid .checkbox-item:has(input:checked) label { color: var(--text); }
+
+/* Atmosphere / interaction pickers — radios drawn as pills.
+ *
+ * The baseline keeps the native radio visible inside the pill, so the control
+ * is readable and its state obvious with no :has() support at all. Only where
+ * :has() works do we hide the dot and let the whole pill carry the state —
+ * otherwise a browser without :has() would show an invisible radio and no
+ * selected styling, which is worse than a plain radio group. */
+.se-pillset { display: flex; flex-wrap: wrap; gap: 10px; }
+.se-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-pill);
+  padding: 11px 18px;
+  cursor: pointer;
+  font-size: 15px;
+  color: var(--text-secondary);
+  background: var(--panel-fill);
+  min-height: 46px;
+  transition: border-color 140ms ease, color 140ms ease, background-color 140ms ease;
+}
+.se-pill input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  flex: 0 0 auto;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.se-pill:hover { border-color: rgba(var(--accent-rgb), 0.45); color: var(--text); }
+
+@supports selector(:has(*)) {
+  .se-pill input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+  .se-pill { gap: 0; }
+  /* No weight change on select — these pills sit in a wrapping row, and a
+     bolder label would reflow the ones after it. */
+  .se-pill:has(input:checked) {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.16);
+    color: var(--text);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+  .se-pill:has(input:focus-visible) { outline: var(--focus); outline-offset: 2px; }
+}
+
+.se-form-actions { margin-top: 34px; }
+.se-form-actions .btn { font-size: 17px; padding: 17px 30px; }
+.se-form-reassure {
+  margin: 14px 0 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* ------------------------------------------------------------------ *
+ * Who this is for
+ * ------------------------------------------------------------------ */
+
+.se-audience { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; margin: 32px 0 0; padding: 0; }
+.se-audience li {
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-pill);
+  padding: 11px 20px;
+  font-size: 15px;
+  color: var(--text-secondary);
+  background: var(--panel-fill);
+}
+
+/* ------------------------------------------------------------------ *
+ * Casting / trust + the safety line
+ * ------------------------------------------------------------------ */
+
+.se-split {
+  display: grid;
+  gap: 44px;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+@media (min-width: 880px) { .se-split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+
+/* The distinction that has to survive a skim: themed hospitality staff are
+   not being sold as actors. */
+.se-distinction {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+}
+@media (min-width: 560px) { .se-distinction { grid-template-columns: 1fr 1fr; } }
+.se-distinction div {
+  padding: 22px 22px 24px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+  background: var(--panel-fill);
+}
+.se-distinction h3 { margin: 0 0 10px; font-size: 17px; color: var(--text); }
+.se-distinction p { margin: 0; font-size: 15px; color: var(--text-secondary); }
+
+.se-safety {
+  border-top: 1px solid var(--hairline-soft);
+  background: rgba(var(--se-gold-rgb), 0.05);
+}
+.se-safety-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 28px;
+  align-items: baseline;
+}
+@media (max-width: 640px) { .se-safety-inner { padding: 32px 20px; } }
+.se-safety-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--se-gold);
+  flex: 0 0 auto;
+}
+.se-safety p { margin: 0; color: var(--text-secondary); max-width: 70ch; font-size: 16px; }
+
+/* ------------------------------------------------------------------ *
+ * Special Events hub (/special-events)
+ * ------------------------------------------------------------------ */
+
+.se-hub-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+  margin-top: 44px;
+}
+@media (min-width: 700px) { .se-hub-grid { grid-template-columns: 1fr 1fr; } }
+
+.se-hub-card {
+  display: flex;
+  flex-direction: column;
+  padding: 34px 32px 32px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+  background: var(--card-fill);
+  text-decoration: none;
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+a.se-hub-card:hover, a.se-hub-card:focus-visible {
+  border-color: rgba(var(--accent-rgb), 0.6);
+  transform: translateY(-3px);
+}
+.se-hub-card--live { grid-column: 1 / -1; }
+@media (min-width: 700px) {
+  .se-hub-card--live { padding: 46px 44px 44px; }
+}
+.se-hub-status {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--se-gold);
+}
+.se-hub-card--soon .se-hub-status { color: var(--text-muted); }
+.se-hub-card h2, .se-hub-card h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin: 16px 0 12px;
+}
+.se-hub-card--live h2 { font-size: clamp(34px, 5vw, 48px); line-height: 1.05; }
+.se-hub-card h3 { font-size: 24px; line-height: 1.1; }
+.se-hub-card p { color: var(--text-secondary); margin: 0 0 24px; max-width: 46ch; }
+.se-hub-cta { font-size: 15px; font-weight: 600; color: var(--text); margin-top: auto; }
+.se-hub-card--soon p:last-child { margin-bottom: 0; }

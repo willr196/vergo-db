@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1100" width="2400" height="1100" role="presentation" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="hr-sky" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0%" stop-color="#241708"/>
+      <stop offset="45%" stop-color="#120d0a"/>
+      <stop offset="100%" stop-color="#09080a"/>
+    </linearGradient>
+    <radialGradient id="hr-glow" cx="0.5" cy="0.72" r="0.62">
+      <stop offset="0%" stop-color="#ed7a33" stop-opacity="0.72"/>
+      <stop offset="45%" stop-color="#ed7a33" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#ed7a33" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="hr-moon" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#f6e3b8" stop-opacity="0.5"/>
+      <stop offset="28%" stop-color="#d4af37" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#d4af37" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hr-floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ed7a33" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#ed7a33" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="hr-scrim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#09080a" stop-opacity="0.42"/>
+      <stop offset="42%" stop-color="#09080a" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#09080a" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="hr-left" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#09080a" stop-opacity="0.86"/>
+      <stop offset="48%" stop-color="#09080a" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#09080a" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="2400" height="1100" fill="url(#hr-sky)"/>
+  <circle cx="1780" cy="250" r="430" fill="url(#hr-moon)"/>
+  <circle cx="1780" cy="250" r="96" fill="#f6e3b8" fill-opacity="0.3"/>
+  <ellipse cx="1300" cy="880" rx="1200" ry="420" fill="url(#hr-glow)"/>
+
+  <!-- The cast, backlit. Nine silhouettes, deliberately mixed: some are
+       hospitality, some are performers, and that is the whole pitch. -->
+  <g fill="#070609" fill-opacity="0.94">
+    <!-- 1. bellboy, pillbox hat -->
+    <g transform="translate(760 0)">
+      <rect x="-26" y="596" width="52" height="34" rx="6"/>
+      <ellipse cx="0" cy="660" rx="30" ry="35"/>
+      <path d="M-58 1000 Q-48 712 0 712 Q48 712 58 1000 Z"/>
+    </g>
+    <!-- 2. tall figure, long coat -->
+    <g transform="translate(900 0)">
+      <ellipse cx="0" cy="588" rx="32" ry="38"/>
+      <path d="M-66 1000 Q-56 636 0 636 Q56 636 66 1000 Z"/>
+      <path d="M-66 840 L-92 1000 L-56 1000 Z"/>
+      <path d="M66 840 L92 1000 L56 1000 Z"/>
+    </g>
+    <!-- 3. waiter with a tray -->
+    <g transform="translate(1052 0)">
+      <ellipse cx="0" cy="640" rx="29" ry="34"/>
+      <path d="M-54 1000 Q-45 692 0 692 Q45 692 54 1000 Z"/>
+      <path d="M28 700 L96 654" stroke="#070609" stroke-width="15" stroke-linecap="round"/>
+      <ellipse cx="112" cy="646" rx="52" ry="10"/>
+    </g>
+    <!-- 4. ringmaster, top hat and cane -->
+    <g transform="translate(1210 0)">
+      <rect x="-30" y="556" width="60" height="52" rx="5"/>
+      <rect x="-46" y="602" width="92" height="11" rx="5"/>
+      <ellipse cx="0" cy="644" rx="31" ry="36"/>
+      <path d="M-60 1000 Q-50 696 0 696 Q50 696 60 1000 Z"/>
+      <path d="M52 730 L86 1000" stroke="#070609" stroke-width="12"/>
+    </g>
+    <!-- 5. gown, wide skirt -->
+    <g transform="translate(1368 0)">
+      <ellipse cx="0" cy="612" rx="30" ry="35"/>
+      <path d="M-96 1000 Q-70 664 0 664 Q70 664 96 1000 Z"/>
+    </g>
+    <!-- 6. hooded figure -->
+    <g transform="translate(1522 0)">
+      <path d="M-38 700 Q-38 608 0 608 Q38 608 38 700 Z"/>
+      <path d="M-72 1000 Q-60 690 0 690 Q60 690 72 1000 Z"/>
+    </g>
+    <!-- 7. bartender, shaker -->
+    <g transform="translate(1668 0)">
+      <ellipse cx="0" cy="650" rx="29" ry="34"/>
+      <path d="M-54 1000 Q-45 702 0 702 Q45 702 54 1000 Z"/>
+      <path d="M-30 712 L-78 640" stroke="#070609" stroke-width="15" stroke-linecap="round"/>
+      <rect x="-98" y="596" width="34" height="54" rx="7"/>
+    </g>
+    <!-- 8. shorter figure, hands raised -->
+    <g transform="translate(1800 0)">
+      <ellipse cx="0" cy="672" rx="27" ry="32"/>
+      <path d="M-50 1000 Q-42 720 0 720 Q42 720 50 1000 Z"/>
+      <path d="M-26 734 L-62 672 M26 734 L62 672" stroke="#070609" stroke-width="14" stroke-linecap="round"/>
+    </g>
+    <!-- 9. tall, at the edge -->
+    <g transform="translate(1944 0)">
+      <ellipse cx="0" cy="606" rx="30" ry="36"/>
+      <path d="M-58 1000 Q-48 656 0 656 Q48 656 58 1000 Z"/>
+    </g>
+  </g>
+
+  <!-- Gold rim light picking out shoulders and hats. -->
+  <g stroke="#d4af37" stroke-opacity="0.6" stroke-width="3" fill="none" stroke-linecap="round">
+    <path d="M786 600 L786 628"/>
+    <path d="M932 594 Q932 640 956 652"/>
+    <path d="M1081 646 Q1086 682 1100 694"/>
+    <path d="M1240 560 L1240 606"/>
+    <path d="M1398 618 Q1400 656 1420 672"/>
+    <path d="M1560 614 Q1560 690 1586 700"/>
+    <path d="M1697 656 Q1702 692 1714 704"/>
+    <path d="M1827 678 Q1832 710 1842 724"/>
+    <path d="M1974 612 Q1976 650 1994 664"/>
+  </g>
+
+  <!-- Floor wash under the line-up. -->
+  <rect x="600" y="960" width="1600" height="140" fill="url(#hr-floor)"/>
+  <path d="M600 1000 L2200 1000" stroke="#ed7a33" stroke-opacity="0.22" stroke-width="2"/>
+
+  <rect width="2400" height="1100" fill="url(#hr-scrim)"/>
+  <rect width="1150" height="1100" fill="url(#hr-left)"/>
+</svg>

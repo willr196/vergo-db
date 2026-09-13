@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="presentation" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="ob-field" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1c1f10"/>
+      <stop offset="65%" stop-color="#0e1009"/>
+      <stop offset="100%" stop-color="#08080a"/>
+    </linearGradient>
+    <linearGradient id="ob-cone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f6e3b8" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#d4af37" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="ob-sheet" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#d4af37" stop-opacity="0.07"/>
+      <stop offset="50%" stop-color="#f6e3b8" stop-opacity="0.13"/>
+      <stop offset="100%" stop-color="#d4af37" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="ob-vig" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#09080a" stop-opacity="0.45"/>
+      <stop offset="50%" stop-color="#09080a" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#09080a" stop-opacity="0.82"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#ob-field)"/>
+
+  <!-- Containment lighting from above. -->
+  <path d="M520 0 L680 0 L900 675 L300 675 Z" fill="url(#ob-cone)"/>
+
+  <!-- Hanging plastic sheeting, with a figure on the wrong side of it. -->
+  <rect x="180" y="0" width="840" height="560" fill="url(#ob-sheet)"/>
+  <g stroke="#f6e3b8" stroke-opacity="0.08" stroke-width="2" fill="none">
+    <path d="M300 0 L296 560"/><path d="M430 0 L438 560"/><path d="M560 0 L554 560"/>
+    <path d="M690 0 L698 560"/><path d="M820 0 L814 560"/><path d="M930 0 L936 560"/>
+  </g>
+  <path d="M180 545 Q300 575 420 548 Q540 578 660 550 Q780 578 900 550 Q960 564 1020 552 L1020 560 L180 560 Z" fill="#0a0a08" fill-opacity="0.7"/>
+
+  <g fill="#06070a" fill-opacity="0.72">
+    <ellipse cx="600" cy="250" rx="46" ry="56"/>
+    <path d="M498 545 Q512 340 600 340 Q688 340 702 545 Z"/>
+  </g>
+
+  <!-- Hazard band. Angled so it reads as tape, not a UI stripe. -->
+  <g transform="rotate(-3 600 620)">
+    <rect x="-40" y="596" width="1280" height="46" fill="#0b0a08"/>
+    <g fill="#ed7a33" fill-opacity="0.62">
+      <path d="M-40 642 L6 596 L74 596 L28 642 Z"/><path d="M96 642 L142 596 L210 596 L164 642 Z"/>
+      <path d="M232 642 L278 596 L346 596 L300 642 Z"/><path d="M368 642 L414 596 L482 596 L436 642 Z"/>
+      <path d="M504 642 L550 596 L618 596 L572 642 Z"/><path d="M640 642 L686 596 L754 596 L708 642 Z"/>
+      <path d="M776 642 L822 596 L890 596 L844 642 Z"/><path d="M912 642 L958 596 L1026 596 L980 642 Z"/>
+      <path d="M1048 642 L1094 596 L1162 596 L1116 642 Z"/><path d="M1184 642 L1230 596 L1298 596 L1252 642 Z"/>
+    </g>
+  </g>
+
+  <rect width="1200" height="675" fill="url(#ob-vig)"/>
+</svg>
