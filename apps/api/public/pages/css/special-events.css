@@ -214,7 +214,25 @@ body.se-theme-halloween { --se-pumpkin: url('/images/special-events/vergo-pumpki
 }
 .se-hero h1 .se-hero-line2 { color: var(--se-gold); }
 
-.se-hero .lede { max-width: 42ch; font-size: clamp(17px, 2.2vw, 21px); margin-top: 0; }
+/* The offer in one sentence, set large enough to be read before the paragraph
+   under it. The headline says which night; this says what you get. Bone, not
+   gold and not orange — gold is already carrying the headline accent and
+   orange is reserved for controls. */
+.se-hero-claim {
+  max-width: 18ch;
+  margin: 0 0 20px;
+  /* Sans at 600 against the serif headline. Three families doing three jobs:
+     serif names the night, sans-bold makes the claim, sans-regular carries the
+     detail. Matching the headline's serif here would read as a second
+     headline and the hierarchy would flatten. */
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: clamp(24px, 3.4vw, 36px);
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+}
+
+.se-hero .lede { max-width: 50ch; font-size: clamp(16px, 1.9vw, 19px); margin-top: 0; opacity: 0.86; }
 .se-hero .btn-row { margin-top: 34px; }
 
 /* Gold rule of plain nouns under the hero — says what the page sells without
@@ -344,7 +362,13 @@ body.se-theme-halloween { --se-pumpkin: url('/images/special-events/vergo-pumpki
   overflow: hidden;
 }
 @media (min-width: 620px) { .se-service-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1000px) { .se-service-grid { grid-template-columns: repeat(4, 1fr); } }
+/* Nine services, so three columns above 1000px fills every row exactly. In the
+   two-column band the ninth would sit alone against an empty cell, which shows
+   as a block of hairline colour, so it takes the whole row instead. */
+@media (min-width: 620px) and (max-width: 999px) {
+  .se-service-grid > .se-service:last-child { grid-column: 1 / -1; }
+}
+@media (min-width: 1000px) { .se-service-grid { grid-template-columns: repeat(3, 1fr); } }
 
 .se-service {
   background: var(--bg);
