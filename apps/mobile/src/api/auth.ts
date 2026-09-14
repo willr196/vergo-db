@@ -276,6 +276,9 @@ export const authApi = {
       phone: normalizeEditableText(data.phone),
       website: normalizeEditableText(data.website),
       postcode: normalizeEditableText(data.postcode),
+      description: normalizeEditableText(data.description),
+      address: normalizeEditableText(data.address),
+      city: normalizeEditableText(data.city),
     });
     
     if (response.data.ok && response.data.user) {
