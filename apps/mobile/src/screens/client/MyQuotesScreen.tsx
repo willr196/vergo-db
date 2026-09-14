@@ -1,7 +1,6 @@
 /**
  * Client My Quotes Screen
  * List of quote requests submitted by the client
- * REPLACES: MyJobsScreen (jobs-based) with quotes-based functionality
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
@@ -417,6 +416,4 @@ const styles = StyleSheet.create({
   },
 });
 
-// Export as both names for compatibility
-export { MyQuotesScreen as MyJobsScreen };
 export default MyQuotesScreen;

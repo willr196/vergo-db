@@ -8,8 +8,6 @@ import { authApi, registerAuthFailureHandler } from '../api';
 import { isClientCompanyUser, isJobSeekerUser } from '../types';
 import { useJobsStore } from './jobsStore';
 import { useApplicationsStore } from './applicationsStore';
-import { useClientJobsStore } from './clientJobsStore';
-import { useClientApplicationsStore } from './clientApplicationsStore';
 import { useNetworkStore } from './networkStore';
 import { useNotificationsStore } from './notificationsStore';
 import type {
@@ -86,8 +84,6 @@ async function handleRegistration(
 function resetUserData(): void {
   useJobsStore.getState().reset();
   useApplicationsStore.getState().reset();
-  useClientJobsStore.getState().reset();
-  useClientApplicationsStore.getState().reset();
   useNetworkStore.getState().clearQueueState();
   useNotificationsStore.getState().reset();
 }
