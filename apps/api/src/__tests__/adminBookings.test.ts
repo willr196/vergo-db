@@ -17,6 +17,10 @@ setRequiredEnv();
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const express = require('express');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
+const cookieParser = require('cookie-parser');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { ADMIN_TEST_SESSION_ID, csrfHeaders } = require('./helpers/csrf');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { prisma } = require('../prisma');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const adminBookingsModule = require('../routes/adminBookings');
@@ -67,8 +71,10 @@ async function inject(app: any, opts: { method: string; url: string; headers?: R
 function createAdminApp() {
   const app = express();
   app.use(express.json());
+  app.use(cookieParser());
   app.use((req: any, _res: any, next: any) => {
     req.session = {
+      id: ADMIN_TEST_SESSION_ID,
       isAdmin: true,
       username: 'admin',
       loginTime: Date.now(),
@@ -128,6 +134,7 @@ test('STATUS_TRANSITIONS: PATCH /:id/status rejects an illegal transition with 4
   try {
     const res = await inject(app, {
       method: 'PATCH',
+      headers: csrfHeaders(),
       url: '/api/v1/admin/bookings/b1/status',
       body: JSON.stringify({ status: 'CONFIRMED' }),
     });
@@ -160,6 +167,7 @@ test('STATUS_TRANSITIONS: PATCH /:id/status allows a legal transition through', 
   try {
     const res = await inject(app, {
       method: 'PATCH',
+      headers: csrfHeaders(),
       url: '/api/v1/admin/bookings/b1/status',
       body: JSON.stringify({ status: 'CONFIRMED' }),
     });
@@ -184,6 +192,7 @@ test('POST / rejects a shift whose break is longer than the shift, before touchi
   try {
     const res = await inject(app, {
       method: 'POST',
+      headers: csrfHeaders(),
       url: '/api/v1/admin/bookings',
       body: JSON.stringify({
         clientId: 'c1', staffId: 's1', eventDate: '2026-09-01',
@@ -222,6 +231,7 @@ test('POST / falls back to the PricingTier rate when hourlyRateCharged is omitte
   try {
     const res = await inject(app, {
       method: 'POST',
+      headers: csrfHeaders(),
       url: '/api/v1/admin/bookings',
       body: JSON.stringify({
         clientId: 'c1', staffId: 's1', eventDate: '2026-09-01',
@@ -296,6 +306,7 @@ test('POST /templates/:id/generate is idempotent: re-running skips already-creat
   try {
     const first = await inject(app, {
       method: 'POST',
+      headers: csrfHeaders(),
       url: '/api/v1/admin/bookings/templates/tmpl-1/generate',
       body: JSON.stringify({ weekStarting: '2026-08-17' }),
     });
@@ -309,6 +320,7 @@ test('POST /templates/:id/generate is idempotent: re-running skips already-creat
 
     const second = await inject(app, {
       method: 'POST',
+      headers: csrfHeaders(),
       url: '/api/v1/admin/bookings/templates/tmpl-1/generate',
       body: JSON.stringify({ weekStarting: '2026-08-17' }),
     });

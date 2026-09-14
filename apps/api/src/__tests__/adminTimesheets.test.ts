@@ -16,6 +16,10 @@ setRequiredEnv();
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const express = require('express');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
+const cookieParser = require('cookie-parser');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { ADMIN_TEST_SESSION_ID, csrfHeaders } = require('./helpers/csrf');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { Prisma } = require('@prisma/client');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { prisma } = require('../prisma');
@@ -33,12 +37,12 @@ class MockSocket extends Duplex {
   }
 }
 
-async function inject(app: any, opts: { method: string; url: string; body?: string }) {
+async function inject(app: any, opts: { method: string; url: string; headers?: Record<string, string>; body?: string }) {
   const socket = new MockSocket();
   const req = new http.IncomingMessage(socket as any);
   req.method = opts.method;
   req.url = opts.url;
-  req.headers = { 'content-type': 'application/json' };
+  req.headers = { 'content-type': 'application/json', ...opts.headers };
   const body = Buffer.from(opts.body || '', 'utf8');
   if (body.length) req.headers['content-length'] = String(body.length);
 
@@ -64,8 +68,9 @@ async function inject(app: any, opts: { method: string; url: string; body?: stri
 function createApp() {
   const app = express();
   app.use(express.json());
+  app.use(cookieParser());
   app.use((req: any, _res: any, next: any) => {
-    req.session = { adminId: 'admin-1', adminEmail: 'admin@vergoltd.com', isAdmin: true };
+    req.session = { id: ADMIN_TEST_SESSION_ID, adminId: 'admin-1', adminEmail: 'admin@vergoltd.com', isAdmin: true };
     next();
   });
   app.use('/api/v1/admin/bookings', adminBookings);
@@ -204,6 +209,7 @@ test('a correction cannot put check-out before check-in', async () => {
   try {
     const res = await inject(app, {
       method: 'PATCH',
+      headers: csrfHeaders(),
       url: '/api/v1/admin/bookings/booking-1/timesheet',
       body: JSON.stringify({ checkedOutAt: '2026-09-01T08:00:00.000Z' }),
     });
@@ -234,6 +240,7 @@ test('a correction writes attendance without completing the booking or touching 
   try {
     const res = await inject(app, {
       method: 'PATCH',
+      headers: csrfHeaders(),
       url: '/api/v1/admin/bookings/booking-1/timesheet',
       body: JSON.stringify({ checkedOutAt: '2026-09-01T18:30:00.000Z', hoursWorked: 9.5 }),
     });
@@ -247,4 +254,17 @@ test('a correction writes attendance without completing the booking or touching 
     prismaAny.booking.findUnique = originalFind;
     prismaAny.booking.update = originalUpdate;
   }
+});
+
+// The suites above all send a valid token, which would pass just as happily if the
+// middleware were inert. Pin the negative case so a regression that drops CSRF is loud.
+test('an admin write without a CSRF token is rejected with 403', async () => {
+  const res = await inject(createApp(), {
+    method: 'PATCH',
+    url: '/api/v1/admin/bookings/booking-1/attendance',
+    body: JSON.stringify({ checkInAt: '2026-09-01T09:00:00.000Z' }),
+  });
+
+  assert.equal(res.statusCode, 403);
+  assert.equal(JSON.parse(res.body).code, 'CSRF_TOKEN_INVALID');
 });
