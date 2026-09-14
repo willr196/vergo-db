@@ -19,8 +19,13 @@
   'use strict';
 
   // Configuration with defaults
+  // Digits only, derived from vergo-site-config.js when it is present so the
+  // number lives in exactly one place; the literal is the fallback.
+  const configuredPhone = ((window.VERGO_CONFIG && window.VERGO_CONFIG.contact
+    && window.VERGO_CONFIG.contact.phone) || '+44 7944 505783').replace(/[^0-9]/g, '');
+
   const config = Object.assign({
-    phone: '447944505783',
+    phone: configuredPhone,
     message: 'Hi, I\'d like to enquire about staffing for an event.',
     position: 'right',
     offset: 20,

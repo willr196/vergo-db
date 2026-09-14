@@ -21,7 +21,9 @@
     "seed:marketplace": "node scripts/guard-db-target.js \"seed:marketplace\" && tsx prisma/seed-marketplace.ts",
     "migrate": "node scripts/guard-db-target.js \"prisma migrate dev\" && prisma migrate dev",
     "test:integration": "npm run build && node --test dist/src/__integration__/*.test.js",
-    "test:all": "npm run test && npm run test:integration"
+    "test:all": "npm run test && npm run test:integration",
+    "check:csrf-browser": "node scripts/csrf-browser-check.js",
+    "check:shell-render": "node scripts/shell-render-check.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.985.0",

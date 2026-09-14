@@ -440,6 +440,13 @@
     </div>
   `;
 
+  // vergo-site-config.js is the single source of truth for contact details.
+  // Fall back to the previous literals so a page that does not load the config
+  // (or loads it after this file) still renders a working link.
+  const shellContact = (window.VERGO_CONFIG && window.VERGO_CONFIG.contact) || {};
+  const footerPhoneDisplay = shellContact.phoneDisplay || '07944 505783';
+  const footerWhatsAppNumber = (shellContact.phone || '+44 7944 505783').replace(/[^0-9]/g, '');
+
   const footerHTML = `
     <div class="page-shell">
       <div class="footer-grid">
@@ -465,7 +472,7 @@
         <div>
           <p class="footer-title">Contact</p>
           <div class="footer-links">
-            <a href="https://wa.me/447944505783?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: 07944 505783</a>
+            <a href="https://wa.me/${footerWhatsAppNumber}?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: ${footerPhoneDisplay}</a>
             <p>Replies within 24 hours for most enquiries.</p>
             <p>London and surrounding areas.</p>
           </div>

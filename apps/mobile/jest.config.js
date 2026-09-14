@@ -15,4 +15,9 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testEnvironment: 'node',
+  // React Native component suites pay a large one-off module-init cost, which
+  // lands on whichever test in the file runs first. Jest's 5s default is
+  // comfortably exceeded on a cold cache — as CI always is — so these suites
+  // failed every clean run while passing locally off a warm cache.
+  testTimeout: 30000,
 };
