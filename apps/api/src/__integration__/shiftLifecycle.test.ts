@@ -20,6 +20,7 @@ import {
   createBooking,
   createWorkerApp,
   createAdminApp,
+  csrfHeaders,
   inject,
   workerToken,
 } from './helpers';
@@ -158,6 +159,7 @@ test('the office sees the shift in the timesheet queue and completes it', async 
   // Completing it writes the worked hours through to the invoice figures.
   const complete = await inject(adminApp, {
     method: 'POST',
+    headers: csrfHeaders(),
     url: `/api/v1/admin/bookings/${booking.id}/complete`,
     body: {},
   });
@@ -191,6 +193,7 @@ test('a short shift is invoiced at the four-hour minimum', async () => {
 
   const completed = await inject(adminApp, {
     method: 'POST',
+    headers: csrfHeaders(),
     url: `/api/v1/admin/bookings/${booking.id}/complete`,
     body: {},
   });
@@ -238,6 +241,7 @@ test('the office can correct a forgotten check-out without completing the bookin
   const checkedOutAt = new Date();
   const corrected = await inject(adminApp, {
     method: 'PATCH',
+    headers: csrfHeaders(),
     url: `/api/v1/admin/bookings/${booking.id}/timesheet`,
     body: {
       checkedInAt: checkedInAt.toISOString(),

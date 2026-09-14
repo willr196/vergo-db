@@ -1,4 +1,4 @@
-import { generateCsrfToken } from '../../middleware/csrf'
+import { generateCsrfToken } from '../middleware/csrf'
 
 /**
  * Shared by the admin test suites so the double-submit handshake is described once.

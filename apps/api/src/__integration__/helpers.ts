@@ -72,6 +72,9 @@ const { Prisma } = require('@prisma/client');
 const { prisma } = require('../prisma');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { signAccessToken } = require('../utils/jwt');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { ADMIN_TEST_SESSION_ID, csrfHeaders } = require('../testing/csrf');
+export { csrfHeaders };
 
 export { prisma, Prisma, signAccessToken };
 
@@ -264,10 +267,14 @@ export function createWorkerApp() {
 export function createAdminApp() {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const adminBookings = require('../routes/adminBookings').default;
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const cookieParser = require('cookie-parser');
   const app = express();
   app.use(express.json());
+  app.use(cookieParser());
   app.use((req: any, _res: any, next: any) => {
-    req.session = { adminId: 'admin-1', adminEmail: 'admin@vergoltd.com', isAdmin: true };
+    // id is what the CSRF token is bound to — see testing/csrf.ts
+    req.session = { id: ADMIN_TEST_SESSION_ID, adminId: 'admin-1', adminEmail: 'admin@vergoltd.com', isAdmin: true };
     next();
   });
   app.use('/api/v1/admin/bookings', adminBookings);
