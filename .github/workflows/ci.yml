@@ -9,6 +9,32 @@ jobs:
   api:
     name: API — build & test
     runs-on: ubuntu-latest
+
+    # Throwaway Postgres for the integration suite. 16-alpine matches both
+    # infra/docker-compose.yml and what Neon runs, so a migration that applies
+    # here applies in production too.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: vergo_test
+        ports: ["5434:5432"]
+        options: >-
+          --health-cmd "pg_isready -U testuser -d vergo_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # All three point at the throwaway service above. helpers.ts reads
+      # TEST_DATABASE_URL and refuses anything non-local or not named *test*;
+      # prisma generate and migrate deploy read the other two.
+      TEST_DATABASE_URL: postgresql://testuser:testpass@localhost:5434/vergo_test
+      DATABASE_URL: postgresql://testuser:testpass@localhost:5434/vergo_test
+      DIRECT_DATABASE_URL: postgresql://testuser:testpass@localhost:5434/vergo_test
+
     defaults:
       run:
         working-directory: apps/api
@@ -23,9 +49,23 @@ jobs:
 
       - run: npm ci
 
+      # Required: @prisma/client postinstall only lays down a stub client, so
+      # without this tsc fails on every model type the schema defines.
+      - name: Generate the Prisma client
+        run: npx prisma generate
+
       - run: npm run build
 
-      - run: node --test dist/src/__tests__/*.test.js
+      - name: Unit tests
+        run: node --test dist/src/__tests__/*.test.js
+
+      # Separate from the unit suite because these need a real database: they
+      # exist to prove queries compile and columns exist, which mocks cannot.
+      - name: Apply migrations to the integration database
+        run: npx prisma migrate deploy
+
+      - name: Integration tests
+        run: node --test dist/src/__integration__/*.test.js
 
       # Informational only — apps/api's dependency tree has known moderate
       # advisories not yet worth a breaking major-version bump. Doesn't fail
