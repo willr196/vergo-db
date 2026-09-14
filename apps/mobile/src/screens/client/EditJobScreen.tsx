@@ -23,8 +23,7 @@ import { Button, DateTimePickerInput, LoadingScreen } from '../../components';
 import { jobsApi } from '../../api';
 import { useUIStore, useClientJobsStore } from '../../store';
 import { logger } from '../../utils/logger';
-import { getJobTierLabel, getJobTierPricingNote } from '../../utils/jobTiers';
-import type { RootStackParamList, JobTier } from '../../types';
+import type { RootStackParamList } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EditJob'>;
 
@@ -35,8 +34,6 @@ const PAY_TYPES: { value: PayType; label: string }[] = [
   { value: 'DAILY', label: 'Daily' },
   { value: 'FIXED', label: 'Fixed' },
 ];
-
-const JOB_TIERS: JobTier[] = ['STANDARD', 'SHORTLIST', 'GOLD'];
 
 type FieldErrors = {
   title?: boolean;
@@ -79,7 +76,6 @@ export function EditJobScreen({ route, navigation }: Props) {
     requirements: '',
     location: '',
     venue: '',
-    tier: 'STANDARD' as JobTier,
     payType: 'HOURLY' as PayType,
     payRate: '',
     eventDate: now,
@@ -114,7 +110,6 @@ export function EditJobScreen({ route, navigation }: Props) {
           location: job.city || '',
           // If venue equals city it was the fallback — treat as unset
           venue: job.venue && job.venue !== job.city ? job.venue : '',
-          tier: job.tier || 'STANDARD',
           payType: (job.payType as PayType) || 'HOURLY',
           payRate: job.hourlyRate ? String(job.hourlyRate) : '',
           eventDate,
@@ -197,7 +192,6 @@ export function EditJobScreen({ route, navigation }: Props) {
         requirements: form.requirements.trim() || undefined,
         location: form.location.trim(),
         venue: form.venue.trim() || undefined,
-        tier: form.tier,
         payRate: Number(form.payRate),
         payType: form.payType,
         eventDate: formatDate(form.eventDate),
@@ -377,27 +371,6 @@ export function EditJobScreen({ route, navigation }: Props) {
                 numberOfLines={3}
                 textAlignVertical="top"
               />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>Service Tier</Text>
-              <View style={styles.tierList}>
-                {JOB_TIERS.map((tier) => {
-                  const active = form.tier === tier;
-                  return (
-                    <TouchableOpacity
-                      key={tier}
-                      style={[styles.tierOption, active && styles.tierOptionActive]}
-                      onPress={() => updateForm('tier', tier)}
-                    >
-                      <Text style={[styles.tierOptionTitle, active && styles.tierOptionTitleActive]}>
-                        {getJobTierLabel(tier)}
-                      </Text>
-                      <Text style={styles.tierOptionText}>{getJobTierPricingNote(tier)}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
             </View>
           </View>
 

@@ -130,7 +130,6 @@ r.post('/login', loginLimiter, async (req, res) => {
         emailVerified: true,
         mustChangePassword: true,
         staffTier: true,
-        shortlistSelections: true,
         failedAttempts: true,
         lockedUntil: true,
       },
@@ -432,7 +431,6 @@ r.post('/force-change-password', loginLimiter, async (req, res) => {
         mustChangePassword: true,
         emailVerified: true,
         staffTier: true,
-        shortlistSelections: true,
         failedAttempts: true,
         lockedUntil: true,
       },
@@ -523,7 +521,6 @@ r.get('/worker/me', requireUserJwt, async (req, res) => {
         lastName: true,
         phone: true,
         staffTier: true,
-        shortlistSelections: true,
         staffAvailable: true,
         staffRating: true,
         staffReviewCount: true,
@@ -535,11 +532,6 @@ r.get('/worker/me', requireUserJwt, async (req, res) => {
       return res.status(404).json({ ok: false, error: 'User not found' });
     }
 
-    // Count how many Shortlist-tier jobs this worker has applied to
-    const shortlistApplications = await prisma.jobApplication.count({
-      where: { userId: req.auth!.userId, job: { tier: 'SHORTLIST' } },
-    });
-
     return res.json({
       ok: true,
       user: {
@@ -550,8 +542,6 @@ r.get('/worker/me', requireUserJwt, async (req, res) => {
         name: `${user.firstName} ${user.lastName}`,
         phone: user.phone,
         staffTier: user.staffTier,
-        shortlistSelections: user.shortlistSelections,
-        shortlistApplications,
         staffAvailable: user.staffAvailable,
         staffRating: user.staffRating ? Number(user.staffRating) : null,
         staffReviewCount: user.staffReviewCount,

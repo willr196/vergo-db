@@ -12,7 +12,6 @@ import {
   ViewStyle,
 } from 'react-native';
 import { colors, spacing, borderRadius, typography, shadows } from '../theme';
-import { getJobTierLabel, normalizeJobTier } from '../utils/jobTiers';
 import type { Job, JobRole } from '../types';
 
 interface JobCardProps {
@@ -77,8 +76,7 @@ export const JobCard = memo(function JobCard({
   const formattedTime = `${formatTime(job.startTime)} - ${formatTime(job.endTime)}`;
   const spotsLeft = (job.positionsAvailable || 0) - (job.positionsFilled || 0);
   const skillMatchColors = skillMatchPercentage !== null ? getSkillMatchColors(skillMatchPercentage) : null;
-  const tier = normalizeJobTier(job.tier);
-  
+
   if (compact) {
     return (
       <TouchableOpacity
@@ -110,29 +108,6 @@ export const JobCard = memo(function JobCard({
         <View style={styles.headerBadges}>
           <View style={styles.roleBadge}>
             <Text style={styles.roleText}>{ROLE_LABELS[job.role]}</Text>
-          </View>
-          <View
-            style={[
-              styles.tierBadge,
-              tier === 'STANDARD'
-                ? styles.standardTierBadge
-                : tier === 'SHORTLIST'
-                  ? styles.shortlistBadge
-                  : styles.goldTierBadge,
-            ]}
-          >
-            <Text
-              style={[
-                styles.tierText,
-                tier === 'STANDARD'
-                  ? styles.standardTierText
-                  : tier === 'SHORTLIST'
-                    ? styles.shortlistText
-                    : styles.goldTierText,
-              ]}
-            >
-              {getJobTierLabel(tier)}
-            </Text>
           </View>
           {job.dbsRequired && (
             <View style={styles.dbsBadge}>
@@ -272,45 +247,6 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
   },
   
-  tierBadge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.sm,
-    borderWidth: 1,
-  },
-
-  standardTierBadge: {
-    backgroundColor: colors.surfaceLight,
-    borderColor: colors.surfaceBorder,
-  },
-
-  standardTierText: {
-    color: colors.textSecondary,
-  },
-
-  shortlistBadge: {
-    backgroundColor: colors.infoSoft,
-    borderColor: `${colors.info}55`,
-  },
-
-  tierText: {
-    fontSize: typography.fontSize.xs,
-    fontWeight: '600' as const,
-  },
-
-  shortlistText: {
-    color: colors.info,
-  },
-
-  goldTierBadge: {
-    backgroundColor: colors.primarySoft,
-    borderColor: colors.primaryLine,
-  },
-
-  goldTierText: {
-    color: colors.primary,
-  },
-
   dbsBadge: {
     backgroundColor: colors.surfaceLight,
     paddingHorizontal: spacing.sm,

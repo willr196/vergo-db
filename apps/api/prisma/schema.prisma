@@ -416,7 +416,6 @@ model User {
   niLiable            Boolean          @default(false)
   /// Gates employer pension contributions, same reasoning as niLiable.
   pensionEnrolled     Boolean          @default(false)
-  shortlistSelections Int              @default(0)
   seqId               Int              @unique @default(autoincrement())
   mustChangePassword  Boolean          @default(false)
   bookings            Booking[]
@@ -490,8 +489,6 @@ model Job {
   type                JobType          @default(INTERNAL)
   venue               String?
   clientId            String?
-  tier                JobTier          @default(STANDARD)
-  shortlistReviewedAt DateTime?
   posterEmail         String?
   client              Client?          @relation(fields: [clientId], references: [id])
   role                Role             @relation(fields: [roleId], references: [id])
@@ -517,7 +514,6 @@ model JobApplication {
   rejectionReason     String?
   coverNote           String?
   userId              String
-  rateUplift          Decimal?             @db.Decimal(10, 2)
   applyIdempotencyKey String?              @unique
   job        Job                  @relation(fields: [jobId], references: [id], onDelete: Cascade)
   user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -774,12 +770,6 @@ enum BookingLane {
 enum JobType {
   INTERNAL
   EXTERNAL
-}
-
-enum JobTier {
-  STANDARD
-  SHORTLIST
-  GOLD
 }
 
 enum JobStatus {
