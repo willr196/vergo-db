@@ -26,6 +26,12 @@ primary_region = "lhr"
 [deploy]
   release_command = "npm run prisma:deploy"
 
+  # Never let a crash-on-boot image destroy the machine that is still serving.
+  # The default rolling strategy updates each machine in turn, so on 2026-09-15 it
+  # took down the last healthy one before the replacement ever passed /health.
+  # bluegreen builds the new machines alongside and aborts if they fail their check.
+  strategy = "bluegreen"
+
 # Serve static assets from Fly's edge CDN (bypasses Node)
 [[statics]]
   guest_path = "/app/public"
