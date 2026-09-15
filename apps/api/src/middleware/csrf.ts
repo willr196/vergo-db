@@ -1,6 +1,7 @@
 import crypto from 'node:crypto'
 import { doubleCsrf } from 'csrf-csrf'
 import { assertStrongSecret } from '../env'
+import { reportConfigProblem } from '../configHealth'
 
 const nodeEnv = process.env.NODE_ENV ?? 'development'
 
@@ -41,6 +42,8 @@ if (!CSRF_SECRET) {
     CSRF_SECRET = crypto.randomBytes(32).toString('hex')
   }
 }
+
+reportConfigProblem('CSRF_SECRET', misconfigured)
 
 if (misconfigured) {
   console.error(

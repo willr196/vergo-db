@@ -12,6 +12,7 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import connectPgSimple from 'connect-pg-simple';
 import { assertStrongSecret, env } from './env';
+import { reportConfigProblem, configProblems } from './configHealth';
 import { prisma } from './prisma';
 import applications from './routes/applications';
 import events from './routes/events';
@@ -281,23 +282,44 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); // required for the CSRF double-submit cookie check
 
 // Session configuration
-if (env.nodeEnv === 'production' && !process.env.SESSION_SECRET) {
-  throw new Error('SESSION_SECRET required in production');
-}
+//
+// A bad SESSION_SECRET no longer stops the server. An ephemeral random secret is
+// cryptographically sound — it just does not survive a restart, so admins get logged
+// out — and that is a far better outcome than refusing to serve the public site at
+// all. The problem is recorded and surfaced on /health/ready.
+let sessionSecretProblem: string | null = null;
 
-let SESSION_SECRET = process.env.SESSION_SECRET;
+// Trimmed: a whitespace-only value is "set" as far as the host is concerned but useless here.
+let SESSION_SECRET = process.env.SESSION_SECRET?.trim();
 if (!SESSION_SECRET) {
+  if (env.nodeEnv === 'production') {
+    sessionSecretProblem = 'SESSION_SECRET is missing or empty';
+  }
   if (env.nodeEnv === 'test') {
     // Stable value for deterministic tests.
     SESSION_SECRET = 'test-only-secret';
   } else {
     // Avoid a predictable default in non-production environments that might still be internet-accessible.
     SESSION_SECRET = crypto.randomBytes(32).toString('hex');
-    console.warn('[SECURITY] SESSION_SECRET not set; using ephemeral random secret (sessions will reset on restart)');
+    if (!sessionSecretProblem) {
+      console.warn('[SECURITY] SESSION_SECRET not set; using ephemeral random secret (sessions will reset on restart)');
+    }
+  }
+} else if (env.nodeEnv !== 'test') {
+  try {
+    assertStrongSecret('SESSION_SECRET', SESSION_SECRET);
+  } catch (err) {
+    sessionSecretProblem = err instanceof Error ? err.message : String(err);
+    SESSION_SECRET = crypto.randomBytes(32).toString('hex');
   }
 }
-if (env.nodeEnv !== 'test') {
-  assertStrongSecret('SESSION_SECRET', SESSION_SECRET);
+
+reportConfigProblem('SESSION_SECRET', sessionSecretProblem);
+if (sessionSecretProblem) {
+  console.error(
+    `[SECURITY] ${sessionSecretProblem}. Falling back to an ephemeral secret: sessions ` +
+    'will not survive a restart and admins will be logged out. The public site is unaffected.'
+  );
 }
 
 const PgSession = connectPgSimple(session);
@@ -344,7 +366,23 @@ app.use(session({
 }));
 
 // Healthcheck
-app.get('/health', (_, res) => res.json({ ok: true }));
+// Liveness. Deliberately always 200 while the process is serving: fly.toml wires
+// its http_service check here, so returning non-200 for a config problem would pull
+// the machine out of rotation and cause the very outage the degraded modes avoid.
+app.get('/health', (_, res) => {
+  const problems = configProblems();
+  res.json(problems.length ? { ok: true, degraded: true, config: problems } : { ok: true });
+});
+
+// Readiness. Reports 503 when the service is running in a degraded mode. Nothing in
+// fly.toml checks this — it is for monitoring and for a deploy gate you opt into.
+app.get('/health/ready', (_, res) => {
+  const problems = configProblems();
+  if (problems.length) {
+    return res.status(503).json({ ok: false, degraded: true, config: problems });
+  }
+  res.json({ ok: true });
+});
 
 // Readiness check for deploy/orchestrator probes.
 app.get('/readyz', async (_req, res) => {
