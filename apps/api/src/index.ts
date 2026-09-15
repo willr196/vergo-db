@@ -164,7 +164,7 @@ function buildJobPageCspHeader(nonce: string) {
     `script-src 'self' https://www.googletagmanager.com ${nonceToken}`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
     `font-src 'self' https://fonts.gstatic.com data:`,
-    `connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://stats.g.doubleclick.net`,
+    `connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://stats.g.doubleclick.net`,
   ];
   return parts.join('; ');
 }
@@ -202,7 +202,7 @@ app.use(helmet({
       ],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
-      connectSrc: ["'self'", "https://www.google-analytics.com", "https://www.googletagmanager.com", "https://stats.g.doubleclick.net"]
+      connectSrc: ["'self'", "https://*.google-analytics.com", "https://*.analytics.google.com", "https://*.googletagmanager.com", "https://stats.g.doubleclick.net"]
     }
   },
   hsts: {
