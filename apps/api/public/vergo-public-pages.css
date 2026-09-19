@@ -369,6 +369,8 @@ textarea {
 
 .menu-toggle {
   display: none;
+  /* Column, or the three bars sit side by side and read as a dot. */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 48px;

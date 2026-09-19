@@ -135,12 +135,17 @@ contract as the rest of the site, which
 `apps/api/scripts/validate-page-consistency.js` enforces:
 
 - standard meta (`description`, `viewport`, `theme-color`, favicon, canonical,
-  the four `og:` tags) plus `twitter:card`
-- an empty `<div id="site-header">` mount and an empty `<footer role="contentinfo">`,
-  both filled by `/vergo-public-shell.js`
+  the `og:` tags including `og:site_name`) plus `twitter:card`, and the
+  consent-gated analytics script
+- the same static header and footer markup as the other public pages
+  (`SITE_HEADER` / `SITE_FOOTER` in the template), with `/vergo-site-nav.js`
+  building the mobile menu from it. Until September 2026 the blog mounted an
+  empty header that `/vergo-public-shell.js` filled in client-side; that header
+  had a different design and a broken mobile menu, and crawlers never saw its links.
 - a skip link to `#main-content`
-- stylesheets: `/vergo-a11y.css`, `/vergo-public-pages.css`, `/vergo-blog.css`
-- `/vergo-site-config.js` last, so `data-vergo` bindings and the live
+- stylesheets: `/vergo-site.css`, then `/vergo-blog.css`, which maps the older
+  token names the post styles use onto the site tokens
+- `/vergo-site-config.js`, so `data-vergo` bindings and the live
   `/api/v1/rates` lookup work on blog pages too
 
 Article page order, top to bottom: breadcrumb, H1, the published and
@@ -174,9 +179,7 @@ so no change there either.
 With no published posts, `/blog` is built with `noindex, nofollow` and stays out
 of the sitemap. Both clear themselves on the first build that has a post.
 
-**Do when the first post ships:** add `/blog` to the footer "Navigate" list in
-`apps/api/public/vergo-public-shell.js`. It is deliberately not linked yet,
-because the index has nothing on it.
+`/blog` is in the site footer on every public page.
 
 ## Adding a post, end to end
 

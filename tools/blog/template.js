@@ -3,8 +3,14 @@
 /**
  * The blog page templates. Both outputs follow the shared public-page contract
  * that apps/api/scripts/validate-page-consistency.js enforces: standard meta,
- * canonical, an empty #site-header mount, an empty footer[role="contentinfo"],
- * a skip link, #main-content, and /vergo-public-shell.js at the end of body.
+ * canonical, a static <header class="site-header">, a footer[role="contentinfo"],
+ * a skip link and #main-content.
+ *
+ * The blog uses the same stylesheet, header and footer as the rest of the
+ * public site (vergo-site.css, with vergo-blog.css on top). It used to mount an
+ * empty header that vergo-public-shell.js filled in client-side; that header
+ * looked different, its mobile menu was broken, and crawlers never saw its links.
+ * SITE_HEADER and SITE_FOOTER must match the markup on the other public pages.
  *
  * If you change the shape of these pages, update docs/blog-implementation-brief.md.
  */
@@ -36,10 +42,56 @@ function attr(value) {
   return escapeHtml(value);
 }
 
+const SITE_HEADER = `  <header class="site-header" role="banner">
+    <div class="site-header-inner">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">V</span>VERGO</a>
+      <nav class="header-actions">
+        <a class="switch-link switch-link--feature" href="/special-events">Special events</a>
+        <a class="switch-link" href="/hire">For clients</a>
+        <a class="switch-link" href="/work">Apply for work</a>
+        <a class="call-link" href="tel:+447944505783" data-vergo-tel="contact.phone" aria-label="Call VERGO">
+          <span data-vergo="contact.phoneDisplay">07944 505783</span>
+        </a>
+      </nav>
+    </div>
+  </header>`;
+
+const SITE_FOOTER = `  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div>
+        <div class="brand"><span class="brand-mark" aria-hidden="true">V</span>VERGO</div>
+        <p class="footer-contact"><a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email">wrobb@vergoltd.com</a></p>
+        <p class="footer-contact"><a href="tel:+447944505783" data-vergo-tel="contact.phone">07944 505783</a></p>
+      </div>
+      <div class="footer-links">
+        <a href="/hire">For clients</a>
+        <a href="/work">Apply for work</a>
+        <a href="/special-events">Special events</a>
+        <a href="/blog">Blog</a>
+        <a href="/terms">Terms of business</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/legal">Legal</a>
+      </div>
+      <p class="footer-legal">
+        <span data-vergo="company.legalName">Vergo Ltd</span>, registered in
+        <span data-vergo="company.jurisdiction">England and Wales</span>, company no.
+        <span data-vergo="company.number">16627585</span>. Registered office:
+        <span data-vergo="company.registeredOffice">96 Sulivan Court, London, SW6 3DB</span>.
+        Employers' and public liability insured.
+      </p>
+    </div>
+  </footer>`;
+
+const PAGE_SCRIPTS = `  <script src="/vergo-site-config.js"></script>
+  <script src="/vergo-site-nav.js" defer></script>
+  <script src="/vergo-whatsapp.js" defer></script>`;
+
 function head({ title, description, route, ogType = 'website', noindex = false }) {
   const url = `${ORIGIN}${route}`;
   return `  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Analytics, gated on cookie consent (see vergo-consent.js) -->
+  <script src="/vergo-consent.js" defer></script>
   <title>${attr(title)}</title>
   <meta name="description" content="${attr(description)}">
 ${noindex ? '  <meta name="robots" content="noindex, nofollow">\n' : ''}  <meta property="og:title" content="${attr(title)}">
@@ -47,14 +99,15 @@ ${noindex ? '  <meta name="robots" content="noindex, nofollow">\n' : ''}  <meta 
   <meta property="og:image" content="${OG_IMAGE}">
   <meta property="og:url" content="${url}">
   <meta property="og:type" content="${ogType}">
+  <meta property="og:site_name" content="VERGO Staffing">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#0a0a0a">
   <link rel="icon" href="/favicon.ico">
   <link rel="canonical" href="${url}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-public-pages.css">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/vergo-site.css">
   <link rel="stylesheet" href="/vergo-blog.css">`;
 }
 
@@ -155,7 +208,7 @@ ${structuredData}
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
-  <div id="site-header" class="site-header" role="banner"></div>
+${SITE_HEADER}
 
   <main id="main-content">
     <article class="post page-shell">
@@ -206,9 +259,8 @@ ${faqItems}
     </article>
   </main>
 
-  <footer role="contentinfo"></footer>
-  <script src="/vergo-public-shell.js"></script>
-  <script src="/vergo-site-config.js"></script>
+${SITE_FOOTER}
+${PAGE_SCRIPTS}
 </body>
 </html>
 `;
@@ -268,7 +320,7 @@ ${jsonLd(itemList)}
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
-  <div id="site-header" class="site-header" role="banner"></div>
+${SITE_HEADER}
 
   <main id="main-content">
     <section class="page-hero">
@@ -286,9 +338,8 @@ ${cards}
     </section>
   </main>
 
-  <footer role="contentinfo"></footer>
-  <script src="/vergo-public-shell.js"></script>
-  <script src="/vergo-site-config.js"></script>
+${SITE_FOOTER}
+${PAGE_SCRIPTS}
 </body>
 </html>
 `;

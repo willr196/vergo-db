@@ -12,15 +12,15 @@
   <meta property="og:image" content="https://vergoltd.com/logo.png">
   <meta property="og:url" content="https://vergoltd.com/blog">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="VERGO Staffing">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#0a0a0a">
   <link rel="icon" href="/favicon.ico">
   <link rel="canonical" href="https://vergoltd.com/blog">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/vergo-a11y.css">
-  <link rel="stylesheet" href="/vergo-public-pages.css">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/vergo-site.css">
   <link rel="stylesheet" href="/vergo-blog.css">
   <script type="application/ld+json">
 {
@@ -57,7 +57,19 @@
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
-  <div id="site-header" class="site-header" role="banner"></div>
+  <header class="site-header" role="banner">
+    <div class="site-header-inner">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">V</span>VERGO</a>
+      <nav class="header-actions">
+        <a class="switch-link switch-link--feature" href="/special-events">Special events</a>
+        <a class="switch-link" href="/hire">For clients</a>
+        <a class="switch-link" href="/work">Apply for work</a>
+        <a class="call-link" href="tel:+447944505783" data-vergo-tel="contact.phone" aria-label="Call VERGO">
+          <span data-vergo="contact.phoneDisplay">07944 505783</span>
+        </a>
+      </nav>
+    </div>
+  </header>
 
   <main id="main-content">
     <section class="page-hero">
@@ -80,9 +92,33 @@
     </section>
   </main>
 
-  <footer role="contentinfo"></footer>
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div>
+        <div class="brand"><span class="brand-mark" aria-hidden="true">V</span>VERGO</div>
+        <p class="footer-contact"><a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email">wrobb@vergoltd.com</a></p>
+        <p class="footer-contact"><a href="tel:+447944505783" data-vergo-tel="contact.phone">07944 505783</a></p>
+      </div>
+      <div class="footer-links">
+        <a href="/hire">For clients</a>
+        <a href="/work">Apply for work</a>
+        <a href="/special-events">Special events</a>
+        <a href="/blog">Blog</a>
+        <a href="/terms">Terms of business</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/legal">Legal</a>
+      </div>
+      <p class="footer-legal">
+        <span data-vergo="company.legalName">Vergo Ltd</span>, registered in
+        <span data-vergo="company.jurisdiction">England and Wales</span>, company no.
+        <span data-vergo="company.number">16627585</span>. Registered office:
+        <span data-vergo="company.registeredOffice">96 Sulivan Court, London, SW6 3DB</span>.
+        Employers' and public liability insured.
+      </p>
+    </div>
+  </footer>
   <script src="/vergo-site-config.js"></script>
-  <script src="/vergo-public-shell.js"></script>
+  <script src="/vergo-site-nav.js" defer></script>
   <script src="/vergo-whatsapp.js" defer></script>
 </body>
 </html>

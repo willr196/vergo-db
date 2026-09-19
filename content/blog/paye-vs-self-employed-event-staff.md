@@ -1,7 +1,7 @@
 ---
 slug: paye-vs-self-employed-event-staff
 title: PAYE or self-employed event staff, and what changes for you
-metaTitle: PAYE vs self-employed event staff | VERGO
+metaTitle: PAYE vs self-employed event staff | VERGO Staffing
 metaDescription: What actually changes for a caterer or production when event staff are on PAYE rather than self-employed, with the hourly arithmetic set out in full.
 published: 2026-09-05
 updated: 2026-09-05
