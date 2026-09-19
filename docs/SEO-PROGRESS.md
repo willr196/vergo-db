@@ -9,7 +9,7 @@ cut from `main` at `e2ef9a3`. Nothing is pushed or deployed without Will's say-s
 | --- | --- |
 | 0. Recon and plan | Done 2026-09-19 |
 | 1. Quick fixes (plus the mobile menu and asset caching) | Done 2026-09-19, awaiting review |
-| 2. Christmas page | Not started |
+| 2. Christmas page | Done 2026-09-19, awaiting review |
 | 3. Service pages | Not started |
 | 4. Navigation, header, footer | Not started |
 | 5. Homepage | Not started |
@@ -81,10 +81,13 @@ so the brief's defaults stand except where the code overruled them:
    the database was never re-seeded. Run `npm run seed:terms` against production
    (it publishes v2 with the new cancellation tiers). Until then the live terms
    page contradicts every other page.
-2. **Search Console verification.** `google153cacaf2b1d1296.html` was deleted
+2. **Halloween page after 31 October.** Switch it to "now booking for next
+   year" wording and keep the page live so it ranks next year. Not a build
+   task yet; say when.
+3. **Search Console verification.** `google153cacaf2b1d1296.html` was deleted
    in Nov 2025. If the property was verified by that file, re-verify (or ask
    and it can be restored from git).
-3. Business Profile URL, founder lines, recent-work entries, dress code: any
+4. Business Profile URL, founder lines, recent-work entries, dress code: any
    time; the pages will not show those sections until they exist.
 
 Closed: payment terms, cancellation charges and employment status are answered
@@ -92,6 +95,27 @@ above. Password resets and the other login flows are out of scope: Will is not
 doing logins yet.
 
 ## Phase log
+
+### Phase 2 (2026-09-19)
+
+- New page `/special-events/christmas`: "Christmas Party Staff in London |
+  VERGO Staffing", H1 "Christmas party staff across London", around 600 words.
+  Leads with standard staffing (waiting staff, bar staff, kitchen porters,
+  runners, hosts on the £19 rate), then the rate and late-finish terms, both
+  guarantees, what to send when enquiring, the themed options, five FAQs, and
+  calls to action for the quote form and the phone.
+- Service and FAQPage JSON-LD, both parsing, and their hashes picked up by the
+  boot-time CSP scan. The FAQ answers and the visible FAQ are the same text.
+- Theme: `body.se-theme-christmas` in special-events.css, which the file was
+  already written to expect. It keeps the site's own black and gold rather than
+  inventing a seasonal palette; the only seasonal move is a deep red in the
+  page backdrop, which never carries type. There is no Christmas artwork, so
+  the hero runs on gradients — do not add stock photography.
+- Halloween's pumpkin brand mark was scoped to `.se-page`, which would have put
+  a pumpkin in the Christmas header. Now scoped to `.se-theme-halloween`.
+- /special-events: the Christmas card is live and links here. /hire has a
+  "Booking a Christmas party?" line. Sitemap updated.
+- Checked at 375px and 1280px: no sideways scroll, nav works, copy fits.
 
 ### Phase 1 (2026-09-19)
 

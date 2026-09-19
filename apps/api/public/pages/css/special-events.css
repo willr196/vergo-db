@@ -65,10 +65,55 @@ body.se-theme-halloween {
   background-attachment: fixed;
 }
 
+/* Christmas keeps the site's own palette rather than inventing a seasonal one:
+ * black ground, VERGO gold for both the frame and the controls, exactly as on
+ * /hire and the homepage. The only seasonal move is the deep red in the page
+ * backdrop, which is decorative and never carries type.
+ *
+ * There is no Christmas artwork, so the hero runs on its gradients alone. Do
+ * not add a stock photograph; point --se-hero-img at a real one when we have
+ * one of our own.
+ */
+body.se-theme-christmas {
+  --bg: #0a0a0a;
+  --footer-bg: #070707;
+  --header-bg: rgba(10, 10, 10, 0.9);
+
+  --accent: #C4A24E;
+  --accent-hover: #d9bd74;
+  --accent-ink: #0c0b0a;
+  --accent-rgb: 196, 162, 78;
+
+  --se-gold: #C4A24E;
+  --se-gold-hover: #d9bd74;
+  --se-gold-rgb: 196, 162, 78;
+
+  /* Both motif slots are Halloween's. Declaring them none keeps the layered
+     background-image valid; an undefined var() would void the whole rule. */
+  --se-pumpkin: none;
+
+  background-image:
+    radial-gradient(90% 50% at 78% -8%, rgba(var(--se-gold-rgb), 0.10), rgba(var(--se-gold-rgb), 0) 62%),
+    radial-gradient(80% 45% at 8% 4%, rgba(155, 26, 42, 0.16), rgba(155, 26, 42, 0) 60%);
+  background-attachment: fixed;
+}
+
+body.se-theme-christmas .se-hero { --se-hero-img: none; }
+
+/* Halloween's hero padding reserves a band for the pumpkin below the buttons.
+   Christmas has no motif, so that band is just a hole. */
+body.se-theme-christmas .se-hero-inner { padding-bottom: 56px; }
+@media (min-width: 900px) {
+  body.se-theme-christmas .se-hero-inner { padding: 112px 40px 72px; }
+}
+@media (max-width: 640px) {
+  body.se-theme-christmas .se-hero-inner { padding: 56px 20px 48px; }
+}
+
 /* The header mark becomes the pumpkin for the length of these pages. The V is
-   still the V — it is just carved now. Scoped, so the logo is untouched
-   everywhere else on the site. */
-.se-page .brand-mark {
+   still the V — it is just carved now. Scoped to Halloween, so the logo is
+   untouched on the other seasonal pages and everywhere else on the site. */
+.se-theme-halloween .brand-mark {
   background: transparent url('/images/special-events/vergo-pumpkin.svg') center / contain no-repeat;
   border: none;
   border-radius: 0;
