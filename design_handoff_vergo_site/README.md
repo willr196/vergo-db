@@ -95,7 +95,7 @@ Two columns: "What the work is" (roles / shifts / commitment) and "What you get"
   and update the /work meta description so it no longer quotes a pay rate.
 - Card/nav hover: background `rgba(242,239,232,0.08)` on nav items; cards lift 3px and border goes accent.
 - FAQ accordion: single-open, click row to toggle, marker "+" / "−".
-- All CTAs keep their current destinations: tel:+447506615242, /hire/quote, /work/apply, /terms, /privacy, /legal.
+- All CTAs keep their current destinations: tel:+447944505783, /hire/quote, /work/apply, /terms, /privacy, /legal.
 
 ## Assets
 Three photo slots on the home page are drag-and-drop placeholders in the prototype
