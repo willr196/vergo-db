@@ -569,20 +569,66 @@ app.use('/api/v1/admin/users', adminUsers);
 
 // Legacy cleanup (must be before static)
 
-app.get(['/hire-us', '/hire-us.html'], (_req, res) => {
-  res.redirect(301, '/hire');
-});
+/**
+ * Pages that used to be public and are still in search results or old emails.
+ * Each goes straight to its closest current page in one hop. When a new page
+ * replaces one of these targets, repoint the entry here rather than adding a
+ * redirect on the old target, or it becomes a chain.
+ */
+export const LEGACY_REDIRECTS: Record<string, string> = {
+  '/hire-us': '/hire',
+  '/hire-staff': '/hire',
+  '/rates': '/hire',
+  '/pricing': '/hire',
+  '/quote': '/hire/quote',
+  '/about': '/',
+  '/faq': '/hire',
+  '/contact': '/hire',
+  '/staff-roles': '/hire',
+  '/browse-staff': '/hire',
 
-app.get(['/hire-staff', '/hire-staff.html'], (_req, res) => {
-  res.redirect(301, '/hire');
-});
+  // Old per-role and per-occasion landing pages, removed 2026-08-01.
+  '/waiting-staff-london': '/hire',
+  '/temporary-bar-staff-london': '/hire',
+  '/kitchen-porters-london': '/hire',
+  '/wedding-staff-london': '/hire',
+  '/front-of-house-staff-london': '/hire',
+  '/corporate-event-staff-london': '/hire',
+  '/event-chefs-london': '/hire',
+  '/festival-staff-london': '/hire',
+  '/event-staffing-agency-london': '/hire',
+  '/hospitality-staffing-agency-london': '/hire',
+  '/blog/event-staffing-costs-london-2026': '/hire',
 
-app.get(['/quote', '/quote.html'], (_req, res) => {
-  res.redirect(301, '/hire/quote');
-});
+  // Worker side. /apply still shows in search describing self-employed work.
+  '/apply': '/work/apply',
+  '/jobs': '/work',
+  '/job-detail': '/work',
+  '/user-login': '/work',
+  '/user-register': '/work',
+  '/user-dashboard': '/work',
+  '/dashboard-worker': '/work',
+  '/onboarding': '/work',
 
-app.get(['/rates', '/rates.html'], (_req, res) => {
-  res.redirect(301, '/hire');
+  // Client portal, removed with the web portal.
+  '/client-login': '/hire',
+  '/client-register': '/hire',
+  '/client-dashboard': '/hire',
+  '/dashboard-client': '/hire',
+  '/post-job': '/hire',
+  '/portal-login': '/',
+};
+
+for (const [from, to] of Object.entries(LEGACY_REDIRECTS)) {
+  app.get([from, `${from}.html`], (req, res) => {
+    const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+    res.redirect(301, to + qs);
+  });
+}
+
+// Job alert emails link to /jobs/<id>; there are no public job pages now.
+app.get('/jobs/:id', (_req, res) => {
+  res.redirect(301, '/work');
 });
 
 // Blog was dropped from the site; these two URLs are still in Google's index
@@ -661,7 +707,13 @@ app.use(express.static(publicDir, {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.setHeader('Pragma', 'no-cache');
       res.setHeader('Expires', '0');
-    } else if (filePath.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|webp|woff|woff2)$/)) {
+    } else if (filePath.match(/\.(css|js)$/)) {
+      // Asset URLs carry no content hash, so a long max-age let a phone keep last
+      // week's stylesheet against this week's HTML — which is how the new mobile
+      // nav rendered as a broken, unstyled toggle for returning visitors.
+      // no-cache still caches; it just revalidates, and the ETag makes that a 304.
+      res.setHeader('Cache-Control', 'public, no-cache');
+    } else if (filePath.match(/\.(png|jpg|jpeg|gif|ico|svg|webp|woff|woff2)$/)) {
       res.setHeader('Cache-Control', 'public, max-age=604800');
     }
   }
