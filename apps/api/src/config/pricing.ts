@@ -11,6 +11,26 @@ export const PRICING = {
   accountRate: 19.00,
   vatRegistered: false,
   vatRate: 0.20,
+
+  /**
+   * Special Events charge rates, in £/hour per person. These are separate roles
+   * rather than a premium on standardRate: a scare actor is cast for the booking,
+   * not rostered onto it, and is paid against a different market. Everything
+   * beyond these three — specialist acts, decor, a whole experience — is quoted
+   * per brief and deliberately has no figure here.
+   *
+   * Rendered on /special-events/halloween via VERGO_CONFIG.specialEvents, which
+   * hydrates from /api/v1/rates. The page carries the same figures as static
+   * fallbacks so the rates are in the HTML for search engines and for anyone
+   * without JavaScript — change a rate here and change it there in the same commit.
+   */
+  specialEvents: {
+    themedHospitality: 22.00,
+    characterPerformer: 30.00,
+    makeupArtist: 40.00,
+    /** Hourly special-events roles carry the site-wide four-hour minimum. */
+    minimumChargeHours: 4,
+  },
 } as const;
 
 /**
@@ -106,5 +126,8 @@ export function getPublicRateCard() {
     vatRegistered: PRICING.vatRegistered,
     vatRate: PRICING.vatRate,
     holidayPayPercent: round2(ON_COSTS.holidayAccrualRate * 100),
+    // Spread, not the frozen object itself, so callers cannot reach back into
+    // PRICING through the returned card.
+    specialEvents: { ...PRICING.specialEvents },
   };
 }

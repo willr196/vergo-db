@@ -541,9 +541,10 @@
     });
   }
 
-  // The live rate card arrives from /api/v1/rates after first paint, so redraw
-  // once it has had a chance to land.
+  // The live rate card arrives from /api/v1/rates after first paint. Redraw when
+  // vergo-site-config.js says it has landed rather than after a fixed delay — a
+  // slow response used to leave the fallback rate on screen looking final.
+  window.addEventListener('vergo:rates', refresh);
   window.addEventListener('load', refresh);
-  setTimeout(refresh, 1500);
   refresh();
 })();

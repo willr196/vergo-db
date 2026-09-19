@@ -31,7 +31,7 @@
   overflow: visible;
   clip: auto;
   white-space: normal;
-  background: #D4AF37;
+  background: #C4A24E;
   color: #0a0a0a;
   text-decoration: none;
   font-weight: 600;
@@ -53,7 +53,7 @@
   position: fixed;
   top: -100px;         /* hidden off-screen until focused */
   left: 16px;
-  background: #D4AF37;
+  background: #C4A24E;
   color: #0a0a0a;
   padding: 12px 18px;
   text-decoration: none;
@@ -81,7 +81,7 @@
 
 /* Keyboard focus indicators only (not mouse clicks) */
 *:focus-visible {
-  outline: 3px solid #D4AF37;
+  outline: 3px solid #C4A24E;
   outline-offset: 3px;
   border-radius: 2px;
   transition: outline-offset 0.2s ease;
@@ -97,7 +97,7 @@
 button:focus-visible,
 .btn:focus-visible,
 .cta-button:focus-visible {
-  outline: 3px solid #D4AF37;
+  outline: 3px solid #C4A24E;
   outline-offset: 4px;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
@@ -107,15 +107,15 @@ button:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 3px solid #D4AF37;
+  outline: 3px solid #C4A24E;
   outline-offset: 0;
-  border-color: #D4AF37;
+  border-color: #C4A24E;
   box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
 /* Link focus within navigation */
 nav a:focus-visible {
-  outline: 2px solid #D4AF37;
+  outline: 2px solid #C4A24E;
   outline-offset: 4px;
   background: rgba(212, 175, 55, 0.1);
   border-radius: 4px;
@@ -147,7 +147,7 @@ nav a:focus-visible {
 [role="alert"] {
   padding: 1rem;
   margin: 1rem 0;
-  border-left: 4px solid #D4AF37;
+  border-left: 4px solid #C4A24E;
   background: rgba(212, 175, 55, 0.1);
   font-weight: 500;
 }
@@ -319,7 +319,7 @@ select[aria-invalid="true"],
 
 /* Fieldset and legend styling */
 fieldset {
-  border: 2px solid #D4AF37;
+  border: 2px solid #C4A24E;
   padding: 1rem;
   margin: 1rem 0;
   border-radius: 8px;
@@ -328,7 +328,7 @@ fieldset {
 legend {
   font-weight: bold;
   padding: 0 0.5rem;
-  color: #D4AF37;
+  color: #C4A24E;
 }
 
 /* ============================================
@@ -342,7 +342,7 @@ legend {
 
 /* Keep link contrast high without overriding button-style links */
 body:not(.homepage) a:not(.btn):not(.cta-button):not(.submit-btn):not(.form-submit):not(.tier-cta):not(.calc-cta) {
-  color: #D4AF37;
+  color: #C4A24E;
   text-underline-offset: 2px;
 }
 
@@ -372,7 +372,7 @@ body:not(.homepage) a:not(.btn):not(.cta-button):not(.submit-btn):not(.form-subm
   width: 20px;
   height: 20px;
   margin: -10px 0 0 -10px;
-  border: 2px solid #D4AF37;
+  border: 2px solid #C4A24E;
   border-top-color: transparent;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -431,7 +431,7 @@ body:not(.homepage) p {
 [aria-current="page"] {
   font-weight: bold;
   background: rgba(212, 175, 55, 0.1);
-  border-bottom: 3px solid #D4AF37;
+  border-bottom: 3px solid #C4A24E;
 }
 
 /* Dropdown menu indicators - only for nav dropdown links */

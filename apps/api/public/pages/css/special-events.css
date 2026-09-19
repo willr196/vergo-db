@@ -55,7 +55,7 @@ body.se-theme-halloween {
 
   /* VERGO gold — the same value as the brand mark in vergo-site.css.
      9.4:1 on this background, so it is safe for small type. */
-  --se-gold: #d4af37;
+  --se-gold: #c4a24e;
   --se-gold-hover: #e5c45f;
   --se-gold-rgb: 212, 175, 55;
 
@@ -498,20 +498,6 @@ body.se-theme-halloween { --se-pumpkin: url('/images/special-events/vergo-pumpki
 .se-fact-list li { padding-bottom: 12px; border-bottom: 1px solid var(--hairline-soft); }
 .se-fact-list li:last-child { border-bottom: none; padding-bottom: 0; }
 
-.se-concept-note {
-  margin-top: 28px;
-  padding: 22px 24px;
-  border: 1px solid var(--hairline-strong);
-  border-left: 2px solid var(--se-gold);
-  border-radius: var(--radius);
-  background: var(--panel-fill);
-  color: var(--text-secondary);
-  font-size: 16px;
-  /* The shell is 1180px; unconstrained this ran to ~135 characters a line. */
-  max-width: 78ch;
-}
-.se-concept-note strong { color: var(--text); font-weight: 600; }
-
 /* Full-width caveats under a section. Same job as .form-hint, but these sit in
    a 1180px shell rather than a form column, so they need a measure of their
    own — otherwise they run to 180+ characters a line. */
@@ -796,3 +782,165 @@ a.se-hub-card:hover, a.se-hub-card:focus-visible {
 .se-hub-card p { color: var(--text-secondary); margin: 0 0 24px; max-width: 46ch; }
 .se-hub-cta { font-size: 15px; font-weight: 600; color: var(--text); margin-top: auto; }
 .se-hub-card--soon p:last-child { margin-bottom: 0; }
+
+/* ============================================================================
+   RATES  (/special-events/halloween #rates)
+
+   Three priced cards, then three quoted ones. The figure is the loudest thing
+   in each card and it is gold, which keeps the block premium rather than
+   reading as a SaaS plan chooser: no feature checklists, no "most popular"
+   card, no column of ticks. Orange stays on the one button, per the rule at
+   the top of this file.
+   ============================================================================ */
+.se-rates-lede {
+  max-width: 62ch;
+  margin: 18px 0 0;
+  color: var(--text-secondary);
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.se-rate-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+  margin-top: 44px;
+}
+@media (min-width: 900px) { .se-rate-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.se-rate {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 30px 30px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+  background: var(--card-fill);
+  overflow: hidden;
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+/* Same gold-to-ember hairline the "three levels" cards carry, so the two
+   sections read as the same family. */
+.se-rate::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, var(--se-gold), rgba(var(--accent-rgb), 0.55));
+  opacity: 0.55;
+}
+.se-rate:hover { border-color: rgba(var(--accent-rgb), 0.55); transform: translateY(-3px); }
+
+/* The category label: Hospitality / Performers / Makeup / Bespoke. Mono caps,
+   matching .section-label, so it reads as a tag and not as a heading. */
+.se-rate-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 14px;
+}
+
+.se-rate h3,
+.se-bespoke-item h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 27px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+/* The figure and its unit sit on one baseline. clamp() keeps £40 from
+   overflowing a narrow card while still dominating the card on desktop. */
+.se-rate-price {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 16px 0 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+.se-rate-figure {
+  font-family: var(--font-serif);
+  font-size: clamp(48px, 7vw, 62px);
+  line-height: 0.9;
+  color: var(--se-gold);
+}
+.se-rate-unit {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.se-rate-copy { margin: 0; color: var(--text-secondary); font-size: 16px; line-height: 1.6; }
+.se-rate-note {
+  margin: 14px 0 0;
+  color: var(--text-muted);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+/* The label and its chips travel together to the foot of the card, so the three
+   cards line up along the bottom however much copy each one carries. Pushing
+   only .se-chips down would strand "Examples" halfway up the card. */
+.se-rate .se-chip-label { margin-top: auto; padding-top: 26px; margin-bottom: 10px; }
+.se-rate .se-chips { margin-top: 0; }
+
+/* Two of the three headings run to one line and one runs to two. Reserving the
+   second line on desktop lands all three price rows on the same baseline. */
+@media (min-width: 900px) {
+  .se-rate h3 { min-height: 2.3em; }
+}
+
+/* ---- Bespoke tiers. Quieter than the priced cards: no top hairline, no
+   hover lift, no big figure. They are the same offer without a number. ---- */
+.se-bespoke { margin-top: 26px; }
+.se-bespoke-label { margin: 0 0 16px; }
+
+.se-bespoke-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 760px) { .se-bespoke-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.se-bespoke-item {
+  padding: 26px 26px 24px;
+  border: 1px solid var(--hairline-soft);
+  border-radius: var(--radius);
+  background: rgba(242, 239, 232, 0.02);
+}
+.se-bespoke-item h3 { font-size: 23px; }
+.se-bespoke-item .se-rate-tag { margin-bottom: 12px; }
+.se-bespoke-price {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--se-gold);
+  margin: 12px 0 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+/* The invitation reads as copy, not small print, so it sits above the caveat
+   and carries the gold the sub-lines elsewhere on the page use. */
+.se-rates-invite {
+  max-width: 52ch;
+  margin: 40px 0 0;
+  color: var(--se-gold);
+  font-size: 18px;
+  line-height: 1.55;
+}
+.se-rates-cta { margin-top: 32px; }
+
+@media (max-width: 560px) {
+  .se-rate { padding: 28px 22px 26px; }
+  .se-bespoke-item { padding: 24px 22px 22px; }
+  .se-rate-price { margin: 14px 0 18px; padding-bottom: 18px; }
+}

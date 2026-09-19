@@ -42,12 +42,68 @@
     "@type": "OfferCatalog",
     "name": "Halloween staffing and performance",
     "itemListElement": [
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Themed hospitality staff" } },
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Character performers" } },
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Scare actors" } },
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Halloween hosts" } },
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "SFX and makeup artists" } },
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Guest makeup stations" } },
+      {
+        "@type": "Offer",
+        "itemOffered": { "@type": "Service", "name": "Themed hospitality staff" },
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": 22.00,
+          "priceCurrency": "GBP",
+          "unitCode": "HUR",
+          "unitText": "per hour",
+          "referenceQuantity": { "@type": "QuantitativeValue", "value": 4, "unitCode": "HUR" }
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": { "@type": "Service", "name": "Halloween hosts" },
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": 22.00,
+          "priceCurrency": "GBP",
+          "unitCode": "HUR",
+          "unitText": "per hour",
+          "referenceQuantity": { "@type": "QuantitativeValue", "value": 4, "unitCode": "HUR" }
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": { "@type": "Service", "name": "Scare actors" },
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": 30.00,
+          "priceCurrency": "GBP",
+          "unitCode": "HUR",
+          "unitText": "per hour",
+          "referenceQuantity": { "@type": "QuantitativeValue", "value": 4, "unitCode": "HUR" }
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": { "@type": "Service", "name": "Character performers" },
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": 30.00,
+          "priceCurrency": "GBP",
+          "unitCode": "HUR",
+          "unitText": "per hour",
+          "referenceQuantity": { "@type": "QuantitativeValue", "value": 4, "unitCode": "HUR" }
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": { "@type": "Service", "name": "Halloween makeup artists and SFX" },
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": 40.00,
+          "priceCurrency": "GBP",
+          "unitCode": "HUR",
+          "unitText": "per hour",
+          "referenceQuantity": { "@type": "QuantitativeValue", "value": 4, "unitCode": "HUR" }
+        }
+      },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Guest makeup stations" }, "availability": "https://schema.org/LimitedAvailability" },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Specialist performers, including fire performers, stilt walkers and contortionists" }, "availability": "https://schema.org/LimitedAvailability" },
       { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Costumes and styling" } },
       { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Decorators and set dressing" } },
       { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Event and character leads" } }
@@ -63,7 +119,7 @@
     {
       "@type": "Question",
       "name": "How far ahead should we book Halloween event staff?",
-      "acceptedAnswer": { "@type": "Answer", "text": "As early as you can. The last week of October is our busiest of the year, and performers and makeup artists commit sooner than hospitality staff. Ask anyway — we will tell you what is still possible." }
+      "acceptedAnswer": { "@type": "Answer", "text": "As early as you can. The last week of October is our busiest of the year, and performers and makeup artists commit sooner than hospitality staff. Ask anyway, and we will tell you what is still possible." }
     },
     {
       "@type": "Question",
@@ -106,7 +162,7 @@
     <div class="site-header-inner">
       <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">V</span>VERGO</a>
       <nav class="header-actions">
-        <a class="switch-link" href="/special-events">Special events</a>
+        <a class="switch-link switch-link--feature" href="/special-events">Special events</a>
         <a class="call-link" href="tel:+447944505783" data-vergo-tel="contact.phone" aria-label="Call VERGO">
           <span data-vergo="contact.phoneDisplay">07944 505783</span>
         </a>
@@ -125,7 +181,7 @@
         <h1>HALLOWEEN<br><span class="se-hero-line2">SPECIAL</span></h1>
         <p class="se-hero-claim">We staff your whole Halloween night.</p>
         <p class="lede">Themed staff in costume, character performers, scare actors, makeup artists
-          and decorators &mdash; every role we supply, with a Halloween twist. Across London.</p>
+          and decorators. Every role we supply, with a Halloween twist. Across London.</p>
         <div class="btn-row">
           <a href="#build" class="btn btn-primary">Build your team</a>
           <a href="#services" class="btn btn-secondary">What we supply</a>
@@ -368,7 +424,6 @@
         </article>
       </div>
 
-      <p class="se-concept-note">Take part of a concept, or mix them. Two hosts and a bartender is a booking.</p>
     </section>
 
     <!-- ================================================================
@@ -423,6 +478,117 @@
         </div>
       </section>
     </div>
+
+    <!-- ================================================================
+         Rates. The three hourly figures come from VERGO_CONFIG.specialEvents,
+         which hydrates from /api/v1/rates (backed by src/config/pricing.ts).
+         The same numbers sit inline as fallbacks so the rates are in the HTML
+         for search engines and for anyone without JavaScript — change a rate in
+         pricing.ts and change the fallback here in the same commit.
+
+         Bespoke tiers deliberately carry no figure. Three priced cards, then
+         three quoted ones: the hierarchy is the price, not the packaging.
+         ================================================================ -->
+    <section class="section shell" id="rates" aria-labelledby="rates-heading">
+      <p class="section-label">Rates</p>
+      <h2 id="rates-heading" class="se-h2">Halloween Staffing Rates</h2>
+      <p class="se-rates-lede">Build the team you need. From themed hospitality staff to actors and specialist performers, bookings can be kept simple or built into a full Halloween experience.</p>
+
+      <div class="se-rate-grid">
+        <article class="se-rate">
+          <p class="se-rate-tag">Hospitality</p>
+          <h3>Themed Hospitality Staff</h3>
+          <p class="se-rate-price">
+            <span class="se-rate-figure" data-vergo="specialEvents.themedHospitalityDisplay">&pound;22</span>
+            <span class="se-rate-unit">per hour</span>
+          </p>
+          <p class="se-rate-copy">Waiters, bartenders, runners and hosts, dressed and styled to match the theme of the event.</p>
+          <p class="se-rate-note">Hospitality staff first. They hold the look, but they are not expected to perform or stay in character.</p>
+          <p class="se-chip-label">Examples</p>
+          <ul class="se-chips">
+            <li class="se-chip">Vampire bartenders</li>
+            <li class="se-chip">Zombie waiters</li>
+            <li class="se-chip">Haunted hotel staff</li>
+            <li class="se-chip">Twisted circus teams</li>
+            <li class="se-chip">Themed hosts</li>
+          </ul>
+        </article>
+
+        <article class="se-rate">
+          <p class="se-rate-tag">Performers</p>
+          <h3>Scare Actors &amp; Character Performers</h3>
+          <p class="se-rate-price">
+            <span class="se-rate-figure" data-vergo="specialEvents.characterPerformerDisplay">&pound;30</span>
+            <span class="se-rate-unit">per hour</span>
+          </p>
+          <p class="se-rate-copy">Actors briefed around your concept and the characters it needs.</p>
+          <p class="se-rate-note">Interaction and intensity are set to suit the event, from a light touch through a drinks reception to full immersion all night.</p>
+          <p class="se-chip-label">Suitable for</p>
+          <ul class="se-chips">
+            <li class="se-chip">Scare actors</li>
+            <li class="se-chip">Roaming characters</li>
+            <li class="se-chip">Haunted hotel characters</li>
+            <li class="se-chip">Zombies</li>
+            <li class="se-chip">Vampires</li>
+            <li class="se-chip">Horror clowns</li>
+            <li class="se-chip">Character hosts</li>
+            <li class="se-chip">Immersive guest interaction</li>
+          </ul>
+        </article>
+
+        <article class="se-rate">
+          <p class="se-rate-tag">Makeup</p>
+          <h3>Halloween Makeup Artists</h3>
+          <p class="se-rate-price">
+            <span class="se-rate-figure" data-vergo="specialEvents.makeupArtistDisplay">&pound;40</span>
+            <span class="se-rate-unit">per hour</span>
+          </p>
+          <p class="se-rate-copy">Halloween makeup, character styling and straightforward SFX work.</p>
+          <p class="se-rate-note">Advanced prosthetics, large-scale guest makeup, specialist materials and complex SFX are quoted on the brief.</p>
+          <p class="se-chip-label">Examples</p>
+          <ul class="se-chips">
+            <li class="se-chip">Character makeup</li>
+            <li class="se-chip">Wounds and bruising</li>
+            <li class="se-chip">Fake blood</li>
+            <li class="se-chip">Aging</li>
+            <li class="se-chip">Guest makeup stations</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="se-bespoke">
+        <p class="se-chip-label se-bespoke-label">Quoted on the brief</p>
+        <div class="se-bespoke-grid">
+          <article class="se-bespoke-item">
+            <p class="se-rate-tag">Bespoke</p>
+            <h3>Specialist Performers</h3>
+            <p class="se-bespoke-price">Bespoke quote</p>
+            <p class="se-rate-copy">Fire performers, stilt walkers, contortionists, bespoke characters and highly experienced professional acts.</p>
+          </article>
+
+          <article class="se-bespoke-item">
+            <p class="se-rate-tag">Bespoke</p>
+            <h3>Decor &amp; Set Dressing</h3>
+            <p class="se-bespoke-price">Bespoke quote</p>
+            <p class="se-rate-copy">Priced on the venue, the concept, what the installation takes and how much decor the space needs.</p>
+          </article>
+
+          <article class="se-bespoke-item">
+            <p class="se-rate-tag">Bespoke</p>
+            <h3>Full Halloween Experiences</h3>
+            <p class="se-bespoke-price">Bespoke quote</p>
+            <p class="se-rate-copy">Hospitality staff, actors, makeup, costumes, decor and event coordination, planned and run as one booking.</p>
+          </article>
+        </div>
+      </div>
+
+      <p class="se-rates-invite">Have something different in mind? Tell us the concept and we&rsquo;ll build the team around it.</p>
+      <p class="se-caveat">Rates are per person, per hour, for events across London. Hourly roles are booked on a <span data-vergo="specialEvents.minimumHours">4</span>-hour minimum.</p>
+
+      <div class="btn-row se-rates-cta">
+        <a href="#build" class="btn btn-primary">Build Your Halloween Team</a>
+      </div>
+    </section>
 
     <!-- ================================================================
          Enquiry — posts to the existing quote endpoint as an ENQUIRY.
@@ -492,10 +658,6 @@
               <div class="checkbox-item">
                 <input type="checkbox" id="need-planning" name="need" value="Help planning the whole experience">
                 <label for="need-planning">Whole experience</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="need-unsure" name="need" value="Not sure, recommend a team">
-                <label for="need-unsure">Not sure &mdash; recommend</label>
               </div>
             </div>
           </fieldset>
@@ -615,7 +777,7 @@
             <ul class="fact-list se-fact-list">
               <li><strong>Picked for the booking</strong>, not whoever is free</li>
               <li><strong>Briefed before the event</strong> on venue, concept, tone</li>
-              <li><strong>Clear roles</strong> &mdash; working or performing</li>
+              <li><strong>Clear roles</strong>, working or performing</li>
               <li><strong>On-site leads</strong> for larger teams</li>
             </ul>
           </div>
@@ -647,7 +809,7 @@
       <div class="faq-list">
         <details class="faq" name="halloween-faq">
           <summary>How far ahead should we book?</summary>
-          <p>As early as you can. The last week of October is our busiest of the year, and performers and makeup artists commit sooner than hospitality staff. Ask anyway &mdash; we will tell you what is still possible.</p>
+          <p>As early as you can. The last week of October is our busiest of the year, and performers and makeup artists commit sooner than hospitality staff. Ask anyway, and we will tell you what is still possible.</p>
         </details>
         <details class="faq" name="halloween-faq">
           <summary>Do you supply the costumes?</summary>
@@ -663,7 +825,7 @@
         </details>
         <details class="faq" name="halloween-faq">
           <summary>Can we book one or two people?</summary>
-          <p>Yes. Two themed hosts is a normal booking. Standard staffing minimums still apply to hospitality shifts &mdash; see <a href="/hire">the hire page</a>.</p>
+          <p>Yes. Two themed hosts is a normal booking. Standard staffing minimums still apply to hospitality shifts. See <a href="/hire">the hire page</a>.</p>
         </details>
         <details class="faq" name="halloween-faq">
           <summary>How does guest makeup work?</summary>
@@ -714,8 +876,9 @@
       </div>
       <div class="footer-links">
         <a href="/hire">For clients</a>
-        <a href="/work">For workers</a>
+        <a href="/work">Apply for work</a>
         <a href="/special-events">Special events</a>
+        <a href="/blog">Blog</a>
         <a href="/terms">Terms of business</a>
         <a href="/privacy">Privacy</a>
         <a href="/legal">Legal</a>
@@ -731,6 +894,8 @@
   </footer>
 
   <script src="/vergo-site-config.js"></script>
+  <script src="/vergo-site-nav.js" defer></script>
   <script src="/pages/js/halloween-team.js"></script>
+  <script src="/vergo-whatsapp.js" defer></script>
 </body>
 </html>

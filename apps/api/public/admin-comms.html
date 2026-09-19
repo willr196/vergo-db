@@ -20,14 +20,15 @@
   <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
 </head>
 <body>
+  <a href="#as-content" class="as-skip-link">Skip to main content</a>
 
   <div class="as-main">
     <header class="as-topbar">
       <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
-      <span class="as-topbar-title">Messages</span>
+      <h1 class="as-topbar-title">Messages</h1>
     </header>
 
-    <div class="as-content">
+    <div class="as-content" id="as-content">
       <div class="as-tabs" id="comms-tabs">
         <button class="as-tab active" data-tab="push">Push notification</button>
         <button class="as-tab" data-tab="email">Email broadcast</button>
@@ -40,7 +41,7 @@
             <p class="text-muted fs-sm mb-2">Send a push notification to registered mobile devices.</p>
           </div>
           <div class="mb-2">
-            <label class="as-label">Audience</label>
+            <label class="as-label" for="push-audience">Audience</label>
             <select id="push-audience" class="as-input">
               <option value="all">All users (staff + clients)</option>
               <option value="staff">Staff only</option>
@@ -48,11 +49,11 @@
             </select>
           </div>
           <div class="mb-2">
-            <label class="as-label">Notification Title</label>
+            <label class="as-label" for="push-title">Notification Title</label>
             <input type="text" id="push-title" class="as-input" placeholder="e.g. New job available!" maxlength="100">
           </div>
           <div class="mb-2">
-            <label class="as-label">Message</label>
+            <label class="as-label" for="push-body">Message</label>
             <textarea id="push-body" placeholder="Notification body text…" maxlength="500"></textarea>
           </div>
           <div id="push-result" class="mb-2"></div>
@@ -67,7 +68,7 @@
             <p class="text-muted fs-sm mb-2">Send a broadcast email via Resend to a selected audience.</p>
           </div>
           <div class="mb-2">
-            <label class="as-label">Audience</label>
+            <label class="as-label" for="email-audience">Audience</label>
             <select id="email-audience" class="as-input">
               <option value="all_clients">All approved clients</option>
               <option value="all_staff">All staff applicants</option>
@@ -75,11 +76,11 @@
             </select>
           </div>
           <div class="mb-2">
-            <label class="as-label">Subject</label>
+            <label class="as-label" for="email-subject">Subject</label>
             <input type="text" id="email-subject" class="as-input" placeholder="Email subject line" maxlength="200">
           </div>
           <div class="mb-2">
-            <label class="as-label">Body (plain text, line breaks become &lt;br&gt;)</label>
+            <label class="as-label" for="email-body">Body (plain text, line breaks become &lt;br&gt;)</label>
             <textarea id="email-body" style="min-height:200px" placeholder="Email body…" maxlength="10000"></textarea>
           </div>
           <div id="email-result" class="mb-2"></div>

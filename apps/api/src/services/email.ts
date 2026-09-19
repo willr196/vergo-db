@@ -31,6 +31,8 @@ export {
   // Enquiry emails
   sendStaffRequestEmail,
   sendGeneralEnquiryEmail,
+  sendQuoteNotificationEmail,
+  sendQuoteConfirmationEmail,
   // Matching / invites
   sendJobInviteEmail,
   sendBookingReviewRequestEmail,

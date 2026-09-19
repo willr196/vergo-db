@@ -19,6 +19,15 @@ import {
   paragraph,
 } from './components';
 
+/*
+ * Worker- and client-facing emails do not link to a sign-in page. They used to
+ * point at `${webOrigin}/portal-login` and `${webOrigin}/client-login`, neither
+ * of which has ever existed, so every "Log In to VERGO" button landed on a 404.
+ * There is no web portal, so these emails now say we will be in contact and ask
+ * people to reply — which is how the work is actually arranged. Admin-facing
+ * emails still link into the admin panel, which does exist.
+ */
+
 // ============================================
 // USER EMAILS
 // ============================================
@@ -106,22 +115,18 @@ export const clientPasswordResetEmail = (data: EmailTemplateData): string => {
 };
 
 export const clientApprovalEmail = (data: EmailTemplateData): string => {
-  const loginUrl = `${env.webOrigin}/client-login`;
-
   return composeEmail({
     body: emailBody(`
       ${sectionHeading('Welcome to VERGO!', '🎉')}
       <p>Hi ${safe(data.recipientName)},</p>
       <p>Great news! Your business account for <strong>${safe(data.companyName)}</strong> has been approved.</p>
-      ${paragraph('You can now log in to your client dashboard and start requesting staffing quotes.')}
-      ${primaryButton('Log In to Dashboard', loginUrl)}
+      ${paragraph('We will be in touch directly about staffing for your events. To request a quote, just reply to this email or send us your dates and we will come back to you with a price.')}
       ${contentCard(`
-        <h4 style="margin: 0 0 15px 0; color: #2c3e2f;">What you can do:</h4>
+        <h4 style="margin: 0 0 15px 0; color: #2c3e2f;">What happens next:</h4>
         ${listItems([
-          'Request staffing quotes',
-          'Track your quote requests',
-          'View your booking history',
-          'Manage your company profile',
+          'Tell us your event dates, venue and the roles you need',
+          'We confirm availability and send you a price',
+          'We staff and brief the team, and stay in contact through the event',
         ])}
       `)}
       ${paragraph('If you have any questions, feel free to reply to this email or contact us directly.')}
@@ -320,7 +325,6 @@ const formatPay = (data: EmailTemplateData): string => {
 };
 
 export const shiftConfirmedEmail = (data: EmailTemplateData): string => {
-  const dashboardUrl = `${env.webOrigin}/portal-login`;
   const shiftStr = data.shiftStart && data.shiftEnd ? `${data.shiftStart} – ${data.shiftEnd}` : 'TBC';
   const pay = formatPay(data);
 
@@ -337,23 +341,20 @@ export const shiftConfirmedEmail = (data: EmailTemplateData): string => {
         <p style="margin: 0 0 4px;">📍 ${safe(data.venue || data.jobLocation)}</p>
         ${pay ? `<p style="margin: 0;">💷 ${safe(pay)}</p>` : ''}
       `)}
-      ${infoBox('<p style="margin: 0;"><strong>Can no longer make it?</strong> Let us know as soon as possible so we can find cover — confirmed shifts cannot be withdrawn from the dashboard.</p>', 'warning')}
-      ${primaryButton('View Shift Details', dashboardUrl)}
+      ${infoBox('<p style="margin: 0;"><strong>Can no longer make it?</strong> Let us know as soon as possible so we can find cover — reply to this email or message us on WhatsApp.</p>', 'warning')}
+      ${paragraph('We will be in contact before the day with anything else you need — uniform, exact meeting point and who to ask for on arrival.')}
       <p>See you there,<br><strong>The VERGO Team</strong></p>
     `),
   });
 };
 
 export const shiftNotSelectedEmail = (data: EmailTemplateData): string => {
-  const dashboardUrl = `${env.webOrigin}/portal-login`;
-
   return composeEmail({
     body: emailBody(`
       ${sectionHeading('Update on your application')}
       <p>Hi ${safe(data.recipientName)},</p>
       ${paragraph(`Thank you for applying for <strong>${safe(data.jobTitle)}</strong>. On this occasion you haven't been selected for the shift.`)}
-      ${paragraph("This isn't a reflection on your application — shifts often come down to availability and the specific mix of roles a client needs on the day. You remain on the VERGO roster and we'd encourage you to apply for other shifts.")}
-      ${primaryButton('Browse Available Shifts', dashboardUrl)}
+      ${paragraph("This isn't a reflection on your application — shifts often come down to availability and the specific mix of roles a client needs on the day. You remain on the VERGO roster and we will be in contact as other shifts come up that suit you.")}
       <p>Best regards,<br><strong>The VERGO Team</strong></p>
     `),
   });
@@ -447,7 +448,6 @@ export const generalEnquiryEmail = (data: EmailTemplateData): string => {
 // ============================================
 
 export const jobInviteEmail = (data: EmailTemplateData): string => {
-  const dashboardUrl = `${env.webOrigin}/portal-login`;
   const dateStr = data.eventDate
     ? new Date(data.eventDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
     : 'TBC';
@@ -457,7 +457,7 @@ export const jobInviteEmail = (data: EmailTemplateData): string => {
     body: emailBody(`
       ${sectionHeading("You've been invited to a shift", '📋')}
       <p>Hi ${safe(data.recipientName)},</p>
-      ${paragraph('VERGO has personally selected you for the following opportunity. Log in to your dashboard to accept or decline.')}
+      ${paragraph('VERGO has personally selected you for the following opportunity. Reply to this email to accept or decline.')}
       ${accentCard(`
         <p style="margin: 0 0 6px; font-size: 17px; font-weight: 700;">${safe(data.jobTitle)}</p>
         <p style="margin: 0 0 4px; color: #888; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">${safe(data.roleName)}</p>
@@ -466,8 +466,7 @@ export const jobInviteEmail = (data: EmailTemplateData): string => {
         <p style="margin: 0;">📍 ${safe(data.jobLocation)}</p>
       `)}
       ${data.adminNote ? infoBox(`<p style="margin: 0;"><strong>Note from VERGO:</strong> ${safe(data.adminNote)}</p>`, 'info') : ''}
-      ${primaryButton('View & Respond on Dashboard', dashboardUrl)}
-      ${paragraph('Please respond as soon as possible — spots are limited.')}
+      ${paragraph('Please reply as soon as you can to let us know either way — spots are limited, and we will be in contact to confirm once you have.')}
       <p>Best regards,<br><strong>The VERGO Team</strong></p>
     `),
   });
@@ -478,7 +477,6 @@ export const jobInviteEmail = (data: EmailTemplateData): string => {
 // ============================================
 
 export const bookingReviewRequestEmail = (data: EmailTemplateData): string => {
-  const reviewUrl = `${env.webOrigin}/portal-login`;
   const dateStr = data.eventDate
     ? new Date(data.eventDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
     : 'your recent event';
@@ -488,38 +486,26 @@ export const bookingReviewRequestEmail = (data: EmailTemplateData): string => {
       ${sectionHeading('How did your event go?', '⭐')}
       <p>Hi ${safe(data.recipientName)},</p>
       ${paragraph(`Thank you for working with VERGO. We hope <strong>${safe(data.staffName)}</strong> delivered a great service at ${safe(dateStr)}.`)}
-      ${paragraph('Your feedback helps us maintain quality and recognise outstanding staff. It only takes a moment — just a 1–5 star rating and an optional comment.')}
-      ${primaryButton('Leave a Review', reviewUrl)}
-      ${infoBox('<p style="margin: 0; font-size: 14px;">Reviews are visible to the VERGO team and help us match the right staff to future events.</p>', 'info')}
+      ${paragraph('Your feedback helps us maintain quality and recognise outstanding staff. Just reply to this email with how it went — a rating out of five and anything you want to flag is plenty.')}
+      ${infoBox('<p style="margin: 0; font-size: 14px;">Your feedback stays with the VERGO team and helps us match the right staff to future events.</p>', 'info')}
       <p>Thank you for choosing VERGO.<br><strong>The VERGO Team</strong></p>
     `),
   });
 };
 
 export const rosterApprovalEmail = (data: EmailTemplateData): string => {
-  const loginUrl = data.email
-    ? `${env.webOrigin}/portal-login?email=${encodeURIComponent(data.email)}`
-    : `${env.webOrigin}/portal-login`;
-  const hasTempPassword = Boolean(data.tempPassword);
-
   return composeEmail({
     body: emailBody(`
       ${sectionHeading('Welcome to the VERGO Roster!', '🎉')}
       <p>Hi ${safe(data.recipientName)},</p>
-      ${paragraph("Great news — you've been approved to join the VERGO roster! Your account is ready and you can now log in to browse and apply for available shifts.")}
-      ${accentCard(`
-        <p style="margin: 0 0 8px; font-weight: 600; font-size: 15px;">Your Login Credentials</p>
-        <p style="margin: 0 0 4px;"><strong>Email:</strong> ${safe(data.email)}</p>
-        <p style="margin: 0;"><strong>${hasTempPassword ? 'Temporary Password' : 'Password'}:</strong> ${hasTempPassword ? safe(data.tempPassword) : 'Use the password you created after applying.'}</p>
-      `)}
-      ${hasTempPassword ? infoBox('<p style="margin: 0; font-size: 14px;"><strong>Important:</strong> You must change your password when you first log in.</p>', 'warning') : ''}
-      ${primaryButton('Log In to VERGO', loginUrl)}
-      ${paragraph('Once logged in, you can:')}
+      ${paragraph("Great news — you've been approved to join the VERGO roster. You're on the books and we'll be in contact as shifts come up that suit you.")}
+      ${paragraph('What happens from here:')}
       ${listItems([
-        'Browse available VERGO shifts',
-        'Apply for jobs that match your skills',
-        'Manage your profile and availability',
+        'We email you when a shift matches your roles and availability',
+        'Reply to accept, and we confirm you on it',
+        'We send the venue, timings and uniform before the day',
       ])}
+      ${paragraph('If your availability changes, or there are venues or types of work you would rather we put you forward for, just reply to this email and let us know.')}
       <p>Welcome aboard!<br><strong>The VERGO Team</strong></p>
     `),
   });

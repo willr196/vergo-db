@@ -139,7 +139,26 @@ body {
   top: 0;
   z-index: 100;
 }
-.as-topbar-title { font-size: 1rem; font-weight: 600; flex: 1; }
+/* admin-nav.js injects the sidebar at the top of <body>, so a keyboard user
+   would otherwise tab the whole nav on every page before reaching the content. */
+.as-skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 200;
+  padding: 10px 18px;
+  background: var(--as-gold);
+  color: #0c0b0a;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: top 140ms ease;
+}
+.as-skip-link:focus { top: 12px; }
+
+/* This is the page's <h1>, so the browser default margin has to go — it is a
+   flex child of the topbar and would otherwise push the row out of line. */
+.as-topbar-title { font-size: 1rem; font-weight: 600; flex: 1; margin: 0; }
 .as-topbar-right { display: flex; align-items: center; gap: 10px; }
 
 .as-content { padding: 24px; flex: 1; }

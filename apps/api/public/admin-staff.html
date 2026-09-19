@@ -20,18 +20,19 @@
   <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
 </head>
 <body>
+  <a href="#as-content" class="as-skip-link">Skip to main content</a>
 
   <div class="as-main">
     <header class="as-topbar">
       <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
-      <span class="as-topbar-title">Staff</span>
+      <h1 class="as-topbar-title">Staff</h1>
       <div class="as-topbar-right">
         <span id="as-refresh-label" class="text-muted fs-sm"></span>
         <button class="btn btn-ghost btn-sm" data-action="refresh-stats" aria-label="Refresh">&#8635;</button>
       </div>
     </header>
 
-    <div class="as-content">
+    <div class="as-content" id="as-content">
       <div id="staff-panel">
         <!-- The three concern cards narrow the list to what they count -->
         <div class="kpi-grid" id="staff-stats">

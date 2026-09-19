@@ -152,6 +152,61 @@ function checkResendReadiness(): ReadinessCheck {
   };
 }
 
+/**
+ * CSP hashes for the inline <script> blocks in the static pages — the JSON-LD
+ * that carries our structured data to search engines.
+ *
+ * These are computed at boot from the files actually on disk rather than
+ * hardcoded. A hash covers the script body byte for byte, so a hardcoded list
+ * goes stale the moment anyone reformats a block or a checkout rewrites line
+ * endings, and the only symptom is structured data silently vanishing from
+ * search results. Scanning at startup means the header always matches what we
+ * serve.
+ */
+function collectInlineScriptHashes(dir: string): string[] {
+  const hashes = new Set<string>();
+  // Inline only: the negative lookahead skips anything carrying a src=.
+  const scriptPattern = /<script(?![^>]*\ssrc=)[^>]*>([\s\S]*?)<\/script>/gi;
+
+  const walk = (current: string) => {
+    let entries: fs.Dirent[];
+    try {
+      entries = fs.readdirSync(current, { withFileTypes: true });
+    } catch {
+      return;
+    }
+
+    for (const entry of entries) {
+      const full = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+        continue;
+      }
+      if (!entry.name.endsWith('.html')) continue;
+
+      let source: string;
+      try {
+        source = fs.readFileSync(full, 'utf8');
+      } catch {
+        continue;
+      }
+
+      let match: RegExpExecArray | null;
+      scriptPattern.lastIndex = 0;
+      while ((match = scriptPattern.exec(source))) {
+        const body = match[1];
+        if (!body.trim()) continue;
+        hashes.add(`'sha256-${crypto.createHash('sha256').update(body, 'utf8').digest('base64')}'`);
+      }
+    }
+  };
+
+  walk(dir);
+  return [...hashes];
+}
+
+const inlineScriptHashes = collectInlineScriptHashes(publicDir);
+
 function buildJobPageCspHeader(nonce: string) {
   // Job pages include dynamic JSON-LD. Use a nonce-based CSP for these routes only.
   const nonceToken = `'nonce-${nonce}'`;
@@ -190,16 +245,9 @@ app.use(helmet({
       frameSrc: ["'self'", "https:"],
       objectSrc: ["'none'"],
       imgSrc: ["'self'", "data:", "https:"],
-      // No 'unsafe-inline' scripts. Allow JSON-LD blocks via hashes.
-      scriptSrc: ["'self'",
-	        "https://www.googletagmanager.com",
-	        "'sha256-bYytdQbt4/RDWWhFZmVRLpcyvC82eYWvpNUL1GqOmqE='",
-	        "'sha256-Bn+PE8Z6MGdFRklio4cKmi1JCSXUfz56nBQZLmeph0U='",
-	        "'sha256-nqsLh/2P2ZU7HPCu0Sht5GNB/ztTQLYANu6e5xW4O8U='",
-        "'sha256-MNpgalLYls/mwbvq0t4xLhxlPnzbVTrnG1EVJY3HmW4='",
-        "'sha256-Dl1ItkNbAtPXYv9tV9GRLoD8pUfZw5BEJAeB5zZECQ0='",
-        "'sha256-AntLn2RJoFEZbGoR3UNyOQ3MzbhEVnaevh2KT7O/CVI='",
-      ],
+      // No 'unsafe-inline' scripts. JSON-LD blocks are allowed via hashes
+      // computed from the served files at boot (see collectInlineScriptHashes).
+      scriptSrc: ["'self'", "https://www.googletagmanager.com", ...inlineScriptHashes],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
       connectSrc: ["'self'", "https://*.google-analytics.com", "https://*.analytics.google.com", "https://*.googletagmanager.com", "https://stats.g.doubleclick.net"]

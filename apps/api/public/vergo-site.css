@@ -3,22 +3,26 @@
  * Mobile-first, dark theme, no framework. Tokens match the client-approved design handoff.
  */
 
+/* Palette is shared with vergo-public-pages.css (blog, 404, login) so the
+   marketing pages and the blog read as one site. Gold #C4A24E is the brand
+   accent; the token names differ between the two files but the values must
+   not. Change one, change the other. */
 :root {
-  --bg: #171310;
-  --footer-bg: #120f0c;
-  --header-bg: rgba(23, 19, 16, 0.88);
-  --text: #f2efe8;
-  --text-secondary: #cfc9bd;
-  --text-muted: #8f8a7c;
-  --accent: #4fc46f;
-  --accent-hover: #7fe098;
-  --accent-ink: #1a1410;
-  --accent-rgb: 79, 196, 111;
-  --hairline: rgba(242, 239, 232, 0.12);
-  --hairline-soft: rgba(242, 239, 232, 0.10);
-  --hairline-strong: rgba(242, 239, 232, 0.14);
-  --panel-fill: rgba(242, 239, 232, 0.03);
-  --card-fill: linear-gradient(180deg, rgba(242, 239, 232, 0.05), rgba(242, 239, 232, 0.01));
+  --bg: #0a0a0a;
+  --footer-bg: #070707;
+  --header-bg: rgba(10, 10, 10, 0.88);
+  --text: #f7f7f7;
+  --text-secondary: #d6d6d6;
+  --text-muted: #9b9b9b;
+  --accent: #C4A24E;
+  --accent-hover: #d9bd74;
+  --accent-ink: #0c0b0a;
+  --accent-rgb: 196, 162, 78;
+  --hairline: rgba(255, 255, 255, 0.10);
+  --hairline-soft: rgba(255, 255, 255, 0.08);
+  --hairline-strong: rgba(255, 255, 255, 0.16);
+  --panel-fill: rgba(255, 255, 255, 0.03);
+  --card-fill: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
   --font-serif: 'Instrument Serif', Georgia, serif;
   --font-sans: 'Work Sans', Helvetica, Arial, sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
@@ -139,13 +143,67 @@ p:last-child { margin-bottom: 0; }
   justify-content: space-between;
   gap: 24px;
 }
-/* The header must be allowed to wrap. Brand + nav links + the phone pill do
-   not fit on one line at phone widths, and without wrapping the whole page
-   scrolls sideways. */
-@media (max-width: 640px) {
+/* Mobile navigation. vergo-site-nav.js injects the toggle and the panel from
+   the links already in .header-actions; without JS the header falls back to
+   wrapping, which is what it did before — brand, nav links and phone pill do
+   not fit on one line at phone widths, and unwrapped the page scrolls
+   sideways. */
+.site-menu-toggle { display: none; }
+
+@media (max-width: 860px) {
   .site-header-inner { padding: 14px 20px; flex-wrap: wrap; gap: 10px 12px; }
   .header-actions { flex-wrap: wrap; row-gap: 8px; gap: 4px; }
+
+  /* Only take over once the script has built the panel, so a no-JS page keeps
+     its links instead of losing the nav entirely. */
+  .site-header-inner.has-mobile-nav { flex-wrap: wrap; }
+  .site-header-inner.has-mobile-nav .header-actions { display: none; }
+
+  .has-mobile-nav .site-menu-toggle {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    padding: 0 10px;
+    background: none;
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+  .site-menu-toggle span {
+    display: block;
+    height: 1.5px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: transform 160ms ease, opacity 160ms ease;
+  }
+  .site-menu-toggle.is-active span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .site-menu-toggle.is-active span:nth-child(2) { opacity: 0; }
+  .site-menu-toggle.is-active span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  .site-mobile-menu {
+    flex-basis: 100%;
+    border-top: 1px solid var(--hairline-soft);
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+  .site-mobile-menu nav { display: flex; flex-direction: column; gap: 2px; }
+  .site-mobile-menu a {
+    padding: 13px 4px;
+    font-size: 15px;
+    color: var(--text-secondary);
+    border-radius: var(--radius);
+  }
+  .site-mobile-menu a:hover,
+  .site-mobile-menu a:focus-visible { color: var(--accent); }
+  .site-mobile-menu a[aria-current="page"] { color: var(--accent); }
+  /* The phone pill keeps its border in the panel but goes full width. */
+  .site-mobile-menu .call-link { margin-left: 0; justify-content: center; margin-top: 8px; }
 }
+
+body.menu-open { overflow: hidden; }
 
 .brand {
   display: flex;
@@ -163,7 +221,7 @@ p:last-child { margin-bottom: 0; }
   flex-shrink: 0;
   border-radius: 3px;
   background: var(--accent);
-  border: 1.5px solid #D4AF37;
+  border: 1.5px solid var(--accent);
   display: grid;
   place-items: center;
   color: var(--accent-ink);
@@ -200,6 +258,24 @@ p:last-child { margin-bottom: 0; }
   border-radius: var(--radius-pill);
 }
 .switch-link:hover, .switch-link:focus-visible { background: rgba(242, 239, 232, 0.08); color: var(--text); }
+
+/* Special events is a distinct offer rather than another section of the site,
+   so it carries its own tag in the banner: gold, outlined, and never allowed to
+   break across two lines the way "Special events" otherwise would when the
+   header wraps on a phone. */
+.switch-link--feature {
+  color: var(--accent);
+  border: 1px solid rgba(var(--accent-rgb), 0.35);
+  white-space: nowrap;
+}
+.switch-link--feature:hover, .switch-link--feature:focus-visible {
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+}
+.switch-link--feature[aria-current="page"] {
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+}
 
 /* Declared after the base rules above, not with the header wrap block higher
    up the file — same specificity means source order decides, and up there the

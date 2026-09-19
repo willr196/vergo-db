@@ -45,6 +45,8 @@ export type EmailType =
   // Enquiry emails
   | 'staff-request'
   | 'general-enquiry'
+  | 'quote-notification'            // To admin: someone priced up a job
+  | 'quote-confirmation'            // To the person who asked
   // Roster
   | 'roster-approval'
   // Reminders

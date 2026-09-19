@@ -21,18 +21,19 @@
   <link rel="stylesheet" href="/pages/css/admin-analytics.css">
 </head>
 <body>
+  <a href="#as-content" class="as-skip-link">Skip to main content</a>
 
   <div class="as-main">
     <header class="as-topbar">
       <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
-      <span class="as-topbar-title">Analytics</span>
+      <h1 class="as-topbar-title">Analytics</h1>
       <div class="as-topbar-right">
         <button class="btn btn-ghost btn-sm" data-action="refresh">&#8635; Refresh</button>
         <button class="btn btn-ghost btn-sm" data-action="export-csv">↓ CSV</button>
       </div>
     </header>
 
-    <div class="as-content">
+    <div class="as-content" id="as-content">
       <!-- Weekly summary -->
       <div class="as-section-hdr mb-2"><span class="as-section-title">This week vs last week</span></div>
       <div class="weekly-grid" id="weekly-grid">

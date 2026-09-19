@@ -6,10 +6,11 @@ const path = require('path');
 
 const publicRoot = path.join(process.cwd(), 'public');
 
-const legacyAliasRedirects = new Map([
-  ['js/client-login.html', '/client-login'],
-  ['js/client-register.html', '/client-register'],
-]);
+// Pages that exist only as redirect stubs and so are exempt from the shell and
+// metadata checks. The two client-auth stubs that used to be listed here were
+// deleted with the client portal; keep this empty rather than naming files that
+// are not there, or the summary reports exemptions for nothing.
+const legacyAliasRedirects = new Map([]);
 
 function toPosix(value) {
   return value.split(path.sep).join('/');
@@ -78,8 +79,18 @@ function validateSharedMeta(html) {
   return issues;
 }
 
+// Asset references carry a cache-busting query string (?v=2, ?v=7). Matching the
+// bare path only meant every page that bumped its cache key read as missing the
+// asset entirely, which is how 12 of these checks came to fail on pages that do
+// load the file.
 function hasPublicShell(html) {
-  return /<script\b[^>]*src=["']\/vergo-public-shell\.js["'][^>]*><\/script>/i.test(html);
+  return /<script\b[^>]*src=["']\/vergo-public-shell\.js(?:\?[^"']*)?["'][^>]*><\/script>/i.test(html);
+}
+
+// Marketing pages ship a static header in the HTML; 404, blog and login mount an
+// empty div and let /vergo-public-shell.js inject the nav. Both are current.
+function hasStaticHeader(html) {
+  return /<header\b[^>]*class=["'][^"']*\bsite-header\b[^"']*["']/i.test(html);
 }
 
 function hasHeaderShellMount(html) {
@@ -105,15 +116,15 @@ function hasMainTarget(html) {
 }
 
 function hasAdminSharedCss(html) {
-  return /<link\b[^>]*href=["']\/pages\/css\/admin-shared\.css["'][^>]*>/i.test(html);
+  return /<link\b[^>]*href=["']\/pages\/css\/admin-shared\.css(?:\?[^"']*)?["'][^>]*>/i.test(html);
 }
 
 function hasAdminCore(html) {
-  return /<script\b[^>]*src=["']\/js\/admin-core\.js["'][^>]*><\/script>/i.test(html);
+  return /<script\b[^>]*src=["']\/js\/admin-core\.js(?:\?[^"']*)?["'][^>]*><\/script>/i.test(html);
 }
 
 function hasAdminNav(html) {
-  return /<script\b[^>]*src=["']\/js\/admin-nav\.js["'][^>]*><\/script>/i.test(html);
+  return /<script\b[^>]*src=["']\/js\/admin-nav\.js(?:\?[^"']*)?["'][^>]*><\/script>/i.test(html);
 }
 
 function hasNoindexRobots(html) {
@@ -132,12 +143,21 @@ function validatePublicPage(rel, html) {
   const issues = validateSharedMeta(html);
 
   if (!hasTitle(html)) issues.push('missing non-empty <title>');
-  if (!hasHeaderShellMount(html)) issues.push('missing #site-header shell mount');
-  if (hasHeaderShellMount(html) && !hasEmptyHeaderShellMount(html)) {
+
+  // A page carries its navigation one of two ways, and both are in use: a static
+  // <header class="site-header"> written into the HTML, or an empty #site-header
+  // div that /vergo-public-shell.js fills in. Only the second needs the shell.
+  const shellMount = hasHeaderShellMount(html);
+  if (!shellMount && !hasStaticHeader(html)) {
+    issues.push('missing site header: needs a static <header class="site-header"> or a #site-header shell mount');
+  }
+  if (shellMount && !hasEmptyHeaderShellMount(html)) {
     issues.push('#site-header shell mount must be empty; shared navigation is injected by /vergo-public-shell.js');
   }
+  if (shellMount && !hasPublicShell(html)) {
+    issues.push('missing /vergo-public-shell.js, which the #site-header shell mount depends on');
+  }
   if (!hasFooterShellMount(html)) issues.push('missing footer[role="contentinfo"] shell mount');
-  if (!hasPublicShell(html)) issues.push('missing /vergo-public-shell.js');
   if (!hasSkipLink(html)) issues.push('missing skip link to #main-content');
   if (!hasMainTarget(html)) issues.push('missing #main-content target');
 

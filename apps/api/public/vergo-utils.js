@@ -6,9 +6,9 @@ async function secureFetch(url, options) {
   const requestOptions = options || {};
   const response = await fetch(url, Object.assign({ credentials: 'include' }, requestOptions));
 
-  if (response.status === 401 && !window.location.pathname.startsWith('/portal-login')) {
+  if (response.status === 401 && !window.location.pathname.startsWith('/login')) {
     const redirect = encodeURIComponent(window.location.pathname + window.location.search);
-    window.location.href = '/portal-login?redirect=' + redirect;
+    window.location.href = '/login?redirect=' + redirect;
     return null;
   }
 

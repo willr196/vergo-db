@@ -501,6 +501,54 @@ export async function sendRosterApprovalEmail(data: {
 // ENQUIRY EMAILS
 // ============================================
 
+/**
+ * Quote emails.
+ *
+ * Unlike every other sender here, these take a finished body rather than
+ * building one: /api/v1/quotes composes its table from a normalised payload
+ * whose shape has no counterpart in EmailTemplateData, and relocating that
+ * markup would change how the emails look. What these wrappers are for is the
+ * rest of it — going through sendEmail means a rejected send is reported as a
+ * failure instead of being swallowed, and a successful one is written to the
+ * Email table so webhook delivery tracking covers quotes too.
+ *
+ * Neither is allowed to fail the submission. A public quote is email-only, so
+ * a lost notification is a lost lead, but the person filling the form in has
+ * already done their part and gets their 201 either way.
+ */
+export async function sendQuoteNotificationEmail(data: {
+  subject: string;
+  html: string;
+}): Promise<EmailResult | null> {
+  return sendEmailSilent({
+    to: TO_EMAIL,
+    subject: data.subject,
+    html: data.html,
+    emailType: 'quote-notification',
+    tags: [
+      { name: 'category', value: 'quote' },
+      { name: 'source', value: 'website' },
+    ],
+  });
+}
+
+export async function sendQuoteConfirmationEmail(data: {
+  to: string;
+  subject: string;
+  html: string;
+}): Promise<EmailResult | null> {
+  return sendEmailSilent({
+    to: data.to,
+    subject: data.subject,
+    html: data.html,
+    emailType: 'quote-confirmation',
+    tags: [
+      { name: 'category', value: 'quote-confirmation' },
+      { name: 'source', value: 'website' },
+    ],
+  });
+}
+
 export async function sendStaffRequestEmail(data: {
   name: string;
   email: string;

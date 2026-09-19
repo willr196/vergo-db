@@ -1,8 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import rateLimit from "express-rate-limit";
-import { Resend } from "resend";
-import { FROM_EMAIL, TO_EMAIL } from "../services/email";
+import { TO_EMAIL, sendQuoteNotificationEmail, sendQuoteConfirmationEmail } from "../services/email";
 import { emailSendingSuppressed } from "../services/email/suppression";
 import { logger, maskEmail } from "../services/logger";
 
@@ -25,12 +24,9 @@ const escapeHtml = (value: string) =>
 const safe = (value: string | number | null | undefined) =>
   escapeHtml(String(value ?? ''));
 
-// Initialize Resend (optional - graceful degradation if not configured, and
-// never wired up at all under NODE_ENV=test).
-const resend =
-  !emailSendingSuppressed() && process.env.RESEND_API_KEY
-    ? new Resend(process.env.RESEND_API_KEY)
-    : null;
+// Sending is optional - graceful degradation if Resend is not configured, and
+// never attempted at all under NODE_ENV=test.
+const emailEnabled = !emailSendingSuppressed() && Boolean(process.env.RESEND_API_KEY);
 
 // ============================================
 // VALIDATION SCHEMAS
@@ -75,7 +71,10 @@ const baseQuoteShape = {
     .optional(),
   
   // Additional info
-  message: z.string().max(2000).optional(),
+  // The composed body from buildMessage(), not the raw textarea: the typed
+  // message is capped at 2,000 there and the appended brief lines at 500 each,
+  // so this bound sits above their sum rather than at the textarea's limit.
+  message: z.string().max(3200).optional(),
   
   // Calculated estimate (from frontend calculator)
   estimatedTotal: z.number().positive().optional(),
@@ -196,6 +195,18 @@ function computeShiftEnd(start: string | undefined, hoursValue: unknown) {
   return `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`;
 }
 
+/** The form fields with nowhere structured to sit are folded into the message
+ *  body. Each piece is bounded here because the composed result is what the
+ *  schema's message cap is checked against: the Halloween brief always appends
+ *  a "Special requirements" line, so a message typed up to the textarea's own
+ *  2,000-character limit would otherwise push the total over the cap and the
+ *  whole enquiry would come back as a 400. */
+const MESSAGE_LIMIT = 2000;
+const EXTRA_LIMIT = 500;
+
+const clamp = (value: string, limit: number) =>
+  value.length > limit ? `${value.slice(0, limit - 1).trimEnd()}…` : value;
+
 function buildMessage(body: Record<string, unknown>) {
   const parts: string[] = [];
 
@@ -205,10 +216,10 @@ function buildMessage(body: Record<string, unknown>) {
   const estimatedHours = parseNumber(body.event_hours);
   const source = typeof body.how_found === "string" ? body.how_found.trim() : "";
 
-  if (message) parts.push(message);
-  if (specialRequirements) parts.push(`Special requirements: ${specialRequirements}`);
+  if (message) parts.push(clamp(message, MESSAGE_LIMIT));
+  if (specialRequirements) parts.push(`Special requirements: ${clamp(specialRequirements, EXTRA_LIMIT)}`);
   if (estimatedHours != null) parts.push(`Estimated hours: ${estimatedHours}`);
-  if (source) parts.push(`Lead source: ${source}`);
+  if (source) parts.push(`Lead source: ${clamp(source, EXTRA_LIMIT)}`);
 
   return parts.length ? parts.join("\n\n") : undefined;
 }
@@ -349,14 +360,15 @@ r.post("/", quoteLimiter, async (req, res, next) => {
     );
     
     // Send notification email to VERGO team
-    if (resend) {
+    if (emailEnabled) {
       try {
-        await resend.emails.send({
-          from: FROM_EMAIL,
-          to: TO_EMAIL,
+        const sent = await sendQuoteNotificationEmail({
           subject: isBooking
             ? `BOOKING REQUEST: ${data.eventType} — ${data.staffNeeded} staff${data.eventDate ? ` on ${data.eventDate}` : ""}`
-            : `Message from ${data.name || data.email || "the quote page"}`,
+            // The occasion is appended when the form supplied one, so a Halloween
+            // brief is identifiable in the inbox without opening it. Enquiries from
+            // the plain quote page carry no event type and read as before.
+            : `Message from ${data.name || data.email || "the quote page"}${data.eventType ? ` — ${data.eventType}` : ""}`,
           html: `
             <h2 style="margin-bottom: 4px;">${isBooking ? "Booking request" : "Message from the quote page"}</h2>
             <p style="margin-top: 0; padding: 10px 14px; border-radius: 6px; font-weight: bold; background: ${isBooking ? "#e6f6ea" : "#f2f0ea"}; color: #1a1410;">
@@ -386,7 +398,18 @@ r.post("/", quoteLimiter, async (req, res, next) => {
             <p style="margin-top: 20px; color: #666; font-size: 12px;">Submitted: ${safe(quoteDetails.submittedAt)}</p>
           `
         });
-        console.log(`[EMAIL] Quote notification sent to ${TO_EMAIL}`);
+        // The Resend SDK never throws: a rate limit, an HTTP error and a network
+        // failure all come back as { data: null, error }. Awaiting the send and
+        // logging "sent" reported every one of those as a success, and a public
+        // quote is email-only — a lost notification is a lost lead.
+        if (!sent?.success) {
+          logger.error(
+            { event: 'quote_notification_failed', to: TO_EMAIL, emailError: sent?.error },
+            'Quote notification was not sent'
+          );
+        } else {
+          console.log(`[EMAIL] Quote notification sent to ${TO_EMAIL} (${sent.id})`);
+        }
       } catch (emailErr) {
         console.error(`[EMAIL] Failed to send quote notification:`, emailErr);
         // Don't fail the request if email fails
@@ -395,10 +418,9 @@ r.post("/", quoteLimiter, async (req, res, next) => {
     
     // Send confirmation email to requester — only if they left us an email address
     // (an enquiry can arrive with a phone number and nothing else).
-    if (resend && data.email) {
+    if (emailEnabled && data.email) {
       try {
-        await resend.emails.send({
-          from: FROM_EMAIL,
+        const sent = await sendQuoteConfirmationEmail({
           to: data.email,
           subject: isBooking ? "Booking request received - VERGO" : "We've got your message - VERGO",
           html: `
@@ -436,7 +458,14 @@ r.post("/", quoteLimiter, async (req, res, next) => {
             </div>
           `
         });
-        console.log(`[EMAIL] Quote confirmation sent to ${maskEmail(data.email)}`);
+        if (!sent?.success) {
+          logger.error(
+            { event: 'quote_confirmation_failed', to: maskEmail(data.email), emailError: sent?.error },
+            'Quote confirmation was not sent'
+          );
+        } else {
+          console.log(`[EMAIL] Quote confirmation sent to ${maskEmail(data.email)} (${sent.id})`);
+        }
       } catch (emailErr) {
         console.error(`[EMAIL] Failed to send quote confirmation:`, emailErr);
       }

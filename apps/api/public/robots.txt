@@ -15,6 +15,8 @@ Disallow: /admin-bookings
 Disallow: /admin-quotes
 Disallow: /admin-comms
 Disallow: /admin-analytics
+Disallow: /admin-staff
+Disallow: /admin-settings
 Disallow: /login
 
 # Sitemap location

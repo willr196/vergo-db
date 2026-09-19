@@ -20,11 +20,12 @@
   <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
 </head>
 <body>
+  <a href="#as-content" class="as-skip-link">Skip to main content</a>
 
   <div class="as-main">
     <header class="as-topbar">
       <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
-      <span class="as-topbar-title">Pipeline</span>
+      <h1 class="as-topbar-title">Pipeline</h1>
       <div class="as-topbar-right">
         <button class="btn btn-ghost btn-sm d-none" id="attention-btn" data-action="toggle-attention" aria-expanded="false">
           &#9888; Needs attention <span class="as-count" id="attention-count">0</span>
@@ -34,7 +35,7 @@
       </div>
     </header>
 
-    <div class="as-content">
+    <div class="as-content" id="as-content">
       <!-- Everything waiting on a decision, folded away until it needs one.
            Opened from the topbar button. -->
       <section class="as-attention d-none" id="attention-panel">
@@ -135,7 +136,7 @@
           <table>
             <thead>
               <tr>
-                <th class="checkbox-col"><input type="checkbox" id="app-select-all" title="Select all"></th>
+                <th class="checkbox-col"><input type="checkbox" id="app-select-all" title="Select all" aria-label="Select all"></th>
                 <th data-sort="fullName">Candidate <span class="sort-icon">&#8597;</span></th>
                 <th>Roles</th>
                 <th data-sort="postcode">Location <span class="sort-icon">&#8597;</span></th>

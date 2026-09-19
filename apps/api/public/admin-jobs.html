@@ -20,17 +20,18 @@
   <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
 </head>
 <body>
+  <a href="#as-content" class="as-skip-link">Skip to main content</a>
 
   <div class="as-main">
     <header class="as-topbar">
       <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
-      <span class="as-topbar-title">Jobs</span>
+      <h1 class="as-topbar-title">Jobs</h1>
       <div class="as-topbar-right">
         <button class="btn btn-primary btn-sm" data-action="open-create-modal">+ Add Job</button>
       </div>
     </header>
 
-    <div class="as-content">
+    <div class="as-content" id="as-content">
       <!-- Pending banner -->
       <div id="pending-banner" class="pending-banner hidden">
         <div class="pending-banner-text">
@@ -42,7 +43,7 @@
       <!-- Filters -->
       <div class="as-filters">
         <div class="as-filter-group">
-          <label>Status</label>
+          <label for="filter-status">Status</label>
           <select id="filter-status">
             <option value="">All Statuses</option>
             <option value="DRAFT">Draft</option>
@@ -52,7 +53,7 @@
           </select>
         </div>
         <div class="as-filter-group">
-          <label>Type</label>
+          <label for="filter-type">Type</label>
           <select id="filter-type">
             <option value="">All Types</option>
             <option value="INTERNAL">VERGO Jobs</option>
@@ -97,21 +98,21 @@
 
           <div class="form-row">
             <div class="form-group full-width">
-              <label class="as-label">Job Title *</label>
-              <input type="text" name="title" required placeholder="e.g. Bartender - Corporate Event" class="as-input">
+              <label class="as-label" for="job-title">Job Title *</label>
+              <input id="job-title" type="text" name="title" required placeholder="e.g. Bartender - Corporate Event" class="as-input">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="as-label">Role *</label>
+              <label class="as-label" for="role-select">Role *</label>
               <select name="roleId" required id="role-select" class="as-input">
                 <option value="">Select role…</option>
               </select>
             </div>
             <div class="form-group">
-              <label class="as-label">Type *</label>
-              <select name="type" required class="as-input">
+              <label class="as-label" for="job-type">Type *</label>
+              <select id="job-type" name="type" required class="as-input">
                 <option value="EXTERNAL">External (Other Company)</option>
                 <option value="INTERNAL">Internal (VERGO)</option>
               </select>
@@ -120,30 +121,30 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="as-label">Company Name</label>
-              <input type="text" name="companyName" placeholder="e.g. ABC Events Ltd" class="as-input">
+              <label class="as-label" for="job-companyname">Company Name</label>
+              <input id="job-companyname" type="text" name="companyName" placeholder="e.g. ABC Events Ltd" class="as-input">
             </div>
             <div class="form-group">
-              <label class="as-label">Location *</label>
-              <input type="text" name="location" required placeholder="e.g. Central London" class="as-input">
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="as-label">Venue</label>
-              <input type="text" name="venue" placeholder="e.g. The Dorchester Hotel" class="as-input">
-            </div>
-            <div class="form-group">
-              <label class="as-label">Event Date</label>
-              <input type="date" name="eventDate" class="as-input">
+              <label class="as-label" for="job-location">Location *</label>
+              <input id="job-location" type="text" name="location" required placeholder="e.g. Central London" class="as-input">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="as-label">Event End Date</label>
-              <input type="date" name="eventEndDate" class="as-input">
+              <label class="as-label" for="job-venue">Venue</label>
+              <input id="job-venue" type="text" name="venue" placeholder="e.g. The Dorchester Hotel" class="as-input">
+            </div>
+            <div class="form-group">
+              <label class="as-label" for="job-eventdate">Event Date</label>
+              <input id="job-eventdate" type="date" name="eventDate" class="as-input">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="as-label" for="job-eventenddate">Event End Date</label>
+              <input id="job-eventenddate" type="date" name="eventEndDate" class="as-input">
               <span class="text-muted fs-sm">Leave blank for a single-day job.</span>
             </div>
             <div class="form-group"></div>
@@ -151,23 +152,23 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="as-label">Shift Start</label>
-              <input type="time" name="shiftStart" class="as-input">
+              <label class="as-label" for="job-shiftstart">Shift Start</label>
+              <input id="job-shiftstart" type="time" name="shiftStart" class="as-input">
             </div>
             <div class="form-group">
-              <label class="as-label">Shift End</label>
-              <input type="time" name="shiftEnd" class="as-input">
+              <label class="as-label" for="job-shiftend">Shift End</label>
+              <input id="job-shiftend" type="time" name="shiftEnd" class="as-input">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="as-label">Pay Rate (£)</label>
-              <input type="number" name="payRate" step="0.01" min="0" max="1000" placeholder="15.00" class="as-input">
+              <label class="as-label" for="job-payrate">Pay Rate (£)</label>
+              <input id="job-payrate" type="number" name="payRate" step="0.01" min="0" max="1000" placeholder="15.00" class="as-input">
             </div>
             <div class="form-group">
-              <label class="as-label">Pay Type</label>
-              <select name="payType" class="as-input">
+              <label class="as-label" for="job-paytype">Pay Type</label>
+              <select id="job-paytype" name="payType" class="as-input">
                 <option value="HOURLY">Per Hour</option>
                 <option value="DAILY">Per Day</option>
                 <option value="FIXED">Fixed Fee</option>
@@ -177,13 +178,13 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="as-label">Staff Needed (per day)</label>
-              <input type="number" name="staffNeeded" min="1" max="100" value="1" class="as-input">
+              <label class="as-label" for="job-staffneeded">Staff Needed (per day)</label>
+              <input id="job-staffneeded" type="number" name="staffNeeded" min="1" max="100" value="1" class="as-input">
               <span class="text-muted fs-sm">Applies to every day; adjust individual days below.</span>
             </div>
             <div class="form-group">
-              <label class="as-label">Status *</label>
-              <select name="status" required class="as-input">
+              <label class="as-label" for="job-status">Status *</label>
+              <select id="job-status" name="status" required class="as-input">
                 <option value="DRAFT">Draft (hidden)</option>
                 <option value="OPEN">Open (visible)</option>
                 <option value="FILLED">Filled</option>
@@ -198,18 +199,18 @@
           </div>
 
           <div class="form-group">
-            <label class="as-label">Description *</label>
-            <textarea name="description" required rows="4" placeholder="Describe the job, duties, what to expect…"></textarea>
+            <label class="as-label" for="job-description">Description *</label>
+            <textarea id="job-description" name="description" required rows="4" placeholder="Describe the job, duties, what to expect…"></textarea>
           </div>
 
           <div class="form-group">
-            <label class="as-label">Requirements</label>
-            <textarea name="requirements" rows="3" placeholder="Experience needed, certifications, dress code…"></textarea>
+            <label class="as-label" for="job-requirements">Requirements</label>
+            <textarea id="job-requirements" name="requirements" rows="3" placeholder="Experience needed, certifications, dress code…"></textarea>
           </div>
 
           <div class="form-group">
-            <label class="as-label">Application Deadline</label>
-            <input type="date" name="closingDate" class="as-input">
+            <label class="as-label" for="job-closingdate">Application Deadline</label>
+            <input id="job-closingdate" type="date" name="closingDate" class="as-input">
           </div>
         </div>
 

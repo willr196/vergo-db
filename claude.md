@@ -21,7 +21,9 @@ Monorepo with three apps:
 - TypeScript throughout (mobile), ES modules
 - Mobile uses Zustand stores in `src/store/`
 - API responses: web returns raw JSON, mobile wraps in `{ ok: true, ... }`
-- Theme: dark (#0a0a0a bg, #D4AF37 gold accent)
+- Theme: dark (#0a0a0a bg, #C4A24E gold accent). Public pages take tokens from
+  vergo-site.css and vergo-public-pages.css — the token names differ but the
+  values must stay in step. The admin panel still uses the older #D4AF37.
 
 ## IMPORTANT
 - Always run type checking after mobile changes
@@ -33,7 +35,8 @@ Monorepo with three apps:
 - Pages: admin.html (roster/dashboard), admin-jobs.html, admin-job-applications.html, admin-clients.html
 - Backend routes: apps/api/src/routes/adminClients.ts, adminJobs.ts etc.
 - Auth: session-based (web), same as the rest of the web platform
-- Stack: vanilla HTML/CSS/JS (no framework), dark theme (#0a0a0a bg, #D4AF37 gold accent)
+- Stack: vanilla HTML/CSS/JS (no framework), dark theme (#0a0a0a bg, #D4AF37 gold accent).
+  Admin keeps #D4AF37; the public site moved to #C4A24E.
 - Chart library to use: Chart.js from cdnjs CDN
 ```
 

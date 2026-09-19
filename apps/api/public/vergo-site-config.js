@@ -27,6 +27,20 @@
       holidayPayPercent: 12.07,
     },
 
+    // Special Events charge rates, £/hour per person. Mirrors the
+    // specialEvents block in apps/api/src/config/pricing.ts, which is the real
+    // source of truth — these are the fallback until /api/v1/rates resolves.
+    // The display strings are what /special-events/halloween renders.
+    specialEvents: {
+      themedHospitality: 22.00,
+      themedHospitalityDisplay: '£22',
+      characterPerformer: 30.00,
+      characterPerformerDisplay: '£30',
+      makeupArtist: 40.00,
+      makeupArtistDisplay: '£40',
+      minimumHours: 4,
+    },
+
     guarantees: {
       confirmationWindow: '8am–10pm',
       replacementMinutes: 60,
@@ -112,7 +126,28 @@
       window.VERGO_CONFIG.rates.chargeRateDisplay = '£' + Number(rate).toFixed(2);
       window.VERGO_CONFIG.rates.minimumHours = body.data.minimumChargeHours;
       window.VERGO_CONFIG.rates.holidayPayPercent = body.data.holidayPayPercent;
+
+      // Special-events rates, when the API is new enough to serve them. Whole
+      // pounds: these are round rate-card figures, not computed totals, so
+      // "£22" reads better than "£22.00" at display size.
+      var se = body.data.specialEvents;
+      if (se) {
+        var target = window.VERGO_CONFIG.specialEvents;
+        ['themedHospitality', 'characterPerformer', 'makeupArtist'].forEach(function (key) {
+          if (typeof se[key] !== 'number') return;
+          target[key] = se[key];
+          target[key + 'Display'] = '£' + (se[key] % 1 === 0 ? se[key] : se[key].toFixed(2));
+        });
+        if (typeof se.minimumChargeHours === 'number') target.minimumHours = se.minimumChargeHours;
+      }
+
       applyVergoConfig();
+
+      // Anything that derives a figure from the rate card (the quote estimate,
+      // the special-events pricing) has to redraw now that the real rates are
+      // in. Pages used to guess at this with a timer, which showed the fallback
+      // rate as though it were final whenever the request took longer.
+      window.dispatchEvent(new CustomEvent('vergo:rates'));
     })
     .catch(function () {
       // Offline or the API is unreachable — the fallback above stands.

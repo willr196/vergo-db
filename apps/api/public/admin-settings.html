@@ -20,14 +20,15 @@
   <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
 </head>
 <body>
+  <a href="#as-content" class="as-skip-link">Skip to main content</a>
 
   <div class="as-main">
     <header class="as-topbar">
       <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
-      <span class="as-topbar-title">Settings</span>
+      <h1 class="as-topbar-title">Settings</h1>
     </header>
 
-    <div class="as-content">
+    <div class="as-content" id="as-content">
       <div class="as-tabs" id="settings-tabs">
         <button class="as-tab active" data-tab="account">Account Security</button>
         <button class="as-tab" data-tab="admins">Admin Users</button>
@@ -40,15 +41,15 @@
           <p class="text-muted fs-sm mb-2">Update the password for your own admin account.</p>
 
           <div class="mb-2">
-            <label class="as-label">Current Password</label>
+            <label class="as-label" for="cp-current">Current Password</label>
             <input type="password" id="cp-current" class="as-input" autocomplete="current-password">
           </div>
           <div class="mb-2">
-            <label class="as-label">New Password</label>
+            <label class="as-label" for="cp-new">New Password</label>
             <input type="password" id="cp-new" class="as-input" autocomplete="new-password">
           </div>
           <div class="mb-2">
-            <label class="as-label">Confirm New Password</label>
+            <label class="as-label" for="cp-confirm">Confirm New Password</label>
             <input type="password" id="cp-confirm" class="as-input" autocomplete="new-password">
           </div>
           <p class="text-muted fs-sm mb-2">At least 12 characters, with uppercase, lowercase, and a number.</p>
@@ -86,11 +87,11 @@
         <div style="max-width:480px">
           <div class="as-section-hdr"><span class="as-section-title">Add Admin</span></div>
           <div class="mb-2">
-            <label class="as-label">Username</label>
+            <label class="as-label" for="na-username">Username</label>
             <input type="text" id="na-username" class="as-input" autocomplete="off" maxlength="100">
           </div>
           <div class="mb-2">
-            <label class="as-label">Password</label>
+            <label class="as-label" for="na-password">Password</label>
             <input type="password" id="na-password" class="as-input" autocomplete="new-password">
           </div>
           <p class="text-muted fs-sm mb-2">At least 12 characters, with uppercase, lowercase, and a number. This is a temporary password — the new admin will be required to set their own on first login.</p>
