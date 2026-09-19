@@ -23,9 +23,18 @@ cut from `main` at `e2ef9a3`. Nothing is pushed or deployed without Will's say-s
 Will replied "go" to the Phase 0 questions without answering them individually,
 so the brief's defaults stand except where the code overruled them:
 
-- **Payment terms.** Not the brief's default. The Terms of Business say 14 days
-  from invoice (`terms.paymentTermsDays` in `vergo-site-config.js`), so /hire now
-  reads the same value: "Within 14 days of invoice". See TODO.
+- **Payment terms.** Confirmed by Will on 2026-09-19: 14 days from invoice, as
+  the Terms of Business already said. /hire reads the same config value
+  (`terms.paymentTermsDays`) rather than repeating the number.
+- **Cancellation charges.** Will set these on 2026-09-19, replacing both the old
+  terms (50% / 100%) and the brief's "No cancellation fee": free more than 48
+  hours before, 10% between 24 and 48 hours, 25% inside 24 hours. The facts
+  sheet line in the brief is superseded; do not write "no cancellation fee" on
+  any new page.
+- **Employment status.** Confirmed by Will: PAYE casual work, with holiday pay
+  included in the pay rather than accrued separately. The PAYE post's line
+  stands. Copy may say PAYE casual worker contracts; it still must not claim
+  every worker is employed.
 - **Staff dress code.** Unknown, so it stays out of FAQs.
 - **Coverage.** "across London".
 - **Christmas pricing.** Standard rates, +25% after midnight.
@@ -65,25 +74,22 @@ so the brief's defaults stand except where the code overruled them:
 
 ## TODO for Will
 
-1. **Cancellation terms contradict the facts sheet.** /hire and the brief say
-   "No cancellation fee"; the Terms of Business charge 50% at 24 to 48 hours and
-   100% under 12 hours, and say nothing about 12 to 24 hours. Which is right?
-   Nothing changed yet.
-2. **Payment terms.** Confirm 14 days from invoice (what the Terms say). /hire
-   used to say "30 days of employment".
-3. **PAYE post claim.** The blog post says "Every VERGO worker is PAYE on a
-   casual worker contract". The brief says never to go beyond "Our employed
-   team get holiday pay, pension and payslips". Is the post's line true?
-4. **Search Console verification.** `google153cacaf2b1d1296.html` was deleted
+1. **Publish terms v2 to the live database.** `/terms` renders from
+   `/api/v1/terms`, not from the HTML, and production still serves **v1**, which
+   reads "£18.50 per hour, per person, plus VAT". That is the wrong rate, and
+   VERGO is not VAT registered. The repo has had the corrected text since July;
+   the database was never re-seeded. Run `npm run seed:terms` against production
+   (it publishes v2 with the new cancellation tiers). Until then the live terms
+   page contradicts every other page.
+2. **Search Console verification.** `google153cacaf2b1d1296.html` was deleted
    in Nov 2025. If the property was verified by that file, re-verify (or ask
    and it can be restored from git).
-5. **Dead links in account emails (outside the SEO brief).** Password-reset
-   emails point at `/reset-password`, which no longer exists. Job alerts
-   (`/jobs/<id>`) and verification redirects (`/user-login`, `/client-login`)
-   now 301 to /work or /hire instead of 404ing, but nobody can reset a password
-   from an email link.
-6. Business Profile URL, founder lines, recent-work entries, dress code: any
+3. Business Profile URL, founder lines, recent-work entries, dress code: any
    time; the pages will not show those sections until they exist.
+
+Closed: payment terms, cancellation charges and employment status are answered
+above. Password resets and the other login flows are out of scope: Will is not
+doing logins yet.
 
 ## Phase log
 
