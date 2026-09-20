@@ -666,6 +666,22 @@ app.use((req, res, next) => {
   return res.redirect(301, clean + qs);
 });
 
+// Canonicalise trailing slashes: /hire/ -> /hire. Without this the slashed form
+// 404s, so an inbound link that picked up a slash is a dead end rather than the
+// page it meant. Only paths that resolve to a real public page redirect, which
+// keeps API routes and asset directories out of it.
+app.use((req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+  if (req.path === '/' || !req.path.endsWith('/')) return next();
+
+  const clean = req.path.replace(/\/+$/, '');
+  const filePath = resolvePublicFile(clean.replace(/^\//, '') + '.html');
+  if (!filePath || !fs.existsSync(filePath)) return next();
+
+  const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+  return res.redirect(301, clean + qs);
+});
+
 // Canonical homepage
 app.get('/index', (_req, res) => res.redirect(301, '/'));
 app.get('/', (_req, res) => {
