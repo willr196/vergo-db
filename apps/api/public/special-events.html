@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Analytics, gated on cookie consent (see vergo-consent.js) -->
   <script src="/vergo-consent.js" defer></script>
-  <title>Special Events &amp; Themed Staffing London | VERGO</title>
-  <meta name="description" content="Themed and immersive event staffing from VERGO. Character performers, costumed hospitality teams and makeup artists for Halloween, Christmas and bespoke events across London.">
-  <meta property="og:title" content="Special Events &amp; Themed Staffing London | VERGO">
-  <meta property="og:description" content="Themed and immersive event staffing from VERGO. Character performers, costumed hospitality teams and makeup artists for events across London.">
-  <meta property="og:image" content="https://vergoltd.com/logo.png">
+  <title>Special Events &amp; Themed Staffing London | VERGO Staffing</title>
+  <meta name="description" content="Themed bartenders and waiting staff, character performers, scare actors and makeup artists for Halloween, Christmas and themed events across London.">
+  <meta property="og:title" content="Special Events &amp; Themed Staffing London | VERGO Staffing">
+  <meta property="og:description" content="Themed bartenders and waiting staff, character performers, scare actors and makeup artists for Halloween, Christmas and themed events across London.">
+  <meta property="og:image" content="https://vergoltd.com/images/vergo-mark.jpg">
   <meta property="og:url" content="https://vergoltd.com/special-events">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="VERGO Staffing">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#09080a">
   <link rel="icon" href="/favicon.ico">
   <link rel="canonical" href="https://vergoltd.com/special-events">
@@ -20,6 +22,29 @@
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-site.css">
   <link rel="stylesheet" href="/pages/css/special-events.css">
+  <!-- The hub page: a breadcrumb, plus the two seasonal pages as a list so the
+       sub-pages are discoverable from it. -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://vergoltd.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Special events", "item": "https://vergoltd.com/special-events" }
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Special event staffing",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Halloween staffing", "url": "https://vergoltd.com/special-events/halloween" },
+    { "@type": "ListItem", "position": 2, "name": "Christmas party staffing", "url": "https://vergoltd.com/special-events/christmas" }
+  ]
+}
+  </script>
 </head>
 <body class="se-page se-theme-halloween">
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -53,32 +78,32 @@
           <span class="se-hub-cta">Explore Halloween &rarr;</span>
         </a>
 
-        <div class="se-hub-card se-hub-card--soon">
-          <span class="se-hub-status">In development</span>
-          <h3>Christmas</h3>
-          <p>Festive hosts, themed hospitality teams and character work for parties, hotels and venues.</p>
-          <p class="form-hint">Planning ahead? <a href="/special-events/halloween#build">Send us the brief</a> and we will pick it up.</p>
-        </div>
+        <a class="se-hub-card se-hub-card--live" href="/special-events/christmas">
+          <span class="se-hub-status">Live now</span>
+          <h2>Christmas</h2>
+          <p>Waiting staff, bar staff and kitchen porters for December parties, plus festive hosts, themed hospitality teams and character work.</p>
+          <span class="se-hub-cta">Explore Christmas &rarr;</span>
+        </a>
 
         <div class="se-hub-card se-hub-card--soon">
           <span class="se-hub-status">In development</span>
           <h3>New Year&rsquo;s Eve</h3>
           <p>Late-night hospitality teams with a themed or performance element.</p>
-          <p class="form-hint">Planning ahead? <a href="/special-events/halloween#build">Send us the brief</a> and we will pick it up.</p>
+          <p class="form-hint">Planning ahead? <a href="#brief" data-concept="New Year&#39;s Eve">Send us the brief</a> and we will pick it up.</p>
         </div>
 
         <div class="se-hub-card se-hub-card--soon">
           <span class="se-hub-status">On request</span>
           <h3>Themed events</h3>
           <p>Decades nights, murder mystery, masquerade, period and bespoke concepts built around your venue.</p>
-          <p class="form-hint">Planning ahead? <a href="/special-events/halloween#build">Send us the brief</a> and we will pick it up.</p>
+          <p class="form-hint">Planning ahead? <a href="#brief" data-concept="Themed event">Send us the brief</a> and we will pick it up.</p>
         </div>
 
         <div class="se-hub-card se-hub-card--soon">
           <span class="se-hub-status">On request</span>
           <h3>Brand activations</h3>
           <p>Costumed and character staff for launches, pop-ups and experiential campaigns.</p>
-          <p class="form-hint">Planning ahead? <a href="/special-events/halloween#build">Send us the brief</a> and we will pick it up.</p>
+          <p class="form-hint">Planning ahead? <a href="#brief" data-concept="Brand activation">Send us the brief</a> and we will pick it up.</p>
         </div>
       </div>
     </section>
@@ -110,13 +135,142 @@
       </section>
     </div>
 
+    <!-- ================================================================
+         General brief. Posts to the quote endpoint as an ENQUIRY, tagged
+         with the concept picked. Same script as the Halloween form:
+         /pages/js/halloween-team.js.
+         ================================================================ -->
+    <div class="se-form-section">
+      <section class="section se-form-shell" id="brief" aria-labelledby="brief-heading">
+        <div class="se-form-head">
+          <p class="section-label">Enquiry</p>
+          <h2 id="brief-heading">Send us the brief</h2>
+          <p>Nothing here is binding. Tell us what you have and we will suggest a team.</p>
+        </div>
+
+        <form id="specialEventsForm" novalidate data-se-brief data-event-type="Special Events" data-brief-label="Special events brief">
+          <div class="form-field hp-field" aria-hidden="true">
+            <label for="sebWebsite">Leave this field blank</label>
+            <input type="text" id="sebWebsite" name="website" tabindex="-1" autocomplete="off">
+          </div>
+
+          <fieldset class="se-fieldset">
+            <legend>Which concept?</legend>
+            <div class="se-pillset">
+              <label class="se-pill"><input type="radio" name="concept" value="Christmas"><span>Christmas</span></label>
+              <label class="se-pill"><input type="radio" name="concept" value="New Year&#39;s Eve"><span>New Year&rsquo;s Eve</span></label>
+              <label class="se-pill"><input type="radio" name="concept" value="Themed event"><span>Themed event</span></label>
+              <label class="se-pill"><input type="radio" name="concept" value="Brand activation"><span>Brand activation</span></label>
+              <label class="se-pill"><input type="radio" name="concept" value="Halloween"><span>Halloween</span></label>
+              <label class="se-pill"><input type="radio" name="concept" value="Something else"><span>Something else</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="se-fieldset">
+            <legend>What do you need?</legend>
+            <div class="se-need-grid checkbox-grid">
+              <div class="checkbox-item">
+                <input type="checkbox" id="seb-need-waiting-staff" name="need" value="Waiting staff">
+                <label for="seb-need-waiting-staff">Waiting staff</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="seb-need-bar-staff" name="need" value="Bar staff">
+                <label for="seb-need-bar-staff">Bar staff</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="seb-need-hosts" name="need" value="Hosts">
+                <label for="seb-need-hosts">Hosts</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="seb-need-character-performers" name="need" value="Character performers">
+                <label for="seb-need-character-performers">Character performers</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="seb-need-makeup-artists" name="need" value="Makeup artists">
+                <label for="seb-need-makeup-artists">Makeup artists</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="seb-need-costumes-styling" name="need" value="Costumes and styling">
+                <label for="seb-need-costumes-styling">Costumes / styling</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="seb-need-not-sure-yet" name="need" value="Not sure, recommend a team">
+                <label for="seb-need-not-sure-yet">Not sure yet</label>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="se-fieldset">
+            <legend>Your event</legend>
+            <p class="form-hint">Leave anything blank.</p>
+
+            <div class="form-row form-row-2">
+              <div class="form-field">
+                <label for="sebName">Name</label>
+                <input type="text" id="sebName" name="name" autocomplete="name">
+              </div>
+              <div class="form-field">
+                <label for="sebCompany">Company <span class="label-note">optional</span></label>
+                <input type="text" id="sebCompany" name="company" autocomplete="organization">
+              </div>
+            </div>
+
+            <div class="form-row form-row-2">
+              <div class="form-field">
+                <label for="sebEmail">Email</label>
+                <input type="email" id="sebEmail" name="email" autocomplete="email">
+              </div>
+              <div class="form-field">
+                <label for="sebPhone">Phone</label>
+                <input type="tel" id="sebPhone" name="phone" autocomplete="tel">
+              </div>
+            </div>
+
+            <div class="form-row form-row-2">
+              <div class="form-field">
+                <label for="sebDate">Date</label>
+                <input type="date" id="sebDate" name="eventDate">
+              </div>
+              <div class="form-field">
+                <label for="sebLocation">Location</label>
+                <input type="text" id="sebLocation" name="location" autocomplete="address-level2" placeholder="e.g. Shoreditch, E1">
+              </div>
+            </div>
+
+            <div class="form-row form-row-2">
+              <div class="form-field">
+                <label for="sebGuests">Guests</label>
+                <input type="number" id="sebGuests" name="guestCount" min="1" max="100000" step="1" inputmode="numeric" placeholder="e.g. 150">
+              </div>
+              <div class="form-field">
+                <label for="sebHours">Hours</label>
+                <input type="number" id="sebHours" name="hours" min="1" max="24" step="1" inputmode="numeric" placeholder="e.g. 5">
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="sebMessage">The event <span class="label-note">optional</span></label>
+              <textarea id="sebMessage" name="message" maxlength="2000" placeholder="Venue, idea, anything you are unsure about."></textarea>
+            </div>
+          </fieldset>
+
+          <div class="se-form-actions">
+            <button type="submit" class="btn btn-primary btn-block">Send us the brief</button>
+            <p class="se-form-reassure">Not sure what you need? Send the event and we&rsquo;ll recommend a team.</p>
+          </div>
+
+          <div class="form-status" role="status" hidden></div>
+        </form>
+      </section>
+    </div>
+
     <div class="section-band">
       <div class="cta-band shell">
         <div>
           <h2>Planning something out of the ordinary?</h2>
           <p>Standard event and hospitality staffing still lives on <a href="/hire">the hire page</a>. This is for everything beyond it.</p>
         </div>
-        <a href="/special-events/halloween#build" class="btn btn-primary">Send us the brief</a>
+        <a href="#brief" class="btn btn-primary">Send us the brief</a>
       </div>
     </div>
   </main>
@@ -149,6 +303,7 @@
 
   <script src="/vergo-site-config.js"></script>
   <script src="/vergo-site-nav.js" defer></script>
+  <script src="/pages/js/halloween-team.js"></script>
   <script src="/vergo-whatsapp.js" defer></script>
 </body>
 </html>

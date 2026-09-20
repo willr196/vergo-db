@@ -149,6 +149,12 @@
       opacity: 1;
     }
 
+    /* The cookie banner sits along the bottom edge, so the button would cover
+       its Accept button. Step aside until a choice is made. */
+    body:has(#vergo-consent) .vergo-whatsapp-btn {
+      display: none;
+    }
+
     /* Mobile adjustments */
     @media (max-width: 768px) {
       .vergo-whatsapp-btn {

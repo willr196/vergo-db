@@ -215,18 +215,21 @@ body.menu-open { overflow: hidden; }
   text-transform: uppercase;
   color: var(--text);
 }
+/* The V mark itself, not a letter set in the brand face. The artwork is a V
+   inside a ring on a black field, with about a tenth of the frame empty around
+   it; at 30px that padding left the V too faint to read, so the image is blown
+   up to 124% and the box clipped to a circle. That trims the outer ring to the
+   edge and gives the V the whole 30px. The letter stays in the markup and is
+   hidden here, the same way the Halloween pumpkin override in
+   pages/css/special-events.css does it. */
 .brand-mark {
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
-  border-radius: 3px;
-  background: var(--accent);
-  border: 1.5px solid var(--accent);
-  display: grid;
-  place-items: center;
-  color: var(--accent-ink);
-  font-family: var(--font-serif);
-  font-size: 19px;
+  border-radius: 50%;
+  background: transparent url('/images/vergo-mark-72.png') center / 124% no-repeat;
+  color: transparent;
+  font-size: 0;
   line-height: 1;
 }
 
@@ -620,6 +623,12 @@ details.faq p { margin: -6px 0 20px; color: var(--text-secondary); max-width: 60
 }
 .cta-band h2 { margin: 0 0 8px; font-size: 40px; }
 .cta-band p { margin: 0; color: var(--text-secondary); }
+/* The two seasonal pages are linked straight from the home page, not only via
+   the hub, because the home page is the one carrying the inbound links. Both
+   are named here rather than themed by date: whichever season is over, the
+   page still answers the search that found it. */
+.cta-band p.cta-band-seasonal { margin-top: 14px; font-size: 0.95rem; }
+.cta-band-seasonal a { text-decoration: underline; text-underline-offset: 3px; }
 
 /* Forms */
 .form-field { margin-bottom: 18px; }

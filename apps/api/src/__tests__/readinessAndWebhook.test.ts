@@ -204,9 +204,11 @@ test('homepage includes canonical metadata and shared shell mounts', async () =>
 test('non-api unknown routes return the branded 404 page', async () => {
   const res = await inject(app, { method: 'GET', url: '/missing-page' });
   assert.equal(res.statusCode, 404);
-  assert.match(res.body, /<title>Page Not Found \| VERGO Events/i);
-  assert.match(res.body, /<h1>Page Not Found<\/h1>/i);
-  assert.match(res.body, /<a[^>]*href="\/"[^>]*>Back to Homepage<\/a>/i);
+  assert.match(res.body, /<title>Page Not Found \| VERGO Staffing<\/title>/i);
+  assert.match(res.body, /<h1>Page not found<\/h1>/i);
+  assert.match(res.body, /<a[^>]*href="\/hire"[^>]*>Hire event staff<\/a>/i);
+  // Same static header as the rest of the site, so the nav works on a 404 too.
+  assert.match(res.body, /<header class="site-header"/i);
 });
 
 test('unknown api routes still return json not-found payloads', async () => {

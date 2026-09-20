@@ -18,6 +18,7 @@
     "db:reset": "node scripts/guard-db-target.js \"db:reset (DESTRUCTIVE)\" && tsx prisma/reset.ts",
     "seed:jobs": "node scripts/guard-db-target.js \"seed:jobs\" && tsx prisma/seed-jobs.ts",
     "seed:marketplace": "node scripts/guard-db-target.js \"seed:marketplace\" && tsx prisma/seed-marketplace.ts",
+    "seed:terms": "node scripts/guard-db-target.js \"seed:terms\" && tsx prisma/seed-terms.ts",
     "migrate": "node scripts/guard-db-target.js \"prisma migrate dev\" && prisma migrate dev",
     "test:integration": "npm run build && node --test dist/src/__integration__/*.test.js",
     "test:all": "npm run test && npm run test:integration",

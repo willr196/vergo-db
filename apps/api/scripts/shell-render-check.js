@@ -53,7 +53,9 @@ async function page(port, url) {
   let bad = false;
   try {
     await waitForDevTools(port);
-    for (const route of ['/404', '/blog', '/login']) {
+    // /login is the last page on the shell. The blog and 404 moved to the static
+    // header and footer the other public pages use (September 2026).
+    for (const route of ['/login']) {
       const c = await page(port, BASE + route);
       await sleep(1500);
       const got = await evaluate(c, `

@@ -174,12 +174,87 @@ function main() {
   console.log(`Sitemap <loc> entries without matching public HTML file: ${sitemapLocsWithoutHtml.length}`);
   for (const loc of sitemapLocsWithoutHtml) console.log(`- ${loc}`);
 
+  const metaProblems = checkPublicMeta(pages, sitemapRoutes);
+  console.log('');
+  console.log(`Public page metadata problems: ${metaProblems.length}`);
+  for (const problem of metaProblems) console.log(`- ${problem}`);
+
   console.log('');
   console.log('How to run: npm run validate:seo');
 
-  if (missingCanonical.length || canonicalMismatches.length || sitemapLocsWithoutHtml.length) {
+  if (missingCanonical.length || canonicalMismatches.length || sitemapLocsWithoutHtml.length || metaProblems.length) {
     process.exitCode = 1;
   }
+}
+
+const TITLE_SUFFIX = '| VERGO Staffing';
+const TITLE_MAX = 60;
+const DESCRIPTION_MAX = 155;
+
+function decodeEntities(value) {
+  return value
+    .replace(/&amp;/g, '&')
+    .replace(/&rsquo;/g, '’')
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"');
+}
+
+function metaContent(html, attrName, attrValue) {
+  const tags = html.match(/<meta\b[^>]*>/gi) || [];
+  const tag = tags.find((t) => new RegExp(`\\b${attrName}\\s*=\\s*["']${attrValue}["']`, 'i').test(t));
+  if (!tag) return null;
+  const m = tag.match(/\bcontent\s*=\s*"([^"]*)"/i);
+  return m ? decodeEntities(m[1]) : '';
+}
+
+/**
+ * The rules from the SEO brief for every public page: a unique title of 60
+ * characters or fewer ending "| VERGO Staffing", a unique description of 155 or
+ * fewer, og:title/og:description matching them, og:site_name and twitter:card
+ * present, and the sitemap holding exactly the indexable pages.
+ */
+function checkPublicMeta(pages, sitemapRoutes) {
+  /** @type {string[]} */
+  const problems = [];
+  const seenTitles = new Map();
+  const seenDescriptions = new Map();
+
+  for (const page of pages) {
+    if (/^admin/.test(page.rel)) continue;
+    const html = fs.readFileSync(page.abs, 'utf8');
+    const titleMatch = html.match(/<title>([^<]*)<\/title>/i);
+    const title = titleMatch ? decodeEntities(titleMatch[1].trim()) : '';
+    const description = metaContent(html, 'name', 'description') || '';
+    const robots = metaContent(html, 'name', 'robots') || '';
+    const indexable = !/noindex/i.test(robots);
+
+    if (!title.endsWith(TITLE_SUFFIX)) problems.push(`${page.rel}: title should end "${TITLE_SUFFIX}"`);
+    if (title.length > TITLE_MAX) problems.push(`${page.rel}: title is ${title.length} characters (max ${TITLE_MAX})`);
+    if (!description) problems.push(`${page.rel}: missing meta description`);
+    if (description.length > DESCRIPTION_MAX) {
+      problems.push(`${page.rel}: description is ${description.length} characters (max ${DESCRIPTION_MAX})`);
+    }
+    if (metaContent(html, 'property', 'og:title') !== title) problems.push(`${page.rel}: og:title does not match <title>`);
+    if (metaContent(html, 'property', 'og:description') !== description) {
+      problems.push(`${page.rel}: og:description does not match the meta description`);
+    }
+    if (metaContent(html, 'property', 'og:site_name') !== 'VERGO Staffing') problems.push(`${page.rel}: missing og:site_name`);
+    if (!metaContent(html, 'name', 'twitter:card')) problems.push(`${page.rel}: missing twitter:card`);
+
+    if (title) {
+      if (seenTitles.has(title)) problems.push(`${page.rel}: title duplicates ${seenTitles.get(title)}`);
+      seenTitles.set(title, page.rel);
+    }
+    if (description) {
+      if (seenDescriptions.has(description)) problems.push(`${page.rel}: description duplicates ${seenDescriptions.get(description)}`);
+      seenDescriptions.set(description, page.rel);
+    }
+
+    if (!indexable && sitemapRoutes.has(page.route)) problems.push(`${page.rel}: noindex but listed in the sitemap`);
+    if (indexable && !sitemapRoutes.has(page.route)) problems.push(`${page.rel}: indexable but missing from the sitemap`);
+  }
+
+  return problems;
 }
 
 main();

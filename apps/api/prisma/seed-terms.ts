@@ -1,8 +1,11 @@
 import { prisma } from '../src/prisma';
 
 async function main() {
-  const version = 'v1';
-  const effectiveDate = new Date('2026-07-31T00:00:00.000Z');
+  // The API serves the most recently published version, and a booking records
+  // the version it was confirmed under, so changing the terms means a new
+  // version rather than an edit to the old one.
+  const version = 'v2';
+  const effectiveDate = new Date('2026-09-19T00:00:00.000Z');
   const sections = [
     {
       key: 'rates-and-charges',
@@ -20,8 +23,8 @@ async function main() {
       heading: 'Changes and Cancellation',
       items: [
         'More than 48 hours before the booking starts: no charge',
-        'Between 24 and 48 hours before: 50% of the confirmed booking charge',
-        'Less than 12 hours before: full confirmed booking charge',
+        'Between 24 and 48 hours before: 10% of the confirmed booking charge',
+        'Less than 24 hours before: 25% of the confirmed booking charge',
       ],
       note: "These tiers apply to the booking as a whole. If you need to reduce staff numbers rather than cancel entirely, tell us as early as possible and we'll agree a fair adjustment.",
     },

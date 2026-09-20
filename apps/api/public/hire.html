@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Analytics, gated on cookie consent (see vergo-consent.js) -->
   <script src="/vergo-consent.js" defer></script>
-  <title>Hire Event Staff in London | VERGO</title>
+  <title>Hire Event Staff in London | VERGO Staffing</title>
   <meta name="description" content="A replacement within the hour on a no-show, or the shift isn't charged. £19.00/hr per person, London event and hospitality staff.">
-  <meta property="og:title" content="Hire Event Staff in London | VERGO">
+  <meta property="og:title" content="Hire Event Staff in London | VERGO Staffing">
   <meta property="og:description" content="A replacement within the hour on a no-show, or the shift isn't charged. £19.00/hr per person, London event and hospitality staff.">
-  <meta property="og:image" content="https://vergoltd.com/logo.png">
+  <meta property="og:image" content="https://vergoltd.com/images/vergo-mark.jpg">
   <meta property="og:url" content="https://vergoltd.com/hire">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="VERGO Staffing">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#0a0a0a">
   <link rel="icon" href="/favicon.ico">
   <link rel="canonical" href="https://vergoltd.com/hire">
@@ -19,6 +21,39 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-site.css">
+  <!-- The staffing service itself. The provider points at the Organization
+       node defined on the home page rather than restating it. -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Event and hospitality staffing",
+  "serviceType": "Event and hospitality staffing",
+  "url": "https://vergoltd.com/hire",
+  "description": "Waiting staff, bar staff, kitchen porters, runners, hosts and front of house for events across London, with a replacement within the hour on a no-show.",
+  "areaServed": { "@type": "City", "name": "London" },
+  "provider": {
+    "@type": "Organization",
+    "@id": "https://vergoltd.com/#organization",
+    "name": "VERGO Staffing",
+    "legalName": "Vergo Ltd",
+    "url": "https://vergoltd.com",
+    "logo": { "@type": "ImageObject", "url": "https://vergoltd.com/images/vergo-mark.jpg" },
+    "telephone": "+44 7944 505783",
+    "email": "wrobb@vergoltd.com"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://vergoltd.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Hire event staff", "item": "https://vergoltd.com/hire" }
+  ]
+}
+  </script>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -105,8 +140,8 @@
         <li><strong>Our employed team get holiday pay, pension and payslips</strong></li>
         <li><strong>Right to work verified and documented</strong> for everyone we send</li>
         <li><strong>Employers' and public liability insured</strong>: certificates on request</li>
-        <li><strong>Payment terms:</strong> Within 30 days of employment</li>
-        <li><strong>Cancellations:</strong> No cancellation fee. As we know things can change all of a sudden.</li>
+        <li><strong>Payment terms:</strong> Within <span data-vergo="terms.paymentTermsDays">14</span> days of invoice</li>
+        <li><strong>Cancellations:</strong> Free more than 48 hours before. 10% inside 48 hours, 25% inside 24 hours.</li>
       </ul>
     </section>
 
@@ -115,6 +150,8 @@
         <div>
           <h2>Need staff for a date in the diary?</h2>
           <p>Venues, caterers, production companies, private clients and agencies needing overflow cover.</p>
+          <p>Booking a Christmas party? <a href="/special-events/christmas">Christmas party staff</a> covers December.</p>
+          <p>Halloween first? <a href="/special-events/halloween">Halloween event staff</a> covers October, themed or straight.</p>
           <p>Something themed or immersive instead? See <a href="/special-events">Special events</a>.</p>
         </div>
         <a href="/hire/quote" class="btn btn-primary">Price it up</a>

@@ -84,3 +84,57 @@ test('dead blog URLs return 410 Gone', async () => {
   assert.equal(res1.statusCode, 410);
   assert.equal(res2.statusCode, 410);
 });
+
+test('every legacy URL redirects in one hop to a page that serves', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { LEGACY_REDIRECTS } = require('../index') as { LEGACY_REDIRECTS: Record<string, string> };
+  assert.ok(Object.keys(LEGACY_REDIRECTS).length > 0);
+
+  for (const [from, to] of Object.entries(LEGACY_REDIRECTS)) {
+    for (const url of [from, `${from}.html`]) {
+      const res = await inject(app, { method: 'GET', url });
+      assert.equal(res.statusCode, 301, `${url} should 301`);
+      assert.equal(res.headers.location, to, `${url} should go to ${to}`);
+    }
+
+    const target = await inject(app, { method: 'GET', url: to });
+    assert.equal(target.statusCode, 200, `${from} redirects to ${to}, which must serve 200 rather than hop again`);
+  }
+});
+
+test('the old /apply URL goes to the worker application form', async () => {
+  const res = await inject(app, { method: 'GET', url: '/apply' });
+  assert.equal(res.statusCode, 301);
+  assert.equal(res.headers.location, '/work/apply');
+});
+
+test('legacy redirects keep the query string', async () => {
+  const res = await inject(app, { method: 'GET', url: '/user-login?verified=true' });
+  assert.equal(res.statusCode, 301);
+  assert.equal(res.headers.location, '/work?verified=true');
+});
+
+test('job links from old alert emails land on /work', async () => {
+  const res = await inject(app, { method: 'GET', url: '/jobs/abc123' });
+  assert.equal(res.statusCode, 301);
+  assert.equal(res.headers.location, '/work');
+});
+
+test('stylesheets and scripts revalidate rather than cache for a week', async () => {
+  // A real server: static files stream, and the mock socket above never sees
+  // the stream finish.
+  const server = http.createServer(app);
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const { port } = server.address() as { port: number };
+  try {
+    for (const url of ['/vergo-site.css', '/vergo-site-nav.js']) {
+      const res = await fetch(`http://127.0.0.1:${port}${url}`);
+      await res.arrayBuffer();
+      assert.equal(res.status, 200, url);
+      assert.equal(res.headers.get('cache-control'), 'public, no-cache', url);
+    }
+  } finally {
+    server.closeAllConnections();
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
+});

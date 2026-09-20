@@ -1,11 +1,60 @@
 /*
- * Blog article styles. Loaded after vergo-public-pages.css, which supplies the
- * tokens, the shell and the panel/button treatments used here.
+ * Blog styles. Loaded after vergo-site.css, which supplies the tokens, header,
+ * footer, buttons and eyebrow/lede used here.
  *
- * The site's display h1/h2 are sized for hero sections (up to 5.5rem, capped at
- * 12ch). Long-form prose needs the opposite, so article headings are re-set
- * rather than inherited.
+ * The blog used to sit on vergo-public-pages.css (a different font stack and a
+ * client-side injected header). The aliases and layout classes below map the
+ * names this file and the post markup were written against onto vergo-site.css
+ * tokens, so posts keep their markup and match the rest of the site.
+ *
+ * The site's display h1/h2 are sized for hero sections. Long-form prose needs
+ * the opposite, so article headings are re-set rather than inherited.
  */
+
+:root {
+  --gold: var(--accent);
+  --gold-line: rgba(var(--accent-rgb), 0.35);
+  --muted: var(--text-muted);
+  --white: var(--text);
+  --line: var(--hairline);
+  --panel-strong: #141414;
+  --radius-sm: var(--radius);
+}
+
+/* --- layout --------------------------------------------------------------- */
+
+/* Width rather than padding, so .post can set its own vertical padding
+   without zeroing the side gutters. */
+.page-shell {
+  width: min(100% - 80px, var(--max-width));
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .page-shell { width: calc(100% - 40px); }
+}
+
+.page-hero { padding-block: 64px 8px; }
+.section-block { padding-block: 40px 76px; }
+
+.panel,
+.blog-card {
+  background: var(--panel-fill);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+@media (max-width: 559px) {
+  .hero-actions .btn { width: 100%; }
+}
 
 /* --- index ---------------------------------------------------------------- */
 
@@ -56,7 +105,7 @@
 /* --- article -------------------------------------------------------------- */
 
 .post {
-  padding: calc(var(--nav-height) + 40px) 0 72px;
+  padding: 56px 0 72px;
   max-width: 46rem;
 }
 
@@ -93,9 +142,10 @@
 }
 
 .post-summary h2 {
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.24em;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--gold);
 }
@@ -340,7 +390,7 @@
 
 @media (max-width: 700px) {
   .post {
-    padding-top: calc(var(--nav-height) + 16px);
+    padding-top: 32px;
   }
 
   .post-table th,

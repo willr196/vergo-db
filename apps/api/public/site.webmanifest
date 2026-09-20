@@ -9,7 +9,10 @@
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "en-GB",
-  "categories": ["business", "lifestyle"],
+  "categories": [
+    "business",
+    "lifestyle"
+  ],
   "icons": [
     {
       "src": "/images/icons/icon-72x72.png",
@@ -62,41 +65,43 @@
   ],
   "shortcuts": [
     {
-      "name": "Find Jobs",
-      "short_name": "Jobs",
-      "description": "Browse available event staff positions",
-      "url": "/jobs.html",
-      "icons": [{ "src": "/images/icons/jobs-96x96.png", "sizes": "96x96" }]
+      "name": "Apply for work",
+      "short_name": "Work",
+      "description": "Event and hospitality shifts across London",
+      "url": "/work",
+      "icons": [
+        {
+          "src": "/images/icons/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     },
     {
-      "name": "Request Staff",
-      "short_name": "Staff",
-      "description": "Request staffing for your event",
-      "url": "/contact.html?tab=staff#contact-forms",
-      "icons": [{ "src": "/images/icons/quote-96x96.png", "sizes": "96x96" }]
+      "name": "Hire staff",
+      "short_name": "Hire",
+      "description": "Event and hospitality staff for your event",
+      "url": "/hire",
+      "icons": [
+        {
+          "src": "/images/icons/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     },
     {
-      "name": "Pricing",
-      "short_name": "Pricing",
-      "description": "View our rates",
-      "url": "/pricing.html",
-      "icons": [{ "src": "/images/icons/pricing-96x96.png", "sizes": "96x96" }]
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/images/screenshots/homepage.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "VERGO Ltd Homepage"
-    },
-    {
-      "src": "/images/screenshots/jobs.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Job Listings"
+      "name": "Price it up",
+      "short_name": "Quote",
+      "description": "Work out the cost of your event staff",
+      "url": "/hire/quote",
+      "icons": [
+        {
+          "src": "/images/icons/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     }
   ],
   "related_applications": [],

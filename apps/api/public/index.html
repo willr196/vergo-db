@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Analytics, gated on cookie consent (see vergo-consent.js) -->
   <script src="/vergo-consent.js" defer></script>
-  <title>VERGO | Event and Hospitality Staff Across London</title>
-  <meta name="description" content="Event and hospitality staff across London. Waiting staff, bar staff, chefs, kitchen porters, runners and hosts for weddings, corporate functions and private parties.">
-  <meta property="og:title" content="VERGO | Event and Hospitality Staff Across London">
-  <meta property="og:description" content="Event and hospitality staff across London. Waiting staff, bar staff, chefs, kitchen porters, runners and hosts for weddings, corporate functions and private parties.">
-  <meta property="og:image" content="https://vergoltd.com/logo.png">
+  <title>Event and Hospitality Staff in London | VERGO Staffing</title>
+  <meta name="description" content="Waiting staff, bar staff, kitchen porters, runners and hosts across London. £19/hr per person, four-hour minimum, confirmed names the same day.">
+  <meta property="og:title" content="Event and Hospitality Staff in London | VERGO Staffing">
+  <meta property="og:description" content="Waiting staff, bar staff, kitchen porters, runners and hosts across London. £19/hr per person, four-hour minimum, confirmed names the same day.">
+  <meta property="og:image" content="https://vergoltd.com/images/vergo-mark.jpg">
   <meta property="og:url" content="https://vergoltd.com/">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="VERGO Staffing">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#0a0a0a">
   <link rel="icon" href="/favicon.ico">
   <link rel="canonical" href="https://vergoltd.com/">
@@ -19,6 +21,52 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-site.css">
+  <!-- The business itself, on the page Google treats as the site root. The
+       figures and contact details mirror vergo-site-config.js; change them
+       there and here in the same commit. No price is stated here on purpose:
+       the rate is rendered from config and would be a second source of truth. -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EmploymentAgency",
+  "@id": "https://vergoltd.com/#organization",
+  "name": "VERGO Staffing",
+  "legalName": "Vergo Ltd",
+  "url": "https://vergoltd.com",
+  "logo": { "@type": "ImageObject", "url": "https://vergoltd.com/images/vergo-mark.jpg" },
+  "image": "https://vergoltd.com/images/vergo-mark.jpg",
+  "description": "Event and hospitality staffing across London: waiting staff, bar staff, kitchen porters, runners, hosts and front of house.",
+  "telephone": "+44 7944 505783",
+  "email": "wrobb@vergoltd.com",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "96 Sulivan Court",
+    "addressLocality": "London",
+    "postalCode": "SW6 3DB",
+    "addressCountry": "GB"
+  },
+  "areaServed": { "@type": "City", "name": "London" },
+  "knowsAbout": [
+    "Event staffing",
+    "Hospitality staffing",
+    "Waiting staff",
+    "Bar staff",
+    "Front of house staff",
+    "Kitchen porters"
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://vergoltd.com/#website",
+  "url": "https://vergoltd.com",
+  "name": "VERGO Staffing",
+  "publisher": { "@id": "https://vergoltd.com/#organization" },
+  "inLanguage": "en-GB"
+}
+  </script>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -63,6 +111,7 @@
         <div>
           <h2>Special events</h2>
           <p>Themed hospitality teams, character performers, scare actors and makeup artists.</p>
+          <p class="cta-band-seasonal">Booking now: <a href="/special-events/christmas">Christmas party staff</a> &middot; <a href="/special-events/halloween">Halloween staff and performers</a></p>
         </div>
         <a href="/special-events" class="btn btn-secondary">Explore special events</a>
       </div>
