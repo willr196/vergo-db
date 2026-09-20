@@ -21,6 +21,52 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/vergo-site.css">
+  <!-- The business itself, on the page Google treats as the site root. The
+       figures and contact details mirror vergo-site-config.js; change them
+       there and here in the same commit. No price is stated here on purpose:
+       the rate is rendered from config and would be a second source of truth. -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EmploymentAgency",
+  "@id": "https://vergoltd.com/#organization",
+  "name": "VERGO Staffing",
+  "legalName": "Vergo Ltd",
+  "url": "https://vergoltd.com",
+  "logo": { "@type": "ImageObject", "url": "https://vergoltd.com/logo.png" },
+  "image": "https://vergoltd.com/logo.png",
+  "description": "Event and hospitality staffing across London: waiting staff, bar staff, kitchen porters, runners, hosts and front of house.",
+  "telephone": "+44 7944 505783",
+  "email": "wrobb@vergoltd.com",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "96 Sulivan Court",
+    "addressLocality": "London",
+    "postalCode": "SW6 3DB",
+    "addressCountry": "GB"
+  },
+  "areaServed": { "@type": "City", "name": "London" },
+  "knowsAbout": [
+    "Event staffing",
+    "Hospitality staffing",
+    "Waiting staff",
+    "Bar staff",
+    "Front of house staff",
+    "Kitchen porters"
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://vergoltd.com/#website",
+  "url": "https://vergoltd.com",
+  "name": "VERGO Staffing",
+  "publisher": { "@id": "https://vergoltd.com/#organization" },
+  "inLanguage": "en-GB"
+}
+  </script>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
