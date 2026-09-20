@@ -13,6 +13,7 @@ Everything else is generated from it:
 | `apps/api/public/images/vergo-mark.jpg` | og:image, structured data | 1200px JPEG, quality 0.88 |
 | `apps/api/public/images/vergo-mark.webp` | spare, for a `<picture>` | 1200px WebP, quality 0.85 |
 | `apps/api/public/images/icons/icon-*.png` | web manifest, 8 sizes | 256-colour PNG |
+| `apps/api/public/images/vergo-mark-72.png` | the mark in the site header | 72px, 256-colour PNG (same bytes as `icon-72x72.png`) |
 | `apps/api/public/apple-touch-icon.png` | iOS home screen | 180px, 256-colour PNG |
 | `apps/api/public/favicon.ico` | browser tab | 16/32/48 PNGs in one .ico |
 | `apps/api/public/logo.png`, `logo-small.png` | legacy URLs, kept alive | 512 / 256, 256-colour PNG |
