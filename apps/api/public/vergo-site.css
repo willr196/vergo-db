@@ -623,6 +623,12 @@ details.faq p { margin: -6px 0 20px; color: var(--text-secondary); max-width: 60
 }
 .cta-band h2 { margin: 0 0 8px; font-size: 40px; }
 .cta-band p { margin: 0; color: var(--text-secondary); }
+/* The two seasonal pages are linked straight from the home page, not only via
+   the hub, because the home page is the one carrying the inbound links. Both
+   are named here rather than themed by date: whichever season is over, the
+   page still answers the search that found it. */
+.cta-band p.cta-band-seasonal { margin-top: 14px; font-size: 0.95rem; }
+.cta-band-seasonal a { text-decoration: underline; text-underline-offset: 3px; }
 
 /* Forms */
 .form-field { margin-bottom: 18px; }

@@ -730,7 +730,21 @@ app.use(express.static(publicDir, {
       // no-cache still caches; it just revalidates, and the ETag makes that a 304.
       res.setHeader('Cache-Control', 'public, no-cache');
     } else if (filePath.match(/\.(png|jpg|jpeg|gif|ico|svg|webp|woff|woff2)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=604800');
+      // The brand set is replaced in place under fixed names, so it has the same
+      // problem the stylesheets had above: when the V mark landed, returning
+      // visitors kept the old favicon and touch icon for a week. Photographs are
+      // never swapped like that, so they keep the long max-age.
+      const rel = path.relative(publicDir, filePath).split(path.sep).join('/');
+      const isBrandAsset =
+        rel === 'favicon.ico' ||
+        rel === 'apple-touch-icon.png' ||
+        rel === 'logo.png' ||
+        rel === 'logo-small.png' ||
+        rel === 'images/logo.png' ||
+        rel === 'images/logo-small.png' ||
+        rel.startsWith('images/vergo-mark') ||
+        rel.startsWith('images/icons/');
+      res.setHeader('Cache-Control', isBrandAsset ? 'public, no-cache' : 'public, max-age=604800');
     }
   }
 }));
