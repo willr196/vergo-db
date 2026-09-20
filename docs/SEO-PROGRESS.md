@@ -10,7 +10,7 @@ cut from `main` at `e2ef9a3`. Nothing is pushed or deployed without Will's say-s
 | 0. Recon and plan | Done 2026-09-19 |
 | 1. Quick fixes (plus the mobile menu and asset caching) | Done 2026-09-19, awaiting review |
 | 2. Christmas page | Done 2026-09-19, awaiting review |
-| 3. Service pages | Not started |
+| 3. Service pages | Done 2026-09-20, awaiting review |
 | 4. Navigation, header, footer | Not started |
 | 5. Homepage | Not started |
 | 6. Testimonial/photo/recent-work slots | Not started |
@@ -95,6 +95,39 @@ above. Password resets and the other login flows are out of scope: Will is not
 doing logins yet.
 
 ## Phase log
+
+### Phase 3 (2026-09-20)
+
+- Five service pages under `/hire/`: `/hire/waiting-staff`, `/hire/bar-staff`,
+  `/hire/kitchen-porters`, `/hire/weddings` and `/hire/production-catering`.
+  Each carries Service and FAQPage JSON-LD (both parsing, hashes picked up by
+  the boot-time CSP scan), four FAQs whose visible text is character-identical
+  to the schema, and the same header, footer, rate band and guarantees as the
+  rest of the site. Around 650 to 700 words of distinct copy each; no two share
+  a title, H1, description or section copy.
+- Headcount: every page says we recommend a team for the event rather than
+  publishing a ratio, per the brief.
+- Cancellation tiers on each page are v2 (free more than 48 hours before, 10%
+  inside 48 hours, 25% inside 24 hours), not the superseded "no cancellation
+  fee" line in the brief facts sheet.
+- Rate is the `data-vergo="rates.chargeRateDisplay"` binding, so a change in
+  `pricing.ts` lands on all five.
+- "People only" is stated on waiting staff, bar staff, weddings and production
+  catering, per the Phase 0 answer.
+- Production catering does **not** mention the ongoing production-kitchen work,
+  which Will did not clear. The kitchen porter FAQ about repeat crews was
+  rewritten for the same reason: it describes what we aim for, not what we
+  currently run.
+- Five stale redirects repointed off the generic `/hire` onto their real pages:
+  `/waiting-staff-london`, `/temporary-bar-staff-london`,
+  `/kitchen-porters-london`, `/wedding-staff-london` and
+  `/front-of-house-staff-london`. The other five `*-london` URLs have no closer
+  target than `/hire` and were left. Still 35 redirects, no collisions, no
+  chains, every target resolves.
+- `/hire`: H1 is now "Event staff for hire in London"; the one-rate line links
+  the three role pages; a "By occasion" row links weddings, film and TV,
+  Christmas and special events.
+- Sitemap: five new entries at priority 0.8.
 
 ### Phase 2 (2026-09-19)
 

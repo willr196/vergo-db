@@ -587,12 +587,14 @@ export const LEGACY_REDIRECTS: Record<string, string> = {
   '/staff-roles': '/hire',
   '/browse-staff': '/hire',
 
-  // Old per-role and per-occasion landing pages, removed 2026-08-01.
-  '/waiting-staff-london': '/hire',
-  '/temporary-bar-staff-london': '/hire',
-  '/kitchen-porters-london': '/hire',
-  '/wedding-staff-london': '/hire',
-  '/front-of-house-staff-london': '/hire',
+  // Old per-role and per-occasion landing pages, removed 2026-08-01. The five
+  // with a Phase 3 service page now land on it rather than the generic /hire;
+  // the rest have no closer target than /hire.
+  '/waiting-staff-london': '/hire/waiting-staff',
+  '/temporary-bar-staff-london': '/hire/bar-staff',
+  '/kitchen-porters-london': '/hire/kitchen-porters',
+  '/wedding-staff-london': '/hire/weddings',
+  '/front-of-house-staff-london': '/hire/waiting-staff',
   '/corporate-event-staff-london': '/hire',
   '/event-chefs-london': '/hire',
   '/festival-staff-london': '/hire',

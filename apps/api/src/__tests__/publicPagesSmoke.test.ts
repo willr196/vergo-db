@@ -21,6 +21,16 @@ class MockSocket extends Duplex {
   public remoteAddress = '127.0.0.1';
   public encrypted = false;
 
+  constructor() {
+    // A stream's default 16KB highWaterMark applies backpressure once the
+    // response passes it, and nothing here ever drains, so the write stalls
+    // and the 'finish' inject() waits on never fires. A page only has to
+    // outgrow 16KB for its test to hang rather than fail, which is what
+    // happened when new JSON-LD pushed the CSP header up by ~530 bytes and
+    // carried /hire/quote over the line. Buffer the whole response instead.
+    super({ highWaterMark: 1024 * 1024 });
+  }
+
   _read() {}
 
   _write(chunk: any, _encoding: BufferEncoding, callback: (error?: Error | null) => void) {
