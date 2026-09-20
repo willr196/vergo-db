@@ -33,7 +33,7 @@ uses) — reuse the real header, footer, forms, meta tags and analytics that alr
    each shift. Briefed before they arrive."
 8. **Chefs added** to role lists (homepage clients card, workers "Roles:" line).
 9. **No em dashes** in body copy anywhere — use full stops, colons, parentheses. Keep it that way.
-10. Client rate remains **£18.50/hr per person + VAT**, four-hour minimum, overruns in 30-minute blocks,
+10. Client rate remains **£19.00/hr per person** (not VAT registered), four-hour minimum, overruns in 30-minute blocks,
     no booking/uniform fees; senior roles quoted individually.
 
 ## Design tokens
@@ -50,7 +50,7 @@ Colours (hex):
 Type (Google Fonts: Instrument Serif, Work Sans, IBM Plex Mono):
 - Display / headings: 'Instrument Serif', Georgia, serif — weight 400, line-height 0.98–1.05, letter-spacing -0.02em
   - h1 home: `clamp(48px, 7.5vw, 104px)`; h1 subpages: `clamp(42px, 6vw, 82–88px)`
-  - section h2: 40–42px; card h2: 38px; stat figures: 44px; £18.50 figure: 64px
+  - section h2: 40–42px; card h2: 38px; stat figures: 44px; £19.00 figure: 64px
 - Body / UI: 'Work Sans', Helvetica, Arial, sans-serif — base 17px/1.55; lede 19–21px/1.5; small 15px; weights 400/500/600
 - Labels, numerals, phone, eyebrows: 'IBM Plex Mono' — 12–13px, letter-spacing 0.14–0.18em, uppercase
 - Wordmark "VERGO": 15px, 600, letter-spacing 0.22em, uppercase
@@ -77,7 +77,7 @@ Eyebrow "For clients"; h1 "Staff who turn up, know the job, and don't need manag
 CTA "Get staff for your event" → /hire/quote.
 "Two things we guarantee": two bordered cards — "Fast / Quick confirmation" and "1 hour / Someone
 doesn't show, you don't pay"; muted note "No other London agency offers this...".
-"Our rates" panel on `rgba(242,239,232,0.03)`: £18.50 in serif accent + bullet list with hairlines.
+"Our rates" panel on `rgba(242,239,232,0.03)`: £19.00 in serif accent + bullet list with hairlines.
 "How it works": 3 columns, top borders stepping down in accent opacity (1.0 / 0.4 / 0.2), mono 01–03.
 "Working with us": single-column list of bolded facts (PAYE, right to work, insurance, 14-day terms,
 cancellation ladder). Closing CTA band: serif line + "Get a quote" pill.
