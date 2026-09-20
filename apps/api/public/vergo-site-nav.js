@@ -62,6 +62,64 @@
     window.applyVergoConfig(panel);
   }
 
+  /* Stale-stylesheet guard. Hiding the header links is a stylesheet rule, so a
+     phone still holding a cached copy of vergo-site.css from before that rule
+     existed gets this menu *and* the original links — the same nav twice. CSS
+     and JS ship as separate files and cannot be assumed to be the same vintage,
+     so check the rule actually applies and fall back to inline styles if it
+     does not. `null` means not yet tested; the test only means anything at
+     phone widths, where the rule is supposed to bite. */
+  var staleCss = null;
+  var FALLBACK_PROPS = ['display', 'padding', 'flexDirection', 'justifyContent', 'gap', 'width', 'height', 'background', 'border', 'borderRadius', 'flexBasis', 'borderTop', 'marginTop', 'paddingTop'];
+
+  function applyFallback() {
+    actions.style.display = 'none';
+    toggle.style.display = 'inline-flex';
+    toggle.style.flexDirection = 'column';
+    toggle.style.justifyContent = 'center';
+    toggle.style.gap = '5px';
+    toggle.style.width = '44px';
+    toggle.style.height = '44px';
+    toggle.style.background = 'none';
+    toggle.style.border = '1px solid currentColor';
+    toggle.style.borderRadius = '8px';
+    toggle.style.padding = '10px';
+    Array.prototype.forEach.call(toggle.children, function (bar) {
+      bar.style.display = 'block';
+      bar.style.width = '100%';
+      bar.style.height = '1.5px';
+      bar.style.background = 'currentColor';
+    });
+    panel.style.flexBasis = '100%';
+    panel.style.borderTop = '1px solid currentColor';
+    panel.style.marginTop = '12px';
+    panel.style.paddingTop = '12px';
+    panelNav.style.display = 'flex';
+    panelNav.style.flexDirection = 'column';
+    panelNav.style.gap = '2px';
+    Array.prototype.forEach.call(panelNav.children, function (link) {
+      link.style.padding = '13px 4px';
+    });
+  }
+
+  function clearFallback() {
+    FALLBACK_PROPS.forEach(function (prop) {
+      actions.style[prop] = '';
+      toggle.style[prop] = '';
+      panel.style[prop] = '';
+      panelNav.style[prop] = '';
+    });
+    Array.prototype.forEach.call(toggle.children, function (bar) {
+      bar.style.display = '';
+      bar.style.width = '';
+      bar.style.height = '';
+      bar.style.background = '';
+    });
+    Array.prototype.forEach.call(panelNav.children, function (link) {
+      link.style.padding = '';
+    });
+  }
+
   function close() {
     toggle.classList.remove('is-active');
     toggle.setAttribute('aria-expanded', 'false');
@@ -97,7 +155,15 @@
   });
 
   var syncToViewport = function () {
-    if (!media.matches) close();
+    if (media.matches) {
+      // Test before anything inline is set, or the fallback would read as proof
+      // that the stylesheet works.
+      if (staleCss === null) staleCss = window.getComputedStyle(actions).display !== 'none';
+      if (staleCss) applyFallback();
+    } else {
+      if (staleCss) clearFallback();
+      close();
+    }
   };
 
   window.addEventListener('resize', syncToViewport);
