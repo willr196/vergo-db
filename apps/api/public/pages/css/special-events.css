@@ -555,6 +555,45 @@ body.se-theme-halloween { --se-pumpkin: url('/images/special-events/vergo-pumpki
 }
 
 /* ------------------------------------------------------------------ *
+ * Decor themes. Same hairline grid as the service grid. Ten themes plus
+ * the "and many more" cell, which spans the spare space so every row
+ * fills: the full row at two columns, two cells at three.
+ * ------------------------------------------------------------------ */
+
+.se-decor-grid {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: 1fr;
+  margin-top: 36px;
+  background: var(--hairline-soft);
+  border: 1px solid var(--hairline-soft);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+@media (min-width: 620px) {
+  .se-decor-grid { grid-template-columns: 1fr 1fr; }
+  .se-decor--more { grid-column: 1 / -1; }
+}
+@media (min-width: 1000px) {
+  .se-decor-grid { grid-template-columns: repeat(3, 1fr); }
+  .se-decor--more { grid-column: span 2; }
+}
+
+.se-decor {
+  background: var(--bg);
+  padding: 26px 26px 28px;
+  transition: background-color 180ms ease;
+}
+.se-decor:hover { background: rgba(242, 239, 232, 0.035); }
+.se-decor h3 { margin: 12px 0 6px; font-size: 18px; color: var(--text); }
+.se-decor p { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--text-muted); }
+
+.se-decor--more { display: block; text-decoration: none; }
+.se-decor--more h3 { color: var(--accent); }
+.se-decor--more:hover h3,
+.se-decor--more:focus-visible h3 { color: var(--accent-hover); }
+
+/* ------------------------------------------------------------------ *
  * Makeup
  * ------------------------------------------------------------------ */
 

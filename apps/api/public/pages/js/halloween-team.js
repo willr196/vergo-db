@@ -135,6 +135,8 @@
       parts.push(form.dataset.briefLabel || 'Special events brief');
       var concept = checkedValue('concept');
       if (concept) parts.push('Concept: ' + concept);
+      var decor = checkedValue('decorTheme');
+      if (decor) parts.push('Decor theme: ' + decor);
       if (atmosphere) parts.push('Atmosphere: ' + atmosphere);
       if (interaction) parts.push('Interaction level: ' + interaction);
       if (guests) parts.push('Approx guests: ' + guests);
