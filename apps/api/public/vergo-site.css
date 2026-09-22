@@ -143,67 +143,20 @@ p:last-child { margin-bottom: 0; }
   justify-content: space-between;
   gap: 24px;
 }
-/* Mobile navigation. vergo-site-nav.js injects the toggle and the panel from
-   the links already in .header-actions; without JS the header falls back to
-   wrapping, which is what it did before — brand, nav links and phone pill do
-   not fit on one line at phone widths, and unwrapped the page scrolls
-   sideways. */
-.site-menu-toggle { display: none; }
-
+/* Mobile header. The links stay in the bar rather than behind a menu button:
+   there are only ever two or three, and a dropdown just repeated them. On a
+   phone the brand and the phone pill share the top row and the links take a
+   second row of their own. .header-actions steps out of the layout
+   (display: contents) so the pill can sit beside the brand while the links
+   drop below; the ::after is the line break between the two rows. Scoped to
+   .site-header-inner so these beat the base rules further down the file. */
 @media (max-width: 860px) {
-  .site-header-inner { padding: 14px 20px; flex-wrap: wrap; gap: 10px 12px; }
-  .header-actions { flex-wrap: wrap; row-gap: 8px; gap: 4px; }
-
-  /* Only take over once the script has built the panel, so a no-JS page keeps
-     its links instead of losing the nav entirely. */
-  .site-header-inner.has-mobile-nav { flex-wrap: wrap; }
-  .site-header-inner.has-mobile-nav .header-actions { display: none; }
-
-  .has-mobile-nav .site-menu-toggle {
-    display: inline-flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-    width: 44px;
-    height: 44px;
-    padding: 0 10px;
-    background: none;
-    border: 1px solid var(--hairline-strong);
-    border-radius: var(--radius);
-    cursor: pointer;
-  }
-  .site-menu-toggle span {
-    display: block;
-    height: 1.5px;
-    background: var(--text);
-    border-radius: 2px;
-    transition: transform 160ms ease, opacity 160ms ease;
-  }
-  .site-menu-toggle.is-active span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-  .site-menu-toggle.is-active span:nth-child(2) { opacity: 0; }
-  .site-menu-toggle.is-active span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-
-  .site-mobile-menu {
-    flex-basis: 100%;
-    border-top: 1px solid var(--hairline-soft);
-    margin-top: 12px;
-    padding-top: 12px;
-  }
-  .site-mobile-menu nav { display: flex; flex-direction: column; gap: 2px; }
-  .site-mobile-menu a {
-    padding: 13px 4px;
-    font-size: 15px;
-    color: var(--text-secondary);
-    border-radius: var(--radius);
-  }
-  .site-mobile-menu a:hover,
-  .site-mobile-menu a:focus-visible { color: var(--accent); }
-  .site-mobile-menu a[aria-current="page"] { color: var(--accent); }
-  /* The phone pill keeps its border in the panel but goes full width. */
-  .site-mobile-menu .call-link { margin-left: 0; justify-content: center; margin-top: 8px; }
+  .site-header-inner { padding: 12px 20px; flex-wrap: wrap; justify-content: flex-start; gap: 0 6px; }
+  .site-header-inner::after { content: ""; flex-basis: 100%; order: 2; }
+  .site-header-inner .header-actions { display: contents; }
+  .site-header-inner .call-link { order: 1; margin-left: auto; }
+  .site-header-inner .switch-link { order: 3; margin-top: 10px; }
 }
-
-body.menu-open { overflow: hidden; }
 
 .brand {
   display: flex;
@@ -280,13 +233,12 @@ body.menu-open { overflow: hidden; }
   color: var(--accent);
 }
 
-/* Declared after the base rules above, not with the header wrap block higher
-   up the file — same specificity means source order decides, and up there the
-   base padding simply won again. Tighter padding is what lets the nav and the
-   phone pill share one row on a phone instead of stacking into three. */
+/* Declared after the base rules above, not with the header block higher up
+   the file — same specificity means source order decides, and up there the
+   base padding simply won again. */
 @media (max-width: 640px) {
-  .switch-link { padding: 8px 8px; }
-  .call-link { margin-left: 4px; padding: 9px 12px; }
+  .switch-link { padding: 8px 10px; font-size: 13.5px; }
+  .call-link { padding: 8px 12px; font-size: 13px; }
 }
 
 /* Buttons */

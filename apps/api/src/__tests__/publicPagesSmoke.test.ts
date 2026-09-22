@@ -137,7 +137,7 @@ test('stylesheets and scripts revalidate rather than cache for a week', async ()
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
   const { port } = server.address() as { port: number };
   try {
-    for (const url of ['/vergo-site.css', '/vergo-site-nav.js']) {
+    for (const url of ['/vergo-site.css', '/vergo-site-config.js']) {
       const res = await fetch(`http://127.0.0.1:${port}${url}`);
       await res.arrayBuffer();
       assert.equal(res.status, 200, url);

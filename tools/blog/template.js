@@ -83,7 +83,6 @@ const SITE_FOOTER = `  <footer class="site-footer" role="contentinfo">
   </footer>`;
 
 const PAGE_SCRIPTS = `  <script src="/vergo-site-config.js"></script>
-  <script src="/vergo-site-nav.js" defer></script>
   <script src="/vergo-whatsapp.js" defer></script>`;
 
 function head({ title, description, route, ogType = 'website', noindex = false }) {
