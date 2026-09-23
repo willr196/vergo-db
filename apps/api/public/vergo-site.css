@@ -214,6 +214,7 @@ p:last-child { margin-bottom: 0; }
   border-radius: var(--radius-pill);
 }
 .switch-link:hover, .switch-link:focus-visible { background: rgba(242, 239, 232, 0.08); color: var(--text); }
+.switch-link[aria-current="page"] { color: var(--text); }
 
 /* Special events is a distinct offer rather than another section of the site,
    so it carries its own tag in the banner: gold, outlined, and never allowed to
@@ -237,7 +238,10 @@ p:last-child { margin-bottom: 0; }
    the file — same specificity means source order decides, and up there the
    base padding simply won again. */
 @media (max-width: 640px) {
-  .switch-link { padding: 8px 10px; font-size: 13.5px; }
+  /* Tight enough that four links (Special events, For clients, Apply for work,
+     About) share one row on a 360px phone. */
+  .site-header-inner { padding: 12px 14px; gap: 0; }
+  .switch-link { padding: 8px 6px; font-size: 12.5px; }
   .call-link { padding: 8px 12px; font-size: 13px; }
 }
 
@@ -1137,7 +1141,11 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 .testimonials { display: grid; gap: 16px; }
 .testimonials-more { display: inline-block; margin-top: 20px; font-size: 15px; color: var(--accent); }
 .testimonials-more[hidden] { display: none; }
-@media (min-width: 800px) { .testimonials { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 800px) {
+  .testimonials { grid-template-columns: 1fr 1fr; }
+  /* An odd count leaves the last card alone on its row; let the lead quote take the full width instead. */
+  .testimonial:first-child:nth-last-child(odd) { grid-column: 1 / -1; }
+}
 .testimonial {
   margin: 0;
   padding: 28px 28px 24px;
