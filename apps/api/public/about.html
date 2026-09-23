@@ -70,6 +70,19 @@
       <p class="lede">A London staffing agency that also puts on events. Give us your idea and we&rsquo;ll staff the entire thing.</p>
     </section>
 
+    <!-- PHOTO SLOTS. Each one shows a placeholder frame until its file exists
+         in /images/about/, then the photo replaces it by itself (see
+         /pages/js/about-photos.js and the README in that folder). Update the
+         alt text to describe the real shot when it lands. -->
+    <div class="shell about-photo-lead">
+      <figure class="about-photo about-photo--wide">
+        <div class="about-photo-frame">
+          <span class="about-photo-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Photo coming soon</span></span>
+          <img src="/images/about/founder-on-set.webp" alt="William Robb, founder of VERGO, at work at an event." loading="lazy" decoding="async">
+        </div>
+      </figure>
+    </div>
+
     <section class="section shell" aria-labelledby="started-heading">
       <h2 id="started-heading" class="section-label">Where it started</h2>
       <div class="about-prose">
@@ -79,22 +92,33 @@
       </div>
     </section>
 
-    <!-- PHOTOS. Hidden until real ones exist. Put up to three WebP files in
-         /images/about/ (see the README there), set each alt to describe the
-         shot, fix width/height to the real size, then uncomment.
-    <section class="shell about-photos" aria-label="VERGO at work">
-      <img src="/images/about/founder-on-set.webp" alt="" width="1200" height="1500" loading="lazy" decoding="async">
-      <img src="/images/about/behind-the-scenes.webp" alt="" width="1200" height="1500" loading="lazy" decoding="async">
-      <img src="/images/about/team-at-work.webp" alt="" width="1200" height="1500" loading="lazy" decoding="async">
-    </section>
-    -->
-
     <section class="section shell" aria-labelledby="next-heading">
       <h2 id="next-heading" class="section-label">Where we&rsquo;re going</h2>
       <div class="about-prose">
         <p>I love getting creative and making things work, and that is where VERGO is heading: a staffing agency that also puts on events.</p>
         <p>Bring us your idea and we&rsquo;ll build it and staff the whole event for you, from the <a href="/special-events">themes and decor</a> to the team on the night. Great prices, and great solutions.</p>
       </div>
+    </section>
+
+    <section class="shell about-photos" aria-label="VERGO at work">
+      <figure class="about-photo">
+        <div class="about-photo-frame">
+          <span class="about-photo-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Photo coming soon</span></span>
+          <img src="/images/about/behind-the-scenes.webp" alt="Behind the scenes at a VERGO event." loading="lazy" decoding="async">
+        </div>
+      </figure>
+      <figure class="about-photo">
+        <div class="about-photo-frame">
+          <span class="about-photo-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Photo coming soon</span></span>
+          <img src="/images/about/team-at-work.webp" alt="The VERGO team working an event." loading="lazy" decoding="async">
+        </div>
+      </figure>
+      <figure class="about-photo">
+        <div class="about-photo-frame">
+          <span class="about-photo-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Photo coming soon</span></span>
+          <img src="/images/about/event-setup.webp" alt="A venue dressed and ready by VERGO." loading="lazy" decoding="async">
+        </div>
+      </figure>
     </section>
 
     <section class="section shell" aria-labelledby="team-heading">
@@ -180,6 +204,7 @@
   </footer>
 
   <script src="/vergo-site-config.js"></script>
+  <script src="/pages/js/about-photos.js" defer></script>
   <script src="/vergo-whatsapp.js" defer></script>
 </body>
 </html>
