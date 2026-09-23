@@ -220,6 +220,7 @@
             <a href="/work">Apply for work</a>
             <a href="/special-events">Special events</a>
             <a href="/about">About us</a>
+            <a href="/gallery">Gallery</a>
             <a href="/blog">Blog</a>
           </div>
         </div>
