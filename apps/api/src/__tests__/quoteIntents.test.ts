@@ -261,3 +261,19 @@ test('the Halloween brief is accepted on a phone number alone', async () => {
   const response = await post(buildApp(), withoutEmail);
   assert.equal(response.statusCode, 201);
 });
+
+test('a dress code rides along on a booking or an enquiry, and is optional', async () => {
+  const booking = await post(buildApp(), { ...FULL_BOOKING, dressCode: 'All blacks' });
+  assert.equal(booking.statusCode, 201);
+
+  const enquiry = await post(buildApp(), { intent: 'ENQUIRY', email: 'sam@example.com', dressCode: 'Black tie' });
+  assert.equal(enquiry.statusCode, 201);
+
+  const snakeCase = await post(buildApp(), { ...FULL_BOOKING, dress_code: 'White shirts' });
+  assert.equal(snakeCase.statusCode, 201);
+});
+
+test('a dress code longer than the field allows is rejected', async () => {
+  const response = await post(buildApp(), { ...FULL_BOOKING, dressCode: 'x'.repeat(201) });
+  assert.equal(response.statusCode, 400);
+});

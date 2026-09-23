@@ -426,6 +426,7 @@
       staffByRole: counts.length
         ? counts.map(function (entry) { return { role: entry.role, count: entry.count }; })
         : undefined,
+      dressCode: form.elements.dressCode.value.trim() || undefined,
       message: form.elements.message.value.trim() || undefined,
       estimatedTotal: result.total || undefined,
       honeypot: form.elements.website.value || ''

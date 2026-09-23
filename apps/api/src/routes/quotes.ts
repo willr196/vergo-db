@@ -54,6 +54,9 @@ const baseQuoteShape = {
   // hours or a typo, and the roster needs to know which.
   shiftEndsNextDay: z.boolean().optional(),
   guestCount: z.number().int().min(1).max(100000).optional(),
+  // What the team should turn up in: "all blacks", "black tie", the client's
+  // own branded kit. Free text, optional on both intents.
+  dressCode: z.string().max(200).trim().optional(),
   requestedLane: z.enum(["FLEX", "SELECT", "MANAGED"]).optional(),
   
   // Staff requirements. staffNeeded is the headcount across every role;
@@ -274,6 +277,7 @@ function normaliseQuotePayload(body: unknown) {
     shiftEndsNextDay:
       raw.shiftEndsNextDay === true || raw.shift_ends_next_day === true ? true : undefined,
     guestCount: parseNumber(raw.guestCount),
+    dressCode: firstString(raw.dressCode, raw.dress_code),
     requestedLane:
       raw.requestedLane === "FLEX" || raw.requestedLane === "SELECT" || raw.requestedLane === "MANAGED"
         ? raw.requestedLane
@@ -337,6 +341,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
         : "Not provided",
       requestedLane: data.requestedLane || "Not specified",
       guestCount: data.guestCount || "Not specified",
+      dressCode: data.dressCode || "Not specified",
       staffNeeded: data.staffNeeded,
       roles: data.roles?.join(", ") || "General staff",
       staffByRole: data.staffByRole?.map((entry) => `${entry.role} × ${entry.count}`).join(", ") || null,
@@ -392,6 +397,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Guest Count</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.guestCount)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Staff Needed</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.staffNeededLabel)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Roles</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.staffByRole || quoteDetails.roles)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Dress Code</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.dressCode)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Estimate shown on page</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.estimatedTotal)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Message</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.message)}</td></tr>
             </table>
@@ -442,6 +448,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
                   <p><strong>Staff Needed:</strong> ${safe(quoteDetails.staffByRole || data.staffNeeded)}</p>
                   ${data.eventDate ? `<p><strong>Date:</strong> ${safe(data.eventDate)}</p>` : ''}
                   ${data.location ? `<p><strong>Location:</strong> ${safe(data.location)}</p>` : ''}
+                  ${data.dressCode ? `<p><strong>Dress code:</strong> ${safe(data.dressCode)}</p>` : ''}
                   ${data.shiftStart && data.shiftEnd ? `<p><strong>Times:</strong> ${safe(data.shiftStart)} - ${safe(data.shiftEnd)}${data.shiftEndsNextDay ? ' (next day)' : ''}</p>` : ''}
                   ${data.estimatedTotal ? `<p><strong>Estimate shown on the page:</strong> £${safe(data.estimatedTotal.toLocaleString())}</p><p style="color: #666; font-size: 12px; margin: 4px 0 0;">An estimate, not a final invoice. We confirm the figure before anything is charged.</p>` : ''}
                   ${savedQuoteId ? `<p style="color: #666; font-size: 12px;"><strong>Reference:</strong> ${safe(savedQuoteId)}</p>` : ''}
