@@ -219,6 +219,7 @@
             <a href="/hire">For clients</a>
             <a href="/work">Apply for work</a>
             <a href="/special-events">Special events</a>
+            <a href="/about">About us</a>
             <a href="/blog">Blog</a>
           </div>
         </div>

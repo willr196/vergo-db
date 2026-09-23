@@ -469,6 +469,7 @@ p:last-child { margin-bottom: 0; }
   color: var(--text-secondary);
 }
 .fact-list strong { color: var(--text); font-weight: 600; }
+.fact-list + p { margin-top: 24px; }
 
 /* Step columns — "How it works" / "How to join" */
 .step-grid {
