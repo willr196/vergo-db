@@ -910,6 +910,10 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 .footer-contact { margin-bottom: 6px; font-size: 15px; }
 .footer-contact a { color: var(--text-secondary); }
 .footer-contact a:hover, .footer-contact a:focus-visible { color: var(--accent); }
+.footer-social { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 14px 0 0; font-size: 15px; }
+.footer-social a { color: var(--text-secondary); }
+.footer-social a:hover, .footer-social a:focus-visible { color: var(--accent); }
+.footer-social [hidden] { display: none; }
 .footer-legal {
   font-size: 13px;
   line-height: 1.6;
@@ -1131,6 +1135,8 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 .photo-strip-more { margin-top: 18px; }
 
 .testimonials { display: grid; gap: 16px; }
+.testimonials-more { display: inline-block; margin-top: 20px; font-size: 15px; color: var(--accent); }
+.testimonials-more[hidden] { display: none; }
 @media (min-width: 800px) { .testimonials { grid-template-columns: 1fr 1fr; } }
 .testimonial {
   margin: 0;

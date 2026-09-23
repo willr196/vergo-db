@@ -20,6 +20,17 @@
       email: 'wrobb@vergoltd.com',
     },
 
+    social: {
+      instagram: 'https://www.instagram.com/vergo.ltd/',
+      instagramHandle: '@vergo.ltd',
+    },
+
+    // Google Business review link. While it's empty every "Google reviews" link
+    // stays hidden; paste the share link from the Business Profile to show them.
+    reviews: {
+      google: '',
+    },
+
     rates: {
       chargeRate: 19.00,
       chargeRateDisplay: '£19.00',
@@ -85,7 +96,8 @@
   }
 
   // Fill any element carrying data-vergo="path.to.value" (textContent),
-  // data-vergo-tel="path" (builds a tel: href) or data-vergo-mailto="path" (builds a mailto: href).
+  // data-vergo-tel="path" (builds a tel: href), data-vergo-mailto="path" (builds a mailto: href)
+  // or data-vergo-href="path" (plain URL; the element is hidden while the value is empty).
   function applyVergoConfig(root) {
     var scope = root || document;
 
@@ -102,6 +114,13 @@
     scope.querySelectorAll('[data-vergo-mailto]').forEach(function (node) {
       var value = readPath(node.getAttribute('data-vergo-mailto'));
       if (value !== undefined) node.setAttribute('href', 'mailto:' + value);
+    });
+
+    scope.querySelectorAll('[data-vergo-href]').forEach(function (node) {
+      var value = readPath(node.getAttribute('data-vergo-href'));
+      if (value === undefined) return;
+      if (value) node.setAttribute('href', value);
+      node.hidden = !value;
     });
   }
 
