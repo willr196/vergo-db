@@ -28,7 +28,7 @@
     // Google Business review link. While it's empty every "Google reviews" link
     // stays hidden; paste the share link from the Business Profile to show them.
     reviews: {
-      google: '',
+      google: 'https://share.google/ej5Ce91xOfUCqbyfp',
     },
 
     rates: {
