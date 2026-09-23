@@ -54,6 +54,7 @@ const emailWrapper = (content: string): string => `
 const emailHeader = (): string => `
 <div style="background: ${COLORS.gold}; padding: 20px; text-align: center;">
   <h1 style="color: white; margin: 0; font-size: 24px;">VERGO</h1>
+  <p style="color: white; margin: 6px 0 0 0; font-size: 13px; font-style: italic;">Wherever you go, VERGO.</p>
 </div>
 `;
 
