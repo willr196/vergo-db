@@ -961,6 +961,19 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 .about-prose p { font-size: 18px; line-height: 1.65; color: var(--text-secondary); }
 .about-prose + .fact-list { margin-top: 28px; }
 
+/* Founder portrait beside the story; under it on a phone. */
+.about-founder { display: grid; gap: 28px; }
+@media (min-width: 860px) { .about-founder { grid-template-columns: minmax(0, 68ch) minmax(240px, 340px); gap: 48px; align-items: start; } }
+.about-founder-photo { max-width: 340px; }
+.about-founder-photo figcaption {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 /* Photo slots. The frame is the placeholder; the img sits over it and only
    shows once about-photos.js has seen it load (.is-loaded). */
 .about-photo-lead { margin-top: 36px; }
