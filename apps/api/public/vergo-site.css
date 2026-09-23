@@ -952,3 +952,39 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ------------------------------------------------------------------ *
+ * About us: story prose, photo strip, founder quote
+ * ------------------------------------------------------------------ */
+
+.about-prose { max-width: 68ch; }
+.about-prose p { font-size: 18px; line-height: 1.65; color: var(--text-secondary); }
+.about-prose + .fact-list { margin-top: 28px; }
+
+.about-photos { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 700px) { .about-photos { grid-template-columns: repeat(3, 1fr); } }
+.about-photos img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--radius); }
+
+.founder-quote {
+  margin: 0;
+  padding: 40px 0 40px 28px;
+  border-left: 2px solid var(--accent);
+}
+.founder-quote blockquote { margin: 0; }
+.founder-quote blockquote p {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(30px, 4.6vw, 52px);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  max-width: 22ch;
+}
+.founder-quote figcaption {
+  margin-top: 20px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
