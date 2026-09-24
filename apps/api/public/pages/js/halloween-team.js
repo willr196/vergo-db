@@ -1,11 +1,11 @@
 /**
- * Brief forms: "Build your Halloween team" on /events/halloween, the event
- * brief on /events and the form on /contact. (The file name predates the
- * other two; all three pages load this script.)
+ * Special events brief forms — "Build your Halloween team" on
+ * /special-events/halloween and the general brief on /special-events.
+ * (The file name predates the second form; both pages load this script.)
  *
  * Each form opts in with data-se-brief. data-event-type tags the lead; a form
- * with a "concept" radio group adds the option picked, so a Christmas brief
- * reads as "Christmas (Events)" and a contact message as "Staff (Contact)".
+ * with a "concept" radio group (the general brief) tags it with the concept
+ * picked instead, so a Christmas brief reads as one in the inbox.
  *
  * There is no new backend here. The brief is posted to the existing quote
  * endpoint as an ENQUIRY, which is the intent that matches what this form
@@ -145,9 +145,8 @@
 
     function eventType() {
       var concept = checkedValue('concept');
-      var tag = form.dataset.eventType || 'Events';
-      if (concept) return concept + ' (' + tag + ')';
-      return tag;
+      if (concept) return concept + ' (Special Events)';
+      return form.dataset.eventType || 'Special Events';
     }
 
     function buildPayload() {
@@ -205,13 +204,13 @@
           form.reset();
           clearErrors();
           showStatus(
-            'Received. Nothing is booked. VERGO replies the same day for enquiries between 8am and 10pm, and first thing the next morning for anything later.',
+            'Got it. Nothing is booked. We will read the brief and come back with a suggested team during our 8am to 10pm hours.',
             'success'
           );
           if (statusBox.scrollIntoView) statusBox.scrollIntoView({ block: 'center', behavior: 'smooth' });
         })
         .catch(function () {
-          showStatus('Something went wrong sending that. Please call 07944 505783 or email wrobb@vergoltd.com instead.', 'error');
+          showStatus('Something went wrong sending that. Please call or email us instead.', 'error');
         })
         .finally(function () {
           submitBtn.disabled = false;

@@ -23,8 +23,7 @@
     home: ['/'],
     hire: ['/hire'],
     work: ['/work'],
-    events: ['/events', '/events/halloween', '/events/christmas'],
-    about: ['/about'],
+    specialEvents: ['/special-events', '/special-events/halloween'],
   };
 
   const isCurrent = (group) => {
@@ -160,17 +159,17 @@
           <span class="logo-mark">V</span>
           <span class="logo-copy">
             <span class="logo-title">VERGO</span>
-            <span class="logo-subtitle">Staffing and events, London</span>
+            <span class="logo-subtitle">London hospitality staffing</span>
           </span>
         </a>
 
         <div class="nav-frame">
           <nav class="site-nav" aria-label="Primary">
             <ul>
-              <li><a href="/hire"${withCurrent('hire')}>Staff</a></li>
-              <li><a href="/events"${withCurrent('events')}>Events</a></li>
-              <li><a href="/work"${withCurrent('work')}>Work</a></li>
-              <li><a href="/about"${withCurrent('about')}>About</a></li>
+              <li><a href="/"${withCurrent('home')}>Home</a></li>
+              <li><a href="/hire"${withCurrent('hire')}>For clients</a></li>
+              <li><a href="/work"${withCurrent('work')}>Apply for work</a></li>
+              <li><a href="/special-events" class="nav-feature"${withCurrent('specialEvents')}>Special events</a></li>
             </ul>
           </nav>
         </div>
@@ -184,10 +183,10 @@
 
       <div id="mobile-menu" class="mobile-menu" hidden>
         <nav aria-label="Mobile">
-          <a href="/hire"${withCurrent('hire')}>Staff</a>
-          <a href="/events"${withCurrent('events')}>Events</a>
-          <a href="/work"${withCurrent('work')}>Work</a>
-          <a href="/about"${withCurrent('about')}>About</a>
+          <a href="/"${withCurrent('home')}>Home</a>
+          <a href="/hire"${withCurrent('hire')}>For clients</a>
+          <a href="/work"${withCurrent('work')}>Apply for work</a>
+          <a href="/special-events" class="nav-feature"${withCurrent('specialEvents')}>Special events</a>
         </nav>
       </div>
     </div>
@@ -208,34 +207,34 @@
             <span class="logo-mark">V</span>
             <span class="logo-copy">
               <span class="logo-title">VERGO</span>
-              <span class="logo-subtitle">Staffing and events, London</span>
+              <span class="logo-subtitle">Event staffing, London</span>
             </span>
           </a>
-          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Staffing and events across London. Wherever you go, VERGO.</p>
+          <p class="lede" style="margin-top: 18px; font-size: 0.98rem; max-width: 30rem;">Event staffing for private events, corporate hospitality, venues and productions across London.</p>
         </div>
         <div>
           <p class="footer-title">Navigate</p>
           <div class="footer-links">
-            <a href="/hire">Staff</a>
-            <a href="/events">Events</a>
-            <a href="/work">Work</a>
-            <a href="/about">About</a>
-            <a href="/blog">Journal</a>
-            <a href="/contact">Contact</a>
+            <a href="/">Home</a>
+            <a href="/hire">For clients</a>
+            <a href="/work">Apply for work</a>
+            <a href="/special-events">Special events</a>
+            <a href="/about">About us</a>
+            <a href="/blog">Blog</a>
           </div>
         </div>
         <div>
           <p class="footer-title">Contact</p>
           <div class="footer-links">
             <a href="https://wa.me/${footerWhatsAppNumber}?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20staffing%20for%20an%20event" target="_blank" rel="noopener">WhatsApp: ${footerPhoneDisplay}</a>
-            <p>Same-day reply for enquiries between 8am and 10pm.</p>
+            <p>Replies within 24 hours for most enquiries.</p>
             <p>London and surrounding areas.</p>
           </div>
         </div>
       </div>
 
       <div class="footer-bottom">
-        <p>&copy; ${new Date().getFullYear()} VERGO LTD &middot; Company number 16627585</p>
+        <p>&copy; ${new Date().getFullYear()} VERGO Ltd. All rights reserved.</p>
         <div class="footer-bottom-links">
           <a href="/privacy">Privacy Policy</a>
           <a href="/terms">Terms of Service</a>

@@ -749,8 +749,7 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
   font-size: 0.92rem;
   line-height: 1.45;
 }
-.checkbox-line input[type="checkbox"],
-.checkbox-line input[type="radio"] {
+.checkbox-line input[type="checkbox"] {
   width: 17px;
   height: 17px;
   margin: 2px 0 0;
@@ -1081,72 +1080,3 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
   text-transform: uppercase;
   color: var(--text-muted);
 }
-
-/* ------------------------------------------------------------------ *
- * Site rewrite, 2026-09-24: home pillars, About portrait, footer rate
- * ------------------------------------------------------------------ */
-
-.home-hero-note {
-  margin: 18px 0 0;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  letter-spacing: 0.06em;
-  color: var(--text-secondary);
-}
-
-/* Staff and Events, side by side on the homepage. */
-.pillars { display: grid; gap: 20px; }
-@media (min-width: 860px) { .pillars { grid-template-columns: 1fr 1fr; } }
-.pillar {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 32px 28px;
-  border: 1px solid var(--hairline);
-  border-top: 2px solid var(--accent);
-  border-radius: var(--radius);
-  background: var(--card-fill);
-}
-.pillar h2 { margin: 6px 0 14px; font-size: clamp(28px, 4vw, 38px); line-height: 1.1; }
-.pillar > p { margin: 0; color: var(--text-secondary); }
-.pillar .rate-list { width: 100%; margin: 24px 0 28px; }
-.pillar .rate-list li:last-of-type { color: var(--text-secondary); }
-.pillar .btn { margin-top: auto; }
-
-.section-cta { margin-top: 32px; }
-
-/* About: the founder's photo leads the page. */
-.about-hero { display: grid; gap: 28px; padding-block: 48px 8px; }
-@media (min-width: 860px) {
-  .about-hero { grid-template-columns: minmax(240px, 380px) minmax(0, 1fr); gap: 56px; align-items: end; padding-block: 64px 8px; }
-}
-.about-portrait { margin: 0; max-width: 380px; }
-.about-portrait img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius);
-  background: var(--panel-fill);
-}
-.about-portrait figcaption {
-  margin-top: 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-.about-hero-copy h1 { max-width: 16ch; }
-
-.footer-rate { margin: 0 0 14px; font-size: 14px; color: var(--text-secondary); }
-
-.form-rate-note { margin-top: 18px; }
-
-/* Two columns that never force a sideways scroll on a 320px phone. */
-.two-col { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
-
-.contact-phone { margin: 22px 0 6px; font-family: var(--font-serif); font-size: clamp(34px, 6vw, 52px); line-height: 1; }
-.contact-phone a { color: var(--accent); }
-fieldset.form-field .checkbox-line { margin-top: 10px; font-size: 1rem; }

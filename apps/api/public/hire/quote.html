@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Analytics, gated on cookie consent (see vergo-consent.js) -->
   <script src="/vergo-consent.js" defer></script>
-  <title>Send a Brief for Event Staff | VERGO</title>
-  <meta name="description" content="Send the date, venue, headcount and roles. £18/hr per person, no VAT, 4-hour minimum. Same-day reply for enquiries between 8am and 10pm.">
-  <meta property="og:title" content="Send a Brief for Event Staff | VERGO">
-  <meta property="og:description" content="Send the date, venue, headcount and roles. £18/hr per person, no VAT, 4-hour minimum. Same-day reply for enquiries between 8am and 10pm.">
+  <title>Price Up Event Staff in London | VERGO Staffing</title>
+  <meta name="description" content="Work out the cost yourself at £19.00/hr per person, four-hour minimum. Then book the staff, or just send us a message.">
+  <meta property="og:title" content="Price Up Event Staff in London | VERGO Staffing">
+  <meta property="og:description" content="Work out the cost yourself at £19.00/hr per person, four-hour minimum. Then book the staff, or just send us a message.">
   <meta property="og:image" content="https://vergoltd.com/images/vergo-mark.jpg">
   <meta property="og:url" content="https://vergoltd.com/hire/quote">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="VERGO">
+  <meta property="og:site_name" content="VERGO Staffing">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#0a0a0a">
@@ -29,12 +29,9 @@
   <header class="site-header" role="banner">
     <div class="site-header-inner">
       <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">V</span>VERGO</a>
-      <nav class="header-actions" aria-label="Primary">
-        <a class="switch-link" href="/hire" aria-current="page">Staff</a>
-        <a class="switch-link" href="/events">Events</a>
-        <a class="switch-link" href="/work">Work</a>
-        <a class="switch-link" href="/about">About</a>
-        <a class="call-link" href="tel:+447944505783" data-vergo-tel="contact.phone" aria-label="Call VERGO on 07944 505783">
+      <nav class="header-actions">
+        <a class="switch-link" href="/hire">Back to /hire</a>
+        <a class="call-link" href="tel:+447944505783" data-vergo-tel="contact.phone" aria-label="Call VERGO">
           <span data-vergo="contact.phoneDisplay">07944 505783</span>
         </a>
       </nav>
@@ -43,9 +40,9 @@
 
   <main id="main-content">
     <section class="page-hero-plain shell-form">
-      <span class="eyebrow">Brief</span>
-      <h1>Send the brief.</h1>
-      <p class="lede">The more VERGO knows about the room, the better the names. Two minutes, and the estimate updates as you go.</p>
+      <span class="eyebrow">Price it up</span>
+      <h1>Work out the cost, then decide</h1>
+      <p class="lede">Fill in the event and the price updates as you go. When you are ready, book the staff or just send us a message &mdash; whichever you actually meant.</p>
     </section>
 
     <section class="section-tight shell-form">
@@ -67,9 +64,6 @@
               <option value="Wedding">Wedding</option>
               <option value="Corporate function">Corporate function</option>
               <option value="Private party">Private party</option>
-              <option value="Christmas party">Christmas party</option>
-              <option value="Halloween">Halloween</option>
-              <option value="Brand night">Brand night or activation</option>
               <option value="Production catering">Production catering</option>
               <option value="Venue overflow">Venue overflow cover</option>
               <option value="Other">Other</option>
@@ -100,24 +94,8 @@
         </div>
 
         <div class="form-field">
-          <label for="venuePostcode">Venue or area</label>
-          <input type="text" id="venuePostcode" name="venuePostcode" maxlength="200" placeholder="e.g. the venue name, or Fulham SW6">
-        </div>
-
-        <div class="form-row form-row-2">
-          <div class="form-field">
-            <label for="guestCount">Guest count</label>
-            <input type="number" id="guestCount" name="guestCount" min="1" max="100000" step="1" inputmode="numeric" placeholder="e.g. 120">
-          </div>
-          <div class="form-field">
-            <label for="setting">Indoor or outdoor</label>
-            <select id="setting" name="setting">
-              <option value="">Select one</option>
-              <option value="Indoor">Indoor</option>
-              <option value="Outdoor">Outdoor</option>
-              <option value="Both">Both</option>
-            </select>
-          </div>
+          <label for="venuePostcode">Venue postcode</label>
+          <input type="text" id="venuePostcode" name="venuePostcode" autocomplete="postal-code" placeholder="e.g. E1 6AN">
         </div>
 
         <fieldset class="form-field" id="rolesField">
@@ -157,7 +135,7 @@
               <input type="number" id="count-other" name="roleCount" data-role="Other / to be confirmed" data-role-kind="other" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
             </div>
           </div>
-          <p class="form-hint">Senior roles (supervisors, chefs, event managers) are quoted individually, so they sit outside the figure below. Anything under &ldquo;something else&rdquo; is estimated at the standard <span data-vergo="rates.chargeRateDisplay">&pound;18.00</span> an hour. The actual rate depends on the role, so tell us what you have in mind in the box further down and we will confirm it.</p>
+          <p class="form-hint">Senior roles (supervisors, chefs, event managers) are quoted individually, so they sit outside the figure below. Anything under &ldquo;something else&rdquo; is estimated at the standard <span data-vergo="rates.chargeRateDisplay">&pound;19.00</span> an hour &mdash; the actual rate depends on the role, so tell us what you have in mind in the box further down and we will confirm it.</p>
         </fieldset>
 
         <!-- Live estimate. Every figure here is written by pages/js/quote.js from
@@ -182,7 +160,7 @@
         </div>
 
         <h2>Your details</h2>
-        <p class="form-hint form-hint-block">All of this is needed to book. If you are only asking a question, fill in as much or as little as you like &mdash; VERGO just needs one way of replying.</p>
+        <p class="form-hint form-hint-block">All of this is needed to book. If you are only asking a question, fill in as much or as little as you like &mdash; we just need one way of replying.</p>
         <div class="form-row form-row-2">
           <div class="form-field">
             <label for="contactName">Name</label>
@@ -205,11 +183,6 @@
         </div>
 
         <div class="form-field">
-          <label for="roomFeel">What the room needs to feel like <span class="label-note">optional</span></label>
-          <textarea id="roomFeel" name="roomFeel" maxlength="600" placeholder="e.g. relaxed garden party, sharp black-tie dinner, loud launch night"></textarea>
-        </div>
-
-        <div class="form-field">
           <label for="dressCode">Dress code <span class="label-note">optional</span></label>
           <input type="text" id="dressCode" name="dressCode" maxlength="200" placeholder="e.g. all blacks, white shirts, black tie">
         </div>
@@ -221,19 +194,17 @@
 
         <div class="form-actions">
           <div class="action-choice">
-            <button type="submit" class="btn btn-primary btn-block" id="quoteBook" data-intent="BOOKING">Send brief</button>
-            <p class="action-hint" id="bookHint">Nothing is booked until VERGO comes back with names.</p>
+            <button type="submit" class="btn btn-primary btn-block" id="quoteBook" data-intent="BOOKING">Book these staff</button>
+            <p class="action-hint" id="bookHint">We check availability and confirm before anything is charged.</p>
           </div>
 
           <p class="action-divider" aria-hidden="true">or</p>
 
           <div class="action-choice">
-            <button type="submit" class="btn btn-secondary btn-block" id="quoteAsk" data-intent="ENQUIRY">Just ask a question</button>
-            <p class="action-hint">Only your email or phone is needed.</p>
+            <button type="submit" class="btn btn-secondary btn-block" id="quoteAsk" data-intent="ENQUIRY">Send a message instead</button>
+            <p class="action-hint">Nothing gets booked &mdash; we just reply. Only your email or phone is needed.</p>
           </div>
         </div>
-
-        <p class="form-hint form-rate-note"><span data-vergo="rates.chargeRateShortDisplay">£18</span>/hr per person for core roles. No VAT. 4-hour minimum. VERGO replies the same day to enquiries between 8am and 10pm.</p>
 
         <div class="form-status" id="quoteStatus" role="status" hidden></div>
       </form>
@@ -242,31 +213,28 @@
 
   <footer class="site-footer" role="contentinfo">
     <div class="footer-inner">
-      <div>
-        <div class="brand"><span class="brand-mark" aria-hidden="true">V</span>VERGO</div>
-        <p class="footer-slogan">Wherever you go, VERGO.</p>
-        <p class="footer-rate"><span data-vergo="rates.chargeRateShortDisplay">£18</span>/hr, no VAT, for core hospitality roles.</p>
-        <p class="footer-contact"><a href="tel:+447944505783" data-vergo-tel="contact.phone"><span data-vergo="contact.phoneDisplay">07944 505783</span></a></p>
-        <p class="footer-contact"><a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email"><span data-vergo="contact.email">wrobb@vergoltd.com</span></a></p>
-        <p class="footer-social">
-          <a href="https://www.instagram.com/vergo.ltd/" data-vergo-href="social.instagram" target="_blank" rel="noopener">Instagram <span data-vergo="social.instagramHandle">@vergo.ltd</span></a>
-          <a href="#" data-vergo-href="reviews.google" target="_blank" rel="noopener" hidden>Google reviews</a>
-        </p>
-      </div>
       <div class="footer-links">
-        <a href="/hire">Staff</a>
-        <a href="/events">Events</a>
-        <a href="/work">Work</a>
-        <a href="/about">About</a>
-        <a href="/blog">Journal</a>
-        <a href="/contact">Contact</a>
+        <a href="/hire">For clients</a>
+        <a href="/work">Apply for work</a>
+        <a href="/special-events">Special events</a>
+        <a href="/about">About us</a>
+        <a href="/blog">Blog</a>
+        <a href="/terms">Terms of business</a>
         <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
+        <a href="/legal">Legal</a>
       </div>
+      <p class="footer-contact">
+        <a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email">wrobb@vergoltd.com</a>
+      </p>
+      <p class="footer-contact">
+        <a href="tel:+447944505783" data-vergo-tel="contact.phone">07944 505783</a>
+      </p>
       <p class="footer-legal">
-        <span data-vergo="company.legalName">VERGO LTD</span> &middot; Company number <span data-vergo="company.number">16627585</span><br>
-        <span data-vergo="company.registeredOffice">Flat 96 Sulivan Court, Peterborough Road, London SW6 3DB</span><br>
-        Employers' liability and public liability insured. Certificates on request.
+        <span data-vergo="company.legalName">Vergo Ltd</span>, registered in
+        <span data-vergo="company.jurisdiction">England and Wales</span>, company no.
+        <span data-vergo="company.number">16627585</span>. Registered office:
+        <span data-vergo="company.registeredOffice">96 Sulivan Court, London, SW6 3DB</span>.
+        Employers' and public liability insured. All staff employed on PAYE.
       </p>
     </div>
   </footer>

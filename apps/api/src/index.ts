@@ -294,13 +294,7 @@ app.use(cors({
 app.use(compression());
 
 // Global rate limiter (Redis-backed in production, memory fallback in dev)
-// Skipped under test: the page smoke tests walk every legacy redirect and public
-// page from one address, which is more than 120 requests in a minute.
-const rateLimitOptions: Parameters<typeof rateLimit>[0] = {
-  windowMs: 60_000,
-  max: 120,
-  skip: () => process.env.NODE_ENV === 'test',
-};
+const rateLimitOptions: Parameters<typeof rateLimit>[0] = { windowMs: 60_000, max: 120 };
 if (env.redisUrl) {
   try {
     const rateLimitRedis = new Redis(env.redisUrl, { maxRetriesPerRequest: 1, lazyConnect: true });
@@ -590,6 +584,7 @@ export const LEGACY_REDIRECTS: Record<string, string> = {
   '/about-us': '/about',
   '/our-story': '/about',
   '/faq': '/hire',
+  '/contact': '/hire',
   '/staff-roles': '/hire',
   '/browse-staff': '/hire',
 
@@ -628,14 +623,6 @@ export const LEGACY_REDIRECTS: Record<string, string> = {
 
   // Photo gallery, removed 2026-09-24.
   '/gallery': '/',
-
-  // Special events became Events, 2026-09-24.
-  '/special-events': '/events',
-  '/special-events/halloween': '/events/halloween',
-  '/special-events/christmas': '/events/christmas',
-
-  // The PAYE vs self-employed post, retired with the site rewrite 2026-09-24.
-  '/blog/paye-vs-self-employed-event-staff': '/blog',
 };
 
 for (const [from, to] of Object.entries(LEGACY_REDIRECTS)) {

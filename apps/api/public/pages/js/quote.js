@@ -39,7 +39,7 @@
     { name: 'eventType', label: 'the event type' },
     { name: 'shiftStart', label: 'a start time' },
     { name: 'shiftEnd', label: 'an end time' },
-    { name: 'venuePostcode', label: 'the venue or area' },
+    { name: 'venuePostcode', label: 'the venue postcode' },
     { name: 'name', label: 'your name' },
     { name: 'email', label: 'your email address' },
     { name: 'phone', label: 'your phone number' }
@@ -403,19 +403,6 @@
     statusBox.hidden = false;
   }
 
-  // Indoor or outdoor and the feel of the room have no column of their own, so
-  // they lead the message, which is where the notification email shows them.
-  function composeMessage() {
-    var parts = [];
-    var setting = form.elements.setting.value;
-    var feel = form.elements.roomFeel.value.trim();
-    var message = form.elements.message.value.trim();
-    if (setting) parts.push('Indoor or outdoor: ' + setting);
-    if (feel) parts.push('The room: ' + feel);
-    if (message) parts.push(message);
-    return parts.length ? parts.join('\n\n') : undefined;
-  }
-
   function buildPayload(intent) {
     var result = calculate();
     var counts = result.counts;
@@ -440,8 +427,7 @@
         ? counts.map(function (entry) { return { role: entry.role, count: entry.count }; })
         : undefined,
       dressCode: form.elements.dressCode.value.trim() || undefined,
-      guestCount: Number(form.elements.guestCount.value) || undefined,
-      message: composeMessage(),
+      message: form.elements.message.value.trim() || undefined,
       estimatedTotal: result.total || undefined,
       honeypot: form.elements.website.value || ''
     };
@@ -491,12 +477,14 @@
         nextDayTouched = false;
         refresh();
         showStatus(
-          'Brief received. VERGO replies the same day for enquiries between 8am and 10pm, and first thing the next morning for anything later. Need it faster? Call 07944 505783.',
+          intent === 'BOOKING'
+            ? 'Booking request sent. Nothing is confirmed yet — we check availability and come back to you during our 8am to 10pm hours.'
+            : 'Message sent. Nothing has been booked. We will reply during our 8am to 10pm hours.',
           'success'
         );
       })
       .catch(function () {
-        showStatus('Something went wrong sending that. Please call or WhatsApp 07944 505783 instead.', 'error');
+        showStatus('Something went wrong sending that. Please call or WhatsApp us instead.', 'error');
       })
       .finally(function () {
         bookBtn.disabled = false;

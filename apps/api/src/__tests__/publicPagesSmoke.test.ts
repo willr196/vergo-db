@@ -112,29 +112,6 @@ test('every legacy URL redirects in one hop to a page that serves', async () => 
   }
 });
 
-test('the rewritten site pages all serve', async () => {
-  // A real server, as below: the pages stream from disk.
-  const server = http.createServer(app);
-  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
-  const { port } = server.address() as { port: number };
-  try {
-    for (const url of ['/', '/hire', '/hire/quote', '/events', '/events/halloween', '/events/christmas', '/work', '/about', '/blog', '/contact', '/terms']) {
-      const res = await fetch(`http://127.0.0.1:${port}${url}`, { redirect: 'manual' });
-      await res.arrayBuffer();
-      assert.equal(res.status, 200, `${url} should serve`);
-    }
-  } finally {
-    server.closeAllConnections();
-    await new Promise<void>((resolve) => server.close(() => resolve()));
-  }
-});
-
-test('special events URLs move to /events', async () => {
-  const res = await inject(app, { method: 'GET', url: '/special-events/halloween' });
-  assert.equal(res.statusCode, 301);
-  assert.equal(res.headers.location, '/events/halloween');
-});
-
 test('the old /apply URL goes to the worker application form', async () => {
   const res = await inject(app, { method: 'GET', url: '/apply' });
   assert.equal(res.statusCode, 301);

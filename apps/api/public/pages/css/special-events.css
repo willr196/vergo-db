@@ -98,29 +98,6 @@ body.se-theme-christmas {
   background-attachment: fixed;
 }
 
-/* The /events hub is the company page, not a season: site palette, gold glow
- * only, and none of the seasonal backdrop colour. */
-body.se-theme-vergo {
-  --bg: #0a0a0a;
-  --footer-bg: #070707;
-  --header-bg: rgba(10, 10, 10, 0.9);
-
-  --accent: #C4A24E;
-  --accent-hover: #d9bd74;
-  --accent-ink: #0c0b0a;
-  --accent-rgb: 196, 162, 78;
-
-  --se-gold: #C4A24E;
-  --se-gold-hover: #d9bd74;
-  --se-gold-rgb: 196, 162, 78;
-
-  --se-pumpkin: none;
-
-  background-image:
-    radial-gradient(90% 50% at 78% -8%, rgba(var(--se-gold-rgb), 0.10), rgba(var(--se-gold-rgb), 0) 62%);
-  background-attachment: fixed;
-}
-
 body.se-theme-christmas .se-hero { --se-hero-img: none; }
 
 /* Halloween's hero padding reserves a band for the pumpkin below the buttons.

@@ -4,20 +4,18 @@ async function main() {
   // The API serves the most recently published version, and a booking records
   // the version it was confirmed under, so changing the terms means a new
   // version rather than an edit to the old one.
-  const version = 'v3';
-  const effectiveDate = new Date('2026-09-24T00:00:00.000Z');
+  const version = 'v2';
+  const effectiveDate = new Date('2026-09-19T00:00:00.000Z');
   const sections = [
     {
       key: 'rates-and-charges',
       heading: 'Rates and Charges',
       items: [
-        '£18 per hour, per person, for waiting staff, bar staff, kitchen porters, runners and hosts. Rates are confirmed on your quote',
-        'VERGO LTD is not VAT registered, so no VAT is charged',
+        '£19.00 per hour, per person: one rate across waiting staff, bar staff, kitchen porters, runners and hosts',
         '4-hour minimum charge per person, per booking',
         'Overruns beyond the confirmed end time are billed in 30-minute blocks',
-        'Hours worked after midnight are charged at +25%',
-        'Supervisors, chefs, event managers, performers, makeup artists and themed roles are quoted separately and agreed in writing before booking',
-        'No booking fees, uniform charges or other extras beyond what is set out here',
+        'Senior roles (supervisors, chefs, event managers) are quoted and agreed individually before booking',
+        "No booking fees, uniform charges or other surcharges beyond what's set out here",
       ],
     },
     {
@@ -25,16 +23,16 @@ async function main() {
       heading: 'Changes and Cancellation',
       items: [
         'More than 48 hours before the booking starts: no charge',
-        'Inside 48 hours: 10% of the confirmed booking value',
-        'Inside 24 hours: 25% of the confirmed booking value',
+        'Between 24 and 48 hours before: 10% of the confirmed booking charge',
+        'Less than 24 hours before: 25% of the confirmed booking charge',
       ],
-      note: "These bands apply to the booking as a whole. If you need to reduce staff numbers rather than cancel entirely, tell VERGO as early as possible and a fair adjustment will be agreed.",
+      note: "These tiers apply to the booking as a whole. If you need to reduce staff numbers rather than cancel entirely, tell us as early as possible and we'll agree a fair adjustment.",
     },
     {
       key: 'payment',
       heading: 'Payment',
       items: [] as string[],
-      note: 'VERGO invoices after the booking. Invoices are payable within 14 days of the invoice date.',
+      note: "Invoices are payable within 14 days of the invoice date. For a client's first booking with us, payment is required in advance of the event.",
     },
   ];
 
