@@ -954,10 +954,6 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 
 /* Photo slots. The frame is the placeholder; the img sits over it and only
    shows once about-photos.js has seen it load (.is-loaded). */
-.about-photo-lead { margin-top: 36px; }
-.about-photos { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; margin-top: 8px; }
-@media (min-width: 700px) { .about-photos { grid-template-columns: repeat(3, 1fr); } }
-
 .about-photo { margin: 0; }
 .about-photo-frame {
   position: relative;
@@ -968,14 +964,6 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
     radial-gradient(120% 80% at 50% 0%, rgba(var(--accent-rgb), 0.08), rgba(var(--accent-rgb), 0) 70%),
     var(--panel-fill);
   overflow: hidden;
-}
-.about-photo--wide .about-photo-frame { aspect-ratio: 21 / 9; }
-@media (max-width: 640px) { .about-photo--wide .about-photo-frame { aspect-ratio: 4 / 3; } }
-/* On a phone three portraits stack into a very long scroll: lead with one
-   landscape, then two side by side. */
-@media (max-width: 699px) {
-  .about-photos > .about-photo:first-child { grid-column: 1 / -1; }
-  .about-photos > .about-photo:first-child .about-photo-frame { aspect-ratio: 4 / 3; }
 }
 
 .about-photo-empty {
@@ -1034,83 +1022,8 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 }
 
 /* ------------------------------------------------------------------ *
- * Gallery, home photo strip, testimonials
+ * Testimonials
  * ------------------------------------------------------------------ */
-
-/* Columns rather than a grid so each photo keeps its own shape. */
-.gallery-grid {
-  list-style: none;
-  margin: 36px 0 0;
-  padding: 0;
-  columns: 1;
-  column-gap: 10px;
-}
-@media (min-width: 640px) { .gallery-grid { columns: 2; } }
-@media (min-width: 1000px) { .gallery-grid { columns: 3; } }
-.gallery-item { break-inside: avoid; margin-bottom: 10px; }
-.gallery-link {
-  display: block;
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: var(--panel-fill);
-}
-.gallery-link img { width: 100%; height: auto; transition: transform 400ms ease; }
-.gallery-link:hover img { transform: scale(1.02); }
-
-.lightbox {
-  width: 100vw;
-  height: 100vh;
-  max-width: none;
-  max-height: none;
-  margin: 0;
-  padding: 56px 16px 72px;
-  border: 0;
-  background: rgba(5, 5, 5, 0.96);
-  color: var(--text-secondary);
-}
-.lightbox[open] { display: grid; grid-template-rows: 1fr auto; place-items: center; gap: 12px; }
-.lightbox::backdrop { background: rgba(0, 0, 0, 0.7); }
-.lightbox-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: var(--radius); min-height: 0; }
-.lightbox-caption { margin: 0; max-width: 60ch; text-align: center; font-size: 15px; }
-.lightbox-btn {
-  position: absolute;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--hairline-strong);
-  border-radius: var(--radius-pill);
-  background: rgba(10, 10, 10, 0.7);
-  color: var(--text);
-  font-size: 22px;
-  line-height: 1;
-  cursor: pointer;
-}
-.lightbox-btn:hover { border-color: var(--accent); color: var(--accent); }
-.lightbox-close { top: 8px; right: 12px; }
-.lightbox-prev { bottom: 16px; left: calc(50% - 56px); }
-.lightbox-next { bottom: 16px; left: calc(50% + 12px); }
-@media (min-width: 800px) {
-  .lightbox-prev, .lightbox-next { bottom: auto; top: calc(50% - 22px); }
-  .lightbox-prev { left: 16px; }
-  .lightbox-next { left: auto; right: 16px; }
-}
-
-/* Homepage: four photos in a row, linking to the gallery. */
-.photo-strip { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; margin: 0; padding: 0; list-style: none; }
-@media (min-width: 800px) { .photo-strip { grid-template-columns: repeat(4, 1fr); } }
-.photo-strip img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius);
-}
-.photo-strip-more { margin-top: 18px; }
-/* Three photos: stay three across on phones rather than orphaning the last one. */
-.photo-strip--3 { grid-template-columns: repeat(3, 1fr); }
-@media (max-width: 480px) { .photo-strip--3 { gap: 6px; } }
-
 .testimonials { display: grid; gap: 16px; }
 .testimonials-more { display: inline-block; margin-top: 20px; font-size: 15px; color: var(--accent); }
 .testimonials-more[hidden] { display: none; }

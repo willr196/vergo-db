@@ -620,6 +620,9 @@ export const LEGACY_REDIRECTS: Record<string, string> = {
   '/dashboard-client': '/hire',
   '/post-job': '/hire',
   '/portal-login': '/',
+
+  // Photo gallery, removed 2026-09-24.
+  '/gallery': '/',
 };
 
 for (const [from, to] of Object.entries(LEGACY_REDIRECTS)) {
