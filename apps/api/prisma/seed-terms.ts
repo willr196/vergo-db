@@ -4,14 +4,14 @@ async function main() {
   // The API serves the most recently published version, and a booking records
   // the version it was confirmed under, so changing the terms means a new
   // version rather than an edit to the old one.
-  const version = 'v2';
-  const effectiveDate = new Date('2026-09-19T00:00:00.000Z');
+  const version = 'v4';
+  const effectiveDate = new Date('2026-09-24T00:00:00.000Z');
   const sections = [
     {
       key: 'rates-and-charges',
       heading: 'Rates and Charges',
       items: [
-        '£19.00 per hour, per person: one rate across waiting staff, bar staff, kitchen porters, runners and hosts',
+        '£18.50 per hour, per person: one rate across waiting staff, bar staff, kitchen porters, runners and hosts',
         '4-hour minimum charge per person, per booking',
         'Overruns beyond the confirmed end time are billed in 30-minute blocks',
         'Senior roles (supervisors, chefs, event managers) are quoted and agreed individually before booking',

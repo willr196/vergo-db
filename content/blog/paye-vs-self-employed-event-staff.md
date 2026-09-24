@@ -48,13 +48,13 @@ Here is the arithmetic at the 2026/27 statutory floor. This is the minimum, not 
 | Employer National Insurance at 15 per cent | 2.14 pounds | Above 96 pounds a week per person |
 | **Cost while the Employment Allowance holds** | **14.67 pounds** | National Insurance covered |
 | **Cost once the allowance is used up** | **16.81 pounds** | National Insurance payable in full |
-| Our published charge rate | 19.00 pounds | No booking fee, no uniform charge |
+| Our published charge rate | 18.50 pounds | No booking fee, no uniform charge |
 
 Two things are worth saying plainly about that table.
 
 The National Insurance line does not always bite. The secondary threshold is 5,000 pounds a year, which is 96 pounds a week, so a person working one short shift in a week may fall under it. On a ten hour day they will not.
 
-And the gap between the cost line and 19.00 pounds is not margin. Insurance, the payroll itself and the cost of holding replacement cover all come out of it before anything is left. These figures are correct for 2026/27 and you should verify them on [GOV.UK](https://www.gov.uk/national-minimum-wage-rates) before relying on them. The holiday pay calculation is set out in the [holiday entitlement guidance](https://www.gov.uk/holiday-entitlement-rights).
+And the gap between the cost line and 18.50 pounds is not margin. Insurance, the payroll itself and the cost of holding replacement cover all come out of it before anything is left. These figures are correct for 2026/27 and you should verify them on [GOV.UK](https://www.gov.uk/national-minimum-wage-rates) before relying on them. The holiday pay calculation is set out in the [holiday entitlement guidance](https://www.gov.uk/holiday-entitlement-rights).
 
 Our [published rates and terms](/hire) are on the client page, and the rate you are quoted is the rate on the invoice.
 

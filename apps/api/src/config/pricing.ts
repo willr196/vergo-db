@@ -4,11 +4,11 @@
  */
 
 export const PRICING = {
-  standardRate: 19.00,
+  standardRate: 18.50,
   minimumChargeHours: 4,
   afterMidnightMultiplier: 1.25,
   /** Internal only — never render this on any public page. */
-  accountRate: 19.00,
+  accountRate: 18.50,
   vatRegistered: false,
   vatRate: 0.20,
 

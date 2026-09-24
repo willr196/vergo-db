@@ -134,7 +134,7 @@ doing logins yet.
 - New page `/special-events/christmas`: "Christmas Party Staff in London |
   VERGO Staffing", H1 "Christmas party staff across London", around 600 words.
   Leads with standard staffing (waiting staff, bar staff, kitchen porters,
-  runners, hosts on the £19 rate), then the rate and late-finish terms, both
+  runners, hosts on the £18.50 rate), then the rate and late-finish terms, both
   guarantees, what to send when enquiring, the themed options, five FAQs, and
   calls to action for the quote form and the phone.
 - Service and FAQPage JSON-LD, both parsing, and their hashes picked up by the

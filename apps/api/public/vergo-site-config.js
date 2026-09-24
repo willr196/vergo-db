@@ -32,8 +32,8 @@
     },
 
     rates: {
-      chargeRate: 19.00,
-      chargeRateDisplay: '£19.00',
+      chargeRate: 18.50,
+      chargeRateDisplay: '£18.50',
       minimumHours: 4,
       holidayPayPercent: 12.07,
     },
