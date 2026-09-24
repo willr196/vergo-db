@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1100" width="2400" height="1100" role="presentation" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="he-room" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#17120a"/>
+      <stop offset="50%" stop-color="#0e0c09"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </linearGradient>
+    <radialGradient id="he-glow" cx="0.5" cy="0.62" r="0.6">
+      <stop offset="0%" stop-color="#e0b25c" stop-opacity="0.42"/>
+      <stop offset="45%" stop-color="#c4a24e" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#c4a24e" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="he-bulb" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#fff1cc" stop-opacity="0.95"/>
+      <stop offset="22%" stop-color="#f3cf7a" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#c4a24e" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="he-bokeh" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#e8c36e" stop-opacity="0.22"/>
+      <stop offset="70%" stop-color="#e8c36e" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#e8c36e" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="he-bar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c4a24e" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#c4a24e" stop-opacity="0"/>
+    </linearGradient>
+    <!-- Scrims: fade to the page colour at the bottom, and keep the left
+         side dark for the headline. -->
+    <linearGradient id="he-scrim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a0a0a" stop-opacity="0.35"/>
+      <stop offset="45%" stop-color="#0a0a0a" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#0a0a0a" stop-opacity="1"/>
+    </linearGradient>
+    <linearGradient id="he-left" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0a0a0a" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#0a0a0a" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#0a0a0a" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="2400" height="1100" fill="url(#he-room)"/>
+  <ellipse cx="1500" cy="760" rx="1150" ry="460" fill="url(#he-glow)"/>
+
+  <!-- Out-of-focus lights in the background. -->
+  <g>
+    <circle cx="1180" cy="430" r="46" fill="url(#he-bokeh)"/>
+    <circle cx="1330" cy="360" r="70" fill="url(#he-bokeh)"/>
+    <circle cx="1520" cy="470" r="38" fill="url(#he-bokeh)"/>
+    <circle cx="1690" cy="380" r="84" fill="url(#he-bokeh)"/>
+    <circle cx="1880" cy="480" r="52" fill="url(#he-bokeh)"/>
+    <circle cx="2060" cy="340" r="66" fill="url(#he-bokeh)"/>
+    <circle cx="2230" cy="450" r="44" fill="url(#he-bokeh)"/>
+    <circle cx="1430" cy="560" r="30" fill="url(#he-bokeh)"/>
+    <circle cx="1990" cy="570" r="34" fill="url(#he-bokeh)"/>
+    <circle cx="1060" cy="540" r="28" fill="url(#he-bokeh)"/>
+  </g>
+
+  <!-- Festoon lights: three swags across the top. -->
+  <g fill="none" stroke="#2a2218" stroke-width="3">
+    <path d="M700 90 Q1050 300 1400 120"/>
+    <path d="M1400 120 Q1750 330 2100 110"/>
+    <path d="M2100 110 Q2300 250 2450 170"/>
+  </g>
+  <g>
+    <circle cx="790" cy="150" r="40" fill="url(#he-bulb)"/>
+    <circle cx="890" cy="192" r="40" fill="url(#he-bulb)"/>
+    <circle cx="1000" cy="216" r="40" fill="url(#he-bulb)"/>
+    <circle cx="1110" cy="214" r="40" fill="url(#he-bulb)"/>
+    <circle cx="1220" cy="192" r="40" fill="url(#he-bulb)"/>
+    <circle cx="1320" cy="156" r="40" fill="url(#he-bulb)"/>
+    <circle cx="1490" cy="170" r="40" fill="url(#he-bulb)"/>
+    <circle cx="1600" cy="210" r="40" fill="url(#he-bulb)"/>
+    <circle cx="1710" cy="226" r="40" fill="url(#he-bulb)"/>
+    <circle cx="1820" cy="218" r="40" fill="url(#he-bulb)"/>
+    <circle cx="1930" cy="190" r="40" fill="url(#he-bulb)"/>
+    <circle cx="2030" cy="146" r="40" fill="url(#he-bulb)"/>
+    <circle cx="2190" cy="160" r="40" fill="url(#he-bulb)"/>
+    <circle cx="2300" cy="186" r="40" fill="url(#he-bulb)"/>
+  </g>
+
+  <!-- The room, backlit: guests with glasses, a waiter with a tray, and the
+       bar at the right with a bartender behind it. -->
+  <g fill="#070707" fill-opacity="0.95">
+    <!-- guest, glass raised -->
+    <g transform="translate(1060 0)">
+      <ellipse cx="0" cy="668" rx="27" ry="32"/>
+      <path d="M-52 1000 Q-44 716 0 716 Q44 716 52 1000 Z"/>
+      <path d="M26 740 L62 690" stroke="#070707" stroke-width="13" stroke-linecap="round"/>
+      <path d="M56 646 L80 646 L70 676 L68 692 L60 692 L62 676 Z"/>
+    </g>
+    <!-- guest, long dress -->
+    <g transform="translate(1180 0)">
+      <ellipse cx="0" cy="650" rx="28" ry="33"/>
+      <path d="M-84 1000 Q-60 700 0 700 Q60 700 84 1000 Z"/>
+    </g>
+    <!-- waiter with a tray of glasses -->
+    <g transform="translate(1340 0)">
+      <ellipse cx="0" cy="636" rx="28" ry="33"/>
+      <path d="M-54 1000 Q-46 686 0 686 Q46 686 54 1000 Z"/>
+      <path d="M28 700 L96 652" stroke="#070707" stroke-width="14" stroke-linecap="round"/>
+      <ellipse cx="112" cy="644" rx="54" ry="9"/>
+      <path d="M78 604 L94 604 L88 624 L88 640 L84 640 L84 624 Z"/>
+      <path d="M104 600 L120 600 L114 620 L114 640 L110 640 L110 620 Z"/>
+      <path d="M130 604 L146 604 L140 624 L140 640 L136 640 L136 624 Z"/>
+    </g>
+    <!-- two guests talking -->
+    <g transform="translate(1540 0)">
+      <ellipse cx="-34" cy="660" rx="27" ry="32"/>
+      <path d="M-86 1000 Q-78 708 -34 708 Q10 708 18 1000 Z"/>
+      <ellipse cx="42" cy="646" rx="28" ry="33"/>
+      <path d="M-12 1000 Q-4 694 42 694 Q88 694 96 1000 Z"/>
+    </g>
+    <!-- guest, glass raised -->
+    <g transform="translate(1720 0)">
+      <ellipse cx="0" cy="656" rx="28" ry="33"/>
+      <path d="M-56 1000 Q-46 706 0 706 Q46 706 56 1000 Z"/>
+      <path d="M-26 730 L-60 676" stroke="#070707" stroke-width="13" stroke-linecap="round"/>
+      <path d="M-78 634 L-54 634 L-64 664 L-64 680 L-70 680 L-70 664 Z"/>
+    </g>
+
+    <!-- bar counter -->
+    <rect x="1840" y="800" width="620" height="300"/>
+    <!-- bartender behind the bar, shaker up -->
+    <g transform="translate(2040 0)">
+      <ellipse cx="0" cy="656" rx="28" ry="33"/>
+      <path d="M-54 820 Q-46 706 0 706 Q46 706 54 820 Z"/>
+      <path d="M30 720 L78 650" stroke="#070707" stroke-width="14" stroke-linecap="round"/>
+      <rect x="64" y="596" width="32" height="54" rx="7"/>
+    </g>
+    <!-- bottles on the back bar -->
+    <g transform="translate(2170 0)">
+      <path d="M0 800 L0 730 Q0 716 8 712 L8 690 L18 690 L18 712 Q26 716 26 730 L26 800 Z"/>
+      <path d="M40 800 L40 740 Q40 726 48 722 L48 704 L58 704 L58 722 Q66 726 66 740 L66 800 Z"/>
+      <path d="M80 800 L80 724 Q80 710 88 706 L88 682 L98 682 L98 706 Q106 710 106 724 L106 800 Z"/>
+    </g>
+  </g>
+
+  <!-- Gold rim light on shoulders, the tray and the bar top. -->
+  <g stroke="#c4a24e" stroke-opacity="0.55" stroke-width="3" fill="none" stroke-linecap="round">
+    <path d="M1086 672 Q1090 706 1104 718"/>
+    <path d="M1207 654 Q1212 690 1228 702"/>
+    <path d="M1367 640 Q1372 676 1386 688"/>
+    <path d="M1608 650 Q1612 684 1626 696"/>
+    <path d="M1747 660 Q1752 694 1766 708"/>
+    <path d="M2067 660 Q2072 694 2086 708"/>
+    <path d="M1400 636 L1504 636"/>
+    <path d="M1840 800 L2400 800"/>
+  </g>
+  <rect x="1840" y="800" width="620" height="120" fill="url(#he-bar)"/>
+
+  <rect width="2400" height="1100" fill="url(#he-scrim)"/>
+  <rect width="1300" height="1100" fill="url(#he-left)"/>
+</svg>

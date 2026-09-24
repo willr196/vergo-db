@@ -326,7 +326,22 @@ p:last-child { margin-bottom: 0; }
   .section { padding-block: 48px; }
 }
 
-/* Home hero */
+/* Home hero. The band carries an evening-event backdrop, drawn dark with its
+   own left and bottom scrims so the headline stays readable; the opacity
+   keeps it a mood rather than a picture. */
+.home-hero-band { position: relative; isolation: isolate; overflow: hidden; }
+.home-hero-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url('/images/home/hero-evening.svg') right bottom / cover no-repeat;
+  opacity: 0.55;
+  pointer-events: none;
+}
+@media (max-width: 640px) {
+  .home-hero-band::before { background-position: 72% bottom; opacity: 0.4; }
+}
 .home-hero { padding-block: 96px 40px; }
 @media (max-width: 640px) { .home-hero { padding-block: 56px 32px; } }
 .home-hero h1 { max-width: 17ch; }
