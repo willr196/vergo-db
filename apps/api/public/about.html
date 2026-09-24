@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Analytics, gated on cookie consent (see vergo-consent.js) -->
   <script src="/vergo-consent.js" defer></script>
-  <title>About Us | VERGO Staffing</title>
-  <meta name="description" content="VERGO is a London staffing agency that also puts on events. Why William Robb started it, where it is going, and the team behind it.">
-  <meta property="og:title" content="About Us | VERGO Staffing">
-  <meta property="og:description" content="VERGO is a London staffing agency that also puts on events. Why William Robb started it, where it is going, and the team behind it.">
+  <title>About: Staffing and Events in London | VERGO</title>
+  <meta name="description" content="VERGO is a London staffing and events company, founded in 2025 by William Robb. Interviewed, briefed, PAYE-employed staff, and the events they run.">
+  <meta property="og:title" content="About: Staffing and Events in London | VERGO">
+  <meta property="og:description" content="VERGO is a London staffing and events company, founded in 2025 by William Robb. Interviewed, briefed, PAYE-employed staff, and the events they run.">
   <meta property="og:image" content="https://vergoltd.com/images/vergo-mark.jpg">
   <meta property="og:url" content="https://vergoltd.com/about">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="VERGO Staffing">
+  <meta property="og:site_name" content="VERGO">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#0a0a0a">
   <link rel="icon" href="/favicon.ico">
@@ -25,19 +25,20 @@
 {
   "@context": "https://schema.org",
   "@type": "AboutPage",
-  "name": "About us",
+  "name": "About VERGO",
   "url": "https://vergoltd.com/about",
-  "description": "VERGO is a London staffing agency that also puts on events. Why William Robb started it, where it is going, and the team behind it.",
+  "description": "VERGO is a London staffing and events company, founded in 2025 by William Robb.",
   "mainEntity": {
     "@type": "Organization",
     "@id": "https://vergoltd.com/#organization",
-    "name": "VERGO Staffing",
-    "legalName": "Vergo Ltd",
+    "name": "VERGO",
+    "legalName": "VERGO LTD",
     "url": "https://vergoltd.com",
     "logo": { "@type": "ImageObject", "url": "https://vergoltd.com/images/vergo-mark.jpg" },
     "telephone": "+44 7944 505783",
     "email": "wrobb@vergoltd.com",
     "areaServed": { "@type": "City", "name": "London" },
+    "foundingDate": "2025",
     "founder": {
       "@type": "Person",
       "name": "William Robb",
@@ -53,11 +54,12 @@
   <header class="site-header" role="banner">
     <div class="site-header-inner">
       <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">V</span>VERGO</a>
-      <nav class="header-actions">
-        <a class="switch-link switch-link--feature" href="/special-events">Special events</a>
-        <a class="switch-link" href="/hire">For clients</a>
+      <nav class="header-actions" aria-label="Primary">
+        <a class="switch-link" href="/hire">Staff</a>
+        <a class="switch-link" href="/events">Events</a>
+        <a class="switch-link" href="/work">Work</a>
         <a class="switch-link" href="/about" aria-current="page">About</a>
-        <a class="call-link" href="tel:+447944505783" data-vergo-tel="contact.phone" aria-label="Call VERGO">
+        <a class="call-link" href="tel:+447944505783" data-vergo-tel="contact.phone" aria-label="Call VERGO on 07944 505783">
           <span data-vergo="contact.phoneDisplay">07944 505783</span>
         </a>
       </nav>
@@ -65,70 +67,58 @@
   </header>
 
   <main id="main-content">
-    <section class="page-hero-plain shell">
-      <span class="eyebrow">Our story</span>
-      <h1>About us</h1>
-      <p class="lede">A London staffing agency that also puts on events. Give us your idea and we&rsquo;ll staff the entire thing.</p>
+    <section class="about-hero shell">
+      <figure class="about-portrait">
+        <img src="/images/about/founder.webp" alt="William Robb, founder of VERGO, by the river in London." decoding="async" fetchpriority="high">
+        <figcaption>William Robb, founder.</figcaption>
+      </figure>
+      <div class="about-hero-copy">
+        <span class="eyebrow">About</span>
+        <h1>Staffing and events, built from the floor up.</h1>
+        <p class="lede">VERGO is a London staffing and events company. It employs hospitality staff for private parties, weddings, venues, productions and branded nights, and takes on the events those rooms turn into.</p>
+      </div>
     </section>
 
-    <section class="section shell" aria-labelledby="started-heading">
-      <h2 id="started-heading" class="section-label">Where it started</h2>
-      <div class="about-founder">
+    <section class="section shell" aria-labelledby="why-heading">
+      <h2 id="why-heading" class="section-label">Why it works this way</h2>
       <div class="about-prose">
-        <p>I come from a family event-staffing business, where the job was always to find the best staff for each event, not just whoever was available.</p>
-        <p>Compare that with the staffing apps most people use now. Jobs are posted for anyone to accept, and nobody vets who turns up. I thought the work deserved better, so I started VERGO with actual care for the work that gets done.</p>
-        <p>That has grown into an agency with one direction and no other: give people and events the best possible solution for what they need.</p>
-      </div>
-      <figure class="about-photo about-founder-photo">
-        <div class="about-photo-frame">
-          <span class="about-photo-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Photo coming soon</span></span>
-          <img src="/images/about/founder.webp" alt="William Robb, founder of VERGO, by the river in London." loading="lazy" decoding="async">
-        </div>
-        <figcaption>William Robb, founder</figcaption>
-      </figure>
+        <p>I grew up around event staffing. The lesson that stuck was simple: pick the person for the room, not whoever is free.</p>
+        <p>Apps post a shift and hope someone good picks it up. VERGO doesn&rsquo;t. Everyone is interviewed before they join the roster, briefed before they arrive, and employed on PAYE, with payslips, holiday pay, and pension where it applies.</p>
+        <p>That is the staffing side. The events side grew out of it. Once you are sending the right people and writing the brief for the room, running the night is the next step. Christmas, Halloween, themed teams, brand nights: the same people, the same standard, and a lead on the floor.</p>
       </div>
     </section>
 
     <section class="section shell" aria-labelledby="next-heading">
-      <h2 id="next-heading" class="section-label">Where we&rsquo;re going</h2>
+      <h2 id="next-heading" class="section-label">Where it&rsquo;s going</h2>
       <div class="about-prose">
-        <p>I love getting creative and making things work, and that is where VERGO is heading: a staffing agency that also puts on events.</p>
-        <p>Bring us your idea and we&rsquo;ll build it and staff the whole event for you, from the <a href="/special-events">themes and decor</a> to the team on the night. Great prices, and great solutions.</p>
-      </div>
-    </section>
-
-    <section class="section shell" aria-labelledby="team-heading">
-      <h2 id="team-heading" class="section-label">Our team</h2>
-      <div class="about-prose">
-        <p>Our staff love the work they do, and they want to grow alongside the company. That shows on the night.</p>
+        <p>I founded VERGO in 2025. The direction is a serious staffing operation, and an events side that runs on that same operation.</p>
       </div>
       <ul class="fact-list">
-        <li><strong>Every worker is interviewed</strong> before they join the roster</li>
-        <li><strong>Every booking is briefed:</strong> the venue, the service style and what the night involves</li>
-        <li><strong>Our employed team get holiday pay, pension and payslips</strong>, not a self-employed invoice</li>
-        <li><strong>Right to work checked and documented</strong> for everyone we send</li>
-        <li><strong>Employers&rsquo; and public liability insured</strong>, with certificates on request</li>
+        <li><strong>VERGO LTD</strong>, company number 16627585</li>
+        <li><strong>Founded 2025</strong>, London</li>
+        <li><strong>PAYE employer.</strong> Right to work checked for everyone sent.</li>
+        <li><strong>Employers&rsquo; liability and public liability insured.</strong> Certificates on request.</li>
       </ul>
     </section>
 
-    <section class="section shell" aria-label="Our slogan">
+    <section class="section shell" aria-label="Slogan">
       <p class="slogan-feature">Wherever you go, VERGO.</p>
     </section>
 
     <section class="section shell" aria-labelledby="whatwedo-heading">
-      <h2 id="whatwedo-heading" class="section-label">What we do</h2>
+      <h2 id="whatwedo-heading" class="section-label">What VERGO does</h2>
       <div class="step-grid step-grid--3">
         <div class="step">
-          <h3><a href="/hire">Event &amp; hospitality staff</a></h3>
-          <p>Waiting staff, bar staff, kitchen porters, runners and hosts, for weddings, corporate events, venues and productions.</p>
+          <h3><a href="/hire">Staff</a></h3>
+          <p>Waiting staff, bar staff, kitchen porters, runners and hosts at <span data-vergo="rates.chargeRateShortDisplay">£18</span>/hr, no VAT.</p>
         </div>
         <div class="step">
-          <h3><a href="/special-events">Full events</a></h3>
-          <p>Your idea, staffed start to finish: themed teams, performers, makeup and decor, for <a href="/special-events/halloween">Halloween</a>, <a href="/special-events/christmas">Christmas</a> and beyond.</p>
+          <h3><a href="/events">Events</a></h3>
+          <p>Christmas, Halloween, themed teams and brand nights, with a lead on the floor.</p>
         </div>
         <div class="step">
-          <h3><a href="/work">Work with us</a></h3>
-          <p>Properly employed hospitality shifts across London, for people who want to grow with us.</p>
+          <h3><a href="/work">Work</a></h3>
+          <p>PAYE hospitality shifts across London, offered against your availability.</p>
         </div>
       </div>
     </section>
@@ -136,12 +126,12 @@
     <div class="section-band">
       <div class="cta-band shell">
         <div>
-          <h2>Got an idea for an event?</h2>
-          <p>Send it over, even half of one, with the date and the venue. Enquiries between 8am and 10pm get a same-day answer.</p>
+          <h2>William Robb</h2>
+          <p>Founder. Call or send the brief: enquiries between 8am and 10pm get a same-day answer.</p>
         </div>
         <div class="btn-row">
-          <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
-          <a href="tel:+447944505783" data-vergo-tel="contact.phone" class="btn btn-secondary">Call <span data-vergo="contact.phoneDisplay">07944 505783</span></a>
+          <a href="tel:+447944505783" data-vergo-tel="contact.phone" class="btn btn-secondary"><span data-vergo="contact.phoneDisplay">07944 505783</span></a>
+          <a href="/hire/quote" class="btn btn-primary">Send a brief</a>
         </div>
       </div>
     </div>
@@ -152,35 +142,33 @@
       <div>
         <div class="brand"><span class="brand-mark" aria-hidden="true">V</span>VERGO</div>
         <p class="footer-slogan">Wherever you go, VERGO.</p>
-        <p class="footer-contact"><a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email">wrobb@vergoltd.com</a></p>
-        <p class="footer-contact"><a href="tel:+447944505783" data-vergo-tel="contact.phone">07944 505783</a></p>
+        <p class="footer-rate"><span data-vergo="rates.chargeRateShortDisplay">£18</span>/hr, no VAT, for core hospitality roles.</p>
+        <p class="footer-contact"><a href="tel:+447944505783" data-vergo-tel="contact.phone"><span data-vergo="contact.phoneDisplay">07944 505783</span></a></p>
+        <p class="footer-contact"><a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email"><span data-vergo="contact.email">wrobb@vergoltd.com</span></a></p>
         <p class="footer-social">
           <a href="https://www.instagram.com/vergo.ltd/" data-vergo-href="social.instagram" target="_blank" rel="noopener">Instagram <span data-vergo="social.instagramHandle">@vergo.ltd</span></a>
           <a href="#" data-vergo-href="reviews.google" target="_blank" rel="noopener" hidden>Google reviews</a>
         </p>
       </div>
       <div class="footer-links">
-        <a href="/hire">For clients</a>
-        <a href="/work">Apply for work</a>
-        <a href="/special-events">Special events</a>
-        <a href="/about">About us</a>
-        <a href="/blog">Blog</a>
-        <a href="/terms">Terms of business</a>
+        <a href="/hire">Staff</a>
+        <a href="/events">Events</a>
+        <a href="/work">Work</a>
+        <a href="/about">About</a>
+        <a href="/blog">Journal</a>
+        <a href="/contact">Contact</a>
         <a href="/privacy">Privacy</a>
-        <a href="/legal">Legal</a>
+        <a href="/terms">Terms</a>
       </div>
       <p class="footer-legal">
-        <span data-vergo="company.legalName">Vergo Ltd</span>, registered in
-        <span data-vergo="company.jurisdiction">England and Wales</span>, company no.
-        <span data-vergo="company.number">16627585</span>. Registered office:
-        <span data-vergo="company.registeredOffice">96 Sulivan Court, London, SW6 3DB</span>.
-        Employers' and public liability insured.
+        <span data-vergo="company.legalName">VERGO LTD</span> &middot; Company number <span data-vergo="company.number">16627585</span><br>
+        <span data-vergo="company.registeredOffice">Flat 96 Sulivan Court, Peterborough Road, London SW6 3DB</span><br>
+        Employers' liability and public liability insured. Certificates on request.
       </p>
     </div>
   </footer>
 
   <script src="/vergo-site-config.js"></script>
-  <script src="/pages/js/about-photos.js" defer></script>
   <script src="/vergo-whatsapp.js" defer></script>
 </body>
 </html>

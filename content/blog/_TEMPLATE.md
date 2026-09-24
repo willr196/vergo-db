@@ -1,7 +1,7 @@
 ---
 slug: replace-with-the-slug
 title: The headline, written as a person would say it
-metaTitle: Under 60 characters | VERGO Staffing
+metaTitle: Under 60 characters | VERGO
 metaDescription: Under 155 characters. Say what the post answers, in the words someone would use to ask it.
 published: 2026-01-01
 updated: 2026-01-01

@@ -4,11 +4,11 @@
  */
 
 export const PRICING = {
-  standardRate: 19.00,
+  standardRate: 18.00,
   minimumChargeHours: 4,
   afterMidnightMultiplier: 1.25,
   /** Internal only — never render this on any public page. */
-  accountRate: 19.00,
+  accountRate: 18.00,
   vatRegistered: false,
   vatRate: 0.20,
 
@@ -19,15 +19,15 @@ export const PRICING = {
    * beyond these three — specialist acts, decor, a whole experience — is quoted
    * per brief and deliberately has no figure here.
    *
-   * Rendered on /special-events/halloween via VERGO_CONFIG.specialEvents, which
+   * Rendered on /events/halloween and /events/christmas via VERGO_CONFIG.specialEvents, which
    * hydrates from /api/v1/rates. The page carries the same figures as static
    * fallbacks so the rates are in the HTML for search engines and for anyone
    * without JavaScript — change a rate here and change it there in the same commit.
    */
   specialEvents: {
-    themedHospitality: 22.00,
-    characterPerformer: 30.00,
-    makeupArtist: 40.00,
+    themedHospitality: 20.00,
+    characterPerformer: 28.00,
+    makeupArtist: 35.00,
     /** Hourly special-events roles carry the site-wide four-hour minimum. */
     minimumChargeHours: 4,
   },

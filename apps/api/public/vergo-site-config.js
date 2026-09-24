@@ -8,10 +8,10 @@
 
   window.VERGO_CONFIG = {
     company: {
-      legalName: 'Vergo Ltd',
+      legalName: 'VERGO LTD',
       number: '16627585',
       jurisdiction: 'England and Wales',
-      registeredOffice: '96 Sulivan Court, London, SW6 3DB',
+      registeredOffice: 'Flat 96 Sulivan Court, Peterborough Road, London SW6 3DB',
     },
 
     contact: {
@@ -32,8 +32,10 @@
     },
 
     rates: {
-      chargeRate: 19.00,
-      chargeRateDisplay: '£19.00',
+      chargeRate: 18.00,
+      chargeRateDisplay: '£18.00',
+      // Whole pounds, for copy: "£18/hr, no VAT".
+      chargeRateShortDisplay: '£18',
       minimumHours: 4,
       holidayPayPercent: 12.07,
     },
@@ -41,14 +43,14 @@
     // Special Events charge rates, £/hour per person. Mirrors the
     // specialEvents block in apps/api/src/config/pricing.ts, which is the real
     // source of truth — these are the fallback until /api/v1/rates resolves.
-    // The display strings are what /special-events/halloween renders.
+    // The display strings are what /events/halloween and /events/christmas render.
     specialEvents: {
-      themedHospitality: 22.00,
-      themedHospitalityDisplay: '£22',
-      characterPerformer: 30.00,
-      characterPerformerDisplay: '£30',
-      makeupArtist: 40.00,
-      makeupArtistDisplay: '£40',
+      themedHospitality: 20.00,
+      themedHospitalityDisplay: '£20',
+      characterPerformer: 28.00,
+      characterPerformerDisplay: '£28',
+      makeupArtist: 35.00,
+      makeupArtistDisplay: '£35',
       minimumHours: 4,
     },
 
@@ -59,10 +61,12 @@
 
     terms: {
       paymentTermsDays: 14,
+      // Free more than 48 hours out, 10% of the booked value inside 48 hours,
+      // 25% inside 24 hours.
       cancellation: {
         freeHours: 48,
-        halfChargeHours: 24,
-        fullChargeHours: 12,
+        tenPercentInsideHours: 48,
+        twentyFivePercentInsideHours: 24,
       },
     },
 
@@ -143,12 +147,13 @@
       var rate = body.data.standardRate;
       window.VERGO_CONFIG.rates.chargeRate = rate;
       window.VERGO_CONFIG.rates.chargeRateDisplay = '£' + Number(rate).toFixed(2);
+      window.VERGO_CONFIG.rates.chargeRateShortDisplay = '£' + (rate % 1 === 0 ? rate : Number(rate).toFixed(2));
       window.VERGO_CONFIG.rates.minimumHours = body.data.minimumChargeHours;
       window.VERGO_CONFIG.rates.holidayPayPercent = body.data.holidayPayPercent;
 
       // Special-events rates, when the API is new enough to serve them. Whole
       // pounds: these are round rate-card figures, not computed totals, so
-      // "£22" reads better than "£22.00" at display size.
+      // "£20" reads better than "£20.00" at display size.
       var se = body.data.specialEvents;
       if (se) {
         var target = window.VERGO_CONFIG.specialEvents;

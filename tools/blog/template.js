@@ -22,9 +22,9 @@ const OG_IMAGE = `${ORIGIN}/logo.png`;
 
 const AUTHOR = {
   name: 'Will Robb',
-  role: 'Founder, VERGO Staffing',
+  role: 'Founder, VERGO',
   bio: 'Will Robb has spent 8 or more years in London hospitality, film and television production, and live music. He interviews every worker on the VERGO roster himself.',
-  company: 'Vergo Ltd, company number 16627585, registered in England and Wales.',
+  company: 'VERGO LTD, company number 16627585, registered in England and Wales.',
 };
 
 const DATE_FORMAT = new Intl.DateTimeFormat('en-GB', {
@@ -45,11 +45,12 @@ function attr(value) {
 const SITE_HEADER = `  <header class="site-header" role="banner">
     <div class="site-header-inner">
       <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">V</span>VERGO</a>
-      <nav class="header-actions">
-        <a class="switch-link switch-link--feature" href="/special-events">Special events</a>
-        <a class="switch-link" href="/hire">For clients</a>
-        <a class="switch-link" href="/work">Apply for work</a>
-        <a class="call-link" href="tel:+447944505783" data-vergo-tel="contact.phone" aria-label="Call VERGO">
+      <nav class="header-actions" aria-label="Primary">
+        <a class="switch-link" href="/hire">Staff</a>
+        <a class="switch-link" href="/events">Events</a>
+        <a class="switch-link" href="/work">Work</a>
+        <a class="switch-link" href="/about">About</a>
+        <a class="call-link" href="tel:+447944505783" data-vergo-tel="contact.phone" aria-label="Call VERGO on 07944 505783">
           <span data-vergo="contact.phoneDisplay">07944 505783</span>
         </a>
       </nav>
@@ -60,24 +61,29 @@ const SITE_FOOTER = `  <footer class="site-footer" role="contentinfo">
     <div class="footer-inner">
       <div>
         <div class="brand"><span class="brand-mark" aria-hidden="true">V</span>VERGO</div>
-        <p class="footer-contact"><a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email">wrobb@vergoltd.com</a></p>
-        <p class="footer-contact"><a href="tel:+447944505783" data-vergo-tel="contact.phone">07944 505783</a></p>
+        <p class="footer-slogan">Wherever you go, VERGO.</p>
+        <p class="footer-rate"><span data-vergo="rates.chargeRateShortDisplay">£18</span>/hr, no VAT, for core hospitality roles.</p>
+        <p class="footer-contact"><a href="tel:+447944505783" data-vergo-tel="contact.phone"><span data-vergo="contact.phoneDisplay">07944 505783</span></a></p>
+        <p class="footer-contact"><a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email"><span data-vergo="contact.email">wrobb@vergoltd.com</span></a></p>
+        <p class="footer-social">
+          <a href="https://www.instagram.com/vergo.ltd/" data-vergo-href="social.instagram" target="_blank" rel="noopener">Instagram <span data-vergo="social.instagramHandle">@vergo.ltd</span></a>
+          <a href="#" data-vergo-href="reviews.google" target="_blank" rel="noopener" hidden>Google reviews</a>
+        </p>
       </div>
       <div class="footer-links">
-        <a href="/hire">For clients</a>
-        <a href="/work">Apply for work</a>
-        <a href="/special-events">Special events</a>
-        <a href="/blog">Blog</a>
-        <a href="/terms">Terms of business</a>
+        <a href="/hire">Staff</a>
+        <a href="/events">Events</a>
+        <a href="/work">Work</a>
+        <a href="/about">About</a>
+        <a href="/blog">Journal</a>
+        <a href="/contact">Contact</a>
         <a href="/privacy">Privacy</a>
-        <a href="/legal">Legal</a>
+        <a href="/terms">Terms</a>
       </div>
       <p class="footer-legal">
-        <span data-vergo="company.legalName">Vergo Ltd</span>, registered in
-        <span data-vergo="company.jurisdiction">England and Wales</span>, company no.
-        <span data-vergo="company.number">16627585</span>. Registered office:
-        <span data-vergo="company.registeredOffice">96 Sulivan Court, London, SW6 3DB</span>.
-        Employers' and public liability insured.
+        <span data-vergo="company.legalName">VERGO LTD</span> &middot; Company number <span data-vergo="company.number">16627585</span><br>
+        <span data-vergo="company.registeredOffice">Flat 96 Sulivan Court, Peterborough Road, London SW6 3DB</span><br>
+        Employers' liability and public liability insured. Certificates on request.
       </p>
     </div>
   </footer>`;
@@ -98,7 +104,7 @@ ${noindex ? '  <meta name="robots" content="noindex, nofollow">\n' : ''}  <meta 
   <meta property="og:image" content="${OG_IMAGE}">
   <meta property="og:url" content="${url}">
   <meta property="og:type" content="${ogType}">
-  <meta property="og:site_name" content="VERGO Staffing">
+  <meta property="og:site_name" content="VERGO">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#0a0a0a">
   <link rel="icon" href="/favicon.ico">
@@ -134,12 +140,12 @@ function articleJsonLd(post) {
       '@type': 'Person',
       name: AUTHOR.name,
       jobTitle: 'Founder',
-      worksFor: { '@type': 'Organization', name: 'VERGO Staffing' },
+      worksFor: { '@type': 'Organization', name: 'VERGO' },
     },
     publisher: {
       '@type': 'Organization',
-      name: 'VERGO Staffing',
-      legalName: 'Vergo Ltd',
+      name: 'VERGO',
+      legalName: 'VERGO LTD',
       url: ORIGIN,
       logo: { '@type': 'ImageObject', url: OG_IMAGE },
     },
@@ -164,7 +170,7 @@ function breadcrumbJsonLd(post) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: `${ORIGIN}/` },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${ORIGIN}/blog` },
+      { '@type': 'ListItem', position: 2, name: 'Journal', item: `${ORIGIN}/blog` },
       { '@type': 'ListItem', position: 3, name: post.title, item: `${ORIGIN}${post.route}` },
     ],
   };
@@ -212,11 +218,11 @@ ${SITE_HEADER}
   <main id="main-content">
     <article class="post page-shell">
       <nav class="post-breadcrumb" aria-label="Breadcrumb">
-        <a href="/">Home</a> <span aria-hidden="true">/</span> <a href="/blog">Blog</a>
+        <a href="/">Home</a> <span aria-hidden="true">/</span> <a href="/blog">Journal</a>
       </nav>
 
       <header class="post-header">
-        <span class="eyebrow">VERGO Staffing</span>
+        <span class="eyebrow">Journal</span>
         <h1>${escapeHtml(post.title)}</h1>
         <p class="post-dates">
           Published <time datetime="${post.published}">${formatDate(post.published)}</time>.
@@ -248,11 +254,11 @@ ${faqItems}
       </aside>
 
       <aside class="post-cta cta-panel" aria-labelledby="post-cta-heading">
-        <h2 id="post-cta-heading">Need staff for an event?</h2>
-        <p>Tell us the date, the venue and the roles. Enquiries between 8am and 10pm get a same-day answer.</p>
+        <h2 id="post-cta-heading">Need staff for a night?</h2>
+        <p>Send the date, the venue and the roles. Enquiries between 8am and 10pm get names the same day.</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="/hire/quote">Get a quote</a>
-          <a class="btn btn-secondary" href="/hire">How we work</a>
+          <a class="btn btn-primary" href="/hire/quote">Send a brief</a>
+          <a class="btn btn-secondary" href="/hire">Staff</a>
         </div>
       </aside>
     </article>
@@ -265,7 +271,7 @@ ${PAGE_SCRIPTS}
 `;
 }
 
-const INDEX_DESCRIPTION = 'Plain, specific writing on what event staff cost in London, how staffing quotes compare, and how VERGO Staffing runs bookings. Written by the founder.';
+const INDEX_DESCRIPTION = 'Notes from VERGO on what event staff cost in London, how bookings run, and what to ask any agency before you sign. Plain figures, no sales copy.';
 
 function renderIndex(posts) {
   const cards = posts.length
@@ -278,19 +284,19 @@ function renderIndex(posts) {
         </article>`)
       .join('\n')
     : `        <div class="empty-state">
-          <p>The first posts are being written. In the meantime, the rates and terms are on <a href="/hire">the client page</a>.</p>
+          <p>The first posts are being written. In the meantime, the rates and terms are on <a href="/hire">Staff</a>.</p>
         </div>`;
 
   const itemList = {
     '@context': 'https://schema.org',
     '@type': 'Blog',
-    name: 'VERGO Staffing blog',
+    name: 'VERGO Journal',
     url: `${ORIGIN}/blog`,
     inLanguage: 'en-GB',
     publisher: {
       '@type': 'Organization',
-      name: 'VERGO Staffing',
-      legalName: 'Vergo Ltd',
+      name: 'VERGO',
+      legalName: 'VERGO LTD',
       url: ORIGIN,
       logo: { '@type': 'ImageObject', url: OG_IMAGE },
     },
@@ -308,7 +314,7 @@ function renderIndex(posts) {
 <html lang="en-GB">
 <head>
 ${head({
-    title: 'Blog | VERGO Staffing',
+    title: 'Journal | VERGO',
     description: INDEX_DESCRIPTION,
     route: '/blog',
     // An index with nothing on it is worse than no index. It stays out of the
@@ -324,8 +330,8 @@ ${SITE_HEADER}
   <main id="main-content">
     <section class="page-hero">
       <div class="page-shell">
-        <span class="eyebrow">Blog</span>
-        <h1 class="post-index-title">What event staffing actually costs, and how it works</h1>
+        <span class="eyebrow">Journal</span>
+        <h1 class="post-index-title">Journal</h1>
         <p class="lede">${escapeHtml(INDEX_DESCRIPTION)}</p>
       </div>
     </section>

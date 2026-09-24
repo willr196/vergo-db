@@ -1,6 +1,6 @@
 # VERGO-BLOG-SYSTEM.md
 
-Reference file for drafting VERGO Staffing blog posts with Claude Code.
+Reference file for drafting VERGO Journal posts with Claude Code.
 
 > **Storage warning:** put this file at the repo root or in `/docs`, **not** in `apps/api/public/`. Anything in `public/` is served to the open internet. This file contains internal commercial information.
 
@@ -51,7 +51,7 @@ Before drafting any post, run this. Do not skip it.
 Everything below is confirmed. Use it freely. Anything not here needs to come from the interview.
 
 ### The company
-- Trading name: **VERGO Staffing**. Legal name: Vergo Ltd. Company number 16627585.
+- Trading name: **VERGO**. Legal name: VERGO LTD. Company number 16627585.
 - Registered in England and Wales. London, SW6.
 - Founded 2025. Founder-led, run by Will Robb.
 - Employers' liability and public liability insurance in place.
@@ -65,7 +65,7 @@ Everything below is confirmed. Use it freely. Anything not here needs to come fr
 - Personally interviews every worker before they join the roster.
 
 ### The commercial model
-- Published rate: **£19.00/hr per person** for waiting staff, bar staff, kitchen porters, runners, hosts.
+- Published rate: **£18/hr per person, no VAT** for waiting staff, bar staff, kitchen porters, runners, hosts.
 - Four-hour minimum per person. Overruns in 30-minute blocks. Plus 25% after midnight.
 - No booking fees, no uniform charges, no surcharges.
 - Senior roles (supervisors, head chefs, lead bartenders, event managers) quoted individually.
@@ -102,7 +102,7 @@ Ask him about these in interviews. **Never name clients in a published post.** S
 ### Hard rules for published posts
 - **Never name a client.** Not Popcorn, not Schmodel, not the studio.
 - **Never publish what VERGO pays an individual worker.** Aggregate and statutory figures only.
-- **Never publish what VERGO charges a specific client.** The £19 published rate is fine. Bespoke rates are not.
+- **Never publish what VERGO charges a specific client.** The £18 published rate is fine. Bespoke rates are not.
 - **Never give legal or tax advice.** Describe how things work and what to ask a professional. Employment status posts especially.
 - **No competitor names.** Talk about "some agencies", never a named firm.
 

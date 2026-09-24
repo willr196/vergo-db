@@ -187,7 +187,7 @@ function main() {
   }
 }
 
-const TITLE_SUFFIX = '| VERGO Staffing';
+const TITLE_SUFFIX = '| VERGO';
 const TITLE_MAX = 60;
 const DESCRIPTION_MAX = 155;
 
@@ -209,7 +209,7 @@ function metaContent(html, attrName, attrValue) {
 
 /**
  * The rules from the SEO brief for every public page: a unique title of 60
- * characters or fewer ending "| VERGO Staffing", a unique description of 155 or
+ * characters or fewer ending "| VERGO", a unique description of 155 or
  * fewer, og:title/og:description matching them, og:site_name and twitter:card
  * present, and the sitemap holding exactly the indexable pages.
  */
@@ -238,7 +238,7 @@ function checkPublicMeta(pages, sitemapRoutes) {
     if (metaContent(html, 'property', 'og:description') !== description) {
       problems.push(`${page.rel}: og:description does not match the meta description`);
     }
-    if (metaContent(html, 'property', 'og:site_name') !== 'VERGO Staffing') problems.push(`${page.rel}: missing og:site_name`);
+    if (metaContent(html, 'property', 'og:site_name') !== 'VERGO') problems.push(`${page.rel}: missing og:site_name`);
     if (!metaContent(html, 'name', 'twitter:card')) problems.push(`${page.rel}: missing twitter:card`);
 
     if (title) {

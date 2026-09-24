@@ -169,7 +169,7 @@ test('the office sees the shift in the timesheet queue and completes it', async 
   assert.equal(completed.status, 'COMPLETED');
   assert.ok(completed.completedAt instanceof Date);
   assert.equal(Number(completed.hoursEstimated), 9.5, 'worked hours become the billed hours');
-  assert.equal(Number(completed.totalEstimated), 180.5, '9.5h at 19.00');
+  assert.equal(Number(completed.totalEstimated), 171, '9.5h at 18.00');
 });
 
 test('a short shift is invoiced at the four-hour minimum', async () => {
@@ -203,8 +203,8 @@ test('a short shift is invoiced at the four-hour minimum', async () => {
   // The real hours are kept, so the timesheet still tells the truth.
   assert.equal(Number(row.hoursWorked), 2.5);
   assert.equal(Number(row.hoursEstimated), 2.5);
-  // The money is floored at four hours: 4 x 19.00.
-  assert.equal(Number(row.totalEstimated), 76);
+  // The money is floored at four hours: 4 x 18.00.
+  assert.equal(Number(row.totalEstimated), 72);
 
   // And the money view agrees, on both sides of the transaction.
   const dashboard = await inject(adminApp, { method: 'GET', url: '/api/v1/admin/bookings/dashboard' });
