@@ -212,7 +212,7 @@ test('a short shift is invoiced at the four-hour minimum', async () => {
   const shaped = dashboard.body.data.bookings.find((b: any) => b.id === booking.id);
   assert.ok(shaped, 'the completed booking must appear in the dashboard');
   assert.equal(shaped.money.billableHours, 4);
-  assert.equal(shaped.money.revenuePence, 7600);
+  assert.equal(shaped.money.revenuePence, 7400);
   assert.equal(shaped.money.wagePence, 5200, '4h at 13.00, not 2.5h');
   // Holiday accrual is 12.07% of the floored wage, not of 2.5 hours' pay.
   assert.equal(shaped.money.onCostBreakdown.holidayPence, 628);
