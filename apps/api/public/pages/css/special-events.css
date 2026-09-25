@@ -1028,3 +1028,27 @@ a.se-hub-card:hover, a.se-hub-card:focus-visible {
   .se-bespoke-item { padding: 24px 22px 22px; }
   .se-rate-price { margin: 14px 0 18px; padding-bottom: 18px; }
 }
+
+/* Halloween photo pair: two landscape shots side by side, stacked on phones. */
+.se-photo-pair {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr;
+  margin: 0;
+}
+@media (min-width: 700px) { .se-photo-pair { grid-template-columns: 1fr 1fr; } }
+.se-photo-pair figure { margin: 0; }
+.se-photo-pair img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+}
+.se-photo-pair figcaption {
+  margin-top: 10px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}

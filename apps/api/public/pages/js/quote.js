@@ -34,11 +34,11 @@
   // What has to be there before we will take a booking. Order matters — it
   // decides which field we scroll to when something is missing. Headcount is not
   // in the list: it comes from the per-role numbers, checked separately below.
+  // Start and finish times are left out on purpose: plenty of clients don't know
+  // them yet, and we agree them when we confirm. They only drive the estimate.
   var BOOKING_FIELDS = [
     { name: 'eventDate', label: 'the event date' },
     { name: 'eventType', label: 'the event type' },
-    { name: 'shiftStart', label: 'a start time' },
-    { name: 'shiftEnd', label: 'an end time' },
     { name: 'venuePostcode', label: 'the venue postcode' },
     { name: 'name', label: 'your name' },
     { name: 'email', label: 'your email address' },

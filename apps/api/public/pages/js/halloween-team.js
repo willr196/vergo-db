@@ -144,9 +144,10 @@
     }
 
     function eventType() {
+      var tag = form.dataset.eventType || 'Special Events';
       var concept = checkedValue('concept');
-      if (concept) return concept + ' (Special Events)';
-      return form.dataset.eventType || 'Special Events';
+      if (concept) return concept + ' (' + tag + ')';
+      return tag;
     }
 
     function buildPayload() {

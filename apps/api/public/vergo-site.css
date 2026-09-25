@@ -348,6 +348,24 @@ p:last-child { margin-bottom: 0; }
 .home-hero .lede { max-width: 46ch; font-size: 21px; }
 .home-hero .btn-row { margin: 30px 0 8px; }
 
+/* The logo leads the homepage, so the hero centres around it. The artwork sits
+   on a black square, which shows against the hero backdrop; a circular mask on
+   the ring's centre fades it out, and the negative margin takes back the empty
+   black below the ring. */
+.home-hero--centred { text-align: center; padding-top: 48px; }
+.home-hero--centred h1,
+.home-hero--centred .lede { margin-inline: auto; }
+.home-hero--centred .btn-row { justify-content: center; align-items: center; }
+.home-logo {
+  display: block;
+  width: clamp(180px, 30vw, 300px);
+  height: auto;
+  margin: 0 auto calc(clamp(180px, 30vw, 300px) * -0.18);
+  -webkit-mask-image: radial-gradient(circle closest-side at 50% 39%, #000 84%, transparent 100%);
+  mask-image: radial-gradient(circle closest-side at 50% 39%, #000 84%, transparent 100%);
+}
+@media (max-width: 640px) { .home-hero--centred { padding-top: 32px; } }
+
 /* Stat band */
 .stat-band {
   display: grid;

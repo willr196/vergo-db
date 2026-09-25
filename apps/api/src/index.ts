@@ -294,7 +294,13 @@ app.use(cors({
 app.use(compression());
 
 // Global rate limiter (Redis-backed in production, memory fallback in dev)
-const rateLimitOptions: Parameters<typeof rateLimit>[0] = { windowMs: 60_000, max: 120 };
+// Off under test: the smoke suite walks every legacy redirect from one address,
+// three requests apiece, which alone runs past 120 a minute.
+const rateLimitOptions: Parameters<typeof rateLimit>[0] = {
+  windowMs: 60_000,
+  max: 120,
+  skip: () => process.env.NODE_ENV === 'test',
+};
 if (env.redisUrl) {
   try {
     const rateLimitRedis = new Redis(env.redisUrl, { maxRetriesPerRequest: 1, lazyConnect: true });
