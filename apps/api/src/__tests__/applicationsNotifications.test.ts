@@ -97,7 +97,8 @@ test('application submissions notify the admin inbox and send applicant confirma
     applicantId: '11111111-1111-4111-8111-111111111111',
   });
   prismaAny.fileUploadVerification.delete = async () => ({});
-  prismaAny.applicant.upsert = async () => ({
+  let upsertArgs: any = null;
+  prismaAny.applicant.upsert = async (args: any) => (upsertArgs = args, {
     id: 'applicant-1',
     firstName: 'Alice',
     lastName: 'Nguyen',
@@ -145,7 +146,6 @@ test('application submissions notify the admin inbox and send applicant confirma
         phone: '07123456789',
         rightToWorkUk: true,
         postcode: 'E1 6AN',
-        dateOfBirth: '1995-06-15',
         roles: [{ role: 'Bartender', experienceLevel: 'Senior' }],
         cvKey: 'cv/alice-nguyen.pdf',
         cvOriginalName: 'alice-nguyen.pdf',
@@ -160,6 +160,12 @@ test('application submissions notify the admin inbox and send applicant confirma
     const body = JSON.parse(response.body || '{}') as any;
     assert.equal(body.ok, true);
     assert.equal(body.id, 'application-1');
+
+    // The public form no longer asks for a date of birth, and the API must
+    // not write one (it would overwrite a value recorded at onboarding).
+    assert.ok(upsertArgs, 'applicant upserted');
+    assert.equal('dateOfBirth' in upsertArgs.create, false);
+    assert.equal('dateOfBirth' in upsertArgs.update, false);
 
     assert.equal(senderCalls.critical.length, 1);
     assert.equal(senderCalls.critical[0].to, 'wrobb@vergoltd.com');
