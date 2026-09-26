@@ -1,38 +1,42 @@
 import { prisma } from '../src/prisma';
+import { PRICING, SITE_TERMS, formatRate } from '../src/config/pricing';
 
 async function main() {
   // The API serves the most recently published version, and a booking records
   // the version it was confirmed under, so changing the terms means a new
   // version rather than an edit to the old one.
-  const version = 'v4';
-  const effectiveDate = new Date('2026-09-24T00:00:00.000Z');
+  //
+  // Built from config/pricing.ts, the same source as the public /terms page,
+  // so a booking's recorded terms can't say something the page doesn't.
+  const version = 'v5';
+  const effectiveDate = new Date('2026-09-26T00:00:00.000Z');
   const sections = [
     {
       key: 'rates-and-charges',
-      heading: 'Rates and Charges',
+      heading: 'Rates and charges',
       items: [
-        '£18.50 per hour, per person: one rate across waiting staff, bar staff, kitchen porters, runners and hosts',
-        '4-hour minimum charge per person, per booking',
-        'Overruns beyond the confirmed end time are billed in 30-minute blocks',
-        'Senior roles (supervisors, chefs, event managers) are quoted and agreed individually before booking',
-        "No booking fees, uniform charges or other surcharges beyond what's set out here",
+        `Standard: ${formatRate(PRICING.standardRate)} per hour, per person, for waiting staff, bar staff, kitchen porters, runners, and hosts and front of house`,
+        ...(PRICING.premiumEnabled
+          ? [`Premium: ${formatRate(PRICING.premiumRate)} per hour, per person. ${SITE_TERMS.premiumDefinition}`]
+          : []),
+        `${PRICING.minimumChargeHours}-hour minimum charge per person, per booking`,
+        `Time beyond the confirmed end is billed in ${PRICING.overrunBlockMinutes}-minute blocks`,
+        `Hours worked after midnight are charged at +${Math.round((PRICING.afterMidnightMultiplier - 1) * 100)}%`,
+        'Chefs, cooks, managers and supervisors are quoted and agreed individually before booking',
+        'There are no booking fees or uniform charges',
       ],
     },
     {
       key: 'changes-and-cancellation',
-      heading: 'Changes and Cancellation',
-      items: [
-        'More than 48 hours before the booking starts: no charge',
-        'Between 24 and 48 hours before: 10% of the confirmed booking charge',
-        'Less than 24 hours before: 25% of the confirmed booking charge',
-      ],
+      heading: 'Changes and cancellation',
+      items: [SITE_TERMS.cancellation],
       note: "These tiers apply to the booking as a whole. If you need to reduce staff numbers rather than cancel entirely, tell us as early as possible and we'll agree a fair adjustment.",
     },
     {
       key: 'payment',
       heading: 'Payment',
       items: [] as string[],
-      note: "Invoices are payable within 14 days of the invoice date. For a client's first booking with us, payment is required in advance of the event.",
+      note: SITE_TERMS.paymentTerms,
     },
   ];
 

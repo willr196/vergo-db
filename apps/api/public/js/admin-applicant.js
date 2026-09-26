@@ -335,7 +335,8 @@
       '<div class="detail-grid mb-2">'
       + '<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a class="detail-link" href="mailto:' + esc(applicant.email || '') + '">' + esc(applicant.email || '-') + '</a></span></div>'
       + '<div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">' + esc(applicant.phone || '-') + '</span></div>'
-      + '<div class="detail-row"><span class="detail-label">DOB</span><span class="detail-value">' + fmtD(applicant.dateOfBirth) + '</span></div>'
+      // DOB is no longer collected on the public form; show it only when onboarding has recorded one.
+      + (applicant.dateOfBirth ? '<div class="detail-row"><span class="detail-label">DOB</span><span class="detail-value">' + fmtD(applicant.dateOfBirth) + '</span></div>' : '')
       + '<div class="detail-row"><span class="detail-label">Postcode</span><span class="detail-value">' + esc(applicant.postcode || '-') + '</span></div>'
       + '<div class="detail-row"><span class="detail-label">Availability</span><span class="detail-value">' + esc(applicant.availability || '-') + '</span></div>'
       + '</div>'

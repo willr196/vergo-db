@@ -1042,8 +1042,8 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 .field-invalid select,
 .field-invalid textarea { border-color: #dc5a5a; }
 
-/* Honeypot field — hidden from sighted users and screen readers, must stay empty */
-.hp-field { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+/* Honeypot field: off-screen, aria-hidden and out of the tab order, so only bots fill it. */
+.hp-field { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
 
 /* Footer. One footer on every public page (src/site/partials.ts). */
 .site-footer {
@@ -1088,16 +1088,7 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 .page-hero-plain .btn-row { margin: 30px 0 34px; }
 
 /* Legal pages */
-.draft-banner {
-  background: rgba(220, 160, 60, 0.12);
-  border: 2px solid #dca03c;
-  border-radius: var(--radius);
-  padding: 18px 20px;
-  margin-bottom: 8px;
-  color: var(--text);
-  font-size: 0.95rem;
-}
-.draft-banner strong { color: var(--accent-hover); }
+.legal-updated { margin: 12px 0 0; font-size: 14px; color: var(--text-muted); }
 
 .legal-content h2 {
   margin-top: 2em;
@@ -1111,7 +1102,6 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 .legal-content p, .legal-content li { color: var(--text-secondary); }
 .legal-content ul, .legal-content ol { padding-left: 1.3em; }
 .legal-content li { margin-bottom: 0.5em; }
-.tbc { color: var(--accent-hover); font-weight: 600; }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }

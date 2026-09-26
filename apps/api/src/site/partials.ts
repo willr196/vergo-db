@@ -289,7 +289,26 @@ function serviceLevel(): string {
         </fieldset>`;
 }
 
+/* ----------------------------------------------------------------- legal */
+
+/** "Registered with the ICO…", only once the number is in content.ts. */
+function legalIco(): string {
+  const n = SITE.legal.icoRegistrationNumber;
+  return n ? `<p>Vergo Ltd is registered with the Information Commissioner's Office, registration number ${esc(n)}.</p>` : '';
+}
+
+/** Insurer and policy lines, only once they are in content.ts. */
+function legalInsurers(): string {
+  const lines = [
+    SITE.legal.employersLiabilityInsurer && `Employers' liability: ${SITE.legal.employersLiabilityInsurer}`,
+    SITE.legal.publicLiabilityInsurer && `Public liability: ${SITE.legal.publicLiabilityInsurer}`,
+  ].filter(Boolean) as string[];
+  return lines.length ? `<ul class="check-list">${lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul>` : '';
+}
+
 export const PARTIALS: Record<string, (attrs: PartialAttrs, ctx: PageContext) => string> = {
+  'legal-ico': legalIco,
+  'legal-insurers': legalInsurers,
   'service-level': serviceLevel,
   head,
   header,

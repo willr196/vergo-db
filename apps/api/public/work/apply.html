@@ -28,8 +28,8 @@
 
     <section class="section-tight shell-form">
       <form id="applyForm" novalidate>
-        <div class="form-field hp-field" aria-hidden="true">
-          <label for="website">Leave this field blank</label>
+        <div class="hp-field" aria-hidden="true">
+          <label for="website">Website</label>
           <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
         </div>
 
@@ -56,15 +56,9 @@
           </div>
         </div>
 
-        <div class="form-row form-row-2">
-          <div class="form-field">
-            <label for="postcode">Postcode</label>
-            <input type="text" id="postcode" name="postcode" autocomplete="postal-code" placeholder="e.g. E1 6AN" required>
-          </div>
-          <div class="form-field">
-            <label for="dateOfBirth">Date of birth</label>
-            <input type="date" id="dateOfBirth" name="dateOfBirth" autocomplete="bday" required>
-          </div>
+        <div class="form-field">
+          <label for="postcode">Postcode</label>
+          <input type="text" id="postcode" name="postcode" autocomplete="postal-code" placeholder="e.g. E1 6AN" required>
         </div>
 
         <div class="form-field">
@@ -76,7 +70,7 @@
 
         <fieldset class="form-field">
           <legend>Roles and experience</legend>
-          <p class="form-hint">Tick the roles you can actually work, then choose your experience level for each one.</p>
+          <p class="form-hint">Tick the roles you can work, then your experience in each.</p>
           <div id="roles-container" class="roles-with-experience">
             <div class="role-row">
               <div class="checkbox-item">
@@ -140,11 +134,11 @@
 
             <div class="role-row">
               <div class="checkbox-item">
-                <input type="checkbox" id="role-foh" name="roles" value="Front of House">
-                <label for="role-foh">Front of house</label>
+                <input type="checkbox" id="role-host" name="roles" value="Hosts and front of house">
+                <label for="role-host">Hosts and front of house</label>
               </div>
-              <label class="sr-only" for="experience-front-of-house">Experience level for Front of house</label>
-              <select id="experience-front-of-house" class="experience-select" data-role="Front of House" disabled>
+              <label class="sr-only" for="experience-hosts-and-front-of-house">Experience level for Hosts and front of house</label>
+              <select id="experience-hosts-and-front-of-house" class="experience-select" data-role="Hosts and front of house" disabled>
                 <option value="">Select experience...</option>
                 <option value="Entry level">Entry level (0–1 years)</option>
                 <option value="1-2 years">1–2 years</option>
@@ -155,11 +149,11 @@
 
             <div class="role-row">
               <div class="checkbox-item">
-                <input type="checkbox" id="role-host" name="roles" value="Hosts">
-                <label for="role-host">Hosts</label>
+                <input type="checkbox" id="role-chef" name="roles" value="Chefs and cooks">
+                <label for="role-chef">Chefs and cooks</label>
               </div>
-              <label class="sr-only" for="experience-hosts">Experience level for Hosts</label>
-              <select id="experience-hosts" class="experience-select" data-role="Hosts" disabled>
+              <label class="sr-only" for="experience-chefs-and-cooks">Experience level for Chefs and cooks</label>
+              <select id="experience-chefs-and-cooks" class="experience-select" data-role="Chefs and cooks" disabled>
                 <option value="">Select experience...</option>
                 <option value="Entry level">Entry level (0–1 years)</option>
                 <option value="1-2 years">1–2 years</option>
@@ -191,7 +185,7 @@
         <div class="form-field consent-row">
           <div class="checkbox-item">
             <input type="checkbox" id="consent" name="consent" required>
-            <label for="consent">I've read the <a href="/privacy">privacy notice</a> and agree to VERGO storing my details to consider me for work</label>
+            <label for="consent">I've read the <a href="/privacy">privacy notice</a>.</label>
           </div>
         </div>
 

@@ -3,9 +3,9 @@
 <head>
   <!--#head-->
   <title>Legal &amp; Company Details | VERGO Staffing</title>
-  <meta name="description" content="VERGO Ltd's company registration, regulatory status and insurance details.">
+  <meta name="description" content="Vergo Ltd's company registration, regulatory status and insurance details.">
   <meta property="og:title" content="Legal &amp; Company Details | VERGO Staffing">
-  <meta property="og:description" content="VERGO Ltd's company registration, regulatory status and insurance details.">
+  <meta property="og:description" content="Vergo Ltd's company registration, regulatory status and insurance details.">
   <meta property="og:image" content="https://vergoltd.com/images/vergo-mark.jpg">
   <meta property="og:url" content="https://vergoltd.com/legal">
   <meta property="og:type" content="website">
@@ -21,43 +21,39 @@
   <main id="main-content">
     <section class="page-hero-plain shell">
       <span class="eyebrow">Legal</span>
-      <h1>Company &amp; regulatory details</h1>
+      <h1>Company and regulatory details</h1>
+      <p class="legal-updated">Last updated 26 September 2026.</p>
     </section>
 
     <section class="section-tight shell legal-content">
-      <div class="draft-banner">
-        <strong>First draft: not yet reviewed by a solicitor.</strong> Anything marked <span class="tbc">[TO CONFIRM]</span> is a placeholder and must be filled in before this page is treated as final.
-      </div>
-
       <h2>1. Company details</h2>
       <ul class="check-list">
-        <li>Legal name: <span data-vergo="company.legalName">Vergo Ltd</span></li>
-        <li>Registered in: <span data-vergo="company.jurisdiction">England and Wales</span></li>
-        <li>Company number: <span data-vergo="company.number">16627585</span></li>
-        <li>Registered office: <span data-vergo="company.registeredOffice">96 Sulivan Court, London, SW6 3DB</span></li>
-        <li>Contact: <a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email">wrobb@vergoltd.com</a>, <span data-vergo="contact.phoneDisplay">07944 505783</span></li>
+        <li>Legal name: {{LEGAL_NAME}}, trading as VERGO Staffing</li>
+        <li>Registered in: England and Wales</li>
+        <li>Company number: {{COMPANY_NUMBER}}</li>
+        <li>Registered office: {{REGISTERED_OFFICE}}</li>
+        <li>Contact: <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>, <a href="{{PHONE_TEL}}">{{PHONE}}</a></li>
       </ul>
 
       <h2>2. Regulatory status</h2>
-      <p>VERGO Ltd operates as an employment business, supplying workers to clients under contracts for services. We're subject to:</p>
+      <p>Vergo Ltd operates as an employment business, supplying workers to clients under contracts for services. We're subject to:</p>
       <ul class="check-list">
         <li>The Employment Agencies Act 1973</li>
-        <li>The Conduct of Employment Agencies and Employment Businesses Regulations 2003, which govern how we deal with clients ("hirers") and workers ("work-seekers"): including the restriction on charging work-seekers for finding them work, and the rules on transfer fees covered in our <a href="/terms">terms of business</a></li>
+        <li>The Conduct of Employment Agencies and Employment Businesses Regulations 2003, which govern how we deal with clients ("hirers") and workers ("work-seekers"), including the restriction on charging work-seekers for finding them work, and the rules on transfer fees covered in our <a href="/terms">terms of business</a></li>
       </ul>
-      <p>The Employment Rights Act 2025 is introducing changes for agency and low-hours workers on a phased timetable through 2026 and 2027, including duties around guaranteed hours and shift notice. <span class="tbc">Whether and how these apply to VERGO's flexible, no-fixed-hours model is still being reviewed [TO CONFIRM WITH SOLICITOR]</span> and this page will be updated as that becomes clear.</p>
+      <p>The Employment Rights Act 2025 is changing rules for agency and zero-hours workers in stages through 2026 and 2027. We'll update these terms as each change takes effect.</p>
       <p>Enforcement of these regulations is moving to the Fair Work Agency, a new single enforcement body. This doesn't change our obligations, only who checks them.</p>
 
       <h2>3. Insurance</h2>
-      <ul class="check-list">
-        <li>Employers' liability insurance: held. Insurer and policy number: <span class="tbc" data-vergo="legal.insurerName">[TO CONFIRM]</span></li>
-        <li>Public liability insurance: held. Certificates for both are available to clients on request</li>
-      </ul>
+      <p>We hold employers' liability and public liability insurance. Certificates are available on request.</p>
+      <!--#legal-insurers-->
 
       <h2>4. Data protection</h2>
-      <p>VERGO Ltd is registered with the Information Commissioner's Office, registration number <span class="tbc" data-vergo="legal.icoRegistrationNumber">[TO CONFIRM]</span>. See our <a href="/privacy">privacy notice</a> for how we handle personal data.</p>
+      <!--#legal-ico-->
+      <p>See our <a href="/privacy">privacy notice</a> for how we handle personal data.</p>
 
       <h2>5. Complaints</h2>
-      <p>If something's gone wrong, contact us directly at <a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email">wrobb@vergoltd.com</a> or <span data-vergo="contact.phoneDisplay">07944 505783</span>. We aim to acknowledge complaints within <span class="tbc" data-vergo="legal.complaintsResponseTarget">5 working days</span>.</p>
+      <p>If something's gone wrong, contact us directly at <a href="mailto:{{EMAIL}}">{{EMAIL}}</a> or <a href="{{PHONE_TEL}}">{{PHONE}}</a>. We aim to acknowledge complaints within 5 working days.</p>
 
       <h2>6. Governing law</h2>
       <p>These pages and our dealings with clients and workers are governed by the law of England and Wales.</p>

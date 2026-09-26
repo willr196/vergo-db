@@ -330,12 +330,6 @@
       return;
     }
 
-    var dateOfBirth = form.dateOfBirth.value;
-    if (!dateOfBirth) {
-      showFormStatus('Please enter your date of birth.', 'error');
-      return;
-    }
-
     var availability = (form.availability.value || '').trim();
 
     var data = {
@@ -345,7 +339,6 @@
       email: form.email.value,
       phone: form.phone.value || undefined,
       postcode: postcode,
-      dateOfBirth: dateOfBirth,
       bio: form.bio.value || undefined,
       availability: availability || undefined,
       roles: rolesWithExp,

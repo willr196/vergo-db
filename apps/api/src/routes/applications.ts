@@ -250,11 +250,6 @@ const requiredString = (max: number) =>
     z.string().min(1).max(max)
   );
 
-const requiredDateString = z.preprocess(
-  (value) => (typeof value === 'string' ? value.trim() : value),
-  z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
-);
-
 const preferredJobTypeValues = [
   'Corporate Events',
   'Film & TV',
@@ -265,10 +260,6 @@ const preferredJobTypeValues = [
 ] as const;
 
 const preferredJobTypeSchema = z.enum(preferredJobTypeValues);
-
-function parseDateOnlyToUtc(dateValue: string) {
-  return new Date(`${dateValue}T00:00:00.000Z`);
-}
 
 function splitCommaSeparated(value: string | null | undefined) {
   if (!value) return [];
@@ -606,7 +597,9 @@ const createBody = z.object({
   cvFileSize: z.number().int().positive().max(10485760).optional(),
   cvMimeType: z.string().max(100).optional(),
   source: z.string().max(100).optional(),
-  dateOfBirth: requiredDateString,
+  // Date of birth is no longer asked for on the public form: the 18+ tick
+  // covers eligibility, and the privacy notice says we don't collect it here.
+  // It is taken at onboarding instead. Existing values are left untouched.
   postcode: requiredString(24),
   preferredJobTypes: z.array(preferredJobTypeSchema).max(preferredJobTypeValues.length).optional(),
   bio: optionalSanitizedString(300),
@@ -653,7 +646,6 @@ r.post('/', applicationLimiter, async (req, res, next) => {
       email: d.email,
       phone: d.phone ?? null,
       rightToWorkUk: d.rightToWorkUk ?? null,
-      dateOfBirth: parseDateOnlyToUtc(d.dateOfBirth),
       postcode: d.postcode,
       preferredJobTypes: d.preferredJobTypes && d.preferredJobTypes.length > 0
         ? d.preferredJobTypes.join(',')
@@ -670,7 +662,6 @@ r.post('/', applicationLimiter, async (req, res, next) => {
 
     if (d.phone !== undefined) applicantUpdateData.phone = d.phone;
     if (d.rightToWorkUk !== undefined) applicantUpdateData.rightToWorkUk = d.rightToWorkUk;
-    applicantUpdateData.dateOfBirth = parseDateOnlyToUtc(d.dateOfBirth);
     applicantUpdateData.postcode = d.postcode;
     if (d.preferredJobTypes !== undefined) {
       applicantUpdateData.preferredJobTypes = d.preferredJobTypes.length > 0

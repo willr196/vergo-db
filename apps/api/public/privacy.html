@@ -3,9 +3,9 @@
 <head>
   <!--#head-->
   <title>Privacy Notice | VERGO Staffing</title>
-  <meta name="description" content="How VERGO Ltd collects, uses and protects personal data submitted through the quote and application forms.">
+  <meta name="description" content="How Vergo Ltd collects, uses and protects personal data submitted through the quote and application forms.">
   <meta property="og:title" content="Privacy Notice | VERGO Staffing">
-  <meta property="og:description" content="How VERGO Ltd collects, uses and protects personal data submitted through the quote and application forms.">
+  <meta property="og:description" content="How Vergo Ltd collects, uses and protects personal data submitted through the quote and application forms.">
   <meta property="og:image" content="https://vergoltd.com/images/vergo-mark.jpg">
   <meta property="og:url" content="https://vergoltd.com/privacy">
   <meta property="og:type" content="website">
@@ -22,43 +22,55 @@
     <section class="page-hero-plain shell">
       <span class="eyebrow">Privacy</span>
       <h1>Privacy notice</h1>
+      <p class="legal-updated">Last updated 26 September 2026.</p>
     </section>
 
     <section class="section-tight shell legal-content">
-      <div class="draft-banner">
-        <strong>First draft: not yet reviewed by a solicitor.</strong> This is a first-pass privacy notice covering the data collected through this website only. Anything marked <span class="tbc">[TO CONFIRM]</span> is a placeholder and must be checked before this page is treated as final. It does not yet cover data collected later in the process (right-to-work documents, National Insurance number, bank details), which is handled after interview through a separate, more secure process. That process needs its own privacy information before it goes live.
-      </div>
-
       <h2>1. Who we are</h2>
-      <p><span data-vergo="company.legalName">Vergo Ltd</span> (company no. <span data-vergo="company.number">16627585</span>, registered office <span data-vergo="company.registeredOffice">96 Sulivan Court, London, SW6 3DB</span>) is the data controller for the personal data described on this page. Our ICO registration number is <span class="tbc" data-vergo="legal.icoRegistrationNumber">[TO CONFIRM]</span>.</p>
-      <p>Contact us about privacy at <a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email">wrobb@vergoltd.com</a>.</p>
+      <p>{{LEGAL_NAME}} (company no. {{COMPANY_NUMBER}}, registered office {{REGISTERED_OFFICE}}) is the data controller for the personal data described on this page.</p>
+      <!--#legal-ico-->
+      <p>Contact us about privacy at <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>.</p>
 
-      <h2>2. What we collect, and why</h2>
-      <h3>The quote form (/hire/quote)</h3>
-      <p>If you ask us to book staff, we collect your name, email, phone, company (if given), event type, date, times, venue postcode, staff numbers, roles needed, and anything you add in the message field.</p>
-      <p>If you use the same page to send us a message rather than to book, every field on it is optional and we only collect what you choose to fill in, apart from an email address or phone number so that we can reply.</p>
+      <h2>2. What we collect through this website, and why</h2>
+      <h3>The quote form (/hire/quote) and event enquiry forms</h3>
+      <p>If you ask us to book staff, we collect your name, email, phone, company (if given), event type, date, times, venue postcode, staff numbers, roles needed, service level, and anything you add in the message field. The event and special events enquiry forms collect the same kind of detail about your event.</p>
+      <p>If you send us a message rather than a booking, every field is optional apart from an email address or phone number so that we can reply.</p>
       <p><strong>Why:</strong> to respond to your enquiry and, if you go ahead, to plan and deliver your booking. <strong>Lawful basis:</strong> taking steps at your request before entering a contract, and our legitimate interest in responding to enquiries sent to us.</p>
 
       <h3>The application form (/work/apply)</h3>
       <p>If you apply to work with us, we collect your name, email, phone, postcode, an 18-or-over confirmation, the roles and experience level you tell us about, your general availability, any short bio you provide, and your CV file.</p>
-      <p>We do <strong>not</strong> collect your date of birth, National Insurance number, bank details or right-to-work documents through this form. Those are collected later, after your initial chat with us, through a separate process.</p>
+      <p>We do <strong>not</strong> collect your date of birth, National Insurance number, bank details or right-to-work documents through this form.</p>
       <p><strong>Why:</strong> to assess your application and, if there's a fit, arrange a chat and progress you towards work. <strong>Lawful basis:</strong> taking steps at your request before entering a contract.</p>
 
-      <h2>3. Who we share it with</h2>
+      <h2>3. If you work for us</h2>
+      <p><strong>What we collect:</strong> right-to-work documents, National Insurance number, bank details, date of birth, emergency contact details and pay records.</p>
+      <p><strong>Why:</strong> to perform your employment contract and to meet our legal obligations as an employer, including right-to-work checks, tax, National Insurance, pension auto-enrolment and holiday pay.</p>
+      <p><strong>Who we share it with:</strong> HMRC, our workplace pension provider, and our payroll software provider, each only as far as needed to pay you and meet those obligations.</p>
       <ul class="check-list">
-        <li>Email delivery for enquiry and application notifications (a transactional email provider), only to send the notification, not for marketing</li>
-        <li>Secure file storage for CVs you upload</li>
-        <li>We do not sell personal data, and we do not use advertising cookies. We use Google Analytics to understand how the site is used, but only if you accept cookies &mdash; nothing is set unless you do, and you can change or withdraw that choice at any time using the &ldquo;Cookie settings&rdquo; link in the footer</li>
+        <li>Right-to-work copies: kept for the length of your employment plus 2 years</li>
+        <li>Payroll records: kept for at least 3 years after the end of the tax year they relate to</li>
+        <li>Other employment records: kept for 6 years after your employment ends</li>
       </ul>
 
-      <h2>4. How long we keep it</h2>
+      <h2>4. Who processes data for us</h2>
       <ul class="check-list">
-        <li>Quote enquiries that don't turn into a booking: kept for <span class="tbc" data-vergo="legal.quoteEnquiryRetention">12 months from your last contact with us</span></li>
-        <li>Applications that don't proceed: kept for <span class="tbc" data-vergo="legal.unsuccessfulApplicationRetention">12 months from the date of your application</span>, in case a suitable role comes up</li>
-        <li>If you become a client or a worker, your records are kept for as long as needed for the relationship, plus whatever period we're required to keep financial or employment records under UK law</li>
+        <li><strong>Fly.io:</strong> hosts this website and our systems, in London (lhr)</li>
+        <li><strong>Neon:</strong> our database, in London (AWS eu-west-2)</li>
+        <li><strong>Amazon Web Services S3:</strong> stores CVs you upload, in London (eu-west-2)</li>
+        <li><strong>Resend:</strong> sends our transactional emails (enquiry and application notifications and confirmations). Resend is based in the US; transfers there rely on the UK&ndash;US data bridge or other appropriate safeguards</li>
+        <li><strong>Google Analytics:</strong> tells us how the site is used, only if you accept analytics cookies</li>
+        <li><strong>WhatsApp (Meta):</strong> used for booking confirmations and messages, if you contact us or book that way</li>
+      </ul>
+      <p>We do not sell personal data, and we do not use advertising cookies. Nothing is set for analytics unless you accept it, and you can change or withdraw that choice at any time using the &ldquo;Cookie settings&rdquo; link in the footer.</p>
+
+      <h2>5. How long we keep website data</h2>
+      <ul class="check-list">
+        <li>Quote enquiries that don't turn into a booking: 12 months from your last contact with us</li>
+        <li>Applications that don't proceed: 12 months from the date of your application, in case a suitable role comes up</li>
+        <li>If you become a client, your records are kept for as long as the relationship needs them, plus whatever period UK law requires for financial records</li>
       </ul>
 
-      <h2>5. Your rights</h2>
+      <h2>6. Your rights</h2>
       <p>Under UK GDPR and the Data Protection Act 2018, you can ask us to:</p>
       <ul class="check-list">
         <li>give you a copy of the personal data we hold about you</li>
@@ -66,10 +78,7 @@
         <li>delete your data, where we're not required to keep it</li>
         <li>restrict or object to how we use it</li>
       </ul>
-      <p>Email <a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email">wrobb@vergoltd.com</a> for any of these. You can also complain to the Information Commissioner's Office at <a href="https://ico.org.uk" target="_blank" rel="noopener">ico.org.uk</a>, though we'd rather you came to us first so we can put it right.</p>
-
-      <h2>6. Where your data is stored</h2>
-      <p>Our hosting and storage providers are based in <span class="tbc">[TO CONFIRM: depends on final hosting/storage provider region]</span>. If any provider is outside the UK, we only use providers with appropriate safeguards in place.</p>
+      <p>Email <a href="mailto:{{EMAIL}}">{{EMAIL}}</a> for any of these. You can also complain to the Information Commissioner's Office at <a href="https://ico.org.uk" target="_blank" rel="noopener">ico.org.uk</a>, though we'd rather you came to us first so we can put it right.</p>
 
       <h2>7. Changes to this notice</h2>
       <p>We may update this notice from time to time. The current version always applies from the date it's published here.</p>
