@@ -81,7 +81,7 @@ test('enforceHttpsRedirect redirects www requests to the apex host', async () =>
     },
   });
 
-  assert.equal(res.statusCode, 308);
+  assert.equal(res.statusCode, 301);
   assert.equal(res.headers.location, 'https://vergoltd.com/jobs?campaign=spring');
 });
 

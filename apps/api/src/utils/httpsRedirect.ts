@@ -88,7 +88,10 @@ export function enforceHttpsRedirect(options: HttpsRedirectOptions) {
       redirectHosts.has(normalizedRequestedHost) &&
       normalizedRequestedHost !== canonicalHost
     ) {
-      return res.redirect(308, buildRedirectLocation(req, canonicalHost));
+      // 301 for page loads, the status search engines read as "this moved for
+      // good". Anything else keeps 308 so a form POST isn't turned into a GET.
+      const status = req.method === 'GET' || req.method === 'HEAD' ? 301 : 308;
+      return res.redirect(status, buildRedirectLocation(req, canonicalHost));
     }
 
     if (requestIsSecure(req)) {

@@ -1,14 +1,5 @@
-The About us page photos now come from `/images/gallery/` (see the `<img>`
-tags in about.html). Each slot still shows a "Photo coming soon" frame if its
-file is missing, so swapping a photo is just changing the `src` and alt text.
-
-| Slot                        | Photo                                  | Shape            |
-|-----------------------------|----------------------------------------|------------------|
-| Beside "Where it started" | `about/founder.webp` (William)           | Portrait, 4:5    |
-| Wide, under the heading     | `gallery/venue-food-bar.webp`          | Landscape, 21:9  |
-| Strip of three, left        | `gallery/garden-dinner-table-800.webp` | Portrait, 4:5    |
-| Strip of three, middle      | `gallery/waiter-serving-800.webp`      | Portrait, 4:5    |
-| Strip of three, right       | `gallery/kitchen-team-800.webp`        | Portrait, 4:5    |
-
-Photos are cropped to fit (object-fit: cover), so keep the subject near the
-centre.
+The About us page has one photo: `founder.webp`, beside "Where it started"
+(portrait, 4:5). The slot shows a "Photo coming soon" frame if the file is
+missing (see pages/js/about-photos.js), so swapping the photo is just replacing
+this file. It is cropped to fit (object-fit: cover), so keep the subject near
+the centre.

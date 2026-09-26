@@ -130,6 +130,33 @@ test('job links from old alert emails land on /work', async () => {
   assert.equal(res.headers.location, '/work');
 });
 
+test('pages link stylesheets and scripts by content hash, and those URLs cache for a year', async () => {
+  const server = http.createServer(app);
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const { port } = server.address() as { port: number };
+  try {
+    for (const page of ['/', '/hire', '/special-events/halloween']) {
+      const html = await (await fetch(`http://127.0.0.1:${port}${page}`)).text();
+      const css = html.match(/href="(\/vergo-site\.css\?v=[0-9a-f]{10})"/);
+      assert.ok(css, `${page} links a versioned vergo-site.css`);
+      assert.doesNotMatch(html, /fonts\.googleapis\.com/, `${page} no longer loads Google Fonts`);
+
+      const res = await fetch(`http://127.0.0.1:${port}${css[1]}`);
+      await res.arrayBuffer();
+      assert.equal(res.status, 200);
+      assert.equal(res.headers.get('cache-control'), 'public, max-age=31536000, immutable');
+    }
+
+    const font = await fetch(`http://127.0.0.1:${port}/fonts/work-sans-latin.woff2`);
+    await font.arrayBuffer();
+    assert.equal(font.status, 200);
+    assert.equal(font.headers.get('cache-control'), 'public, max-age=31536000, immutable');
+  } finally {
+    server.closeAllConnections();
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
+});
+
 test('stylesheets and scripts revalidate rather than cache for a week', async () => {
   // A real server: static files stream, and the mock socket above never sees
   // the stream finish.
@@ -142,6 +169,43 @@ test('stylesheets and scripts revalidate rather than cache for a week', async ()
       await res.arrayBuffer();
       assert.equal(res.status, 200, url);
       assert.equal(res.headers.get('cache-control'), 'public, no-cache', url);
+    }
+  } finally {
+    server.closeAllConnections();
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
+});
+
+test('pages revalidate on every view, and only vergoltd.com is indexable', async () => {
+  const server = http.createServer(app);
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const { port } = server.address() as { port: number };
+  try {
+    const base = `http://127.0.0.1:${port}`;
+    const page = await fetch(`${base}/`, { headers: { 'x-forwarded-host': 'vergoltd.com' } });
+    const html = await page.text();
+    assert.equal(page.headers.get('cache-control'), 'public, max-age=0, s-maxage=60, stale-while-revalidate=30');
+    assert.equal(page.headers.get('x-robots-tag'), null, 'the real domain stays indexable');
+    const img = html.match(/src="(\/images\/[^"]+\?v=[0-9a-f]{10})"/);
+    assert.ok(img, "the homepage logo is versioned");
+    {
+      const res = await fetch(base + img[1]);
+      await res.arrayBuffer();
+      assert.equal(res.headers.get('cache-control'), 'public, max-age=31536000, immutable');
+    }
+
+    const origin = await fetch(`${base}/hire`, { headers: { 'x-forwarded-host': 'vergo-app.fly.dev' } });
+    await origin.text();
+    assert.equal(origin.headers.get('x-robots-tag'), 'noindex');
+
+    const admin = await fetch(`${base}/admin.html`, { headers: { 'x-forwarded-host': 'vergoltd.com' }, redirect: 'manual' });
+    await admin.arrayBuffer();
+    assert.equal(admin.headers.get('x-robots-tag'), 'noindex');
+
+    for (const file of ['/sitemap.xml', '/robots.txt']) {
+      const res = await fetch(base + file);
+      await res.arrayBuffer();
+      assert.equal(res.headers.get('cache-control'), 'public, max-age=300', file);
     }
   } finally {
     server.closeAllConnections();

@@ -63,3 +63,49 @@ test('no public JS file other than vergo-site-config.js hardcodes a chargeRate f
 
   assert.deepEqual(offenders, []);
 });
+
+test('every rate a public page shows before /api/v1/rates loads matches config/pricing.ts', () => {
+  // Pages carry the rates as static text (for search engines and no-JS) and
+  // vergo-site-config.js swaps in the API's figure once it loads. When the two
+  // disagree the visitor watches the price change on screen, which is how the
+  // site came to show one rate and then another £2 different. Covers the
+  // data-vergo slots, the meta descriptions and the config.js fallbacks.
+  const publicDir = path.join(process.cwd(), 'public');
+  const money = (n: number) => (Number.isInteger(n) ? `£${n}` : `£${n.toFixed(2)}`);
+  const expected: Record<string, string> = {
+    'rates.chargeRateDisplay': `£${PRICING.standardRate.toFixed(2)}`,
+    'specialEvents.themedHospitalityDisplay': money(PRICING.specialEvents.themedHospitality),
+    'specialEvents.characterPerformerDisplay': money(PRICING.specialEvents.characterPerformer),
+    'specialEvents.makeupArtistDisplay': money(PRICING.specialEvents.makeupArtist),
+  };
+  const known = new Set(Object.values(expected));
+
+  const problems: string[] = [];
+  const walk = (dir: string): string[] =>
+    fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+      e.isDirectory() ? walk(path.join(dir, e.name)) : e.name.endsWith('.html') ? [path.join(dir, e.name)] : []);
+
+  for (const file of walk(publicDir).filter((f) => !path.basename(f).startsWith('admin'))) {
+    const rel = path.relative(publicDir, file);
+    const html = fs.readFileSync(file, 'utf8').replace(/&pound;/g, '£');
+    for (const m of html.matchAll(/data-vergo="([\w.]+Display)"[^>]*>([^<]*)</g)) {
+      if (expected[m[1]] && m[2] !== expected[m[1]]) problems.push(`${rel}: ${m[1]} shows ${m[2]}, expected ${expected[m[1]]}`);
+    }
+    for (const m of html.matchAll(/<meta [^>]*content="([^"]*)"/g)) {
+      for (const price of m[1].match(/£\d+(?:\.\d+)?/g) ?? []) {
+        if (!known.has(price)) problems.push(`${rel}: meta tag quotes ${price}`);
+      }
+    }
+  }
+
+  const config = fs.readFileSync(path.join(publicDir, 'vergo-site-config.js'), 'utf8');
+  const fallback = config.match(/chargeRate:\s*([\d.]+)/);
+  if (!fallback || Number(fallback[1]) !== PRICING.standardRate) problems.push(`vergo-site-config.js: chargeRate fallback is ${fallback?.[1]}`);
+  for (const [key, value] of Object.entries(PRICING.specialEvents)) {
+    if (key === 'minimumChargeHours') continue;
+    const m = config.match(new RegExp(String.raw`${key}:\s*([\d.]+)`));
+    if (!m || Number(m[1]) !== value) problems.push(`vergo-site-config.js: ${key} fallback is ${m?.[1]}, expected ${value}`);
+  }
+
+  assert.deepEqual(problems, []);
+});

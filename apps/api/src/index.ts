@@ -56,6 +56,7 @@ import { logger, requestLogger } from './services/logger';
 import { startMemoryMonitoring, stopMemoryMonitoring } from './services/memory';
 import { initSentry, sentryErrorHandler, flushSentry } from './services/sentry';
 import { enforceHttpsRedirect } from './utils/httpsRedirect';
+import { sendPublicHtml, PUBLIC_HTML_CACHE_CONTROL } from './lib/publicHtml';
 import { ZodError } from 'zod';
 
 // Initialize Sentry early (before Express app)
@@ -235,6 +236,21 @@ app.use(enforceHttpsRedirect({
   redirectHosts: ['www.vergoltd.com'],
   allowedHosts: ['vergo-app.fly.dev'],
 }));
+
+// Only vergoltd.com should be in search results. vergo-app.fly.dev serves the
+// same pages and stays usable for checks, but is marked noindex so it never
+// competes with the real domain. Admin and login pages are noindex everywhere;
+// robots.txt only asks crawlers not to fetch them, which doesn't stop a linked
+// URL being listed.
+const INDEXABLE_HOST = 'vergoltd.com';
+app.use((req, res, next) => {
+  const host = String(req.headers['x-forwarded-host'] || req.headers.host || '')
+    .split(',')[0].trim().toLowerCase().replace(/:\d+$/, '');
+  if (host !== INDEXABLE_HOST || /^\/(admin|login)/i.test(req.path)) {
+    res.setHeader('X-Robots-Tag', 'noindex');
+  }
+  next();
+});
 // Security headers
 app.use(helmet({
   contentSecurityPolicy: {
@@ -296,10 +312,17 @@ app.use(compression());
 // Global rate limiter (Redis-backed in production, memory fallback in dev)
 // Off under test: the smoke suite walks every legacy redirect from one address,
 // three requests apiece, which alone runs past 120 a minute.
+// Stylesheets, scripts, fonts and images don't count: one page pulls in ten or
+// more, so a visitor clicking through the gallery, or a phone network putting
+// many people behind one address, could run through 120 on files alone and get
+// broken images. The pages themselves and every API call still count.
+const STATIC_ASSET = /\.(?:css|js|woff2?|png|jpe?g|gif|webp|avif|svg|ico)$/i;
 const rateLimitOptions: Parameters<typeof rateLimit>[0] = {
   windowMs: 60_000,
   max: 120,
-  skip: () => process.env.NODE_ENV === 'test',
+  skip: (req) =>
+    process.env.NODE_ENV === 'test' ||
+    ((req.method === 'GET' || req.method === 'HEAD') && !req.path.startsWith('/api') && STATIC_ASSET.test(req.path)),
 };
 if (env.redisUrl) {
   try {
@@ -696,11 +719,8 @@ app.use((req, res, next) => {
 
 // Canonical homepage
 app.get('/index', (_req, res) => res.redirect(301, '/'));
-app.get('/', (_req, res) => {
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  res.sendFile(path.join(publicDir, 'index.html'));
+app.get('/', (_req, res, next) => {
+  if (!sendPublicHtml(res, path.join(publicDir, 'index.html'), publicDir)) next();
 });
 
 // Static frontend (last)
@@ -727,16 +747,32 @@ app.use((req, _res, next) => {
   next();
 });
 
+// Pages go out with their stylesheet and script URLs content-hashed, which is
+// what lets the static handler below cache those files for a year.
+app.use((req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+  if (!req.path.endsWith('.html')) return next();
+  const htmlPath = resolvePublicFile(req.path.replace(/^\//, ''));
+  if (!htmlPath || !sendPublicHtml(res, htmlPath, publicDir)) return next();
+});
+
 app.use(express.static(publicDir, {
   extensions: ['html'],
   maxAge: '7d',
   setHeaders: (res, filePath) => {
+    const rel = path.relative(publicDir, filePath).split(path.sep).join('/');
     if (filePath.endsWith('.html')) {
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
+      res.setHeader('Cache-Control', PUBLIC_HTML_CACHE_CONTROL);
+    } else if (rel === 'sitemap.xml' || rel === 'robots.txt') {
+      // Short, so a new page or a robots change reaches crawlers within minutes.
+      res.setHeader('Cache-Control', 'public, max-age=300');
+    } else if (filePath.match(/\.(css|js|png|jpg|jpeg|gif|svg|webp|avif)$/) && res.req.query.v) {
+      // Requested through a page's ?v=<content hash> URL (see lib/publicHtml.ts).
+      // Any edit changes the hash and so the URL, so this copy never goes stale.
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     } else if (filePath.match(/\.(css|js)$/)) {
-      // Asset URLs carry no content hash, so a long max-age let a phone keep last
+      // Unversioned URLs (a script loaded by another script, a page cached
+      // before versioning) carry no content hash, so a long max-age let a phone keep last
       // week's stylesheet against this week's HTML — which is how the new mobile
       // nav rendered as a broken, unstyled toggle for returning visitors.
       // no-cache still caches; it just revalidates, and the ETag makes that a 304.
@@ -745,18 +781,19 @@ app.use(express.static(publicDir, {
       // The brand set is replaced in place under fixed names, so it has the same
       // problem the stylesheets had above: when the V mark landed, returning
       // visitors kept the old favicon and touch icon for a week. Photographs are
-      // never swapped like that, so they keep the long max-age.
-      const rel = path.relative(publicDir, filePath).split(path.sep).join('/');
+      // never swapped like that, so they keep the long max-age. A new cut of a
+      // font would get a new file name, so fonts are cached for a year.
       const isBrandAsset =
         rel === 'favicon.ico' ||
         rel === 'apple-touch-icon.png' ||
         rel === 'logo.png' ||
-        rel === 'logo-small.png' ||
-        rel === 'images/logo.png' ||
-        rel === 'images/logo-small.png' ||
-        rel.startsWith('images/vergo-mark') ||
-        rel.startsWith('images/icons/');
-      res.setHeader('Cache-Control', isBrandAsset ? 'public, no-cache' : 'public, max-age=604800');
+        rel.startsWith('images/vergo-mark');
+      res.setHeader(
+        'Cache-Control',
+        isBrandAsset ? 'public, no-cache'
+          : rel.startsWith('fonts/') ? 'public, max-age=31536000, immutable'
+          : 'public, max-age=604800'
+      );
     }
   }
 }));
@@ -768,10 +805,7 @@ app.use((req, res) => {
     const notFoundPage = resolvePublicFile('404.html');
     if (notFoundPage && fs.existsSync(notFoundPage)) {
       res.status(404);
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
-      return res.sendFile(notFoundPage);
+      if (sendPublicHtml(res, notFoundPage, publicDir)) return;
     }
     return res.status(404).type('text/html').send('Page Not Found');
   }

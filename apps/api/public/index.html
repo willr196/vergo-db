@@ -17,9 +17,8 @@
   <meta name="theme-color" content="#0a0a0a">
   <link rel="icon" href="/favicon.ico">
   <link rel="canonical" href="https://vergoltd.com/">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="preload" href="/fonts/work-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/vergo-site.css">
   <!-- The business itself, on the page Google treats as the site root. The
        figures and contact details mirror vergo-site-config.js; change them
@@ -90,7 +89,7 @@
   <main id="main-content">
     <div class="home-hero-band">
     <section class="home-hero home-hero--centred shell">
-      <img class="home-logo" src="/images/vergo-mark.webp" width="1200" height="1200" alt="VERGO" fetchpriority="high">
+      <img class="home-logo" src="/images/vergo-mark-600.webp" srcset="/images/vergo-mark-400.webp 400w, /images/vergo-mark-600.webp 600w" sizes="(min-width: 1000px) 300px, (min-width: 600px) 30vw, 180px" width="600" height="600" alt="VERGO" fetchpriority="high">
       <span class="eyebrow">London event &amp; hospitality staffing</span>
       <h1>Event and hospitality staff across London</h1>
       <p class="lede">Whatever the job, we&nbsp;get&nbsp;it&nbsp;done.</p>
@@ -136,7 +135,10 @@
           <h2>We can run the whole event</h2>
           <p>The food, from canapés and breakfasts to sit-down dinners. The whole bar. The staff to run it. One company, one number to call.</p>
         </div>
-        <a href="/book-an-event" class="btn btn-primary">Book an event</a>
+        <div class="btn-row">
+          <a href="/book-an-event" class="btn btn-primary">Book an event</a>
+          <a href="/hire/quote" class="btn btn-primary">Only book staff</a>
+        </div>
       </div>
     </div>
 
