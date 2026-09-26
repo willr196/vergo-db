@@ -17,7 +17,7 @@
   --muted: var(--text-muted);
   --white: var(--text);
   --line: var(--hairline);
-  --panel-strong: #141414;
+  --panel-strong: var(--surface);
   --radius-sm: var(--radius);
 }
 
@@ -253,7 +253,7 @@
 .post-faq code {
   padding: 2px 6px;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--accent-soft);
   font-size: 0.92em;
 }
 
@@ -263,7 +263,7 @@
   overflow-x: auto;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  background: linear-gradient(180deg, rgba(26, 26, 26, 0.96), rgba(15, 15, 15, 0.96));
+  background: var(--surface);
 }
 
 .post-table:focus-visible {
@@ -373,9 +373,7 @@
   padding: 32px;
   border: 1px solid var(--gold-line);
   border-radius: var(--radius);
-  background:
-    radial-gradient(circle at 100% 0, rgba(196, 162, 78, 0.14), transparent 40%),
-    linear-gradient(180deg, rgba(26, 26, 26, 0.96), rgba(15, 15, 15, 0.96));
+  background: var(--accent-soft);
 }
 
 .post-cta h2 {

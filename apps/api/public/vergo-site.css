@@ -44,31 +44,42 @@
   src: url('/fonts/ibm-plex-mono-500-latin.woff2') format('woff2');
 }
 
-/* Palette is shared with vergo-public-pages.css (blog, 404, login) so the
-   marketing pages and the blog read as one site. Gold #C4A24E is the brand
-   accent; the token names differ between the two files but the values must
-   not. Change one, change the other. */
+/* Light theme with a green accent (September 2026). Every public page,
+   including the blog, runs on these tokens. The two exceptions keep a dark
+   treatment on purpose: the Premium rate card (--premium-*) and the Halloween
+   page (body.se-theme-halloween in pages/css/special-events.css). The admin
+   panel and login page have their own stylesheets and are unaffected.
+   Contrast on --bg: --ink 16:1, --muted 6.1:1, --accent 7.6:1. */
 :root {
-  --bg: #0a0a0a;
-  --footer-bg: #070707;
-  --header-bg: rgba(10, 10, 10, 0.88);
-  --text: #f7f7f7;
-  --text-secondary: #d6d6d6;
-  --text-muted: #9b9b9b;
-  --accent: #C4A24E;
-  --accent-hover: #d9bd74;
-  --accent-ink: #0c0b0a;
-  --accent-rgb: 196, 162, 78;
-  --hairline: rgba(255, 255, 255, 0.10);
-  --hairline-soft: rgba(255, 255, 255, 0.08);
-  --hairline-strong: rgba(255, 255, 255, 0.16);
-  --panel-fill: rgba(255, 255, 255, 0.03);
-  --hover-fill: rgba(242, 239, 232, 0.08);
-  --surface: rgba(255, 255, 255, 0.03);
+  --ink: #16181B;
+  --muted: #5B6168;
+  --line: #E4E0D8;
+  --accent-soft: #E6F0EB;
+
+  --bg: #FAF8F4;
+  --footer-bg: #F2EFE9;
+  --header-bg: rgba(250, 248, 244, 0.94);
+  --text: var(--ink);
+  --text-secondary: #33373C;
+  --text-muted: var(--muted);
+  --accent: #1F5C45;
+  --accent-hover: #174634;
+  --accent-ink: #FFFFFF;
+  --accent-rgb: 31, 92, 69;
+  --hairline: var(--line);
+  --hairline-soft: #ECE8E1;
+  --hairline-strong: #D6D1C7;
+  --panel-fill: #FFFFFF;
+  --hover-fill: var(--accent-soft);
+  --surface: #FFFFFF;
+  --error: #B42318;
+  --error-soft: #FDECEA;
+  --success: #1F5C45;
+  --success-soft: var(--accent-soft);
   --premium-bg: #0E0F10;
   --premium-ink: #F3F1EC;
   --premium-accent: #C9A96A;
-  --card-fill: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+  --card-fill: #FFFFFF;
   --font-serif: 'Instrument Serif', Georgia, serif;
   --font-sans: 'Work Sans', Helvetica, Arial, sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
@@ -76,7 +87,7 @@
   --form-width: 720px;
   --radius: 6px;
   --radius-pill: 999px;
-  --focus: 3px solid #7fbfff;
+  --focus: 3px solid #2563EB;
 }
 
 * { box-sizing: border-box; }
@@ -86,8 +97,6 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
   background: var(--bg);
-  background-image: radial-gradient(120% 70% at 15% -10%, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0) 60%);
-  background-repeat: no-repeat;
   color: var(--text-secondary);
   font-family: var(--font-sans);
   font-size: 17px;
@@ -450,21 +459,11 @@ p:last-child { margin-bottom: 0; }
   .section { padding-block: 48px; }
 }
 
-/* Home hero. The band carries an evening-event backdrop, drawn dark with its
-   own left and bottom scrims so the headline stays readable; the opacity
-   keeps it a mood rather than a picture. */
-.home-hero-band { position: relative; isolation: isolate; overflow: hidden; }
-.home-hero-band::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: url('/images/home/hero-evening.svg') right bottom / cover no-repeat;
-  opacity: 0.55;
-  pointer-events: none;
-}
-@media (max-width: 640px) {
-  .home-hero-band::before { background-position: 72% bottom; opacity: 0.4; }
+/* Home hero. A soft wash of the accent behind the headline; the dark evening
+   backdrop went with the move to the light theme. */
+.home-hero-band {
+  position: relative;
+  background: radial-gradient(110% 80% at 50% 0%, var(--accent-soft), rgba(230, 240, 235, 0) 70%);
 }
 .home-hero { padding-block: 96px 40px; }
 @media (max-width: 640px) { .home-hero { padding-block: 56px 32px; } }
@@ -480,13 +479,15 @@ p:last-child { margin-bottom: 0; }
 .home-hero--centred h1,
 .home-hero--centred .lede { margin-inline: auto; }
 .home-hero--centred .btn-row { justify-content: center; align-items: center; }
+/* The V mark is gold on black, so on the light page it sits as a round
+   badge rather than bleeding into a dark hero. */
 .home-logo {
   display: block;
-  width: clamp(180px, 30vw, 300px);
+  width: clamp(110px, 16vw, 150px);
   height: auto;
-  margin: 0 auto calc(clamp(180px, 30vw, 300px) * -0.18);
-  -webkit-mask-image: radial-gradient(circle closest-side at 50% 39%, #000 84%, transparent 100%);
-  mask-image: radial-gradient(circle closest-side at 50% 39%, #000 84%, transparent 100%);
+  margin: 0 auto 28px;
+  border-radius: 50%;
+  box-shadow: 0 10px 30px rgba(22, 24, 27, 0.18);
 }
 @media (max-width: 640px) { .home-hero--centred { padding-top: 32px; } }
 
@@ -810,7 +811,7 @@ details.faq p { margin: -6px 0 20px; color: var(--text-secondary); max-width: 60
 .role-row .experience-select:disabled { opacity: 0.5; }
 
 .field-error-message {
-  color: #f0a0a0;
+  color: var(--error);
   font-size: 0.88rem;
   margin-top: 8px;
   font-weight: 600;
@@ -886,7 +887,7 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
   outline-offset: 1px;
   border-color: var(--accent);
 }
-.field-invalid .role-count-item input[type="number"] { border-color: #dc5a5a; }
+.field-invalid .role-count-item input[type="number"] { border-color: var(--error); }
 
 .consent-row {
   display: flex;
@@ -906,9 +907,9 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
   margin-top: 16px;
   font-weight: 600;
 }
-.form-status[data-state="success"] { background: rgba(90, 200, 130, 0.12); color: #7bd99a; border: 1px solid rgba(90, 200, 130, 0.4); }
-.form-status[data-state="error"] { background: rgba(220, 90, 90, 0.12); color: #f0a0a0; border: 1px solid rgba(220, 90, 90, 0.4); }
-.form-status[data-state="info"] { background: rgba(242, 239, 232, 0.06); color: var(--text-muted); border: 1px solid var(--hairline-strong); }
+.form-status[data-state="success"] { background: var(--success-soft); color: var(--success); border: 1px solid var(--success); }
+.form-status[data-state="error"] { background: var(--error-soft); color: var(--error); border: 1px solid var(--error); }
+.form-status[data-state="info"] { background: var(--surface); color: var(--text-muted); border: 1px solid var(--hairline-strong); }
 .form-status[hidden] { display: none; }
 
 /* Overnight shifts: the next-day tick and the plain-English read-back of the
@@ -938,7 +939,7 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
   color: var(--text-muted);
 }
 .shift-summary[data-state="overnight"] { color: var(--accent); }
-.shift-summary[data-state="warn"] { color: #f0a0a0; }
+.shift-summary[data-state="warn"] { color: var(--error); }
 .shift-summary[hidden] { display: none; }
 
 /* Live estimate panel + the book/message choice (quote page) */
@@ -1040,7 +1041,7 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 
 .field-invalid input,
 .field-invalid select,
-.field-invalid textarea { border-color: #dc5a5a; }
+.field-invalid textarea { border-color: var(--error); }
 
 /* Honeypot field: off-screen, aria-hidden and out of the tab order, so only bots fill it. */
 .hp-field { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
