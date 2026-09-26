@@ -19,8 +19,6 @@ licensing to worry about. Each concept card gets its own scene:
   silhouette
 - `concept-seance.svg` — round table, three candles, planchette, hands at the
   edge of frame
-- `halloween-makeup-placeholder.svg` — lit makeup mirror, used in the makeup
-  section
 - `halloween-hero-cast.svg` — the hero backdrop. Nine silhouettes backlit under
   a moon: bellboy, waiter with a tray, ringmaster, gown, hooded figure,
   bartender. Deliberately a mix of hospitality and performers.

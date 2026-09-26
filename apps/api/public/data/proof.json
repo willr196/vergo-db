@@ -1,0 +1,34 @@
+{
+  "_comment": "Reviews and recent work shown on the homepage and /hire (rendered by src/site/partials.ts). Adding a review is one entry here. Only real, attributable quotes. 'featured' marks the one review the homepage shows. Takes effect on the next deploy or server restart.",
+  "testimonials": [
+    {
+      "quote": "I can’t speak highly enough of Will and his team. They were so professional and friendly and crucially, willing to adapt to the various changes and requests that come with large private parties.",
+      "name": "Dan Barraclough",
+      "context": "Google review",
+      "source": "google",
+      "stars": 5,
+      "url": "",
+      "featured": true
+    },
+    {
+      "quote": "They were brilliant. They were great to have in the house, really communicative and engaging, and I would definitely recommend you to my friends.",
+      "name": "Lorraine",
+      "context": "private party, London",
+      "source": "direct",
+      "url": ""
+    },
+    {
+      "quote": "Just want to let you know Khaled did a fantastic job yesterday.",
+      "name": "Jake",
+      "context": "head chef",
+      "source": "direct",
+      "url": ""
+    }
+  ],
+  "recentWork": [
+    { "title": "Film studio kitchen, major London film studio", "detail": "ongoing cooks and kitchen porter" },
+    { "title": "Private event, Mayfair", "detail": "hospitality staff" },
+    { "title": "Private parties at home, London", "detail": "bartenders, three bookings" },
+    { "title": "Private party, London", "detail": "waiting staff" }
+  ]
+}

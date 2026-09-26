@@ -1052,3 +1052,9 @@ a.se-hub-card:hover, a.se-hub-card:focus-visible {
   color: var(--text-secondary);
   font-size: 14px;
 }
+
+/* Concept characters on one line, and the two makeup lists. */
+.se-concept-chars { margin: 0; font-size: 15px; line-height: 1.5; color: var(--text-secondary); }
+.se-makeup-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; max-width: 72ch; }
+.se-makeup-lines li { color: var(--text-secondary); }
+.se-makeup-lines strong { color: var(--text); }

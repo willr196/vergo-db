@@ -3,10 +3,10 @@
 <head>
   <!--#head-->
   <title>Kitchen Porter Hire in London | VERGO Staffing</title>
-  <meta name="description" content="Kitchen porter hire in London for events, caterers and production kitchens. Wash-up and clear down, £18.50/hr per person, four-hour minimum.">
+  <meta name="description" content="Kitchen porter hire in London for events, caterers and production kitchens. {{HEADLINE_RATE}} per person, four-hour minimum, names confirmed the same day.">
   <meta property="og:title" content="Kitchen Porter Hire in London | VERGO Staffing">
-  <meta property="og:description" content="Kitchen porter hire in London for events, caterers and production kitchens. Wash-up and clear down, £18.50/hr per person, four-hour minimum.">
-  <meta property="og:image" content="https://vergoltd.com/images/vergo-mark.jpg">
+  <meta property="og:description" content="Kitchen porter hire in London for events, caterers and production kitchens. {{HEADLINE_RATE}} per person, four-hour minimum, names confirmed the same day.">
+  <meta property="og:image" content="https://vergoltd.com/images/og/kitchen-porters.jpg">
   <meta property="og:url" content="https://vergoltd.com/hire/kitchen-porters">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VERGO Staffing">
@@ -19,27 +19,18 @@
   "name": "Kitchen porter hire",
   "serviceType": "Event and hospitality staffing",
   "url": "https://vergoltd.com/hire/kitchen-porters",
-  "description": "Kitchen porters for wash-up, clearing down and keeping service moving, for events, caterers, venues and production kitchens across London.",
+  "description": "Kitchen porters for wash-up, waste and clear down at events, caterers, venues and production kitchens across London.",
   "areaServed": { "@type": "City", "name": "London" },
-  "provider": {
-    "@type": "Organization",
-    "@id": "https://vergoltd.com/#organization",
-    "name": "VERGO Staffing",
-    "legalName": "Vergo Ltd",
-    "url": "https://vergoltd.com",
-    "logo": { "@type": "ImageObject", "url": "https://vergoltd.com/images/vergo-mark.jpg" },
-    "telephone": "+44 7944 505783",
-    "email": "wrobb@vergoltd.com"
-  },
+  "provider": { "@id": "https://vergoltd.com/#organization" },
   "offers": {
     "@type": "Offer",
     "priceSpecification": {
       "@type": "UnitPriceSpecification",
-      "price": 18.50,
+      "price": {{STANDARD_RATE_NUMBER}},
       "priceCurrency": "GBP",
       "unitCode": "HUR",
       "unitText": "per hour, per person",
-      "referenceQuantity": { "@type": "QuantitativeValue", "value": 4, "unitCode": "HUR" }
+      "referenceQuantity": { "@type": "QuantitativeValue", "value": {{MIN_HOURS}}, "unitCode": "HUR" }
     }
   }
 }
@@ -51,10 +42,10 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What does a kitchen porter actually cover?",
+      "name": "What does a kitchen porter cover?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Wash-up through service, keeping pots, pans and service ware moving back to the pass, bins and waste, and the clear down at the end. Tell us if the role also includes basic prep or deliveries and we will brief for it."
+        "text": "Wash-up through service, bins and waste, and the clear down. Tell us if it also includes basic prep or deliveries."
       }
     },
     {
@@ -62,7 +53,7 @@
       "name": "Can you cover early starts and long days?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Early starts and long days are normal in this work, and we book for the shift you actually need rather than a standard evening. Give us the real call time and finish time when you enquire."
+        "text": "Yes. Give us the real call time and finish time when you enquire."
       }
     },
     {
@@ -70,15 +61,7 @@
       "name": "Can we book the same porters every week?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Where the pattern is regular, we aim to send the same people. It is easier to hold the same crew when the days are known in advance rather than booked week to week, so tell us the pattern when you enquire."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Is the rate different for kitchen porters?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "No. Kitchen porters are on the same rate as waiting staff, bar staff, runners and hosts, with the same four-hour minimum. Chefs and senior kitchen roles are quoted individually."
+        "text": "Where the pattern is regular, we aim to send the same people. Tell us the pattern when you enquire."
       }
     }
   ]
@@ -94,56 +77,20 @@
     <section class="page-hero-plain shell">
       <span class="eyebrow">Kitchen porters</span>
       <h1>Kitchen porter hire in London</h1>
-      <p class="lede">Wash-up, waste and clearing down, for events, caterers, venues and production kitchens. The role that decides whether a kitchen gets through service or drowns in it.</p>
+      <p class="lede">Wash-up, waste and clear down for events, caterers, venues and production kitchens.</p>
       <div class="btn-row">
         <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
-        <a href="#rate" class="btn btn-secondary">See the rate</a>
       </div>
     </section>
 
     <section class="section shell" aria-labelledby="whattheydo-heading">
-      <h2 id="whattheydo-heading" class="section-label">What the shift involves</h2>
-      <div class="step-grid step-grid--3">
-        <div class="step">
-          <div class="step-number">01</div>
-          <h3>Before service.</h3>
-          <p>Wash-up station set, bins lined, deliveries moved in, and the kitchen ready for the chefs to start.</p>
-        </div>
-        <div class="step">
-          <div class="step-number">02</div>
-          <h3>Through service.</h3>
-          <p>Pots, pans and service ware turned round fast enough that the pass never waits on clean kit.</p>
-        </div>
-        <div class="step">
-          <div class="step-number">03</div>
-          <h3>Clear down.</h3>
-          <p>Kitchen broken down and cleaned, waste out, and the space left the way the venue or client expects.</p>
-        </div>
-      </div>
-      <p>It is physical work on long days, and it is the first thing a busy kitchen notices the absence of. We book it as a proper role, not as an afterthought to the floor team.</p>
-    </section>
-
-    <section class="section shell" aria-labelledby="whobooks-heading">
-      <h2 id="whobooks-heading" class="section-label">Who books kitchen porters from us</h2>
-      <ul class="fact-list">
-        <li><strong>Caterers</strong> working out of a venue kitchen or a temporary one</li>
-        <li><strong>Venues and hotels</strong> covering holidays, sickness or a heavy week</li>
-        <li><strong>Production companies</strong> and studio kitchens feeding a crew</li>
-        <li><strong>Private clients</strong> with a dinner large enough to need a kitchen behind it</li>
+      <h2 id="whattheydo-heading" class="section-label">What they do</h2>
+      <ul class="check-list">
+        <li>Wash-up set, bins lined, deliveries in</li>
+        <li>Pots and service ware back to the pass</li>
+        <li>Kitchen broken down, cleaned, waste out</li>
       </ul>
-      <p>Both one-off events and regular weekly cover. If the days repeat, say so, and we will hold the same people on them where we can.</p>
-    </section>
-
-    <section class="section shell" aria-labelledby="tellus-heading">
-      <h2 id="tellus-heading" class="section-label">What to tell us when you enquire</h2>
-      <ul class="fact-list">
-        <li><strong>Call time and finish time</strong>, including early starts</li>
-        <li><strong>Covers</strong>, and whether it is one service or several through the day</li>
-        <li><strong>The kitchen</strong>: on-site, temporary, or a production unit</li>
-        <li><strong>What the wash-up is</strong>: machine, sinks, or both, and where waste goes</li>
-        <li><strong>Whether the role includes prep</strong>, deliveries or anything beyond porter work</li>
-        <li><strong>Whether the booking repeats</strong>, and on which days</li>
-      </ul>
+      <p class="section-note">On a staff booking we supply people only: equipment and cleaning kit stay with you or your caterer. Want the food and bar handled too? See <a href="/book-an-event">full events</a>.</p>
     </section>
 
     <!--#rates-->
@@ -151,37 +98,25 @@
     <!--#guarantees-->
 
     <section class="section shell" aria-labelledby="faq-heading">
-      <h2 id="faq-heading" class="section-label">Questions we get asked</h2>
+      <h2 id="faq-heading" class="section-label">Questions</h2>
       <div class="faq-list">
         <details class="faq" name="kitchen-porters-faq">
-          <summary>What does a kitchen porter actually cover?</summary>
-          <p>Wash-up through service, keeping pots, pans and service ware moving back to the pass, bins and waste, and the clear down at the end. Tell us if the role also includes basic prep or deliveries and we will brief for it.</p>
+          <summary>What does a kitchen porter cover?</summary>
+          <p>Wash-up through service, bins and waste, and the clear down. Tell us if it also includes basic prep or deliveries.</p>
         </details>
         <details class="faq" name="kitchen-porters-faq">
           <summary>Can you cover early starts and long days?</summary>
-          <p>Yes. Early starts and long days are normal in this work, and we book for the shift you actually need rather than a standard evening. Give us the real call time and finish time when you enquire.</p>
+          <p>Yes. Give us the real call time and finish time when you enquire.</p>
         </details>
         <details class="faq" name="kitchen-porters-faq">
           <summary>Can we book the same porters every week?</summary>
-          <p>Where the pattern is regular, we aim to send the same people. It is easier to hold the same crew when the days are known in advance rather than booked week to week, so tell us the pattern when you enquire.</p>
-        </details>
-        <details class="faq" name="kitchen-porters-faq">
-          <summary>Is the rate different for kitchen porters?</summary>
-          <p>No. Kitchen porters are on the same rate as waiting staff, bar staff, runners and hosts, with the same four-hour minimum. Chefs and senior kitchen roles are quoted individually.</p>
+          <p>Where the pattern is regular, we aim to send the same people. Tell us the pattern when you enquire.</p>
         </details>
       </div>
+      <p class="link-row">Also: <a href="/hire/production-catering">Film and TV catering</a> · <a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a></p>
     </section>
 
-    <div class="section-band">
-      <div class="cta-band shell">
-        <div>
-          <h2>Need porters for a service or a season?</h2>
-          <p>Send us the dates, the kitchen and the call times. {{CONFIRMATION_PROMISE}}</p>
-          <p>Feeding a film or TV crew? See <a href="/hire/production-catering">catering staff for productions</a>. Floor service is on <a href="/hire/waiting-staff">waiting staff hire</a>. Full rates and terms are on <a href="/hire">our client page</a>.</p>
-        </div>
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
-      </div>
-    </div>
+    <!--#cta heading="Got a date in the diary?" line="{{CONFIRMATION_PROMISE}}"-->
   </main>
 
   <!--#footer-->

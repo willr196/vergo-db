@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <!--#head-->
-  <title>About Us | VERGO Staffing</title>
-  <meta name="description" content="VERGO is a London staffing agency that also puts on events. Why William Robb started it, where it is going, and the team behind it.">
-  <meta property="og:title" content="About Us | VERGO Staffing">
-  <meta property="og:description" content="VERGO is a London staffing agency that also puts on events. Why William Robb started it, where it is going, and the team behind it.">
-  <meta property="og:image" content="https://vergoltd.com/images/vergo-mark.jpg">
+  <title>About VERGO | VERGO Staffing</title>
+  <meta name="description" content="London event staff, picked and briefed by the founder, {{FOUNDER_NAME}}. Everyone interviewed, every booking briefed, one person accountable.">
+  <meta property="og:title" content="About VERGO | VERGO Staffing">
+  <meta property="og:description" content="London event staff, picked and briefed by the founder, {{FOUNDER_NAME}}. Everyone interviewed, every booking briefed, one person accountable.">
+  <meta property="og:image" content="https://vergoltd.com/images/og/about.jpg">
   <meta property="og:url" content="https://vergoltd.com/about">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VERGO Staffing">
@@ -16,22 +16,21 @@
 {
   "@context": "https://schema.org",
   "@type": "AboutPage",
-  "name": "About us",
+  "name": "About VERGO",
   "url": "https://vergoltd.com/about",
-  "description": "VERGO is a London staffing agency that also puts on events. Why William Robb started it, where it is going, and the team behind it.",
+  "description": "London event staff, picked and briefed by the founder.",
   "mainEntity": {
     "@type": "Organization",
     "@id": "https://vergoltd.com/#organization",
     "name": "VERGO Staffing",
-    "legalName": "Vergo Ltd",
+    "legalName": "{{LEGAL_NAME}}",
     "url": "https://vergoltd.com",
-    "logo": { "@type": "ImageObject", "url": "https://vergoltd.com/images/vergo-mark.jpg" },
-    "telephone": "+44 7944 505783",
-    "email": "wrobb@vergoltd.com",
+    "telephone": "{{PHONE_E164}}",
+    "email": "{{EMAIL}}",
     "areaServed": { "@type": "City", "name": "London" },
     "founder": {
       "@type": "Person",
-      "name": "William Robb",
+      "name": "{{FOUNDER_NAME}}",
       "jobTitle": "Founder"
     }
   }
@@ -45,88 +44,48 @@
 
   <main id="main-content">
     <section class="page-hero-plain shell">
-      <span class="eyebrow">Our story</span>
-      <h1>About us</h1>
-      <p class="lede">A London staffing agency that also puts on events. Give us your idea and we&rsquo;ll staff the entire thing.</p>
+      <span class="eyebrow">About</span>
+      <h1>About VERGO</h1>
+      <p class="lede">London event staff, picked and briefed by the founder.</p>
     </section>
 
-    <section class="section shell" aria-labelledby="started-heading">
-      <h2 id="started-heading" class="section-label">Where it started</h2>
+    <section class="section shell" aria-labelledby="why-heading">
       <div class="about-founder">
-      <div class="about-prose">
-        <p>I come from a family event-staffing business, where the job was always to find the best staff for each event, not just whoever was available.</p>
-        <p>Compare that with the staffing apps most people use now. Jobs are posted for anyone to accept, and nobody vets who turns up. I thought the work deserved better, so I started VERGO with actual care for the work that gets done.</p>
-        <p>That has grown into an agency with one direction and no other: give people and events the best possible solution for what they need.</p>
-      </div>
-      <figure class="about-photo about-founder-photo">
-        <div class="about-photo-frame">
-          <span class="about-photo-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Photo coming soon</span></span>
-          <img src="/images/about/founder.webp" alt="William Robb, founder of VERGO, by the river in London." loading="lazy" decoding="async">
+        <div class="about-prose">
+          <h2 id="why-heading" class="section-label">Why VERGO</h2>
+          <p>I grew up in my family's event-staffing business, where the job was sending the right person, not whoever was free. Apps now post shifts for anyone to accept.</p>
+          <p>VERGO does it properly: everyone interviewed, every booking briefed, one person accountable.</p>
         </div>
-        <figcaption>William Robb, founder</figcaption>
-      </figure>
+        <figure class="about-founder-photo">
+          <img src="/images/about/founder.webp" width="1000" height="1250" alt="{{FOUNDER_NAME}}, founder of VERGO, by the river in London." loading="lazy" decoding="async">
+          <figcaption>{{FOUNDER_NAME}}, founder</figcaption>
+        </figure>
       </div>
     </section>
 
-    <section class="section shell" aria-labelledby="next-heading">
-      <h2 id="next-heading" class="section-label">Where we&rsquo;re going</h2>
-      <div class="about-prose">
-        <p>I love getting creative and making things work, and that is where VERGO is heading: a staffing agency that also puts on events.</p>
-        <p>Bring us your idea and we&rsquo;ll build it and staff the whole event for you, from the <a href="/special-events">themes and decor</a> to the team on the night. Great prices, and great solutions.</p>
-      </div>
-    </section>
-
-    <section class="section shell" aria-labelledby="team-heading">
-      <h2 id="team-heading" class="section-label">Our team</h2>
-      <div class="about-prose">
-        <p>Our staff love the work they do, and they want to grow alongside the company. That shows on the night.</p>
-      </div>
-      <ul class="fact-list">
-        <li><strong>Every worker is interviewed</strong> before they join the roster</li>
-        <li><strong>Every booking is briefed:</strong> the venue, the service style and what the night involves</li>
+    <section class="section shell" aria-labelledby="how-heading">
+      <h2 id="how-heading" class="section-label">How we work</h2>
+      <ul class="check-list">
+        <li>Everyone interviewed by me</li>
+        <li>Every booking briefed</li>
         <li>{{EMPLOYMENT_SHORT}}</li>
-        <li><strong>Right to work checked and documented</strong> for everyone we send</li>
-        <li><strong>Employers&rsquo; and public liability insured</strong>, with certificates on request</li>
+        <li>Right to work checked, fully insured</li>
       </ul>
-    </section>
-
-    <section class="section shell" aria-label="Our slogan">
-      <p class="slogan-feature">Wherever you go, VERGO.</p>
     </section>
 
     <section class="section shell" aria-labelledby="whatwedo-heading">
       <h2 id="whatwedo-heading" class="section-label">What we do</h2>
-      <div class="step-grid step-grid--3">
-        <div class="step">
-          <h3><a href="/hire">Event &amp; hospitality staff</a></h3>
-          <p>Waiting staff, bar staff, kitchen porters, runners and hosts, for weddings, corporate events, venues and productions.</p>
-        </div>
-        <div class="step">
-          <h3><a href="/special-events">Full events</a></h3>
-          <p>Your idea, staffed start to finish: themed teams, performers, makeup and decor, for <a href="/special-events/halloween">Halloween</a>, <a href="/special-events/christmas">Christmas</a> and beyond.</p>
-        </div>
-        <div class="step">
-          <h3><a href="/work">Work with us</a></h3>
-          <p>Properly employed hospitality shifts across London, for people who want to grow with us.</p>
-        </div>
-      </div>
+      <ul class="link-tiles">
+        <li><a href="/hire">Hire staff</a></li>
+        <li><a href="/book-an-event">Full events</a></li>
+        <li><a href="/special-events">Themed and seasonal</a></li>
+        <li><a href="/work">Work with us</a></li>
+      </ul>
     </section>
 
-    <div class="section-band">
-      <div class="cta-band shell">
-        <div>
-          <h2>Got an idea for an event?</h2>
-          <p>Send it over, even half of one, with the date and the venue. {{CONFIRMATION_PROMISE}}</p>
-        </div>
-        <div class="btn-row">
-          <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
-          <a href="tel:+447944505783" data-vergo-tel="contact.phone" class="btn btn-secondary">Call <span data-vergo="contact.phoneDisplay">07944 505783</span></a>
-        </div>
-      </div>
-    </div>
+    <!--#cta heading="Got a date in the diary?" line="{{CONFIRMATION_PROMISE}}"-->
   </main>
 
   <!--#footer-->
-  <script src="/pages/js/about-photos.js" defer></script>
 </body>
 </html>

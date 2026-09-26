@@ -3,10 +3,10 @@
 <head>
   <!--#head-->
   <title>Bar Staff Hire in London | VERGO Staffing</title>
-  <meta name="description" content="Bar staff hire in London for receptions, parties, pop-ups and venue overflow. £18.50/hr per person, four-hour minimum, names confirmed same day.">
+  <meta name="description" content="Bar staff hire in London for receptions, parties, pop-ups and venue overflow. {{HEADLINE_RATE}} per person, four-hour minimum, names confirmed the same day.">
   <meta property="og:title" content="Bar Staff Hire in London | VERGO Staffing">
-  <meta property="og:description" content="Bar staff hire in London for receptions, parties, pop-ups and venue overflow. £18.50/hr per person, four-hour minimum, names confirmed same day.">
-  <meta property="og:image" content="https://vergoltd.com/images/vergo-mark.jpg">
+  <meta property="og:description" content="Bar staff hire in London for receptions, parties, pop-ups and venue overflow. {{HEADLINE_RATE}} per person, four-hour minimum, names confirmed the same day.">
+  <meta property="og:image" content="https://vergoltd.com/images/og/bar-staff.jpg">
   <meta property="og:url" content="https://vergoltd.com/hire/bar-staff">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VERGO Staffing">
@@ -19,27 +19,18 @@
   "name": "Bar staff hire",
   "serviceType": "Event and hospitality staffing",
   "url": "https://vergoltd.com/hire/bar-staff",
-  "description": "Bar staff for drinks receptions, private parties, pop-ups and venue overflow across London, working to your drinks list and bar set-up.",
+  "description": "Bar staff for drinks receptions, private parties, pop-ups and venue overflow across London.",
   "areaServed": { "@type": "City", "name": "London" },
-  "provider": {
-    "@type": "Organization",
-    "@id": "https://vergoltd.com/#organization",
-    "name": "VERGO Staffing",
-    "legalName": "Vergo Ltd",
-    "url": "https://vergoltd.com",
-    "logo": { "@type": "ImageObject", "url": "https://vergoltd.com/images/vergo-mark.jpg" },
-    "telephone": "+44 7944 505783",
-    "email": "wrobb@vergoltd.com"
-  },
+  "provider": { "@id": "https://vergoltd.com/#organization" },
   "offers": {
     "@type": "Offer",
     "priceSpecification": {
       "@type": "UnitPriceSpecification",
-      "price": 18.50,
+      "price": {{STANDARD_RATE_NUMBER}},
       "priceCurrency": "GBP",
       "unitCode": "HUR",
       "unitText": "per hour, per person",
-      "referenceQuantity": { "@type": "QuantitativeValue", "value": 4, "unitCode": "HUR" }
+      "referenceQuantity": { "@type": "QuantitativeValue", "value": {{MIN_HOURS}}, "unitCode": "HUR" }
     }
   }
 }
@@ -51,18 +42,10 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Do you supply the drinks, glassware or bar kit?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "No. We supply people only. Stock, glassware, ice and bar equipment come from you, your venue or your caterer. Tell us what the bar is set up with and the team is briefed on it before they arrive."
-      }
-    },
-    {
-      "@type": "Question",
       "name": "Can your bar staff work to our cocktail list?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Send the drinks list when you enquire and it goes into the brief, along with the bar layout and the timings. If the list is involved, say so early so we can put the right people on it."
+        "text": "Yes. Send the list when you enquire and it goes into the brief with the bar layout and timings."
       }
     },
     {
@@ -70,7 +53,7 @@
       "name": "How late can the bar run?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "As late as your venue licence allows. Hours past the confirmed finish are billed in 30-minute blocks, and work after midnight is charged at plus 25%. Give us the real finish time and it is in the quote rather than a surprise on the invoice."
+        "text": "As late as your venue licence allows. Give us the real finish time so it is in the quote."
       }
     },
     {
@@ -78,7 +61,7 @@
       "name": "Can you cover a shift at short notice?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Ask whatever the date. {{CONFIRMATION_PROMISE}} We take a lot of overflow work from venues and other agencies."
+        "text": "Ask whatever the date. We take a lot of overflow work from venues and other agencies."
       }
     }
   ]
@@ -94,57 +77,20 @@
     <section class="page-hero-plain shell">
       <span class="eyebrow">Bar staff</span>
       <h1>Bar staff hire in London</h1>
-      <p class="lede">For drinks receptions, private parties, pop-ups and the nights a venue has more bar than team. Your drinks list, your bar set-up, a queue that keeps moving.</p>
+      <p class="lede">For receptions, private parties, pop-ups and venues with more bar than team.</p>
       <div class="btn-row">
         <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
-        <a href="#rate" class="btn btn-secondary">See the rate</a>
       </div>
     </section>
 
     <section class="section shell" aria-labelledby="whattheydo-heading">
-      <h2 id="whattheydo-heading" class="section-label">What they do behind the bar</h2>
-      <div class="step-grid step-grid--3">
-        <div class="step">
-          <div class="step-number">01</div>
-          <h3>Set up.</h3>
-          <p>Bar built to your plan, stock and ice where they need to be, garnish prepped before doors.</p>
-        </div>
-        <div class="step">
-          <div class="step-number">02</div>
-          <h3>Service.</h3>
-          <p>Working to your list, whatever it is. Pouring wine and beer, or making drinks to spec when the list calls for it.</p>
-        </div>
-        <div class="step">
-          <div class="step-number">03</div>
-          <h3>Close down.</h3>
-          <p>Bar cleared, stock counted if you want it reconciled, and the space handed back.</p>
-        </div>
-      </div>
-      <p>The rush lands twice: doors, and again when a seated dinner stands up. Staffing for the peak rather than the average is what makes a bar feel calm.</p>
-    </section>
-
-    <section class="section shell" aria-labelledby="whobooks-heading">
-      <h2 id="whobooks-heading" class="section-label">Who books bar staff from us</h2>
-      <ul class="fact-list">
-        <li><strong>Venues</strong> covering a busy week, a second room or a late licence</li>
-        <li><strong>Caterers</strong> running a dry-hire event where the bar is theirs to staff</li>
-        <li><strong>Brands and production companies</strong> running pop-ups, launches and activations</li>
-        <li><strong>Private clients</strong> with a party at home or in a hired space</li>
-        <li><strong>Agencies</strong> needing overflow cover at short notice</li>
+      <h2 id="whattheydo-heading" class="section-label">What they do</h2>
+      <ul class="check-list">
+        <li>Bar set up, ice and garnish ready</li>
+        <li>Your drinks list, poured or made to spec</li>
+        <li>Bar cleared, stock counted, space handed back</li>
       </ul>
-      <p>We supply people only. Stock, glassware, ice and bar kit stay with you or the venue.</p>
-    </section>
-
-    <section class="section shell" aria-labelledby="tellus-heading">
-      <h2 id="tellus-heading" class="section-label">What to tell us when you enquire</h2>
-      <ul class="fact-list">
-        <li><strong>Guest numbers</strong>, and whether the bar is serving all of them at once</li>
-        <li><strong>What is being served</strong>: wine and beer, a short cocktail list, or a full list</li>
-        <li><strong>The bar layout</strong>, how many serving positions it has, and who is stocking it</li>
-        <li><strong>Timings</strong>, including doors, any seated break in service, and the real finish</li>
-        <li><strong>Whether it is cash, card or a hosted bar</strong>, and who handles the till</li>
-      </ul>
-      <p>Send that and we will recommend how many people the bar needs rather than applying a ratio to your guest list.</p>
+      <p class="section-note">On a staff booking we supply people only: drinks, glassware, ice and bar kit stay with you or your caterer. Want the food and bar handled too? See <a href="/book-an-event">full events</a>.</p>
     </section>
 
     <!--#rates-->
@@ -152,37 +98,25 @@
     <!--#guarantees-->
 
     <section class="section shell" aria-labelledby="faq-heading">
-      <h2 id="faq-heading" class="section-label">Questions we get asked</h2>
+      <h2 id="faq-heading" class="section-label">Questions</h2>
       <div class="faq-list">
         <details class="faq" name="bar-staff-faq">
-          <summary>Do you supply the drinks, glassware or bar kit?</summary>
-          <p>No. We supply people only. Stock, glassware, ice and bar equipment come from you, your venue or your caterer. Tell us what the bar is set up with and the team is briefed on it before they arrive.</p>
-        </details>
-        <details class="faq" name="bar-staff-faq">
           <summary>Can your bar staff work to our cocktail list?</summary>
-          <p>Yes. Send the drinks list when you enquire and it goes into the brief, along with the bar layout and the timings. If the list is involved, say so early so we can put the right people on it.</p>
+          <p>Yes. Send the list when you enquire and it goes into the brief with the bar layout and timings.</p>
         </details>
         <details class="faq" name="bar-staff-faq">
           <summary>How late can the bar run?</summary>
-          <p>As late as your venue licence allows. Hours past the confirmed finish are billed in 30-minute blocks, and work after midnight is charged at plus 25%. Give us the real finish time and it is in the quote rather than a surprise on the invoice.</p>
+          <p>As late as your venue licence allows. Give us the real finish time so it is in the quote.</p>
         </details>
         <details class="faq" name="bar-staff-faq">
           <summary>Can you cover a shift at short notice?</summary>
-          <p>Ask whatever the date. {{CONFIRMATION_PROMISE}} We take a lot of overflow work from venues and other agencies.</p>
+          <p>Ask whatever the date. We take a lot of overflow work from venues and other agencies.</p>
         </details>
       </div>
+      <p class="link-row">Also: <a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/weddings">Weddings</a></p>
     </section>
 
-    <div class="section-band">
-      <div class="cta-band shell">
-        <div>
-          <h2>Need a bar covered?</h2>
-          <p>Send us the date, the venue and what is being served. {{CONFIRMATION_PROMISE}}</p>
-          <p>Floor service as well? See <a href="/hire/waiting-staff">waiting staff hire</a>. Themed and costumed bartenders are on <a href="/special-events">special events</a>. Full rates and terms are on <a href="/hire">our client page</a>.</p>
-        </div>
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
-      </div>
-    </div>
+    <!--#cta heading="Got a date in the diary?" line="{{CONFIRMATION_PROMISE}}"-->
   </main>
 
   <!--#footer-->

@@ -3,10 +3,10 @@
 <head>
   <!--#head-->
   <title>Waiting Staff Hire in London | VERGO Staffing</title>
-  <meta name="description" content="Waiting staff hire in London for drinks receptions, canapes and seated dinners. £18.50/hr per person, four-hour minimum, names confirmed same day.">
+  <meta name="description" content="Waiting staff hire in London for receptions, canapés and seated dinners. {{HEADLINE_RATE}} per person, four-hour minimum, names confirmed the same day.">
   <meta property="og:title" content="Waiting Staff Hire in London | VERGO Staffing">
-  <meta property="og:description" content="Waiting staff hire in London for drinks receptions, canapes and seated dinners. £18.50/hr per person, four-hour minimum, names confirmed same day.">
-  <meta property="og:image" content="https://vergoltd.com/images/vergo-mark.jpg">
+  <meta property="og:description" content="Waiting staff hire in London for receptions, canapés and seated dinners. {{HEADLINE_RATE}} per person, four-hour minimum, names confirmed the same day.">
+  <meta property="og:image" content="https://vergoltd.com/images/og/waiting-staff.jpg">
   <meta property="og:url" content="https://vergoltd.com/hire/waiting-staff">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VERGO Staffing">
@@ -19,27 +19,18 @@
   "name": "Waiting staff hire",
   "serviceType": "Event and hospitality staffing",
   "url": "https://vergoltd.com/hire/waiting-staff",
-  "description": "Waiting staff for drinks receptions, canape service, seated dinners and clearing down at events across London.",
+  "description": "Waiting staff for drinks receptions, canapé service, seated dinners and clearing down at events across London.",
   "areaServed": { "@type": "City", "name": "London" },
-  "provider": {
-    "@type": "Organization",
-    "@id": "https://vergoltd.com/#organization",
-    "name": "VERGO Staffing",
-    "legalName": "Vergo Ltd",
-    "url": "https://vergoltd.com",
-    "logo": { "@type": "ImageObject", "url": "https://vergoltd.com/images/vergo-mark.jpg" },
-    "telephone": "+44 7944 505783",
-    "email": "wrobb@vergoltd.com"
-  },
+  "provider": { "@id": "https://vergoltd.com/#organization" },
   "offers": {
     "@type": "Offer",
     "priceSpecification": {
       "@type": "UnitPriceSpecification",
-      "price": 18.50,
+      "price": {{STANDARD_RATE_NUMBER}},
       "priceCurrency": "GBP",
       "unitCode": "HUR",
       "unitText": "per hour, per person",
-      "referenceQuantity": { "@type": "QuantitativeValue", "value": 4, "unitCode": "HUR" }
+      "referenceQuantity": { "@type": "QuantitativeValue", "value": {{MIN_HOURS}}, "unitCode": "HUR" }
     }
   }
 }
@@ -54,31 +45,23 @@
       "name": "How many waiting staff do we need?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Tell us the guest number, the service style and the timings and we will recommend a team for your event rather than applying a ratio to it. A standing reception with canapes and a seated three-course dinner need different teams for the same headcount."
+        "text": "Tell us the guest number, the service style and the timings. We recommend a team for your event rather than a ratio."
       }
     },
     {
       "@type": "Question",
-      "name": "Do your waiting staff know the running order before they arrive?",
+      "name": "Do they know the running order before they arrive?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Everyone we send has been met and interviewed, and is briefed on the venue, the service style and what the evening involves before they arrive. Send us the running order when you have it and it goes into that brief."
+        "text": "Yes. Send it when you have it and it goes into their brief."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the minimum booking for waiting staff?",
+      "name": "Can we ask for the same staff again?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Four hours per person. Overruns are billed in 30-minute blocks, and hours worked after midnight are charged at plus 25%. There are no booking fees, uniform charges or surcharges on top."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Do you supply glassware, crockery or linen?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "No. We supply people only. Stock, equipment and hire items come from you or your caterer, and we brief the team on what they will be working with."
+        "text": "Yes, ask for them by name. Anyone who wasn't right won't be sent again."
       }
     }
   ]
@@ -94,56 +77,20 @@
     <section class="page-hero-plain shell">
       <span class="eyebrow">Waiting staff</span>
       <h1>Waiting staff hire in London</h1>
-      <p class="lede">For drinks receptions, canape service, seated dinners and the clearing down afterwards. People we have met and interviewed, briefed on your running order before they walk in.</p>
+      <p class="lede">For receptions, canapés, seated dinners and the clear down, briefed on your running order.</p>
       <div class="btn-row">
         <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
-        <a href="#rate" class="btn btn-secondary">See the rate</a>
       </div>
     </section>
 
     <section class="section shell" aria-labelledby="whattheydo-heading">
-      <h2 id="whattheydo-heading" class="section-label">What they do on the night</h2>
-      <div class="step-grid step-grid--3">
-        <div class="step">
-          <div class="step-number">01</div>
-          <h3>The reception.</h3>
-          <p>Trays out on time, drinks topped up, and canapes described properly to anyone who asks what is on them.</p>
-        </div>
-        <div class="step">
-          <div class="step-number">02</div>
-          <h3>The dinner.</h3>
-          <p>Service to your style, whether that is plated, silver or sharing. Courses land together rather than in ones and twos.</p>
-        </div>
-        <div class="step">
-          <div class="step-number">03</div>
-          <h3>The clear down.</h3>
-          <p>Tables cleared through the evening, then the room put back the way the venue expects to find it.</p>
-        </div>
-      </div>
-      <p>Most bookings are one of those three, or all of them in a single evening. Tell us which and the brief is written around it.</p>
-    </section>
-
-    <section class="section shell" aria-labelledby="whobooks-heading">
-      <h2 id="whobooks-heading" class="section-label">Who books waiting staff from us</h2>
-      <ul class="fact-list">
-        <li><strong>Caterers</strong> who have the food covered and need the floor covered</li>
-        <li><strong>Venues</strong> running more in one week than their own team can staff</li>
-        <li><strong>Production companies</strong> and <strong>private clients</strong> putting on a one-off</li>
-        <li><strong>Agencies</strong> needing overflow cover at short notice</li>
+      <h2 id="whattheydo-heading" class="section-label">What they do</h2>
+      <ul class="check-list">
+        <li>Trays out on time, drinks topped up</li>
+        <li>Plated, silver or sharing service, courses together</li>
+        <li>Tables cleared, room put back as found</li>
       </ul>
-      <p>We supply people only. Glassware, crockery, linen and stock stay with you or your caterer, and the team is briefed on what they will be working with.</p>
-    </section>
-
-    <section class="section shell" aria-labelledby="tellus-heading">
-      <h2 id="tellus-heading" class="section-label">What to tell us when you enquire</h2>
-      <ul class="fact-list">
-        <li><strong>Date, start time and the real finish time</strong>, not the one on the invitation</li>
-        <li><strong>Venue and address</strong>, including whether it is a dry-hire space</li>
-        <li><strong>Guest numbers</strong> and the service style: reception, seated, or both</li>
-        <li><strong>What is being served</strong>, and who is cooking it</li>
-        <li><strong>Anything unusual</strong> about the room, the access or the timings</li>
-      </ul>
-      <p>That is enough for us to recommend a team size and send the quote back the same day.</p>
+      <p class="section-note">On a staff booking we supply people only: glassware, crockery and linen stay with you or your caterer. Want the food and bar handled too? See <a href="/book-an-event">full events</a>.</p>
     </section>
 
     <!--#rates-->
@@ -151,37 +98,25 @@
     <!--#guarantees-->
 
     <section class="section shell" aria-labelledby="faq-heading">
-      <h2 id="faq-heading" class="section-label">Questions we get asked</h2>
+      <h2 id="faq-heading" class="section-label">Questions</h2>
       <div class="faq-list">
         <details class="faq" name="waiting-staff-faq">
           <summary>How many waiting staff do we need?</summary>
-          <p>Tell us the guest number, the service style and the timings and we will recommend a team for your event rather than applying a ratio to it. A standing reception with canapes and a seated three-course dinner need different teams for the same headcount.</p>
+          <p>Tell us the guest number, the service style and the timings. We recommend a team for your event rather than a ratio.</p>
         </details>
         <details class="faq" name="waiting-staff-faq">
-          <summary>Do your waiting staff know the running order before they arrive?</summary>
-          <p>Yes. Everyone we send has been met and interviewed, and is briefed on the venue, the service style and what the evening involves before they arrive. Send us the running order when you have it and it goes into that brief.</p>
+          <summary>Do they know the running order before they arrive?</summary>
+          <p>Yes. Send it when you have it and it goes into their brief.</p>
         </details>
         <details class="faq" name="waiting-staff-faq">
-          <summary>What is the minimum booking for waiting staff?</summary>
-          <p>Four hours per person. Overruns are billed in 30-minute blocks, and hours worked after midnight are charged at plus 25%. There are no booking fees, uniform charges or surcharges on top.</p>
-        </details>
-        <details class="faq" name="waiting-staff-faq">
-          <summary>Do you supply glassware, crockery or linen?</summary>
-          <p>No. We supply people only. Stock, equipment and hire items come from you or your caterer, and we brief the team on what they will be working with.</p>
+          <summary>Can we ask for the same staff again?</summary>
+          <p>Yes, ask for them by name. Anyone who wasn't right won't be sent again.</p>
         </details>
       </div>
+      <p class="link-row">Also: <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/weddings">Weddings</a></p>
     </section>
 
-    <div class="section-band">
-      <div class="cta-band shell">
-        <div>
-          <h2>Need waiting staff for a date in the diary?</h2>
-          <p>Send us the date, the venue and the roles. {{CONFIRMATION_PROMISE}}</p>
-          <p>Need a bar run as well? See <a href="/hire/bar-staff">bar staff hire</a>. Wash-up and clearing down is on <a href="/hire/kitchen-porters">kitchen porters</a>. Full rates and terms are on <a href="/hire">our client page</a>.</p>
-        </div>
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
-      </div>
-    </div>
+    <!--#cta heading="Got a date in the diary?" line="{{CONFIRMATION_PROMISE}}"-->
   </main>
 
   <!--#footer-->

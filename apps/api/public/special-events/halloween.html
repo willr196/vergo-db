@@ -6,7 +6,7 @@
   <meta name="description" content="Halloween event staff, themed bartenders, scare actors, character performers, makeup artists, decorators and costumed event teams across London from VERGO.">
   <meta property="og:title" content="Halloween Event Staff &amp; Performers London | VERGO Staffing">
   <meta property="og:description" content="Halloween event staff, themed bartenders, scare actors, character performers, makeup artists, decorators and costumed event teams across London from VERGO.">
-  <meta property="og:image" content="https://vergoltd.com/images/vergo-mark.jpg">
+  <meta property="og:image" content="https://vergoltd.com/images/og/halloween.jpg">
   <meta property="og:url" content="https://vergoltd.com/special-events/halloween">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VERGO Staffing">
@@ -17,21 +17,12 @@
 {
   "@context": "https://schema.org",
   "@type": "Service",
-  "name": "Halloween Special",
+  "name": "Halloween event staff and performers",
   "serviceType": "Themed and immersive event staffing",
   "url": "https://vergoltd.com/special-events/halloween",
   "description": "Halloween event staff, themed bartenders, scare actors, character performers, makeup artists, decorators and costumed event teams across London from VERGO.",
   "areaServed": { "@type": "City", "name": "London" },
-  "provider": {
-    "@type": "Organization",
-    "@id": "https://vergoltd.com/#organization",
-    "name": "VERGO Staffing",
-    "legalName": "Vergo Ltd",
-    "url": "https://vergoltd.com",
-    "logo": { "@type": "ImageObject", "url": "https://vergoltd.com/images/vergo-mark.jpg" },
-    "telephone": "+44 7944 505783",
-    "email": "wrobb@vergoltd.com"
-  },
+  "provider": { "@id": "https://vergoltd.com/#organization" },
   "hasOfferCatalog": {
     "@type": "OfferCatalog",
     "name": "Halloween staffing and performance",
@@ -41,11 +32,11 @@
         "itemOffered": { "@type": "Service", "name": "Themed hospitality staff" },
         "priceSpecification": {
           "@type": "UnitPriceSpecification",
-          "price": 22.00,
+          "price": {{THEMED_RATE_NUMBER}},
           "priceCurrency": "GBP",
           "unitCode": "HUR",
           "unitText": "per hour",
-          "referenceQuantity": { "@type": "QuantitativeValue", "value": 4, "unitCode": "HUR" }
+          "referenceQuantity": { "@type": "QuantitativeValue", "value": {{MIN_HOURS}}, "unitCode": "HUR" }
         }
       },
       {
@@ -53,11 +44,11 @@
         "itemOffered": { "@type": "Service", "name": "Halloween hosts" },
         "priceSpecification": {
           "@type": "UnitPriceSpecification",
-          "price": 22.00,
+          "price": {{THEMED_RATE_NUMBER}},
           "priceCurrency": "GBP",
           "unitCode": "HUR",
           "unitText": "per hour",
-          "referenceQuantity": { "@type": "QuantitativeValue", "value": 4, "unitCode": "HUR" }
+          "referenceQuantity": { "@type": "QuantitativeValue", "value": {{MIN_HOURS}}, "unitCode": "HUR" }
         }
       },
       {
@@ -65,11 +56,11 @@
         "itemOffered": { "@type": "Service", "name": "Scare actors" },
         "priceSpecification": {
           "@type": "UnitPriceSpecification",
-          "price": 30.00,
+          "price": {{PERFORMER_RATE_NUMBER}},
           "priceCurrency": "GBP",
           "unitCode": "HUR",
           "unitText": "per hour",
-          "referenceQuantity": { "@type": "QuantitativeValue", "value": 4, "unitCode": "HUR" }
+          "referenceQuantity": { "@type": "QuantitativeValue", "value": {{MIN_HOURS}}, "unitCode": "HUR" }
         }
       },
       {
@@ -77,11 +68,11 @@
         "itemOffered": { "@type": "Service", "name": "Character performers" },
         "priceSpecification": {
           "@type": "UnitPriceSpecification",
-          "price": 30.00,
+          "price": {{PERFORMER_RATE_NUMBER}},
           "priceCurrency": "GBP",
           "unitCode": "HUR",
           "unitText": "per hour",
-          "referenceQuantity": { "@type": "QuantitativeValue", "value": 4, "unitCode": "HUR" }
+          "referenceQuantity": { "@type": "QuantitativeValue", "value": {{MIN_HOURS}}, "unitCode": "HUR" }
         }
       },
       {
@@ -89,11 +80,11 @@
         "itemOffered": { "@type": "Service", "name": "Halloween makeup artists and SFX" },
         "priceSpecification": {
           "@type": "UnitPriceSpecification",
-          "price": 40.00,
+          "price": {{MAKEUP_RATE_NUMBER}},
           "priceCurrency": "GBP",
           "unitCode": "HUR",
           "unitText": "per hour",
-          "referenceQuantity": { "@type": "QuantitativeValue", "value": 4, "unitCode": "HUR" }
+          "referenceQuantity": { "@type": "QuantitativeValue", "value": {{MIN_HOURS}}, "unitCode": "HUR" }
         }
       },
       { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Guest makeup stations" }, "availability": "https://schema.org/LimitedAvailability" },
@@ -110,41 +101,10 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "How far ahead should we book Halloween event staff?",
-      "acceptedAnswer": { "@type": "Answer", "text": "As early as you can. The last week of October is our busiest of the year, and performers and makeup artists commit sooner than hospitality staff. Ask anyway, and we will tell you what is still possible." }
-    },
-    {
-      "@type": "Question",
-      "name": "Do you supply the costumes?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yours, styled by us, or sourced and hired for the booking. We do not hold a costume store, so raise the look early." }
-    },
-    {
-      "@type": "Question",
-      "name": "How scary will the performers be?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Your call, agreed before the event. Scare level, contact, age range and venue limits are all set in the brief." }
-    },
-    {
-      "@type": "Question",
-      "name": "Is every VERGO worker an actor?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. Themed hospitality staff hold a character but the job comes first. Performers and scare actors are booked separately and cast for the role." }
-    },
-    {
-      "@type": "Question",
-      "name": "Can we book just one or two themed staff?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Two themed hosts is a normal booking. Standard staffing minimums still apply to hospitality shifts." }
-    },
-    {
-      "@type": "Question",
-      "name": "How does a guest makeup station work?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Artists set up inside the event and work through guests during the evening. Give us guest count and running time and we will say how many artists it needs." }
-    },
-    {
-      "@type": "Question",
-      "name": "What do you need to quote a Halloween event?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Date, rough hours, venue or area, approximate guest count, and the feeling you are after." }
-    }
+    { "@type": "Question", "name": "How far ahead should we book?", "acceptedAnswer": { "@type": "Answer", "text": "As early as you can: the last week of October books up first. Ask anyway and we'll tell you what's still possible." } },
+    { "@type": "Question", "name": "Do you supply the costumes?", "acceptedAnswer": { "@type": "Answer", "text": "Yours styled by us, or sourced and hired for the booking. We don't hold a costume store, so raise the look early." } },
+    { "@type": "Question", "name": "How scary is \"scary\"?", "acceptedAnswer": { "@type": "Answer", "text": "Your call, agreed before the event. Scare level, contact, age range and venue limits all go in the brief." } },
+    { "@type": "Question", "name": "Can we book one or two people?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, two themed hosts is a normal booking. The {{MIN_HOURS}}-hour minimum still applies." } }
   ]
 }
   </script>
@@ -173,24 +133,12 @@
     <section class="se-hero">
       <div class="se-hero-inner">
         <span class="eyebrow">Halloween by VERGO</span>
-        <h1>HALLOWEEN<br><span class="se-hero-line2">SPECIAL</span></h1>
-        <p class="se-hero-claim">We staff your whole Halloween night.</p>
-        <p class="lede">Themed staff in costume, character performers, scare actors, makeup artists
-          and decorators. Every role we supply, with a Halloween twist. Across London.</p>
+        <h1>Halloween event staff and performers in London</h1>
+        <p class="lede">Themed staff, performers, makeup and decor across London.</p>
         <div class="btn-row">
           <a href="#build" class="btn btn-primary">Build your team</a>
-          <a href="#services" class="btn btn-secondary">What we supply</a>
         </div>
       </div>
-      <ul class="se-hero-strip">
-        <li>Themed staff</li>
-        <li>Performers</li>
-        <li>Scare actors</li>
-        <li>SFX makeup</li>
-        <li>Guest makeup</li>
-        <li>Costumes</li>
-        <li>Decorators</li>
-      </ul>
     </section>
 
     <section class="section-tight shell" aria-label="Halloween staff in costume">
@@ -198,12 +146,12 @@
         <figure>
           <img src="/images/special-events/halloween-bar-800.webp" srcset="/images/special-events/halloween-bar-800.webp 800w, /images/special-events/halloween-bar-1200.webp 1200w" sizes="(min-width: 1212px) 582px, (min-width: 700px) 50vw, 100vw" width="1448" height="1086" loading="lazy"
                alt="Bartenders in hooded robes and ghost masks pouring cocktails at a candlelit Halloween bar">
-          <figcaption>Themed bar staff</figcaption>
+          <figcaption>Styling example: themed bar</figcaption>
         </figure>
         <figure>
           <img src="/images/special-events/halloween-waiting-staff-800.webp" srcset="/images/special-events/halloween-waiting-staff-800.webp 800w, /images/special-events/halloween-waiting-staff-1200.webp 1200w" sizes="(min-width: 1212px) 582px, (min-width: 700px) 50vw, 100vw" width="1448" height="1086" loading="lazy"
                alt="Waiting staff dressed as a vampire, a mummy, a werewolf and Frankenstein's monster serving drinks and canapés at a Halloween dinner">
-          <figcaption>Waiting staff in character</figcaption>
+          <figcaption>Styling example: waiting staff in character</figcaption>
         </figure>
       </div>
     </section>
@@ -212,8 +160,7 @@
          What we supply — icon grid, fragments not sentences
          ================================================================ -->
     <section class="section shell" id="services" aria-labelledby="services-heading">
-      <p class="section-label">What we supply</p>
-      <h2 id="services-heading" class="se-h2">Nine things, mix as you like.</h2>
+      <h2 id="services-heading" class="se-h2">What we supply</h2>
 
       <div class="se-service-grid">
         <article class="se-service">
@@ -221,63 +168,54 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 4h16l-8 8v8"/><path d="M8 20h8"/></svg>
           </span>
           <h3>Themed hospitality staff</h3>
-          <p>Bartenders, waiting staff, runners, hosts.</p>
         </article>
         <article class="se-service">
           <span class="se-service-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 5h8v7a4 4 0 0 1-8 0z"/><path d="M13 5h8v7a4 4 0 0 1-8 0z"/><path d="M5.5 8.5h1M8 8.5h.5M15.5 8.5h1M18 8.5h.5"/></svg>
           </span>
           <h3>Character performers</h3>
-          <p>Roaming, improvising, guest-facing.</p>
         </article>
         <article class="se-service">
           <span class="se-service-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3c4 0 7 3 7 7v5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-5c0-4 3-7 7-7z"/><path d="M9 10v2M15 10v2"/><path d="M9.5 16.5c1.5-1 3.5-1 5 0"/></svg>
           </span>
           <h3>Scare actors</h3>
-          <p>Scare-led events and horror experiences.</p>
         </article>
         <article class="se-service">
           <span class="se-service-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="7" r="3.2"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>
           </span>
           <h3>Halloween hosts</h3>
-          <p>Greet, direct, entertain.</p>
         </article>
         <article class="se-service">
           <span class="se-service-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M17 2.5 21.5 7 10 18.5l-4.5-4.5z"/><path d="M5.5 14 3 21l7-2.5"/></svg>
           </span>
           <h3>SFX &amp; makeup artists</h3>
-          <p>Character and special-effects makeup.</p>
         </article>
         <article class="se-service">
           <span class="se-service-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="5" y="3" width="14" height="14" rx="2"/><path d="M9 21h6M12 17v4"/><circle cx="12" cy="10" r="2.6"/></svg>
           </span>
           <h3>Guest makeup stations</h3>
-          <p>Artists in-event, transforming guests.</p>
         </article>
         <article class="se-service">
           <span class="se-service-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3a2 2 0 0 0-1 3.7V9"/><path d="M12 9 3.5 16.5c-1 .9-.4 2.5 1 2.5h15c1.4 0 2-1.6 1-2.5L12 9z"/></svg>
           </span>
           <h3>Costumes &amp; styling</h3>
-          <p>Yours, ours, or sourced.</p>
         </article>
         <article class="se-service">
           <span class="se-service-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 20h18"/><path d="M5 20V9l7-5 7 5v11"/><path d="M9.5 20v-5h5v5"/></svg>
           </span>
           <h3>Decorators &amp; set dressing</h3>
-          <p>Dressing the room before the doors open.</p>
         </article>
         <article class="se-service">
           <span class="se-service-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 12a8 8 0 0 1 16 0"/><rect x="2.5" y="12" width="4" height="6" rx="1.6"/><rect x="17.5" y="12" width="4" height="6" rx="1.6"/><path d="M20 18v1.5a2.5 2.5 0 0 1-2.5 2.5H13"/></svg>
           </span>
           <h3>Event &amp; character leads</h3>
-          <p>On-site coordination for bigger teams.</p>
         </article>
       </div>
     </section>
@@ -287,51 +225,25 @@
          ================================================================ -->
     <div class="se-band se-band--deep">
       <section class="section shell" id="approach" aria-labelledby="approach-heading">
-        <p class="section-label">Three levels</p>
-        <h2 id="approach-heading" class="se-h2">How involved do you want us?</h2>
+        <h2 id="approach-heading" class="se-h2">Three levels</h2>
 
         <div class="se-involve-grid">
           <article class="se-involve">
             <span class="se-involve-num" aria-hidden="true">01</span>
             <h3>Dress the team</h3>
-            <p class="se-involve-sub">Your event, our staff in theme.</p>
-            <ul class="se-involve-list">
-              <li>Themed bartenders</li>
-              <li>Halloween waiting staff</li>
-              <li>Character hosts</li>
-              <li>Gothic, vampire, zombie styling</li>
-              <li>Costume and makeup</li>
-            </ul>
+              <p class="se-involve-sub">Themed bartenders, waiting staff, character hosts, costume, makeup.</p>
           </article>
 
           <article class="se-involve">
             <span class="se-involve-num" aria-hidden="true">02</span>
             <h3>Bring the characters</h3>
-            <p class="se-involve-sub">Performers working the guests.</p>
-            <ul class="se-involve-list">
-              <li>Scare actors</li>
-              <li>Roaming characters</li>
-              <li>Vampires, zombies, ghosts</li>
-              <li>Haunted hotel staff</li>
-              <li>Creepy clowns</li>
-              <li>Doctors and scientists</li>
-              <li>Murder mystery characters</li>
-            </ul>
+              <p class="se-involve-sub">Scare actors, roaming characters, vampires, zombies, creepy clowns.</p>
           </article>
 
           <article class="se-involve">
             <span class="se-involve-num" aria-hidden="true">03</span>
             <h3>Build the experience</h3>
-            <p class="se-involve-sub">You have the idea. We cast it.</p>
-            <ul class="se-involve-list">
-              <li>Staff and performers</li>
-              <li>Character concepts</li>
-              <li>Makeup artists</li>
-              <li>Costumes and styling</li>
-              <li>Performance timings</li>
-              <li>Event leads</li>
-              <li>Immersive elements</li>
-            </ul>
+              <p class="se-involve-sub">Staff, performers, makeup, costumes, immersive elements.</p>
           </article>
         </div>
       </section>
@@ -342,8 +254,7 @@
          Swap --se-concept-img per card for real photography.
          ================================================================ -->
     <section class="section shell" id="concepts" aria-labelledby="concepts-heading">
-      <p class="section-label">Concepts</p>
-      <h2 id="concepts-heading" class="se-h2">Five worlds to start from.</h2>
+      <h2 id="concepts-heading" class="se-h2">Five concepts</h2>
 
       <div class="se-concept-grid">
         <article class="se-concept se-concept--feature" style="--se-c1: #2b2015; --se-c2: #0a0908; --se-concept-img: url(&quot;/images/special-events/concept-haunted-hotel.svg&quot;)">
@@ -352,14 +263,7 @@
               <h3 class="se-concept-title">The Haunted Hotel</h3>
             </div>
             <div class="se-concept-body">
-              <p class="se-chip-label">Characters</p>
-              <ul class="se-chips">
-                <li class="se-chip">Concierge</li>
-                <li class="se-chip">Bellboy</li>
-                <li class="se-chip">Housekeeping</li>
-                <li class="se-chip">Ghost guests</li>
-                <li class="se-chip">Haunted bartender</li>
-              </ul>
+              <p class="se-concept-chars">Concierge, Bellboy, Housekeeping, Ghost guests, Haunted bartender</p>
             </div>
           </div>
         </article>
@@ -370,14 +274,7 @@
               <h3 class="se-concept-title">The Outbreak</h3>
             </div>
             <div class="se-concept-body">
-              <p class="se-chip-label">Characters</p>
-              <ul class="se-chips">
-                <li class="se-chip">Scientists</li>
-                <li class="se-chip">Doctors</li>
-                <li class="se-chip">Containment staff</li>
-                <li class="se-chip">Infected workers</li>
-                <li class="se-chip">Zombies</li>
-              </ul>
+              <p class="se-concept-chars">Scientists, Doctors, Containment staff, Infected workers, Zombies</p>
             </div>
           </div>
         </article>
@@ -388,13 +285,7 @@
               <h3 class="se-concept-title">The Vampire Ball</h3>
             </div>
             <div class="se-concept-body">
-              <p class="se-chip-label">Characters</p>
-              <ul class="se-chips">
-                <li class="se-chip">Vampire hosts</li>
-                <li class="se-chip">Gothic bartenders</li>
-                <li class="se-chip">Waiting staff</li>
-                <li class="se-chip">Roaming performers</li>
-              </ul>
+              <p class="se-concept-chars">Vampire hosts, Gothic bartenders, Waiting staff, Roaming performers</p>
             </div>
           </div>
         </article>
@@ -405,13 +296,7 @@
               <h3 class="se-concept-title">The Twisted Circus</h3>
             </div>
             <div class="se-concept-body">
-              <p class="se-chip-label">Characters</p>
-              <ul class="se-chips">
-                <li class="se-chip">Ringmaster</li>
-                <li class="se-chip">Clowns</li>
-                <li class="se-chip">Carnival characters</li>
-                <li class="se-chip">Roaming performers</li>
-              </ul>
+              <p class="se-concept-chars">Ringmaster, Clowns, Carnival characters, Roaming performers</p>
             </div>
           </div>
         </article>
@@ -422,13 +307,7 @@
               <h3 class="se-concept-title">The S&eacute;ance</h3>
             </div>
             <div class="se-concept-body">
-              <p class="se-chip-label">Characters</p>
-              <ul class="se-chips">
-                <li class="se-chip">Medium</li>
-                <li class="se-chip">Victorian hosts</li>
-                <li class="se-chip">Ghosts</li>
-                <li class="se-chip">Paranormal characters</li>
-              </ul>
+              <p class="se-concept-chars">Medium, Victorian hosts, Ghosts, Paranormal characters</p>
             </div>
           </div>
         </article>
@@ -436,26 +315,20 @@
 
     </section>
 
-    <!-- ================================================================
-         Decor themes. Venue dressing, quoted on the brief (see Rates).
-         Film and TV themes are our own takes, never licensed sets, so
-         keep the caveat under the grid when adding another one.
-         ================================================================ -->
+    <!-- Decor themes: venue dressing, quoted on the brief. Our own themes, no licensed names. -->
     <div class="se-band">
       <section class="section shell" id="decor" aria-labelledby="decor-heading">
-        <p class="section-label">Decor themes</p>
-        <h2 id="decor-heading" class="se-h2">We dress the room too.</h2>
-        <p class="se-rates-lede">Pick a theme and we decorate the venue before the doors open. Add staff and performers in the same look.</p>
+        <h2 id="decor-heading" class="se-h2">Decor themes</h2>
         <div class="se-decor-grid">
           <article class="se-decor">
             <span class="se-service-idx" aria-hidden="true">01</span>
-            <h3>Squid Game</h3>
-            <p>Pink guards, the doll, the playground.</p>
+            <h3>Deadly Games</h3>
+            <p>Pink-suited guards, a playground gone wrong.</p>
           </article>
           <article class="se-decor">
             <span class="se-service-idx" aria-hidden="true">02</span>
             <h3>Killer Clown Asylum</h3>
-            <p>Padded cells, straitjackets, a carnival gone wrong.</p>
+            <p>Padded cells, straitjackets, carnival gone wrong.</p>
           </article>
           <article class="se-decor">
             <span class="se-service-idx" aria-hidden="true">03</span>
@@ -474,8 +347,8 @@
           </article>
           <article class="se-decor">
             <span class="se-service-idx" aria-hidden="true">06</span>
-            <h3>Tim Burton</h3>
-            <p>Stripes, crooked lines, gothic whimsy.</p>
+            <h3>Gothic Whimsy</h3>
+            <p>Stripes, crooked lines, spindly shadows.</p>
           </article>
           <article class="se-decor">
             <span class="se-service-idx" aria-hidden="true">07</span>
@@ -484,8 +357,8 @@
           </article>
           <article class="se-decor">
             <span class="se-service-idx" aria-hidden="true">08</span>
-            <h3>Saw</h3>
-            <p>Traps, rust, tiled rooms, the puppet.</p>
+            <h3>The Trap Room</h3>
+            <p>Rust, tiled walls, a game you didn't agree to.</p>
           </article>
           <article class="se-decor">
             <span class="se-service-idx" aria-hidden="true">09</span>
@@ -495,15 +368,14 @@
           <article class="se-decor">
             <span class="se-service-idx" aria-hidden="true">10</span>
             <h3>Monster House</h3>
-            <p>Boarded windows, a house that bites back.</p>
+            <p>Boarded windows, a hungry house.</p>
           </article>
           <a class="se-decor se-decor--more" href="#build">
             <span class="se-service-idx" aria-hidden="true">+</span>
-            <h3>And many more</h3>
-            <p>Your own theme, or a mix. Tell us the idea.</p>
+            <h3>Your own theme</h3>
+            <p>Or a mix. Tell us the idea.</p>
           </a>
         </div>
-        <p class="se-caveat">Film and TV themes are our own interpretations, not official or licensed sets. Decor is quoted on the venue and the brief.</p>
         <div class="btn-row se-makeup-cta">
           <a href="#build" class="btn btn-primary">Theme your venue</a>
         </div>
@@ -514,47 +386,12 @@
          ================================================================ -->
     <div class="se-band se-band--deep">
       <section class="section shell" id="makeup" aria-labelledby="makeup-heading">
-        <p class="section-label">Makeup &amp; SFX</p>
-        <h2 id="makeup-heading" class="se-h2">Before the doors, and during the night.</h2>
+        <h2 id="makeup-heading" class="se-h2">Makeup and SFX</h2>
 
-        <figure class="se-makeup-figure">
-          <!-- TEMPORARY. Original illustration, not a VERGO photograph. -->
-          <img src="/images/special-events/halloween-makeup-placeholder.svg"
-               alt="Illustration of a lit makeup mirror and seated figure in a dark room."
-               width="1680" height="720" loading="lazy" decoding="async">
-        </figure>
-
-        <div class="se-makeup-split">
-          <article class="se-makeup-panel">
-            <h3>Staff &amp; performer makeup</h3>
-            <p class="se-chip-label">Can include</p>
-            <ul class="se-chips">
-              <li class="se-chip">Wounds</li>
-              <li class="se-chip">Bruising</li>
-              <li class="se-chip">Fake blood</li>
-              <li class="se-chip">Zombie</li>
-              <li class="se-chip">Vampire</li>
-              <li class="se-chip">Ghost</li>
-              <li class="se-chip">Aging</li>
-              <li class="se-chip">Prosthetics</li>
-            </ul>
-          </article>
-
-          <article class="se-makeup-panel">
-            <h3>Guest makeup stations</h3>
-            <p class="se-chip-label">Works for</p>
-            <ul class="se-chips">
-              <li class="se-chip">Corporate parties</li>
-              <li class="se-chip">Hotels</li>
-              <li class="se-chip">Bars</li>
-              <li class="se-chip">Private parties</li>
-              <li class="se-chip">Brand events</li>
-              <li class="se-chip">Members&rsquo; clubs</li>
-            </ul>
-          </article>
-        </div>
-
-        <p class="se-caveat">Effects and station throughput depend on the artists free on your date.</p>
+        <ul class="se-makeup-lines">
+          <li><strong>Staff and performer makeup:</strong> wounds, bruising, fake blood, zombie, vampire, ghost, aging, prosthetics.</li>
+          <li><strong>Guest makeup stations:</strong> corporate parties, hotels, bars, private parties, brand events, members' clubs.</li>
+        </ul>
 
         <div class="btn-row se-makeup-cta">
           <a href="#build" class="btn btn-primary">Add makeup to your event</a>
@@ -562,114 +399,44 @@
       </section>
     </div>
 
-    <!-- ================================================================
-         Rates. The three hourly figures come from VERGO_CONFIG.specialEvents,
-         which hydrates from /api/v1/rates (backed by src/config/pricing.ts).
-         The same numbers sit inline as fallbacks so the rates are in the HTML
-         for search engines and for anyone without JavaScript — change a rate in
-         pricing.ts and change the fallback here in the same commit.
-
-         Bespoke tiers deliberately carry no figure. Three priced cards, then
-         three quoted ones: the hierarchy is the price, not the packaging.
-         ================================================================ -->
+    <!-- Rates: the figures are tokens filled from config/pricing.ts as the page is served. -->
     <section class="section shell" id="rates" aria-labelledby="rates-heading">
-      <p class="section-label">Rates</p>
-      <h2 id="rates-heading" class="se-h2">Halloween Staffing Rates</h2>
+      <h2 id="rates-heading" class="se-h2">Rates</h2>
       <p class="se-rates-lede">Build the team you need. From themed hospitality staff to actors and specialist performers, bookings can be kept simple or built into a full Halloween experience.</p>
 
       <div class="se-rate-grid">
         <article class="se-rate">
           <p class="se-rate-tag">Hospitality</p>
-          <h3>Themed Hospitality Staff</h3>
+          <h3>Themed hospitality staff</h3>
           <p class="se-rate-price">
-            <span class="se-rate-figure" data-vergo="specialEvents.themedHospitalityDisplay">&pound;22</span>
+            <span class="se-rate-figure">{{THEMED_RATE}}</span>
             <span class="se-rate-unit">per hour</span>
           </p>
-          <p class="se-rate-copy">Waiters, bartenders, runners and hosts, dressed and styled to match the theme of the event.</p>
-          <p class="se-rate-note">Hospitality staff first. They hold the look, but they are not expected to perform or stay in character.</p>
-          <p class="se-chip-label">Examples</p>
-          <ul class="se-chips">
-            <li class="se-chip">Vampire bartenders</li>
-            <li class="se-chip">Zombie waiters</li>
-            <li class="se-chip">Haunted hotel staff</li>
-            <li class="se-chip">Twisted circus teams</li>
-            <li class="se-chip">Themed hosts</li>
-          </ul>
+          <p class="se-rate-copy">Waiters, bartenders, runners and hosts, styled to your theme.</p>
         </article>
-
         <article class="se-rate">
           <p class="se-rate-tag">Performers</p>
-          <h3>Scare Actors &amp; Character Performers</h3>
+          <h3>Scare actors and character performers</h3>
           <p class="se-rate-price">
-            <span class="se-rate-figure" data-vergo="specialEvents.characterPerformerDisplay">&pound;30</span>
+            <span class="se-rate-figure">{{PERFORMER_RATE}}</span>
             <span class="se-rate-unit">per hour</span>
           </p>
-          <p class="se-rate-copy">Actors briefed around your concept and the characters it needs.</p>
-          <p class="se-rate-note">Interaction and intensity are set to suit the event, from a light touch through a drinks reception to full immersion all night.</p>
-          <p class="se-chip-label">Suitable for</p>
-          <ul class="se-chips">
-            <li class="se-chip">Scare actors</li>
-            <li class="se-chip">Roaming characters</li>
-            <li class="se-chip">Haunted hotel characters</li>
-            <li class="se-chip">Zombies</li>
-            <li class="se-chip">Vampires</li>
-            <li class="se-chip">Horror clowns</li>
-            <li class="se-chip">Character hosts</li>
-            <li class="se-chip">Immersive guest interaction</li>
-          </ul>
+          <p class="se-rate-copy">Actors cast for your concept, intensity set to suit.</p>
         </article>
-
         <article class="se-rate">
           <p class="se-rate-tag">Makeup</p>
-          <h3>Halloween Makeup Artists</h3>
+          <h3>Halloween makeup artists</h3>
           <p class="se-rate-price">
-            <span class="se-rate-figure" data-vergo="specialEvents.makeupArtistDisplay">&pound;40</span>
+            <span class="se-rate-figure">{{MAKEUP_RATE}}</span>
             <span class="se-rate-unit">per hour</span>
           </p>
-          <p class="se-rate-copy">Halloween makeup, character styling and straightforward SFX work.</p>
-          <p class="se-rate-note">Advanced prosthetics, large-scale guest makeup, specialist materials and complex SFX are quoted on the brief.</p>
-          <p class="se-chip-label">Examples</p>
-          <ul class="se-chips">
-            <li class="se-chip">Character makeup</li>
-            <li class="se-chip">Wounds and bruising</li>
-            <li class="se-chip">Fake blood</li>
-            <li class="se-chip">Aging</li>
-            <li class="se-chip">Guest makeup stations</li>
-          </ul>
+          <p class="se-rate-copy">Halloween makeup, character styling and straightforward SFX.</p>
         </article>
       </div>
-
-      <div class="se-bespoke">
-        <p class="se-chip-label se-bespoke-label">Quoted on the brief</p>
-        <div class="se-bespoke-grid">
-          <article class="se-bespoke-item">
-            <p class="se-rate-tag">Bespoke</p>
-            <h3>Specialist Performers</h3>
-            <p class="se-bespoke-price">Bespoke quote</p>
-            <p class="se-rate-copy">Fire performers, stilt walkers, contortionists, bespoke characters and highly experienced professional acts.</p>
-          </article>
-
-          <article class="se-bespoke-item">
-            <p class="se-rate-tag">Bespoke</p>
-            <h3>Decor &amp; Set Dressing</h3>
-            <p class="se-bespoke-price">Bespoke quote</p>
-            <p class="se-rate-copy">Any of our <a href="#decor">decor themes</a>, or your own. Priced on the venue, what the installation takes and how much decor the space needs.</p>
-          </article>
-
-          <article class="se-bespoke-item">
-            <p class="se-rate-tag">Bespoke</p>
-            <h3>Full Halloween Experiences</h3>
-            <p class="se-bespoke-price">Bespoke quote</p>
-            <p class="se-rate-copy">Hospitality staff, actors, makeup, costumes, decor and event coordination, planned and run as one booking.</p>
-          </article>
-        </div>
-      </div>
-
-      <p class="se-rates-invite">Have something different in mind? Tell us the concept and we&rsquo;ll build the team around it.</p>
-      <p class="se-caveat">Rates are per person, per hour, for events across London. Hourly roles are booked on a <span data-vergo="specialEvents.minimumHours">4</span>-hour minimum.</p>
-
+      <p class="se-rates-invite">Specialist performers, decor and full experiences: quoted on the brief. {{MIN_HOURS}}-hour minimum.</p>
+      <p class="se-caveat">Themed staff wear the look; performers are cast to act.</p>
       <div class="btn-row se-rates-cta">
-        <a href="#build" class="btn btn-primary">Build Your Halloween Team</a>
+        <a href="#build" class="btn btn-primary">Build your Halloween team</a>
       </div>
     </section>
 
@@ -686,8 +453,8 @@
         </div>
 
         <form id="halloweenForm" novalidate data-se-brief data-event-type="Halloween (Special Events)" data-brief-label="Halloween / special events brief">
-          <div class="form-field hp-field" aria-hidden="true">
-            <label for="hwWebsite">Leave this field blank</label>
+          <div class="hp-field" aria-hidden="true">
+            <label for="hwWebsite">Website</label>
             <input type="text" id="hwWebsite" name="website" tabindex="-1" autocomplete="off">
           </div>
 
@@ -749,14 +516,14 @@
             <legend>Decor theme</legend>
             <p class="form-hint">Only if you want the venue dressed.</p>
             <div class="se-pillset">
-              <label class="se-pill"><input type="radio" name="decorTheme" value="Squid Game"><span>Squid Game</span></label>
+              <label class="se-pill"><input type="radio" name="decorTheme" value="Deadly Games"><span>Deadly Games</span></label>
               <label class="se-pill"><input type="radio" name="decorTheme" value="Killer Clown Asylum"><span>Killer Clown Asylum</span></label>
               <label class="se-pill"><input type="radio" name="decorTheme" value="Ghouls, Ghosts &amp; the Undead"><span>Ghouls &amp; Ghosts</span></label>
               <label class="se-pill"><input type="radio" name="decorTheme" value="The Gates of Hell"><span>Gates of Hell</span></label>
               <label class="se-pill"><input type="radio" name="decorTheme" value="Classic Halloween"><span>Classic Halloween</span></label>
-              <label class="se-pill"><input type="radio" name="decorTheme" value="Tim Burton"><span>Tim Burton</span></label>
+              <label class="se-pill"><input type="radio" name="decorTheme" value="Gothic Whimsy"><span>Gothic Whimsy</span></label>
               <label class="se-pill"><input type="radio" name="decorTheme" value="Witches&rsquo; Nightmare"><span>Witches&rsquo; Nightmare</span></label>
-              <label class="se-pill"><input type="radio" name="decorTheme" value="Saw"><span>Saw</span></label>
+              <label class="se-pill"><input type="radio" name="decorTheme" value="The Trap Room"><span>The Trap Room</span></label>
               <label class="se-pill"><input type="radio" name="decorTheme" value="Skeleton After-Party"><span>Skeleton After-Party</span></label>
               <label class="se-pill"><input type="radio" name="decorTheme" value="Monster House"><span>Monster House</span></label>
               <label class="se-pill"><input type="radio" name="decorTheme" value="Something else"><span>Something else</span></label>
@@ -846,125 +613,29 @@
       </section>
     </div>
 
-    <!-- ================================================================
-         Who it's for
-         ================================================================ -->
-    <section class="section shell" aria-labelledby="audience-heading">
-      <p class="section-label">Who it&rsquo;s for</p>
-      <h2 id="audience-heading" class="se-h2">Two hosts or a full cast.</h2>
-      <ul class="se-audience">
-        <li>Event agencies</li>
-        <li>Corporate</li>
-        <li>Hotels</li>
-        <li>Venues</li>
-        <li>Members&rsquo; clubs</li>
-        <li>Bars</li>
-        <li>Brand activations</li>
-        <li>Production companies</li>
-        <li>Private parties</li>
-      </ul>
-    </section>
-
-    <!-- ================================================================
-         How we cast + the hospitality / performer distinction
-         ================================================================ -->
-    <div class="se-band se-band--deep">
-      <section class="section shell" aria-labelledby="casting-heading">
-        <div class="se-split">
-          <div>
-            <p class="section-label">How we cast</p>
-            <h2 id="casting-heading" class="se-h2">Selected, then briefed.</h2>
-            <ul class="fact-list se-fact-list">
-              <li><strong>Picked for the booking</strong>, not whoever is free</li>
-              <li><strong>Briefed before the event</strong> on venue, concept, tone</li>
-              <li><strong>Clear roles</strong>, working or performing</li>
-              <li><strong>On-site leads</strong> for larger teams</li>
-            </ul>
-          </div>
-
-          <div>
-            <p class="section-label">Two different bookings</p>
-            <div class="se-distinction">
-              <div>
-                <h3>Themed hospitality staff</h3>
-                <p>Our event team, styled and briefed. They hold a character, but the job comes first. Not professional actors, and not booked as them.</p>
-              </div>
-              <div>
-                <h3>Performers &amp; scare actors</h3>
-                <p>Booked separately, cast for character work and guest interaction. Availability depends on the date.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <!-- ================================================================
-         FAQ. Reuses the site's details.faq component from /work, and is
-         kept in step with the FAQPage JSON-LD above: edit one, edit both.
-         ================================================================ -->
     <section class="section shell" aria-labelledby="faq-heading">
-      <p class="section-label">Answers</p>
-      <h2 id="faq-heading" class="se-h2">The usual questions.</h2>
+      <h2 id="faq-heading" class="se-h2">Questions</h2>
       <div class="faq-list">
         <details class="faq" name="halloween-faq">
           <summary>How far ahead should we book?</summary>
-          <p>As early as you can. The last week of October is our busiest of the year, and performers and makeup artists commit sooner than hospitality staff. Ask anyway, and we will tell you what is still possible.</p>
+          <p>As early as you can: the last week of October books up first. Ask anyway and we'll tell you what's still possible.</p>
         </details>
         <details class="faq" name="halloween-faq">
           <summary>Do you supply the costumes?</summary>
-          <p>Yours, styled by us, or sourced and hired for the booking. We do not hold a costume store, so raise the look early.</p>
+          <p>Yours styled by us, or sourced and hired for the booking. We don't hold a costume store, so raise the look early.</p>
         </details>
         <details class="faq" name="halloween-faq">
           <summary>How scary is &ldquo;scary&rdquo;?</summary>
-          <p>Your call, agreed before the event. Scare level, contact, age range and venue limits are all set in the brief.</p>
-        </details>
-        <details class="faq" name="halloween-faq">
-          <summary>Is every VERGO worker an actor?</summary>
-          <p>No. Themed hospitality staff hold a character but the job comes first. Performers and scare actors are booked separately and cast for the role.</p>
+          <p>Your call, agreed before the event. Scare level, contact, age range and venue limits all go in the brief.</p>
         </details>
         <details class="faq" name="halloween-faq">
           <summary>Can we book one or two people?</summary>
-          <p>Yes. Two themed hosts is a normal booking. Standard staffing minimums still apply to hospitality shifts. See <a href="/hire">the hire page</a>.</p>
-        </details>
-        <details class="faq" name="halloween-faq">
-          <summary>How does guest makeup work?</summary>
-          <p>Artists set up inside the event and work through guests during the evening. Give us guest count and running time and we will say how many artists it needs.</p>
-        </details>
-        <details class="faq" name="halloween-faq">
-          <summary>What do you need to quote?</summary>
-          <p>Date, rough hours, venue or area, approximate guest count, and the feeling you are after.</p>
+          <p>Yes, two themed hosts is a normal booking. The {{MIN_HOURS}}-hour minimum still applies.</p>
         </details>
       </div>
     </section>
 
-    <!-- ================================================================
-         Sensible event design
-         ================================================================ -->
-    <div class="se-safety">
-      <div class="se-safety-inner">
-        <span class="se-safety-label">Agreed up front</span>
-        <p>Scare level, guest interaction, age range, venue restrictions and performance boundaries.</p>
-      </div>
-    </div>
-
-    <!-- ================================================================
-         Final CTA
-         ================================================================ -->
-    <div class="se-ornament" aria-hidden="true"><span></span></div>
-    <div class="section-band">
-      <div class="cta-band shell">
-        <div>
-          <h2>Planning something for Halloween?</h2>
-          <p>Send the idea, even half of one.</p>
-        </div>
-        <div class="btn-row">
-          <a href="#build" class="btn btn-primary">Build your team</a>
-          <a href="mailto:wrobb@vergoltd.com" data-vergo-mailto="contact.email" class="btn btn-secondary">Contact VERGO</a>
-        </div>
-      </div>
-    </div>
-
+    <!--#cta heading="Planning Halloween?" line="The last week of October books up first." button="Build your Halloween team" href="#build"-->
   </main>
 
   <!--#footer-->

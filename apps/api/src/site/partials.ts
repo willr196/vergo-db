@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { PRICING, SITE_TERMS, formatRate, headlineRateText } from '../config/pricing';
 import { SITE } from './content';
 
@@ -289,6 +291,70 @@ function serviceLevel(): string {
         </fieldset>`;
 }
 
+/* ----------------------------------------------------------------- proof */
+
+interface Testimonial {
+  quote: string;
+  name: string;
+  context: string;
+  source?: string;
+  stars?: number;
+  url?: string;
+  featured?: boolean;
+}
+interface Proof {
+  testimonials: Testimonial[];
+  recentWork: Array<{ title: string; detail: string }>;
+}
+
+/** public/data/proof.json: the reviews and recent work, one entry each. */
+function loadProof(): Proof {
+  try {
+    const file = path.join(process.cwd(), 'public', 'data', 'proof.json');
+    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+    return { testimonials: data.testimonials || [], recentWork: data.recentWork || [] };
+  } catch {
+    return { testimonials: [], recentWork: [] };
+  }
+}
+
+function testimonialFigure(t: Testimonial): string {
+  const stars = t.stars
+    ? `\n          <p class="testimonial-stars" role="img" aria-label="Rated ${t.stars} out of 5 stars">${'&#9733;'.repeat(t.stars)}</p>`
+    : '';
+  return `<figure class="testimonial">${stars}
+          <blockquote><p>${esc(t.quote)}</p></blockquote>
+          <figcaption>${esc(t.name)}, ${esc(t.context)}</figcaption>
+        </figure>`;
+}
+
+/** featured="1" shows only the featured review (the homepage); otherwise all of them. */
+function testimonials(attrs: PartialAttrs): string {
+  const all = loadProof().testimonials;
+  const list = attrs.featured ? all.filter((t) => t.featured).slice(0, 1) : all;
+  if (!list.length) return '';
+  const google = SITE.googleReviewsUrl
+    ? `\n      <a class="testimonials-more" href="${SITE.googleReviewsUrl}" target="_blank" rel="noopener">Read our Google reviews &rarr;</a>`
+    : '';
+  return `<section class="section shell" aria-labelledby="testimonials-heading">
+      <h2 id="testimonials-heading" class="section-label">What clients say</h2>
+      <div class="testimonials">
+        ${list.map(testimonialFigure).join('\n        ')}
+      </div>${google}
+    </section>`;
+}
+
+function recentWork(): string {
+  const items = loadProof().recentWork;
+  if (!items.length) return '';
+  return `<section class="section shell" aria-labelledby="recentwork-heading">
+      <h2 id="recentwork-heading" class="section-label">Recent work</h2>
+      <ul class="fact-list">
+        ${items.map((w) => `<li><strong>${esc(w.title)}</strong>: ${esc(w.detail)}</li>`).join('\n        ')}
+      </ul>
+    </section>`;
+}
+
 /* ----------------------------------------------------------------- legal */
 
 /** "Registered with the ICO…", only once the number is in content.ts. */
@@ -307,6 +373,8 @@ function legalInsurers(): string {
 }
 
 export const PARTIALS: Record<string, (attrs: PartialAttrs, ctx: PageContext) => string> = {
+  testimonials,
+  'recent-work': recentWork,
   'legal-ico': legalIco,
   'legal-insurers': legalInsurers,
   'service-level': serviceLevel,

@@ -61,6 +61,8 @@ export function siteTokens(): Record<string, string> {
   const upliftPct = Math.round((PRICING.afterMidnightMultiplier - 1) * 100);
   return {
     STANDARD_RATE: formatRate(PRICING.standardRate),
+    /** Bare number for structured data: "18.50". */
+    STANDARD_RATE_NUMBER: PRICING.standardRate.toFixed(2),
     PREMIUM_RATE: formatRate(PRICING.premiumRate),
     HEADLINE_RATE: headlineRateText(),
     HEADLINE_RATE_LOWER: headlineRateText().replace(/^From/, 'from'),
@@ -80,6 +82,9 @@ export function siteTokens(): Record<string, string> {
     THEMED_RATE: wholePounds(PRICING.specialEvents.themedHospitality),
     PERFORMER_RATE: wholePounds(PRICING.specialEvents.characterPerformer),
     MAKEUP_RATE: wholePounds(PRICING.specialEvents.makeupArtist),
+    THEMED_RATE_NUMBER: PRICING.specialEvents.themedHospitality.toFixed(2),
+    PERFORMER_RATE_NUMBER: PRICING.specialEvents.characterPerformer.toFixed(2),
+    MAKEUP_RATE_NUMBER: PRICING.specialEvents.makeupArtist.toFixed(2),
     PHONE: SITE.phoneDisplay,
     PHONE_TEL: `tel:${SITE.phoneE164}`,
     PHONE_E164: SITE.phoneE164,
