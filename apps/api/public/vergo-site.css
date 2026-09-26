@@ -1209,3 +1209,40 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 .link-tiles a:hover, .link-tiles a:focus-visible { border-color: var(--accent); color: var(--text); }
 .link-row { margin: 28px 0 0; font-size: 15px; color: var(--text-muted); }
 .section-note { margin: 20px 0 0; font-size: 15px; color: var(--text-muted); max-width: 70ch; }
+
+/* ------------------------------------------------------------------ *
+ * Homepage: hero help line, trust strip, seasonal feature, beyond staff
+ * ------------------------------------------------------------------ */
+.home-today { margin: 8px 0 0; font-size: 15px; color: var(--text-muted); }
+.home-hero--centred .home-today { text-align: center; }
+
+.trust-strip {
+  border-top: 1px solid var(--hairline-soft);
+  border-bottom: 1px solid var(--hairline-soft);
+  background: var(--surface);
+}
+.trust-strip-list {
+  list-style: none;
+  margin: 0 auto;
+  padding-block: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 28px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.trust-strip-list li { display: flex; align-items: center; gap: 8px; }
+.trust-strip-list li::before { content: "\2713"; color: var(--accent); font-weight: 700; }
+
+.season-feature[hidden] { display: none; }
+.season-feature-grid { display: grid; gap: 28px; align-items: center; }
+@media (min-width: 900px) { .season-feature-grid { grid-template-columns: minmax(0, 540px) 1fr; gap: 48px; } }
+.season-feature-grid img { width: 100%; height: auto; border-radius: var(--radius); }
+.season-feature h2 { font-size: clamp(28px, 3.6vw, 40px); }
+.season-prices { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 8px; }
+.season-prices li { display: flex; justify-content: space-between; gap: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--hairline-soft); }
+.season-prices strong { color: var(--text); white-space: nowrap; }
+.season-feature p { margin-bottom: 18px; }
+
+.beyond-line { margin: 0 0 8px; font-size: 16px; }

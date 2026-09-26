@@ -355,6 +355,28 @@ function recentWork(): string {
     </section>`;
 }
 
+/* ----------------------------------------------------------- trust strip */
+
+/**
+ * One row under the homepage hero. The Google item appears only while the
+ * review link is set, and never with a star count we can't verify. Insurer
+ * names are added only once they are in content.ts.
+ */
+function trustStrip(): string {
+  const insurers = [SITE.legal.employersLiabilityInsurer, SITE.legal.publicLiabilityInsurer].filter(Boolean);
+  const items = [
+    SITE.googleReviewsUrl && `<a href="${SITE.googleReviewsUrl}" target="_blank" rel="noopener">Google reviews</a>`,
+    'Right to work checked',
+    `Employers' and public liability insured${insurers.length ? ` (${esc(insurers.join(', '))})` : ''}`,
+    'PAYE hospitality staff',
+  ].filter(Boolean) as string[];
+  return `<section class="trust-strip" aria-label="Why book with us">
+      <ul class="trust-strip-list shell">
+        ${items.map((i) => `<li>${i}</li>`).join('\n        ')}
+      </ul>
+    </section>`;
+}
+
 /* ----------------------------------------------------------------- legal */
 
 /** "Registered with the ICO…", only once the number is in content.ts. */
@@ -374,6 +396,7 @@ function legalInsurers(): string {
 
 export const PARTIALS: Record<string, (attrs: PartialAttrs, ctx: PageContext) => string> = {
   testimonials,
+  'trust-strip': trustStrip,
   'recent-work': recentWork,
   'legal-ico': legalIco,
   'legal-insurers': legalInsurers,

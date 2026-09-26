@@ -3,48 +3,36 @@
 <head>
   <!--#head-->
   <title>Event and Hospitality Staff in London | VERGO Staffing</title>
-  <meta name="description" content="Waiting staff, bar staff, kitchen porters, runners and hosts across London. £18.50/hr per person, four-hour minimum, confirmed names the same day.">
+  <meta name="description" content="Waiting staff, bar staff, kitchen porters, runners and hosts across London. {{HEADLINE_RATE}} per person, four-hour minimum, names confirmed the same day.">
   <meta property="og:title" content="Event and Hospitality Staff in London | VERGO Staffing">
-  <meta property="og:description" content="Waiting staff, bar staff, kitchen porters, runners and hosts across London. £18.50/hr per person, four-hour minimum, confirmed names the same day.">
-  <meta property="og:image" content="https://vergoltd.com/images/vergo-mark.jpg">
+  <meta property="og:description" content="Waiting staff, bar staff, kitchen porters, runners and hosts across London. {{HEADLINE_RATE}} per person, four-hour minimum, names confirmed the same day.">
+  <meta property="og:image" content="https://vergoltd.com/images/og/home.jpg">
   <meta property="og:url" content="https://vergoltd.com/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VERGO Staffing">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://vergoltd.com/">
-  <!-- The business itself, on the page Google treats as the site root. The
-       figures and contact details mirror vergo-site-config.js; change them
-       there and here in the same commit. No price is stated here on purpose:
-       the rate is rendered from config and would be a second source of truth. -->
+  <!-- The business itself, on the page Google treats as the site root. Every
+       value is a {{TOKEN}} filled from src/site/content.ts. No review stars:
+       self-published review markup isn't eligible and can be flagged. -->
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "EmploymentAgency",
   "@id": "https://vergoltd.com/#organization",
   "name": "VERGO Staffing",
-  "legalName": "Vergo Ltd",
+  "legalName": "{{LEGAL_NAME}}",
   "url": "https://vergoltd.com",
   "logo": { "@type": "ImageObject", "url": "https://vergoltd.com/images/vergo-mark.jpg" },
-  "image": "https://vergoltd.com/images/vergo-mark.jpg",
+  "image": "https://vergoltd.com/images/og/home.jpg",
   "description": "Event and hospitality staffing across London: waiting staff, bar staff, kitchen porters, runners, hosts and front of house.",
-  "telephone": "+44 7944 505783",
-  "email": "wrobb@vergoltd.com",
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "96 Sulivan Court",
-    "addressLocality": "London",
-    "postalCode": "SW6 3DB",
-    "addressCountry": "GB"
-  },
+  "telephone": "{{PHONE_E164}}",
+  "email": "{{EMAIL}}",
   "areaServed": { "@type": "City", "name": "London" },
-  "sameAs": ["https://maps.google.com/?cid=13724807393397816489"],
-  "knowsAbout": [
-    "Event staffing",
-    "Hospitality staffing",
-    "Waiting staff",
-    "Bar staff",
-    "Front of house staff",
-    "Kitchen porters"
+  "priceRange": "££",
+  "sameAs": [
+    "{{INSTAGRAM_URL}}",
+    "https://maps.google.com/?cid=13724807393397816489"
   ]
 }
   </script>
@@ -68,58 +56,74 @@
   <main id="main-content">
     <div class="home-hero-band">
     <section class="home-hero home-hero--centred shell">
-      <img class="home-logo" src="/images/vergo-mark-600.webp" srcset="/images/vergo-mark-400.webp 400w, /images/vergo-mark-600.webp 600w" sizes="(min-width: 1000px) 300px, (min-width: 600px) 30vw, 180px" width="600" height="600" alt="VERGO" fetchpriority="high">
-      <span class="eyebrow">London event &amp; hospitality staffing</span>
-      <h1>Event and hospitality staff across London</h1>
-      <p class="lede">Whatever the job, we&nbsp;get&nbsp;it&nbsp;done.</p>
-      <p class="lede">Vetted, briefed staff. Confirmed names the same day. <span data-vergo="rates.chargeRateDisplay">£18.50</span>/hr, no booking fees.</p>
+      <img class="home-logo" src="/images/vergo-mark-600.webp" srcset="/images/vergo-mark-400.webp 400w, /images/vergo-mark-600.webp 600w" sizes="(min-width: 1000px) 300px, (min-width: 600px) 30vw, 180px" width="600" height="600" alt="" fetchpriority="high">
+      <h1>London event staff, confirmed by name the same day</h1>
+      <p class="home-slogan">{{SLOGAN}}</p>
+      <p class="lede">Vetted, briefed staff. {{HEADLINE_RATE}}, no booking fees.</p>
       <div class="btn-row">
-        <a href="/hire/quote" class="btn btn-primary">Get staff for your event</a>
-        <a href="/hire" class="btn btn-secondary">Rates and how it works</a>
+        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        <a href="/hire#rate" class="btn btn-secondary">See rates</a>
       </div>
-      <p class="home-slogan">Wherever you go, VERGO.</p>
+      <p class="home-today">Need someone today? <a href="{{PHONE_TEL}}">Call {{PHONE}}</a> or <a href="{{WHATSAPP_URL}}" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>.</p>
     </section>
     </div>
+
+    <!--#trust-strip-->
+
+    <!-- Date-driven: vergo-site.js shows the Halloween section from 1 September
+         to 31 October and the Christmas one from 1 November to 20 December.
+         Both ship hidden, so without JavaScript neither can go stale. -->
+    <section class="section shell season-feature" data-season="halloween" aria-labelledby="halloween-heading" hidden>
+      <div class="season-feature-grid">
+        <img src="/images/special-events/halloween-bar-800.webp" srcset="/images/special-events/halloween-bar-800.webp 800w, /images/special-events/halloween-bar-1200.webp 1200w" sizes="(min-width: 900px) 540px, 100vw" width="1448" height="1086" loading="lazy" alt="Bartenders in hooded robes and ghost masks pouring cocktails at a candlelit Halloween bar">
+        <div>
+          <h2 id="halloween-heading">Halloween: themed staff, performers and makeup</h2>
+          <ul class="season-prices">
+            <li>Themed hospitality staff <strong>{{THEMED_RATE}}/hr</strong></li>
+            <li>Scare actors and character performers <strong>{{PERFORMER_RATE}}/hr</strong></li>
+            <li>Makeup artists <strong>{{MAKEUP_RATE}}/hr</strong></li>
+          </ul>
+          <p>The last week of October books up first.</p>
+          <a href="/special-events/halloween#build" class="btn btn-primary">Build your Halloween team</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell season-feature" data-season="christmas" aria-labelledby="christmas-heading" hidden>
+      <h2 id="christmas-heading">Christmas: party staff through December</h2>
+      <p>Festive and themed staff, or a straight team at {{STANDARD_RATE}}/hr.</p>
+      <a href="/special-events/christmas" class="btn btn-primary">Christmas party staff</a>
+    </section>
 
     <!--#guarantees-->
 
-    <section class="section shell" aria-labelledby="testimonials-heading">
-      <h2 id="testimonials-heading" class="section-label">What clients say</h2>
-      <div class="testimonials">
-        <figure class="testimonial">
-          <p class="testimonial-stars" role="img" aria-label="Rated 5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</p>
-          <blockquote><p>I can’t speak highly enough of Will and his team. They were so professional and friendly and crucially, willing to adapt to the various changes and requests that come with large private parties.</p></blockquote>
-          <figcaption>Dan Barraclough, Google review</figcaption>
-        </figure>
-      </div>
-      <a class="testimonials-more" href="#" data-vergo-href="reviews.google" target="_blank" rel="noopener" hidden>See our Google reviews &rarr;</a>
+    <!--#rates compact="1" id=""-->
+
+    <!--#testimonials featured="1"-->
+
+    <!--#recent-work-->
+
+    <section class="section shell" aria-labelledby="roles-heading">
+      <h2 id="roles-heading" class="section-label">Roles</h2>
+      <ul class="link-tiles">
+        <li><a href="/hire/waiting-staff">Waiting staff</a></li>
+        <li><a href="/hire/bar-staff">Bar staff</a></li>
+        <li><a href="/hire/kitchen-porters">Kitchen porters</a></li>
+        <li><a href="/hire/weddings">Weddings</a></li>
+        <li><a href="/hire/production-catering">Film and TV catering</a></li>
+        <li><a href="/special-events/christmas">Christmas parties</a></li>
+      </ul>
     </section>
 
-    <div class="section-band">
-      <div class="cta-band shell">
-        <div>
-          <h2>We can run the whole event</h2>
-          <p>The food, from canapés and breakfasts to sit-down dinners. The whole bar. The staff to run it. One company, one number to call.</p>
-        </div>
-        <div class="btn-row">
-          <a href="/book-an-event" class="btn btn-primary">Book an event</a>
-          <a href="/hire/quote" class="btn btn-primary">Only book staff</a>
-        </div>
-      </div>
-    </div>
+    <section class="section-tight shell" aria-labelledby="beyond-heading">
+      <h2 id="beyond-heading" class="section-label">Beyond staff</h2>
+      <p class="beyond-line"><a href="/book-an-event">We can run the whole event: food, bar and staff from one company &rarr;</a></p>
+      <p class="beyond-line"><a href="/special-events">Themed and seasonal events &rarr;</a></p>
+    </section>
 
-    <div class="section-band section-band--panel">
-      <div class="cta-band shell">
-        <div>
-          <h2>Special events</h2>
-          <p>Themed hospitality teams, character performers, scare actors and makeup artists.</p>
-          <p class="cta-band-seasonal">Booking now: <a href="/special-events/christmas">Christmas party staff</a> &middot; <a href="/special-events/halloween">Halloween staff and performers</a></p>
-        </div>
-        <a href="/special-events" class="btn btn-secondary">Explore special events</a>
-      </div>
-    </div>
+    <!--#cta heading="Got a date in the diary?" line="{{CONFIRMATION_PROMISE}}"-->
 
-    <p class="section-tight shell guarantee-note">Looking for work? <a href="/work">See shifts &rarr;</a></p>
+    <p class="cta-worker shell">Looking for work? <a href="/work">Apply to join the team &rarr;</a></p>
   </main>
 
   <!--#footer-->
