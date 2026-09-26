@@ -633,6 +633,22 @@ export const LEGACY_REDIRECTS: Record<string, string> = {
   '/hospitality-staffing-agency-london': '/hire',
   '/blog/event-staffing-costs-london-2026': '/hire',
 
+  // Old blog posts, all removed. Two still show in Google as "VERGO Events"
+  // with £17-30 pricing; they used to answer 410, which leaves the listing up.
+  '/blog/event-staffing-costs-london-2024': '/hire',
+  '/blog/how-to-hire-bartenders-london': '/hire/bar-staff',
+  '/blog/bartender-to-guest-ratio': '/hire/bar-staff',
+  '/blog/corporate-event-planning-checklist': '/hire',
+  '/blog/questions-to-ask-staffing-agency': '/hire',
+  '/blog/how-vergo-books-a-night': '/hire',
+  '/blog/what-event-staff-cost-in-london': '/hire',
+  '/blog/social-proof-components': '/blog',
+
+  // The seasonal pages lived under /events before /special-events.
+  '/events': '/special-events',
+  '/events/halloween': '/special-events/halloween',
+  '/events/christmas': '/special-events/christmas',
+
   // Worker side. /apply still shows in search describing self-employed work.
   '/apply': '/work/apply',
   '/jobs': '/work',
@@ -666,15 +682,6 @@ for (const [from, to] of Object.entries(LEGACY_REDIRECTS)) {
 app.get('/jobs/:id', (_req, res) => {
   res.redirect(301, '/work');
 });
-
-// Blog was dropped from the site; these two URLs are still in Google's index
-// with no equivalent content to redirect to.
-app.get(
-  ['/blog/event-staffing-costs-london-2024', '/blog/how-to-hire-bartenders-london'],
-  (_req, res) => {
-    res.status(410).send('Gone');
-  }
-);
 
 app.use((req, res, next) => {
   if (req.path.endsWith('.bak')) {

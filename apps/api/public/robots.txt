@@ -1,31 +1,15 @@
-# VERGO Ltd - robots.txt
+# VERGO Staffing - robots.txt
 # https://vergoltd.com/robots.txt
 
 User-agent: *
 Allow: /
-
-# Disallow admin and private areas
-Disallow: /api
+# Prefix matches: /admin also covers every /admin-* page.
 Disallow: /admin
-Disallow: /admin-clients
-Disallow: /admin-jobs
-Disallow: /admin-job-applications
-Disallow: /admin-marketplace
-Disallow: /admin-bookings
-Disallow: /admin-quotes
-Disallow: /admin-comms
-Disallow: /admin-analytics
-Disallow: /admin-staff
-Disallow: /admin-settings
+Disallow: /api
 Disallow: /login
 
-# Sitemap location
 Sitemap: https://vergoltd.com/sitemap.xml
 
-# Crawl-delay (optional - be nice to server)
-Crawl-delay: 1
-
-# Block bad bots (optional)
 User-agent: AhrefsBot
 Disallow: /
 

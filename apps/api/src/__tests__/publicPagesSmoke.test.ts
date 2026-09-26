@@ -87,12 +87,17 @@ test('retired rates page redirects permanently to hire', async () => {
   assert.equal(res.headers.location, '/hire');
 });
 
-test('dead blog URLs return 410 Gone', async () => {
+test('old blog URLs still in Google redirect permanently to their closest page', async () => {
   const res1 = await inject(app, { method: 'GET', url: '/blog/event-staffing-costs-london-2024' });
   const res2 = await inject(app, { method: 'GET', url: '/blog/how-to-hire-bartenders-london' });
+  const res3 = await inject(app, { method: 'GET', url: '/jobs' });
 
-  assert.equal(res1.statusCode, 410);
-  assert.equal(res2.statusCode, 410);
+  assert.equal(res1.statusCode, 301);
+  assert.equal(res1.headers.location, '/hire');
+  assert.equal(res2.statusCode, 301);
+  assert.equal(res2.headers.location, '/hire/bar-staff');
+  assert.equal(res3.statusCode, 301);
+  assert.equal(res3.headers.location, '/work');
 });
 
 test('every legacy URL redirects in one hop to a page that serves', async () => {
