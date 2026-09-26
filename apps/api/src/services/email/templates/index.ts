@@ -476,6 +476,7 @@ export const jobInviteEmail = (data: EmailTemplateData): string => {
 // BOOKING REVIEW REQUEST (client receives after completion)
 // ============================================
 
+/** Two lines and a link: sent by hand from the admin panel after a booking. */
 export const bookingReviewRequestEmail = (data: EmailTemplateData): string => {
   const dateStr = data.eventDate
     ? new Date(data.eventDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
@@ -483,12 +484,10 @@ export const bookingReviewRequestEmail = (data: EmailTemplateData): string => {
 
   return composeEmail({
     body: emailBody(`
-      ${sectionHeading('How did your event go?', '⭐')}
       <p>Hi ${safe(data.recipientName)},</p>
-      ${paragraph(`Thank you for working with VERGO. We hope <strong>${safe(data.staffName)}</strong> delivered a great service at ${safe(dateStr)}.`)}
-      ${paragraph('Your feedback helps us maintain quality and recognise outstanding staff. Just reply to this email with how it went — a rating out of five and anything you want to flag is plenty.')}
-      ${infoBox('<p style="margin: 0; font-size: 14px;">Your feedback stays with the VERGO team and helps us match the right staff to future events.</p>', 'info')}
-      <p>Thank you for choosing VERGO.<br><strong>The VERGO Team</strong></p>
+      ${paragraph(`Thank you for booking VERGO for ${safe(dateStr)}. If the team did a good job, a Google review helps us more than anything.`)}
+      <p><a href="${safe(data.reviewUrl)}">Leave a Google review</a></p>
+      <p>Will<br><strong>VERGO Staffing</strong></p>
     `),
   });
 };

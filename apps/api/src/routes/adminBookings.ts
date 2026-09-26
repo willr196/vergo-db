@@ -6,6 +6,7 @@ import { adminAuth } from '../middleware/adminAuth';
 import { sendBookingReviewRequestEmail } from '../services/email';
 import { bookingMoney, floatPosition, shiftHours } from '../lib/money';
 import { PRICING, getPublicRateCard } from '../config/pricing';
+import { SITE } from '../site/content';
 
 const r = Router();
 r.use(adminAuth);
@@ -1278,18 +1279,48 @@ r.post('/:id/complete', async (req, res, next) => {
 
     console.log(`[BOOKING] Completed: ${booking.id} | Hours: ${finalHours} (billed ${billableHours}) | Total: £${finalTotal}`);
 
-    // Fire review request to the client (non-blocking)
-    if (booking.client) {
-      sendBookingReviewRequestEmail({
-        to: booking.client.email,
-        clientName: booking.client.contactName,
-        staffName: `${booking.staff.firstName} ${booking.staff.lastName}`,
-        eventDate: booking.eventDate,
-        bookingId: booking.id,
-      }).catch((err) => console.error('[EMAIL] Review request failed:', err));
+    // No review request goes out automatically. The office sends one with the
+    // "Send review request" button (POST /:id/review-request) once it knows
+    // the booking went well.
+    res.json({ ok: true, data: { id: updated.id, status: updated.status } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/v1/admin/bookings/:id/review-request
+// Sent by hand from the admin panel, never automatically: a two-line email
+// asking the client for a Google review. Only while a review link is set.
+r.post('/:id/review-request', async (req, res, next) => {
+  try {
+    if (!SITE.googleReviewsUrl) {
+      return res.status(400).json({ ok: false, error: 'No Google review link is set in src/site/content.ts' });
+    }
+    const booking = await prisma.booking.findUnique({
+      where: { id: req.params.id },
+      include: { client: { select: { contactName: true, email: true } } },
+    });
+    if (!booking) return res.status(404).json({ ok: false, error: 'Booking not found' });
+    if (booking.status !== 'COMPLETED') {
+      return res.status(400).json({ ok: false, error: 'Only completed bookings can be sent a review request' });
+    }
+    if (!booking.client?.email) {
+      return res.status(400).json({ ok: false, error: 'This booking has no client email' });
     }
 
-    res.json({ ok: true, data: { id: updated.id, status: updated.status } });
+    const result = await sendBookingReviewRequestEmail({
+      to: booking.client.email,
+      clientName: booking.client.contactName,
+      eventDate: booking.eventDate,
+      bookingId: booking.id,
+      reviewUrl: SITE.googleReviewsUrl,
+    });
+    if (!result.success) {
+      return res.status(502).json({ ok: false, error: 'The email could not be sent' });
+    }
+
+    console.log(`[BOOKING] Review request sent: ${booking.id} by ${req.session.username || 'admin'}`);
+    res.json({ ok: true });
   } catch (error) {
     next(error);
   }

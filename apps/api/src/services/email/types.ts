@@ -62,6 +62,9 @@ export interface EmailTemplateData {
   recipientName?: string;
   recipientEmail?: string;
 
+  /** Google review link, for the review request. */
+  reviewUrl?: string;
+
   // Verification/auth
   verifyUrl?: string;
   resetUrl?: string;

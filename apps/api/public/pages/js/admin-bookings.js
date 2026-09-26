@@ -165,6 +165,8 @@
       } else if (booking.status === 'CONFIRMED') {
         actions.push('<button class="btn btn-info btn-sm" data-action="open-complete" data-id="' + esc(booking.id) + '">Complete</button>');
         actions.push('<button class="btn btn-danger btn-sm" data-action="mark-no-show" data-id="' + esc(booking.id) + '">No-Show</button>');
+      } else if (booking.status === 'COMPLETED') {
+        actions.push('<button class="btn btn-ghost btn-sm" data-action="send-review-request" data-id="' + esc(booking.id) + '">Send review request</button>');
       }
       actions.push('<button class="btn btn-ghost btn-sm" data-action="view-booking" data-id="' + esc(booking.id) + '">View</button>');
 
@@ -348,6 +350,19 @@
       await refreshData();
     } catch (err) {
       toast('Failed to invoice booking: ' + err.message, 'error');
+    }
+  }
+
+  // Never sent automatically: the office decides the booking went well first.
+  async function sendReviewRequest(id) {
+    if (!confirm('Email the client asking for a Google review?')) return;
+    try {
+      await get('/api/v1/admin/bookings/' + encodeURIComponent(id) + '/review-request', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}),
+      });
+      toast('Review request sent', 'success');
+    } catch (err) {
+      toast('Failed to send review request: ' + err.message, 'error');
     }
   }
 
@@ -782,6 +797,7 @@
     if (action === 'submit-new-booking') return submitNewBooking(el);
 
     if (action === 'send-invoice') return sendInvoice(id);
+    if (action === 'send-review-request') return sendReviewRequest(id);
     if (action === 'mark-client-paid') return markClientPaid(id);
     if (action === 'mark-staff-paid') return markStaffPaid(id);
     if (action === 'timesheet-filter') return setTimesheetFilter(el.dataset.filter || 'all', el);

@@ -647,24 +647,24 @@ export async function sendJobInviteEmail(data: {
 export async function sendBookingReviewRequestEmail(data: {
   to: string;
   clientName: string;
-  staffName: string;
   eventDate: Date;
   bookingId: string;
+  reviewUrl: string;
 }): Promise<EmailResult> {
   const html = templates.bookingReviewRequestEmail({
     recipientName: data.clientName,
-    staffName: data.staffName,
     eventDate: data.eventDate,
+    reviewUrl: data.reviewUrl,
   });
 
   return sendEmailSilent({
     to: data.to,
-    subject: 'How did your VERGO event go? Leave a quick review',
+    subject: 'How did your VERGO event go?',
     html,
     emailType: 'booking-review-request',
     tags: [
       { name: 'category', value: 'booking-review-request' },
-      { name: 'source', value: 'automated' },
+      { name: 'source', value: 'admin' },
     ],
   }) as Promise<EmailResult>;
 }
