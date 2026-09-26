@@ -98,7 +98,7 @@ If you book through us, the answer to all five is the same. Our staff are PAYE o
 
 If you engage people directly, none of that is automatic. It is still perfectly possible to do it properly, and for some jobs hiring direct is the cheaper answer. It is just work somebody has to do, and it is worth knowing who that somebody is before the event rather than after it.
 
-Tell us the date, the venue and the roles and [we will come back to you the same day](/hire/quote) on anything between 8am and 10pm.
+Tell us the date, the venue and the roles, and [we will come back with confirmed names](/hire/quote). {{CONFIRMATION_PROMISE}}
 
 ## FAQ
 

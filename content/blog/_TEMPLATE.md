@@ -45,8 +45,8 @@ Mid-post internal link goes somewhere natural in here: our
 ## What this means if you're booking staff
 
 Close by answering the reader's actual next question, then link out:
-[send us the date, venue and roles](/hire/quote) and you get a same-day answer
-between 8am and 10pm.
+[send us the date, venue and roles](/hire/quote).
+{{CONFIRMATION_PROMISE}}
 
 ## FAQ
 

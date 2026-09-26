@@ -205,7 +205,7 @@
           form.reset();
           clearErrors();
           showStatus(
-            'Got it. Nothing is booked. We will read the brief and come back with a suggested team during our 8am to 10pm hours.',
+            'Got it. Nothing is booked. We will read the brief and come back with a suggested team as soon as we can, usually the same day.',
             'success'
           );
           if (statusBox.scrollIntoView) statusBox.scrollIntoView({ block: 'center', behavior: 'smooth' });
