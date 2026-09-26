@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 import { TO_EMAIL, sendQuoteNotificationEmail, sendQuoteConfirmationEmail } from "../services/email";
 import { emailSendingSuppressed } from "../services/email/suppression";
 import { logger, maskEmail } from "../services/logger";
+import { SITE_TERMS } from "../config/pricing";
 
 const r = Router();
 
@@ -58,6 +59,8 @@ const baseQuoteShape = {
   // own branded kit. Free text, optional on both intents.
   dressCode: z.string().max(200).trim().optional(),
   requestedLane: z.enum(["FLEX", "SELECT", "MANAGED"]).optional(),
+  // Standard or Premium, chosen for the whole booking on the quote form.
+  serviceLevel: z.enum(["STANDARD", "PREMIUM"]).optional(),
   
   // Staff requirements. staffNeeded is the headcount across every role;
   // staffByRole carries the mix behind it, which is what the quote form collects.
@@ -295,6 +298,7 @@ function normaliseQuotePayload(body: unknown) {
       (staffByRole ? staffByRole.reduce((total, entry) => total + entry.count, 0) : undefined),
     roles,
     staffByRole,
+    serviceLevel: raw.serviceLevel === "PREMIUM" || raw.serviceLevel === "STANDARD" ? raw.serviceLevel : undefined,
     message,
     estimatedTotal: parseNumber(raw.estimatedTotal),
     honeypot: typeof raw.honeypot === "string" ? raw.honeypot : undefined,
@@ -343,6 +347,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       guestCount: data.guestCount || "Not specified",
       dressCode: data.dressCode || "Not specified",
       staffNeeded: data.staffNeeded,
+      serviceLevel: data.serviceLevel === "PREMIUM" ? "Premium" : data.serviceLevel === "STANDARD" ? "Standard" : "Not specified",
       roles: data.roles?.join(", ") || "General staff",
       staffByRole: data.staffByRole?.map((entry) => `${entry.role} × ${entry.count}`).join(", ") || null,
       message: data.message || "None",
@@ -396,6 +401,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Location</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.location)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Guest Count</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.guestCount)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Staff Needed</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.staffNeededLabel)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Service level</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.serviceLevel)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Roles</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.staffByRole || quoteDetails.roles)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Dress Code</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.dressCode)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Estimate shown on page</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.estimatedTotal)}</td></tr>
@@ -439,8 +445,8 @@ r.post("/", quoteLimiter, async (req, res, next) => {
                 <h2 style="color: #2c3e2f; margin-top: 0;">${isBooking ? "We've got your booking request" : "We've got your message"}</h2>
                 <p>Hi ${safe(data.name || 'there')},</p>
                 ${isBooking
-                  ? `<p>You've asked us to book staff${data.eventType ? ` for your <strong>${safe(data.eventType)}</strong>` : ''}. Nothing is confirmed until we come back to you — we'll check availability and confirm during our 8am to 10pm hours.</p>`
-                  : `<p>Thanks for getting in touch. This was sent as a question rather than a booking, so nothing has been booked or charged. We'll reply during our 8am to 10pm hours.</p>`}
+                  ? `<p>You've asked us to book staff${data.eventType ? ` for your <strong>${safe(data.eventType)}</strong>` : ''}. Nothing is confirmed until we come back to you with names. ${safe(SITE_TERMS.confirmationPromise)}</p>`
+                  : `<p>Thanks for getting in touch. This was sent as a question rather than a booking, so nothing has been booked or charged. We'll reply as soon as we can, usually the same day.</p>`}
                 
                 ${isBooking ? `<div style="background: #fff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #D4AF37;">
                   <h3 style="margin-top: 0; color: #2c3e2f;">What you asked for</h3>

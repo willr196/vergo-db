@@ -21,11 +21,12 @@
   var panel = document.getElementById('estimatePanel');
   var totalEl = document.getElementById('estimateTotal');
   var breakdownEl = document.getElementById('estimateBreakdown');
-  var staffEl = document.getElementById('estimateStaff');
-  var rolesRowEl = document.getElementById('estimateRolesRow');
-  var rolesEl = document.getElementById('estimateRoles');
-  var hoursEl = document.getElementById('estimateHours');
-  var rateEl = document.getElementById('estimateRate');
+  var baseLabelEl = document.getElementById('estimateBaseLabel');
+  var baseEl = document.getElementById('estimateBase');
+  var upliftRowEl = document.getElementById('estimateUpliftRow');
+  var upliftLabelEl = document.getElementById('estimateUpliftLabel');
+  var upliftEl = document.getElementById('estimateUplift');
+  var sumEl = document.getElementById('estimateSum');
   var notesEl = document.getElementById('estimateNotes');
   var updateBtn = document.getElementById('estimateUpdate');
   var nextDayEl = document.getElementById('shiftEndsNextDay');
@@ -45,15 +46,20 @@
     { name: 'phone', label: 'your phone number' }
   ];
 
-  /** The rate card from vergo-site-config.js, or null if it is not there. No
+  /** The rate card from /vergo-site-config.js, or null if it is not there. No
    *  fallback figure lives in this file: a wrong price shown confidently is
-   *  worse than no price, and the rate has exactly one home. */
+   *  worse than no price, and the rate has exactly one home (config/pricing.ts). */
   function getConfig() {
     var rates = window.VERGO_CONFIG && window.VERGO_CONFIG.rates;
-    if (!rates || typeof rates.chargeRate !== 'number' || typeof rates.minimumHours !== 'number') {
+    if (!rates || typeof rates.standardRate !== 'number' || typeof rates.minimumHours !== 'number' || !window.VergoQuoteCalc) {
       return null;
     }
     return rates;
+  }
+
+  function serviceLevel() {
+    var picked = form.querySelector('input[name="serviceLevel"]:checked');
+    return picked && picked.value === 'premium' ? 'premium' : 'standard';
   }
 
   function minutesOf(value) {
@@ -189,39 +195,39 @@
     }).join(', ');
   }
 
-  /** Mirrors calculateCharge() in apps/api/src/config/pricing.ts: the minimum-hours
-   *  floor applies per person, then headcount multiplies it. */
+  /** The figure itself comes from quote-calc.js, the browser copy of
+   *  quoteShift() in config/pricing.ts. This gathers the form into its input. */
   function calculate() {
     var rates = getConfig();
     var nextDay = endsNextDay();
-    if (!rates) return { unavailable: true, complete: false, endsNextDay: nextDay };
-    var actualHours = hoursBetween(form.elements.shiftStart.value, form.elements.shiftEnd.value, nextDay);
     var counts = roleCounts();
     var staffCount = sumCounts(counts);
-    // Seniors are part of the brief but not of the figure — they are quoted
-    // individually. Everything else, "something else" included, sits at the
-    // standard rate until we confirm the role.
-    var billableCount = sumCounts(counts.filter(function (entry) {
-      return entry.kind !== 'senior';
-    }));
-    var complete = actualHours > 0 && staffCount > 0;
-    var billableHours = Math.max(actualHours, rates.minimumHours);
-
-    return {
-      complete: complete,
-      actualHours: actualHours,
-      billableHours: billableHours,
+    var base = {
       counts: counts,
       staffCount: staffCount,
-      billableCount: billableCount,
-      hasSenior: counts.some(function (entry) { return entry.kind === 'senior'; }),
-      hasOther: counts.some(function (entry) { return entry.kind === 'other'; }),
-      rate: rates.chargeRate,
-      minimumHours: rates.minimumHours,
-      minimumApplied: complete && actualHours < rates.minimumHours,
       endsNextDay: nextDay,
-      total: complete ? Math.round(billableHours * rates.chargeRate * billableCount * 100) / 100 : 0
+      level: serviceLevel(),
+      hasSenior: counts.some(function (entry) { return entry.kind === 'senior'; }),
+      hasOther: counts.some(function (entry) { return entry.kind === 'other'; })
     };
+    if (!rates) { base.unavailable = true; base.complete = false; return base; }
+
+    var quote = window.VergoQuoteCalc.quoteShift({
+      start: form.elements.shiftStart.value,
+      end: form.elements.shiftEnd.value,
+      finishesNextDay: nextDay,
+      level: base.level,
+      staff: counts.map(function (entry) {
+        return { role: entry.role, count: entry.count, senior: entry.kind === 'senior' };
+      })
+    }, rates);
+
+    base.rates = rates;
+    base.quote = quote;
+    base.complete = Boolean(quote) && staffCount > 0;
+    base.billableCount = quote ? quote.pricedPeople : 0;
+    base.total = base.complete ? quote.total : 0;
+    return base;
   }
 
   function note(text) {
@@ -277,40 +283,40 @@
       return;
     }
 
+    var q = result.quote;
+    var rates = result.rates;
+    var billedHours = q.billedMinutes / 60;
     panel.dataset.state = 'ready';
-    totalEl.textContent = money(result.total);
+    totalEl.textContent = money(q.total);
     breakdownEl.hidden = false;
-    staffEl.textContent = result.hasSenior
-      ? plural(result.billableCount, 'person priced', 'people priced') + ', ' + result.staffCount + ' in total'
-      : plural(result.staffCount, 'person', 'people');
-    rolesRowEl.hidden = false;
-    rolesEl.textContent = describeRoles(result.counts);
-    hoursEl.textContent = formatHours(result.billableHours);
-    rateEl.textContent = money(result.rate) + ' per person';
+    baseLabelEl.textContent = plural(q.pricedPeople, 'person', 'people') + ' × ' + formatHours(billedHours) + ' × ' + money(q.rate);
+    baseEl.textContent = money(q.base);
+    upliftRowEl.hidden = !q.afterMidnightMinutes;
+    if (q.afterMidnightMinutes) {
+      upliftLabelEl.textContent = '+' + Math.round((rates.afterMidnightMultiplier - 1) * 100) + '% on ' +
+        formatHours(q.afterMidnightMinutes / 60) + ' after midnight';
+      upliftEl.textContent = money(q.uplift);
+    }
+    sumEl.textContent = money(q.total);
 
     notesEl.textContent = '';
-    if (result.minimumApplied) {
+    if (q.billedMinutes > q.workedMinutes) {
       notesEl.appendChild(note(
-        'That shift is ' + formatHours(result.actualHours) + ', so the ' + result.minimumHours +
-        '-hour minimum applies: ' + formatHours(result.billableHours) + ' billed per person.'
+        q.workedMinutes < rates.minimumHours * 60
+          ? 'The ' + rates.minimumHours + '-hour minimum applies: ' + formatHours(billedHours) + ' billed per person.'
+          : 'Billed in ' + rates.overrunBlockMinutes + '-minute blocks: ' + formatHours(billedHours) + ' per person.'
       ));
     }
-    if (result.endsNextDay) {
-      notesEl.appendChild(note(
-        'This one finishes the next day, so it is priced as a single overnight shift across ' +
-        formatHours(result.actualHours) + '. There may be additional charges for the late hours — we confirm those with you before booking.'
-      ));
+    if (result.level === 'premium') {
+      notesEl.appendChild(note('Premium: ' + rates.premiumDefinition));
     }
     if (result.hasSenior) {
-      notesEl.appendChild(note('Senior roles are priced individually and are not included in this figure.'));
+      notesEl.appendChild(note('Senior roles quoted individually, not included in this figure.'));
     }
     if (result.hasOther) {
-      notesEl.appendChild(note(
-        'The staff you have put under "something else" are estimated at the standard ' + money(result.rate) +
-        ' an hour. That is an average — the rate can change once we know the role, so tell us what you have in mind in the box below and we will confirm it.'
-      ));
+      notesEl.appendChild(note('"Something else" is estimated at this rate until we confirm the role.'));
     }
-    notesEl.appendChild(note('An estimate at the standard rate, not a final invoice. We confirm the figure before anything is charged.'));
+    notesEl.appendChild(note('An estimate, not an invoice. We confirm the figure before anything is charged.'));
   }
 
   function clearErrors() {
@@ -419,6 +425,7 @@
       shiftStart: form.elements.shiftStart.value || undefined,
       shiftEnd: form.elements.shiftEnd.value || undefined,
       shiftEndsNextDay: result.endsNextDay || undefined,
+      serviceLevel: document.getElementById('serviceLevelField') ? result.level.toUpperCase() : undefined,
       staffNeeded: result.staffCount || undefined,
       roles: counts.length
         ? counts.map(function (entry) { return entry.role; })
@@ -478,8 +485,8 @@
         refresh();
         showStatus(
           intent === 'BOOKING'
-            ? 'Booking request sent. Nothing is confirmed yet — we check availability and come back to you during our 8am to 10pm hours.'
-            : 'Message sent. Nothing has been booked. We will reply during our 8am to 10pm hours.',
+            ? 'Booking request sent. Nothing is confirmed until we come back with names. ' + ((window.VERGO_CONFIG && window.VERGO_CONFIG.terms.confirmationPromise) || '')
+            : 'Message sent. Nothing has been booked. We will reply as soon as we can.',
           'success'
         );
       })
@@ -534,7 +541,7 @@
         showStatus(
           gaps.length
             ? 'Nothing to price yet — add ' + gaps.join(', ').replace(/, ([^,]*)$/, ' and $1') + '.'
-            : 'Nothing to price at the standard rate. Send it over and we will come back with a figure.',
+            : 'Nothing to price yet. Send it over and we will come back with a figure.',
           gaps.length ? 'error' : 'info'
         );
       }
@@ -542,10 +549,6 @@
     });
   }
 
-  // The live rate card arrives from /api/v1/rates after first paint. Redraw when
-  // vergo-site-config.js says it has landed rather than after a fixed delay — a
-  // slow response used to leave the fallback rate on screen looking final.
-  window.addEventListener('vergo:rates', refresh);
   window.addEventListener('load', refresh);
   refresh();
 })();

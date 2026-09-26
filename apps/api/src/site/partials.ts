@@ -268,7 +268,29 @@ function cta(attrs: PartialAttrs): string {
     </section>`;
 }
 
+/* --------------------------------------------------------- service level */
+
+/** The Standard/Premium choice on the quote form. Nothing at all when Premium is off. */
+function serviceLevel(): string {
+  if (!PRICING.premiumEnabled) return '';
+  return `<fieldset class="form-field" id="serviceLevelField">
+          <legend>Service level</legend>
+          <div class="checkbox-grid">
+            <div class="checkbox-item">
+              <input type="radio" id="levelStandard" name="serviceLevel" value="standard" checked>
+              <label for="levelStandard">Standard, ${formatRate(PRICING.standardRate)}/hr</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="radio" id="levelPremium" name="serviceLevel" value="premium" aria-describedby="premiumHint">
+              <label for="levelPremium">Premium, ${formatRate(PRICING.premiumRate)}/hr</label>
+            </div>
+          </div>
+          <p class="form-hint" id="premiumHint">Premium: ${esc(SITE_TERMS.premiumDefinition)}</p>
+        </fieldset>`;
+}
+
 export const PARTIALS: Record<string, (attrs: PartialAttrs, ctx: PageContext) => string> = {
+  'service-level': serviceLevel,
   head,
   header,
   footer,

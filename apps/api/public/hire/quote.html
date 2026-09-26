@@ -3,10 +3,10 @@
 <head>
   <!--#head-->
   <title>Price Up Event Staff in London | VERGO Staffing</title>
-  <meta name="description" content="Work out the cost yourself at £18.50/hr per person, four-hour minimum. Then book the staff, or just send us a message.">
+  <meta name="description" content="Work out the cost yourself, {{HEADLINE_RATE_LOWER}} per person, four-hour minimum. Then book the staff, or just send us a message.">
   <meta property="og:title" content="Price Up Event Staff in London | VERGO Staffing">
-  <meta property="og:description" content="Work out the cost yourself at £18.50/hr per person, four-hour minimum. Then book the staff, or just send us a message.">
-  <meta property="og:image" content="https://vergoltd.com/images/vergo-mark.jpg">
+  <meta property="og:description" content="Work out the cost yourself, {{HEADLINE_RATE_LOWER}} per person, four-hour minimum. Then book the staff, or just send us a message.">
+  <meta property="og:image" content="https://vergoltd.com/images/og/hire.jpg">
   <meta property="og:url" content="https://vergoltd.com/hire/quote">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="VERGO Staffing">
@@ -23,28 +23,29 @@
     <section class="page-hero-plain shell-form">
       <span class="eyebrow">Price it up</span>
       <h1>Work out the cost, then decide</h1>
-      <p class="lede">Fill in the event and the price updates as you go. When you are ready, book the staff or just send us a message &mdash; whichever you actually meant.</p>
+      <p class="lede">The price updates as you fill it in. Then book the staff, or just send us a question.</p>
     </section>
 
     <section class="section-tight shell-form">
       <form id="quoteForm" novalidate>
-        <div class="form-field hp-field" aria-hidden="true">
-          <label for="quoteWebsite">Leave this field blank</label>
+        <div class="hp-field" aria-hidden="true">
+          <label for="quoteWebsite">Website</label>
           <input type="text" id="quoteWebsite" name="website" tabindex="-1" autocomplete="off">
         </div>
 
         <div class="form-row form-row-2">
           <div class="form-field">
-            <label for="eventDate">Event date</label>
+            <label for="eventDate">Event date <span class="label-note">needed to book</span></label>
             <input type="date" id="eventDate" name="eventDate">
           </div>
           <div class="form-field">
-            <label for="eventType">Event type</label>
+            <label for="eventType">Event type <span class="label-note">needed to book</span></label>
             <select id="eventType" name="eventType">
               <option value="">Select one</option>
               <option value="Wedding">Wedding</option>
               <option value="Corporate function">Corporate function</option>
               <option value="Private party">Private party</option>
+              <option value="Christmas or seasonal party">Christmas or seasonal party</option>
               <option value="Production catering">Production catering</option>
               <option value="Venue overflow">Venue overflow cover</option>
               <option value="Other">Other</option>
@@ -52,37 +53,38 @@
           </div>
         </div>
 
-        <p class="form-hint form-hint-block">Not sure of the times yet? Leave them blank and we will agree them with you when we confirm. Add them if you want to see a price.</p>
         <div class="form-row form-row-2">
           <div class="form-field">
             <label for="shiftStart">Start time <span class="label-note">optional</span></label>
-            <input type="time" id="shiftStart" name="shiftStart">
+            <input type="time" id="shiftStart" name="shiftStart" aria-describedby="timesHint">
           </div>
           <div class="form-field">
             <label for="shiftEnd">Finish time <span class="label-note">optional</span></label>
-            <input type="time" id="shiftEnd" name="shiftEnd">
+            <input type="time" id="shiftEnd" name="shiftEnd" aria-describedby="timesHint">
           </div>
         </div>
+        <p class="form-hint form-hint-block" id="timesHint">Add times to see a price. Not sure yet? We agree them when we confirm.</p>
 
-        <!-- Late finishes. Ticked for you the moment the end time lands on or
-             before the start, but it stays yours to change: 10am-2am and 10am-2pm
-             are both real shifts, and only the client knows which one this is. -->
+        <!-- Ticked for you the moment the end time lands on or before the start,
+             but it stays the client's to change: 10am-2am and 10am-2pm are both
+             real shifts. -->
         <div class="form-field shift-day-field">
           <label class="checkbox-line" for="shiftEndsNextDay">
             <input type="checkbox" id="shiftEndsNextDay" name="shiftEndsNextDay">
-            <span>Finishes the next day <span class="label-note">an overnight or early-hours shift</span></span>
+            <span>Finishes the next day</span>
           </label>
           <p class="shift-summary" id="shiftSummary" aria-live="polite" hidden></p>
         </div>
 
         <div class="form-field">
-          <label for="venuePostcode">Venue postcode</label>
+          <label for="venuePostcode">Venue postcode <span class="label-note">needed to book</span></label>
           <input type="text" id="venuePostcode" name="venuePostcode" autocomplete="postal-code" placeholder="e.g. E1 6AN">
         </div>
 
-        <fieldset class="form-field" id="rolesField">
-          <legend>Staff needed, by role</legend>
-          <p class="form-hint form-hint-block">Put a number next to each role you need. Leave the rest blank.</p>
+        <!--#service-level-->
+
+        <fieldset class="form-field" id="rolesField" aria-describedby="rolesHint">
+          <legend>Staff needed, by role <span class="label-note">needed to book</span></legend>
           <div class="role-count-grid">
             <div class="role-count-item">
               <label for="count-waiting">Waiting staff</label>
@@ -101,51 +103,46 @@
               <input type="number" id="count-runner" name="roleCount" data-role="Runners" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
             </div>
             <div class="role-count-item">
-              <label for="count-foh">Front of house</label>
-              <input type="number" id="count-foh" name="roleCount" data-role="Front of house" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
+              <label for="count-host">Hosts and front of house</label>
+              <input type="number" id="count-host" name="roleCount" data-role="Hosts and front of house" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
             </div>
             <div class="role-count-item">
-              <label for="count-host">Hosts</label>
-              <input type="number" id="count-host" name="roleCount" data-role="Hosts" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
-            </div>
-            <div class="role-count-item">
-              <label for="count-senior">Senior role <span class="label-note">supervisor, chef, event manager</span></label>
-              <input type="number" id="count-senior" name="roleCount" data-role="Senior (supervisor/chef/event manager)" data-role-kind="senior" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
-            </div>
-            <div class="role-count-item">
-              <label for="count-other">Something else <span class="label-note">not sure which role</span></label>
+              <label for="count-other">Something else <span class="label-note">tell us below</span></label>
               <input type="number" id="count-other" name="roleCount" data-role="Other / to be confirmed" data-role-kind="other" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
             </div>
+            <div class="role-count-item">
+              <label for="count-chef">Chefs and cooks <span class="label-note">quoted separately</span></label>
+              <input type="number" id="count-chef" name="roleCount" data-role="Chefs and cooks" data-role-kind="senior" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
+            </div>
+            <div class="role-count-item">
+              <label for="count-manager">Managers and supervisors <span class="label-note">quoted separately</span></label>
+              <input type="number" id="count-manager" name="roleCount" data-role="Managers and supervisors" data-role-kind="senior" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
+            </div>
           </div>
-          <p class="form-hint">Senior roles (supervisors, chefs, event managers) are quoted individually, so they sit outside the figure below. Anything under &ldquo;something else&rdquo; is estimated at the standard <span data-vergo="rates.chargeRateDisplay">&pound;18.50</span> an hour &mdash; the actual rate depends on the role, so tell us what you have in mind in the box further down and we will confirm it.</p>
+          <p class="form-hint" id="rolesHint">{{SENIOR_ROLES}}</p>
         </fieldset>
 
-        <!-- Live estimate. Every figure here is written by pages/js/quote.js from
-             the rate card in vergo-site-config.js — no rate is hardcoded in markup. -->
+        <!-- Live estimate. Every figure is written by pages/js/quote.js from the
+             rate card in /vergo-site-config.js; no rate is written in markup. -->
         <div class="estimate-panel" id="estimatePanel" data-state="empty">
           <p class="estimate-label">Your estimate</p>
           <p class="estimate-total" id="estimateTotal">&mdash;</p>
-          <p class="estimate-total-caption">Total for the shift, all staff included</p>
+          <p class="estimate-total-caption">Total for the shift, all priced staff</p>
           <ul class="estimate-breakdown" id="estimateBreakdown" hidden>
-            <li><span>Staff</span><span id="estimateStaff">&mdash;</span></li>
-            <li id="estimateRolesRow" hidden><span>Roles</span><span id="estimateRoles">&mdash;</span></li>
-            <li><span>Hours each, billed</span><span id="estimateHours">&mdash;</span></li>
-            <li><span>Rate per hour</span><span id="estimateRate">&mdash;</span></li>
+            <li><span id="estimateBaseLabel">People × hours × rate</span><span id="estimateBase">&mdash;</span></li>
+            <li id="estimateUpliftRow" hidden><span id="estimateUpliftLabel">After-midnight uplift</span><span id="estimateUplift">&mdash;</span></li>
+            <li><span>Total</span><span id="estimateSum">&mdash;</span></li>
           </ul>
           <div class="estimate-notes" id="estimateNotes" aria-live="polite">
-            <p id="estimatePrompt">Add your times and how many of each role you need, and the price appears here.</p>
+            <p>Add your times and how many of each role you need, and the price appears here.</p>
           </div>
-          <!-- The figure already updates as you type. This is for the moment the
-               client has stopped typing and wants telling, in words, whether what
-               is on screen is the whole picture. -->
           <button type="button" class="btn btn-quiet estimate-update" id="estimateUpdate">Update estimate</button>
         </div>
 
         <h2>Your details</h2>
-        <p class="form-hint form-hint-block">All of this is needed to book. If you are only asking a question, fill in as much or as little as you like &mdash; we just need one way of replying.</p>
         <div class="form-row form-row-2">
           <div class="form-field">
-            <label for="contactName">Name</label>
+            <label for="contactName">Name <span class="label-note">needed to book</span></label>
             <input type="text" id="contactName" name="name" autocomplete="name">
           </div>
           <div class="form-field">
@@ -155,11 +152,11 @@
         </div>
         <div class="form-row form-row-2">
           <div class="form-field">
-            <label for="contactEmail">Email address</label>
+            <label for="contactEmail">Email address <span class="label-note">needed to book</span></label>
             <input type="email" id="contactEmail" name="email" autocomplete="email">
           </div>
           <div class="form-field">
-            <label for="contactPhone">Phone</label>
+            <label for="contactPhone">Phone <span class="label-note">needed to book</span></label>
             <input type="tel" id="contactPhone" name="phone" autocomplete="tel">
           </div>
         </div>
@@ -170,21 +167,21 @@
         </div>
 
         <div class="form-field">
-          <label for="quoteMessage">Anything else we should know? <span class="label-note">optional</span></label>
-          <textarea id="quoteMessage" name="message" maxlength="2000" placeholder="A question, an odd shift pattern, parking — anything."></textarea>
+          <label for="quoteMessage">Anything else? <span class="label-note">optional</span></label>
+          <textarea id="quoteMessage" name="message" maxlength="2000"></textarea>
         </div>
 
         <div class="form-actions">
           <div class="action-choice">
-            <button type="submit" class="btn btn-primary btn-block" id="quoteBook" data-intent="BOOKING">Book these staff</button>
-            <p class="action-hint" id="bookHint">We check availability and confirm before anything is charged.</p>
+            <button type="submit" class="btn btn-primary btn-block" id="quoteBook" data-intent="BOOKING" aria-describedby="bookHint">Book these staff</button>
+            <p class="action-hint" id="bookHint">Nothing is charged until we confirm names. First booking: paid in advance once confirmed.</p>
           </div>
 
           <p class="action-divider" aria-hidden="true">or</p>
 
           <div class="action-choice">
-            <button type="submit" class="btn btn-secondary btn-block" id="quoteAsk" data-intent="ENQUIRY">Send a message instead</button>
-            <p class="action-hint">Nothing gets booked &mdash; we just reply. Only your email or phone is needed.</p>
+            <button type="submit" class="btn btn-secondary btn-block" id="quoteAsk" data-intent="ENQUIRY" aria-describedby="askHint">Send a message instead</button>
+            <p class="action-hint" id="askHint">Nothing gets booked. Only your email or phone is needed.</p>
           </div>
         </div>
 
@@ -194,6 +191,7 @@
   </main>
 
   <!--#footer-->
+  <script src="/pages/js/quote-calc.js"></script>
   <script src="/pages/js/quote.js"></script>
 </body>
 </html>
