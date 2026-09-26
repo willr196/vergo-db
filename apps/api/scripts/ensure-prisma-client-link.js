@@ -17,7 +17,13 @@ try {
     // Missing package-local prisma directory; create the link below.
   }
 
-  fs.symlinkSync(path.relative(path.dirname(packagePrismaDir), generatedPrismaDir), packagePrismaDir, 'dir');
+  // Windows refuses dir symlinks without admin or Developer Mode; a junction
+  // needs neither, but only takes an absolute target.
+  if (process.platform === 'win32') {
+    fs.symlinkSync(generatedPrismaDir, packagePrismaDir, 'junction');
+  } else {
+    fs.symlinkSync(path.relative(path.dirname(packagePrismaDir), generatedPrismaDir), packagePrismaDir, 'dir');
+  }
   console.log('[PRISMA] Linked node_modules/@prisma/client/.prisma -> node_modules/.prisma');
 } catch (error) {
   if (error && typeof error === 'object' && error.code === 'EEXIST') {
