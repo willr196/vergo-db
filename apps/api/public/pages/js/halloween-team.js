@@ -45,6 +45,7 @@
       });
       form.querySelectorAll('[aria-invalid]').forEach(function (node) {
         node.removeAttribute('aria-invalid');
+        node.removeAttribute('aria-describedby');
       });
     }
 
@@ -57,8 +58,12 @@
       wrapper.classList.add('field-invalid');
       var msg = document.createElement('p');
       msg.className = 'field-error-message';
+      // Unique per form, since the brief script runs on several forms at once.
+      msg.id = (form.id || 'brief') + '-' + name + '-error';
       msg.textContent = message;
       wrapper.appendChild(msg);
+      // Links the message to the field, so a screen reader reads it with it.
+      input.setAttribute('aria-describedby', msg.id);
     }
 
     function focusFirstInvalid() {

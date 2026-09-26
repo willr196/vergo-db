@@ -329,6 +329,19 @@
     Array.prototype.slice.call(form.querySelectorAll('[aria-invalid]')).forEach(function (el) {
       el.removeAttribute('aria-invalid');
     });
+    Array.prototype.slice.call(form.querySelectorAll('[aria-describedby]')).forEach(function (el) {
+      var ids = el.getAttribute('aria-describedby').split(/\s+/).filter(function (id) {
+        return id && !/-error$/.test(id);
+      });
+      if (ids.length) el.setAttribute('aria-describedby', ids.join(' '));
+      else el.removeAttribute('aria-describedby');
+    });
+  }
+
+  /** Links an error message to its control, so a screen reader reads it with the field. */
+  function describeWith(el, msgId) {
+    var current = (el.getAttribute('aria-describedby') || '').trim();
+    el.setAttribute('aria-describedby', current ? current + ' ' + msgId : msgId);
   }
 
   function markInvalid(name, message) {
@@ -339,8 +352,10 @@
     wrapper.classList.add('field-invalid');
     var msg = document.createElement('p');
     msg.className = 'field-error-message';
+    msg.id = name + '-error';
     msg.textContent = message;
     wrapper.appendChild(msg);
+    describeWith(input, msg.id);
   }
 
   function markRolesInvalid(message) {
@@ -349,8 +364,10 @@
     fieldset.classList.add('field-invalid');
     var msg = document.createElement('p');
     msg.className = 'field-error-message';
+    msg.id = 'roles-error';
     msg.textContent = message;
     fieldset.appendChild(msg);
+    describeWith(fieldset, msg.id);
   }
 
   function focusFirstInvalid() {

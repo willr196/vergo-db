@@ -34,6 +34,7 @@
         </div>
 
         <h2>Your details</h2>
+        <p class="form-hint form-hint-block">Every field is needed unless it says optional.</p>
         <div class="form-row form-row-2">
           <div class="form-field">
             <label for="firstName">First name</label>
@@ -68,9 +69,9 @@
           </div>
         </div>
 
-        <fieldset class="form-field">
+        <fieldset class="form-field" aria-describedby="roles-hint roles-error">
           <legend>Roles and experience</legend>
-          <p class="form-hint">Tick the roles you can work, then your experience in each.</p>
+          <p class="form-hint" id="roles-hint">Tick the roles you can work, then your experience in each.</p>
           <div id="roles-container" class="roles-with-experience">
             <div class="role-row">
               <div class="checkbox-item">
@@ -177,8 +178,8 @@
 
         <div class="form-field">
           <label for="cvFile">Upload your CV</label>
-          <input type="file" id="cvFile" name="cvFile" accept=".pdf,.doc,.docx" required>
-          <p class="form-hint">PDF, DOC or DOCX. Max 10MB.</p>
+          <input type="file" id="cvFile" name="cvFile" accept=".pdf,.doc,.docx" required aria-describedby="cvHint">
+          <p class="form-hint" id="cvHint">PDF, DOC or DOCX. Max 10MB.</p>
           <div id="uploadStatus" class="form-status" role="status"></div>
         </div>
 
