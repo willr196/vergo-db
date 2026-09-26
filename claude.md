@@ -21,9 +21,14 @@ Monorepo with three apps:
 - TypeScript throughout (mobile), ES modules
 - Mobile uses Zustand stores in `src/store/`
 - API responses: web returns raw JSON, mobile wraps in `{ ok: true, ... }`
-- Theme: dark (#0a0a0a bg, #C4A24E gold accent). Public pages take tokens from
-  vergo-site.css and vergo-public-pages.css — the token names differ but the
-  values must stay in step. The admin panel still uses the older #D4AF37.
+- Theme (public site, from Sept 2026): light (#FAF8F4 bg, #16181B ink, #1F5C45
+  green accent), tokens on :root in vergo-site.css. Only the Premium rate card
+  and the Halloween page keep a dark treatment. The login page
+  (vergo-public-pages.css) and the admin panel (#D4AF37) are still dark.
+- Public pages: prices, terms, contact details and the header/footer/rate/
+  guarantee blocks come from apps/api/src/config/pricing.ts and src/site/, and
+  are filled into the HTML as it is served ({{TOKENS}} and <!--#block--> markers).
+  Never hand-write a price or promise into a page.
 
 ## IMPORTANT
 - Always run type checking after mobile changes
@@ -36,7 +41,7 @@ Monorepo with three apps:
 - Backend routes: apps/api/src/routes/adminClients.ts, adminJobs.ts etc.
 - Auth: session-based (web), same as the rest of the web platform
 - Stack: vanilla HTML/CSS/JS (no framework), dark theme (#0a0a0a bg, #D4AF37 gold accent).
-  Admin keeps #D4AF37; the public site moved to #C4A24E.
+  Admin keeps #D4AF37; the public site is light with a green accent.
 - Chart library to use: Chart.js from cdnjs CDN
 ```
 
