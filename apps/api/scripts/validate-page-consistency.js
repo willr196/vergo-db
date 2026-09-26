@@ -6,6 +6,17 @@ const path = require('path');
 
 const publicRoot = path.join(process.cwd(), 'public');
 
+// Public pages are checked as they are served: the shared <!--#head-->,
+// <!--#header--> and <!--#footer--> blocks filled in by src/site/render.ts.
+// That needs the compiled API, so run `npm run build` first.
+let renderPublicSource;
+try {
+  ({ renderPublicSource } = require(path.join(process.cwd(), 'dist', 'src', 'lib', 'publicHtml.js')));
+} catch {
+  console.error('ERROR: build the API first (npm run build); pages are validated as rendered.');
+  process.exit(2);
+}
+
 // Pages that exist only as redirect stubs and so are exempt from the shell and
 // metadata checks. The two client-auth stubs that used to be listed here were
 // deleted with the client portal; keep this empty rather than naming files that
@@ -94,7 +105,12 @@ function hasStaticHeader(html) {
 }
 
 function hasHeaderShellMount(html) {
-  return /id=["']site-header["']/i.test(html);
+  return /<div\b[^>]*id=["']site-header["']/i.test(html);
+}
+
+// The shared header and footer rendered from src/site/partials.ts.
+function hasSharedChrome(html) {
+  return /<header\b[^>]*data-shared-header/i.test(html) && /<footer\b[^>]*data-shared-footer/i.test(html);
 }
 
 function hasEmptyHeaderShellMount(html) {
@@ -158,6 +174,11 @@ function validatePublicPage(rel, html) {
     issues.push('missing /vergo-public-shell.js, which the #site-header shell mount depends on');
   }
   if (!hasFooterShellMount(html)) issues.push('missing footer[role="contentinfo"] shell mount');
+  // Only the login page still uses the old client-side shell; every other
+  // public page must use the shared server-rendered header and footer.
+  if (rel !== 'login.html' && !hasSharedChrome(html)) {
+    issues.push('missing the shared header/footer (<!--#header--> and <!--#footer-->)');
+  }
   if (!hasSkipLink(html)) issues.push('missing skip link to #main-content');
   if (!hasMainTarget(html)) issues.push('missing #main-content target');
 
@@ -189,7 +210,9 @@ function main() {
     .map((abs) => ({
       abs,
       rel: toPosix(path.relative(publicRoot, abs)),
-      html: fs.readFileSync(abs, 'utf8'),
+      html: isAdminPage(toPosix(path.relative(publicRoot, abs)))
+        ? fs.readFileSync(abs, 'utf8')
+        : renderPublicSource(fs.readFileSync(abs, 'utf8'), abs, publicRoot),
     }))
     .sort((a, b) => a.rel.localeCompare(b.rel));
 

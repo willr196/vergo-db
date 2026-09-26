@@ -4,6 +4,20 @@
 const fs = require('fs');
 const path = require('path');
 
+// Pages are checked as served, with the shared blocks and {{TOKENS}} filled in
+// by src/site/render.ts. Needs `npm run build` first; admin pages are raw.
+let renderPublicSource = null;
+try {
+  ({ renderPublicSource } = require(path.join(process.cwd(), 'dist', 'src', 'lib', 'publicHtml.js')));
+} catch {
+  console.error('ERROR: build the API first (npm run build); pages are validated as rendered.');
+  process.exit(2);
+}
+function render(source, abs) {
+  if (/^admin[^/]*\.html$/i.test(path.basename(abs))) return source;
+  return renderPublicSource(source, abs, path.join(process.cwd(), 'public'));
+}
+
 const SITE_ORIGIN = 'https://vergoltd.com';
 
 const publicRoot = path.join(process.cwd(), 'public');
@@ -91,7 +105,7 @@ function main() {
   const pages = htmlAbsFiles.map((abs) => {
     const rel = toPosix(path.relative(publicRoot, abs));
     const route = cleanRouteFromRelHtml(rel);
-    const html = fs.readFileSync(abs, 'utf8');
+    const html = render(fs.readFileSync(abs, 'utf8'), abs);
     const canonicalHref = extractCanonicalHref(html);
     const expectedCanonical = expectedCanonicalHrefForRoute(route);
     const hasCanonical = !!(canonicalHref && canonicalHref.trim());
@@ -221,7 +235,7 @@ function checkPublicMeta(pages, sitemapRoutes) {
 
   for (const page of pages) {
     if (/^admin/.test(page.rel)) continue;
-    const html = fs.readFileSync(page.abs, 'utf8');
+    const html = render(fs.readFileSync(page.abs, 'utf8'), page.abs);
     const titleMatch = html.match(/<title>([^<]*)<\/title>/i);
     const title = titleMatch ? decodeEntities(titleMatch[1].trim()) : '';
     const description = metaContent(html, 'name', 'description') || '';

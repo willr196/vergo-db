@@ -165,17 +165,23 @@
    * footer gets a link back to the banner without needing its own markup.
    */
   function addFooterLink() {
-    var links = document.querySelector('.footer-links');
-    if (!links || document.getElementById('vergo-consent-link')) return;
-    var a = document.createElement('a');
-    a.id = 'vergo-consent-link';
-    a.href = '#';
-    a.textContent = 'Cookie settings';
+    // The shared footer renders the link itself (so it is there without
+    // JavaScript and on every page); this only wires it up. A page without the
+    // shared footer gets one appended to its link list instead.
+    var a = document.getElementById('vergo-consent-link');
+    if (!a) {
+      var links = document.querySelector('.footer-links');
+      if (!links) return;
+      a = document.createElement('a');
+      a.id = 'vergo-consent-link';
+      a.href = '#cookie-settings';
+      a.textContent = 'Cookie settings';
+      links.appendChild(a);
+    }
     a.addEventListener('click', function (e) {
       e.preventDefault();
       showBanner();
     });
-    links.appendChild(a);
   }
 
   function init() {

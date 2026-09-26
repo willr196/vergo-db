@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Response } from 'express';
+import { pagePathFor, renderSiteHtml, siteConfigScript } from '../site/render';
 
 /**
  * Serves the static HTML pages with every local stylesheet, script and image
@@ -46,7 +47,30 @@ function mtimeOf(filePath: string): number | null {
   }
 }
 
+/**
+ * Assets built in memory rather than read from public/. They are versioned
+ * like any other file so a page can cache them for a year.
+ */
+const VIRTUAL_ASSETS: Record<string, () => string> = {
+  '/vergo-site-config.js': siteConfigScript,
+};
+const virtualCache = new Map<string, { body: string; hash: string }>();
+
+export function virtualAsset(urlPath: string): { body: string; hash: string } | null {
+  const build = VIRTUAL_ASSETS[urlPath];
+  if (!build) return null;
+  let cached = virtualCache.get(urlPath);
+  if (!cached) {
+    const body = build();
+    cached = { body, hash: crypto.createHash('sha1').update(body).digest('hex').slice(0, 10) };
+    virtualCache.set(urlPath, cached);
+  }
+  return cached;
+}
+
 function assetHash(publicDir: string, urlPath: string): string | null {
+  const virtual = virtualAsset(urlPath);
+  if (virtual) return virtual.hash;
   const filePath = path.resolve(publicDir, '.' + urlPath);
   if (!filePath.startsWith(path.resolve(publicDir) + path.sep)) return null;
   const mtimeMs = mtimeOf(filePath);
@@ -75,13 +99,24 @@ export function versionAssetUrls(html: string, publicDir: string): string {
     });
 }
 
+/**
+ * A page as it ships, before asset stamping: shared blocks and {{TOKENS}}
+ * filled from config (see site/render.ts). Also what the CSP hashes and the
+ * site consistency test read, so they check the page a visitor gets.
+ */
+export function renderPublicSource(source: string, filePath: string, publicDir: string): string {
+  const rel = path.relative(publicDir, filePath).split(path.sep).join('/');
+  return renderSiteHtml(source, { path: pagePathFor(rel) });
+}
+
 function renderPage(filePath: string, publicDir: string): string | null {
   const mtimeMs = mtimeOf(filePath);
   if (mtimeMs === null) return null;
 
   let cached = sourceCache.get(filePath);
   if (!cached || cached.mtimeMs !== mtimeMs) {
-    cached = { mtimeMs, value: fs.readFileSync(filePath, 'utf8') };
+    const source = fs.readFileSync(filePath, 'utf8');
+    cached = { mtimeMs, value: renderPublicSource(source, filePath, publicDir) };
     sourceCache.set(filePath, cached);
   }
   // Stamped on every request rather than cached whole: a page can be unchanged

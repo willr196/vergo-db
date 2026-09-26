@@ -56,7 +56,7 @@ import { logger, requestLogger } from './services/logger';
 import { startMemoryMonitoring, stopMemoryMonitoring } from './services/memory';
 import { initSentry, sentryErrorHandler, flushSentry } from './services/sentry';
 import { enforceHttpsRedirect } from './utils/httpsRedirect';
-import { sendPublicHtml, PUBLIC_HTML_CACHE_CONTROL } from './lib/publicHtml';
+import { sendPublicHtml, renderPublicSource, virtualAsset, PUBLIC_HTML_CACHE_CONTROL } from './lib/publicHtml';
 import { ZodError } from 'zod';
 
 // Initialize Sentry early (before Express app)
@@ -187,7 +187,8 @@ function collectInlineScriptHashes(dir: string): string[] {
 
       let source: string;
       try {
-        source = fs.readFileSync(full, 'utf8');
+        // Hash the page as served, shared blocks and tokens filled in.
+        source = renderPublicSource(fs.readFileSync(full, 'utf8'), full, dir);
       } catch {
         continue;
       }
@@ -754,6 +755,16 @@ app.use((req, res, next) => {
   if (!req.path.endsWith('.html')) return next();
   const htmlPath = resolvePublicFile(req.path.replace(/^\//, ''));
   if (!htmlPath || !sendPublicHtml(res, htmlPath, publicDir)) return next();
+});
+
+// Built from config/pricing.ts at runtime, so it can never disagree with the
+// pages (see site/render.ts). Cached like any versioned script.
+app.get('/vergo-site-config.js', (req, res) => {
+  const asset = virtualAsset('/vergo-site-config.js');
+  if (!asset) return res.status(404).end();
+  res.type('application/javascript');
+  res.setHeader('Cache-Control', req.query.v === asset.hash ? 'public, max-age=31536000, immutable' : 'public, no-cache');
+  res.send(asset.body);
 });
 
 app.use(express.static(publicDir, {

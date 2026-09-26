@@ -63,6 +63,11 @@
   --hairline-soft: rgba(255, 255, 255, 0.08);
   --hairline-strong: rgba(255, 255, 255, 0.16);
   --panel-fill: rgba(255, 255, 255, 0.03);
+  --hover-fill: rgba(242, 239, 232, 0.08);
+  --surface: rgba(255, 255, 255, 0.03);
+  --premium-bg: #0E0F10;
+  --premium-ink: #F3F1EC;
+  --premium-accent: #C9A96A;
   --card-fill: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
   --font-serif: 'Instrument Serif', Georgia, serif;
   --font-sans: 'Work Sans', Helvetica, Arial, sans-serif;
@@ -165,7 +170,46 @@ p:last-child { margin-bottom: 0; }
   border: 0;
 }
 
-/* Header */
+/* Seasonal banner. Filled and shown by vergo-site.js by date; ships hidden. */
+.season-banner {
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 14px;
+}
+.season-banner[hidden] { display: none; }
+.season-banner-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 8px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.season-banner-links { margin: 0; text-align: center; }
+.season-banner-links span + span::before { content: " · "; }
+@media (max-width: 640px) {
+  .season-banner-links { text-align: left; }
+  .season-banner-links span { display: block; }
+  .season-banner-links span + span::before { content: none; }
+}
+.season-banner a { color: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.season-banner a:hover { color: inherit; }
+.season-banner-close {
+  flex-shrink: 0;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font-size: 20px;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+@media (max-width: 640px) { .season-banner-inner { padding: 8px 12px 8px 20px; justify-content: space-between; } }
+
+/* Header. One header on every public page (src/site/partials.ts). */
 .site-header {
   position: sticky;
   top: 0;
@@ -178,25 +222,11 @@ p:last-child { margin-bottom: 0; }
 .site-header-inner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 16px 40px;
+  padding: 14px 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-}
-/* Mobile header. The links stay in the bar rather than behind a menu button:
-   there are only ever two or three, and a dropdown just repeated them. On a
-   phone the brand and the phone pill share the top row and the links take a
-   second row of their own. .header-actions steps out of the layout
-   (display: contents) so the pill can sit beside the brand while the links
-   drop below; the ::after is the line break between the two rows. Scoped to
-   .site-header-inner so these beat the base rules further down the file. */
-@media (max-width: 860px) {
-  .site-header-inner { padding: 12px 20px; flex-wrap: wrap; justify-content: flex-start; gap: 0 6px; }
-  .site-header-inner::after { content: ""; flex-basis: 100%; order: 2; }
-  .site-header-inner .header-actions { display: contents; }
-  .site-header-inner .call-link { order: 1; margin-left: auto; }
-  .site-header-inner .switch-link { order: 3; margin-top: 10px; }
 }
 
 .brand {
@@ -208,82 +238,135 @@ p:last-child { margin-bottom: 0; }
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--text);
+  flex-shrink: 0;
 }
-/* The V mark itself, not a letter set in the brand face. The artwork is a V
-   inside a ring on a black field, with about a tenth of the frame empty around
-   it; at 30px that padding left the V too faint to read, so the image is blown
-   up to 124% and the box clipped to a circle. That trims the outer ring to the
-   edge and gives the V the whole 30px. The letter stays in the markup and is
-   hidden here, the same way the Halloween pumpkin override in
-   pages/css/special-events.css does it. */
+.brand:hover { color: var(--text); }
+/* The V mark is an image, blown up to 124% and clipped to a circle so the V
+   fills the 30px rather than sitting in its own padding. */
 .brand-mark {
   width: 30px;
   height: 30px;
   flex-shrink: 0;
   border-radius: 50%;
   background: transparent url('/images/vergo-mark-72.png') center / 124% no-repeat;
-  color: transparent;
-  font-size: 0;
-  line-height: 1;
 }
 
-.header-actions {
+.site-nav {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 20px;
+  flex: 1;
+  justify-content: space-between;
 }
-
-.call-link {
-  margin-left: 8px;
-  display: inline-flex;
+.nav-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--text);
-  font-family: var(--font-mono);
-  font-size: 14px;
-  padding: 9px 16px;
-  border: 1px solid rgba(var(--accent-rgb), 0.45);
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
+  gap: 4px;
 }
-.call-link:hover, .call-link:focus-visible { background: rgba(var(--accent-rgb), 0.12); color: var(--text); }
-
-.switch-link {
-  font-size: 14px;
+.nav-link {
+  display: inline-block;
+  font-size: 15px;
   color: var(--text-secondary);
-  padding: 8px 14px;
+  padding: 8px 12px;
   border-radius: var(--radius-pill);
 }
-.switch-link:hover, .switch-link:focus-visible { background: rgba(242, 239, 232, 0.08); color: var(--text); }
-.switch-link[aria-current="page"] { color: var(--text); }
-
-/* Special events is a distinct offer rather than another section of the site,
-   so it carries its own tag in the banner: gold, outlined, and never allowed to
-   break across two lines the way "Special events" otherwise would when the
-   header wraps on a phone. */
-.switch-link--feature {
+.nav-link:hover, .nav-link:focus-visible { color: var(--text); background: var(--hover-fill); }
+.nav-link[aria-current="page"] { color: var(--text); font-weight: 600; }
+.nav-item--season[hidden] { display: none; }
+.nav-link--season {
   color: var(--accent);
-  border: 1px solid rgba(var(--accent-rgb), 0.35);
+  border: 1px solid var(--accent);
+  font-weight: 600;
+}
+.nav-link--season:hover, .nav-link--season:focus-visible { color: var(--accent); }
+
+.nav-actions { display: flex; align-items: center; gap: 16px; }
+.nav-call, .nav-whatsapp {
+  font-size: 15px;
+  color: var(--text);
   white-space: nowrap;
 }
-.switch-link--feature:hover, .switch-link--feature:focus-visible {
-  background: rgba(var(--accent-rgb), 0.12);
-  color: var(--accent);
+.nav-call { font-family: var(--font-mono); font-size: 14px; }
+.nav-call:hover, .nav-whatsapp:hover { color: var(--accent); }
+.nav-action-word { display: none; }
+.nav-quote { min-height: 42px; padding: 10px 20px; font-size: 15px; }
+
+.menu-toggle {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-pill);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  padding: 8px 16px;
+  min-height: 44px;
+  cursor: pointer;
 }
-.switch-link--feature[aria-current="page"] {
-  background: rgba(var(--accent-rgb), 0.12);
-  color: var(--accent);
+.menu-toggle[hidden] { display: none; }
+.menu-toggle-bars,
+.menu-toggle-bars::before,
+.menu-toggle-bars::after {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+}
+.menu-toggle-bars { position: relative; }
+.menu-toggle-bars::before, .menu-toggle-bars::after { content: ""; position: absolute; left: 0; }
+.menu-toggle-bars::before { top: -6px; }
+.menu-toggle-bars::after { top: 6px; }
+
+/* Phone and small tablet: the nav folds behind the Menu button. Without
+   JavaScript (.has-menu never set) the links simply show, stacked. */
+@media (max-width: 980px) {
+  .site-header-inner { padding: 12px 20px; flex-wrap: wrap; gap: 12px; }
+  .site-header.has-menu .menu-toggle:not([hidden]) { display: inline-flex; }
+  .site-nav {
+    flex-basis: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding-bottom: 8px;
+  }
+  .site-header.has-menu .site-nav { display: none; }
+  .site-header.has-menu.is-open .site-nav { display: flex; }
+  .nav-links { flex-direction: column; align-items: stretch; gap: 0; }
+  .nav-item { border-bottom: 1px solid var(--hairline-soft); }
+  .nav-link { display: block; padding: 14px 4px; border-radius: 0; font-size: 17px; }
+  .nav-link:hover { background: transparent; }
+  /* Directly under Hire staff on a phone. */
+  .nav-links > .nav-item:first-child { order: 0; }
+  .nav-item--season { order: 1; border-bottom: 1px solid var(--hairline-soft); padding: 8px 0; }
+  .nav-links > .nav-item:not(:first-child):not(.nav-item--season) { order: 2; }
+  .nav-link--season { display: inline-block; padding: 8px 16px; border-radius: var(--radius-pill); }
+  .nav-actions { flex-direction: column; align-items: stretch; gap: 10px; }
+  .nav-call, .nav-whatsapp, .nav-quote {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 48px;
+    border-radius: var(--radius-pill);
+    font-size: 16px;
+  }
+  .nav-call, .nav-whatsapp { border: 1px solid var(--hairline-strong); font-family: var(--font-sans); }
+  .nav-action-word { display: inline; }
 }
 
-/* Declared after the base rules above, not with the header block higher up
-   the file — same specificity means source order decides, and up there the
-   base padding simply won again. */
+/* Focused pages (/hire/quote, /work/apply): logo, a way back, the phone. */
+.site-header--focused .site-header-inner { flex-wrap: nowrap; }
+.focused-back { font-size: 15px; color: var(--text-secondary); margin-left: auto; white-space: nowrap; }
+.focused-back:hover { color: var(--text); }
 @media (max-width: 640px) {
-  /* Tight enough that four links (Special events, For clients, Apply for work,
-     About) share one row on a 360px phone. */
-  .site-header-inner { padding: 12px 14px; gap: 0; }
-  .switch-link { padding: 8px 6px; font-size: 12.5px; }
-  .call-link { padding: 8px 12px; font-size: 13px; }
+  .site-header--focused .site-header-inner { gap: 14px; }
+  .site-header--focused .nav-call { font-size: 13px; }
+  .site-header--focused .brand-word { display: none; }
 }
 
 /* Buttons */
@@ -441,7 +524,8 @@ p:last-child { margin-bottom: 0; }
   font-size: 13px;
   color: var(--accent);
 }
-.guarantee-card p { margin: 14px 0 0; font-size: 18px; line-height: 1.5; color: var(--text-secondary); }
+.guarantee-card h3 { margin: 0; font-size: 19px; }
+.guarantee-card p { margin: 10px 0 0; font-size: 18px; line-height: 1.5; color: var(--text-secondary); }
 .guarantee-card p strong { color: var(--text); font-weight: 600; }
 .guarantee-note {
   margin-top: 20px;
@@ -460,32 +544,58 @@ p:last-child { margin-bottom: 0; }
 
 .stack { display: grid; gap: 12px; }
 
-/* Rates */
-.rates-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 48px;
-  padding-block: 72px;
+/* Rates. One block on every page that shows a price (src/site/partials.ts). */
+.rate-headline {
+  margin: 0 0 20px;
+  font-size: 18px;
+  color: var(--text-secondary);
 }
-.rate-figure {
+.rate-headline strong {
+  display: block;
   font-family: var(--font-serif);
-  font-size: 64px;
+  font-weight: 400;
+  font-size: clamp(44px, 6vw, 64px);
   line-height: 1;
-  color: var(--accent);
+  color: var(--text);
+  margin-bottom: 6px;
 }
-.rate-caption { margin: 8px 0 0; color: var(--text-secondary); }
-.rate-list {
+.rate-tiers {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr;
+  margin-bottom: 20px;
+}
+@media (min-width: 720px) { .rate-tiers { grid-template-columns: 1fr 1fr; } }
+.rate-tier {
+  padding: 20px 22px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.rate-tier p { margin: 0; color: var(--text-secondary); }
+.rate-tier strong { color: var(--text); }
+/* Premium is the one card that keeps a dark treatment. */
+.rate-tier--premium {
+  background: var(--premium-bg);
+  border-color: var(--premium-bg);
+}
+.rate-tier--premium p { color: var(--premium-ink); }
+.rate-tier--premium strong { color: var(--premium-accent); }
+.rate-terms {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 12px;
-  align-content: start;
-  font-size: 16px;
-  color: var(--text-secondary);
+  gap: 4px 28px;
+  grid-template-columns: 1fr;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted);
 }
-.rate-list li { padding-bottom: 12px; border-bottom: 1px solid var(--hairline-soft); }
-.rate-list li:last-of-type { border-bottom: none; color: var(--text-muted); padding-bottom: 0; }
+@media (min-width: 640px) { .rate-terms { grid-template-columns: 1fr 1fr; } }
+.rate-terms li { padding-left: 14px; position: relative; }
+.rate-terms li::before { content: "·"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+.rate-more { margin: 18px 0 0; font-size: 15px; }
 
 .check-list {
   list-style: none;
@@ -624,6 +734,10 @@ details.faq p { margin: -6px 0 20px; color: var(--text-secondary); max-width: 60
 }
 .cta-band h2 { margin: 0 0 8px; font-size: 40px; }
 .cta-band p { margin: 0; color: var(--text-secondary); }
+.cta-actions { display: grid; gap: 12px; justify-items: start; }
+.cta-contact { font-size: 15px; }
+.cta-worker { margin: 0 0 40px; font-size: 14px; color: var(--text-muted); }
+.cta-worker a { color: var(--text-muted); text-decoration: underline; text-underline-offset: 3px; }
 /* The two seasonal pages are linked straight from the home page, not only via
    the hub, because the home page is the one carrying the inbound links. Both
    are named here rather than themed by date: whichever season is over, the
@@ -931,7 +1045,7 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 /* Honeypot field — hidden from sighted users and screen readers, must stay empty */
 .hp-field { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
-/* Footer */
+/* Footer. One footer on every public page (src/site/partials.ts). */
 .site-footer {
   border-top: 1px solid var(--hairline-strong);
   background: var(--footer-bg);
@@ -940,33 +1054,31 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 .footer-inner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 56px 40px;
+  padding: 56px 40px 40px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 32px;
 }
-@media (max-width: 640px) { .footer-inner { padding: 40px 20px; } }
-.footer-inner .brand { margin-bottom: 12px; }
+@media (max-width: 720px) { .footer-inner { grid-template-columns: 1fr 1fr; padding: 40px 20px 32px; } }
 .footer-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: grid;
-  gap: 8px;
+  gap: 10px;
   align-content: start;
   font-size: 15px;
 }
-.footer-links a { color: var(--text-secondary); }
-.footer-links a:hover, .footer-links a:focus-visible { color: var(--text); }
-.footer-contact { margin-bottom: 6px; font-size: 15px; }
-.footer-contact a { color: var(--text-secondary); }
-.footer-contact a:hover, .footer-contact a:focus-visible { color: var(--accent); }
-.footer-social { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 14px 0 0; font-size: 15px; }
-.footer-social a { color: var(--text-secondary); }
-.footer-social a:hover, .footer-social a:focus-visible { color: var(--accent); }
-.footer-social [hidden] { display: none; }
+.footer-links a { color: var(--text-secondary); overflow-wrap: anywhere; }
+.footer-links a:hover, .footer-links a:focus-visible { color: var(--accent); }
 .footer-legal {
+  grid-column: 1 / -1;
+  margin: 8px 0 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--hairline-soft);
   font-size: 13px;
   line-height: 1.6;
   color: var(--text-muted);
-  max-width: 42ch;
 }
 
 .page-hero-plain {
