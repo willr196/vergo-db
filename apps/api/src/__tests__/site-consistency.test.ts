@@ -11,6 +11,7 @@ import path from 'node:path';
 import { PRICING, SITE_TERMS, formatRate } from '../config/pricing';
 import { renderPublicSource } from '../lib/publicHtml';
 import { renderView, VIEW_ROUTES } from '../site/view';
+import { loadBlog, publishedPosts, renderBlogPage } from '../site/blog';
 
 function setRequiredEnv() {
   process.env.NODE_ENV = 'test';
@@ -62,6 +63,13 @@ const pages: Page[] = walk(publicDir)
     VIEW_ROUTES.map((route) => {
       const html = renderView(route.view, { path: route.path });
       return { rel: `views/pages/${route.view}.eta`, url: route.path, html, root: parse(html) };
+    }),
+  )
+  // And the blog, rendered from content/blog/*.md.
+  .concat(
+    ['/blog', ...publishedPosts().map((post) => post.route)].map((url) => {
+      const html = renderBlogPage(url) as string;
+      return { rel: url === '/blog' ? 'content/blog (index)' : `content/blog${url.slice(5)}.md`, url, html, root: parse(html) };
     }),
   );
 
@@ -411,4 +419,12 @@ test('every internal link resolves to a page, a file, a redirect or an anchor', 
     }
   }
   assert.deepEqual(problems, []);
+});
+
+test('every blog post passes the editorial lint', () => {
+  // The same checks the old build step refused to publish without. A post
+  // that fails them isn't served, so a failure here is a post gone missing.
+  const { posts, problems } = loadBlog();
+  assert.deepEqual(problems, []);
+  assert.ok(posts.length > 0, 'content/blog has at least one post');
 });

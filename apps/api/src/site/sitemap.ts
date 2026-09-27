@@ -1,6 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { siteContent } from './store';
+import { publishedPosts } from './blog';
 
 /**
  * sitemap.xml, built on request from the page list below and the blog posts
@@ -47,20 +46,11 @@ const PAGES: SitemapPage[] = [
 ];
 // PAGES:END
 
-/** Every post in public/blog/, dated by the dateModified in its structured data. */
+/** Every published post, dated by its updated: front matter. Drafts never. */
 function blogPosts(): Array<{ path: string; lastmod: string }> {
-  const dir = path.join(process.cwd(), 'public', 'blog');
-  let files: string[];
-  try {
-    files = fs.readdirSync(dir).filter((f) => f.endsWith('.html'));
-  } catch {
-    return [];
-  }
-  return files.sort().map((file) => {
-    const html = fs.readFileSync(path.join(dir, file), 'utf8');
-    const m = /"dateModified":\s*"(\d{4}-\d{2}-\d{2})/.exec(html) || /"datePublished":\s*"(\d{4}-\d{2}-\d{2})/.exec(html);
-    return { path: `/blog/${file.replace(/\.html$/, '')}`, lastmod: m ? m[1] : '' };
-  });
+  return publishedPosts()
+    .filter((p) => !p.draft)
+    .map((p) => ({ path: p.route, lastmod: p.updated }));
 }
 
 function day(date: Date): string {
@@ -75,6 +65,8 @@ function later(a: string, b: string): string {
 export function lastmodFor(page: SitemapPage): string {
   const { updated } = siteContent();
   let lastmod = page.lastmod;
+  // The blog index changes whenever a post does.
+  if (page.path === '/blog') for (const p of blogPosts()) lastmod = later(lastmod, p.lastmod);
   if (updated.settings) lastmod = later(lastmod, day(updated.settings));
   for (const kind of page.shows || []) {
     const date = kind.startsWith('faqs:') ? updated.faqs[kind.slice(5)] : updated[kind as 'testimonials' | 'recentWork' | 'photos' | 'promos'];

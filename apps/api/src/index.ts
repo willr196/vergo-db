@@ -61,6 +61,7 @@ import { enforceHttpsRedirect } from './utils/httpsRedirect';
 import { clearRenderCaches, sendPublicHtml, renderPublicSource, versionAssetUrls, virtualAsset, PUBLIC_HTML_CACHE_CONTROL } from './lib/publicHtml';
 import { onContentChange, startContentRefresh } from './site/store';
 import { sitemapXml } from './site/sitemap';
+import { isBlogPage, renderBlogPage } from './site/blog';
 import { renderView, viewRouteFor, withPageScriptHashes } from './site/view';
 import { ZodError } from 'zod';
 
@@ -722,7 +723,7 @@ app.use((req, res, next) => {
   const relPath = req.path.replace(/^\//, '');
   const filePath = resolvePublicFile(relPath);
   const isFile = Boolean(filePath && fs.existsSync(filePath));
-  if (!isFile && !viewRouteFor(clean)) return next();
+  if (!isFile && !viewRouteFor(clean) && !isBlogPage(clean)) return next();
 
   const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
   return res.redirect(301, clean + qs);
@@ -739,7 +740,7 @@ app.use((req, res, next) => {
   const clean = req.path.replace(/\/+$/, '');
   const filePath = resolvePublicFile(clean.replace(/^\//, '') + '.html');
   const isFile = Boolean(filePath && fs.existsSync(filePath));
-  if (!isFile && !viewRouteFor(clean)) return next();
+  if (!isFile && !viewRouteFor(clean) && !isBlogPage(clean)) return next();
 
   const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
   return res.redirect(301, clean + qs);
@@ -753,6 +754,20 @@ app.use((req, res, next) => {
   if (!route) return next();
   try {
     const html = versionAssetUrls(renderView(route.view, { path: route.path }), publicDir);
+    withPageScriptHashes(res, html);
+    res.setHeader('Cache-Control', PUBLIC_HTML_CACHE_CONTROL);
+    res.type('html').send(html);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// The blog: /blog and /blog/<slug>, rendered from content/blog/*.md.
+app.get(['/blog', '/blog/:slug'], (req, res, next) => {
+  try {
+    const page = renderBlogPage(req.path.replace(/\/+$/, ''));
+    if (!page) return next();
+    const html = versionAssetUrls(page, publicDir);
     withPageScriptHashes(res, html);
     res.setHeader('Cache-Control', PUBLIC_HTML_CACHE_CONTROL);
     res.type('html').send(html);

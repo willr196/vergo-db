@@ -1,6 +1,6 @@
 # blog-implementation-brief.md
 
-How a post in `content/blog/` becomes a page on `vergoltd.com/blog`. The editorial
+How a post in `apps/api/content/blog/` becomes a page on `vergoltd.com/blog`. The editorial
 rules live in [VERGO-BLOG-SYSTEM.md](./VERGO-BLOG-SYSTEM.md); this file covers the
 machinery only.
 
@@ -9,18 +9,19 @@ machinery only.
 ## The pipeline
 
 ```
-content/blog/<slug>.md
+apps/api/content/blog/<slug>.md
         |
-        |  node tools/blog/build.js
+        |  read, parsed and linted on request (apps/api/src/site/blog/)
         v
-apps/api/public/blog/<slug>.html     the post
-apps/api/public/blog.html            the /blog index
-apps/api/public/sitemap.xml          the BLOG:START / BLOG:END block
+/blog/<slug>     the post
+/blog            the index
+/sitemap.xml     one entry per published post, dated by its `updated:`
 ```
 
-The generated HTML is **committed**. Nothing is rendered at request time, and the
-Fly build context is `apps/api`, so `content/` and `tools/` never reach the
-container. If you edit a `.md` and don't run the build, the site doesn't change.
+Nothing is generated or committed besides the `.md`. The server re-reads a post
+when its file changes, so a deploy with a new or edited `.md` is all it takes.
+The parser, loader, lint and templates (`markdown.js`, `post.js`, `lint.js`,
+`template.js`) are the ones the old build step used, unchanged.
 
 ## Commands
 
@@ -29,24 +30,16 @@ Run from the repo root.
 | Command | What it does |
 | --- | --- |
 | `npm run blog:check` | Lints every post, including drafts. Writes nothing. |
-| `npm run blog:build` | Lints, then writes the published posts, the index and the sitemap block. |
-| `npm run blog:drafts` | As above, but also builds `draft: true` posts, marked `noindex, nofollow`. |
 
-Errors abort the whole build; nothing is written until every post passes.
-Warnings print and let the build through.
+A post with lint errors isn't served, and the unit test "every blog post passes
+the editorial lint" fails on it, so CI stops it before a deploy. Warnings print
+and don't block.
 
-The build also deletes any `apps/api/public/blog/*.html` whose source has gone
-or turned into a draft, so the public directory can't drift from `content/blog/`.
-
-After building, run the site's own checks from `apps/api`:
+After editing, run the site's own checks from `apps/api`:
 
 ```
-npm run validate:pages    # shared meta, shell mounts, skip link
-npm run validate:seo      # canonical vs route, sitemap coverage
+npm test
 ```
-
-Both were already failing on pre-existing pages before the blog existed. Check
-that no `blog` row is among the failures rather than expecting a clean run.
 
 ## Post source format
 
@@ -102,7 +95,7 @@ Everything else fails the parse rather than passing through unstyled. Links must
 be relative, an anchor, `https:`, `mailto:` or `tel:`; `https:` links render with
 `target="_blank" rel="noopener"`.
 
-## What the build enforces
+## What the lint enforces
 
 Structure, from the REQUIRED STRUCTURE section of the system doc:
 
@@ -130,7 +123,7 @@ protocol is the only defence against that.
 
 ## The page template
 
-`tools/blog/template.js` produces both pages. They follow the same public-page
+`apps/api/src/site/blog/template.js` produces both pages. They follow the same public-page
 contract as the rest of the site, which
 `apps/api/scripts/validate-page-consistency.js` enforces:
 
@@ -165,19 +158,14 @@ block is an answer rather than decoration.
 
 ## Routing
 
-No server changes were needed. `apps/api/src/index.ts` already rewrites a clean
-URL to `<path>.html` when that file exists under `public/`, and that works for
-nested paths:
+`apps/api/src/index.ts` serves `/blog` and `/blog/<slug>` from
+`renderBlogPage()`, through the same shared header, footer and `{{TOKENS}}` as
+every other page. `/blog.html` and `/blog/<slug>.html` 301 to the clean URLs.
 
-- `/blog` serves `public/blog.html`
-- `/blog/<slug>` serves `public/blog/<slug>.html`
-- `/blog/<slug>.html` 301s to `/blog/<slug>` via the existing canonicaliser
+`robots.txt` allows everything outside `/api`, `/admin*` and `/login`.
 
-`robots.txt` already allows everything outside `/api`, `/admin*` and `/login`,
-so no change there either.
-
-With no published posts, `/blog` is built with `noindex, nofollow` and stays out
-of the sitemap. Both clear themselves on the first build that has a post.
+With no published posts, `/blog` renders with `noindex, nofollow` and has no
+post entries in the sitemap.
 
 `/blog` is in the site footer on every public page.
 
@@ -185,10 +173,10 @@ of the sitemap. Both clear themselves on the first build that has a post.
 
 1. Run the interview protocol in [VERGO-BLOG-SYSTEM.md](./VERGO-BLOG-SYSTEM.md).
    Do not skip it, and do not fill gaps yourself.
-2. Write `content/blog/<slug>.md` with `draft: true`.
+2. Write `apps/api/content/blog/<slug>.md` with `draft: true`.
 3. `npm run blog:check` until it is clean.
-4. `npm run blog:drafts`, then `cd apps/api && npm run dev`, and read the page at
-   `http://localhost:3000/blog/<slug>`.
+4. `cd apps/api && npm run dev`, and read the page at
+   `http://localhost:3000/blog/<slug>`. Drafts show on a development server
+   only, as `noindex`.
 5. Hand Will the "verify before publishing" list. Wait for his answers.
-6. Set `draft: false`, run `npm run blog:build`, and commit the `.md` and every
-   generated file together.
+6. Set `draft: false`, commit the `.md`, and deploy.
