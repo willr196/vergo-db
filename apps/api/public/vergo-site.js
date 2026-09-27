@@ -1,77 +1,34 @@
 /**
  * Behaviour for the shared header on every public page:
  *   - the mobile menu button
- *   - the seasonal banner, header item and homepage section, all by date
+ *   - the seasonal banner's close button
  *
- * The seasonal pieces ship hidden with no link in them. Only this script fills
- * and shows them, so without JavaScript nothing seasonal appears, and nothing
- * can go stale: the dates below decide, every time a page loads.
+ * Which season shows, in the banner, the header and on the homepage, is
+ * decided on the server from the stored promo dates (src/site/view.ts), so
+ * pages arrive complete and nothing here depends on today's date.
  */
 (function () {
   'use strict';
 
-  /* ---------------------------------------------------------- seasons */
-
-  // Month is 1-12. Both ends inclusive.
-  var SEASONS = {
-    halloween: {
-      banner: { from: [9, 1], to: [10, 31] },
-      header: { from: [9, 1], to: [10, 31] },
-      label: 'Halloween',
-      bannerText: 'Halloween staff and performers: now booking',
-      href: '/special-events/halloween'
-    },
-    christmas: {
-      banner: { from: [9, 1], to: [12, 20] },
-      header: { from: [11, 1], to: [12, 20] },
-      label: 'Christmas',
-      bannerText: 'Christmas party staff: now booking',
-      href: '/special-events/christmas'
-    }
-  };
-  var ORDER = ['halloween', 'christmas'];
-
-  function inRange(range, date) {
-    var md = (date.getMonth() + 1) * 100 + date.getDate();
-    return md >= range.from[0] * 100 + range.from[1] && md <= range.to[0] * 100 + range.to[1];
-  }
-
-  function activeFor(kind, date) {
-    return ORDER.filter(function (key) { return inRange(SEASONS[key][kind], date); });
-  }
-
-  var today = new Date();
+  /* ------------------------------------------------------------ banner */
 
   function storage() {
     try { return window.sessionStorage; } catch (e) { return null; }
   }
 
-  function setupBanner() {
+  /** A dismissal lasts for the visit, and only for this set of offers. */
+  function setupBannerDismiss() {
     var banner = document.querySelector('[data-season-banner]');
     if (!banner) return;
-    var keys = activeFor('banner', today);
-    if (!keys.length) return;
-
-    // Dismissal lasts for the visit, and only for this set of offers.
     var dismissKey = 'vergo-season-dismissed';
-    var signature = keys.join('+');
+    var signature = banner.getAttribute('data-season-keys') || '';
     var store = storage();
     try {
-      if (store && store.getItem(dismissKey) === signature) return;
-    } catch (e) { /* storage blocked: show the banner */ }
-
-    var holder = banner.querySelector('[data-season-banner-links]');
-    // One span per offer; the " · " between them is CSS, so on a phone they
-    // can stack one per line instead.
-    keys.forEach(function (key) {
-      var item = document.createElement('span');
-      var a = document.createElement('a');
-      a.href = SEASONS[key].href;
-      a.textContent = SEASONS[key].bannerText + ' →';
-      item.appendChild(a);
-      holder.appendChild(item);
-    });
-    banner.hidden = false;
+      if (store && store.getItem(dismissKey) === signature) {
+        banner.hidden = true;
+        return;
+      }
+    } catch (e) { /* storage blocked: leave the banner up */ }
 
     var close = banner.querySelector('[data-season-dismiss]');
     if (close) {
@@ -80,27 +37,6 @@
         try { if (store) store.setItem(dismissKey, signature); } catch (e) { /* ignore */ }
       });
     }
-  }
-
-  function setupHeaderItem() {
-    var item = document.querySelector('[data-season-item]');
-    var link = document.querySelector('[data-season-link]');
-    if (!item || !link) return;
-    var key = activeFor('header', today)[0];
-    if (!key) return;
-    link.href = SEASONS[key].href;
-    link.textContent = SEASONS[key].label;
-    var path = window.location.pathname.replace(/\/$/, '');
-    if (path === SEASONS[key].href) link.setAttribute('aria-current', 'page');
-    item.hidden = false;
-  }
-
-  /** Homepage slot: the Halloween section until 31 October, then Christmas to 20 December. */
-  function setupSeasonSections() {
-    var key = activeFor('header', today)[0];
-    Array.prototype.forEach.call(document.querySelectorAll('[data-season]'), function (el) {
-      el.hidden = el.getAttribute('data-season') !== key;
-    });
   }
 
   /* ------------------------------------------------------------- menu */
@@ -133,9 +69,7 @@
 
   function init() {
     setupMenu();
-    setupBanner();
-    setupHeaderItem();
-    setupSeasonSections();
+    setupBannerDismiss();
   }
 
   if (document.readyState === 'loading') {

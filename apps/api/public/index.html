@@ -70,30 +70,10 @@
 
     <!--#trust-strip-->
 
-    <!-- Date-driven: vergo-site.js shows the Halloween section from 1 September
-         to 31 October and the Christmas one from 1 November to 20 December.
-         Both ship hidden, so without JavaScript neither can go stale. -->
-    <section class="section shell season-feature" data-season="halloween" aria-labelledby="halloween-heading" hidden>
-      <div class="season-feature-grid">
-        <img src="/images/special-events/halloween-bar-800.webp" srcset="/images/special-events/halloween-bar-800.webp 800w, /images/special-events/halloween-bar-1200.webp 1200w" sizes="(min-width: 900px) 540px, 100vw" width="1448" height="1086" loading="lazy" alt="Bartenders in hooded robes and ghost masks pouring cocktails at a candlelit Halloween bar">
-        <div>
-          <h2 id="halloween-heading">Halloween: themed staff, performers and makeup</h2>
-          <ul class="season-prices">
-            <li>Themed hospitality staff <strong>{{THEMED_RATE}}/hr</strong></li>
-            <li>Scare actors and character performers <strong>{{PERFORMER_RATE}}/hr</strong></li>
-            <li>Makeup artists <strong>{{MAKEUP_RATE}}/hr</strong></li>
-          </ul>
-          <p>The last week of October books up first.</p>
-          <a href="/special-events/halloween#build" class="btn btn-primary">Build your Halloween team</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="section shell season-feature" data-season="christmas" aria-labelledby="christmas-heading" hidden>
-      <h2 id="christmas-heading">Christmas: party staff through December</h2>
-      <p>Festive and themed staff, or a straight team at {{STANDARD_RATE}}/hr.</p>
-      <a href="/special-events/christmas" class="btn btn-primary">Christmas party staff</a>
-    </section>
+    <!-- The season in the header right now, chosen on the server from the
+         stored promos (admin: Site content > Seasonal promos): Halloween to
+         31 October, then Christmas to 20 December. Nothing outside a season. -->
+    <!--#season-feature-->
 
     <!--#guarantees-->
 

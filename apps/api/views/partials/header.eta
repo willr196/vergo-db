@@ -18,8 +18,8 @@
         <ul class="nav-links">
 <% it.nav.forEach(function (item) { %>
           <li class="nav-item"><a class="nav-link" href="<%= item.href %>"<%~ item.current ? ' aria-current="page"' : '' %>><%= item.label %></a></li>
-<% if (item.href === '/book-an-event') { %>
-          <li class="nav-item nav-item--season" data-season-item hidden><a class="nav-link nav-link--season" data-season-link></a></li>
+<% if (item.href === '/book-an-event' && it.season.header) { %>
+          <li class="nav-item nav-item--season" data-season-item><a class="nav-link nav-link--season" href="<%= it.season.header.href %>"<%~ it.path === it.season.header.href ? ' aria-current="page"' : '' %>><%= it.season.header.navLabel %></a></li>
 <% } %>
 <% }) %>
         </ul>

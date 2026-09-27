@@ -5,6 +5,7 @@ import type { Response } from 'express';
 import { PRICING, SITE_TERMS, formatRate, headlineRateText } from '../config/pricing';
 import { SITE, siteTokens } from './content';
 import { siteContent } from './store';
+import type { PhotoContent, PromoContent } from './defaults';
 
 /**
  * Server-rendered public pages (Eta). Templates live in apps/api/views/:
@@ -95,6 +96,44 @@ export function fillTokens(text: string, tokens: Record<string, string> = siteTo
   return text.replace(/{{([A-Z0-9_]+)}}/g, (match, key: string) => (key in tokens ? tokens[key] : match));
 }
 
+/* ---------------------------------------------------------------- seasons */
+
+export interface SeasonState {
+  /** Offers for the banner, soonest-ending first. */
+  banner: PromoContent[];
+  /** The one season in the header (and the homepage section), if any. */
+  header: PromoContent | null;
+}
+
+/**
+ * Which seasonal offers are live, decided on the server from the stored
+ * promo dates (Europe/London days, stored as instants). The soonest-ending
+ * season goes first, so Halloween leads until 31 October, then Christmas.
+ */
+export function seasonState(now: Date = new Date()): SeasonState {
+  const live = (from: Date, to: Date) => from.getTime() <= now.getTime() && now.getTime() <= to.getTime();
+  const promos = [...siteContent().promos].sort((a, b) => a.endsAt.getTime() - b.endsAt.getTime());
+  return {
+    banner: promos.filter((p) => live(p.startsAt, p.endsAt)),
+    header: promos.find((p) => live(p.navStartsAt || p.startsAt, p.navEndsAt || p.endsAt)) || null,
+  };
+}
+
+/** Changes whenever what the season pieces show changes; part of the rendered-page cache key. */
+export function seasonSignature(now: Date = new Date()): string {
+  const s = seasonState(now);
+  return s.banner.map((p) => p.key).join('+') + '|' + (s.header ? s.header.key : '');
+}
+
+/** src and srcset for a stored photo. "{w}" in the path stands for each width in variants. */
+export function photoSources(photo: PhotoContent): { src: string; srcset: string } {
+  if (!photo.variants.length || !photo.path.includes('{w}')) return { src: photo.path, srcset: '' };
+  return {
+    src: photo.path.replace('{w}', String(photo.variants[0])),
+    srcset: photo.variants.map((w) => `${photo.path.replace('{w}', String(w))} ${w}w`).join(', '),
+  };
+}
+
 /** The partials a marker or a template can ask for, by name. */
 const BLOCKS: Record<string, string> = {
   head: 'head',
@@ -110,6 +149,7 @@ const BLOCKS: Record<string, string> = {
   'trust-strip': 'trust-strip',
   'legal-ico': 'legal-ico',
   'legal-insurers': 'legal-insurers',
+  'season-feature': 'season-feature',
 };
 
 type BlockFn = (attrs?: PartialAttrs) => string;
@@ -149,6 +189,8 @@ export function pageData(ctx: PageContext) {
     fillTokens: (text: string) => fillTokens(text, tokens),
     nav: NAV.map((item) => ({ href: item.href, label: item.label, current: item.match(ctx.path) })),
     bannerAllowed: bannerAllowed(ctx.path),
+    season: seasonState(),
+    photoSources,
     esc,
     jsonLdString,
   };
@@ -159,6 +201,9 @@ export function pageData(ctx: PageContext) {
   data.blocks = blocks;
   return data as typeof data & { blocks: Record<string, BlockFn> };
 }
+
+/** Every block name a marker or template can use. */
+export const BLOCK_NAMES = Object.keys(BLOCKS);
 
 /** One shared block, as the <!--#marker--> renderer asks for it. */
 export function renderBlock(name: string, attrs: PartialAttrs, ctx: PageContext): string | null {

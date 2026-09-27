@@ -229,7 +229,9 @@ test('the header never carries a permanent link to /special-events', () => {
   for (const p of pages) {
     for (const header of all(p.root, (n) => n.tag === 'header' && 'data-shared-header' in n.attrs)) {
       for (const a of all(header, byTag('a'))) {
-        // The seasonal item has no href in the HTML; vergo-site.js sets it by date.
+        // The seasonal item is allowed: the server only renders it while a
+        // season's dates are live (site/view.ts seasonState).
+        if ('data-season-item' in (a.parent?.attrs || {})) continue;
         if ((a.attrs.href || '').startsWith('/special-events')) problems.push(`${p.rel}: header links ${a.attrs.href}`);
       }
     }

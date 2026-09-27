@@ -6,6 +6,7 @@ import {
   defaultRecentWork,
   defaultTestimonials,
   FaqContent,
+  HomeLine,
   PhotoContent,
   PromoContent,
   RecentWorkContent,
@@ -126,6 +127,7 @@ async function loadFromDatabase(): Promise<SiteContent | null> {
     recentWork: recentWork.map((w) => ({ title: w.title, detail: w.detail })),
     photos: photos.map((p) => ({
       path: p.path,
+      variants: p.variants,
       alt: p.alt,
       caption: p.caption,
       tags: p.tags,
@@ -139,7 +141,7 @@ async function loadFromDatabase(): Promise<SiteContent | null> {
       bannerText: p.bannerText,
       href: p.href,
       homeHeading: p.homeHeading,
-      homeLines: Array.isArray(p.homeLines) ? p.homeLines.map(String) : [],
+      homeLines: homeLines(p.homeLines),
       homeCtaLabel: p.homeCtaLabel,
       homeCtaHref: p.homeCtaHref,
       startsAt: p.startsAt,
@@ -150,6 +152,18 @@ async function loadFromDatabase(): Promise<SiteContent | null> {
     source: 'database',
     loadedAt: new Date(),
   };
+}
+
+/** Stored JSON as homepage lines, dropping anything that is neither a sentence nor { label, price }. */
+function homeLines(value: unknown): HomeLine[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((line): HomeLine[] => {
+    if (typeof line === 'string') return [line];
+    if (line && typeof line === 'object' && typeof (line as any).label === 'string' && typeof (line as any).price === 'string') {
+      return [{ label: (line as any).label, price: (line as any).price }];
+    }
+    return [];
+  });
 }
 
 /** Reloads from the database. Never throws: on any failure the last good copy stays. */

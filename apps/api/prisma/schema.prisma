@@ -873,8 +873,11 @@ model RecentWork {
 
 model GalleryPhoto {
   id        String   @id @default(cuid())
-  /// S3 key or a path under public/
+  /// S3 key or a path under public/. With variants, "{w}" in it stands for
+  /// each width: "/images/x/halloween-bar-{w}.webp" with variants [800, 1200].
   path      String   @db.VarChar(500)
+  /// Widths available for srcset, smallest first; empty for a single file
+  variants  Int[]    @default([])
   alt       String   @db.VarChar(300)
   caption   String?  @db.VarChar(300)
   /// Where it shows: "home", "hire", "halloween", ...

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Response } from 'express';
 import { pagePathFor, renderSiteHtml, siteConfigScript } from '../site/render';
-import { withPageScriptHashes } from '../site/view';
+import { seasonSignature, withPageScriptHashes } from '../site/view';
 
 /**
  * Serves the static HTML pages with every local stylesheet, script and image
@@ -38,7 +38,7 @@ export const PUBLIC_HTML_CACHE_CONTROL = 'public, max-age=0, s-maxage=60, stale-
 
 type Cached<T> = { mtimeMs: number; value: T };
 const hashCache = new Map<string, Cached<string | null>>();
-const sourceCache = new Map<string, Cached<string>>();
+const sourceCache = new Map<string, Cached<string> & { season: string }>();
 
 function mtimeOf(filePath: string): number | null {
   try {
@@ -124,10 +124,13 @@ function renderPage(filePath: string, publicDir: string): string | null {
   const mtimeMs = mtimeOf(filePath);
   if (mtimeMs === null) return null;
 
+  // Keyed on the season too: the banner and header item change at midnight
+  // on a season's first and last day, with no file or content change.
+  const season = seasonSignature();
   let cached = sourceCache.get(filePath);
-  if (!cached || cached.mtimeMs !== mtimeMs) {
+  if (!cached || cached.mtimeMs !== mtimeMs || cached.season !== season) {
     const source = fs.readFileSync(filePath, 'utf8');
-    cached = { mtimeMs, value: renderPublicSource(source, filePath, publicDir) };
+    cached = { mtimeMs, season, value: renderPublicSource(source, filePath, publicDir) };
     sourceCache.set(filePath, cached);
   }
   // Stamped on every request rather than cached whole: a page can be unchanged

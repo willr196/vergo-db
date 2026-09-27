@@ -1,4 +1,4 @@
-import { PageContext, PartialAttrs, renderBlock } from './view';
+import { BLOCK_NAMES, PageContext, PartialAttrs, renderBlock } from './view';
 
 /**
  * The blocks every public page shares. A page still served from public/*.html
@@ -15,22 +15,6 @@ import { PageContext, PartialAttrs, renderBlock } from './view';
 
 export type { PageContext, PartialAttrs };
 
-const NAMES = [
-  'testimonials',
-  'trust-strip',
-  'recent-work',
-  'legal-ico',
-  'legal-insurers',
-  'service-level',
-  'head',
-  'header',
-  'footer',
-  'rates',
-  'guarantees',
-  'working-with-us',
-  'cta',
-];
-
 export const PARTIALS: Record<string, (attrs: PartialAttrs, ctx: PageContext) => string> = Object.fromEntries(
-  NAMES.map((name) => [name, (attrs: PartialAttrs, ctx: PageContext) => renderBlock(name, attrs, ctx) ?? '']),
+  BLOCK_NAMES.map((name) => [name, (attrs: PartialAttrs, ctx: PageContext) => renderBlock(name, attrs, ctx) ?? '']),
 );

@@ -1,11 +1,14 @@
 <%/*
-  Starts hidden with no link; vergo-site.js fills and shows it by date, so a
-  visitor without JavaScript sees nothing rather than last season's offer.
-  Phase 4 of the dynamic-site brief moves that decision to the server.
+  The live seasonal offers, decided on the server (site/view.ts seasonState).
+  Nothing at all outside a season. vergo-site.js only handles the close
+  button: a dismissal lasts for the visit, and only for this set of offers
+  (data-season-keys), so a new season shows again.
 */%>
-<div class="season-banner" data-season-banner hidden>
+<% if (it.season.banner.length) { %>
+<div class="season-banner" data-season-banner data-season-keys="<%= it.season.banner.map(function (p) { return p.key; }).join('+') %>">
     <div class="season-banner-inner">
-      <p class="season-banner-links" data-season-banner-links></p>
+      <p class="season-banner-links" data-season-banner-links><% it.season.banner.forEach(function (p) { %><span><a href="<%= p.href %>"><%= p.bannerText %> →</a></span><% }) %></p>
       <button type="button" class="season-banner-close" data-season-dismiss aria-label="Dismiss this notice">&times;</button>
     </div>
   </div>
+<% } %>

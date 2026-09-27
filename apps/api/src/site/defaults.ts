@@ -26,7 +26,9 @@ export interface RecentWorkContent {
 }
 
 export interface PhotoContent {
+  /** With variants, "{w}" stands for each width. */
   path: string;
+  variants: number[];
   alt: string;
   caption?: string | null;
   tags: string[];
@@ -39,13 +41,16 @@ export interface FaqContent {
   answer: string;
 }
 
+/** A line under a season's homepage heading: a sentence, or a role and its rate. */
+export type HomeLine = string | { label: string; price: string };
+
 export interface PromoContent {
   key: string;
   navLabel: string;
   bannerText: string;
   href: string;
   homeHeading: string;
-  homeLines: string[];
+  homeLines: HomeLine[];
   homeCtaLabel?: string | null;
   homeCtaHref?: string | null;
   startsAt: Date;
@@ -82,9 +87,23 @@ export function defaultRecentWork(): RecentWorkContent[] {
   return proofFile().recentWork.map((w) => ({ title: w.title, detail: w.detail }));
 }
 
-/** No photos were published through proof.json; photos arrive through the admin. */
+/**
+ * The one photo the pages pick by tag: the Halloween bar on the homepage's
+ * season section (tag "season-halloween"). Everything else arrives through
+ * the admin.
+ */
 export function defaultPhotos(): PhotoContent[] {
-  return [];
+  return [
+    {
+      path: '/images/special-events/halloween-bar-{w}.webp',
+      variants: [800, 1200],
+      alt: 'Bartenders in hooded robes and ghost masks pouring cocktails at a candlelit Halloween bar',
+      caption: null,
+      tags: ['season-halloween'],
+      width: 1448,
+      height: 1086,
+    },
+  ];
 }
 
 /** Every page's FAQs, keyed by page ("hire/weddings"), copied from the pages. */
@@ -123,9 +142,9 @@ export function defaultPromos(year = 2026): PromoContent[] {
       href: '/special-events/halloween',
       homeHeading: 'Halloween: themed staff, performers and makeup',
       homeLines: [
-        'Themed hospitality staff {{THEMED_RATE}}/hr',
-        'Scare actors and character performers {{PERFORMER_RATE}}/hr',
-        'Makeup artists {{MAKEUP_RATE}}/hr',
+        { label: 'Themed hospitality staff', price: '{{THEMED_RATE}}/hr' },
+        { label: 'Scare actors and character performers', price: '{{PERFORMER_RATE}}/hr' },
+        { label: 'Makeup artists', price: '{{MAKEUP_RATE}}/hr' },
         'The last week of October books up first.',
       ],
       homeCtaLabel: 'Build your Halloween team',

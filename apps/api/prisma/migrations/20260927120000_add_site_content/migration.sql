@@ -43,6 +43,7 @@ CREATE TABLE "RecentWork" (
 CREATE TABLE "GalleryPhoto" (
     "id" TEXT NOT NULL,
     "path" VARCHAR(500) NOT NULL,
+    "variants" INTEGER[] DEFAULT ARRAY[]::INTEGER[],
     "alt" VARCHAR(300) NOT NULL,
     "caption" VARCHAR(300),
     "tags" TEXT[],

@@ -67,3 +67,35 @@ test('season windows are London days', () => {
   assert.equal(halloween.endsAt.toISOString(), '2026-10-31T23:59:59.999Z');
   assert.equal(christmas.navStartsAt.toISOString(), '2026-11-01T00:00:00.000Z');
 });
+
+test('the season decides the banner, the header item and the homepage section', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { seasonState, renderBlock } = require('../site/view');
+  const at = (iso: string) => {
+    const s = seasonState(new Date(iso));
+    return { banner: s.banner.map((p: { key: string }) => p.key).join('+'), header: s.header ? s.header.key : '' };
+  };
+  assert.deepEqual(at('2026-08-31T22:59:59Z'), { banner: '', header: '' }); // 31 Aug, 11:59pm BST
+  assert.deepEqual(at('2026-08-31T23:00:00Z'), { banner: 'halloween+christmas', header: 'halloween' }); // 1 Sep
+  assert.deepEqual(at('2026-10-31T23:59:59Z'), { banner: 'halloween+christmas', header: 'halloween' }); // 31 Oct, last second
+  assert.deepEqual(at('2026-11-01T00:00:00Z'), { banner: 'christmas', header: 'christmas' });
+  assert.deepEqual(at('2026-12-20T23:59:59Z'), { banner: 'christmas', header: 'christmas' });
+  assert.deepEqual(at('2026-12-21T00:00:00Z'), { banner: '', header: '' });
+
+  // Outside a season the blocks render nothing, rather than an empty shell.
+  const realNow = Date.now;
+  Date.now = () => Date.parse('2026-12-25T12:00:00Z');
+  const RealDate = Date;
+  // seasonState() defaults to new Date(); pin it for the block renders.
+  (global as any).Date = class extends RealDate {
+    constructor(...args: any[]) { super(...(args.length ? args : [RealDate.parse('2026-12-25T12:00:00Z')]) as []); }
+  };
+  try {
+    assert.equal(renderBlock('season-feature', {}, { path: '/' }), '');
+    assert.doesNotMatch(renderBlock('header', {}, { path: '/' }), /season-banner|data-season-item/);
+  } finally {
+    (global as any).Date = RealDate;
+    Date.now = realNow;
+  }
+  assert.match(renderBlock('header', {}, { path: '/terms' }) || '', /data-shared-header/);
+});
