@@ -76,6 +76,20 @@ function rateTerms(): string[] {
   ];
 }
 
+/** Stored HTML (an FAQ answer with a link) as the plain text structured data wants. */
+export function plainText(html: string): string {
+  return html
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 /** Fills {{TOKENS}} in stored text (FAQ answers, promo lines). Unknown tokens stay, for the consistency test to find. */
 export function fillTokens(text: string, tokens: Record<string, string> = siteTokens()): string {
   return text.replace(/{{([A-Z0-9_]+)}}/g, (match, key: string) => (key in tokens ? tokens[key] : match));
@@ -120,6 +134,16 @@ export function pageData(ctx: PageContext) {
     /** A page's FAQs, tokens filled. pageKey is the path without its leading slash. */
     faqs: (pageKey: string) =>
       (content.faqs[pageKey] || []).map((f) => ({ question: fillTokens(f.question, tokens), answer: fillTokens(f.answer, tokens) })),
+    /** FAQPage structured data from the same FAQs the page shows, answers as plain text. */
+    faqJsonLd: (pageKey: string) => ({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: (content.faqs[pageKey] || []).map((f) => ({
+        '@type': 'Question',
+        name: fillTokens(f.question, tokens),
+        acceptedAnswer: { '@type': 'Answer', text: plainText(fillTokens(f.answer, tokens)) },
+      })),
+    }),
     /** Published photos carrying a tag, in order. */
     photos: (tag: string) => content.photos.filter((ph) => ph.tags.includes(tag)),
     fillTokens: (text: string) => fillTokens(text, tokens),
@@ -155,7 +179,9 @@ export interface ViewRoute {
  * matter; paths are exact. A page listed here must have its .html deleted, or
  * the old file would still answer at /<page>.html.
  */
-export const VIEW_ROUTES: ViewRoute[] = [];
+export const VIEW_ROUTES: ViewRoute[] = [
+  { path: '/terms', view: 'terms' },
+];
 
 export function viewRouteFor(pagePath: string): ViewRoute | undefined {
   return VIEW_ROUTES.find((r) => r.path === pagePath);

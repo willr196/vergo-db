@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { PRICING, SITE_TERMS, formatRate } from '../config/pricing';
 import { renderPublicSource } from '../lib/publicHtml';
+import { renderView, VIEW_ROUTES } from '../site/view';
 
 function setRequiredEnv() {
   process.env.NODE_ENV = 'test';
@@ -55,7 +56,14 @@ const pages: Page[] = walk(publicDir)
     const html = renderPublicSource(fs.readFileSync(file, 'utf8'), file, publicDir);
     const url = '/' + rel.replace(/\.html$/, '').replace(/(^|\/)index$/, '');
     return { rel, url: url === '/' ? '/' : url.replace(/\/$/, ''), html, root: parse(html) };
-  });
+  })
+  // And every page served from a template, rendered as the server sends it.
+  .concat(
+    VIEW_ROUTES.map((route) => {
+      const html = renderView(route.view, { path: route.path });
+      return { rel: `views/pages/${route.view}.eta`, url: route.path, html, root: parse(html) };
+    }),
+  );
 
 const LEGAL = new Set(['/terms', '/privacy', '/legal']);
 const isExempt = (p: Page) => LEGAL.has(p.url) || p.url === '/blog' || p.url.startsWith('/blog/') || p.url === '/404';

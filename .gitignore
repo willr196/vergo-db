@@ -36,3 +36,7 @@ coverage/
 # Ignore archives & scripts
 *.zip
 *.sh
+
+# Screenshot comparisons (tools/screenshot-diff.mjs)
+tools/screenshots/compare/
+tools/screenshots/.chrome-profile/

@@ -26,10 +26,10 @@
   <meta name="robots" content="<%= m.robots %>">
 <% } %>
   <link rel="canonical" href="<%= origin + m.canonical %>">
-<% (it.styles || []).forEach(function (href) { %>
+<% const styles = it.styles || []; styles.forEach(function (href) { %>
   <link rel="stylesheet" href="<%= href %>">
 <% }) %>
-<% (it.jsonLd || []).forEach(function (data) { %>
+<% const jsonLd = it.jsonLd || []; jsonLd.forEach(function (data) { %>
   <script type="application/ld+json">
 <%~ it.jsonLdString(data) %>
   </script>
@@ -45,7 +45,7 @@
   </main>
 
   <%~ it.blocks.footer() %>
-<% (it.scripts || []).forEach(function (src) { %>
+<% const scripts = it.scripts || []; scripts.forEach(function (src) { %>
   <script src="<%= src %>"></script>
 <% }) %>
 </body>

@@ -217,3 +217,38 @@ test('pages revalidate on every view, and only vergoltd.com is indexable', async
     await new Promise<void>((resolve) => server.close(() => resolve()));
   }
 });
+
+test('every server-rendered page serves, and its old .html URL redirects to it', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { VIEW_ROUTES } = require('../site/view') as { VIEW_ROUTES: Array<{ path: string; view: string }> };
+  const server = http.createServer(app);
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const { port } = server.address() as { port: number };
+  try {
+    for (const route of VIEW_ROUTES) {
+      const res = await fetch(`http://127.0.0.1:${port}${route.path}`);
+      const html = await res.text();
+      assert.equal(res.status, 200, route.path);
+      assert.match(res.headers.get('content-type') || '', /text\/html/, route.path);
+      assert.equal((html.match(/<h1[\s>]/g) || []).length, 1, `${route.path} has one h1`);
+      assert.ok(html.includes(`<link rel="canonical" href="https://vergoltd.com${route.path === '/' ? '/' : route.path}">`), `${route.path} canonical`);
+
+      // Every inline script the page carries is allowed by the CSP it was sent with.
+      const csp = res.headers.get('content-security-policy') || '';
+      for (const m of html.matchAll(/<script(?![^>]*\ssrc=)[^>]*>([\s\S]*?)<\/script>/g)) {
+        if (!m[1].trim()) continue;
+        const hash = require('node:crypto').createHash('sha256').update(m[1], 'utf8').digest('base64');
+        assert.ok(csp.includes(`'sha256-${hash}'`), `${route.path}: inline script allowed by CSP`);
+      }
+
+      if (route.path !== '/') {
+        const old = await fetch(`http://127.0.0.1:${port}${route.path}.html`, { redirect: 'manual' });
+        assert.equal(old.status, 301, `${route.path}.html`);
+        assert.equal(old.headers.get('location'), route.path);
+      }
+    }
+  } finally {
+    server.closeAllConnections();
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
+});

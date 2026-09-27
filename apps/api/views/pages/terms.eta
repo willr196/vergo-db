@@ -1,24 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <!--#head-->
-  <title>Terms of Business | VERGO Staffing</title>
-  <meta name="description" content="Vergo Ltd's terms of business for clients booking event and hospitality staff.">
-  <meta property="og:title" content="Terms of Business | VERGO Staffing">
-  <meta property="og:description" content="Vergo Ltd's terms of business for clients booking event and hospitality staff.">
-  <meta property="og:image" content="https://vergoltd.com/images/og/home.jpg">
-  <meta property="og:url" content="https://vergoltd.com/terms">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="VERGO Staffing">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="canonical" href="https://vergoltd.com/terms">
-</head>
-<body>
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  <!--#header-->
-
-  <main id="main-content">
+<%/* /terms: moved from public/terms.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Terms of Business | VERGO Staffing",
+    "description": "Vergo Ltd's terms of business for clients booking event and hospitality staff.",
+    "ogImage": "/images/og/home.jpg",
+    "canonical": "/terms"
+  }
+}) %>
     <section class="page-hero-plain shell">
       <span class="eyebrow">Terms of business</span>
       <h1>Terms of business</h1>
@@ -30,36 +18,36 @@
 
       <h2>1. Enquiries and bookings</h2>
       <p>The running total shown on our quote form is an estimate, not a binding quote. A booking is only confirmed once we send you written confirmation (email or WhatsApp) naming the staff, roles, date and times.</p>
-      <p>{{CONFIRMATION_PROMISE}}</p>
+      <p><%~ it.t.CONFIRMATION_PROMISE %></p>
 
       <h2>2. Rates and charges</h2>
       <ul class="check-list">
-        <li>Standard: {{STANDARD_RATE}} per hour, per person, for waiting staff, bar staff, kitchen porters, runners, and hosts and front of house</li>
-        <li>Premium: {{PREMIUM_RATE}} per hour, per person. {{PREMIUM_DEFINITION}} The service level is agreed for the whole booking</li>
-        <li>Themed hospitality staff, character performers and makeup artists: {{THEMED_RATE}}, {{PERFORMER_RATE}} and {{MAKEUP_RATE}} per hour, per person, as published on our special events pages</li>
-        <li>{{MIN_HOURS}}-hour minimum charge per person, per booking</li>
-        <li>Time beyond the confirmed end is billed in {{OVERRUN_MINUTES}}-minute blocks</li>
-        <li>Hours worked after midnight are charged at +{{UPLIFT_PCT}}%</li>
+        <li>Standard: <%~ it.t.STANDARD_RATE %> per hour, per person, for waiting staff, bar staff, kitchen porters, runners, and hosts and front of house</li>
+        <li>Premium: <%~ it.t.PREMIUM_RATE %> per hour, per person. <%~ it.t.PREMIUM_DEFINITION %> The service level is agreed for the whole booking</li>
+        <li>Themed hospitality staff, character performers and makeup artists: <%~ it.t.THEMED_RATE %>, <%~ it.t.PERFORMER_RATE %> and <%~ it.t.MAKEUP_RATE %> per hour, per person, as published on our special events pages</li>
+        <li><%~ it.t.MIN_HOURS %>-hour minimum charge per person, per booking</li>
+        <li>Time beyond the confirmed end is billed in <%~ it.t.OVERRUN_MINUTES %>-minute blocks</li>
+        <li>Hours worked after midnight are charged at +<%~ it.t.UPLIFT_PCT %>%</li>
         <li>Chefs, cooks, managers and supervisors are quoted and agreed individually before booking</li>
         <li>Full events (food, bar and staff) are quoted individually, and the quote sets out what's included</li>
         <li>There are no booking fees or uniform charges</li>
       </ul>
 
       <h2>3. Payment</h2>
-      <p>{{PAYMENT_TERMS}} Your first booking is paid in advance once we have confirmed it; after that, invoices are payable within 14 days of the invoice date.</p>
+      <p><%~ it.t.PAYMENT_TERMS %> Your first booking is paid in advance once we have confirmed it; after that, invoices are payable within 14 days of the invoice date.</p>
       <p>For business clients we may charge interest and compensation on late payments under the Late Payment of Commercial Debts (Interest) Act 1998.</p>
 
       <h2>4. Changes and cancellation</h2>
-      <p>{{CANCELLATION}} The percentage is of the confirmed booking charge, and the time is counted back from when the booking starts.</p>
+      <p><%~ it.t.CANCELLATION %> The percentage is of the confirmed booking charge, and the time is counted back from when the booking starts.</p>
       <p>These tiers apply to the booking as a whole. If you need to reduce staff numbers rather than cancel entirely, tell us as early as possible and we'll agree a fair adjustment.</p>
 
       <h2>5. Our guarantees</h2>
-      <p><strong>Names the same day.</strong> {{CONFIRMATION_PROMISE}}</p>
-      <p><strong>Replacement within the hour.</strong> {{NO_SHOW_PROMISE}}</p>
+      <p><strong>Names the same day.</strong> <%~ it.t.CONFIRMATION_PROMISE %></p>
+      <p><strong>Replacement within the hour.</strong> <%~ it.t.NO_SHOW_PROMISE %></p>
 
       <h2>6. Employment status, right to work and insurance</h2>
       <ul class="check-list">
-        <li>{{EMPLOYMENT_LINE}}</li>
+        <li><%~ it.t.EMPLOYMENT_LINE %></li>
         <li>Right to work is checked and documented for every worker before their first assignment with you</li>
         <li>We hold employers' liability and public liability insurance. Certificates are available on request</li>
       </ul>
@@ -74,13 +62,13 @@
 
       <h2>8. Taking on a worker directly (temp-to-perm)</h2>
       <p>If you want to take on a worker we've introduced or supplied to you directly (whether you employ them yourself or they're supplied to you by another agency after an introduction from us), tell us first. This section explains what happens next, in line with regulation 10 of the Conduct of Employment Agencies and Employment Businesses Regulations 2003.</p>
-      <p>You will always have a choice. Instead of paying a transfer fee, you can keep hiring that worker through VERGO for a further extended-hire period of {{TRANSFER_WEEKS}} weeks, on the same rates as before, at the end of which they transfer to you free of charge. That choice is yours to make, not ours.</p>
-      <p>If you'd rather pay a fee than take the extended-hire option, the fee is {{TRANSFER_FEE}}.</p>
+      <p>You will always have a choice. Instead of paying a transfer fee, you can keep hiring that worker through VERGO for a further extended-hire period of <%~ it.t.TRANSFER_WEEKS %> weeks, on the same rates as before, at the end of which they transfer to you free of charge. That choice is yours to make, not ours.</p>
+      <p>If you'd rather pay a fee than take the extended-hire option, the fee is <%~ it.t.TRANSFER_FEE %>.</p>
       <p>This only applies if direct employment begins within the "relevant period" defined by the regulations: broadly, within 8 weeks of the worker's last assignment with you through VERGO, or 14 weeks from their first assignment with you, whichever ends later. Outside that period, no fee applies at all.</p>
       <p><strong>No fee is ever charged to the worker</strong> in connection with this: not for taking up work with you, and not for taking up work found through any other agency. That's a legal requirement (regulation 5 of the same regulations), not just our policy.</p>
 
       <h2>9. Liability</h2>
-      <p>Nothing in these terms limits liability for death or personal injury caused by negligence, fraud, or anything else that can't be limited by law. Beyond that, our liability to you in connection with a booking is limited to {{LIABILITY_CAP}}.</p>
+      <p>Nothing in these terms limits liability for death or personal injury caused by negligence, fraud, or anything else that can't be limited by law. Beyond that, our liability to you in connection with a booking is limited to <%~ it.t.LIABILITY_CAP %>.</p>
 
       <h2>10. If you're booking as a private individual</h2>
       <p>If you're booking for yourself rather than for a business, the cancellation charges in section 4 still apply, because we commit staff to your date as soon as we confirm it. Nothing in these terms affects your statutory rights as a consumer.</p>
@@ -92,10 +80,5 @@
       <p>These terms are governed by the law of England and Wales, and the courts of England and Wales have exclusive jurisdiction over any dispute.</p>
 
       <h2>13. Contact</h2>
-      <p>Questions about these terms: call <a href="{{PHONE_TEL}}">{{PHONE}}</a> or email <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>.</p>
+      <p>Questions about these terms: call <a href="<%~ it.t.PHONE_TEL %>"><%~ it.t.PHONE %></a> or email <a href="mailto:<%~ it.t.EMAIL %>"><%~ it.t.EMAIL %></a>.</p>
     </section>
-  </main>
-
-  <!--#footer-->
-</body>
-</html>
