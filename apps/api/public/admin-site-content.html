@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Site Content | VERGO Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
+  <link rel="stylesheet" href="/pages/css/admin-site-content.css">
+</head>
+<body>
+  <a href="#as-content" class="as-skip-link">Skip to main content</a>
+
+  <div class="as-main">
+    <header class="as-topbar">
+      <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
+      <h1 class="as-topbar-title">Site content</h1>
+    </header>
+
+    <div class="as-content" id="as-content">
+      <!-- Shown until the site content has been imported into the database. -->
+      <div id="sc-import" class="pending-banner d-none">
+        <p class="pending-banner-text">The public site is still running on the content built into the code. Import it once to start editing here; nothing on the site changes when you do.</p>
+        <button class="btn btn-primary" data-action="import">Import site content</button>
+      </div>
+
+      <p class="text-muted fs-sm mb-2" id="sc-status">Loading…</p>
+
+      <div class="as-tabs" id="sc-tabs">
+        <button class="as-tab active" data-tab="settings">Settings</button>
+        <button class="as-tab" data-tab="reviews">Reviews</button>
+        <button class="as-tab" data-tab="work">Recent work</button>
+        <button class="as-tab" data-tab="photos">Photos</button>
+        <button class="as-tab" data-tab="faqs">FAQs</button>
+        <button class="as-tab" data-tab="promos">Seasonal promos</button>
+        <button class="as-tab" data-tab="history">History</button>
+      </div>
+
+      <!-- Settings: one form per group, each with its own Save. -->
+      <div id="settings-tab" class="tab-content active">
+        <div class="sc-grid">
+          <div>
+            <form class="sc-card" data-setting="rates">
+              <div class="as-section-hdr"><span class="as-section-title">Rates</span></div>
+              <p class="text-muted fs-sm mb-2">Per hour, per person. Between £12.71 and £100.</p>
+              <div class="sc-fields">
+                <label class="as-label">Standard rate (£)<input class="as-input" name="standardRate" type="number" step="0.01" min="12.71" max="100" required></label>
+                <label class="as-label">Premium rate (£)<input class="as-input" name="premiumRate" type="number" step="0.01" min="12.71" max="100" required></label>
+                <label class="sc-check"><input type="checkbox" name="premiumEnabled"> Show Premium on the site</label>
+                <label class="as-label">After-midnight uplift (%)<input class="as-input" name="afterMidnightUpliftPct" type="number" step="1" min="0" max="100" required></label>
+                <label class="as-label">Themed hospitality (£)<input class="as-input" name="themedHospitality" type="number" step="0.01" min="12.71" max="100" required></label>
+                <label class="as-label">Character performer (£)<input class="as-input" name="characterPerformer" type="number" step="0.01" min="12.71" max="100" required></label>
+                <label class="as-label">Makeup artist (£)<input class="as-input" name="makeupArtist" type="number" step="0.01" min="12.71" max="100" required></label>
+              </div>
+              <button class="btn btn-primary" type="submit">Save rates</button>
+            </form>
+
+            <form class="sc-card" data-setting="promises">
+              <div class="as-section-hdr"><span class="as-section-title">Promises</span></div>
+              <div class="sc-fields">
+                <label class="as-label">Same-day confirmation<textarea class="as-input" name="confirmationPromise" rows="2" maxlength="200" required></textarea></label>
+                <label class="as-label">No-show replacement<textarea class="as-input" name="noShowPromise" rows="3" maxlength="200" required></textarea></label>
+                <label class="as-label">Added to the no-show promise <span class="text-muted">(optional, e.g. " Plus 10% off the booking.")</span><input class="as-input" name="noShowExtra" maxlength="120"></label>
+                <label class="as-label">Line under the guarantees <span class="text-muted">(optional)</span><input class="as-input" name="guaranteeFootnote" maxlength="200"></label>
+                <label class="as-label">Asking for staff by name<textarea class="as-input" name="favouritesPromise" rows="2" maxlength="200" required></textarea></label>
+                <label class="as-label">What Premium means<textarea class="as-input" name="premiumDefinition" rows="2" maxlength="200" required></textarea></label>
+              </div>
+              <button class="btn btn-primary" type="submit">Save promises</button>
+            </form>
+
+            <form class="sc-card" data-setting="contact">
+              <div class="as-section-hdr"><span class="as-section-title">Contact details</span></div>
+              <div class="sc-fields">
+                <label class="as-label">Public email<input class="as-input" name="publicEmail" type="email" maxlength="200" required></label>
+                <label class="as-label">Jobs email <span class="text-muted">(blank uses the public email)</span><input class="as-input" name="jobsEmail" type="email" maxlength="200"></label>
+                <label class="as-label">Phone, as shown<input class="as-input" name="phoneDisplay" maxlength="30" required></label>
+                <label class="as-label">Phone, for links <span class="text-muted">(+44…)</span><input class="as-input" name="phoneE164" maxlength="16" pattern="\+\d{8,15}" required></label>
+                <label class="as-label">WhatsApp link<input class="as-input" name="whatsappUrl" type="url" maxlength="200" required></label>
+                <label class="as-label">Instagram link<input class="as-input" name="instagram" type="url" maxlength="200"></label>
+                <label class="as-label">Instagram handle<input class="as-input" name="instagramHandle" maxlength="60"></label>
+              </div>
+              <button class="btn btn-primary" type="submit">Save contact details</button>
+            </form>
+
+            <form class="sc-card" data-setting="brand">
+              <div class="as-section-hdr"><span class="as-section-title">Slogan and reviews link</span></div>
+              <div class="sc-fields">
+                <label class="as-label">Slogan<input class="as-input" name="slogan" maxlength="120" required></label>
+                <label class="as-label">Google reviews link <span class="text-muted">(blank hides every Google link)</span><input class="as-input" name="googleReviewsUrl" type="url" maxlength="300"></label>
+              </div>
+              <button class="btn btn-primary" type="submit">Save</button>
+            </form>
+          </div>
+
+          <!-- Live preview of the two shared blocks, as the unsaved values would read. -->
+          <aside class="sc-preview" aria-label="Preview">
+            <div class="as-section-hdr"><span class="as-section-title">Preview</span></div>
+            <p class="text-muted fs-sm mb-2">How the rate and guarantee blocks will read. Updates as you type; nothing is live until you save.</p>
+            <div class="sc-preview-block" id="sc-preview-rates"></div>
+            <div class="sc-preview-block" id="sc-preview-guarantees"></div>
+          </aside>
+        </div>
+      </div>
+
+      <div id="reviews-tab" class="tab-content">
+        <div class="as-table-toolbar"><div class="as-toolbar-left"><span class="text-muted fs-sm">Only real, attributable quotes. 60 words or fewer.</span></div><div class="as-toolbar-right"><button class="btn btn-primary btn-sm" data-action="new" data-collection="testimonials">Add a review</button></div></div>
+        <div id="list-testimonials" class="sc-list"></div>
+      </div>
+
+      <div id="work-tab" class="tab-content">
+        <div class="as-table-toolbar"><div class="as-toolbar-left"><span class="text-muted fs-sm">Shown on the homepage and /hire. 12 words or fewer per item.</span></div><div class="as-toolbar-right"><button class="btn btn-primary btn-sm" data-action="new" data-collection="recent-work">Add an item</button></div></div>
+        <div id="list-recent-work" class="sc-list"></div>
+      </div>
+
+      <div id="photos-tab" class="tab-content">
+        <div class="as-table-toolbar"><div class="as-toolbar-left"><span class="text-muted fs-sm" id="sc-photo-note">Real photos only. Alt text is required. Tag "season-halloween" puts a photo on the homepage's Halloween section.</span></div><div class="as-toolbar-right"><button class="btn btn-primary btn-sm" data-action="new" data-collection="photos">Upload a photo</button></div></div>
+        <div id="list-photos" class="sc-list"></div>
+      </div>
+
+      <div id="faqs-tab" class="tab-content">
+        <div class="as-table-toolbar">
+          <div class="as-toolbar-left">
+            <label class="as-label sc-inline">Page <select class="as-input" id="sc-faq-page"></select></label>
+            <span class="text-muted fs-sm">Answers: two sentences and 45 words at most. Three per page (Halloween four).</span>
+          </div>
+          <div class="as-toolbar-right"><button class="btn btn-primary btn-sm" data-action="new" data-collection="faqs">Add an FAQ</button></div>
+        </div>
+        <div id="list-faqs" class="sc-list"></div>
+      </div>
+
+      <div id="promos-tab" class="tab-content">
+        <div class="as-table-toolbar"><div class="as-toolbar-left"><span class="text-muted fs-sm">Dates are London days, both ends included. Banner text: 10 words or fewer.</span></div><div class="as-toolbar-right"><button class="btn btn-primary btn-sm" data-action="new" data-collection="promos">Add a promo</button></div></div>
+        <div id="list-promos" class="sc-list"></div>
+      </div>
+
+      <div id="history-tab" class="tab-content">
+        <div class="as-table-wrap">
+          <table>
+            <thead><tr><th>When</th><th>Who</th><th>What</th></tr></thead>
+            <tbody id="sc-history"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- One editor for every kind of item; its fields are built from the item type. -->
+  <div id="sc-modal" class="modal-backdrop d-none">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 id="sc-modal-title">Edit</h2>
+        <button class="modal-close" data-action="close" aria-label="Close">&#x2715;</button>
+      </div>
+      <form id="sc-form" novalidate>
+        <div class="modal-body" id="sc-form-body"></div>
+        <div class="modal-footer">
+          <div id="sc-form-error" class="text-error fs-sm"></div>
+          <button type="button" class="btn btn-ghost" data-action="close">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="sc-save">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/admin-core.js"></script>
+  <script src="/js/admin-nav.js"></script>
+  <script src="/pages/js/admin-site-content.js"></script>
+</body>
+</html>

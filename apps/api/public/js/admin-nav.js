@@ -22,6 +22,7 @@
     { group: 'Admin' },
     { href: 'admin-comms',            icon: '📬', label: 'Messages' },
     { href: 'admin-analytics',        icon: '📊', label: 'Analytics' },
+    { href: 'admin-site-content',     icon: '🌐', label: 'Site content' },
     { href: 'admin-settings',         icon: '⚙️', label: 'Settings' },
 
     { group: 'Client side', clientSide: true },

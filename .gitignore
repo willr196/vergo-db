@@ -40,3 +40,6 @@ coverage/
 # Screenshot comparisons (tools/screenshot-diff.mjs)
 tools/screenshots/compare/
 tools/screenshots/.chrome-profile/
+
+# Photos uploaded through the admin in local development (production uses S3)
+apps/api/uploads/

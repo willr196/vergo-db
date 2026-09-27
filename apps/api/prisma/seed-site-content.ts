@@ -1,94 +1,15 @@
 import { prisma } from '../src/prisma';
-import {
-  defaultFaqs,
-  defaultPhotos,
-  defaultPromos,
-  defaultRecentWork,
-  defaultTestimonials,
-} from '../src/site/defaults';
-import { defaultSettings, SETTING_KEYS } from '../src/site/settings';
-import { SEEDED_MARKER } from '../src/site/store';
+import { seedSiteContent } from '../src/site/seed';
 
 /**
- * Copies the public site's content into the database, word for word, from
- * src/site/defaults.ts (the pages as they stood at the move).
- *
- * Safe to run more than once, and on a database the admin has already edited:
- *   - a setting is written only if its row doesn't exist;
- *   - reviews, recent work and photos are written only into an empty table;
- *   - a page's FAQs are written only if that page has none;
- *   - a seasonal promo is written only if its key doesn't exist.
- * Then it sets the "contentSeeded" marker, which is what switches the live
- * site from its built-in defaults to the database.
+ * Copies the public site's content into the database, word for word. Safe to
+ * run twice, and never overwrites what the admin has edited: see
+ * src/site/seed.ts. The admin's Site content page has the same import button.
  *
  *   npm run seed:site
  */
-async function main() {
-  const settings = defaultSettings();
-  for (const key of SETTING_KEYS) {
-    await prisma.siteSetting.upsert({
-      where: { key },
-      create: { key, value: settings[key] },
-      update: {},
-    });
-  }
-
-  if ((await prisma.testimonial.count()) === 0) {
-    await prisma.testimonial.createMany({
-      data: defaultTestimonials().map((t, order) => ({ ...t, order })),
-    });
-  }
-
-  if ((await prisma.recentWork.count()) === 0) {
-    await prisma.recentWork.createMany({
-      data: defaultRecentWork().map((w, order) => ({ ...w, order })),
-    });
-  }
-
-  if ((await prisma.galleryPhoto.count()) === 0) {
-    const photos = defaultPhotos();
-    if (photos.length) {
-      await prisma.galleryPhoto.createMany({ data: photos.map((p, order) => ({ ...p, order })) });
-    }
-  }
-
-  for (const [pageKey, items] of Object.entries(defaultFaqs())) {
-    if ((await prisma.faq.count({ where: { pageKey } })) > 0) continue;
-    await prisma.faq.createMany({
-      data: items.map((f, order) => ({ pageKey, question: f.question, answer: f.answer, order })),
-    });
-  }
-
-  for (const promo of defaultPromos()) {
-    await prisma.seasonalPromo.upsert({
-      where: { key: promo.key },
-      create: promo,
-      update: {},
-    });
-  }
-
-  await prisma.siteSetting.upsert({
-    where: { key: SEEDED_MARKER },
-    create: { key: SEEDED_MARKER, value: { at: new Date().toISOString() } },
-    update: {},
-  });
-
-  await prisma.contentChange.create({
-    data: { who: 'seed-site-content', what: 'Imported the site content from the pages' },
-  });
-
-  const counts = {
-    settings: await prisma.siteSetting.count(),
-    testimonials: await prisma.testimonial.count(),
-    recentWork: await prisma.recentWork.count(),
-    photos: await prisma.galleryPhoto.count(),
-    faqs: await prisma.faq.count(),
-    promos: await prisma.seasonalPromo.count(),
-  };
-  console.log('Site content seeded:', counts);
-}
-
-main()
+seedSiteContent()
+  .then((counts) => console.log('Site content seeded:', counts))
   .catch((err) => {
     console.error(err);
     process.exitCode = 1;

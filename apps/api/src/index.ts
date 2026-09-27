@@ -51,6 +51,8 @@ import adminStaff from './routes/adminStaff';
 import adminMatching from './routes/adminMatching';
 import adminRightToWork from './routes/adminRightToWork';
 import adminUsers from './routes/adminUsers';
+import adminSiteContent from './routes/adminSiteContent';
+import { sendMedia } from './site/media';
 import webAuth from './routes/webAuth';
 import { logger, requestLogger } from './services/logger';
 import { startMemoryMonitoring, stopMemoryMonitoring } from './services/memory';
@@ -364,6 +366,8 @@ app.use('/api/v1/applications/direct-upload', express.json({ limit: '16mb' }));
 app.use('/api/applications/direct-upload', express.json({ limit: '16mb' }));
 
 // Body parsing
+// Admin photo uploads arrive base64 in JSON; a 12MB photo is ~16MB encoded.
+app.use('/api/v1/admin/site-content/photos', express.json({ limit: '17mb' }));
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); // required for the CSRF double-submit cookie check
@@ -520,6 +524,7 @@ app.get([
   '/admin-quotes',
   '/admin-comms',
   '/admin-settings',
+  '/admin-site-content',
 ], adminPageAuth, (req, res) => {
   const fileByPath: Record<string, string> = {
     '/admin': 'admin.html',
@@ -532,6 +537,7 @@ app.get([
     '/admin-quotes': 'admin-quotes.html',
     '/admin-comms': 'admin-comms.html',
     '/admin-settings': 'admin-settings.html',
+    '/admin-site-content': 'admin-site-content.html',
   };
   const file = fileByPath[req.path] ?? 'admin.html';
   res.sendFile(path.join(publicDir, file));
@@ -605,6 +611,12 @@ app.use('/api/v1/admin/staff', adminStaff);
 app.use('/api/v1/admin/matching', adminMatching);
 app.use('/api/v1/admin/right-to-work', adminRightToWork);
 app.use('/api/v1/admin/users', adminUsers);
+app.use('/api/v1/admin/site-content', adminSiteContent);
+
+// Photos uploaded in admin Site content (S3, or uploads/ in development).
+app.get('/media/site/:file', (req, res, next) => {
+  sendMedia(req.params.file, res).catch(next);
+});
 
 // Legacy cleanup (must be before static)
 

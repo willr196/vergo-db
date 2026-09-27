@@ -1,0 +1,60 @@
+/* Admin > Site content. Builds on admin-shared.css; only what that file lacks. */
+
+.sc-grid { display: grid; gap: 24px; }
+@media (min-width: 1100px) { .sc-grid { grid-template-columns: minmax(0, 1fr) 380px; align-items: start; } }
+
+.sc-card {
+  border: 1px solid var(--as-border, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+.sc-fields { display: grid; gap: 12px; margin-bottom: 14px; }
+@media (min-width: 700px) { .sc-fields { grid-template-columns: 1fr 1fr; } }
+.sc-fields label.as-label { display: flex; flex-direction: column; gap: 6px; }
+.sc-fields textarea { resize: vertical; }
+.sc-check { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+.sc-inline { display: inline-flex; align-items: center; gap: 8px; margin-right: 12px; }
+.sc-inline select { width: auto; }
+
+.sc-preview { position: sticky; top: 16px; }
+.sc-preview-block {
+  background: #FAF8F4;
+  color: #16181B;
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.sc-preview-block h3 { color: #1F5C45; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 8px; }
+.sc-preview-block h4 { margin: 10px 0 4px; font-size: 0.9rem; }
+.sc-preview-block p { margin: 0 0 6px; }
+.sc-preview-block ul { margin: 6px 0 0; padding-left: 18px; }
+
+.sc-list { display: grid; gap: 10px; margin-top: 12px; }
+.sc-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+  border: 1px solid var(--as-border, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.sc-item.is-hidden { opacity: 0.55; }
+.sc-item-order { display: flex; flex-direction: column; gap: 4px; }
+.sc-item-order .btn { padding: 2px 8px; line-height: 1.2; }
+.sc-item-main p { margin: 0 0 4px; }
+.sc-item-main .sc-meta { font-size: 0.8rem; opacity: 0.75; }
+.sc-item-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.sc-item img { width: 120px; height: auto; border-radius: 4px; display: block; }
+
+.sc-count { font-size: 0.8rem; opacity: 0.8; }
+.sc-count.is-over { color: var(--as-danger, #e5484d); opacity: 1; font-weight: 600; }
+.sc-form-grid { display: grid; gap: 12px; }
+.sc-form-grid label.as-label { display: flex; flex-direction: column; gap: 6px; }
+.sc-lines { display: grid; gap: 8px; }
+.sc-line { display: grid; grid-template-columns: 1fr 140px auto; gap: 8px; }
+.sc-line.is-sentence { grid-template-columns: 1fr auto; }
+#sc-form-error { margin-right: auto; }

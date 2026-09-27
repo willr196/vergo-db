@@ -112,7 +112,7 @@ export function defaultFaqs(): Record<string, FaqContent[]> {
 }
 
 /** Midnight at the start of a day in London, as UTC. */
-function londonDay(year: number, month: number, day: number): Date {
+export function londonDay(year: number, month: number, day: number): Date {
   // BST runs from the last Sunday of March to the last Sunday of October.
   const probe = new Date(Date.UTC(year, month - 1, day, 12));
   const offset = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', timeZoneName: 'shortOffset' })
@@ -123,7 +123,7 @@ function londonDay(year: number, month: number, day: number): Date {
 }
 
 /** The last moment of a day in London. */
-function londonDayEnd(year: number, month: number, day: number): Date {
+export function londonDayEnd(year: number, month: number, day: number): Date {
   return new Date(londonDay(year, month, day + 1).getTime() - 1);
 }
 
