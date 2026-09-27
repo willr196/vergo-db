@@ -1,25 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <!--#head-->
-  <title>Apply for Event Work in London | VERGO Staffing</title>
-  <meta name="description" content="Apply for event and hospitality work across London. Fill in the form, then have a short chat with us before you start picking up shifts.">
-  <meta property="og:title" content="Apply for Event Work in London | VERGO Staffing">
-  <meta property="og:description" content="Apply for event and hospitality work across London. Fill in the form, then have a short chat with us before you start picking up shifts.">
-  <meta property="og:image" content="https://vergoltd.com/images/og/work.jpg">
-  <meta property="og:url" content="https://vergoltd.com/work/apply">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="VERGO Staffing">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="robots" content="noindex">
-  <link rel="canonical" href="https://vergoltd.com/work/apply">
-</head>
-<body>
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  <!--#header focused="1" back="/work" label="← Back to work with us"-->
-
-  <main id="main-content">
+<%/* /work/apply: moved from public/work/apply.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Apply for Event Work in London | VERGO Staffing",
+    "description": "Apply for event and hospitality work across London. Fill in the form, then have a short chat with us before you start picking up shifts.",
+    "ogImage": "/images/og/work.jpg",
+    "robots": "noindex",
+    "canonical": "/work/apply"
+  },
+  scripts: ["/pages/js/work-apply.js"],
+  header: {"focused":"1","back":"/work","label":"← Back to work with us"}
+}) %>
     <section class="page-hero-plain shell-form">
       <span class="eyebrow">Apply</span>
       <h1>Apply for VERGO</h1>
@@ -199,9 +189,3 @@
         <p>We review fit by role, experience and availability. If there's a match, we'll be in touch to arrange a short chat.</p>
       </div>
     </section>
-  </main>
-
-  <!--#footer-->
-  <script src="/pages/js/work-apply.js"></script>
-</body>
-</html>
