@@ -1,0 +1,19 @@
+<%/* /404: moved from public/404.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Page Not Found | VERGO Staffing",
+    "description": "This page has moved or no longer exists. Hire event staff in London or apply for event work with VERGO Staffing.",
+    "ogImage": "/images/og/home.jpg",
+    "robots": "noindex, nofollow",
+    "canonical": "/404"
+  }
+}) %>
+    <section class="page-hero-plain shell">
+      <span class="eyebrow">404</span>
+      <h1>Page not found</h1>
+      <p class="lede">This page has moved or no longer exists. If you followed an old link, one of these is probably what you were after.</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="/hire">Hire event staff</a>
+        <a class="btn btn-secondary" href="/work">Apply for work</a>
+      </div>
+    </section>

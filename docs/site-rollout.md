@@ -9,8 +9,11 @@ the dynamic-site brief:
 |---|---|
 | A | `/terms`, `/privacy`, `/legal`, `/about`, `/work` |
 | B | `/hire/waiting-staff`, `/hire/bar-staff`, `/hire/kitchen-porters`, `/hire/weddings`, `/hire/production-catering`, `/hire` |
-| A+ | `/special-events`, `/special-events/christmas`, `/special-events/halloween`, `/book-an-event` |
-| C (held until November) | `/`, `/hire/quote`, `/work/apply`, the blog |
+| C | `/special-events`, `/special-events/christmas`, `/special-events/halloween`, `/book-an-event`, `/`, `/hire/quote`, `/work/apply`, the 404 page |
+| Blog | `/blog` and every post, rendered from `apps/api/content/blog/*.md` |
+
+Every public page has moved; only `/login` (the staff and admin sign-in) is
+still a static file.
 
 Also live with it: seasons decided on the server, open shifts on `/work`, the
 generated `sitemap.xml`, and the admin "Site content" page.

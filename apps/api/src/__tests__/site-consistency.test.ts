@@ -65,6 +65,8 @@ const pages: Page[] = walk(publicDir)
       return { rel: `views/pages/${route.view}.eta`, url: route.path, html, root: parse(html) };
     }),
   )
+  // The not-found page, as the 404 handler renders it.
+  .concat([{ rel: 'views/pages/404.eta', url: '/404', html: renderView('404', { path: '/404' }), root: parse(renderView('404', { path: '/404' })) }])
   // And the blog, rendered from content/blog/*.md.
   .concat(
     ['/blog', ...publishedPosts().map((post) => post.route)].map((url) => {

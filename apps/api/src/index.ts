@@ -776,11 +776,8 @@ app.get(['/blog', '/blog/:slug'], (req, res, next) => {
   }
 });
 
-// Canonical homepage
+// Canonical homepage (the page itself is views/pages/index.eta, served above)
 app.get('/index', (_req, res) => res.redirect(301, '/'));
-app.get('/', (_req, res, next) => {
-  if (!sendPublicHtml(res, path.join(publicDir, 'index.html'), publicDir)) next();
-});
 
 // Static frontend (last)
 // Clean URLs - serve .html files without extension
@@ -879,12 +876,14 @@ app.use(express.static(publicDir, {
 app.use((req, res) => {
   const isApiRequest = req.path === '/api' || req.path.startsWith('/api/');
   if (!isApiRequest) {
-    const notFoundPage = resolvePublicFile('404.html');
-    if (notFoundPage && fs.existsSync(notFoundPage)) {
-      res.status(404);
-      if (sendPublicHtml(res, notFoundPage, publicDir)) return;
+    try {
+      // views/pages/404.eta, with the shared header and footer.
+      const html = versionAssetUrls(renderView('404', { path: '/404' }), publicDir);
+      withPageScriptHashes(res, html);
+      return res.status(404).type('html').send(html);
+    } catch {
+      return res.status(404).type('text/html').send('Page Not Found');
     }
-    return res.status(404).type('text/html').send('Page Not Found');
   }
   res.status(404).json({ error: 'Not found' });
 });

@@ -288,3 +288,20 @@ test('the sitemap lists every indexable page, and only pages that serve', async 
     await new Promise<void>((resolve) => server.close(() => resolve()));
   }
 });
+
+test('an unknown page gets the 404 page, with a 404 status', async () => {
+  const server = http.createServer(app);
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const { port } = server.address() as { port: number };
+  try {
+    const res = await fetch(`http://127.0.0.1:${port}/no-such-page`);
+    const html = await res.text();
+    assert.equal(res.status, 404);
+    assert.match(html, /<title>Page Not Found \| VERGO Staffing<\/title>/);
+    assert.match(html, /data-shared-header/);
+    assert.match(html, /name="robots" content="noindex, nofollow"/);
+  } finally {
+    server.closeAllConnections();
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
+});

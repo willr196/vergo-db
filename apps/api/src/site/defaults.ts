@@ -1,10 +1,12 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import faqsByPage from './defaults-faqs.json';
+import proof from './defaults-proof.json';
 
 /**
  * The site's content as it stood when it moved into the database, word for
- * word. Two jobs: prisma/seed-site-content.ts writes it, and site/store.ts
+ * word: defaults-proof.json (the reviews and recent work, formerly
+ * public/data/proof.json) and defaults-faqs.json (every page's FAQs).
+ *
+ * Two jobs: prisma/seed-site-content.ts writes it, and site/store.ts
  * serves it until the database has been seeded, or when the database can't be
  * reached and there is no last good copy in memory yet.
  */
@@ -59,32 +61,22 @@ export interface PromoContent {
   navEndsAt?: Date | null;
 }
 
-/** public/data/proof.json, the file the reviews and recent work lived in before the database. */
-function proofFile(): { testimonials: any[]; recentWork: any[] } {
-  try {
-    const data = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'public', 'data', 'proof.json'), 'utf8'));
-    return { testimonials: data.testimonials || [], recentWork: data.recentWork || [] };
-  } catch {
-    return { testimonials: [], recentWork: [] };
-  }
-}
-
 export function defaultTestimonials(): TestimonialContent[] {
-  return proofFile().testimonials.map((t) => ({
+  return (proof.testimonials as any[]).map((t) => ({
     quote: t.quote,
     name: t.name,
     context: t.context,
     source: t.source === 'google' ? 'google' : 'direct',
     url: t.url || null,
     stars: t.stars || null,
-    // proof.json's "featured" was the one review the homepage shows; /hire showed them all.
+    // "featured" was the one review the homepage showed; /hire showed them all.
     showOnHome: Boolean(t.featured),
     showOnHire: true,
   }));
 }
 
 export function defaultRecentWork(): RecentWorkContent[] {
-  return proofFile().recentWork.map((w) => ({ title: w.title, detail: w.detail }));
+  return proof.recentWork.map((w) => ({ title: w.title, detail: w.detail }));
 }
 
 /**

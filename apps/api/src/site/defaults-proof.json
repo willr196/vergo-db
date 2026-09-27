@@ -1,5 +1,4 @@
 {
-  "_comment": "Reviews and recent work shown on the homepage and /hire (rendered by src/site/partials.ts). Adding a review is one entry here. Only real, attributable quotes. 'featured' marks the one review the homepage shows. Takes effect on the next deploy or server restart.",
   "testimonials": [
     {
       "quote": "I can’t speak highly enough of Will and his team. They were so professional and friendly and crucially, willing to adapt to the various changes and requests that come with large private parties.",
@@ -26,9 +25,21 @@
     }
   ],
   "recentWork": [
-    { "title": "Film studio kitchen, London", "detail": "cooks and a kitchen porter" },
-    { "title": "Private event, Mayfair", "detail": "hospitality staff" },
-    { "title": "Private parties at home", "detail": "bartenders, three times" },
-    { "title": "Private party, London", "detail": "waiting staff" }
+    {
+      "title": "Film studio kitchen, London",
+      "detail": "cooks and a kitchen porter"
+    },
+    {
+      "title": "Private event, Mayfair",
+      "detail": "hospitality staff"
+    },
+    {
+      "title": "Private parties at home",
+      "detail": "bartenders, three times"
+    },
+    {
+      "title": "Private party, London",
+      "detail": "waiting staff"
+    }
   ]
 }
