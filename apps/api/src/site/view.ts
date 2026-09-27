@@ -150,6 +150,7 @@ const BLOCKS: Record<string, string> = {
   'legal-ico': 'legal-ico',
   'legal-insurers': 'legal-insurers',
   'season-feature': 'season-feature',
+  'open-shifts': 'open-shifts',
 };
 
 type BlockFn = (attrs?: PartialAttrs) => string;
@@ -190,6 +191,14 @@ export function pageData(ctx: PageContext) {
     nav: NAV.map((item) => ({ href: item.href, label: item.label, current: item.match(ctx.path) })),
     bannerAllowed: bannerAllowed(ctx.path),
     season: seasonState(),
+    /** Open shifts for /work, formatted: "Sat 4 Oct", "£13.50/hr". */
+    shifts: () =>
+      content.openShifts.map((s) => ({
+        role: s.role,
+        date: s.date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Europe/London' }),
+        area: s.area,
+        pay: `${formatRate(s.payRate)}${s.payType === 'HOURLY' ? '/hr' : s.payType === 'DAILY' ? ' a day' : ' for the shift'}`,
+      })),
     photoSources,
     esc,
     jsonLdString,

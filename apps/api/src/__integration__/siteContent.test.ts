@@ -11,7 +11,7 @@ import path from 'node:path';
 import { prisma, resetDatabase, disconnect } from './helpers';
 import { PRICING } from '../config/pricing';
 import { refreshContent, resetContentForTests, siteContent } from '../site/store';
-import { renderBlock } from '../site/view';
+import { renderBlock, renderView } from '../site/view';
 
 const API_DIR = path.resolve(__dirname, '..', '..', '..');
 
@@ -87,4 +87,24 @@ test('an unpublished review drops off the page', async () => {
   await refreshContent();
   assert.equal(siteContent().testimonials.length, 0);
   assert.equal(renderBlock('testimonials', {}, { path: '/hire' }), '');
+});
+
+test("open shifts on /work come from the job board, and only VERGO's own upcoming ones", async () => {
+  const role = await prisma.role.upsert({ where: { name: 'Bar staff' }, create: { name: 'Bar staff' }, update: {} });
+  const tomorrow = new Date(Date.now() + 24 * 3600_000);
+  const base = { description: 'x', location: 'Shoreditch', roleId: role.id, eventDate: tomorrow, payRate: 13.5 };
+  await prisma.job.create({ data: { ...base, title: 'Open', status: 'OPEN', type: 'INTERNAL' } });
+  await prisma.job.create({ data: { ...base, title: 'Draft', status: 'DRAFT', type: 'INTERNAL', location: 'Draftville' } });
+  await prisma.job.create({ data: { ...base, title: 'Someone else', status: 'OPEN', type: 'EXTERNAL', location: 'Elsewhere' } });
+  await prisma.job.create({ data: { ...base, title: 'Past', status: 'OPEN', type: 'INTERNAL', location: 'Yesterdayton', eventDate: new Date(Date.now() - 3 * 24 * 3600_000) } });
+
+  await refreshContent();
+  const html = renderView('work', { path: '/work' });
+  assert.match(html, /<strong>Bar staff<\/strong>: [A-Z][a-z]{2} \d{1,2} [A-Z][a-z]{2,3}, Shoreditch, £13\.50\/hr\./);
+  assert.doesNotMatch(html, /Draftville|Elsewhere|Yesterdayton/);
+  assert.doesNotMatch(html, /No open shifts right now/);
+
+  await prisma.job.deleteMany({});
+  await refreshContent();
+  assert.match(renderView('work', { path: '/work' }), /No open shifts right now/);
 });

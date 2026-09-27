@@ -1,0 +1,18 @@
+<%/*
+  The next few open shifts from the job board (site/store.ts loadOpenShifts),
+  or a line saying there are none. data-block="shifts": live data, so the
+  consistency test leaves it out of the page's word budget.
+*/%>
+<% const shifts = it.shifts(); %>
+<section class="section shell" data-block="shifts" aria-labelledby="shifts-heading">
+      <h2 id="shifts-heading" class="section-label">Open shifts</h2>
+<% if (shifts.length) { %>
+      <ul class="fact-list">
+<% shifts.forEach(function (s) { %>
+        <li><strong><%= s.role %></strong>: <%= s.date %>, <%= s.area %>, <%= s.pay %>. <a href="/work/apply">Apply</a></li>
+<% }) %>
+      </ul>
+<% } else { %>
+      <p>No open shifts right now. Apply and we'll message you when something fits.</p>
+<% } %>
+    </section>

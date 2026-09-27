@@ -266,6 +266,8 @@ function mainWords(p: Page): number {
     n.tag === 'form' ||
     n.attrs['data-block'] === 'rates' ||
     n.attrs['data-block'] === 'guarantees' ||
+    // Live job-board rows on /work, capped at five.
+    n.attrs['data-block'] === 'shifts' ||
     ('hidden' in n.attrs && !('data-season' in n.attrs));
   // Seasonal slots ship hidden and only one shows at a time: count the largest.
   const seasonal = all(main, (n) => 'data-season' in n.attrs).map((n) => words(text(n)));

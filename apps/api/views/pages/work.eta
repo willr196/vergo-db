@@ -36,6 +36,8 @@
       </div>
     </section>
 
+    <%~ it.blocks["open-shifts"]() %>
+
     <section class="section shell" aria-labelledby="get-heading">
       <h2 id="get-heading" class="section-label">What you get</h2>
       <table class="pay-table">

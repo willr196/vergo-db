@@ -30,6 +30,16 @@ import { applySettings, defaultSettings, parseSettings, SiteSettings } from './s
  * empty content table can never blank a section of the live site.
  */
 
+/** An open shift for the list on /work: what, when, where and the pay. */
+export interface ShiftSummary {
+  role: string;
+  title: string;
+  date: Date;
+  area: string;
+  payRate: number;
+  payType: 'HOURLY' | 'DAILY' | 'FIXED';
+}
+
 export interface SiteContent {
   settings: SiteSettings;
   testimonials: TestimonialContent[];
@@ -37,6 +47,8 @@ export interface SiteContent {
   photos: PhotoContent[];
   faqs: Record<string, FaqContent[]>;
   promos: PromoContent[];
+  /** Up to five upcoming open shifts from the job board, soonest first. */
+  openShifts: ShiftSummary[];
   /** Where this copy came from, for the admin and the logs. */
   source: 'defaults' | 'database';
   loadedAt: Date;
@@ -54,6 +66,7 @@ function defaults(): SiteContent {
     photos: defaultPhotos(),
     faqs: defaultFaqs(),
     promos: defaultPromos(),
+    openShifts: [],
     source: 'defaults',
     loadedAt: new Date(),
   };
@@ -149,9 +162,35 @@ async function loadFromDatabase(): Promise<SiteContent | null> {
       navStartsAt: p.navStartsAt,
       navEndsAt: p.navEndsAt,
     })),
+    openShifts: [],
     source: 'database',
     loadedAt: new Date(),
   };
+}
+
+/**
+ * The next five open shifts VERGO is staffing itself (INTERNAL jobs, not
+ * listings posted for others), with a date and a pay rate. Loaded on every
+ * refresh whether or not the site content has been seeded: this is the job
+ * board's data, not site content.
+ */
+async function loadOpenShifts(): Promise<ShiftSummary[]> {
+  const startOfToday = new Date();
+  startOfToday.setUTCHours(0, 0, 0, 0);
+  const jobs = await prisma.job.findMany({
+    where: { status: 'OPEN', type: 'INTERNAL', eventDate: { gte: startOfToday }, payRate: { not: null } },
+    orderBy: [{ eventDate: 'asc' }, { createdAt: 'asc' }],
+    take: 5,
+    select: { title: true, location: true, eventDate: true, payRate: true, payType: true, role: { select: { name: true } } },
+  });
+  return jobs.map((j) => ({
+    role: j.role.name,
+    title: j.title,
+    date: j.eventDate as Date,
+    area: j.location,
+    payRate: Number(j.payRate),
+    payType: j.payType,
+  }));
 }
 
 /** Stored JSON as homepage lines, dropping anything that is neither a sentence nor { label, price }. */
@@ -169,8 +208,8 @@ function homeLines(value: unknown): HomeLine[] {
 /** Reloads from the database. Never throws: on any failure the last good copy stays. */
 export async function refreshContent(): Promise<void> {
   try {
-    const next = await withTimeout(loadFromDatabase(), DB_TIMEOUT_MS);
-    if (next) setContent(next);
+    const [next, openShifts] = await withTimeout(Promise.all([loadFromDatabase(), loadOpenShifts()]), DB_TIMEOUT_MS);
+    setContent({ ...(next || current), openShifts });
   } catch (err) {
     console.warn('[SITE-CONTENT] refresh failed, keeping the last good copy:', err instanceof Error ? err.message : err);
   }
