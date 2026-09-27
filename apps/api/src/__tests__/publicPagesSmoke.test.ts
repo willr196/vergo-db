@@ -271,6 +271,10 @@ test('the sitemap lists every indexable page, and only pages that serve', async 
       const html = await res.text();
       assert.equal(res.status, 200, `${p} is in the sitemap, so it must serve`);
       assert.doesNotMatch(html, /<meta name="robots" content="[^"]*noindex/, `${p} is in the sitemap, so it can't be noindex`);
+      assert.equal((html.match(/<h1[\s>]/g) || []).length, 1, `${p} has exactly one h1`);
+      assert.ok(html.includes(`<link rel="canonical" href="https://vergoltd.com${p}">`), `${p} has its own canonical`);
+      const title = /<title>([^<]*)<\/title>/.exec(html)?.[1] || '';
+      assert.match(title, /\S.* \| VERGO Staffing$/, `${p} has a real title`);
     }
 
     // And nothing indexable is missing: every template page that isn't noindex.
