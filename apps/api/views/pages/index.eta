@@ -1,0 +1,97 @@
+<%/* /: moved from public/index.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Event and Hospitality Staff in London | VERGO Staffing",
+    "description": `Waiting staff, bar staff, kitchen porters, runners and hosts across London. ${it.t.HEADLINE_RATE} per person, four-hour minimum, names confirmed the same day.`,
+    "ogImage": "/images/og/home.jpg",
+    "canonical": "/"
+  },
+  jsonLd: [
+    {
+      "@context": "https://schema.org",
+      "@type": "EmploymentAgency",
+      "@id": "https://vergoltd.com/#organization",
+      "name": "VERGO Staffing",
+      "legalName": `${it.t.LEGAL_NAME}`,
+      "url": "https://vergoltd.com",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://vergoltd.com/images/vergo-mark.jpg"
+      },
+      "image": "https://vergoltd.com/images/og/home.jpg",
+      "description": "Event and hospitality staffing across London: waiting staff, bar staff, kitchen porters, runners, hosts and front of house.",
+      "telephone": `${it.t.PHONE_E164}`,
+      "email": `${it.t.EMAIL}`,
+      "areaServed": {
+        "@type": "City",
+        "name": "London"
+      },
+      "priceRange": "££",
+      "sameAs": [
+        `${it.t.INSTAGRAM_URL}`,
+        "https://maps.google.com/?cid=13724807393397816489"
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "https://vergoltd.com/#website",
+      "url": "https://vergoltd.com",
+      "name": "VERGO Staffing",
+      "publisher": {
+        "@id": "https://vergoltd.com/#organization"
+      },
+      "inLanguage": "en-GB"
+    }
+  ]
+}) %>
+    <div class="home-hero-band">
+    <section class="home-hero home-hero--centred shell">
+      <img class="home-logo" src="/images/vergo-mark-600.webp" srcset="/images/vergo-mark-400.webp 400w, /images/vergo-mark-600.webp 600w" sizes="(min-width: 1000px) 300px, (min-width: 600px) 30vw, 180px" width="600" height="600" alt="" fetchpriority="high">
+      <h1>London event staff, confirmed by name the same day</h1>
+      <p class="home-slogan"><%~ it.t.SLOGAN %></p>
+      <p class="lede">Vetted, briefed staff. <%~ it.t.HEADLINE_RATE %>, no booking fees.</p>
+      <div class="btn-row">
+        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        <a href="/hire#rate" class="btn btn-secondary">See rates</a>
+      </div>
+      <p class="home-today">Need someone today? <a href="<%~ it.t.PHONE_TEL %>">Call <%~ it.t.PHONE %></a> or <a href="<%~ it.t.WHATSAPP_URL %>" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>.</p>
+    </section>
+    </div>
+
+    <%~ it.blocks["trust-strip"]() %>
+
+    <!-- The season in the header right now, chosen on the server from the
+         stored promos (admin: Site content > Seasonal promos): Halloween to
+         31 October, then Christmas to 20 December. Nothing outside a season. -->
+    <%~ it.blocks["season-feature"]() %>
+
+    <%~ it.blocks["guarantees"]() %>
+
+    <%~ it.blocks["rates"]({ "compact": "1", "id": "" }) %>
+
+    <%~ it.blocks["testimonials"]({ "featured": "1" }) %>
+
+    <%~ it.blocks["recent-work"]() %>
+
+    <section class="section shell" aria-labelledby="roles-heading">
+      <h2 id="roles-heading" class="section-label">Roles</h2>
+      <ul class="link-tiles">
+        <li><a href="/hire/waiting-staff">Waiting staff</a></li>
+        <li><a href="/hire/bar-staff">Bar staff</a></li>
+        <li><a href="/hire/kitchen-porters">Kitchen porters</a></li>
+        <li><a href="/hire/weddings">Weddings</a></li>
+        <li><a href="/hire/production-catering">Film and TV catering</a></li>
+        <li><a href="/special-events/christmas">Christmas parties</a></li>
+      </ul>
+    </section>
+
+    <section class="section-tight shell" aria-labelledby="beyond-heading">
+      <h2 id="beyond-heading" class="section-label">Beyond staff</h2>
+      <p class="beyond-line"><a href="/book-an-event">We can run the whole event: food, bar and staff from one company &rarr;</a></p>
+      <p class="beyond-line"><a href="/special-events">Themed and seasonal events &rarr;</a></p>
+    </section>
+
+    <%~ it.blocks["cta"]({ "heading": "Got a date in the diary?" }) %>
+
+    <p class="cta-worker shell">Looking for work? <a href="/work">Apply to join the team &rarr;</a></p>
