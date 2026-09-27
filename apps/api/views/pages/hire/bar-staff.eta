@@ -1,0 +1,74 @@
+<%/* /hire/bar-staff: moved from public/hire/bar-staff.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Bar Staff Hire in London | VERGO Staffing",
+    "description": `Bar staff hire in London for receptions, parties, pop-ups and venue overflow. ${it.t.HEADLINE_RATE} per person, four-hour minimum, names confirmed the same day.`,
+    "ogImage": "/images/og/bar-staff.jpg",
+    "canonical": "/hire/bar-staff"
+  },
+  jsonLd: [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Bar staff hire",
+      "serviceType": "Event and hospitality staffing",
+      "url": "https://vergoltd.com/hire/bar-staff",
+      "description": "Bar staff for drinks receptions, private parties, pop-ups and venue overflow across London.",
+      "areaServed": {
+        "@type": "City",
+        "name": "London"
+      },
+      "provider": {
+        "@id": "https://vergoltd.com/#organization"
+      },
+      "offers": {
+        "@type": "Offer",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": Number(it.t.STANDARD_RATE_NUMBER),
+          "priceCurrency": "GBP",
+          "unitCode": "HUR",
+          "unitText": "per hour, per person",
+          "referenceQuantity": {
+            "@type": "QuantitativeValue",
+            "value": Number(it.t.MIN_HOURS),
+            "unitCode": "HUR"
+          }
+        }
+      }
+    },
+    it.faqJsonLd("hire/bar-staff")
+  ]
+}) %>
+    <section class="page-hero-plain shell">
+      <span class="eyebrow">Bar staff</span>
+      <h1>Bar staff hire in London</h1>
+      <p class="lede">For receptions, private parties, pop-ups and venues with more bar than team.</p>
+      <div class="btn-row">
+        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+      </div>
+    </section>
+
+    <section class="section shell" aria-labelledby="whattheydo-heading">
+      <h2 id="whattheydo-heading" class="section-label">What they do</h2>
+      <ul class="check-list">
+        <li>Bar set up, ice and garnish ready</li>
+        <li>Your drinks list, poured or made to spec</li>
+        <li>Bar cleared, stock counted, space handed back</li>
+      </ul>
+      <p class="section-note">On a staff booking we supply people only: drinks, glassware, ice and bar kit stay with you or your caterer. For food and bar too, see <a href="/book-an-event">full events</a>.</p>
+    </section>
+
+    <%~ it.blocks["rates"]() %>
+
+    <%~ it.blocks["guarantees"]() %>
+
+    <section class="section shell" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" class="section-label">Questions</h2>
+      <div class="faq-list">
+        <%~ include('/partials/faq', { items: it.faqs("hire/bar-staff"), name: "bar-staff-faq", esc: it.esc }) %>
+      </div>
+      <p class="link-row">Also: <a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/weddings">Weddings</a></p>
+    </section>
+
+    <%~ it.blocks["cta"]({ "heading": "Got a date in the diary?" }) %>
