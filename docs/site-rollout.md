@@ -9,7 +9,8 @@ the dynamic-site brief:
 |---|---|
 | A | `/terms`, `/privacy`, `/legal`, `/about`, `/work` |
 | B | `/hire/waiting-staff`, `/hire/bar-staff`, `/hire/kitchen-porters`, `/hire/weddings`, `/hire/production-catering`, `/hire` |
-| C (held until November) | `/special-events`, `/special-events/christmas`, `/special-events/halloween`, `/book-an-event`, `/`, `/hire/quote`, `/work/apply`, the blog |
+| A+ | `/special-events`, `/special-events/christmas`, `/special-events/halloween` |
+| C (held until November) | `/book-an-event`, `/`, `/hire/quote`, `/work/apply`, the blog |
 
 Also live with it: seasons decided on the server, open shifts on `/work`, the
 generated `sitemap.xml`, and the admin "Site content" page.
