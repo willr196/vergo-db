@@ -25,10 +25,12 @@ Monorepo with three apps:
   green accent), tokens on :root in vergo-site.css. Only the Premium rate card
   and the Halloween page keep a dark treatment. The login page
   (vergo-public-pages.css) and the admin panel (#D4AF37) are still dark.
-- Public pages: prices, terms, contact details and the header/footer/rate/
-  guarantee blocks come from apps/api/src/config/pricing.ts and src/site/, and
-  are filled into the HTML as it is served ({{TOKENS}} and <!--#block--> markers).
-  Never hand-write a price or promise into a page.
+- Public pages are Eta templates in apps/api/views/pages/, rendered on request
+  (routes: VIEW_ROUTES in src/site/view.ts; blog: content/blog/*.md). Prices,
+  terms, contact details and the header/footer/rate/guarantee blocks come from
+  src/config/pricing.ts and src/site/, overlaid by what's edited in Admin >
+  Site content (src/site/store.ts). In templates use it.t.* and it.blocks.*.
+  Never hand-write a price or promise into a page. See README.md.
 
 ## IMPORTANT
 - Always run type checking after mobile changes
