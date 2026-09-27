@@ -40,6 +40,16 @@ export interface ShiftSummary {
   payType: 'HOURLY' | 'DAILY' | 'FIXED';
 }
 
+export interface ContentDates {
+  settings?: Date;
+  testimonials?: Date;
+  recentWork?: Date;
+  photos?: Date;
+  promos?: Date;
+  /** By pageKey */
+  faqs: Record<string, Date>;
+}
+
 export interface SiteContent {
   settings: SiteSettings;
   testimonials: TestimonialContent[];
@@ -47,6 +57,12 @@ export interface SiteContent {
   photos: PhotoContent[];
   faqs: Record<string, FaqContent[]>;
   promos: PromoContent[];
+  /**
+   * When each kind of content last changed in the database, published or not
+   * (unpublishing is a change too). Drives the sitemap's lastmod. Empty on
+   * the built-in defaults.
+   */
+  updated: ContentDates;
   /** Up to five upcoming open shifts from the job board, soonest first. */
   openShifts: ShiftSummary[];
   /** Where this copy came from, for the admin and the logs. */
@@ -66,6 +82,7 @@ function defaults(): SiteContent {
     photos: defaultPhotos(),
     faqs: defaultFaqs(),
     promos: defaultPromos(),
+    updated: { faqs: {} },
     openShifts: [],
     source: 'defaults',
     loadedAt: new Date(),
@@ -120,6 +137,23 @@ async function loadFromDatabase(): Promise<SiteContent | null> {
 
   if (!settingRows.some((row) => row.key === SEEDED_MARKER)) return null;
 
+  const [t, w, ph, pr, faqDates] = await Promise.all([
+    prisma.testimonial.aggregate({ _max: { updatedAt: true } }),
+    prisma.recentWork.aggregate({ _max: { updatedAt: true } }),
+    prisma.galleryPhoto.aggregate({ _max: { updatedAt: true } }),
+    prisma.seasonalPromo.aggregate({ _max: { updatedAt: true } }),
+    prisma.faq.groupBy({ by: ['pageKey'], _max: { updatedAt: true } }),
+  ]);
+  const settingsDates = settingRows.filter((r) => r.key !== SEEDED_MARKER).map((r) => r.updatedAt.getTime());
+  const updated: ContentDates = {
+    settings: settingsDates.length ? new Date(Math.max(...settingsDates)) : undefined,
+    testimonials: t._max.updatedAt || undefined,
+    recentWork: w._max.updatedAt || undefined,
+    photos: ph._max.updatedAt || undefined,
+    promos: pr._max.updatedAt || undefined,
+    faqs: Object.fromEntries(faqDates.filter((f) => f._max.updatedAt).map((f) => [f.pageKey, f._max.updatedAt as Date])),
+  };
+
   const faqsByPage: Record<string, FaqContent[]> = {};
   for (const f of faqs) {
     (faqsByPage[f.pageKey] ||= []).push({ question: f.question, answer: f.answer });
@@ -162,6 +196,7 @@ async function loadFromDatabase(): Promise<SiteContent | null> {
       navStartsAt: p.navStartsAt,
       navEndsAt: p.navEndsAt,
     })),
+    updated,
     openShifts: [],
     source: 'database',
     loadedAt: new Date(),

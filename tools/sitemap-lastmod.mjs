@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 /**
- * Sets every <lastmod> in apps/api/public/sitemap.xml to the date the page's
- * HTML file last changed: its last git commit, or today if it has uncommitted
- * changes. Run it before committing page edits:
+ * Sets each page's lastmod in apps/api/src/site/sitemap.ts (the PAGES list)
+ * to the date the page's source last changed: its last git commit, or today
+ * if it has uncommitted changes. A page's source is its template,
+ * apps/api/views/pages/<page>.eta, or its HTML file in apps/api/public/ if it
+ * hasn't moved yet. Run it before committing page edits:
  *
  *   node tools/sitemap-lastmod.mjs
  *
- * The BLOG block is included: its pages map to files the same way, so the
- * dates agree with what tools/blog/build.js writes.
+ * The sitemap itself is built on request (GET /sitemap.xml), which also moves
+ * a page's date forward when its content changes in the database. Blog posts
+ * are dated by their own dateModified, so they aren't listed here.
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -15,18 +18,18 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const publicDir = path.join(repo, 'apps', 'api', 'public');
-const sitemapPath = path.join(publicDir, 'sitemap.xml');
+const apiDir = path.join(repo, 'apps', 'api');
+const sitemapTs = path.join(apiDir, 'src', 'site', 'sitemap.ts');
 const today = new Date().toISOString().slice(0, 10);
 
 function git(args) {
   return execFileSync('git', args, { cwd: repo, encoding: 'utf8' }).trim();
 }
 
-function fileFor(loc) {
-  const pathname = new URL(loc).pathname.replace(/\/$/, '');
-  const rel = pathname === '' ? 'index.html' : `${pathname.slice(1)}.html`;
-  return path.join(publicDir, rel);
+function sourceFor(pagePath) {
+  const page = pagePath === '/' ? 'index' : pagePath.slice(1);
+  const template = path.join(apiDir, 'views', 'pages', `${page}.eta`);
+  return fs.existsSync(template) ? template : path.join(apiDir, 'public', `${page}.html`);
 }
 
 function lastChanged(file) {
@@ -35,17 +38,18 @@ function lastChanged(file) {
   return git(['log', '-1', '--format=%cs', '--', rel]) || today;
 }
 
-let xml = fs.readFileSync(sitemapPath, 'utf8');
+const source = fs.readFileSync(sitemapTs, 'utf8');
+const start = source.indexOf('// PAGES:START');
+const end = source.indexOf('// PAGES:END');
+if (start < 0 || end < 0) throw new Error('PAGES:START / PAGES:END markers not found in sitemap.ts');
+
 let changed = 0;
-xml = xml.replace(/(<loc>([^<]+)<\/loc>\s*<lastmod>)([^<]+)(<\/lastmod>)/g, (match, head, loc, old, tail) => {
-  const file = fileFor(loc.trim());
-  if (!fs.existsSync(file)) {
-    console.warn(`no file for ${loc}`);
-    return match;
-  }
-  const date = lastChanged(file);
-  if (date !== old) changed += 1;
-  return `${head}${date}${tail}`;
+const block = source.slice(start, end).replace(/\{ path: '([^']+)', lastmod: '([^']+)'/g, (match, pagePath, old) => {
+  const date = lastChanged(sourceFor(pagePath));
+  if (date === old) return match;
+  changed += 1;
+  return `{ path: '${pagePath}', lastmod: '${date}'`;
 });
-fs.writeFileSync(sitemapPath, xml);
-console.log(`sitemap.xml: ${changed} lastmod date(s) updated`);
+
+fs.writeFileSync(sitemapTs, source.slice(0, start) + block + source.slice(end));
+console.log(`sitemap.ts: ${changed} lastmod date(s) updated`);

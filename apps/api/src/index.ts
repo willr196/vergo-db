@@ -58,6 +58,7 @@ import { initSentry, sentryErrorHandler, flushSentry } from './services/sentry';
 import { enforceHttpsRedirect } from './utils/httpsRedirect';
 import { clearRenderCaches, sendPublicHtml, renderPublicSource, versionAssetUrls, virtualAsset, PUBLIC_HTML_CACHE_CONTROL } from './lib/publicHtml';
 import { onContentChange, startContentRefresh } from './site/store';
+import { sitemapXml } from './site/sitemap';
 import { renderView, viewRouteFor, withPageScriptHashes } from './site/view';
 import { ZodError } from 'zod';
 
@@ -789,6 +790,14 @@ app.use((req, res, next) => {
 
 // Built from config/pricing.ts at runtime, so it can never disagree with the
 // pages (see site/render.ts). Cached like any versioned script.
+// Built on request from the page list and blog posts, with lastmod following
+// database edits too (see site/sitemap.ts).
+app.get('/sitemap.xml', (_req, res) => {
+  res.type('application/xml');
+  res.setHeader('Cache-Control', 'public, max-age=300');
+  res.send(sitemapXml());
+});
+
 app.get('/vergo-site-config.js', (req, res) => {
   const asset = virtualAsset('/vergo-site-config.js');
   if (!asset) return res.status(404).end();

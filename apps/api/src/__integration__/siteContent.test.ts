@@ -108,3 +108,26 @@ test("open shifts on /work come from the job board, and only VERGO's own upcomin
   await refreshContent();
   assert.match(renderView('work', { path: '/work' }), /No open shifts right now/);
 });
+
+test("editing a page's FAQ moves that page's lastmod in the sitemap, and only that page's", async () => {
+  seed();
+  // Back-date everything the seed wrote, as if it was imported long ago.
+  const old = new Date('2026-01-01T12:00:00Z');
+  for (const table of ['SiteSetting', 'Testimonial', 'RecentWork', 'GalleryPhoto', 'Faq', 'SeasonalPromo']) {
+    await prisma.$executeRawUnsafe(`UPDATE "${table}" SET "updatedAt" = $1`, old);
+  }
+  const faq = await prisma.faq.findFirstOrThrow({ where: { pageKey: 'hire/weddings' } });
+  await prisma.faq.update({ where: { id: faq.id }, data: { answer: faq.answer + ' ' } });
+
+  await refreshContent();
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { sitemapXml } = require('../site/sitemap');
+  const xml: string = sitemapXml();
+  const lastmod = (p: string) => {
+    const at = xml.indexOf(`<loc>https://vergoltd.com${p}</loc>`);
+    return at < 0 ? undefined : /<lastmod>([^<]+)<\/lastmod>/.exec(xml.slice(at))?.[1];
+  };
+  const today = new Date().toISOString().slice(0, 10);
+  assert.equal(lastmod('/hire/weddings'), today);
+  assert.equal(lastmod('/hire/bar-staff'), '2026-09-26');
+});

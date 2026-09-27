@@ -252,3 +252,35 @@ test('every server-rendered page serves, and its old .html URL redirects to it',
     await new Promise<void>((resolve) => server.close(() => resolve()));
   }
 });
+
+test('the sitemap lists every indexable page, and only pages that serve', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { sitemapPaths } = require('../site/sitemap') as { sitemapPaths: () => string[] };
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { VIEW_ROUTES } = require('../site/view') as { VIEW_ROUTES: Array<{ path: string }> };
+  const listed = new Set(sitemapPaths());
+  const server = http.createServer(app);
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const { port } = server.address() as { port: number };
+  try {
+    const xml = await (await fetch(`http://127.0.0.1:${port}/sitemap.xml`)).text();
+    assert.equal([...xml.matchAll(/<loc>/g)].length, listed.size);
+
+    for (const p of listed) {
+      const res = await fetch(`http://127.0.0.1:${port}${p}`, { redirect: 'manual' });
+      const html = await res.text();
+      assert.equal(res.status, 200, `${p} is in the sitemap, so it must serve`);
+      assert.doesNotMatch(html, /<meta name="robots" content="[^"]*noindex/, `${p} is in the sitemap, so it can't be noindex`);
+    }
+
+    // And nothing indexable is missing: every template page that isn't noindex.
+    for (const route of VIEW_ROUTES) {
+      const html = await (await fetch(`http://127.0.0.1:${port}${route.path}`)).text();
+      if (/<meta name="robots" content="[^"]*noindex/.test(html)) continue;
+      assert.ok(listed.has(route.path), `${route.path} is indexable but not in the sitemap`);
+    }
+  } finally {
+    server.closeAllConnections();
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
+});
