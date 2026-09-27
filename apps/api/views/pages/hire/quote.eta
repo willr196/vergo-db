@@ -1,25 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <!--#head-->
-  <title>Price Up Event Staff in London | VERGO Staffing</title>
-  <meta name="description" content="Work out the cost yourself, {{HEADLINE_RATE_LOWER}} per person, four-hour minimum. Then book the staff, or just send us a message.">
-  <meta property="og:title" content="Price Up Event Staff in London | VERGO Staffing">
-  <meta property="og:description" content="Work out the cost yourself, {{HEADLINE_RATE_LOWER}} per person, four-hour minimum. Then book the staff, or just send us a message.">
-  <meta property="og:image" content="https://vergoltd.com/images/og/hire.jpg">
-  <meta property="og:url" content="https://vergoltd.com/hire/quote">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="VERGO Staffing">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="robots" content="noindex">
-  <link rel="canonical" href="https://vergoltd.com/hire/quote">
-</head>
-<body>
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  <!--#header focused="1" back="/hire" label="← Back to rates"-->
-
-  <main id="main-content">
+<%/* /hire/quote: moved from public/hire/quote.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Price Up Event Staff in London | VERGO Staffing",
+    "description": `Work out the cost yourself, ${it.t.HEADLINE_RATE_LOWER} per person, four-hour minimum. Then book the staff, or just send us a message.`,
+    "ogImage": "/images/og/hire.jpg",
+    "robots": "noindex",
+    "canonical": "/hire/quote"
+  },
+  scripts: ["/pages/js/quote-calc.js","/pages/js/quote.js"],
+  header: {"focused":"1","back":"/hire","label":"← Back to rates"}
+}) %>
     <section class="page-hero-plain shell-form">
       <span class="eyebrow">Price it up</span>
       <h1>Work out the cost, then decide</h1>
@@ -81,7 +71,7 @@
           <input type="text" id="venuePostcode" name="venuePostcode" autocomplete="postal-code" placeholder="e.g. E1 6AN">
         </div>
 
-        <!--#service-level-->
+        <%~ it.blocks["service-level"]() %>
 
         <fieldset class="form-field" id="rolesField" aria-describedby="rolesHint">
           <legend>Staff needed, by role <span class="label-note">needed to book</span></legend>
@@ -119,7 +109,7 @@
               <input type="number" id="count-manager" name="roleCount" data-role="Managers and supervisors" data-role-kind="senior" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
             </div>
           </div>
-          <p class="form-hint" id="rolesHint">{{SENIOR_ROLES}}</p>
+          <p class="form-hint" id="rolesHint"><%~ it.t.SENIOR_ROLES %></p>
         </fieldset>
 
         <!-- Live estimate. Every figure is written by pages/js/quote.js from the
@@ -188,10 +178,3 @@
         <div class="form-status" id="quoteStatus" role="status" hidden></div>
       </form>
     </section>
-  </main>
-
-  <!--#footer-->
-  <script src="/pages/js/quote-calc.js"></script>
-  <script src="/pages/js/quote.js"></script>
-</body>
-</html>

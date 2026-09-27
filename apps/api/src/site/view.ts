@@ -258,6 +258,7 @@ export const VIEW_ROUTES: ViewRoute[] = [
   { path: '/special-events/halloween', view: 'special-events/halloween' },
   { path: '/book-an-event', view: 'book-an-event' },
   { path: '/', view: 'index' },
+  { path: '/hire/quote', view: 'hire/quote' },
 ];
 
 export function viewRouteFor(pagePath: string): ViewRoute | undefined {
