@@ -182,6 +182,7 @@ export interface ViewRoute {
 export const VIEW_ROUTES: ViewRoute[] = [
   { path: '/terms', view: 'terms' },
   { path: '/privacy', view: 'privacy' },
+  { path: '/legal', view: 'legal' },
 ];
 
 export function viewRouteFor(pagePath: string): ViewRoute | undefined {

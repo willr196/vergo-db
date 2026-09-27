@@ -1,24 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <!--#head-->
-  <title>Legal &amp; Company Details | VERGO Staffing</title>
-  <meta name="description" content="Vergo Ltd's company registration, regulatory status and insurance details.">
-  <meta property="og:title" content="Legal &amp; Company Details | VERGO Staffing">
-  <meta property="og:description" content="Vergo Ltd's company registration, regulatory status and insurance details.">
-  <meta property="og:image" content="https://vergoltd.com/images/og/home.jpg">
-  <meta property="og:url" content="https://vergoltd.com/legal">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="VERGO Staffing">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="canonical" href="https://vergoltd.com/legal">
-</head>
-<body>
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  <!--#header-->
-
-  <main id="main-content">
+<%/* /legal: moved from public/legal.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Legal & Company Details | VERGO Staffing",
+    "description": "Vergo Ltd's company registration, regulatory status and insurance details.",
+    "ogImage": "/images/og/home.jpg",
+    "canonical": "/legal"
+  }
+}) %>
     <section class="page-hero-plain shell">
       <span class="eyebrow">Legal</span>
       <h1>Company and regulatory details</h1>
@@ -28,11 +16,11 @@
     <section class="section-tight shell legal-content">
       <h2>1. Company details</h2>
       <ul class="check-list">
-        <li>Legal name: {{LEGAL_NAME}}, trading as VERGO Staffing</li>
+        <li>Legal name: <%~ it.t.LEGAL_NAME %>, trading as VERGO Staffing</li>
         <li>Registered in: England and Wales</li>
-        <li>Company number: {{COMPANY_NUMBER}}</li>
-        <li>Registered office: {{REGISTERED_OFFICE}}</li>
-        <li>Contact: <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>, <a href="{{PHONE_TEL}}">{{PHONE}}</a></li>
+        <li>Company number: <%~ it.t.COMPANY_NUMBER %></li>
+        <li>Registered office: <%~ it.t.REGISTERED_OFFICE %></li>
+        <li>Contact: <a href="mailto:<%~ it.t.EMAIL %>"><%~ it.t.EMAIL %></a>, <a href="<%~ it.t.PHONE_TEL %>"><%~ it.t.PHONE %></a></li>
       </ul>
 
       <h2>2. Regulatory status</h2>
@@ -46,20 +34,15 @@
 
       <h2>3. Insurance</h2>
       <p>We hold employers' liability and public liability insurance. Certificates are available on request.</p>
-      <!--#legal-insurers-->
+      <%~ it.blocks["legal-insurers"]() %>
 
       <h2>4. Data protection</h2>
-      <!--#legal-ico-->
+      <%~ it.blocks["legal-ico"]() %>
       <p>See our <a href="/privacy">privacy notice</a> for how we handle personal data.</p>
 
       <h2>5. Complaints</h2>
-      <p>If something's gone wrong, contact us directly at <a href="mailto:{{EMAIL}}">{{EMAIL}}</a> or <a href="{{PHONE_TEL}}">{{PHONE}}</a>. We aim to acknowledge complaints within 5 working days.</p>
+      <p>If something's gone wrong, contact us directly at <a href="mailto:<%~ it.t.EMAIL %>"><%~ it.t.EMAIL %></a> or <a href="<%~ it.t.PHONE_TEL %>"><%~ it.t.PHONE %></a>. We aim to acknowledge complaints within 5 working days.</p>
 
       <h2>6. Governing law</h2>
       <p>These pages and our dealings with clients and workers are governed by the law of England and Wales.</p>
     </section>
-  </main>
-
-  <!--#footer-->
-</body>
-</html>
