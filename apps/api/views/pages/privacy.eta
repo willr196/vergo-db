@@ -1,24 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <!--#head-->
-  <title>Privacy Notice | VERGO Staffing</title>
-  <meta name="description" content="How Vergo Ltd collects, uses and protects personal data submitted through the quote and application forms.">
-  <meta property="og:title" content="Privacy Notice | VERGO Staffing">
-  <meta property="og:description" content="How Vergo Ltd collects, uses and protects personal data submitted through the quote and application forms.">
-  <meta property="og:image" content="https://vergoltd.com/images/og/home.jpg">
-  <meta property="og:url" content="https://vergoltd.com/privacy">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="VERGO Staffing">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="canonical" href="https://vergoltd.com/privacy">
-</head>
-<body>
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  <!--#header-->
-
-  <main id="main-content">
+<%/* /privacy: moved from public/privacy.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Privacy Notice | VERGO Staffing",
+    "description": "How Vergo Ltd collects, uses and protects personal data submitted through the quote and application forms.",
+    "ogImage": "/images/og/home.jpg",
+    "canonical": "/privacy"
+  }
+}) %>
     <section class="page-hero-plain shell">
       <span class="eyebrow">Privacy</span>
       <h1>Privacy notice</h1>
@@ -27,9 +15,9 @@
 
     <section class="section-tight shell legal-content">
       <h2>1. Who we are</h2>
-      <p>{{LEGAL_NAME}} (company no. {{COMPANY_NUMBER}}, registered office {{REGISTERED_OFFICE}}) is the data controller for the personal data described on this page.</p>
-      <!--#legal-ico-->
-      <p>Contact us about privacy at <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>.</p>
+      <p><%~ it.t.LEGAL_NAME %> (company no. <%~ it.t.COMPANY_NUMBER %>, registered office <%~ it.t.REGISTERED_OFFICE %>) is the data controller for the personal data described on this page.</p>
+      <%~ it.blocks["legal-ico"]() %>
+      <p>Contact us about privacy at <a href="mailto:<%~ it.t.EMAIL %>"><%~ it.t.EMAIL %></a>.</p>
 
       <h2>2. What we collect through this website, and why</h2>
       <h3>The quote form (/hire/quote) and event enquiry forms</h3>
@@ -78,13 +66,8 @@
         <li>delete your data, where we're not required to keep it</li>
         <li>restrict or object to how we use it</li>
       </ul>
-      <p>Email <a href="mailto:{{EMAIL}}">{{EMAIL}}</a> for any of these. You can also complain to the Information Commissioner's Office at <a href="https://ico.org.uk" target="_blank" rel="noopener">ico.org.uk</a>, though we'd rather you came to us first so we can put it right.</p>
+      <p>Email <a href="mailto:<%~ it.t.EMAIL %>"><%~ it.t.EMAIL %></a> for any of these. You can also complain to the Information Commissioner's Office at <a href="https://ico.org.uk" target="_blank" rel="noopener">ico.org.uk</a>, though we'd rather you came to us first so we can put it right.</p>
 
       <h2>7. Changes to this notice</h2>
       <p>We may update this notice from time to time. The current version always applies from the date it's published here.</p>
     </section>
-  </main>
-
-  <!--#footer-->
-</body>
-</html>
