@@ -1,0 +1,77 @@
+<%/* /about: moved from public/about.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "About VERGO | VERGO Staffing",
+    "description": `London event staff, picked and briefed by the founder, ${it.t.FOUNDER_NAME}. Everyone interviewed, every booking briefed, one person accountable.`,
+    "ogImage": "/images/og/about.jpg",
+    "canonical": "/about"
+  },
+  jsonLd: [
+    {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "name": "About VERGO",
+      "url": "https://vergoltd.com/about",
+      "description": "London event staff, picked and briefed by the founder.",
+      "mainEntity": {
+        "@type": "Organization",
+        "@id": "https://vergoltd.com/#organization",
+        "name": "VERGO Staffing",
+        "legalName": `${it.t.LEGAL_NAME}`,
+        "url": "https://vergoltd.com",
+        "telephone": `${it.t.PHONE_E164}`,
+        "email": `${it.t.EMAIL}`,
+        "areaServed": {
+          "@type": "City",
+          "name": "London"
+        },
+        "founder": {
+          "@type": "Person",
+          "name": `${it.t.FOUNDER_NAME}`,
+          "jobTitle": "Founder"
+        }
+      }
+    }
+  ]
+}) %>
+    <section class="page-hero-plain shell">
+      <span class="eyebrow">About</span>
+      <h1>About VERGO</h1>
+      <p class="lede">London event staff, picked and briefed by the founder.</p>
+    </section>
+
+    <section class="section shell" aria-labelledby="why-heading">
+      <div class="about-founder">
+        <div class="about-prose">
+          <h2 id="why-heading" class="section-label">Why VERGO</h2>
+          <p>I grew up in my family's event-staffing business, where the job was sending the right person, not whoever was free. Apps now post shifts for anyone to accept.</p>
+          <p>VERGO does it properly: everyone interviewed, every booking briefed, one person accountable.</p>
+        </div>
+        <figure class="about-founder-photo">
+          <img src="/images/about/founder.webp" width="1000" height="1250" alt="<%~ it.t.FOUNDER_NAME %>, founder of VERGO, by the river in London." loading="lazy" decoding="async">
+          <figcaption><%~ it.t.FOUNDER_NAME %>, founder</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section shell" aria-labelledby="how-heading">
+      <h2 id="how-heading" class="section-label">How we work</h2>
+      <ul class="check-list">
+        <li>Everyone interviewed by me</li>
+        <li>Every booking briefed</li>
+        <li><%~ it.t.EMPLOYMENT_SHORT %></li>
+        <li>Right to work checked, fully insured</li>
+      </ul>
+    </section>
+
+    <section class="section shell" aria-labelledby="whatwedo-heading">
+      <h2 id="whatwedo-heading" class="section-label">What we do</h2>
+      <ul class="link-tiles">
+        <li><a href="/hire">Hire staff</a></li>
+        <li><a href="/book-an-event">Full events</a></li>
+        <li><a href="/special-events">Themed and seasonal</a></li>
+        <li><a href="/work">Work with us</a></li>
+      </ul>
+    </section>
+
+    <%~ it.blocks["cta"]({ "heading": "Got a date in the diary?", "line": `${it.t.CONFIRMATION_PROMISE}` }) %>
