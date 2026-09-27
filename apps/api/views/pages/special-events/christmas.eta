@@ -1,0 +1,136 @@
+<%/* /special-events/christmas: moved from public/special-events/christmas.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Christmas Party Staff in London | VERGO Staffing",
+    "description": `Waiting staff, bar staff and kitchen porters for Christmas parties in London. ${it.t.HEADLINE_RATE} per person, four-hour minimum, names the same day.`,
+    "ogImage": "/images/og/christmas.jpg",
+    "canonical": "/special-events/christmas"
+  },
+  styles: ["/pages/css/special-events.css"],
+  bodyClass: "se-page se-theme-light se-theme-christmas",
+  jsonLd: [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Christmas party staff",
+      "serviceType": "Event and hospitality staffing",
+      "url": "https://vergoltd.com/special-events/christmas",
+      "description": "Waiting staff, bar staff and kitchen porters for Christmas parties across London, plus festive hosts and costumed teams.",
+      "areaServed": {
+        "@type": "City",
+        "name": "London"
+      },
+      "provider": {
+        "@id": "https://vergoltd.com/#organization"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Christmas party staffing",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Waiting staff, bar staff, kitchen porters, runners and hosts"
+            },
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": Number(it.t.STANDARD_RATE_NUMBER),
+              "priceCurrency": "GBP",
+              "unitCode": "HUR",
+              "unitText": "per hour, per person"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Festive hosts and themed hospitality staff"
+            },
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": Number(it.t.THEMED_RATE_NUMBER),
+              "priceCurrency": "GBP",
+              "unitCode": "HUR",
+              "unitText": "per hour, per person"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Character performers"
+            },
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": Number(it.t.PERFORMER_RATE_NUMBER),
+              "priceCurrency": "GBP",
+              "unitCode": "HUR",
+              "unitText": "per hour, per person"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Makeup artists"
+            },
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": Number(it.t.MAKEUP_RATE_NUMBER),
+              "priceCurrency": "GBP",
+              "unitCode": "HUR",
+              "unitText": "per hour, per person"
+            }
+          }
+        ]
+      }
+    },
+    it.faqJsonLd("special-events/christmas")
+  ]
+}) %>
+    <section class="se-hero">
+      <div class="se-hero-inner">
+        <span class="eyebrow">Christmas by VERGO</span>
+        <h1>Christmas party staff across London</h1>
+        <p class="lede">Office parties, private parties and venue cover through December.</p>
+        <div class="btn-row">
+          <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell" id="staffing" aria-labelledby="staffing-heading">
+      <h2 id="staffing-heading" class="se-h2">Roles</h2>
+      <ul class="se-audience">
+        <li>Waiting staff</li>
+        <li>Bar staff</li>
+        <li>Kitchen porters</li>
+        <li>Runners</li>
+        <li>Hosts</li>
+        <li>Chefs, quoted separately</li>
+      </ul>
+    </section>
+
+    <%~ it.blocks["rates"]() %>
+
+    <%~ it.blocks["guarantees"]() %>
+
+    <section class="section shell" id="festive" aria-labelledby="festive-heading">
+      <h2 id="festive-heading" class="se-h2">Themed options</h2>
+      <ul class="check-list">
+        <li>Festive hosts and themed staff: <%~ it.t.THEMED_RATE %>/hr</li>
+        <li>Character performers: <%~ it.t.PERFORMER_RATE %>/hr</li>
+        <li>Makeup artists: <%~ it.t.MAKEUP_RATE %>/hr</li>
+      </ul>
+    </section>
+
+    <section class="section shell" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" class="se-h2">Questions</h2>
+      <div class="faq-list">
+        <%~ include('/partials/faq', { items: it.faqs("special-events/christmas"), name: "christmas-faq", esc: it.esc }) %>
+      </div>
+      <p class="link-row">Themed party? <a href="/special-events#brief">Send us the brief</a></p>
+    </section>
+
+    <%~ it.blocks["cta"]({ "heading": "Booking a Christmas party?" }) %>
