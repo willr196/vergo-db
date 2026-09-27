@@ -32,7 +32,7 @@ const CHROME = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Applic
 const OUT = path.resolve('tools/screenshots/compare');
 const PROFILE = path.resolve('tools/screenshots/.chrome-profile');
 const BEFORE_DIR = path.resolve('apps/api/public/__before');
-const HEIGHT = 12000;
+const HEIGHT = 16000;
 
 fs.mkdirSync(OUT, { recursive: true });
 fs.mkdirSync(path.dirname(path.join(BEFORE_DIR, page)), { recursive: true });
