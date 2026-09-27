@@ -1,5 +1,7 @@
-<%/* featured shows only the featured review (the homepage); otherwise all of them. */%>
-<% const list = it.attrs.featured ? it.proof.testimonials.filter(function (t) { return t.featured; }).slice(0, 1) : it.proof.testimonials; %>
+<%/* featured is the homepage cut: the one review marked "show on home". Otherwise every review marked "show on /hire". */%>
+<% const list = it.attrs.featured
+  ? it.proof.testimonials.filter(function (t) { return t.showOnHome; }).slice(0, 1)
+  : it.proof.testimonials.filter(function (t) { return t.showOnHire; }); %>
 <% if (list.length) { %>
 <section class="section shell" aria-labelledby="testimonials-heading">
       <h2 id="testimonials-heading" class="section-label">What clients say</h2>

@@ -56,7 +56,8 @@ import { logger, requestLogger } from './services/logger';
 import { startMemoryMonitoring, stopMemoryMonitoring } from './services/memory';
 import { initSentry, sentryErrorHandler, flushSentry } from './services/sentry';
 import { enforceHttpsRedirect } from './utils/httpsRedirect';
-import { sendPublicHtml, renderPublicSource, versionAssetUrls, virtualAsset, PUBLIC_HTML_CACHE_CONTROL } from './lib/publicHtml';
+import { clearRenderCaches, sendPublicHtml, renderPublicSource, versionAssetUrls, virtualAsset, PUBLIC_HTML_CACHE_CONTROL } from './lib/publicHtml';
+import { onContentChange, startContentRefresh } from './site/store';
 import { renderView, viewRouteFor, withPageScriptHashes } from './site/view';
 import { ZodError } from 'zod';
 
@@ -209,6 +210,12 @@ function collectInlineScriptHashes(dir: string): string[] {
 }
 
 const inlineScriptHashes = collectInlineScriptHashes(publicDir);
+
+// Site content (rates, reviews, FAQs, seasonal promos) comes from the database
+// through an in-memory copy; a change drops the rendered-page caches. The test
+// suites run on the built-in defaults.
+onContentChange(clearRenderCaches);
+if (process.env.NODE_ENV !== 'test') startContentRefresh();
 
 function buildJobPageCspHeader(nonce: string) {
   // Job pages include dynamic JSON-LD. Use a nonce-based CSP for these routes only.

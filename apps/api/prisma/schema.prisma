@@ -9,32 +9,32 @@ datasource db {
 }
 
 model Applicant {
-  id                String        @id @default(cuid())
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  id                String             @id @default(cuid())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
   firstName         String
   lastName          String
-  email             String        @unique
+  email             String             @unique
   phone             String?
   /// Self-declared on the application form. NOT evidence of a right-to-work
   /// check — see the RightToWorkCheck records for the verified position.
   rightToWorkUk     Boolean?
-  averageRating     Decimal?      @db.Decimal(3, 2)
+  averageRating     Decimal?           @db.Decimal(3, 2)
   availability      String?
   bio               String?
   city              String?
   dateOfBirth       DateTime?
-  hourlyRate        Decimal?      @db.Decimal(10, 2)
+  hourlyRate        Decimal?           @db.Decimal(10, 2)
   postcode          String?
   /// Event types the applicant prefers to work (Weddings, Corporate Events, etc.)
   preferredJobTypes String?
   /// Job roles the applicant is suited for (bartender, chef, etc.) — a
   /// different concept from preferredJobTypes above, despite the similar name.
-  preferredRoles    String[]      @default([])
-  profileVisible    Boolean       @default(false)
+  preferredRoles    String[]           @default([])
+  profileVisible    Boolean            @default(false)
   promotedToGoldAt  DateTime?
-  staffTier         String        @default("STANDARD")
-  totalBookings     Int           @default(0)
+  staffTier         String             @default("STANDARD")
+  totalBookings     Int                @default(0)
   yearsExperience   Int?
   applications      Application[]
   user              User?
@@ -246,59 +246,59 @@ model SubscriptionPlan {
 }
 
 model Booking {
-  id                  String           @id @default(cuid())
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @updatedAt
-  status              BookingStatus    @default(PENDING)
-  eventName           String?
-  eventDate           DateTime
-  eventEndDate        DateTime?
-  location            String
-  venue               String?
-  shiftStart          String
-  shiftEnd            String
-  hoursEstimated      Decimal?         @db.Decimal(5, 2)
-  clientTierAtBooking SubscriptionTier
-  staffTierAtBooking  StaffTier
-  hourlyRateCharged   Decimal          @db.Decimal(10, 2)
-  staffPayRate        Decimal?         @db.Decimal(10, 2)
-  totalEstimated      Decimal?         @db.Decimal(10, 2)
-  clientNotes         String?
-  adminNotes          String?
-  rejectionReason     String?
-  confirmedAt         DateTime?
-  confirmedBy         String?
+  id                         String           @id @default(cuid())
+  createdAt                  DateTime         @default(now())
+  updatedAt                  DateTime         @updatedAt
+  status                     BookingStatus    @default(PENDING)
+  eventName                  String?
+  eventDate                  DateTime
+  eventEndDate               DateTime?
+  location                   String
+  venue                      String?
+  shiftStart                 String
+  shiftEnd                   String
+  hoursEstimated             Decimal?         @db.Decimal(5, 2)
+  clientTierAtBooking        SubscriptionTier
+  staffTierAtBooking         StaffTier
+  hourlyRateCharged          Decimal          @db.Decimal(10, 2)
+  staffPayRate               Decimal?         @db.Decimal(10, 2)
+  totalEstimated             Decimal?         @db.Decimal(10, 2)
+  clientNotes                String?
+  adminNotes                 String?
+  rejectionReason            String?
+  confirmedAt                DateTime?
+  confirmedBy                String?
   termsVersionAtConfirmation String?
-  completedAt         DateTime?
+  completedAt                DateTime?
   /// Worker check-in and check-out, recorded from the mobile app. hoursWorked
   /// is computed at check-out from these two and is what the timesheet reads.
   /// It records what was actually worked, so it is not floored at the four-hour
   /// minimum the client is charged for.
-  checkedInAt         DateTime?
-  checkedOutAt        DateTime?
-  hoursWorked         Decimal?         @db.Decimal(5, 2)
+  checkedInAt                DateTime?
+  checkedOutAt               DateTime?
+  hoursWorked                Decimal?         @db.Decimal(5, 2)
   /// Anything the worker needs to flag at check-out: overrun, a problem on
   /// site, a task that took longer than briefed.
-  workerShiftNotes    String?
-  clientId            String
-  staffId             String
-  quoteRequestId      String?
-  bookingLane         BookingLane      @default(FLEX)
+  workerShiftNotes           String?
+  clientId                   String
+  staffId                    String
+  quoteRequestId             String?
+  bookingLane                BookingLane      @default(FLEX)
   /// Set when the client is invoiced for this booking; starts the float clock.
-  invoicedAt          DateTime?
+  invoicedAt                 DateTime?
   /// +14 days from invoicedAt — when staff pay for this booking falls due.
-  staffPayDueAt       DateTime?
-  invoiceRef          String?
-  clientPaidAt        DateTime?
-  staffPaidAt         DateTime?
+  staffPayDueAt              DateTime?
+  invoiceRef                 String?
+  clientPaidAt               DateTime?
+  staffPaidAt                DateTime?
   /// Set when this booking was generated from a BookingTemplate, so a
   /// re-run of that template's generation can't double-book the same day.
-  templateId          String?
-  client              Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  quoteRequest        QuoteRequest?    @relation(fields: [quoteRequestId], references: [id])
-  staff               User             @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  template            BookingTemplate? @relation(fields: [templateId], references: [id])
-  review              BookingReview?
+  templateId                 String?
+  client                     Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  quoteRequest               QuoteRequest?    @relation(fields: [quoteRequestId], references: [id])
+  staff                      User             @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  template                   BookingTemplate? @relation(fields: [templateId], references: [id])
+  review                     BookingReview?
 
   @@unique([templateId, eventDate])
   @@index([clientId])
@@ -312,9 +312,9 @@ model Booking {
 }
 
 model BookingTemplate {
-  id                String       @id @default(cuid())
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
+  id                String      @id @default(cuid())
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
   name              String
   clientId          String
   staffId           String
@@ -323,15 +323,15 @@ model BookingTemplate {
   weekdays          Int[]
   shiftStart        String
   shiftEnd          String
-  breakMins         Int          @default(0)
+  breakMins         Int         @default(0)
   /// Explicit rates take precedence over the client/staff tier's PricingTier
   /// rate, same precedence as manual booking creation.
-  hourlyRateCharged Decimal?     @db.Decimal(10, 2)
-  staffPayRate      Decimal?     @db.Decimal(10, 2)
-  bookingLane       BookingLane  @default(FLEX)
-  active            Boolean      @default(true)
-  client            Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  staff             User         @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  hourlyRateCharged Decimal?    @db.Decimal(10, 2)
+  staffPayRate      Decimal?    @db.Decimal(10, 2)
+  bookingLane       BookingLane @default(FLEX)
+  active            Boolean     @default(true)
+  client            Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  staff             User        @relation(fields: [staffId], references: [id], onDelete: Cascade)
   bookings          Booking[]
 
   @@index([clientId])
@@ -376,58 +376,58 @@ model FileUploadVerification {
 }
 
 model User {
-  id                  String           @id @default(cuid())
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @updatedAt
-  email               String           @unique
-  passwordHash        String
-  emailVerified       Boolean          @default(false)
-  verifyToken         String?
-  resetToken          String?
-  resetTokenExp       DateTime?
-  firstName           String
-  lastName            String
-  phone               String?
-  applicantId         String?          @unique
-  failedAttempts      Int              @default(0)
-  lockedUntil         DateTime?
-  lastLoginAt         DateTime?
-  approvedClient      Boolean          @default(false)
-  billingAddress      String?
-  companyName         String?
-  companyWebsite      String?
-  userType            UserType         @default(JOB_SEEKER)
-  vatNumber           String?
-  verifyTokenExp      DateTime?
-  staffTier           StaffTier?
-  staffBio            String?
-  staffAvatar         String?
-  staffAvailable      Boolean          @default(false)
+  id                 String                  @id @default(cuid())
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  email              String                  @unique
+  passwordHash       String
+  emailVerified      Boolean                 @default(false)
+  verifyToken        String?
+  resetToken         String?
+  resetTokenExp      DateTime?
+  firstName          String
+  lastName           String
+  phone              String?
+  applicantId        String?                 @unique
+  failedAttempts     Int                     @default(0)
+  lockedUntil        DateTime?
+  lastLoginAt        DateTime?
+  approvedClient     Boolean                 @default(false)
+  billingAddress     String?
+  companyName        String?
+  companyWebsite     String?
+  userType           UserType                @default(JOB_SEEKER)
+  vatNumber          String?
+  verifyTokenExp     DateTime?
+  staffTier          StaffTier?
+  staffBio           String?
+  staffAvatar        String?
+  staffAvailable     Boolean                 @default(false)
   /// Richer 3-state status shown in the app; staffAvailable above is kept in
   /// sync from this (AVAILABLE -> true, LIMITED/UNAVAILABLE -> false) since
   /// existing matching/marketplace logic reads the boolean.
-  availabilityStatus  StaffAvailabilityStatus @default(UNAVAILABLE)
-  staffRating         Decimal?         @db.Decimal(3, 2)
-  staffReviewCount    Int              @default(0)
-  staffHighlights     String?
+  availabilityStatus StaffAvailabilityStatus @default(UNAVAILABLE)
+  staffRating        Decimal?                @db.Decimal(3, 2)
+  staffReviewCount   Int                     @default(0)
+  staffHighlights    String?
   /// Gates employer NI on this person's bookings — casual/low-hours staff are
   /// nowhere near the NI threshold, so this defaults off rather than being
   /// inferred from hours worked.
-  niLiable            Boolean          @default(false)
+  niLiable           Boolean                 @default(false)
   /// Gates employer pension contributions, same reasoning as niLiable.
-  pensionEnrolled     Boolean          @default(false)
-  seqId               Int              @unique @default(autoincrement())
-  mustChangePassword  Boolean          @default(false)
-  bookings            Booking[]
-  bookingTemplates    BookingTemplate[]
-  jobApplications     JobApplication[]
-  jobAssignments      JobAssignment[]
-  pushTokens          PushToken[]
-  refreshTokens       RefreshToken[]
-  savedJobs           SavedJob[]
-  availability        Availability[]
-  jobInvites          JobInvite[]
-  applicant           Applicant?       @relation(fields: [applicantId], references: [id])
+  pensionEnrolled    Boolean                 @default(false)
+  seqId              Int                     @unique @default(autoincrement())
+  mustChangePassword Boolean                 @default(false)
+  bookings           Booking[]
+  bookingTemplates   BookingTemplate[]
+  jobApplications    JobApplication[]
+  jobAssignments     JobAssignment[]
+  pushTokens         PushToken[]
+  refreshTokens      RefreshToken[]
+  savedJobs          SavedJob[]
+  availability       Availability[]
+  jobInvites         JobInvite[]
+  applicant          Applicant?              @relation(fields: [applicantId], references: [id])
 
   @@index([email])
   @@index([userType])
@@ -465,37 +465,37 @@ model PushToken {
 }
 
 model Job {
-  id                  String           @id @default(cuid())
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @updatedAt
-  title               String
-  description         String
-  location            String
-  roleId              String
-  status              JobStatus        @default(DRAFT)
-  closingDate         DateTime?
-  companyName         String?
-  eventDate           DateTime?
-  eventEndDate        DateTime?
-  externalUrl         String?
-  payRate             Decimal?         @db.Decimal(10, 2)
-  payType             PayType          @default(HOURLY)
-  publishedAt         DateTime?
-  requirements        String?
-  shiftEnd            String?
-  shiftStart          String?
-  staffConfirmed      Int              @default(0)
-  staffNeeded         Int              @default(1)
-  type                JobType          @default(INTERNAL)
-  venue               String?
-  clientId            String?
-  posterEmail         String?
-  client              Client?          @relation(fields: [clientId], references: [id])
-  role                Role             @relation(fields: [roleId], references: [id])
-  applications        JobApplication[]
-  savedBy             SavedJob[]
-  invites             JobInvite[]
-  days                JobDay[]
+  id             String           @id @default(cuid())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  title          String
+  description    String
+  location       String
+  roleId         String
+  status         JobStatus        @default(DRAFT)
+  closingDate    DateTime?
+  companyName    String?
+  eventDate      DateTime?
+  eventEndDate   DateTime?
+  externalUrl    String?
+  payRate        Decimal?         @db.Decimal(10, 2)
+  payType        PayType          @default(HOURLY)
+  publishedAt    DateTime?
+  requirements   String?
+  shiftEnd       String?
+  shiftStart     String?
+  staffConfirmed Int              @default(0)
+  staffNeeded    Int              @default(1)
+  type           JobType          @default(INTERNAL)
+  venue          String?
+  clientId       String?
+  posterEmail    String?
+  client         Client?          @relation(fields: [clientId], references: [id])
+  role           Role             @relation(fields: [roleId], references: [id])
+  applications   JobApplication[]
+  savedBy        SavedJob[]
+  invites        JobInvite[]
+  days           JobDay[]
 
   @@index([status, type])
   @@index([clientId])
@@ -515,8 +515,8 @@ model JobApplication {
   coverNote           String?
   userId              String
   applyIdempotencyKey String?              @unique
-  job        Job                  @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job                 Job                  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, jobId])
   @@index([status])
@@ -823,4 +823,117 @@ enum JobInviteStatus {
   ACCEPTED
   DECLINED
   EXPIRED
+}
+
+// ============================================
+// SITE CONTENT (public pages, edited in admin "Site content")
+// ============================================
+// Read through src/site/store.ts, which keeps the last good copy in memory and
+// falls back to the defaults in src/site/defaults.ts, so a page never waits on
+// the database. prisma/seed-site-content.ts fills these from today's pages.
+
+/// Rates, promises, contact details, slogan, Google reviews link, Premium switch.
+/// One row per key; value is validated with zod on write (routes/adminSiteContent.ts).
+model SiteSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id         String   @id @default(cuid())
+  quote      String   @db.VarChar(1000)
+  name       String   @db.VarChar(120)
+  context    String   @db.VarChar(120)
+  /// "google" or "direct"
+  source     String   @default("direct") @db.VarChar(20)
+  url        String?  @db.VarChar(500)
+  stars      Int?
+  showOnHome Boolean  @default(false)
+  showOnHire Boolean  @default(true)
+  order      Int      @default(0)
+  published  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([published, order])
+}
+
+model RecentWork {
+  id        String   @id @default(cuid())
+  title     String   @db.VarChar(200)
+  detail    String   @db.VarChar(500)
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, order])
+}
+
+model GalleryPhoto {
+  id        String   @id @default(cuid())
+  /// S3 key or a path under public/
+  path      String   @db.VarChar(500)
+  alt       String   @db.VarChar(300)
+  caption   String?  @db.VarChar(300)
+  /// Where it shows: "home", "hire", "halloween", ...
+  tags      String[]
+  width     Int
+  height    Int
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, order])
+}
+
+model Faq {
+  id        String   @id @default(cuid())
+  /// The page it belongs to, e.g. "hire/weddings", "special-events/halloween"
+  pageKey   String   @db.VarChar(100)
+  question  String   @db.VarChar(300)
+  /// May carry simple links and {{TOKENS}}
+  answer    String   @db.VarChar(1000)
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([pageKey, published, order])
+}
+
+model SeasonalPromo {
+  id           String    @id @default(cuid())
+  /// "halloween", "christmas", ...
+  key          String    @unique @db.VarChar(50)
+  navLabel     String    @db.VarChar(40)
+  bannerText   String    @db.VarChar(120)
+  href         String    @db.VarChar(200)
+  homeHeading  String    @db.VarChar(200)
+  /// Lines under the homepage heading, strings (may carry {{TOKENS}})
+  homeLines    Json
+  homeCtaLabel String?   @db.VarChar(80)
+  homeCtaHref  String?   @db.VarChar(200)
+  /// The banner and homepage section show between these (Europe/London)
+  startsAt     DateTime
+  endsAt       DateTime
+  /// The header item's own window, when it differs (Christmas: from 1 November)
+  navStartsAt  DateTime?
+  navEndsAt    DateTime?
+  published    Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+/// Audit log for every admin save in "Site content".
+model ContentChange {
+  id     String   @id @default(cuid())
+  who    String   @db.VarChar(200)
+  what   String   @db.VarChar(500)
+  detail Json?
+  when   DateTime @default(now())
+
+  @@index([when])
 }

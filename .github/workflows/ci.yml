@@ -64,8 +64,9 @@ jobs:
       - name: Apply migrations to the integration database
         run: npx prisma migrate deploy
 
+      # One file at a time: every file truncates the same database.
       - name: Integration tests
-        run: node --test dist/src/__integration__/*.test.js
+        run: node --test --test-concurrency=1 dist/src/__integration__/*.test.js
 
       # Informational only — apps/api's dependency tree has known moderate
       # advisories not yet worth a breaking major-version bump. Doesn't fail

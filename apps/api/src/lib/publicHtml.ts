@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Response } from 'express';
 import { pagePathFor, renderSiteHtml, siteConfigScript } from '../site/render';
+import { withPageScriptHashes } from '../site/view';
 
 /**
  * Serves the static HTML pages with every local stylesheet, script and image
@@ -55,6 +56,16 @@ const VIRTUAL_ASSETS: Record<string, () => string> = {
   '/vergo-site-config.js': siteConfigScript,
 };
 const virtualCache = new Map<string, { body: string; hash: string }>();
+
+/**
+ * Drops every rendered page and generated script, so the next request builds
+ * them from the current site content. Called when the content store changes
+ * (see site/store.ts); file hashes stay, since files on disk haven't changed.
+ */
+export function clearRenderCaches(): void {
+  sourceCache.clear();
+  virtualCache.clear();
+}
 
 export function virtualAsset(urlPath: string): { body: string; hash: string } | null {
   const build = VIRTUAL_ASSETS[urlPath];
@@ -128,6 +139,9 @@ function renderPage(filePath: string, publicDir: string): string | null {
 export function sendPublicHtml(res: Response, filePath: string, publicDir: string): boolean {
   const html = renderPage(filePath, publicDir);
   if (html === null) return false;
+  // The JSON-LD carries settings (phone, prices) that can change without a
+  // restart, so the boot-time hashes alone could go stale; hash what is sent.
+  withPageScriptHashes(res, html);
   res.setHeader('Cache-Control', PUBLIC_HTML_CACHE_CONTROL);
   res.type('html').send(html);
   return true;

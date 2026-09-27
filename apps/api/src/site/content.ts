@@ -42,7 +42,7 @@ export const SITE = {
     transferFee: "15% of the worker's gross pay for their first year with you",
     liabilityCap: 'the total charges for the booking concerned',
   },
-} as const;
+};
 
 export function jobsEmail(): string {
   return SITE.jobsEmail || SITE.publicEmail;

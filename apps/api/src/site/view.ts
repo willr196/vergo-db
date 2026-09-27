@@ -1,10 +1,10 @@
 import crypto from 'node:crypto';
-import fs from 'node:fs';
 import path from 'node:path';
 import { Eta } from 'eta';
 import type { Response } from 'express';
 import { PRICING, SITE_TERMS, formatRate, headlineRateText } from '../config/pricing';
 import { SITE, siteTokens } from './content';
+import { siteContent } from './store';
 
 /**
  * Server-rendered public pages (Eta). Templates live in apps/api/views/:
@@ -76,29 +76,9 @@ function rateTerms(): string[] {
   ];
 }
 
-interface Testimonial {
-  quote: string;
-  name: string;
-  context: string;
-  source?: string;
-  stars?: number;
-  url?: string;
-  featured?: boolean;
-}
-interface Proof {
-  testimonials: Testimonial[];
-  recentWork: Array<{ title: string; detail: string }>;
-}
-
-/** public/data/proof.json: the reviews and recent work, one entry each. */
-function loadProof(): Proof {
-  try {
-    const file = path.join(process.cwd(), 'public', 'data', 'proof.json');
-    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
-    return { testimonials: data.testimonials || [], recentWork: data.recentWork || [] };
-  } catch {
-    return { testimonials: [], recentWork: [] };
-  }
+/** Fills {{TOKENS}} in stored text (FAQ answers, promo lines). Unknown tokens stay, for the consistency test to find. */
+export function fillTokens(text: string, tokens: Record<string, string> = siteTokens()): string {
+  return text.replace(/{{([A-Z0-9_]+)}}/g, (match, key: string) => (key in tokens ? tokens[key] : match));
 }
 
 /** The partials a marker or a template can ask for, by name. */
@@ -122,16 +102,27 @@ type BlockFn = (attrs?: PartialAttrs) => string;
 
 /** Everything a template or partial can read, for the page at ctx.path. */
 export function pageData(ctx: PageContext) {
+  const content = siteContent();
+  const tokens = siteTokens();
   const data: Record<string, unknown> = {
     path: ctx.path,
     site: SITE,
     pricing: PRICING,
     terms: SITE_TERMS,
-    t: siteTokens(),
+    t: tokens,
     fmt: formatRate,
     headlineRateText: headlineRateText(),
     rateTerms: rateTerms(),
-    proof: loadProof(),
+    proof: {
+      testimonials: content.testimonials,
+      recentWork: content.recentWork,
+    },
+    /** A page's FAQs, tokens filled. pageKey is the path without its leading slash. */
+    faqs: (pageKey: string) =>
+      (content.faqs[pageKey] || []).map((f) => ({ question: fillTokens(f.question, tokens), answer: fillTokens(f.answer, tokens) })),
+    /** Published photos carrying a tag, in order. */
+    photos: (tag: string) => content.photos.filter((ph) => ph.tags.includes(tag)),
+    fillTokens: (text: string) => fillTokens(text, tokens),
     nav: NAV.map((item) => ({ href: item.href, label: item.label, current: item.match(ctx.path) })),
     bannerAllowed: bannerAllowed(ctx.path),
     esc,

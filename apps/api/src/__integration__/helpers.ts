@@ -95,6 +95,14 @@ const TABLES_IN_WIPE_ORDER = [
   'Availability',
   'User',
   'Client',
+  // Site content
+  'SiteSetting',
+  'Testimonial',
+  'RecentWork',
+  'GalleryPhoto',
+  'Faq',
+  'SeasonalPromo',
+  'ContentChange',
 ];
 
 export async function resetDatabase(): Promise<void> {

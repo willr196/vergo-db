@@ -45,7 +45,7 @@ export const PRICING = {
     /** Hourly special-events roles carry the site-wide four-hour minimum. */
     minimumChargeHours: 4,
   },
-} as const;
+};
 
 /**
  * Employer on-costs used by src/lib/money.ts booking margin calculations.
@@ -93,7 +93,7 @@ export const SITE_TERMS = {
   /** Terms §6 and the blog FAQ only. */
   employmentLine: 'Our hospitality staff are employed by us on PAYE, with payslips, holiday pay and a pension where it applies. Some specialist roles (chefs, cooks, performers and makeup artists) may be self-employed, and we confirm this in writing when you book.',
   workerPayLine: 'From £12.71/hr plus 12.07% holiday pay. More with experience.',
-} as const;
+};
 
 /** "£18.50" — rates always show pence, so £24.00 and £18.50 line up. */
 export function formatRate(value: number): string {

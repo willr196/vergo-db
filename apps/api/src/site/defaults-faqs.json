@@ -1,0 +1,118 @@
+{
+  "work": [
+    {
+      "question": "Am I employed or self-employed?",
+      "answer": "Employed. You're on our payroll, we deduct your tax and National Insurance, and you get a payslip."
+    },
+    {
+      "question": "Do I have to take shifts?",
+      "answer": "No. Take the work that suits you."
+    },
+    {
+      "question": "Do I need experience?",
+      "answer": "For bar and silver service, yes. For runners and porters, no."
+    }
+  ],
+  "hire/bar-staff": [
+    {
+      "question": "Can your bar staff work to our cocktail list?",
+      "answer": "Yes. Send it with your enquiry and it goes into the brief."
+    },
+    {
+      "question": "How late can the bar run?",
+      "answer": "As late as your licence allows. Give us the real finish time."
+    },
+    {
+      "question": "Can you cover a shift at short notice?",
+      "answer": "Ask whatever the date. We take a lot of overflow work."
+    }
+  ],
+  "hire/kitchen-porters": [
+    {
+      "question": "What does a kitchen porter cover?",
+      "answer": "Wash-up through service, bins and waste, and the clear down. Tell us about any prep."
+    },
+    {
+      "question": "Can you cover early starts and long days?",
+      "answer": "Yes. Give us the real call and finish times."
+    },
+    {
+      "question": "Can we book the same porters every week?",
+      "answer": "Where the pattern is regular, we send the same people."
+    }
+  ],
+  "hire/production-catering": [
+    {
+      "question": "Can you cover a 5am call time?",
+      "answer": "Yes. Send the call sheet times when you enquire."
+    },
+    {
+      "question": "Can we have the same crew for the whole shoot?",
+      "answer": "That's the aim. Tell us the shoot dates up front."
+    },
+    {
+      "question": "How are cooks and chefs charged?",
+      "answer": "Quoted individually, by section and unit size."
+    }
+  ],
+  "hire/waiting-staff": [
+    {
+      "question": "How many waiting staff do we need?",
+      "answer": "Tell us guest numbers, service style and timings. We'll recommend a team."
+    },
+    {
+      "question": "Do they know the running order before they arrive?",
+      "answer": "Yes. Send it and it goes into their brief."
+    },
+    {
+      "question": "Can we ask for the same staff again?",
+      "answer": "Yes, by name. Anyone who wasn't right won't be sent again."
+    }
+  ],
+  "hire/weddings": [
+    {
+      "question": "Our venue is dry hire. Can you staff the whole day?",
+      "answer": "Yes, dry hire is a lot of what we do. Build the team the day needs."
+    },
+    {
+      "question": "How many staff will our wedding need?",
+      "answer": "Send guest numbers, service style and running order. We'll recommend a team."
+    },
+    {
+      "question": "Who do the staff take direction from?",
+      "answer": "Whoever you tell us: planner, caterer, venue or you."
+    }
+  ],
+  "special-events/christmas": [
+    {
+      "question": "Our party runs past midnight. How does that work?",
+      "answer": "Tell us the real finish time when you enquire. The late hours are then in the quote, not a surprise on the invoice."
+    },
+    {
+      "question": "How late can we book Christmas staff?",
+      "answer": "Ask whatever the date. The more notice we have, the more choice you get."
+    },
+    {
+      "question": "How many staff do we need?",
+      "answer": "Tell us the guest number, the service style and the timings. We recommend a team for your party rather than a ratio."
+    }
+  ],
+  "special-events/halloween": [
+    {
+      "question": "How far ahead should we book?",
+      "answer": "As early as you can: the last week of October books up first. Ask anyway and we'll tell you what's still possible."
+    },
+    {
+      "question": "Do you supply the costumes?",
+      "answer": "Yours styled by us, or sourced and hired for the booking. We don't hold a costume store, so raise the look early."
+    },
+    {
+      "question": "How scary is &ldquo;scary&rdquo;?",
+      "answer": "Your call, agreed before the event. Scare level, contact, age range and venue limits all go in the brief."
+    },
+    {
+      "question": "Can we book one or two people?",
+      "answer": "Yes, two themed hosts is a normal booking. The {{MIN_HOURS}}-hour minimum still applies."
+    }
+  ]
+}
