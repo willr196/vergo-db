@@ -48,6 +48,24 @@ body.se-theme-halloween {
   --footer-bg: #060507;
   --header-bg: rgba(9, 8, 10, 0.9);
 
+  /* Light type. :root in vergo-site.css is the light theme, so every text,
+     surface and state token it sets has to be turned back round here, or the
+     page inherits near-black type on this black ground. */
+  --ink: #f7f7f7;
+  --muted: #9b9b9b;
+  --line: rgba(242, 239, 232, 0.10);
+  --text: var(--ink);
+  --text-secondary: #d6d6d6;
+  --text-muted: var(--muted);
+  --surface: rgba(242, 239, 232, 0.03);
+  --hover-fill: rgba(242, 239, 232, 0.08);
+  --accent-soft: rgba(237, 122, 51, 0.12);
+  --error: #ff8a80;
+  --error-soft: rgba(255, 138, 128, 0.12);
+  --success: #7fd1a8;
+  --success-soft: rgba(127, 209, 168, 0.12);
+  --focus: 3px solid #7fbfff;
+
   /* Halloween ember. 6.6:1 against --accent-ink, so .btn-primary stays AA. */
   --accent: #ed7a33;
   --accent-hover: #f79355;
