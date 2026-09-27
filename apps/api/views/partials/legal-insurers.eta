@@ -1,0 +1,2 @@
+<% const lines = [it.site.legal.employersLiabilityInsurer && "Employers' liability: " + it.site.legal.employersLiabilityInsurer, it.site.legal.publicLiabilityInsurer && 'Public liability: ' + it.site.legal.publicLiabilityInsurer].filter(Boolean); %>
+<% if (lines.length) { %><ul class="check-list"><% lines.forEach(function (l) { %><li><%= l %></li><% }) %></ul><% } %>

@@ -1,0 +1,11 @@
+<%/*
+  Starts hidden with no link; vergo-site.js fills and shows it by date, so a
+  visitor without JavaScript sees nothing rather than last season's offer.
+  Phase 4 of the dynamic-site brief moves that decision to the server.
+*/%>
+<div class="season-banner" data-season-banner hidden>
+    <div class="season-banner-inner">
+      <p class="season-banner-links" data-season-banner-links></p>
+      <button type="button" class="season-banner-close" data-season-dismiss aria-label="Dismiss this notice">&times;</button>
+    </div>
+  </div>

@@ -1,0 +1,36 @@
+<footer class="site-footer" role="contentinfo" data-shared-footer>
+    <div class="footer-inner">
+      <nav class="footer-col" aria-label="Site">
+        <ul class="footer-links">
+          <li><a href="/hire">Hire staff</a></li>
+          <li><a href="/book-an-event">Events</a></li>
+          <li><a href="/special-events">Special events</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/blog">Blog</a></li>
+          <li><a href="/work">Work for us</a></li>
+        </ul>
+      </nav>
+      <nav class="footer-col" aria-label="Legal">
+        <ul class="footer-links">
+          <li><a href="/terms">Terms of business</a></li>
+          <li><a href="/privacy">Privacy</a></li>
+          <li><a href="/legal">Legal</a></li>
+          <li><a href="#cookie-settings" id="vergo-consent-link">Cookie settings</a></li>
+        </ul>
+      </nav>
+      <div class="footer-col">
+        <ul class="footer-links">
+          <li><a href="mailto:<%= it.site.publicEmail %>"><%= it.site.publicEmail %></a></li>
+          <li><a href="tel:<%= it.site.phoneE164 %>"><%= it.site.phoneDisplay %></a></li>
+          <li><a href="<%= it.site.instagram %>" target="_blank" rel="noopener">Instagram</a></li>
+<% if (it.site.googleReviewsUrl) { %>
+          <li><a href="<%= it.site.googleReviewsUrl %>" target="_blank" rel="noopener">Google reviews</a></li>
+<% } %>
+        </ul>
+      </div>
+      <p class="footer-legal"><%= it.site.legalName %>, registered in <%= it.site.jurisdiction %>, company no. <%= it.site.companyNumber %>. Registered office: <%= it.site.registeredOffice %>. Employers' and public liability insured.</p>
+    </div>
+  </footer>
+  <script src="/vergo-site-config.js"></script>
+  <script src="/vergo-site.js" defer></script>
+  <script src="/vergo-whatsapp.js" defer></script>

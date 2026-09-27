@@ -1,0 +1,7 @@
+<%/* A page's FAQs. items: [{ question, answer }]; answers are trusted HTML (they may carry links). name groups the <details> so one opens at a time. */%>
+<% (it.items || []).forEach(function (f) { %>
+        <details class="faq"<%~ it.name ? ' name="' + it.esc(it.name) + '"' : '' %>>
+          <summary><%= f.question %></summary>
+          <p><%~ f.answer %></p>
+        </details>
+<% }) %>

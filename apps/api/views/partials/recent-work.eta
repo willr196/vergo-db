@@ -1,0 +1,10 @@
+<% if (it.proof.recentWork.length) { %>
+<section class="section shell" aria-labelledby="recentwork-heading">
+      <h2 id="recentwork-heading" class="section-label">Recent work</h2>
+      <ul class="fact-list">
+<% it.proof.recentWork.forEach(function (w) { %>
+        <li><strong><%= w.title %></strong>: <%= w.detail %></li>
+<% }) %>
+      </ul>
+    </section>
+<% } %>

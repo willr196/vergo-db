@@ -1,0 +1,15 @@
+<%/* featured shows only the featured review (the homepage); otherwise all of them. */%>
+<% const list = it.attrs.featured ? it.proof.testimonials.filter(function (t) { return t.featured; }).slice(0, 1) : it.proof.testimonials; %>
+<% if (list.length) { %>
+<section class="section shell" aria-labelledby="testimonials-heading">
+      <h2 id="testimonials-heading" class="section-label">What clients say</h2>
+      <div class="testimonials">
+<% list.forEach(function (t) { %>
+        <%~ include('/partials/testimonial', { t: t }) %>
+<% }) %>
+      </div>
+<% if (it.site.googleReviewsUrl) { %>
+      <a class="testimonials-more" href="<%= it.site.googleReviewsUrl %>" target="_blank" rel="noopener">Read our Google reviews &rarr;</a>
+<% } %>
+    </section>
+<% } %>

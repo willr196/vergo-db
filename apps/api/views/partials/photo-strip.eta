@@ -1,0 +1,12 @@
+<%/* Photos, only when there are any. photos: [{ src, alt, width, height, caption? }] */%>
+<% if (it.photos && it.photos.length) { %>
+<div class="photo-strip">
+<% it.photos.forEach(function (p) { %>
+  <figure>
+    <img src="<%= p.src %>" alt="<%= p.alt %>" width="<%= p.width %>" height="<%= p.height %>" loading="lazy">
+<% if (p.caption) { %>    <figcaption><%= p.caption %></figcaption>
+<% } %>
+  </figure>
+<% }) %>
+</div>
+<% } %>

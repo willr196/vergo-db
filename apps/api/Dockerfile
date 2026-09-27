@@ -28,7 +28,8 @@ COPY package*.json ./
 # compiled app, prisma, and PUBLIC assets
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
-COPY --from=build /app/public ./public 
+COPY --from=build /app/public ./public
+COPY --from=build /app/views ./views
 COPY --from=build /app/scripts ./scripts
 
 RUN chown -R app:app /app

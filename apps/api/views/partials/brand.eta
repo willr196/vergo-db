@@ -1,0 +1,2 @@
+<%/* The V mark is a background image, so the link's only text is the word; aria-label names where it goes. */%>
+<a class="brand" href="/" aria-label="VERGO home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-word" aria-hidden="true">VERGO</span></a>

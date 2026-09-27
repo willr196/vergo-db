@@ -1,0 +1,52 @@
+<%/*
+  Every server-rendered public page. A page sets its layout data with
+    layout('layouts/base', { meta: {...}, jsonLd: [...], styles: [...], scripts: [...], bodyClass, header })
+  and its own markup becomes it.body, which fills <main>.
+
+  meta: title, description, canonical (path, e.g. "/terms"), ogImage (path under
+  /images/og/), robots (optional, e.g. "noindex").
+  jsonLd: plain objects, serialised here. They are hashed into the page's CSP
+  as it is sent (site/view.ts), so they need no nonce.
+*/%>
+<% const origin = 'https://vergoltd.com'; const m = it.meta; %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%~ include('/partials/head', it) %>
+  <title><%= m.title %></title>
+  <meta name="description" content="<%= m.description %>">
+  <meta property="og:title" content="<%= m.ogTitle || m.title %>">
+  <meta property="og:description" content="<%= m.ogDescription || m.description %>">
+  <meta property="og:image" content="<%= origin + (m.ogImage || '/images/og/home.jpg') %>">
+  <meta property="og:url" content="<%= origin + m.canonical %>">
+  <meta property="og:type" content="<%= m.ogType || 'website' %>">
+  <meta property="og:site_name" content="VERGO Staffing">
+  <meta name="twitter:card" content="summary_large_image">
+<% if (m.robots) { %>
+  <meta name="robots" content="<%= m.robots %>">
+<% } %>
+  <link rel="canonical" href="<%= origin + m.canonical %>">
+<% (it.styles || []).forEach(function (href) { %>
+  <link rel="stylesheet" href="<%= href %>">
+<% }) %>
+<% (it.jsonLd || []).forEach(function (data) { %>
+  <script type="application/ld+json">
+<%~ it.jsonLdString(data) %>
+  </script>
+<% }) %>
+</head>
+<body<%~ it.bodyClass ? ' class="' + it.esc(it.bodyClass) + '"' : '' %>>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <%~ it.blocks.header(it.header || {}) %>
+
+  <main id="main-content">
+<%~ it.body %>
+  </main>
+
+  <%~ it.blocks.footer() %>
+<% (it.scripts || []).forEach(function (src) { %>
+  <script src="<%= src %>"></script>
+<% }) %>
+</body>
+</html>

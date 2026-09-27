@@ -1,0 +1,26 @@
+<%/* The rate block, the same everywhere a price is shown. compact is the homepage cut, with a link to the full rates on /hire. */%>
+<% const compact = Boolean(it.attrs.compact); const id = it.attrs.id === undefined ? 'rate' : it.attrs.id; %>
+<section class="section shell rate-block<%= compact ? ' rate-block--compact' : '' %>"<%~ id ? ' id="' + it.esc(id) + '"' : '' %> data-block="rates" aria-labelledby="rates-heading">
+      <h2 id="rates-heading" class="section-label">Rates</h2>
+<% if (it.pricing.premiumEnabled) { %>
+      <p class="rate-headline"><strong><%= it.headlineRateText %></strong> per person</p>
+      <div class="rate-tiers">
+        <div class="rate-tier">
+          <p><strong>Standard, <%= it.fmt(it.pricing.standardRate) %>.</strong> Waiting, bar, kitchen porters, runners, hosts.</p>
+        </div>
+        <div class="rate-tier rate-tier--premium">
+          <p><strong>Premium, <%= it.fmt(it.pricing.premiumRate) %>.</strong> <%= it.terms.premiumDefinition %></p>
+        </div>
+      </div>
+<% } else { %>
+      <p class="rate-headline"><strong><%= it.fmt(it.pricing.standardRate) %></strong> per hour, per person</p>
+<% } %>
+      <ul class="rate-terms">
+<% it.rateTerms.forEach(function (item) { %>
+        <li><%= item %></li>
+<% }) %>
+      </ul>
+<% if (compact) { %>
+      <p class="rate-more"><a href="/hire#rate">See full rates and terms</a></p>
+<% } %>
+    </section>

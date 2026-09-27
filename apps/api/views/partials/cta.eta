@@ -1,0 +1,15 @@
+<%/* The one call to action a page ends on. attrs: heading, button, href, line (optional). */%>
+<section class="section-band" data-block="cta" aria-labelledby="cta-heading">
+      <div class="cta-band shell">
+        <div>
+          <h2 id="cta-heading"><%= it.attrs.heading || 'Got a date in the diary?' %></h2>
+<% if (it.attrs.line) { %>
+          <p><%= it.attrs.line %></p>
+<% } %>
+        </div>
+        <div class="cta-actions">
+          <a href="<%= it.attrs.href || '/hire/quote' %>" class="btn btn-primary"><%= it.attrs.button || 'Get a quote' %></a>
+          <p class="cta-contact"><a href="tel:<%= it.site.phoneE164 %>">Call <%= it.site.phoneDisplay %></a> · <a href="<%= it.site.whatsappUrl %>" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a></p>
+        </div>
+      </div>
+    </section>

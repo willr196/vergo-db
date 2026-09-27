@@ -1,0 +1,4 @@
+<%/* A short row of related links. links: [{ href, label }] */%>
+<% if (it.links && it.links.length) { %>
+<p class="link-row"><% it.links.forEach(function (l, i) { %><%~ i ? ' · ' : '' %><a href="<%= l.href %>"><%= l.label %></a><% }) %></p>
+<% } %>

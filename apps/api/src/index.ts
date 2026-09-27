@@ -56,7 +56,8 @@ import { logger, requestLogger } from './services/logger';
 import { startMemoryMonitoring, stopMemoryMonitoring } from './services/memory';
 import { initSentry, sentryErrorHandler, flushSentry } from './services/sentry';
 import { enforceHttpsRedirect } from './utils/httpsRedirect';
-import { sendPublicHtml, renderPublicSource, virtualAsset, PUBLIC_HTML_CACHE_CONTROL } from './lib/publicHtml';
+import { sendPublicHtml, renderPublicSource, versionAssetUrls, virtualAsset, PUBLIC_HTML_CACHE_CONTROL } from './lib/publicHtml';
+import { renderView, viewRouteFor, withPageScriptHashes } from './site/view';
 import { ZodError } from 'zod';
 
 // Initialize Sentry early (before Express app)
@@ -695,17 +696,15 @@ app.use((req, res, next) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') return next();
   if (!req.path.endsWith('.html')) return next();
 
-  // Only redirect known static HTML pages from the public directory.
+  // Only redirect known pages: an HTML file in public/, or a page that has
+  // moved to a template (its old /<page>.html URL still has links pointing at it).
+  const clean = req.path === '/index.html' ? '/' : req.path.replace(/\.html$/, '');
   const relPath = req.path.replace(/^\//, '');
   const filePath = resolvePublicFile(relPath);
-  if (!filePath || !fs.existsSync(filePath)) return next();
+  const isFile = Boolean(filePath && fs.existsSync(filePath));
+  if (!isFile && !viewRouteFor(clean)) return next();
 
   const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
-  if (req.path === '/index.html') {
-    return res.redirect(301, '/' + qs);
-  }
-
-  const clean = req.path.replace(/\.html$/, '');
   return res.redirect(301, clean + qs);
 });
 
@@ -719,10 +718,27 @@ app.use((req, res, next) => {
 
   const clean = req.path.replace(/\/+$/, '');
   const filePath = resolvePublicFile(clean.replace(/^\//, '') + '.html');
-  if (!filePath || !fs.existsSync(filePath)) return next();
+  const isFile = Boolean(filePath && fs.existsSync(filePath));
+  if (!isFile && !viewRouteFor(clean)) return next();
 
   const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
   return res.redirect(301, clean + qs);
+});
+
+// Server-rendered pages (views/pages/*.eta). Checked before the HTML files so
+// a migrated page is always the template, never a stale copy on disk.
+app.use((req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+  const route = viewRouteFor(req.path);
+  if (!route) return next();
+  try {
+    const html = versionAssetUrls(renderView(route.view, { path: route.path }), publicDir);
+    withPageScriptHashes(res, html);
+    res.setHeader('Cache-Control', PUBLIC_HTML_CACHE_CONTROL);
+    res.type('html').send(html);
+  } catch (err) {
+    next(err);
+  }
 });
 
 // Canonical homepage

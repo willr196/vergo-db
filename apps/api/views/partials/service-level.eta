@@ -1,0 +1,17 @@
+<%/* The Standard/Premium choice on the quote form. Nothing at all when Premium is off. */%>
+<% if (it.pricing.premiumEnabled) { %>
+<fieldset class="form-field" id="serviceLevelField">
+          <legend>Service level</legend>
+          <div class="checkbox-grid">
+            <div class="checkbox-item">
+              <input type="radio" id="levelStandard" name="serviceLevel" value="standard" checked>
+              <label for="levelStandard">Standard, <%= it.fmt(it.pricing.standardRate) %>/hr</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="radio" id="levelPremium" name="serviceLevel" value="premium" aria-describedby="premiumHint">
+              <label for="levelPremium">Premium, <%= it.fmt(it.pricing.premiumRate) %>/hr</label>
+            </div>
+          </div>
+          <p class="form-hint" id="premiumHint">Premium: <%= it.terms.premiumDefinition %></p>
+        </fieldset>
+<% } %>

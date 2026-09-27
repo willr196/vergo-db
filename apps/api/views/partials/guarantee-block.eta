@@ -1,0 +1,16 @@
+<section class="section shell" data-block="guarantees" aria-labelledby="guarantees-heading">
+      <h2 id="guarantees-heading" class="section-label">Our guarantees</h2>
+      <div class="guarantees">
+        <div class="guarantee-card">
+          <h3>Names the same day.</h3>
+          <p><%= it.terms.confirmationPromise %></p>
+        </div>
+        <div class="guarantee-card">
+          <h3>Replacement within the hour.</h3>
+          <p><%= it.terms.noShowPromise + it.terms.noShowExtra %></p>
+        </div>
+      </div>
+<% if (it.terms.guaranteeFootnote) { %>
+      <p class="guarantee-note"><%= it.terms.guaranteeFootnote %></p>
+<% } %>
+    </section>

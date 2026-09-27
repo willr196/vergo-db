@@ -1,0 +1,12 @@
+<%/* One row under the homepage hero. The Google item appears only while the review link is set, never with a star count we can't verify. */%>
+<% const insurers = [it.site.legal.employersLiabilityInsurer, it.site.legal.publicLiabilityInsurer].filter(Boolean); %>
+<section class="trust-strip" aria-label="Why book with us">
+      <ul class="trust-strip-list shell">
+<% if (it.site.googleReviewsUrl) { %>
+        <li><a href="<%= it.site.googleReviewsUrl %>" target="_blank" rel="noopener">Google reviews</a></li>
+<% } %>
+        <li>Right to work checked</li>
+        <li>Employers' and public liability insured<%= insurers.length ? ' (' + insurers.join(', ') + ')' : '' %></li>
+        <li>PAYE hospitality staff</li>
+      </ul>
+    </section>

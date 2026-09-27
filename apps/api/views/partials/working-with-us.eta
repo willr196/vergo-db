@@ -1,0 +1,9 @@
+<section class="section shell" data-block="working" aria-labelledby="working-heading">
+      <h2 id="working-heading" class="section-label">Working with us</h2>
+      <ul class="check-list">
+<% const items = [it.terms.employmentShort, 'Right to work checked', 'Insured, certificates on request', 'Your dress code, not ours', it.terms.favouritesPromise]; %>
+<% items.forEach(function (item) { %>
+        <li><%= item %></li>
+<% }) %>
+      </ul>
+    </section>

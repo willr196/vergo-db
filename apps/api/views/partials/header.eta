@@ -1,0 +1,34 @@
+<% if (it.attrs.focused) { %>
+<header class="site-header site-header--focused" id="site-header" data-shared-header>
+    <div class="site-header-inner">
+      <%~ include('/partials/brand', it) %>
+      <a class="focused-back" href="<%= it.attrs.back || '/' %>"><%= it.attrs.label || '← Back' %></a>
+      <a class="nav-call" href="tel:<%= it.site.phoneE164 %>"><%= it.site.phoneDisplay %></a>
+    </div>
+  </header>
+<% } else { %>
+<% if (it.bannerAllowed) { %><%~ include('/partials/seasonal-banner', it) %><% } %>
+  <header class="site-header" id="site-header" data-shared-header>
+    <div class="site-header-inner">
+      <%~ include('/partials/brand', it) %>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" hidden>
+        <span class="menu-toggle-bars" aria-hidden="true"></span><span class="menu-toggle-label">Menu</span>
+      </button>
+      <nav class="site-nav" id="site-menu" aria-label="Main">
+        <ul class="nav-links">
+<% it.nav.forEach(function (item) { %>
+          <li class="nav-item"><a class="nav-link" href="<%= item.href %>"<%~ item.current ? ' aria-current="page"' : '' %>><%= item.label %></a></li>
+<% if (item.href === '/book-an-event') { %>
+          <li class="nav-item nav-item--season" data-season-item hidden><a class="nav-link nav-link--season" data-season-link></a></li>
+<% } %>
+<% }) %>
+        </ul>
+        <div class="nav-actions">
+          <a class="nav-call" href="tel:<%= it.site.phoneE164 %>"><span class="nav-action-word">Call </span><%= it.site.phoneDisplay %></a>
+          <a class="nav-whatsapp" href="<%= it.site.whatsappUrl %>" data-whatsapp target="_blank" rel="noopener">WhatsApp</a>
+          <a class="btn btn-primary nav-quote" href="/hire/quote">Get a quote</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+<% } %>

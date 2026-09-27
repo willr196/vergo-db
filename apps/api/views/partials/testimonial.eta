@@ -1,0 +1,7 @@
+<figure class="testimonial">
+<% if (it.t.stars) { %>
+          <p class="testimonial-stars" role="img" aria-label="Rated <%= it.t.stars %> out of 5 stars"><%~ '&#9733;'.repeat(it.t.stars) %></p>
+<% } %>
+          <blockquote><p><%= it.t.quote %></p></blockquote>
+          <figcaption><%= it.t.name %>, <%= it.t.context %></figcaption>
+        </figure>
