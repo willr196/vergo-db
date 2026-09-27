@@ -184,6 +184,7 @@ export const VIEW_ROUTES: ViewRoute[] = [
   { path: '/privacy', view: 'privacy' },
   { path: '/legal', view: 'legal' },
   { path: '/about', view: 'about' },
+  { path: '/work', view: 'work' },
 ];
 
 export function viewRouteFor(pagePath: string): ViewRoute | undefined {
