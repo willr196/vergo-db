@@ -1,0 +1,74 @@
+<%/* /hire/kitchen-porters: moved from public/hire/kitchen-porters.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Kitchen Porter Hire in London | VERGO Staffing",
+    "description": `Kitchen porter hire in London for events, caterers and production kitchens. ${it.t.HEADLINE_RATE} per person, four-hour minimum, names confirmed the same day.`,
+    "ogImage": "/images/og/kitchen-porters.jpg",
+    "canonical": "/hire/kitchen-porters"
+  },
+  jsonLd: [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Kitchen porter hire",
+      "serviceType": "Event and hospitality staffing",
+      "url": "https://vergoltd.com/hire/kitchen-porters",
+      "description": "Kitchen porters for wash-up, waste and clear down at events, caterers, venues and production kitchens across London.",
+      "areaServed": {
+        "@type": "City",
+        "name": "London"
+      },
+      "provider": {
+        "@id": "https://vergoltd.com/#organization"
+      },
+      "offers": {
+        "@type": "Offer",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": Number(it.t.STANDARD_RATE_NUMBER),
+          "priceCurrency": "GBP",
+          "unitCode": "HUR",
+          "unitText": "per hour, per person",
+          "referenceQuantity": {
+            "@type": "QuantitativeValue",
+            "value": Number(it.t.MIN_HOURS),
+            "unitCode": "HUR"
+          }
+        }
+      }
+    },
+    it.faqJsonLd("hire/kitchen-porters")
+  ]
+}) %>
+    <section class="page-hero-plain shell">
+      <span class="eyebrow">Kitchen porters</span>
+      <h1>Kitchen porter hire in London</h1>
+      <p class="lede">Wash-up, waste and clear down for events, caterers, venues and production kitchens.</p>
+      <div class="btn-row">
+        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+      </div>
+    </section>
+
+    <section class="section shell" aria-labelledby="whattheydo-heading">
+      <h2 id="whattheydo-heading" class="section-label">What they do</h2>
+      <ul class="check-list">
+        <li>Wash-up set, bins lined, deliveries in</li>
+        <li>Pots and service ware back to the pass</li>
+        <li>Kitchen broken down, cleaned, waste out</li>
+      </ul>
+      <p class="section-note">On a staff booking we supply people only: equipment and cleaning kit stay with you or your caterer. For food and bar too, see <a href="/book-an-event">full events</a>.</p>
+    </section>
+
+    <%~ it.blocks["rates"]() %>
+
+    <%~ it.blocks["guarantees"]() %>
+
+    <section class="section shell" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" class="section-label">Questions</h2>
+      <div class="faq-list">
+        <%~ include('/partials/faq', { items: it.faqs("hire/kitchen-porters"), name: "kitchen-porters-faq", esc: it.esc }) %>
+      </div>
+      <p class="link-row">Also: <a href="/hire/production-catering">Film and TV catering</a> · <a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a></p>
+    </section>
+
+    <%~ it.blocks["cta"]({ "heading": "Got a date in the diary?" }) %>

@@ -187,6 +187,7 @@ export const VIEW_ROUTES: ViewRoute[] = [
   { path: '/work', view: 'work' },
   { path: '/hire/waiting-staff', view: 'hire/waiting-staff' },
   { path: '/hire/bar-staff', view: 'hire/bar-staff' },
+  { path: '/hire/kitchen-porters', view: 'hire/kitchen-porters' },
 ];
 
 export function viewRouteFor(pagePath: string): ViewRoute | undefined {
