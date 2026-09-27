@@ -153,7 +153,11 @@ main = main.replace(/<!--#([\w-]+)((?:\s+[\w-]+="[^"]*")*)\s*-->/g, (_m, name, r
   const attrs = {};
   for (const m of rawAttrs.matchAll(/([\w-]+)="([^"]*)"/g)) attrs[m[1]] = m[2];
   found.push(`block ${name}${Object.keys(attrs).length ? ' ' + JSON.stringify(attrs) : ''}`);
-  const arg = Object.keys(attrs).length ? JSON.stringify(attrs) : '';
+  // Attribute values may carry {{TOKENS}}: jsString turns them into ${it.t.X},
+  // so they stay live and the token pass below never sees them.
+  const arg = Object.keys(attrs).length
+    ? '{ ' + Object.entries(attrs).map(([k, v]) => `${JSON.stringify(k)}: ${jsString(decodeEntities(v))}`).join(', ') + ' }'
+    : '';
   return `<%~ it.blocks[${JSON.stringify(name)}](${arg}) %>`;
 });
 
