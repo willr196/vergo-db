@@ -1,0 +1,73 @@
+<%/* /hire/production-catering: moved from public/hire/production-catering.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Catering Staff for Film & TV Productions | VERGO Staffing",
+    "description": "Production catering staff in London: kitchen porters, catering assistants, cooks and chefs for film sets and studio kitchens. Long days, the same crew.",
+    "ogImage": "/images/og/production-catering.jpg",
+    "canonical": "/hire/production-catering"
+  },
+  jsonLd: [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Production catering staff",
+      "serviceType": "Event and hospitality staffing",
+      "url": "https://vergoltd.com/hire/production-catering",
+      "description": "Kitchen porters, catering assistants, cooks and chefs for production caterers and studio kitchens working on film and TV in London.",
+      "areaServed": {
+        "@type": "City",
+        "name": "London"
+      },
+      "provider": {
+        "@id": "https://vergoltd.com/#organization"
+      }
+    },
+    it.faqJsonLd("hire/production-catering")
+  ]
+}) %>
+    <section class="page-hero-plain shell">
+      <span class="eyebrow">Film and TV catering</span>
+      <h1>Catering staff for film and TV productions</h1>
+      <p class="lede">Kitchen teams for production caterers and studio kitchens, back again tomorrow.</p>
+      <div class="btn-row">
+        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+      </div>
+    </section>
+
+    <section class="section shell" aria-labelledby="roles-heading">
+      <h2 id="roles-heading" class="section-label">Roles</h2>
+      <ul class="check-list">
+        <li>Kitchen porters for wash-up and waste</li>
+        <li>Catering assistants for prep and the counter</li>
+        <li>Cooks and chefs, quoted individually</li>
+      </ul>
+      <p class="section-note">On a staff booking we supply people only: food, unit and kit stay with the caterer. For food and bar too, see <a href="/book-an-event">full events</a>.</p>
+    </section>
+
+    <section class="section shell" aria-labelledby="different-heading">
+      <h2 id="different-heading" class="section-label">Why it's different</h2>
+      <ul class="check-list">
+        <li><strong>The call sheet sets the clock</strong></li>
+        <li><strong>Long days,</strong> booked to the real hours</li>
+        <li><strong>The same crew,</strong> day after day</li>
+      </ul>
+    </section>
+
+    <section class="section shell" aria-labelledby="casestudy-heading">
+      <h2 id="casestudy-heading" class="section-label">Film studio catering</h2>
+      <p>A production caterer feeding cast and crew on a working film set. We supply cooks and a kitchen porter on staggered 10-hour shifts: an ongoing weekly contract of around 110 staff hours, same people each week.</p>
+    </section>
+
+    <%~ it.blocks["rates"]() %>
+
+    <%~ it.blocks["guarantees"]() %>
+
+    <section class="section shell" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" class="section-label">Questions</h2>
+      <div class="faq-list">
+        <%~ include('/partials/faq', { items: it.faqs("hire/production-catering"), name: "production-faq", esc: it.esc }) %>
+      </div>
+      <p class="link-row">Also: <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire">All roles</a></p>
+    </section>
+
+    <%~ it.blocks["cta"]({ "heading": "Got a shoot booked?" }) %>
