@@ -82,6 +82,14 @@ export function plainText(html: string): string {
   return html
     .replace(/<[^>]+>/g, '')
     .replace(/&nbsp;/g, ' ')
+    .replace(/&ldquo;/g, '“')
+    .replace(/&rdquo;/g, '”')
+    .replace(/&lsquo;/g, '‘')
+    .replace(/&rsquo;/g, '’')
+    .replace(/&ndash;/g, '–')
+    .replace(/&mdash;/g, '—')
+    .replace(/&pound;/g, '£')
+    .replace(/&hellip;/g, '…')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&lt;/g, '<')
@@ -181,7 +189,7 @@ export function pageData(ctx: PageContext) {
       '@type': 'FAQPage',
       mainEntity: (content.faqs[pageKey] || []).map((f) => ({
         '@type': 'Question',
-        name: fillTokens(f.question, tokens),
+        name: plainText(fillTokens(f.question, tokens)),
         acceptedAnswer: { '@type': 'Answer', text: plainText(fillTokens(f.answer, tokens)) },
       })),
     }),
@@ -245,6 +253,7 @@ export const VIEW_ROUTES: ViewRoute[] = [
   { path: '/hire/weddings', view: 'hire/weddings' },
   { path: '/hire/production-catering', view: 'hire/production-catering' },
   { path: '/hire', view: 'hire' },
+  { path: '/special-events', view: 'special-events' },
 ];
 
 export function viewRouteFor(pagePath: string): ViewRoute | undefined {

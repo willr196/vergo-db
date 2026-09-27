@@ -1,48 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <!--#head-->
-  <title>Special Events &amp; Themed Staffing London | VERGO Staffing</title>
-  <meta name="description" content="Themed bartenders and waiting staff, character performers, scare actors and makeup artists for Halloween, Christmas and themed events across London.">
-  <meta property="og:title" content="Special Events &amp; Themed Staffing London | VERGO Staffing">
-  <meta property="og:description" content="Themed bartenders and waiting staff, character performers, scare actors and makeup artists for Halloween, Christmas and themed events across London.">
-  <meta property="og:image" content="https://vergoltd.com/images/og/special-events.jpg">
-  <meta property="og:url" content="https://vergoltd.com/special-events">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="VERGO Staffing">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="canonical" href="https://vergoltd.com/special-events">
-  <link rel="stylesheet" href="/pages/css/special-events.css">
-  <!-- The hub page: a breadcrumb, plus the two seasonal pages as a list so the
-       sub-pages are discoverable from it. -->
-  <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://vergoltd.com/" },
-    { "@type": "ListItem", "position": 2, "name": "Special events", "item": "https://vergoltd.com/special-events" }
+<%/* /special-events: moved from public/special-events.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Special Events & Themed Staffing London | VERGO Staffing",
+    "description": "Themed bartenders and waiting staff, character performers, scare actors and makeup artists for Halloween, Christmas and themed events across London.",
+    "ogImage": "/images/og/special-events.jpg",
+    "canonical": "/special-events"
+  },
+  styles: ["/pages/css/special-events.css"],
+  scripts: ["/pages/js/halloween-team.js"],
+  bodyClass: "se-page se-theme-light",
+  jsonLd: [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://vergoltd.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Special events",
+          "item": "https://vergoltd.com/special-events"
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Special event staffing",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Halloween staffing",
+          "url": "https://vergoltd.com/special-events/halloween"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Christmas party staffing",
+          "url": "https://vergoltd.com/special-events/christmas"
+        }
+      ]
+    }
   ]
-}
-  </script>
-  <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "ItemList",
-  "name": "Special event staffing",
-  "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Halloween staffing", "url": "https://vergoltd.com/special-events/halloween" },
-    { "@type": "ListItem", "position": 2, "name": "Christmas party staffing", "url": "https://vergoltd.com/special-events/christmas" }
-  ]
-}
-  </script>
-</head>
-<body class="se-page se-theme-light">
-  <a href="#main-content" class="skip-link">Skip to main content</a>
+}) %>
 
-  <!--#header-->
-
-  <main id="main-content">
     <section class="page-hero-plain shell">
       <span class="eyebrow">Special events</span>
       <h1>Themed and seasonal events</h1>
@@ -223,10 +230,3 @@
         </form>
       </section>
     </div>
-
-  </main>
-
-  <!--#footer-->
-  <script src="/pages/js/halloween-team.js"></script>
-</body>
-</html>
