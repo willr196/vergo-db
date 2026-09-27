@@ -1,37 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <!--#head-->
-  <title>Book a Whole Event in London | VERGO Staffing</title>
-  <meta name="description" content="Book a whole event in London: food and bar through caterers and bar partners we trust, staffed by us. One company, one number to call.">
-  <meta property="og:title" content="Book a Whole Event in London | VERGO Staffing">
-  <meta property="og:description" content="Book a whole event in London: food and bar through caterers and bar partners we trust, staffed by us. One company, one number to call.">
-  <meta property="og:image" content="https://vergoltd.com/images/og/book-an-event.jpg">
-  <meta property="og:url" content="https://vergoltd.com/book-an-event">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="VERGO Staffing">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="canonical" href="https://vergoltd.com/book-an-event">
-  <link rel="stylesheet" href="/pages/css/special-events.css">
-  <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Service",
-  "name": "Full event management",
-  "serviceType": "Event catering, bar and staffing",
-  "url": "https://vergoltd.com/book-an-event",
-  "description": "Whole events from one company: food and bar arranged through trusted caterers and bar partners, and the staff to run the day.",
-  "areaServed": { "@type": "City", "name": "London" },
-  "provider": { "@id": "https://vergoltd.com/#organization" }
-}
-  </script>
-</head>
-<body class="se-theme-light">
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  <!--#header-->
-
-  <main id="main-content">
+<%/* /book-an-event: moved from public/book-an-event.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Book a Whole Event in London | VERGO Staffing",
+    "description": "Book a whole event in London: food and bar through caterers and bar partners we trust, staffed by us. One company, one number to call.",
+    "ogImage": "/images/og/book-an-event.jpg",
+    "canonical": "/book-an-event"
+  },
+  styles: ["/pages/css/special-events.css"],
+  scripts: ["/pages/js/halloween-team.js"],
+  bodyClass: "se-theme-light",
+  jsonLd: [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Full event management",
+      "serviceType": "Event catering, bar and staffing",
+      "url": "https://vergoltd.com/book-an-event",
+      "description": "Whole events from one company: food and bar arranged through trusted caterers and bar partners, and the staff to run the day.",
+      "areaServed": {
+        "@type": "City",
+        "name": "London"
+      },
+      "provider": {
+        "@id": "https://vergoltd.com/#organization"
+      }
+    }
+  ]
+}) %>
     <section class="page-hero-plain shell">
       <span class="eyebrow">Full events</span>
       <h1>Book a whole event with us</h1>
@@ -79,7 +74,7 @@
           <p>Call us, nobody else.</p>
         </div>
       </div>
-      <p class="section-note">Quoted individually. If you only need staff, rates start at {{STANDARD_RATE}}/hr: <a href="/hire">hire staff</a>.</p>
+      <p class="section-note">Quoted individually. If you only need staff, rates start at <%~ it.t.STANDARD_RATE %>/hr: <a href="/hire">hire staff</a>.</p>
     </section>
 
     <section class="section shell" aria-labelledby="seasonal-heading">
@@ -211,9 +206,3 @@
         </form>
       </section>
     </div>
-  </main>
-
-  <!--#footer-->
-  <script src="/pages/js/halloween-team.js"></script>
-</body>
-</html>
