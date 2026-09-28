@@ -21,10 +21,11 @@ Monorepo with three apps:
 - TypeScript throughout (mobile), ES modules
 - Mobile uses Zustand stores in `src/store/`
 - API responses: web returns raw JSON, mobile wraps in `{ ok: true, ... }`
-- Theme (public site, from Sept 2026): light (#FAF8F4 bg, #16181B ink, #1F5C45
-  green accent), tokens on :root in vergo-site.css. Only the Premium rate card
-  and the Halloween page keep a dark treatment. The login page
-  (vergo-public-pages.css) and the admin panel (#D4AF37) are still dark.
+- Theme (public site, from 28 Sept 2026): dark charcoal, not black (#1C1F22 bg,
+  #25292D surface, #F3F1EC ink, #6FC29B green accent with #0F1D17 button ink),
+  tokens on :root in vergo-site.css. The Premium rate card sits a shade deeper
+  and the Halloween page keeps its own near-black palette. The login page
+  (vergo-public-pages.css) and the admin panel (#D4AF37) have their own styles.
 - Public pages are Eta templates in apps/api/views/pages/, rendered on request
   (routes: VIEW_ROUTES in src/site/view.ts; blog: content/blog/*.md). Prices,
   terms, contact details and the header/footer/rate/guarantee blocks come from
@@ -43,7 +44,7 @@ Monorepo with three apps:
 - Backend routes: apps/api/src/routes/adminClients.ts, adminJobs.ts etc.
 - Auth: session-based (web), same as the rest of the web platform
 - Stack: vanilla HTML/CSS/JS (no framework), dark theme (#0a0a0a bg, #D4AF37 gold accent).
-  Admin keeps #D4AF37; the public site is light with a green accent.
+  Admin keeps #D4AF37; the public site is dark charcoal with a green accent.
 - Chart library to use: Chart.js from cdnjs CDN
 ```
 
