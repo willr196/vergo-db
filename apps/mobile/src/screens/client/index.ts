@@ -3,9 +3,6 @@
  */
 
 export { DashboardScreen } from './DashboardScreen';
-export { BrowseStaffScreen } from './BrowseStaffScreen';
-export { StaffDetailScreen } from './StaffDetailScreen';
-export { CreateBookingScreen } from './CreateBookingScreen';
 export { BookingsScreen } from './BookingsScreen';
 export { BookingDetailScreen } from './BookingDetailScreen';
 export { CompanyProfileScreen } from './CompanyProfileScreen';

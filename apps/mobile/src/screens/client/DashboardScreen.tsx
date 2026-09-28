@@ -1,6 +1,6 @@
 /**
  * Client Dashboard Screen
- * Marketplace-focused dashboard (bookings + quick actions)
+ * Request staff, follow quotes, see confirmed bookings
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
@@ -26,7 +26,6 @@ import type {
   BookingStatus,
   ClientTabParamList,
   RootStackParamList,
-  SubscriptionTier,
 } from '../../types';
 
 type Props = CompositeScreenProps<
@@ -37,7 +36,7 @@ type Props = CompositeScreenProps<
 function getStatusStyle(status: BookingStatus): { label: string; bg: string; text: string } {
   switch (status) {
     case 'PENDING':
-      return { label: 'Pending', bg: 'rgba(255, 193, 7, 0.20)', text: '#ffc107' };
+      return { label: 'Awaiting confirmation', bg: 'rgba(255, 193, 7, 0.20)', text: '#ffc107' };
     case 'CONFIRMED':
       return { label: 'Confirmed', bg: 'rgba(40, 167, 69, 0.20)', text: '#28a745' };
     case 'REJECTED':
@@ -51,10 +50,6 @@ function getStatusStyle(status: BookingStatus): { label: string; bg: string; tex
     default:
       return { label: status, bg: 'rgba(108, 117, 125, 0.20)', text: '#6c757d' };
   }
-}
-
-function tierLabel(tier?: SubscriptionTier): string {
-  return tier === 'PREMIUM' ? 'PREMIUM' : 'STANDARD';
 }
 
 export function DashboardScreen({ navigation }: Props) {
@@ -129,23 +124,20 @@ export function DashboardScreen({ navigation }: Props) {
         <View style={styles.header}>
           <Text style={styles.greeting}>Welcome back,</Text>
           <Text style={styles.companyName}>{company?.companyName || 'Company'}</Text>
-          <View style={styles.tierBadge}>
-            <Text style={styles.tierBadgeText}>{tierLabel(company?.subscriptionTier)} CLIENT</Text>
-          </View>
         </View>
 
         <View style={styles.statsGrid}>
           <View style={[styles.statCard, styles.statCardHighlight]}>
             <Text style={[styles.statValue, styles.statValueHighlight]}>{pendingCount}</Text>
-            <Text style={[styles.statLabel, styles.statLabelHighlight]}>Pending Bookings</Text>
+            <Text style={[styles.statLabel, styles.statLabelHighlight]}>Awaiting confirmation</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{confirmedUpcomingCount}</Text>
-            <Text style={styles.statLabel}>Confirmed Upcoming</Text>
+            <Text style={styles.statLabel}>Confirmed, upcoming</Text>
           </View>
           <View style={[styles.statCard, styles.statCardWide]}>
             <Text style={styles.statValue}>{totalCount}</Text>
-            <Text style={styles.statLabel}>Total Bookings</Text>
+            <Text style={styles.statLabel}>All bookings</Text>
           </View>
         </View>
 
@@ -154,25 +146,14 @@ export function DashboardScreen({ navigation }: Props) {
 
           <TouchableOpacity
             style={[styles.actionCard, styles.actionCardPrimary]}
-            onPress={() => navigation.navigate('Browse')}
+            onPress={() => navigation.navigate('CreateQuote')}
           >
             <View style={[styles.actionIcon, styles.actionIconPrimary]}>
-              <Text style={styles.actionEmoji}>👥</Text>
-            </View>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>Browse Staff</Text>
-              <Text style={styles.actionSubtitle}>Find available talent and rates</Text>
-            </View>
-            <Text style={styles.actionArrow}>›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('CreateQuote')}>
-            <View style={styles.actionIcon}>
               <Text style={styles.actionEmoji}>🧾</Text>
             </View>
             <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>Request a Quote</Text>
-              <Text style={styles.actionSubtitle}>Tell VERGO what you need for larger or flexible briefs</Text>
+              <Text style={styles.actionTitle}>Request staff</Text>
+              <Text style={styles.actionSubtitle}>Date, times, roles. We come back with names.</Text>
             </View>
             <Text style={styles.actionArrow}>›</Text>
           </TouchableOpacity>
@@ -195,8 +176,8 @@ export function DashboardScreen({ navigation }: Props) {
               <Text style={styles.actionEmoji}>🗂️</Text>
             </View>
             <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>Quote Requests</Text>
-              <Text style={styles.actionSubtitle}>Track general requests and custom staffing quotes</Text>
+              <Text style={styles.actionTitle}>Your requests</Text>
+              <Text style={styles.actionSubtitle}>Where each request is up to</Text>
             </View>
             <Text style={styles.actionArrow}>›</Text>
           </TouchableOpacity>
@@ -209,9 +190,9 @@ export function DashboardScreen({ navigation }: Props) {
             <EmptyState
               icon="📭"
               title="No bookings yet"
-              message="Browse staff to make your first booking request."
-              actionTitle="Browse Staff"
-              onAction={() => navigation.navigate('Browse')}
+              message="Request staff and, once we confirm, each person appears here by name."
+              actionTitle="Request staff"
+              onAction={() => navigation.navigate('CreateQuote')}
               style={styles.emptyState}
             />
           ) : (
@@ -278,21 +259,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.xxl,
     fontWeight: '700' as const,
     marginTop: spacing.xs,
-  },
-  tierBadge: {
-    marginTop: spacing.sm,
-    alignSelf: 'flex-start',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    backgroundColor: 'rgba(212, 175, 55, 0.15)',
-  },
-  tierBadgeText: {
-    color: colors.primary,
-    fontSize: typography.fontSize.xs,
-    fontWeight: '700' as const,
   },
   statsGrid: {
     flexDirection: 'row',

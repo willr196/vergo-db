@@ -54,17 +54,13 @@ import {
 // Client Screens
 import {
   DashboardScreen,
-  BrowseStaffScreen,
   BookingsScreen,
-  StaffDetailScreen,
-  CreateBookingScreen,
   BookingDetailScreen,
   CompanyProfileScreen,
   CreateQuoteScreen,
   MyQuotesScreen,
   EditClientProfileScreen,
 } from '../screens/client';
-import { ClientOnWebScreen } from '../screens/ClientOnWebScreen';
 
 // Navigation theme
 const navigationTheme = {
@@ -126,8 +122,7 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
     Shifts: '🗓️',
     Applications: '📋',
     Profile: '🏢',
-    Dashboard: '📊',
-    Browse: '👥',
+    Dashboard: '🏠',
     Bookings: '📋',
   };
 
@@ -201,13 +196,8 @@ function ClientTabNavigator() {
         <ClientTab.Screen
           name="Dashboard"
           component={DashboardScreen}
-          options={{ tabBarLabel: 'Dashboard', tabBarBadge: unreadCount > 0 ? unreadCount : undefined }}
+          options={{ tabBarLabel: 'Home', tabBarBadge: unreadCount > 0 ? unreadCount : undefined }}
           listeners={{ tabPress: () => clearUnread() }}
-        />
-        <ClientTab.Screen
-          name="Browse"
-          component={BrowseStaffScreen}
-          options={{ tabBarLabel: 'Browse' }}
         />
         <ClientTab.Screen
           name="Bookings"
@@ -283,15 +273,8 @@ function ClientStack() {
     >
       <Stack.Screen name="ClientTabs" component={ClientTabNavigator} />
 
-      {/* Marketplace flow */}
-      <Stack.Screen name="StaffDetail" component={StaffDetailScreen} />
       <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
       <Stack.Screen name="MyQuotes" component={MyQuotesScreen} />
-      <Stack.Screen
-        name="CreateBooking"
-        component={CreateBookingScreen}
-        options={{ presentation: 'modal' }}
-      />
       <Stack.Screen
         name="CreateQuote"
         component={CreateQuoteScreen}
@@ -338,6 +321,16 @@ export function RootNavigator() {
         ApplicationDetail: 'application/:applicationId',
         ShiftDetail: 'shift/:shiftId',
         EditProfile: 'profile/edit',
+        ClientTabs: {
+          screens: {
+            Dashboard: 'client',
+            Bookings: 'client/bookings',
+            Profile: 'client/profile',
+          },
+        },
+        BookingDetail: 'booking/:bookingId',
+        MyQuotes: 'client/quotes',
+        CreateQuote: 'client/quote',
       },
     },
   }), []);
@@ -403,15 +396,13 @@ export function RootNavigator() {
   return (
     <View style={{ flex: 1 }}>
       <NavigationContainer ref={navigationRef} theme={navigationTheme} linking={linking}>
-        {/* Worker-only release. A client session lands on an explainer rather
-            than the client stack, which is still in the tree but unreferenced.
-            See docs/mobile-mvp-scope.md. */}
+        {/* Clients get quotes and bookings only; see docs/mobile-mvp-scope.md. */}
         {!isAuthenticated ? (
           <AuthStack />
         ) : userType === 'jobseeker' ? (
           <JobSeekerStack />
         ) : (
-          <ClientOnWebScreen />
+          <ClientStack />
         )}
       </NavigationContainer>
       <Toast />

@@ -46,5 +46,4 @@ export type {
   CreateBookingPayload,
   BookingListParams,
   BookingListResponse,
-  CancelBookingResponse,
 } from './marketplace';

@@ -106,12 +106,6 @@ export interface CreateBookingPayload {
   clientNotes?: string;
 }
 
-export interface CancelBookingResponse {
-  id: string;
-  status: BookingStatus;
-  rejectionReason: string | null;
-}
-
 interface BackendStaffRecord {
   id: string;
   name?: string;
@@ -171,6 +165,9 @@ interface BackendBookingRecord {
   clientNotes?: string | null;
   rejectionReason?: string | null;
   completedAt?: string | null;
+  checkedInAt?: string | null;
+  checkedOutAt?: string | null;
+  hoursWorked?: number | null;
   staff: BackendBookingStaffRecord;
 }
 
@@ -302,6 +299,9 @@ function normalizeBookingDetail(booking: BackendBookingRecord): BookingDetail {
     clientNotes: booking.clientNotes ?? null,
     rejectionReason: booking.rejectionReason ?? null,
     completedAt: booking.completedAt ?? null,
+    checkedInAt: booking.checkedInAt ?? null,
+    checkedOutAt: booking.checkedOutAt ?? null,
+    hoursWorked: booking.hoursWorked ?? null,
     staff: {
       ...base.staff,
       bio: normalizedStaff.bio,
@@ -529,23 +529,6 @@ export const marketplaceApi = {
     }
 
     return normalizeBookingDetail(response.data.data);
-  },
-
-  async cancelBooking(bookingId: string, reason: string): Promise<CancelBookingResponse> {
-    const response = await apiClient.post<ApiEnvelope<{ id: string; status: string; rejectionReason?: string | null }>>(
-      `/api/v1/client/mobile/bookings/${bookingId}/cancel`,
-      { reason }
-    );
-
-    if (!response.data.ok || !response.data.data) {
-      throw new Error(response.data.error || 'Failed to cancel booking');
-    }
-
-    return {
-      id: response.data.data.id,
-      status: normalizeBookingStatus(response.data.data.status),
-      rejectionReason: response.data.data.rejectionReason ?? null,
-    };
   },
 };
 

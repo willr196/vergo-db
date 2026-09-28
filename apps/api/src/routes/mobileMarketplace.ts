@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { prisma } from '../prisma';
 import { requireClientJwt } from '../middleware/jwtAuth';
 import { sendPushToUser } from '../services/notifications';
+import { SITE_TERMS } from '../config/pricing';
 import {
   resolveMarketplaceAccess,
   resolveMarketplaceBookingLane,
@@ -43,9 +44,6 @@ const createBookingSchema = z.object({
   clientNotes: z.string().max(2000).optional(),
 });
 
-const cancelBookingSchema = z.object({
-  reason: z.string().trim().min(1).max(500).optional(),
-});
 
 function toNumber(value: Prisma.Decimal | null | undefined): number | null {
   if (value == null) return null;
@@ -102,6 +100,11 @@ function shapeBooking(booking: any) {
     shiftStart: booking.shiftStart,
     shiftEnd: booking.shiftEnd,
     hoursEstimated: toNumber(booking.hoursEstimated),
+    // What the worker recorded in the app. Not floored at the four-hour minimum;
+    // the invoice applies that.
+    checkedInAt: booking.checkedInAt?.toISOString() || null,
+    checkedOutAt: booking.checkedOutAt?.toISOString() || null,
+    hoursWorked: toNumber(booking.hoursWorked),
     clientTierAtBooking: booking.clientTierAtBooking,
     staffTierAtBooking: booking.staffTierAtBooking,
     hourlyRateCharged: toNumber(booking.hourlyRateCharged),
@@ -699,79 +702,17 @@ r.get('/bookings/:id', async (req, res, next) => {
 });
 
 // POST /api/v1/client/mobile/bookings/:id/cancel
-r.post('/bookings/:id/cancel', async (req, res, next) => {
-  try {
-    const parsed = cancelBookingSchema.parse(req.body ?? {});
-
-    const existing = await prisma.booking.findFirst({
-      where: {
-        id: req.params.id,
-        clientId: req.auth!.userId,
-      },
-      select: {
-        id: true,
-        status: true,
-      },
-    });
-
-    if (!existing) {
-      return res.status(404).json({ ok: false, error: 'Booking not found' });
-    }
-
-    if (existing.status === 'CANCELLED') {
-      return res.status(400).json({ ok: false, error: 'Booking is already cancelled' });
-    }
-    if (existing.status === 'COMPLETED') {
-      return res.status(400).json({ ok: false, error: 'Completed bookings cannot be cancelled' });
-    }
-
-    const booking = await prisma.booking.update({
-      where: { id: existing.id },
-      data: {
-        status: 'CANCELLED',
-        rejectionReason:
-          parsed.reason ||
-          (existing.status === 'PENDING'
-            ? 'Cancelled by client'
-            : 'Cancelled by client after confirmation'),
-      },
-      include: {
-        client: {
-          select: {
-            id: true,
-            companyName: true,
-            contactName: true,
-            email: true,
-            subscriptionTier: true,
-          },
-        },
-        staff: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            staffTier: true,
-            staffAvatar: true,
-            staffRating: true,
-            staffReviewCount: true,
-            staffHighlights: true,
-          },
-        },
-        quoteRequest: {
-          select: {
-            id: true,
-            eventType: true,
-            eventDate: true,
-          },
-        },
-      },
-    });
-
-    const payload = shapeBooking(booking);
-    res.json({ ok: true, data: payload });
-  } catch (error) {
-    next(error);
-  }
+//
+// Switched off. It cancelled a confirmed booking on the spot, told neither the
+// office nor the worker (who would still turn up), and skipped the cancellation
+// terms. Clients call or email instead; the app says so. Bring it back only
+// once cancelling notifies the office and the worker and applies the fee.
+r.post('/bookings/:id/cancel', (_req, res) => {
+  res.status(409).json({
+    ok: false,
+    code: 'CANCEL_BY_CONTACT',
+    error: 'To change or cancel a booking, call or email us. Cancellation terms: ' + SITE_TERMS.cancellation,
+  });
 });
 
 export default r;

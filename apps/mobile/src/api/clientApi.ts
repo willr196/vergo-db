@@ -101,11 +101,26 @@ export interface PaginatedQuotesResponse {
   pagination: PaginationInfo;
 }
 
+/** Contact details, rates and terms, from the same config the website uses. */
+export interface ClientInfo {
+  contact: { phone: string; phoneDisplay: string; email: string; whatsappUrl: string };
+  rates: { headline: string; standardRate: number; minimumHours: number };
+  terms: { confirmationPromise: string; cancellation: string; paymentTerms: string };
+}
+
 // ============================================
 // Client API
 // ============================================
 
 export const clientApi = {
+  async getInfo(): Promise<ClientInfo> {
+    const response = await apiClient.get<BackendResponse<ClientInfo>>('/api/v1/client/mobile/info');
+    if (!response.data.ok || !response.data.data) {
+      throw new Error(response.data.error || 'Could not load contact details');
+    }
+    return response.data.data;
+  },
+
   /**
    * Get dashboard stats and recent activity (jobs-based)
    */

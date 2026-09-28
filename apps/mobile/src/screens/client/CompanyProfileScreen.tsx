@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
@@ -19,34 +20,17 @@ import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Avatar, ErrorState, EmptyState } from '../../components';
-import { useAuthStore, useUIStore, selectClient } from '../../store';
+import { useAuthStore, selectClient } from '../../store';
 import { clientApi } from '../../api';
 import { logger } from '../../utils/logger';
 import type { RootStackParamList, ClientTabParamList } from '../../types';
+import { useClientInfo } from './useClientInfo';
 
-interface MarketplaceStats {
+interface QuoteStats {
   totalQuotes: number;
   activeQuotes: number;
   completedQuotes: number;
 }
-
-const SERVICE_PRICING = [
-  {
-    tier: 'Standard',
-    rate: 'Agreed wage + £2/hr + VAT',
-    note: 'Core staffing option for direct bookings.',
-  },
-  {
-    tier: 'Shortlist',
-    rate: 'Agreed wage + £3/hr + VAT',
-    note: 'Includes a £2/hr VERGO fee plus a £1/hr merit uplift for selected workers.',
-  },
-  {
-    tier: 'Gold',
-    rate: 'From £22/hr + VAT',
-    note: 'Chefs from £26/hr + VAT.',
-  },
-] as const;
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<ClientTabParamList, 'Profile'>,
@@ -56,9 +40,9 @@ type Props = CompositeScreenProps<
 export function CompanyProfileScreen({ navigation }: Props) {
   const { logout } = useAuthStore();
   const company = useAuthStore(selectClient);
-  const { showToast } = useUIStore();
+  const info = useClientInfo();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [stats, setStats] = useState<MarketplaceStats | null>(null);
+  const [stats, setStats] = useState<QuoteStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
 
@@ -110,46 +94,32 @@ export function CompanyProfileScreen({ navigation }: Props) {
   const menuItems = [
     {
       icon: '🏢',
-      title: 'Company Information',
+      title: 'Company information',
       subtitle: 'Edit company details',
       onPress: () => navigation.navigate('EditClientProfile'),
     },
     {
-      icon: '👥',
-      title: 'Team Members',
-      subtitle: 'Manage team access',
-      onPress: () => showToast('Team management coming soon', 'info'),
-    },
-    {
       icon: '🗂️',
-      title: 'Quote Requests',
-      subtitle: 'View custom staffing requests and updates',
+      title: 'Your requests',
+      subtitle: 'Where each request is up to',
       onPress: () => navigation.navigate('MyQuotes'),
     },
-    {
-      icon: '💳',
-      title: 'Billing & Payments',
-      subtitle: 'View invoices and payment methods',
-      onPress: () => showToast('Billing feature coming soon', 'info'),
-    },
-    {
-      icon: '🔔',
-      title: 'Notifications',
-      subtitle: 'Manage notification preferences',
-      onPress: () => showToast('Notification settings coming soon', 'info'),
-    },
-    {
-      icon: '🔒',
-      title: 'Privacy & Security',
-      subtitle: 'Password and security settings',
-      onPress: () => showToast('Security settings coming soon', 'info'),
-    },
-    {
-      icon: '❓',
-      title: 'Help & Support',
-      subtitle: 'Get help with VERGO',
-      onPress: () => showToast('Help center coming soon', 'info'),
-    },
+    ...(info
+      ? [
+          {
+            icon: '📞',
+            title: `Call ${info.contact.phoneDisplay}`,
+            subtitle: 'Changes, cancellations, anything urgent',
+            onPress: () => Linking.openURL(`tel:${info.contact.phone}`),
+          },
+          {
+            icon: '✉️',
+            title: 'Email us',
+            subtitle: info.contact.email,
+            onPress: () => Linking.openURL(`mailto:${info.contact.email}`),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -204,39 +174,31 @@ export function CompanyProfileScreen({ navigation }: Props) {
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{stats.totalQuotes}</Text>
-              <Text style={styles.statLabel}>Jobs Posted</Text>
+              <Text style={styles.statLabel}>Requests</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{stats.activeQuotes}</Text>
-              <Text style={styles.statLabel}>Staff Hired</Text>
+              <Text style={styles.statLabel}>Open</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>⭐ —</Text>
-              <Text style={styles.statLabel}>Rating</Text>
+              <Text style={styles.statNumber}>{stats.completedQuotes}</Text>
+              <Text style={styles.statLabel}>Completed</Text>
             </View>
           </View>
         )}
 
-        <View style={styles.pricingCard}>
-          <Text style={styles.pricingTitle}>Service Pricing</Text>
-          <Text style={styles.pricingSubtitle}>
-            Current Standard, Shortlist, and Gold pricing shown in the mobile app.
-          </Text>
-
-          {SERVICE_PRICING.map((item) => (
-            <View key={item.tier} style={styles.pricingRow}>
-              <View style={styles.pricingTierBadge}>
-                <Text style={styles.pricingTierBadgeText}>{item.tier}</Text>
-              </View>
-              <View style={styles.pricingCopy}>
-                <Text style={styles.pricingRate}>{item.rate}</Text>
-                <Text style={styles.pricingNote}>{item.note}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
+        {info ? (
+          <View style={styles.pricingCard}>
+            <Text style={styles.pricingTitle}>Rates and terms</Text>
+            <Text style={styles.pricingRate}>
+              {info.rates.headline} per person, {info.rates.minimumHours}-hour minimum
+            </Text>
+            <Text style={styles.pricingNote}>{info.terms.paymentTerms}</Text>
+            <Text style={styles.pricingNote}>Cancellation: {info.terms.cancellation}</Text>
+          </View>
+        ) : null}
 
         {/* Menu Items */}
         <View style={styles.menuSection}>
@@ -270,7 +232,7 @@ export function CompanyProfileScreen({ navigation }: Props) {
         </TouchableOpacity>
 
         {/* Version */}
-        <Text style={styles.versionText}>VERGO Business v1.0.0</Text>
+        <Text style={styles.versionText}>VERGO v1.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -380,35 +342,6 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSize.lg,
     fontWeight: '700' as const,
-  },
-  pricingSubtitle: {
-    color: colors.textSecondary,
-    fontSize: typography.fontSize.sm,
-    lineHeight: 20,
-  },
-  pricingRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.md,
-  },
-  pricingTierBadge: {
-    minWidth: 78,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
-    borderWidth: 1,
-    borderColor: colors.primaryLine,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-  },
-  pricingTierBadgeText: {
-    color: colors.primary,
-    fontSize: typography.fontSize.xs,
-    fontWeight: '700' as const,
-  },
-  pricingCopy: {
-    flex: 1,
-    gap: spacing.xs,
   },
   pricingRate: {
     color: colors.textPrimary,

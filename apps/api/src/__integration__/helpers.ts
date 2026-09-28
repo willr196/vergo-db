@@ -289,6 +289,23 @@ export function createAdminApp() {
   return app;
 }
 
+/** The client app's API: quotes, info, and bookings, mounted as index.ts does. */
+export function createClientApp() {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const mobileClient = require('../routes/mobileClient').default;
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const mobileMarketplace = require('../routes/mobileMarketplace').default;
+  const app = express();
+  app.use(express.json());
+  app.use('/api/v1/client/mobile', mobileClient);
+  app.use('/api/v1/client/mobile', mobileMarketplace);
+  return app;
+}
+
+export function clientToken(clientId: string) {
+  return signAccessToken({ sub: clientId, type: 'client', email: 'client@example.com' });
+}
+
 export function workerToken(userId: string) {
   return signAccessToken({ sub: userId, type: 'user', email: 'worker@example.com' });
 }

@@ -4,6 +4,11 @@ import { prisma } from '../prisma';
 import { ensureJobDays, refitJobDaysToRange } from '../services/jobStaffing';
 import { requireClientJwt } from '../middleware/jwtAuth';
 import { sendPushToUser } from '../services/notifications';
+import { TO_EMAIL, sendQuoteNotificationEmail, sendQuoteConfirmationEmail } from '../services/email';
+import { emailSendingSuppressed } from '../services/email/suppression';
+import { logger } from '../services/logger';
+import { PRICING, SITE_TERMS, headlineRateText } from '../config/pricing';
+import { SITE } from '../site/content';
 
 const r = Router();
 
@@ -15,8 +20,9 @@ r.use(requireClientJwt);
 // ============================================
 const createQuoteSchema = z.object({
   eventType: z.string().min(2).max(100).trim(),
-  eventDate: z.string().optional(),
-  eventEndDate: z.string().optional(),
+  // new Date() on free text gives Invalid Date, which Prisma turns into a 500.
+  eventDate: z.string().optional().refine((v) => !v || !Number.isNaN(Date.parse(v)), 'Event date is not a date'),
+  eventEndDate: z.string().optional().refine((v) => !v || !Number.isNaN(Date.parse(v)), 'End date is not a date'),
   location: z.string().min(2).max(200).trim(),
   venue: z.string().max(200).optional(),
   requestedLane: z.enum(['FLEX', 'SELECT', 'MANAGED']).optional(),
@@ -27,6 +33,88 @@ const createQuoteSchema = z.object({
   description: z.string().max(2000).optional(),
   budget: z.string().max(100).optional()
 });
+
+const escapeHtml = (value: unknown) =>
+  String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+/**
+ * A quote from the app is saved to the database, but the office works from its
+ * inbox, so without this email an app quote is a lost lead. Mirrors what the
+ * website's quote form sends (routes/quotes.ts): a notification to the office
+ * and a receipt to the client. Never throws; a failed send is logged.
+ */
+async function emailQuoteFromApp(quote: {
+  id: string;
+  eventType: string;
+  eventDate: Date | null;
+  location: string;
+  venue: string | null;
+  staffCount: number;
+  roles: string;
+  shiftStart: string | null;
+  shiftEnd: string | null;
+  description: string | null;
+}, clientId: string): Promise<void> {
+  if (emailSendingSuppressed() || !process.env.RESEND_API_KEY) return;
+  try {
+    const client = await prisma.client.findUnique({
+      where: { id: clientId },
+      select: { companyName: true, contactName: true, email: true, phone: true },
+    });
+    if (!client) return;
+    const date = quote.eventDate
+      ? quote.eventDate.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' })
+      : 'Flexible';
+    const times = quote.shiftStart && quote.shiftEnd ? `${quote.shiftStart} - ${quote.shiftEnd}` : 'Not given';
+    const rows: Array<[string, unknown]> = [
+      ['Company', client.companyName],
+      ['Contact', client.contactName],
+      ['Email', client.email],
+      ['Phone', client.phone || 'Not given'],
+      ['Occasion', quote.eventType],
+      ['Date', date],
+      ['Times', times],
+      ['Location', quote.location],
+      ['Venue', quote.venue || 'Not given'],
+      ['Staff', quote.staffCount],
+      ['Roles', quote.roles],
+      ['Notes', quote.description || 'None'],
+      ['Reference', quote.id],
+    ];
+    const cell = 'padding: 8px; border: 1px solid #ddd;';
+    const sent = await sendQuoteNotificationEmail({
+      subject: `APP QUOTE: ${quote.eventType} - ${quote.staffCount} staff${quote.eventDate ? ` on ${date}` : ''} (${client.companyName})`,
+      html: `
+        <h2 style="margin-bottom: 4px;">Quote request from the app</h2>
+        <p style="margin-top: 0;">From a signed-in client account. It is in Admin &gt; Quotes as NEW.</p>
+        <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
+          ${rows.map(([k, v]) => `<tr><td style="${cell} font-weight: bold;">${escapeHtml(k)}</td><td style="${cell}">${escapeHtml(v)}</td></tr>`).join('')}
+        </table>`,
+    });
+    if (!sent?.success) {
+      logger.error({ event: 'app_quote_notification_failed', to: TO_EMAIL, quoteId: quote.id, emailError: sent?.error }, 'App quote notification was not sent');
+    }
+    await sendQuoteConfirmationEmail({
+      to: client.email,
+      subject: 'Quote request received - VERGO',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <p>Hi ${escapeHtml(client.contactName)},</p>
+          <p>We've got your request for ${escapeHtml(quote.staffCount)} staff (${escapeHtml(quote.roles)}) for your ${escapeHtml(quote.eventType)}, ${escapeHtml(date)}. Nothing is confirmed until we come back to you with names. ${escapeHtml(SITE_TERMS.confirmationPromise)}</p>
+          <p>You can follow it in the VERGO app under Quotes. If anything is urgent, reply to this email.</p>
+          <p>The VERGO team</p>
+          <p style="color: #666; font-size: 12px;">Reference: ${escapeHtml(quote.id)}</p>
+        </div>`,
+    });
+  } catch (err) {
+    logger.error({ event: 'app_quote_email_error', quoteId: quote.id, err }, 'App quote emails failed');
+  }
+}
 
 const listQuotesSchema = z.object({
   status: z.string().optional(),
@@ -65,6 +153,36 @@ const updateApplicationStatusSchema = z.object({
   status: z.enum(["PENDING", "REVIEWED", "SHORTLISTED", "CONFIRMED", "REJECTED"]),
   adminNotes: z.string().max(2000).optional(),
   rejectionReason: z.string().trim().max(500).optional()
+});
+
+// ============================================
+// GET /api/v1/client/mobile/info - Contact details, rates and terms
+// The app ships as a binary and can't be re-edited like a page, so it reads
+// these from the same config the site renders from (with Admin > Site content
+// applied) rather than carrying its own copy.
+// ============================================
+r.get('/info', (_req, res) => {
+  res.json({
+    ok: true,
+    data: {
+      contact: {
+        phone: SITE.phoneE164,
+        phoneDisplay: SITE.phoneDisplay,
+        email: SITE.publicEmail,
+        whatsappUrl: SITE.whatsappUrl,
+      },
+      rates: {
+        headline: headlineRateText(),
+        standardRate: PRICING.standardRate,
+        minimumHours: PRICING.minimumChargeHours,
+      },
+      terms: {
+        confirmationPromise: SITE_TERMS.confirmationPromise,
+        cancellation: SITE_TERMS.cancellation,
+        paymentTerms: SITE_TERMS.paymentTerms,
+      },
+    },
+  });
 });
 
 // ============================================
@@ -293,6 +411,7 @@ r.post('/quotes', async (req, res) => {
     });
     
     console.log(`[QUOTE] Created quote ${quote.id} for client ${clientId}`);
+    await emailQuoteFromApp(quote, clientId);
     
     const shaped = {
       id: quote.id,

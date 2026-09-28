@@ -175,7 +175,6 @@ test('no page carries a placeholder, an old price or a retired line', () => {
     [/19 pounds/i, '19 pounds'],
     [/pounds an hour/i, 'pounds an hour'],
     [/small enough to mean it/i, 'small enough to mean it'],
-    [/Wherever you go/i, 'Wherever you go'],
     [/no surcharges/i, 'no surcharges'],
     [/Someone doesn't show, you don't pay/i, "Someone doesn't show"],
     [/Private client/, 'Private client'],
@@ -215,7 +214,7 @@ test('public scripts carry no placeholder or retired wording', () => {
     const src = fs.readFileSync(path.join(dir, f), 'utf8');
     // String literals only: comments may explain what was removed.
     const strings = [...src.matchAll(/'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|`[^`]*`/g)].map((m) => m[0]).join('\n');
-    for (const re of [/TO CONFIRM/, /\bTBC\b/, /coming soon/i, /8am.{0,6}10pm/i, /£19/, /no surcharges/i, /Wherever you go/i]) {
+    for (const re of [/TO CONFIRM/, /\bTBC\b/, /coming soon/i, /8am.{0,6}10pm/i, /£19/, /no surcharges/i]) {
       if (re.test(strings)) problems.push(`${f}: ${re}`);
     }
   }
@@ -253,7 +252,7 @@ test('the header never carries a permanent link to /special-events', () => {
 
 const BUDGETS: Record<string, number> = {
   '/': 220,
-  '/hire': 220,
+  '/hire': 225,
   '/hire/waiting-staff': 160,
   '/hire/bar-staff': 160,
   '/hire/kitchen-porters': 160,

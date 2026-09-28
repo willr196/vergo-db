@@ -1,43 +1,23 @@
 # Mobile MVP scope
 
-**Decision, 6 September 2026:** the first release of the VERGO app is
-**worker-side only**. Clients keep booking through `vergoltd.com` and Will runs
-bookings from the ops console.
+**Decision, 6 September 2026:** the first release of the VERGO app was
+worker-side only.
+
+**Decision, 28 September 2026:** the client side goes in too, as **quotes and
+bookings**. Clients ask for staff and follow what we confirm; VERGO picks who
+goes. The marketplace model (clients browse staff and book a named person,
+priced by subscription and staff tier) is **not** used: it contradicts the flat
+public rate card and how bookings are actually run.
 
 ## Why
 
-MOBILE_APP_AUDIT.md flagged that the app carried two overlapping client product
-models: the legacy jobs and applicants flow, and the newer quotes, marketplace
-and bookings flow. Neither was finished and there was no single source of truth.
+MOBILE_APP_AUDIT.md flagged that the app carried overlapping client product
+models: the legacy jobs and applicants flow, and the quotes, marketplace and
+bookings flow. The jobs flow was removed from the app on 14 September. Of what
+was left, quotes and bookings match the website and the ops console; the
+marketplace did not, so its screens were deleted.
 
-Shipping worker-only removes that problem rather than solving it. Clients
-already have a working route in the website and the ops console, so the app has
-nothing to add for them yet. It also halves the surface that has to be correct
-for a first public release.
-
-## What that means in the code
-
-The client screens are **still in the repository**, under
-`apps/mobile/src/screens/client/`, along with their tests and stores. They are
-not deleted, because the client app is a later release rather than dead code.
-They are simply not reachable:
-
-| Piece | State |
-| --- | --- |
-| `src/screens/client/*` | Present, tested, **not in the navigator** |
-| `ClientStack`, `ClientTabNavigator` | Defined, unreferenced |
-| Client deep links (`client/...`) | Removed from the linking config |
-| Client entry on the welcome screen | Replaced with a link to `/hire/quote` |
-| A client account that signs in | Lands on `ClientOnWebScreen` |
-
-`ClientOnWebScreen` exists because people already signed in from earlier builds
-would otherwise land on nothing. It explains that bookings are handled on the
-website, links to the quote form, and offers sign-out. It does not block the
-login or touch the account.
-
-## The worker journey that has to work
-
-This is the whole product for release one:
+## The worker journey
 
 1. Register, sign in, stay signed in.
 2. Browse and search jobs, save a job, apply, track and withdraw applications.
@@ -46,20 +26,32 @@ This is the whole product for release one:
 5. See the hours that were recorded, and know the office confirms them.
 6. Edit a profile.
 
-Steps 3 to 5 are the part nothing else in the business does. Steps 1, 2 and 6
-already worked before this scope decision.
+## The client journey
 
-## Bringing the client app back
+1. Register, verify the email, wait for approval in Admin > Clients (the office
+   is emailed on registration), then sign in.
+2. Request staff: date, times, location, roles, headcount. The office is
+   emailed the request and the client gets a receipt, the same as the
+   website's quote form. It also appears in Admin > Quotes as NEW.
+3. Follow each request's status.
+4. See bookings once the office creates them: the named worker, times, and the
+   check-in, check-out and hours the worker recorded.
+5. Change or cancel by calling or emailing. There is no cancel button: the
+   endpoint refuses (409 `CANCEL_BY_CONTACT`), because cancelling in the app
+   told neither the office nor the worker and skipped the cancellation fee.
+6. Edit the company profile.
 
-Nothing needs rebuilding. To re-enable it:
+Phone, email, rates and terms are not in the app. It reads them from
+`GET /api/v1/client/mobile/info`, which serves the same config the website
+renders from, with Admin > Site content applied.
 
-1. Restore the client branch of the switch in
-   `src/navigation/RootNavigator.tsx` (currently renders `ClientOnWebScreen`).
-2. Restore the `client/...` entries in the `linking` config.
-3. Restore the client entry point on `WelcomeScreen`.
+## What is left in the code
 
-Before doing any of that, resolve the two-product-models question the audit
-raised. Re-enabling both flows as they stand would ship the same confusion.
+- `apps/api/src/routes/mobileMarketplace.ts` still serves the marketplace
+  staff and pricing endpoints alongside the booking list and detail the app
+  uses. Nothing in the app calls the staff or pricing ones.
+- `apps/api/src/routes/mobileClient.ts` still has the client job-management
+  endpoints from the removed jobs flow.
 
 ## Still open for release one
 
@@ -67,7 +59,16 @@ raised. Re-enabling both flows as they stand would ship the same confusion.
   installs on a real phone until these exist. This is the critical path.
 - Push credentials, and the app-link association files in
   `apps/api/public/.well-known/`.
-- No crash reporting in the app. The API has Sentry; the app has nothing.
-- Whether the four-hour minimum applies to worker pay, the client invoice, or
-  both. Until that is answered, `hoursWorked` and `hoursEstimated` are shown
-  side by side and nothing rounds automatically.
+- Crash reporting is wired in (`src/utils/errorReporting.ts`) but sends
+  nothing until `EXPO_PUBLIC_SENTRY_DSN` is set; it is blank in `eas.json`.
+- The four-hour minimum applies to the client invoice (covered by
+  `shiftLifecycle.test.ts`). Whether it also applies to worker pay is still
+  open; the app shows the recorded hours and does not round.
+- Cancelling in the app, if wanted later, has to notify the office and the
+  worker and apply the fee.
+
+Verified 28 September 2026: mobile typecheck, lint (no errors) and 126 unit
+tests pass; the API's 181 unit and 28 integration tests pass, including a
+worker taking a shift from offer to recorded hours and the client quote,
+booking, cancel and info routes. One app quote was sent for real and both
+emails were accepted by Resend. Not yet run on a real phone.

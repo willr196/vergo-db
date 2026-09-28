@@ -23,7 +23,7 @@ src/
 ├── screens/
 │   ├── auth/       # Welcome, Login, Register, ForgotPassword
 │   ├── jobseeker/  # Jobs, JobDetail, Applications, ApplicationDetail, Profile, EditProfile, ApplyToJob
-│   └── client/     # Dashboard, MyJobs, CompanyProfile (WIP)
+│   └── client/     # Dashboard, CreateQuote, MyQuotes, Bookings, BookingDetail, CompanyProfile
 ├── store/          # Zustand: authStore, jobsStore, applicationsStore
 ├── theme/          # Colors, spacing, typography, borderRadius
 └── types/          # All TypeScript interfaces + navigation params
@@ -41,7 +41,7 @@ src/
 ## Navigation Structure
 - Auth: Welcome → Login/Register → ForgotPassword
 - JobSeeker: Tabs(Jobs, Applications, Profile) + stack screens (JobDetail, ApplyToJob, ApplicationDetail, EditProfile)
-- Client: Tabs(Dashboard, MyJobs, CompanyProfile) — client screens still being built
+- Client: Tabs(Dashboard, Bookings, Profile) + stack screens (CreateQuote, MyQuotes, BookingDetail, EditClientProfile). Quotes and bookings only; no marketplace (docs/mobile-mvp-scope.md)
 
 ## Design System — IMPORTANT
 - Background: #0a0a0a, Surface: #1a1a1a, Primary/Gold: #D4AF37

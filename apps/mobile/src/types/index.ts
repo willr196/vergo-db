@@ -266,6 +266,10 @@ export interface BookingDetail extends Booking {
   clientNotes: string | null;
   rejectionReason: string | null;
   completedAt: string | null;
+  /** Recorded by the worker in the app; not rounded to the four-hour minimum. */
+  checkedInAt: string | null;
+  checkedOutAt: string | null;
+  hoursWorked: number | null;
   staff: {
     id: string;
     name: string;
@@ -390,9 +394,6 @@ export type RootStackParamList = {
   MyQuotes: undefined;
   EditClientProfile: undefined;
 
-  // Marketplace + Bookings
-  StaffDetail: { staffId: string; staff?: MarketplaceStaff };
-  CreateBooking: { staffId: string; staff: MarketplaceStaff };
   BookingDetail: { bookingId: string };
 };
 
@@ -405,7 +406,6 @@ export type JobSeekerTabParamList = {
 
 export type ClientTabParamList = {
   Dashboard: undefined;
-  Browse: undefined;
   Bookings: undefined;
   Profile: undefined;
 };

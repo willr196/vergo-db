@@ -5,7 +5,6 @@
 
 import React from 'react';
 import {
-  Linking,
   ScrollView,
   View,
   Text,
@@ -70,18 +69,17 @@ export function WelcomeScreen({ navigation }: Props) {
               />
             </View>
 
-            {/* Clients book through the website, not the app. The client
-                screens still exist in src/screens/client but are out of the
-                navigator for this release. See docs/mobile-mvp-scope.md. */}
+            {/* Clients request staff and follow their bookings; VERGO picks
+                who goes. See docs/mobile-mvp-scope.md. */}
             <View style={styles.choiceCard}>
               <Text style={styles.choiceLabel}>Hire Staff</Text>
               <Text style={styles.choiceTitle}>Booking staff for an event?</Text>
               <Text style={styles.choiceDescription}>
-                Tell us the date, venue and roles at vergoltd.com and you get a same-day answer between 8am and 10pm.
+                Send us the date, times and roles, and see who is coming once we confirm names.
               </Text>
               <Button
-                title="Get a quote at vergoltd.com"
-                onPress={() => Linking.openURL('https://vergoltd.com/hire/quote')}
+                title="Continue as a Client"
+                onPress={() => navigation.navigate('Login', { userType: 'client' })}
                 variant="outline"
                 size="lg"
                 fullWidth

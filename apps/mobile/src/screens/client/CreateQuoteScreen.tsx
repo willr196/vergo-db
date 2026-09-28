@@ -18,9 +18,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
-import { Button } from '../../components';
+import { Button, DateTimePickerInput } from '../../components';
 import { clientApi, CreateQuoteRequest } from '../../api/clientApi';
 import type { RootStackParamList } from '../../types';
+import { useClientInfo } from './useClientInfo';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CreateQuote'>;
 
@@ -37,17 +38,30 @@ const OCCASION_TYPES = [
   'Other',
 ];
 
+// The roles the website sells (canonicalRoles in apps/api/src/site/content.ts).
 const ROLE_OPTIONS = [
-  'Bartender',
-  'Waiter/Waitress',
-  'Chef',
-  'Kitchen Porter',
-  'Front of House',
-  'Runner',
-  'Barista',
-  'Cloakroom',
-  'Security',
+  'Waiting staff',
+  'Bar staff',
+  'Kitchen porters',
+  'Runners',
+  'Hosts and front of house',
+  'Chefs and cooks',
 ];
+
+const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+function tomorrow(): Date {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  d.setHours(12, 0, 0, 0);
+  return d;
+}
+
+/** YYYY-MM-DD in local time, which is what the office reads the date as. */
+function toDateOnly(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
 
 // Track which fields have validation errors
 type FieldErrors = {
@@ -57,7 +71,9 @@ type FieldErrors = {
 };
 
 export function CreateQuoteScreen({ navigation }: Props) {
+  const info = useClientInfo();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [eventDate, setEventDate] = useState<Date>(tomorrow);
   const [formData, setFormData] = useState<CreateQuoteRequest>({
     eventType: '',
     eventDate: '',
@@ -107,6 +123,9 @@ export function CreateQuoteScreen({ navigation }: Props) {
     if (errors.location) return 'Please enter a location';
     if (formData.staffCount < 1) return 'Please enter the number of staff needed';
     if (errors.roles) return 'Please select at least one role';
+    for (const t of [formData.shiftStart, formData.shiftEnd]) {
+      if (t && !TIME_PATTERN.test(t.trim())) return 'Enter times as 24-hour HH:MM, e.g. 18:00';
+    }
 
     return null;
   };
@@ -130,15 +149,18 @@ export function CreateQuoteScreen({ navigation }: Props) {
     try {
       await clientApi.createQuote({
         ...formData,
+        eventDate: toDateOnly(eventDate),
+        shiftStart: formData.shiftStart?.trim() || undefined,
+        shiftEnd: formData.shiftEnd?.trim() || undefined,
         roles: selectedRoles.join(', '),
       });
 
       Alert.alert(
-        'Quote Request Submitted!',
-        "We'll review your request and get back to you within 24 hours with a quote.",
+        'Request sent',
+        `Nothing is confirmed until we come back to you with names.${info ? ` ${info.terms.confirmationPromise}` : ''}`,
         [
           {
-            text: 'View My Quotes',
+            text: 'See your requests',
             onPress: () => navigation.replace('MyQuotes'),
           },
         ]
@@ -164,9 +186,11 @@ export function CreateQuoteScreen({ navigation }: Props) {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.title}>Request a Quote</Text>
+          <Text style={styles.title}>Request staff</Text>
           <Text style={styles.subtitle}>
-            Tell us about your staffing needs and we'll provide a competitive quote
+            {info
+              ? `${info.rates.headline} per person, ${info.rates.minimumHours}-hour minimum. ${info.terms.confirmationPromise}`
+              : 'Tell us the date, times and roles and we come back to you with names.'}
           </Text>
 
           {/* Event Type */}
@@ -225,15 +249,13 @@ export function CreateQuoteScreen({ navigation }: Props) {
 
           {/* Event Date */}
           <View style={styles.section}>
-            <Text style={styles.label}>Event Date</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g., 15 March 2025"
-              placeholderTextColor={colors.textMuted}
-              value={formData.eventDate}
-              onChangeText={(text) => updateField('eventDate', text)}
+            <DateTimePickerInput
+              label="Date *"
+              value={eventDate}
+              mode="date"
+              onChange={setEventDate}
+              minimumDate={new Date()}
             />
-            <Text style={styles.hint}>Leave blank if date is flexible</Text>
           </View>
 
           {/* Location */}
@@ -243,7 +265,7 @@ export function CreateQuoteScreen({ navigation }: Props) {
             </Text>
             <TextInput
               style={[styles.input, fieldErrors.location && styles.inputError]}
-              placeholder="e.g., London, Manchester, Birmingham"
+              placeholder="Postcode or area, e.g. EC2A or Shoreditch"
               placeholderTextColor={colors.textMuted}
               value={formData.location}
               onChangeText={(text) => {
@@ -330,12 +352,12 @@ export function CreateQuoteScreen({ navigation }: Props) {
 
           {/* Shift Times (optional) */}
           <View style={styles.section}>
-            <Text style={styles.label}>Shift Times</Text>
+            <Text style={styles.label}>Times (24-hour)</Text>
             <View style={styles.row}>
               <View style={styles.halfInput}>
                 <TextInput
                   style={styles.input}
-                  placeholder="Start (e.g., 18:00)"
+                  placeholder="Start, e.g. 18:00"
                   placeholderTextColor={colors.textMuted}
                   value={formData.shiftStart}
                   onChangeText={(text) => updateField('shiftStart', text)}
@@ -344,7 +366,7 @@ export function CreateQuoteScreen({ navigation }: Props) {
               <View style={styles.halfInput}>
                 <TextInput
                   style={styles.input}
-                  placeholder="End (e.g., 02:00)"
+                  placeholder="Finish, e.g. 23:30"
                   placeholderTextColor={colors.textMuted}
                   value={formData.shiftEnd}
                   onChangeText={(text) => updateField('shiftEnd', text)}
@@ -353,24 +375,12 @@ export function CreateQuoteScreen({ navigation }: Props) {
             </View>
           </View>
 
-          {/* Budget (optional) */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Budget Range</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g., £500-£1000"
-              placeholderTextColor={colors.textMuted}
-              value={formData.budget}
-              onChangeText={(text) => updateField('budget', text)}
-            />
-          </View>
-
           {/* Description */}
           <View style={styles.section}>
             <Text style={styles.label}>Additional Details</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
-              placeholder="Any specific requirements, dress code, special requests..."
+              placeholder="Dress code, guest numbers, anything we should know"
               placeholderTextColor={colors.textMuted}
               value={formData.description}
               onChangeText={(text) => updateField('description', text)}
@@ -383,7 +393,7 @@ export function CreateQuoteScreen({ navigation }: Props) {
           {/* Submit */}
           <View style={styles.submitSection}>
             <Button
-              title="Submit Quote Request"
+              title="Send request"
               onPress={handleSubmit}
               disabled={isSubmitting}
               loading={isSubmitting}
@@ -392,7 +402,7 @@ export function CreateQuoteScreen({ navigation }: Props) {
               fullWidth
             />
             <Text style={styles.disclaimer}>
-              We'll review your request and respond within 24 hours
+              Nothing is booked or charged until we confirm names with you.
             </Text>
           </View>
         </ScrollView>

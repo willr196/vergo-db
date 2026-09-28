@@ -1,6 +1,6 @@
 /**
  * DashboardScreen Tests
- * Tests the current marketplace booking dashboard workflow.
+ * Request staff, follow requests, see confirmed bookings.
  */
 
 import React from 'react';
@@ -138,19 +138,20 @@ describe('DashboardScreen', () => {
       pagination: { page: 1, limit: 50, total: 3, totalPages: 1, hasMore: false },
     });
 
-    const { getByText, getAllByText } = render(
+    const { getByText, getAllByText, queryByText } = render(
       <DashboardScreen navigation={mockNavigation as never} route={mockRoute as never} />
     );
 
     await waitFor(() => {
       expect(getByText('Test Company')).toBeTruthy();
-      expect(getByText('PREMIUM CLIENT')).toBeTruthy();
-      expect(getByText('Pending Bookings')).toBeTruthy();
-      expect(getByText('Confirmed Upcoming')).toBeTruthy();
-      expect(getByText('Total Bookings')).toBeTruthy();
+      // Once as the stat label, once on the pending booking's pill.
+      expect(getAllByText('Awaiting confirmation').length).toBe(2);
+      expect(getByText('Confirmed, upcoming')).toBeTruthy();
+      expect(getByText('All bookings')).toBeTruthy();
     });
 
     expect(getAllByText('1').length).toBeGreaterThanOrEqual(2);
+    expect(queryByText(/CLIENT$/)).toBeNull();
     expect(getByText('3')).toBeTruthy();
   });
 
@@ -160,16 +161,16 @@ describe('DashboardScreen', () => {
       pagination: { page: 1, limit: 50, total: 3, totalPages: 1, hasMore: false },
     });
 
-    const { getByText } = render(
+    const { getByText, queryByText } = render(
       <DashboardScreen navigation={mockNavigation as never} route={mockRoute as never} />
     );
 
     await waitFor(() => {
-      expect(getByText('Browse Staff')).toBeTruthy();
-      expect(getByText('Request a Quote')).toBeTruthy();
+      expect(getByText('Request staff')).toBeTruthy();
       expect(getByText('View Bookings')).toBeTruthy();
-      expect(getByText('Quote Requests')).toBeTruthy();
+      expect(getByText('Your requests')).toBeTruthy();
     });
+    expect(queryByText('Browse Staff')).toBeNull();
   });
 
   it('navigates through dashboard quick actions', async () => {
@@ -183,15 +184,13 @@ describe('DashboardScreen', () => {
     );
 
     await waitFor(() => {
-      expect(getByText('Request a Quote')).toBeTruthy();
+      expect(getByText('Request staff')).toBeTruthy();
     });
 
-    fireEvent.press(getByText('Browse Staff'));
-    fireEvent.press(getByText('Request a Quote'));
+    fireEvent.press(getByText('Request staff'));
     fireEvent.press(getByText('View Bookings'));
-    fireEvent.press(getByText('Quote Requests'));
+    fireEvent.press(getByText('Your requests'));
 
-    expect(mockNavigation.navigate).toHaveBeenCalledWith('Browse');
     expect(mockNavigation.navigate).toHaveBeenCalledWith('CreateQuote');
     expect(mockNavigation.navigate).toHaveBeenCalledWith('Bookings');
     expect(mockNavigation.navigate).toHaveBeenCalledWith('MyQuotes');
@@ -209,7 +208,7 @@ describe('DashboardScreen', () => {
 
     await waitFor(() => {
       expect(getByText('No bookings yet')).toBeTruthy();
-      expect(getAllByText('Browse Staff').length).toBeGreaterThanOrEqual(1);
+      expect(getAllByText('Request staff').length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -234,7 +233,7 @@ describe('DashboardScreen', () => {
 
     await waitFor(() => {
       expect(marketplaceApi.getBookings).toHaveBeenCalledTimes(2);
-      expect(getByText('Total Bookings')).toBeTruthy();
+      expect(getByText('All bookings')).toBeTruthy();
     });
   });
 });

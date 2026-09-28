@@ -2,7 +2,7 @@
 <% layout('/layouts/base', {
   meta: {
     "title": "Event and Hospitality Staff in London | VERGO Staffing",
-    "description": `Waiting staff, bar staff, kitchen porters, runners and hosts across London. ${it.t.HEADLINE_RATE} per person, four-hour minimum, names confirmed the same day.`,
+    "description": `Waiting staff, bar staff, kitchen porters, runners and hosts across London. ${it.t.HEADLINE_RATE} per person, four-hour minimum.`,
     "ogImage": "/images/og/home.jpg",
     "canonical": "/"
   },
@@ -48,7 +48,7 @@
     <div class="home-hero-band">
     <section class="home-hero home-hero--centred shell">
       <img class="home-logo" src="/images/vergo-mark-600.webp" srcset="/images/vergo-mark-400.webp 400w, /images/vergo-mark-600.webp 600w" sizes="(min-width: 1000px) 300px, (min-width: 600px) 30vw, 180px" width="600" height="600" alt="" fetchpriority="high">
-      <h1>London event staff, confirmed by name the same day</h1>
+      <h1>London event staff</h1>
       <p class="home-slogan"><%~ it.t.SLOGAN %></p>
       <p class="lede">Vetted, briefed staff. <%~ it.t.HEADLINE_RATE %>, no booking fees.</p>
       <div class="btn-row">

@@ -1,6 +1,6 @@
 /**
  * Booking Detail Screen
- * Full booking details with cancel action when allowed
+ * One booking: who, when, what was recorded. Changes go through the office.
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
@@ -9,10 +9,8 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  Alert,
-  Modal,
-  TextInput,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -22,17 +20,18 @@ import { Button, ErrorState, LoadingScreen } from '../../components';
 import { marketplaceApi } from '../../api';
 import { formatDate, formatTime } from '../../utils';
 import type { BookingDetail, BookingStatus, RootStackParamList } from '../../types';
+import { useClientInfo } from './useClientInfo';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BookingDetail'>;
 
 function getStatusStyle(status: BookingStatus): { label: string; bg: string; text: string } {
   switch (status) {
     case 'PENDING':
-      return { label: 'Pending', bg: 'rgba(255, 193, 7, 0.20)', text: '#ffc107' };
+      return { label: 'Awaiting confirmation', bg: 'rgba(255, 193, 7, 0.20)', text: '#ffc107' };
     case 'CONFIRMED':
       return { label: 'Confirmed', bg: 'rgba(40, 167, 69, 0.20)', text: '#28a745' };
     case 'REJECTED':
-      return { label: 'Rejected', bg: 'rgba(220, 53, 69, 0.20)', text: '#dc3545' };
+      return { label: 'Declined', bg: 'rgba(220, 53, 69, 0.20)', text: '#dc3545' };
     case 'CANCELLED':
       return { label: 'Cancelled', bg: 'rgba(108, 117, 125, 0.20)', text: '#6c757d' };
     case 'COMPLETED':
@@ -52,10 +51,8 @@ function formatDateTime(value: string | null): string {
 export function BookingDetailScreen({ navigation, route }: Props) {
   const [booking, setBooking] = useState<BookingDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isCancelling, setIsCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [cancellationReason, setCancellationReason] = useState('');
+  const info = useClientInfo();
 
   const fetchBooking = useCallback(async () => {
     try {
@@ -80,52 +77,6 @@ export function BookingDetailScreen({ navigation, route }: Props) {
     }, [fetchBooking])
   );
 
-  const handleCancelBooking = () => {
-    if (!booking) return;
-
-    setCancellationReason('');
-    setShowCancelModal(true);
-  };
-
-  const submitCancellation = async () => {
-    if (!booking) return;
-    const reason = cancellationReason.trim();
-    if (!reason) {
-      Alert.alert('Reason required', 'Please explain why this booking is being cancelled.');
-      return;
-    }
-
-    Alert.alert(
-      'Cancel Booking',
-      'This will cancel the booking and notify the worker.',
-      [
-        { text: 'Keep Booking', style: 'cancel' },
-        {
-          text: 'Cancel Booking',
-          style: 'destructive',
-          onPress: async () => {
-            setShowCancelModal(false);
-            setIsCancelling(true);
-            try {
-              const result = await marketplaceApi.cancelBooking(booking.id, reason);
-              setBooking((current) => current ? {
-                ...current,
-                status: result.status,
-                rejectionReason: result.rejectionReason,
-              } : current);
-              Alert.alert('Booking Cancelled', 'This booking has been cancelled.');
-            } catch (err) {
-              const message = err instanceof Error ? err.message : 'Failed to cancel booking';
-              Alert.alert('Cancel Failed', message);
-            } finally {
-              setIsCancelling(false);
-            }
-          },
-        },
-      ]
-    );
-  };
-
   if (isLoading && !booking) {
     return <LoadingScreen message="Loading booking details..." />;
   }
@@ -147,36 +98,10 @@ export function BookingDetailScreen({ navigation, route }: Props) {
   }
 
   const status = getStatusStyle(booking.status);
-  const canCancel = booking.status === 'PENDING' || booking.status === 'CONFIRMED';
+  const isOpen = booking.status === 'PENDING' || booking.status === 'CONFIRMED';
 
   return (
     <SafeAreaView style={styles.container}>
-      <Modal visible={showCancelModal} transparent animationType="fade" onRequestClose={() => setShowCancelModal(false)}>
-        <View style={styles.modalBackdrop}>
-          <View style={styles.cancelModal}>
-            <Text style={styles.modalTitle}>Cancel booking</Text>
-            <Text style={styles.modalText}>This reason will be visible to the worker.</Text>
-            <TextInput
-              value={cancellationReason}
-              onChangeText={setCancellationReason}
-              placeholder="Explain the cancellation"
-              placeholderTextColor={colors.textMuted}
-              multiline
-              maxLength={500}
-              autoFocus
-              style={styles.reasonInput}
-            />
-            <View style={styles.modalActions}>
-              <TouchableOpacity onPress={() => setShowCancelModal(false)} style={styles.modalCancelButton}>
-                <Text style={styles.modalCancelText}>Keep booking</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={submitCancellation} style={styles.modalConfirmButton}>
-                <Text style={styles.modalConfirmText}>Continue</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>‹ Back</Text>
@@ -192,7 +117,6 @@ export function BookingDetailScreen({ navigation, route }: Props) {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Staff</Text>
           <Text style={styles.primaryText}>{booking.staff.name}</Text>
-          <Text style={styles.secondaryText}>{booking.staff.tier} STAFF</Text>
           <Text style={styles.secondaryText}>
             {booking.staff.rating ? `⭐ ${booking.staff.rating.toFixed(1)}` : 'No rating yet'}
           </Text>
@@ -216,15 +140,26 @@ export function BookingDetailScreen({ navigation, route }: Props) {
             {formatTime(booking.shiftStart)} - {formatTime(booking.shiftEnd)}
           </Text>
           <Text style={styles.secondaryText}>
-            Estimated Hours: {booking.hoursEstimated != null ? booking.hoursEstimated : '—'}
+            Estimated hours: {booking.hoursEstimated != null ? booking.hoursEstimated : '—'}
           </Text>
+          {booking.checkedInAt ? (
+            <Text style={styles.secondaryText}>Checked in {formatTime(booking.checkedInAt)}</Text>
+          ) : null}
+          {booking.checkedOutAt ? (
+            <Text style={styles.secondaryText}>Checked out {formatTime(booking.checkedOutAt)}</Text>
+          ) : null}
+          {booking.hoursWorked != null ? (
+            <Text style={styles.secondaryText}>
+              Hours recorded: {booking.hoursWorked}. We confirm the final hours before invoicing.
+            </Text>
+          ) : null}
         </View>
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Pricing</Text>
           <Text style={styles.primaryText}>£{booking.hourlyRate}/hr</Text>
           <Text style={styles.secondaryText}>
-            Estimated Total: {booking.totalEstimated != null ? `£${booking.totalEstimated.toFixed(2)}` : '—'}
+            Estimated total: {booking.totalEstimated != null ? `£${booking.totalEstimated.toFixed(2)}` : '—'}
           </Text>
         </View>
 
@@ -258,16 +193,34 @@ export function BookingDetailScreen({ navigation, route }: Props) {
           </View>
         </View>
 
-        {canCancel ? (
-          <Button
-            title="Cancel Booking"
-            variant="outline"
-            onPress={handleCancelBooking}
-            loading={isCancelling}
-            fullWidth
-            style={styles.cancelButton}
-            textStyle={styles.cancelButtonText}
-          />
+        {isOpen ? (
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Change or cancel</Text>
+            <Text style={styles.secondaryText}>
+              Call or email us and we sort it with the staff member.
+              {info ? ` Cancellation: ${info.terms.cancellation}` : ''}
+            </Text>
+            {info ? (
+              <View style={styles.contactButtons}>
+                <Button
+                  title={`Call ${info.contact.phoneDisplay}`}
+                  variant="primary"
+                  onPress={() => Linking.openURL(`tel:${info.contact.phone}`)}
+                  fullWidth
+                />
+                <Button
+                  title="Email us"
+                  variant="outline"
+                  onPress={() =>
+                    Linking.openURL(
+                      `mailto:${info.contact.email}?subject=${encodeURIComponent(`Booking ${booking.id}`)}`
+                    )
+                  }
+                  fullWidth
+                />
+              </View>
+            ) : null}
+          </View>
         ) : null}
       </ScrollView>
     </SafeAreaView>
@@ -360,49 +313,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.sm,
     lineHeight: 20,
   },
-  modalBackdrop: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: spacing.lg,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
-  },
-  cancelModal: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-  },
-  modalTitle: {
-    color: colors.textPrimary,
-    fontSize: typography.fontSize.lg,
-    fontWeight: '700' as const,
-  },
-  modalText: {
-    color: colors.textSecondary,
-    fontSize: typography.fontSize.sm,
-    marginTop: spacing.xs,
-  },
-  reasonInput: {
-    minHeight: 112,
-    marginTop: spacing.md,
-    padding: spacing.md,
-    color: colors.textPrimary,
-    backgroundColor: colors.background,
-    borderColor: colors.surfaceBorder,
-    borderWidth: 1,
-    borderRadius: borderRadius.md,
-    fontSize: typography.fontSize.md,
-    textAlignVertical: 'top',
-  },
-  modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: spacing.sm,
-    marginTop: spacing.lg,
-  },
-  modalCancelButton: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-  modalCancelText: { color: colors.textSecondary, fontSize: typography.fontSize.md, fontWeight: '600' as const },
-  modalConfirmButton: { backgroundColor: colors.error, borderRadius: borderRadius.md, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-  modalConfirmText: { color: colors.textInverse, fontSize: typography.fontSize.md, fontWeight: '600' as const },
   timelineRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -419,12 +329,9 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSize.sm,
   },
-  cancelButton: {
-    borderColor: '#dc3545',
-    marginTop: spacing.sm,
-  },
-  cancelButtonText: {
-    color: '#dc3545',
+  contactButtons: {
+    gap: spacing.sm,
+    marginTop: spacing.md,
   },
 });
 

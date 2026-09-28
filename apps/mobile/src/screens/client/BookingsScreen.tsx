@@ -32,7 +32,7 @@ type StatusFilter = 'ALL' | 'PENDING' | 'CONFIRMED' | 'COMPLETED';
 
 const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: 'ALL', label: 'All' },
-  { value: 'PENDING', label: 'Pending' },
+  { value: 'PENDING', label: 'Awaiting' },
   { value: 'CONFIRMED', label: 'Confirmed' },
   { value: 'COMPLETED', label: 'Completed' },
 ];
@@ -40,11 +40,11 @@ const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
 function getStatusStyle(status: BookingStatus): { label: string; bg: string; text: string } {
   switch (status) {
     case 'PENDING':
-      return { label: 'Pending', bg: 'rgba(255, 193, 7, 0.20)', text: '#ffc107' };
+      return { label: 'Awaiting confirmation', bg: 'rgba(255, 193, 7, 0.20)', text: '#ffc107' };
     case 'CONFIRMED':
       return { label: 'Confirmed', bg: 'rgba(40, 167, 69, 0.20)', text: '#28a745' };
     case 'REJECTED':
-      return { label: 'Rejected', bg: 'rgba(220, 53, 69, 0.20)', text: '#dc3545' };
+      return { label: 'Declined', bg: 'rgba(220, 53, 69, 0.20)', text: '#dc3545' };
     case 'CANCELLED':
       return { label: 'Cancelled', bg: 'rgba(108, 117, 125, 0.20)', text: '#6c757d' };
     case 'COMPLETED':
@@ -131,11 +131,6 @@ export function BookingsScreen({ navigation }: Props) {
         >
           <View style={styles.cardHeader}>
             <Text style={styles.staffName}>{item.staff.name}</Text>
-            <View style={[styles.tierBadge, item.staff.tier === 'ELITE' ? styles.tierBadgeElite : styles.tierBadgeStandard]}>
-              <Text style={[styles.tierBadgeText, item.staff.tier === 'ELITE' ? styles.tierBadgeTextElite : styles.tierBadgeTextStandard]}>
-                {item.staff.tier}
-              </Text>
-            </View>
           </View>
 
           <Text style={styles.eventText} numberOfLines={1}>
@@ -172,9 +167,9 @@ export function BookingsScreen({ navigation }: Props) {
       <EmptyState
         icon="📋"
         title="No bookings yet"
-        message="No bookings yet. Browse staff to make your first booking!"
-        actionTitle="Browse Staff"
-        onAction={() => navigation.navigate('Browse')}
+        message="Once we confirm staff for your event, each person appears here by name."
+        actionTitle="Request staff"
+        onAction={() => navigation.navigate('CreateQuote')}
       />
     );
   };
@@ -317,30 +312,6 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
     fontWeight: '600' as const,
-  },
-  tierBadge: {
-    borderRadius: borderRadius.full,
-    borderWidth: 1,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-  },
-  tierBadgeElite: {
-    borderColor: 'rgba(212, 175, 55, 0.40)',
-    backgroundColor: 'rgba(212, 175, 55, 0.15)',
-  },
-  tierBadgeStandard: {
-    borderColor: colors.surfaceBorder,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-  },
-  tierBadgeText: {
-    fontSize: typography.fontSize.xs,
-    fontWeight: '700' as const,
-  },
-  tierBadgeTextElite: {
-    color: colors.primary,
-  },
-  tierBadgeTextStandard: {
-    color: colors.textSecondary,
   },
   eventText: {
     color: colors.textPrimary,

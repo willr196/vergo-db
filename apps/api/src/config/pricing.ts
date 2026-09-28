@@ -39,9 +39,9 @@ export const PRICING = {
    * without JavaScript — change a rate here and change it there in the same commit.
    */
   specialEvents: {
-    themedHospitality: 22.00,
-    characterPerformer: 30.00,
-    makeupArtist: 40.00,
+    themedHospitality: 21.00,
+    characterPerformer: 26.00,
+    makeupArtist: 35.00,
     /** Hourly special-events roles carry the site-wide four-hour minimum. */
     minimumChargeHours: 4,
   },

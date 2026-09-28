@@ -10,9 +10,16 @@ import { CreateQuoteScreen } from '../CreateQuoteScreen';
 import { clientApi } from '../../../api/clientApi';
 
 // Mock the API
+const mockInfo = {
+  contact: { phone: '+440000000000', phoneDisplay: '00000 000000', email: 'office@example.com', whatsappUrl: '' },
+  rates: { headline: '£18.50/hr', standardRate: 18.5, minimumHours: 4 },
+  terms: { confirmationPromise: 'Names the same day.', cancellation: 'Free 48h+ before.', paymentTerms: '14 days.' },
+};
+
 jest.mock('../../../api/clientApi', () => ({
   clientApi: {
     createQuote: jest.fn(),
+    getInfo: jest.fn(() => Promise.resolve(mockInfo)),
   },
 }));
 
@@ -35,13 +42,13 @@ describe('CreateQuoteScreen', () => {
   });
 
   describe('Form Rendering', () => {
-    it('should render form title and subtitle', () => {
-      const { getByText } = render(
+    it('should render form title and the live rate and promise', async () => {
+      const { getByText, findByText } = render(
         <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
-      expect(getByText('Request a Quote')).toBeTruthy();
-      expect(getByText("Tell us about your staffing needs and we'll provide a competitive quote")).toBeTruthy();
+      expect(getByText('Request staff')).toBeTruthy();
+      expect(await findByText('£18.50/hr per person, 4-hour minimum. Names the same day.')).toBeTruthy();
     });
 
     it('should render all required form fields', () => {
@@ -60,7 +67,7 @@ describe('CreateQuoteScreen', () => {
         <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
-      expect(getByText('Submit Quote Request')).toBeTruthy();
+      expect(getByText('Send request')).toBeTruthy();
     });
 
     it('should render role options', () => {
@@ -68,9 +75,9 @@ describe('CreateQuoteScreen', () => {
         <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
-      expect(getByText('Bartender')).toBeTruthy();
-      expect(getByText('Waiter/Waitress')).toBeTruthy();
-      expect(getByText('Chef')).toBeTruthy();
+      expect(getByText('Bar staff')).toBeTruthy();
+      expect(getByText('Waiting staff')).toBeTruthy();
+      expect(getByText('Chefs and cooks')).toBeTruthy();
     });
   });
 
@@ -82,12 +89,12 @@ describe('CreateQuoteScreen', () => {
 
       // Fill in some fields but not event type
       fireEvent.changeText(
-        getByPlaceholderText('e.g., London, Manchester, Birmingham'),
+        getByPlaceholderText('Postcode or area, e.g. EC2A or Shoreditch'),
         'London'
       );
-      fireEvent.press(getByText('Bartender'));
+      fireEvent.press(getByText('Bar staff'));
 
-      fireEvent.press(getByText('Submit Quote Request'));
+      fireEvent.press(getByText('Send request'));
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalledWith(
@@ -107,9 +114,9 @@ describe('CreateQuoteScreen', () => {
       fireEvent.press(getByText('Corporate Event'));
 
       // Select a role
-      fireEvent.press(getByText('Bartender'));
+      fireEvent.press(getByText('Bar staff'));
 
-      fireEvent.press(getByText('Submit Quote Request'));
+      fireEvent.press(getByText('Send request'));
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalledWith(
@@ -130,11 +137,11 @@ describe('CreateQuoteScreen', () => {
 
       // Fill location
       fireEvent.changeText(
-        getByPlaceholderText('e.g., London, Manchester, Birmingham'),
+        getByPlaceholderText('Postcode or area, e.g. EC2A or Shoreditch'),
         'London'
       );
 
-      fireEvent.press(getByText('Submit Quote Request'));
+      fireEvent.press(getByText('Send request'));
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalledWith(
@@ -149,7 +156,7 @@ describe('CreateQuoteScreen', () => {
         <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
-      fireEvent.press(getByText('Submit Quote Request'));
+      fireEvent.press(getByText('Send request'));
 
       await waitFor(() => {
         expect(queryByText('Please select an occasion type')).toBeTruthy();
@@ -162,7 +169,7 @@ describe('CreateQuoteScreen', () => {
       );
 
       // Trigger validation error
-      fireEvent.press(getByText('Submit Quote Request'));
+      fireEvent.press(getByText('Send request'));
 
       await waitFor(() => {
         expect(queryByText('Please select an occasion type')).toBeTruthy();
@@ -209,7 +216,7 @@ describe('CreateQuoteScreen', () => {
         <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
-      const bartenderChip = getByText('Bartender');
+      const bartenderChip = getByText('Bar staff');
 
       // Select
       fireEvent.press(bartenderChip);
@@ -224,14 +231,14 @@ describe('CreateQuoteScreen', () => {
         <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
       );
 
-      fireEvent.press(getByText('Bartender'));
-      fireEvent.press(getByText('Chef'));
-      fireEvent.press(getByText('Waiter/Waitress'));
+      fireEvent.press(getByText('Bar staff'));
+      fireEvent.press(getByText('Chefs and cooks'));
+      fireEvent.press(getByText('Waiting staff'));
 
       // All three should still be visible (selectable)
-      expect(getByText('Bartender')).toBeTruthy();
-      expect(getByText('Chef')).toBeTruthy();
-      expect(getByText('Waiter/Waitress')).toBeTruthy();
+      expect(getByText('Bar staff')).toBeTruthy();
+      expect(getByText('Chefs and cooks')).toBeTruthy();
+      expect(getByText('Waiting staff')).toBeTruthy();
     });
   });
 
@@ -271,12 +278,12 @@ describe('CreateQuoteScreen', () => {
 
       // Fill location
       fireEvent.changeText(
-        getByPlaceholderText('e.g., London, Manchester, Birmingham'),
+        getByPlaceholderText('Postcode or area, e.g. EC2A or Shoreditch'),
         'London'
       );
 
       // Select role
-      fireEvent.press(getByText('Bartender'));
+      fireEvent.press(getByText('Bar staff'));
     };
 
     it('should submit form with valid data', async () => {
@@ -288,7 +295,7 @@ describe('CreateQuoteScreen', () => {
 
       fillValidForm(getByText, getByPlaceholderText);
 
-      fireEvent.press(getByText('Submit Quote Request'));
+      fireEvent.press(getByText('Send request'));
 
       await waitFor(() => {
         expect(clientApi.createQuote).toHaveBeenCalledWith(
@@ -296,7 +303,8 @@ describe('CreateQuoteScreen', () => {
             eventType: 'Corporate Event',
             location: 'London',
             staffCount: 1,
-            roles: 'Bartender',
+            roles: 'Bar staff',
+            eventDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
           })
         );
       });
@@ -311,11 +319,11 @@ describe('CreateQuoteScreen', () => {
 
       fillValidForm(getByText, getByPlaceholderText);
 
-      fireEvent.press(getByText('Submit Quote Request'));
+      fireEvent.press(getByText('Send request'));
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalledWith(
-          'Quote Request Submitted!',
+          'Request sent',
           expect.any(String),
           expect.any(Array)
         );
@@ -331,7 +339,7 @@ describe('CreateQuoteScreen', () => {
 
       fillValidForm(getByText, getByPlaceholderText);
 
-      fireEvent.press(getByText('Submit Quote Request'));
+      fireEvent.press(getByText('Send request'));
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalledWith(
@@ -352,7 +360,7 @@ describe('CreateQuoteScreen', () => {
 
       fillValidForm(getByText, getByPlaceholderText);
 
-      fireEvent.press(getByText('Submit Quote Request'));
+      fireEvent.press(getByText('Send request'));
 
       // Button should be disabled during submission
       // We can verify the API was called

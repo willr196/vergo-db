@@ -1,27 +1,36 @@
 # VERGO Mobile App (`apps/mobile`)
 
-React Native (Expo) mobile client for VERGO job seekers and client companies.
+React Native (Expo) app for the people who work VERGO shifts and the clients
+who book them.
 
 ## Current Scope
 
-The app supports two authenticated user journeys:
-- Job seeker: browse jobs, apply, track application status, manage profile.
-- Client: post/manage jobs, review applicants, hire/reject, manage company profile.
+Workers and clients (decisions and reasoning in `docs/mobile-mvp-scope.md`).
+Clients request staff and follow their bookings; VERGO picks who goes. There
+is no browse-and-book marketplace.
 
 ## MVP Status
 
-All MVP features are complete:
-- [x] JWT authentication for job seekers and clients
-- [x] Job board with search/filter support
-- [x] Job detail and apply flow
-- [x] Application tracking with status timeline
-- [x] Client dashboard (stats + recent applications)
-- [x] Client job creation/edit/close flow
-- [x] Applicant shortlist/hire/reject actions
-- [x] Job seeker + client profile management
-- [x] Avatar/logo upload
+The client journey is built and tested:
+- [x] Register, verify, get approved, sign in
+- [x] Request staff; the office and the client are both emailed
+- [x] Follow requests; see bookings with the named worker and recorded hours
+- [x] Change or cancel by call or email (live contact details and terms from the API)
+- [x] Edit company profile
+
+The worker journey is built and tested:
+- [x] Register, sign in, stay signed in (JWT, refresh, biometrics)
+- [x] Browse, search and save jobs; apply; track and withdraw applications
+- [x] Receive a shift, see the terms, confirm or decline it
+- [x] Check in, check out, add a note
+- [x] See recorded hours
+- [x] Edit profile, upload avatar
 - [x] Push notification registration and deep-link routing
-- [x] Offline-aware caching/queue support for core actions
+- [x] Crash reporting (Sentry, once `EXPO_PUBLIC_SENTRY_DSN` is set)
+
+Not done, and blocking a phone install: the EAS project id, Apple and Google
+developer accounts, push credentials and the app-link files. See "Still open"
+in `docs/mobile-mvp-scope.md`.
 
 ## Tech Stack
 
