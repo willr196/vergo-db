@@ -53,6 +53,26 @@ function wholePounds(value: number): string {
 }
 
 /**
+ * What one person costs on the special-events rates, worked from the rate
+ * card: the minimum charge, one overrun block and an hour after midnight.
+ * THEMED_MIN_CHARGE, PERFORMER_OVERRUN, MAKEUP_LATE_HOUR and so on.
+ */
+export function specialEventCharges(): Record<string, string> {
+  const roles = {
+    THEMED: PRICING.specialEvents.themedHospitality,
+    PERFORMER: PRICING.specialEvents.characterPerformer,
+    MAKEUP: PRICING.specialEvents.makeupArtist,
+  };
+  const out: Record<string, string> = {};
+  for (const [key, rate] of Object.entries(roles)) {
+    out[`${key}_MIN_CHARGE`] = wholePounds(rate * PRICING.specialEvents.minimumChargeHours);
+    out[`${key}_OVERRUN`] = wholePounds((rate * PRICING.overrunBlockMinutes) / 60);
+    out[`${key}_LATE_HOUR`] = wholePounds(rate * PRICING.afterMidnightMultiplier);
+  }
+  return out;
+}
+
+/**
  * Every {{TOKEN}} a page may use, and what it becomes. The HTML on disk
  * carries the token; the page that ships carries the value, so search engines
  * and visitors without JavaScript see the real figure.
@@ -85,6 +105,7 @@ export function siteTokens(): Record<string, string> {
     THEMED_RATE_NUMBER: PRICING.specialEvents.themedHospitality.toFixed(2),
     PERFORMER_RATE_NUMBER: PRICING.specialEvents.characterPerformer.toFixed(2),
     MAKEUP_RATE_NUMBER: PRICING.specialEvents.makeupArtist.toFixed(2),
+    ...specialEventCharges(),
     PHONE: SITE.phoneDisplay,
     PHONE_TEL: `tel:${SITE.phoneE164}`,
     PHONE_E164: SITE.phoneE164,

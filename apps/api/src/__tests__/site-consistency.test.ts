@@ -12,6 +12,7 @@ import { PRICING, SITE_TERMS, formatRate } from '../config/pricing';
 import { renderPublicSource } from '../lib/publicHtml';
 import { renderView, VIEW_ROUTES } from '../site/view';
 import { loadBlog, publishedPosts, renderBlogPage } from '../site/blog';
+import { specialEventCharges } from '../site/content';
 
 function setRequiredEnv() {
   process.env.NODE_ENV = 'test';
@@ -343,6 +344,8 @@ test('every £ amount on a public page comes from config', () => {
     ...money(PRICING.specialEvents.characterPerformer),
     ...money(PRICING.specialEvents.makeupArtist),
     ...(SITE_TERMS.workerPayLine.match(/£[\d.,]+/g) || []),
+    // Worked from the special-events rates, so they move with them.
+    ...Object.values(specialEventCharges()),
   ]);
   const problems: string[] = [];
   for (const p of pages) {
