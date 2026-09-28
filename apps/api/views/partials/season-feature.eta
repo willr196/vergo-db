@@ -1,19 +1,19 @@
 <%/*
-  The homepage's seasonal section: the season in the header right now (so
+  The homepage's seasonal strip: the season in the header right now (so
   Halloween until 31 October, then Christmas to 20 December), or nothing.
-  A photo tagged "season-<key>" puts it in a two-column grid beside the text.
+  Kept small on purpose: a thumbnail from the photo tagged "season-<key>",
+  the heading, the prices on one line, and a text link.
 */%>
 <% const promo = it.season.header; %>
 <% if (promo) { %>
 <% const photo = it.photos('season-' + promo.key)[0]; const srcs = photo ? it.photoSources(photo) : null; %>
 <% const prices = promo.homeLines.filter(function (l) { return typeof l !== 'string'; }); %>
-<% const lines = promo.homeLines.filter(function (l) { return typeof l === 'string'; }); %>
-<section class="section shell season-feature" data-season="<%= promo.key %>" aria-labelledby="<%= promo.key %>-heading">
+<section class="section-tight shell season-feature" data-season="<%= promo.key %>" aria-labelledby="<%= promo.key %>-heading">
+      <div class="season-feature-row">
 <% if (photo) { %>
-      <div class="season-feature-grid">
-        <img src="<%= srcs.src %>"<% if (srcs.srcset) { %> srcset="<%= srcs.srcset %>" sizes="(min-width: 900px) 540px, 100vw"<% } %> width="<%= photo.width %>" height="<%= photo.height %>" loading="lazy" alt="<%= photo.alt %>">
-        <div>
+        <img src="<%= srcs.src %>"<% if (srcs.srcset) { %> srcset="<%= srcs.srcset %>" sizes="160px"<% } %> width="<%= photo.width %>" height="<%= photo.height %>" loading="lazy" alt="<%= photo.alt %>">
 <% } %>
+        <div>
           <h2 id="<%= promo.key %>-heading"><%= promo.homeHeading %></h2>
 <% if (prices.length) { %>
           <ul class="season-prices">
@@ -22,15 +22,10 @@
 <% }) %>
           </ul>
 <% } %>
-<% lines.forEach(function (l) { %>
-          <p><%= it.fillTokens(l) %></p>
-<% }) %>
 <% if (promo.homeCtaLabel && promo.homeCtaHref) { %>
-          <a href="<%= promo.homeCtaHref %>" class="btn btn-primary"><%= promo.homeCtaLabel %></a>
+          <a href="<%= promo.homeCtaHref %>" class="season-link"><%= promo.homeCtaLabel %> &rarr;</a>
 <% } %>
-<% if (photo) { %>
         </div>
       </div>
-<% } %>
     </section>
 <% } %>

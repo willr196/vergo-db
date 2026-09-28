@@ -53,11 +53,33 @@
       <p class="lede">Vetted, briefed staff. <%~ it.t.HEADLINE_RATE %>, no booking fees.</p>
       <div class="btn-row">
         <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
-        <a href="/hire#rate" class="btn btn-secondary">See rates</a>
       </div>
       <p class="home-today">Need someone today? <a href="<%~ it.t.PHONE_TEL %>">Call <%~ it.t.PHONE %></a> or <a href="<%~ it.t.WHATSAPP_URL %>" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>.</p>
+      <p class="home-roles"><a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/weddings">Weddings</a> · <a href="/hire/production-catering">Film and TV</a> · <a href="/book-an-event">Full events</a></p>
     </section>
     </div>
+
+    <!-- The three ways in: work for us, hire staff, or have us run the event. -->
+    <nav class="section-tight shell path-banners" aria-label="Where to start">
+      <a class="path-banner" href="/work">
+        <span class="path-kicker">Work with us</span>
+        <h2 class="path-title">Apply for work</h2>
+        <p class="path-line">Waiting, bar and kitchen shifts at London events.</p>
+        <span class="path-go">Apply &rarr;</span>
+      </a>
+      <a class="path-banner path-banner--main" href="/hire">
+        <span class="path-kicker">Staffing</span>
+        <h2 class="path-title">Hire staff for your event</h2>
+        <p class="path-line">Waiting staff, bar staff, kitchen porters and hosts.</p>
+        <span class="path-go">Hire staff &rarr;</span>
+      </a>
+      <a class="path-banner" href="/book-an-event">
+        <span class="path-kicker">Full events</span>
+        <h2 class="path-title">Book an event</h2>
+        <p class="path-line">Food, bar and staff from one company.</p>
+        <span class="path-go">Book an event &rarr;</span>
+      </a>
+    </nav>
 
     <%~ it.blocks["trust-strip"]() %>
 
@@ -66,32 +88,4 @@
          31 October, then Christmas to 20 December. Nothing outside a season. -->
     <%~ it.blocks["season-feature"]() %>
 
-    <%~ it.blocks["guarantees"]() %>
-
-    <%~ it.blocks["rates"]({ "compact": "1", "id": "" }) %>
-
     <%~ it.blocks["testimonials"]({ "featured": "1" }) %>
-
-    <%~ it.blocks["recent-work"]() %>
-
-    <section class="section shell" aria-labelledby="roles-heading">
-      <h2 id="roles-heading" class="section-label">Roles</h2>
-      <ul class="link-tiles">
-        <li><a href="/hire/waiting-staff">Waiting staff</a></li>
-        <li><a href="/hire/bar-staff">Bar staff</a></li>
-        <li><a href="/hire/kitchen-porters">Kitchen porters</a></li>
-        <li><a href="/hire/weddings">Weddings</a></li>
-        <li><a href="/hire/production-catering">Film and TV catering</a></li>
-        <li><a href="/special-events/christmas">Christmas parties</a></li>
-      </ul>
-    </section>
-
-    <section class="section-tight shell" aria-labelledby="beyond-heading">
-      <h2 id="beyond-heading" class="section-label">Beyond staff</h2>
-      <p class="beyond-line"><a href="/book-an-event">We can run the whole event: food, bar and staff from one company &rarr;</a></p>
-      <p class="beyond-line"><a href="/special-events">Themed and seasonal events &rarr;</a></p>
-    </section>
-
-    <%~ it.blocks["cta"]({ "heading": "Got a date in the diary?" }) %>
-
-    <p class="cta-worker shell">Looking for work? <a href="/work">Apply to join the team &rarr;</a></p>

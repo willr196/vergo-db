@@ -23,8 +23,8 @@ export const SITE = {
   instagramHandle: '@vergo.ltd',
   /** The Google Business Profile review link. Empty hides every Google link. */
   googleReviewsUrl: 'https://share.google/ej5Ce91xOfUCqbyfp',
-  slogan: 'Whatever the job, we get it done. Wherever you go, VERGO.',
-  themeColor: '#FAF8F4',
+  slogan: 'Wherever you go, VERGO.',
+  themeColor: '#1C1F22',
   canonicalRoles: [
     'Waiting staff',
     'Bar staff',

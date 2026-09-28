@@ -84,7 +84,7 @@ body.se-theme-halloween {
   background-attachment: fixed;
 }
 
-/* Christmas and the special events hub run on the site's light theme: the
+/* Christmas and the special events hub run on the site's main (charcoal) theme: the
  * tokens come from :root in vergo-site.css. The "gold frame" role (eyebrows,
  * index numerals, rules) is taken by the green accent. Only Halloween keeps a
  * dark seasonal palette.
@@ -97,7 +97,7 @@ body.se-theme-light {
 }
 body.se-theme-light .se-hero {
   --se-hero-img: none;
-  background: radial-gradient(110% 90% at 20% 0%, var(--accent-soft), rgba(230, 240, 235, 0) 70%);
+  background: radial-gradient(110% 90% at 20% 0%, rgba(var(--accent-rgb), 0.14), rgba(var(--accent-rgb), 0) 70%);
 }
 body.se-theme-light .se-form-section {
   background: var(--surface);
