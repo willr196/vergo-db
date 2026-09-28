@@ -128,10 +128,13 @@ export interface Job {
   // Basic info
   title: string;
   role: JobRole;
+  /** The role as the office named it ("Bar staff"); role is the coarse code for filters. */
+  roleName?: string;
   description: string;
   requirements?: string;
 
-  // Location
+  // Location. The backend has one location and an optional venue; venue falls
+  // back to the location, and address and city both hold the location.
   venue: string;
   address: string;
   city: string;

@@ -154,6 +154,7 @@ export function normalizeJob(job: BackendJob): Job {
       : undefined,
     title: job.title,
     role: normalizeRole(job.role?.name ?? null),
+    roleName: job.role?.name ?? undefined,
     description: job.description,
     requirements: job.requirements ?? undefined,
     venue: job.venue || job.location,

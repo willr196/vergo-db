@@ -20,7 +20,7 @@ import { colors, spacing, borderRadius, typography } from '../../theme';
 import { EmptyState, ErrorState, LoadingScreen } from '../../components';
 import { useAuthStore, selectClient } from '../../store';
 import { marketplaceApi } from '../../api';
-import { formatDate, formatRelativeDate, formatTime } from '../../utils';
+import { formatDate, formatRelativeDate, formatTime, formatPounds } from '../../utils';
 import type {
   Booking,
   BookingStatus,
@@ -221,7 +221,7 @@ export function DashboardScreen({ navigation }: Props) {
                         {booking.staff.name} • {formatDate(booking.eventDate)}
                       </Text>
                       <Text style={styles.recentMeta}>
-                        {formatTime(booking.shiftStart)} - {formatTime(booking.shiftEnd)} • £{booking.hourlyRate}/hr
+                        {formatTime(booking.shiftStart)} - {formatTime(booking.shiftEnd)} • {formatPounds(booking.hourlyRate)}/hr
                       </Text>
                     </View>
                     <Text style={styles.recentTime}>{formatRelativeDate(booking.createdAt)}</Text>

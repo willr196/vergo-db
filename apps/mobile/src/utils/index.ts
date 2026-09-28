@@ -56,3 +56,5 @@ export {
   markBiometricAsked,
   authenticateWithBiometrics,
 } from './biometrics';
+
+export { formatPounds } from './money';

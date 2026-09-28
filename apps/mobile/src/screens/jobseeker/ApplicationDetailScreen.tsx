@@ -18,7 +18,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Button, StatusBadge, LoadingScreen, ErrorState } from '../../components';
 import { useApplicationsStore, useUIStore } from '../../store';
-import { formatDate, formatTime, formatRelativeDate } from '../../utils';
+import { formatDate, formatTime, formatRelativeDate, formatPounds } from '../../utils';
 import { isApplicationStatus, normalizeApplicationStatus } from '../../api/normalizers';
 import type { RootStackParamList, ApplicationStatus, JobRole } from '../../types';
 
@@ -216,7 +216,7 @@ export function ApplicationDetailScreen({ navigation, route }: Props) {
             <TouchableOpacity style={styles.jobCard} onPress={handleViewJob}>
               <View style={styles.jobHeader}>
                 <View style={styles.roleBadge}>
-                  <Text style={styles.roleText}>{ROLE_LABELS[job.role]}</Text>
+                  <Text style={styles.roleText}>{job.roleName || ROLE_LABELS[job.role]}</Text>
                 </View>
               </View>
               
@@ -234,11 +234,11 @@ export function ApplicationDetailScreen({ navigation, route }: Props) {
               </View>
               
               <View style={styles.jobMeta}>
-                <Text style={styles.metaText}>📍 {job.venue}, {job.city}</Text>
+                <Text style={styles.metaText}>📍 {job.venue && job.venue !== job.city ? `${job.venue}, ${job.city}` : job.city}</Text>
               </View>
               
               <View style={styles.jobFooter}>
-                <Text style={styles.payRate}>£{job.hourlyRate}/hr</Text>
+                <Text style={styles.payRate}>{formatPounds(job.hourlyRate)}/hr</Text>
                 <Text style={styles.viewLink}>View Job →</Text>
               </View>
             </TouchableOpacity>

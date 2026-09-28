@@ -19,7 +19,7 @@ import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Button, LoadingScreen, ErrorState } from '../../components';
 import { ENABLE_SKILL_MATCH_EXPERIMENT } from '../../constants';
 import { useJobsStore, useApplicationsStore, useAuthStore, selectJobSeeker } from '../../store';
-import { calculateSkillMatch, formatDate, formatTime } from '../../utils';
+import { calculateSkillMatch, formatDate, formatTime, formatPounds } from '../../utils';
 import type { RootStackParamList, JobRole } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'JobDetail'>;
@@ -196,7 +196,7 @@ export function JobDetailScreen({ navigation, route }: Props) {
         {/* Badges */}
         <View style={styles.badges}>
           <View style={styles.roleBadge}>
-            <Text style={styles.roleText}>{ROLE_LABELS[job.role]}</Text>
+            <Text style={styles.roleText}>{job.roleName || ROLE_LABELS[job.role]}</Text>
           </View>
           {job.dbsRequired && (
             <View style={styles.dbsBadge}>
@@ -229,12 +229,12 @@ export function JobDetailScreen({ navigation, route }: Props) {
           
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Pay Rate</Text>
-            <Text style={[styles.infoValue, styles.payRate]}>£{job.hourlyRate}/hr</Text>
+            <Text style={[styles.infoValue, styles.payRate]}>{formatPounds(job.hourlyRate)}/hr</Text>
           </View>
           
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Est. Earnings</Text>
-            <Text style={[styles.infoValue, styles.payRate]}>£{job.estimatedPay}</Text>
+            <Text style={[styles.infoValue, styles.payRate]}>{formatPounds(job.estimatedPay)}</Text>
           </View>
         </View>
 
@@ -312,9 +312,11 @@ export function JobDetailScreen({ navigation, route }: Props) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>📍 Location</Text>
           <Text style={styles.sectionText}>{job.venue}</Text>
-          <Text style={styles.addressText}>
-            {job.address}, {job.city} {job.postcode}
-          </Text>
+          {job.venue !== job.city ? (
+            <Text style={styles.addressText}>
+              {[job.city, job.postcode].filter(Boolean).join(' ')}
+            </Text>
+          ) : null}
         </View>
         
         {/* Description */}

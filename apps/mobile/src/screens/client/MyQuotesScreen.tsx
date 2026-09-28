@@ -1,5 +1,5 @@
 /**
- * Client My Quotes Screen
+ * Client requests screen
  * List of quote requests submitted by the client
  */
 
@@ -182,7 +182,7 @@ export function MyQuotesScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>My Quotes</Text>
+        <Text style={styles.title}>Your requests</Text>
         <TouchableOpacity
           style={styles.newQuoteButton}
           onPress={() => navigation.navigate('CreateQuote')}
@@ -239,9 +239,9 @@ export function MyQuotesScreen({ navigation }: Props) {
         ListEmptyComponent={
           <EmptyState
             icon="📋"
-            title="No Quotes Yet"
-            message="Submit a quote request to get staffing for your next occasion."
-            actionTitle="Request a Quote"
+            title="No requests yet"
+            message="Tell us the date, times and roles and we come back to you with names."
+            actionTitle="Request staff"
             onAction={() => navigation.navigate('CreateQuote')}
           />
         }

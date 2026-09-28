@@ -20,6 +20,7 @@ import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Button } from '../../components';
 import { useApplicationsStore, useAuthStore, useUIStore, selectJobSeeker } from '../../store';
 import type { RootStackParamList } from '../../types';
+import { formatPounds } from '../../utils';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ApplyToJob'>;
 
@@ -175,8 +176,8 @@ export function ApplyToJobScreen({ navigation, route }: Props) {
         <View style={styles.jobDetails}>
           <Text style={styles.jobDetailText}>📅 {formatDate(job.date)}</Text>
           <Text style={styles.jobDetailText}>🕐 {job.startTime} - {job.endTime}</Text>
-          <Text style={styles.jobDetailText}>💷 £{job.hourlyRate}/hr (£{job.estimatedPay} total)</Text>
-          <Text style={styles.jobDetailText}>📍 {job.venue}, {job.city}</Text>
+          <Text style={styles.jobDetailText}>💷 {formatPounds(job.hourlyRate)}/hr ({formatPounds(job.estimatedPay)} total)</Text>
+          <Text style={styles.jobDetailText}>📍 {job.venue && job.venue !== job.city ? `${job.venue}, ${job.city}` : job.city}</Text>
         </View>
       </View>
       

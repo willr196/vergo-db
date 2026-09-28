@@ -131,7 +131,7 @@ describe('MyQuotesScreen', () => {
       );
 
       await waitFor(() => {
-        expect(getByText('My Quotes')).toBeTruthy();
+        expect(getByText('Your requests')).toBeTruthy();
         expect(getByText('+ New')).toBeTruthy();
       });
     });
@@ -149,8 +149,8 @@ describe('MyQuotesScreen', () => {
       );
 
       await waitFor(() => {
-        expect(getByText('No Quotes Yet')).toBeTruthy();
-        expect(getByText('Request a Quote')).toBeTruthy();
+        expect(getByText('No requests yet')).toBeTruthy();
+        expect(getByText('Request staff')).toBeTruthy();
       });
     });
 
@@ -165,10 +165,10 @@ describe('MyQuotesScreen', () => {
       );
 
       await waitFor(() => {
-        expect(getByText('Request a Quote')).toBeTruthy();
+        expect(getByText('Request staff')).toBeTruthy();
       });
 
-      fireEvent.press(getByText('Request a Quote'));
+      fireEvent.press(getByText('Request staff'));
       expect(mockNavigation.navigate).toHaveBeenCalledWith('CreateQuote');
     });
   });

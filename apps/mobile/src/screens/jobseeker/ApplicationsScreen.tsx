@@ -20,7 +20,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Button, StatusBadge, LoadingScreen, EmptyState, ErrorState } from '../../components';
 import { useApplicationsStore, useNetworkStore } from '../../store';
-import { formatDate, formatRelativeDate } from '../../utils';
+import { formatDate, formatRelativeDate, formatPounds } from '../../utils';
 import type { RootStackParamList, JobSeekerTabParamList, Application, ApplicationStatus } from '../../types';
 
 type Props = CompositeScreenProps<
@@ -102,7 +102,7 @@ export function ApplicationsScreen({ navigation }: Props) {
         <View style={styles.cardFooter}>
           <View style={styles.jobMeta}>
             <Text style={styles.metaText}>📅 {formatDate(job.date)}</Text>
-            <Text style={styles.metaText}>💷 £{job.hourlyRate}/hr</Text>
+            <Text style={styles.metaText}>💷 {formatPounds(job.hourlyRate)}/hr</Text>
           </View>
           <Text style={styles.viewDetails}>View →</Text>
         </View>

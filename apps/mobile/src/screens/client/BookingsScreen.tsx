@@ -20,7 +20,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { EmptyState, ErrorState, LoadingScreen } from '../../components';
 import { marketplaceApi } from '../../api';
-import { formatDate, formatRelativeDate, formatTime } from '../../utils';
+import { formatDate, formatRelativeDate, formatTime, formatPounds } from '../../utils';
 import type { Booking, BookingStatus, ClientTabParamList, RootStackParamList } from '../../types';
 
 type Props = CompositeScreenProps<
@@ -141,7 +141,7 @@ export function BookingsScreen({ navigation }: Props) {
 
           <View style={styles.cardFooter}>
             <View>
-              <Text style={styles.rateText}>£{item.hourlyRate}/hr</Text>
+              <Text style={styles.rateText}>{formatPounds(item.hourlyRate)}/hr</Text>
               <Text style={styles.totalText}>
                 {item.totalEstimated != null ? `Est. £${item.totalEstimated.toFixed(2)}` : 'Estimate pending'}
               </Text>

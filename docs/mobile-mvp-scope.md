@@ -67,8 +67,11 @@ renders from, with Admin > Site content applied.
 - Cancelling in the app, if wanted later, has to notify the office and the
   worker and apply the fee.
 
-Verified 28 September 2026: mobile typecheck, lint (no errors) and 126 unit
+Verified 28 September 2026: mobile typecheck, lint (no errors) and 128 unit
 tests pass; the API's 181 unit and 28 integration tests pass, including a
 worker taking a shift from offer to recorded hours and the client quote,
 booking, cancel and info routes. One app quote was sent for real and both
-emails were accepted by Resend. Not yet run on a real phone.
+emails were accepted by Resend. Both journeys were then clicked through in the
+real app (a browser build, driven headless) against a local API: worker sign-in
+to check-out, client sign-in to request, booking with hours, and profile. Not
+yet run on a real phone.

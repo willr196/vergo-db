@@ -147,7 +147,7 @@ export function ShiftsScreen({ navigation }: Props) {
               <TouchableOpacity style={styles.retryMore} onPress={loadMore}>
                 <Text style={styles.retryMoreText}>Could not load more shifts. Tap to retry.</Text>
               </TouchableOpacity>
-            ) : !hasMore && shifts.length > 0 ? <Text style={styles.endOfList}>You’re all caught up</Text> : null
+            ) : !hasMore && shifts.length > 0 ? <Text style={styles.endOfList}>No more shifts</Text> : null
         }
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}

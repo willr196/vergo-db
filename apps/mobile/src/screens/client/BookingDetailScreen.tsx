@@ -18,7 +18,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Button, ErrorState, LoadingScreen } from '../../components';
 import { marketplaceApi } from '../../api';
-import { formatDate, formatTime } from '../../utils';
+import { formatDate, formatTime, formatPounds } from '../../utils';
 import type { BookingDetail, BookingStatus, RootStackParamList } from '../../types';
 import { useClientInfo } from './useClientInfo';
 
@@ -157,7 +157,7 @@ export function BookingDetailScreen({ navigation, route }: Props) {
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Pricing</Text>
-          <Text style={styles.primaryText}>£{booking.hourlyRate}/hr</Text>
+          <Text style={styles.primaryText}>{formatPounds(booking.hourlyRate)}/hr</Text>
           <Text style={styles.secondaryText}>
             Estimated total: {booking.totalEstimated != null ? `£${booking.totalEstimated.toFixed(2)}` : '—'}
           </Text>

@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { colors, spacing, borderRadius, typography, shadows } from '../theme';
 import type { Job, JobRole } from '../types';
+import { formatPounds } from '../utils/money';
 
 interface JobCardProps {
   job: Job;
@@ -87,11 +88,11 @@ export const JobCard = memo(function JobCard({
         <View style={styles.compactContent}>
           <Text style={styles.compactTitle} numberOfLines={1}>{job.title}</Text>
           <Text style={styles.compactMeta}>
-            {formattedDate} · £{job.hourlyRate}/hr
+            {formattedDate} · {formatPounds(job.hourlyRate)}/hr
           </Text>
         </View>
         <View style={styles.compactBadge}>
-          <Text style={styles.compactBadgeText}>{ROLE_LABELS[job.role]}</Text>
+          <Text style={styles.compactBadgeText}>{job.roleName || ROLE_LABELS[job.role]}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -107,7 +108,7 @@ export const JobCard = memo(function JobCard({
       <View style={styles.header}>
         <View style={styles.headerBadges}>
           <View style={styles.roleBadge}>
-            <Text style={styles.roleText}>{ROLE_LABELS[job.role]}</Text>
+            <Text style={styles.roleText}>{job.roleName || ROLE_LABELS[job.role]}</Text>
           </View>
           {job.dbsRequired && (
             <View style={styles.dbsBadge}>
@@ -143,7 +144,7 @@ export const JobCard = memo(function JobCard({
         <View style={styles.detailRow}>
           <Text style={styles.detailIcon}>📍</Text>
           <Text style={styles.detailText} numberOfLines={1}>
-            {job.venue}, {job.city}
+            {job.venue && job.venue !== job.city ? `${job.venue}, ${job.city}` : job.city}
           </Text>
         </View>
         
@@ -162,12 +163,12 @@ export const JobCard = memo(function JobCard({
       <View style={styles.footer}>
         <View>
           <Text style={styles.payLabel}>Pay</Text>
-          <Text style={styles.payAmount}>£{job.hourlyRate}/hr</Text>
+          <Text style={styles.payAmount}>{formatPounds(job.hourlyRate)}/hr</Text>
         </View>
         
         <View>
           <Text style={styles.payLabel}>Est. Total</Text>
-          <Text style={styles.payAmount}>£{job.estimatedPay}</Text>
+          <Text style={styles.payAmount}>{formatPounds(job.estimatedPay)}</Text>
         </View>
         
         <View style={styles.spotsContainer}>
