@@ -117,6 +117,8 @@ export const env = {
   resendFromEmail: process.env.RESEND_FROM_EMAIL ?? 'noreply@vergoltd.com',
   resendToEmail: process.env.RESEND_TO_EMAIL ?? 'wrobb@vergoltd.com',
   resendToEmailConfigured: Boolean(process.env.RESEND_TO_EMAIL),
+  /** A second inbox for lead alerts, so one blocked mailbox never hides a lead. Empty turns it off. */
+  resendBackupToEmail: process.env.RESEND_BACKUP_TO_EMAIL ?? 'vergo6633@gmail.com',
 
   // Email Queue (Phase 2)
   redisUrl: process.env.REDIS_URL,

@@ -512,7 +512,7 @@
         <div class="se-form-head">
           <p class="section-label">Enquiry</p>
           <h2 id="build-heading">Build your team</h2>
-          <p>Nothing here is binding.</p>
+          <p>Nothing here is binding, and every question is optional. Tap a choice again to clear it.</p>
         </div>
 
         <form id="halloweenForm" novalidate data-se-brief data-event-type="Halloween (Special Events)" data-brief-label="Halloween / special events brief">
@@ -614,7 +614,7 @@
 
           <fieldset class="se-fieldset">
             <legend>Your event</legend>
-            <p class="form-hint">Leave anything blank.</p>
+            <p class="form-hint">Leave anything blank. We only need an email or phone number to reply.</p>
 
             <div class="form-row form-row-2">
               <div class="form-field">
@@ -622,7 +622,7 @@
                 <input type="text" id="hwName" name="name" autocomplete="name">
               </div>
               <div class="form-field">
-                <label for="hwCompany">Company <span class="label-note">optional</span></label>
+                <label for="hwCompany">Company</label>
                 <input type="text" id="hwCompany" name="company" autocomplete="organization">
               </div>
             </div>
@@ -661,7 +661,7 @@
             </div>
 
             <div class="form-field">
-              <label for="hwMessage">The event <span class="label-note">optional</span></label>
+              <label for="hwMessage">The event</label>
               <textarea id="hwMessage" name="message" maxlength="2000" placeholder="Venue, idea, anything you are unsure about."></textarea>
             </div>
           </fieldset>

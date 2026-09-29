@@ -19,7 +19,15 @@ function getResendClient(): Resend | null {
 }
 
 export const FROM_EMAIL = env.resendFromEmail || 'noreply@vergoltd.com';
-export const TO_EMAIL = env.resendToEmail || 'wrobb@vergoltd.com';
+/**
+ * Where lead and application alerts go: the main inbox plus the backup. Each
+ * one gets its own copy (see sendEmail), so Resend suppressing one address
+ * doesn't stop the other. On 24 Sept 2026 that is how three days of alerts
+ * to wrobb@vergoltd.com went missing.
+ */
+export const TO_EMAIL: string[] = [
+  ...new Set([env.resendToEmail || 'wrobb@vergoltd.com', env.resendBackupToEmail].filter(Boolean)),
+];
 
 interface SendOptions extends SendEmailOptions {
   from?: string;
@@ -63,6 +71,17 @@ async function storeEmailRecord(
  * This is the low-level sender - use the high-level functions in index.ts
  */
 export async function sendEmail(options: SendOptions): Promise<EmailResult> {
+  // One copy per recipient, so a suppressed or bouncing address can't take the
+  // others down with it. Succeeds if any copy went.
+  if (Array.isArray(options.to) && options.to.length > 1) {
+    const results = await Promise.all(options.to.map((to) => sendOne({ ...options, to })));
+    const sent = results.find((r) => r.success);
+    return sent || results[0];
+  }
+  return sendOne(options);
+}
+
+async function sendOne(options: SendOptions): Promise<EmailResult> {
   const {
     to,
     subject,

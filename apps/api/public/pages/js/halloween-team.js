@@ -36,6 +36,32 @@
     var statusBox = form.querySelector('.form-status');
     var submitBtn = form.querySelector('button[type="submit"]');
 
+    // Every pick-one group is optional, so a second tap on the chosen option
+    // clears it. What was checked is noted as the tap starts, before the
+    // browser selects the new option. Space on the chosen option clears it too.
+    var checkedBefore = [];
+    function clearRadio(radio) {
+      radio.checked = false;
+      radio.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    form.addEventListener('pointerdown', function () {
+      checkedBefore = Array.prototype.slice.call(form.querySelectorAll('input[type="radio"]:checked'));
+    });
+    form.addEventListener('keydown', function (event) {
+      checkedBefore = [];
+      var radio = event.target;
+      if (event.key === ' ' && radio.matches && radio.matches('input[type="radio"]') && radio.checked) {
+        event.preventDefault();
+        clearRadio(radio);
+      }
+    });
+    form.addEventListener('click', function (event) {
+      var radio = event.target;
+      if (!radio.matches || !radio.matches('input[type="radio"]')) return;
+      if (checkedBefore.indexOf(radio) !== -1) clearRadio(radio);
+      checkedBefore = [];
+    });
+
     function clearErrors() {
       form.querySelectorAll('.field-invalid').forEach(function (node) {
         node.classList.remove('field-invalid');
