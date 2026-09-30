@@ -160,7 +160,7 @@ body.se-theme-christmas .se-hero-inner { padding-bottom: 56px; }
 /* Gold owns the eyebrow and the section labels — the two bits of type that
    appear on every section and say "VERGO" before the heading does. */
 .se-page .eyebrow { color: var(--se-gold); }
-.se-page .section-label { color: var(--se-gold); opacity: 0.72; }
+.se-page .section-label { color: var(--se-gold); opacity: 0.8; }
 
 /* The site's secondary button picks up gold on hover, so the hero shows both
    colours side by side without either one shouting. */

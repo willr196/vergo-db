@@ -83,7 +83,7 @@
       'gap:16px;align-items:center;flex-wrap:wrap;justify-content:space-between}',
       '.vergo-consent-text{margin:0;font-size:0.9rem;line-height:1.5;',
       'color:var(--text-secondary,#cfc9bd);flex:1 1 320px;min-width:0}',
-      '.vergo-consent-text a{color:var(--accent,#4fc46f)}',
+      '.vergo-consent-text a{color:var(--accent,#4fc46f);text-decoration:underline;text-underline-offset:3px}',
       '.vergo-consent-actions{display:flex;gap:10px;flex-wrap:wrap}',
       '.vergo-consent-btn{font:inherit;font-size:0.875rem;font-weight:600;cursor:pointer;',
       'padding:10px 18px;border-radius:999px;border:1px solid transparent;white-space:nowrap}',

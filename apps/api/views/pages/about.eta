@@ -48,7 +48,7 @@
           <p>VERGO does it properly: everyone interviewed, every booking briefed, one person accountable.</p>
         </div>
         <figure class="about-founder-photo">
-          <img src="/images/about/founder.webp" width="1000" height="1250" alt="<%~ it.t.FOUNDER_NAME %>, founder of VERGO, by the river in London." loading="lazy" decoding="async">
+          <img src="/images/about/founder.webp" width="1000" height="1250" alt="<%~ it.t.FOUNDER_NAME %>, founder of VERGO, by the river in London." fetchpriority="high" decoding="async">
           <figcaption><%~ it.t.FOUNDER_NAME %>, founder</figcaption>
         </figure>
       </div>

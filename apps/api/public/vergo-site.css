@@ -112,6 +112,10 @@ img { max-width: 100%; display: block; }
 
 a { color: var(--accent); text-decoration: none; }
 a:hover { color: var(--accent-hover); }
+/* A link inside a sentence needs more than its colour to be seen as one. */
+main p a:not([class]),
+main .check-list li a:not([class]),
+main .checkbox-item label a:not([class]) { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -369,7 +373,17 @@ p:last-child { margin-bottom: 0; }
     font-size: 16px;
   }
   .nav-call, .nav-whatsapp { border: 1px solid var(--hairline-strong); font-family: var(--font-sans); }
+  /* As a flex item "Call " loses its trailing space; the gap puts it back. */
+  .nav-call { gap: 0.3em; }
   .nav-action-word { display: inline; }
+}
+
+/* With JavaScript on, the menu is folded from the first paint rather than
+   when vergo-site.js runs (it's deferred): the stacked links used to paint
+   open and then collapse, jumping every page up by the height of the nav. */
+@media (max-width: 980px) and (scripting: enabled) {
+  .site-header .menu-toggle { display: inline-flex; }
+  .site-header:not(.is-open) .site-nav { display: none; }
 }
 
 /* Focused pages (/hire/quote, /work/apply): logo, a way back, the phone. */
