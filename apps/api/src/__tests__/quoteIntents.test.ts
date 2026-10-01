@@ -277,3 +277,19 @@ test('a dress code longer than the field allows is rejected', async () => {
   const response = await post(buildApp(), { ...FULL_BOOKING, dressCode: 'x'.repeat(201) });
   assert.equal(response.statusCode, 400);
 });
+
+test('a booking can say which city it is in, and the city is optional', async () => {
+  const birmingham = await post(buildApp(), { ...FULL_BOOKING, city: 'Birmingham', location: 'B1 2JB' });
+  assert.equal(birmingham.statusCode, 201);
+
+  const london = await post(buildApp(), { ...FULL_BOOKING, city: 'London' });
+  assert.equal(london.statusCode, 201);
+
+  const enquiry = await post(buildApp(), { intent: 'ENQUIRY', email: 'sam@example.com', city: 'Birmingham' });
+  assert.equal(enquiry.statusCode, 201);
+});
+
+test('a city we do not cover is dropped rather than failing the booking', async () => {
+  const response = await post(buildApp(), { ...FULL_BOOKING, city: 'Manchester' });
+  assert.equal(response.statusCode, 201);
+});

@@ -49,7 +49,7 @@
       <p class="home-slogan"><%~ it.t.SLOGAN %></p>
       <p class="lede"><a href="/hire/waiting-staff">Waiting</a>, <a href="/hire/bar-staff">bar</a>, <a href="/hire/kitchen-porters">kitchen porters</a>, runners, hosts. Same staff standards, same rates as London.</p>
       <div class="btn-row">
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        <a href="/hire/quote?city=Birmingham" class="btn btn-primary">Get a quote</a>
       </div>
     </section>
 
@@ -98,4 +98,4 @@
       </ul>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Got a date in Birmingham?" }) %>
+    <%~ it.blocks["cta"]({ "heading": "Got a date in Birmingham?", "href": "/hire/quote?city=Birmingham" }) %>

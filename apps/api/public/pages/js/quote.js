@@ -14,6 +14,14 @@
   var form = document.getElementById('quoteForm');
   if (!form) return;
 
+  // A link from a city page (/hire/quote?city=Birmingham) picks the city for them.
+  var cityParam = new URLSearchParams(window.location.search).get('city');
+  if (cityParam && !form.elements.city.value) {
+    Array.prototype.forEach.call(form.elements.city.options, function (option) {
+      if (option.value && option.value.toLowerCase() === cityParam.toLowerCase()) form.elements.city.value = option.value;
+    });
+  }
+
   var statusBox = document.getElementById('quoteStatus');
   var bookBtn = document.getElementById('quoteBook');
   var askBtn = document.getElementById('quoteAsk');
@@ -40,6 +48,7 @@
   var BOOKING_FIELDS = [
     { name: 'eventDate', label: 'the event date' },
     { name: 'eventType', label: 'the event type' },
+    { name: 'city', label: 'the city' },
     { name: 'venuePostcode', label: 'the venue postcode' },
     { name: 'name', label: 'your name' },
     { name: 'email', label: 'your email address' },
@@ -438,6 +447,7 @@
       company: form.elements.company.value.trim() || undefined,
       eventType: form.elements.eventType.value || undefined,
       eventDate: form.elements.eventDate.value || undefined,
+      city: form.elements.city.value || undefined,
       location: form.elements.venuePostcode.value.trim() || undefined,
       shiftStart: form.elements.shiftStart.value || undefined,
       shiftEnd: form.elements.shiftEnd.value || undefined,
@@ -486,10 +496,14 @@
     button.textContent = 'Sending…';
     statusBox.hidden = true;
 
+    var payload = buildPayload(intent);
+    // The same-day names promise is London's for now; Birmingham has no local team yet.
+    var promise = payload.city === 'Birmingham' ? '' : ((window.VERGO_CONFIG && window.VERGO_CONFIG.terms.confirmationPromise) || '');
+
     fetch((window.VERGO_CONFIG && window.VERGO_CONFIG.forms.quoteEndpoint) || '/api/v1/quotes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(buildPayload(intent))
+      body: JSON.stringify(payload)
     })
       .then(function (res) {
         if (!res.ok) throw new Error('request-failed');
@@ -502,7 +516,7 @@
         refresh();
         showStatus(
           intent === 'BOOKING'
-            ? 'Booking request sent. Nothing is confirmed until we come back with names. ' + ((window.VERGO_CONFIG && window.VERGO_CONFIG.terms.confirmationPromise) || '')
+            ? 'Booking request sent. Nothing is confirmed until we come back with names. ' + promise
             : 'Message sent. Nothing has been booked. We will reply as soon as we can.',
           'success'
         );

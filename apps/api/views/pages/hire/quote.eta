@@ -1,7 +1,7 @@
 <%/* /hire/quote: moved from public/hire/quote.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
 <% layout('/layouts/base', {
   meta: {
-    "title": "Price Up Event Staff in London | VERGO Staffing",
+    "title": "Price Up Event Staff | VERGO Staffing",
     "description": `Work out the cost yourself, ${it.t.HEADLINE_RATE_LOWER} per person, four-hour minimum. Then book the staff, or just send us a message.`,
     "ogImage": "/images/og/hire.jpg",
     "robots": "noindex",
@@ -66,9 +66,19 @@
           <p class="shift-summary" id="shiftSummary" aria-live="polite" hidden></p>
         </div>
 
-        <div class="form-field">
-          <label for="venuePostcode">Venue postcode <span class="label-note">needed to book</span></label>
-          <input type="text" id="venuePostcode" name="venuePostcode" autocomplete="postal-code" placeholder="e.g. E1 6AN">
+        <div class="form-row form-row-2">
+          <div class="form-field">
+            <label for="eventCity">City <span class="label-note">needed to book</span></label>
+            <select id="eventCity" name="city">
+              <option value="">Select one</option>
+              <option value="London">London</option>
+              <option value="Birmingham">Birmingham</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="venuePostcode">Venue postcode <span class="label-note">needed to book</span></label>
+            <input type="text" id="venuePostcode" name="venuePostcode" autocomplete="postal-code" placeholder="e.g. E1 6AN">
+          </div>
         </div>
 
         <%~ it.blocks["service-level"]() %>

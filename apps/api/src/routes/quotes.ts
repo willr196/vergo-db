@@ -48,6 +48,9 @@ const baseQuoteShape = {
   eventDate: z.string().optional(), // ISO date string
   duration: z.number().int().min(1).max(30).optional(), // Days
   location: z.string().max(200).optional(),
+  // Which of the cities we cover the event is in. The quote form asks; the
+  // other forms that post here don't, so it stays optional.
+  city: z.enum(["London", "Birmingham"]).optional(),
   venue: z.string().max(200).optional(),
   shiftStart: z.string().max(10).optional(),
   shiftEnd: z.string().max(10).optional(),
@@ -272,6 +275,7 @@ function normaliseQuotePayload(body: unknown) {
           ? raw.event_location
           : undefined,
     venue: typeof raw.venue === "string" ? raw.venue : undefined,
+    city: raw.city === "London" || raw.city === "Birmingham" ? raw.city : undefined,
     shiftStart,
     shiftEnd:
       typeof raw.shiftEnd === "string"
@@ -338,6 +342,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       eventDate: data.eventDate || "Flexible",
       duration: data.duration ? `${data.duration} day(s)` : "Not specified",
       location: data.location || "TBC",
+      city: data.city || "Not specified",
       venue: data.venue || "Not provided",
       shiftStart: data.shiftStart || "Not provided",
       shiftEnd: data.shiftEnd
@@ -374,11 +379,11 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       try {
         const sent = await sendQuoteNotificationEmail({
           subject: isBooking
-            ? `BOOKING REQUEST: ${data.eventType} — ${data.staffNeeded} staff${data.eventDate ? ` on ${data.eventDate}` : ""}`
+            ? `BOOKING REQUEST${data.city ? ` (${data.city})` : ""}: ${data.eventType} — ${data.staffNeeded} staff${data.eventDate ? ` on ${data.eventDate}` : ""}`
             // The occasion is appended when the form supplied one, so a Halloween
             // brief is identifiable in the inbox without opening it. Enquiries from
             // the plain quote page carry no event type and read as before.
-            : `Message from ${data.name || data.email || "the quote page"}${data.eventType ? ` — ${data.eventType}` : ""}`,
+            : `Message from ${data.name || data.email || "the quote page"}${data.eventType ? ` — ${data.eventType}` : ""}${data.city ? ` (${data.city})` : ""}`,
           html: `
             <h2 style="margin-bottom: 4px;">${isBooking ? "Booking request" : "Message from the quote page"}</h2>
             <p style="margin-top: 0; padding: 10px 14px; border-radius: 6px; font-weight: bold; background: ${isBooking ? "#e6f6ea" : "#f2f0ea"}; color: #1a1410;">
@@ -398,6 +403,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Venue</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.venue)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Shift</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(`${quoteDetails.shiftStart} - ${quoteDetails.shiftEnd}`)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Duration</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.duration)}</td></tr>
+              <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">City</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.city)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Location</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.location)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Guest Count</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.guestCount)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Staff Needed</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.staffNeededLabel)}</td></tr>
@@ -445,7 +451,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
                 <h2 style="color: #2c3e2f; margin-top: 0;">${isBooking ? "We've got your booking request" : "We've got your message"}</h2>
                 <p>Hi ${safe(data.name || 'there')},</p>
                 ${isBooking
-                  ? `<p>You've asked us to book staff${data.eventType ? ` for your <strong>${safe(data.eventType)}</strong>` : ''}. Nothing is confirmed until we come back to you with names. ${safe(SITE_TERMS.confirmationPromise)}</p>`
+                  ? `<p>You've asked us to book staff${data.eventType ? ` for your <strong>${safe(data.eventType)}</strong>` : ''}. Nothing is confirmed until we come back to you with names.${data.city === "Birmingham" ? "" : ` ${safe(SITE_TERMS.confirmationPromise)}`}</p>`
                   : `<p>Thanks for getting in touch. This was sent as a question rather than a booking, so nothing has been booked or charged. We'll reply as soon as we can, usually the same day.</p>`}
                 
                 ${isBooking ? `<div style="background: #fff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #D4AF37;">
@@ -453,6 +459,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
                   <p><strong>Occasion Type:</strong> ${safe(data.eventType)}</p>
                   <p><strong>Staff Needed:</strong> ${safe(quoteDetails.staffByRole || data.staffNeeded)}</p>
                   ${data.eventDate ? `<p><strong>Date:</strong> ${safe(data.eventDate)}</p>` : ''}
+                  ${data.city ? `<p><strong>City:</strong> ${safe(data.city)}</p>` : ''}
                   ${data.location ? `<p><strong>Location:</strong> ${safe(data.location)}</p>` : ''}
                   ${data.dressCode ? `<p><strong>Dress code:</strong> ${safe(data.dressCode)}</p>` : ''}
                   ${data.shiftStart && data.shiftEnd ? `<p><strong>Times:</strong> ${safe(data.shiftStart)} - ${safe(data.shiftEnd)}${data.shiftEndsNextDay ? ' (next day)' : ''}</p>` : ''}
