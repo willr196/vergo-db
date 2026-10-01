@@ -254,6 +254,7 @@ test('the header never carries a permanent link to /special-events', () => {
 const BUDGETS: Record<string, number> = {
   '/': 220,
   '/hire': 225,
+  '/birmingham': 225,
   '/hire/waiting-staff': 160,
   '/hire/bar-staff': 160,
   '/hire/kitchen-porters': 160,
@@ -367,7 +368,7 @@ test('Premium is shown only while it is enabled', () => {
 });
 
 test('rate, guarantee and employment wording matches config exactly', () => {
-  const ratePages = ['/hire', '/hire/waiting-staff', '/hire/bar-staff', '/hire/kitchen-porters', '/hire/weddings', '/hire/production-catering', '/special-events/christmas'];
+  const ratePages = ['/hire', '/birmingham', '/hire/waiting-staff', '/hire/bar-staff', '/hire/kitchen-porters', '/hire/weddings', '/hire/production-catering', '/special-events/christmas'];
   for (const url of ratePages) {
     const p = page(url);
     const blocks = all(p.root, (n) => n.attrs['data-block'] === 'rates');

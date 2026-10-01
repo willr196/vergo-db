@@ -2,7 +2,7 @@
 <% layout('/layouts/base', {
   meta: {
     "title": "About VERGO | VERGO Staffing",
-    "description": `London event staff, picked and briefed by the founder, ${it.t.FOUNDER_NAME}. Everyone interviewed, every booking briefed, one person accountable.`,
+    "description": `London and Birmingham event staff, picked and briefed by the founder, ${it.t.FOUNDER_NAME}. Everyone interviewed, every booking briefed, one person accountable.`,
     "ogImage": "/images/og/about.jpg",
     "canonical": "/about"
   },
@@ -12,7 +12,7 @@
       "@type": "AboutPage",
       "name": "About VERGO",
       "url": "https://vergoltd.com/about",
-      "description": "London event staff, picked and briefed by the founder.",
+      "description": "London and Birmingham event staff, picked and briefed by the founder.",
       "mainEntity": {
         "@type": "Organization",
         "@id": "https://vergoltd.com/#organization",
@@ -21,10 +21,10 @@
         "url": "https://vergoltd.com",
         "telephone": `${it.t.PHONE_E164}`,
         "email": `${it.t.EMAIL}`,
-        "areaServed": {
-          "@type": "City",
-          "name": "London"
-        },
+        "areaServed": [
+          { "@type": "City", "name": "London" },
+          { "@type": "City", "name": "Birmingham" }
+        ],
         "founder": {
           "@type": "Person",
           "name": `${it.t.FOUNDER_NAME}`,
@@ -37,7 +37,7 @@
     <section class="page-hero-plain shell">
       <span class="eyebrow">About</span>
       <h1>About VERGO</h1>
-      <p class="lede">London event staff, picked and briefed by the founder.</p>
+      <p class="lede">London and Birmingham event staff, picked and briefed by the founder.</p>
     </section>
 
     <section class="section shell" aria-labelledby="why-heading">

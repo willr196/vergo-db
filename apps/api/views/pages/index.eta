@@ -19,13 +19,13 @@
         "url": "https://vergoltd.com/images/vergo-mark.jpg"
       },
       "image": "https://vergoltd.com/images/og/home.jpg",
-      "description": "Event and hospitality staffing across London: waiting staff, bar staff, kitchen porters, runners, hosts and front of house.",
+      "description": "Event and hospitality staffing across London and Birmingham: waiting staff, bar staff, kitchen porters, runners, hosts and front of house.",
       "telephone": `${it.t.PHONE_E164}`,
       "email": `${it.t.EMAIL}`,
-      "areaServed": {
-        "@type": "City",
-        "name": "London"
-      },
+      "areaServed": [
+        { "@type": "City", "name": "London" },
+        { "@type": "City", "name": "Birmingham" }
+      ],
       "priceRange": "££",
       "sameAs": [
         `${it.t.INSTAGRAM_URL}`,
@@ -56,6 +56,7 @@
       </div>
       <p class="home-today">Need someone today? <a href="<%~ it.t.PHONE_TEL %>">Call <%~ it.t.PHONE %></a> or <a href="<%~ it.t.WHATSAPP_URL %>" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>.</p>
       <p class="home-roles"><a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/weddings">Weddings</a> · <a href="/hire/production-catering">Film and TV</a> · <a href="/book-an-event">Full events</a></p>
+      <p class="home-today">Now in Birmingham too: <a href="/birmingham">event staff in Birmingham</a>.</p>
     </section>
     </div>
 
@@ -64,7 +65,7 @@
       <a class="path-banner" href="/work">
         <span class="path-kicker">Work with us</span>
         <h2 class="path-title">Apply for work</h2>
-        <p class="path-line">Waiting, bar and kitchen shifts at London events.</p>
+        <p class="path-line">Waiting, bar and kitchen shifts in London and Birmingham.</p>
         <span class="path-go">Apply &rarr;</span>
       </a>
       <a class="path-banner path-banner--main" href="/hire">

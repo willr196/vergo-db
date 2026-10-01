@@ -28,6 +28,7 @@ interface SitemapPage {
 const PAGES: SitemapPage[] = [
   { path: '/', lastmod: '2026-09-26', changefreq: 'weekly', priority: '1.0', shows: ['testimonials', 'recentWork', 'photos', 'promos'] },
   { path: '/hire', lastmod: '2026-09-26', changefreq: 'monthly', priority: '0.9', shows: ['testimonials', 'recentWork'] },
+  { path: '/birmingham', lastmod: '2026-10-01', changefreq: 'monthly', priority: '0.8' },
   { path: '/book-an-event', lastmod: '2026-09-26', changefreq: 'monthly', priority: '0.8' },
   { path: '/hire/waiting-staff', lastmod: '2026-09-26', changefreq: 'monthly', priority: '0.8', shows: ['faqs:hire/waiting-staff'] },
   { path: '/hire/bar-staff', lastmod: '2026-09-26', changefreq: 'monthly', priority: '0.8', shows: ['faqs:hire/bar-staff'] },

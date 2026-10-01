@@ -1,22 +1,22 @@
-<%/* /hire: moved from public/hire.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<%/* /birmingham: the location page. Same rates, roles and promises as London, from it.blocks and it.t. */%>
 <% layout('/layouts/base', {
   meta: {
-    "title": "Hire Event Staff in London | VERGO Staffing",
-    "description": `Waiting, bar and kitchen staff, runners and hosts across London. ${it.t.HEADLINE_RATE} per person, names the same day, a replacement within the hour.`,
+    "title": "Event Staff Hire in Birmingham | VERGO Staffing",
+    "description": `Waiting, bar and kitchen staff, runners and hosts across Birmingham. ${it.t.HEADLINE_RATE} per person, names the same day, a replacement within the hour.`,
     "ogImage": "/images/og/hire.jpg",
-    "canonical": "/hire"
+    "canonical": "/birmingham"
   },
   jsonLd: [
     {
       "@context": "https://schema.org",
       "@type": "Service",
-      "name": "Event and hospitality staffing",
+      "name": "Event and hospitality staffing in Birmingham",
       "serviceType": "Event and hospitality staffing",
-      "url": "https://vergoltd.com/hire",
-      "description": "Waiting staff, bar staff, kitchen porters, runners, hosts and front of house for events across London, with a replacement within the hour on a no-show.",
+      "url": "https://vergoltd.com/birmingham",
+      "description": "Waiting staff, bar staff, kitchen porters, runners, hosts and front of house for events across Birmingham, with a replacement within the hour on a no-show.",
       "areaServed": {
         "@type": "City",
-        "name": "London"
+        "name": "Birmingham"
       },
       "provider": {
         "@id": "https://vergoltd.com/#organization"
@@ -35,17 +35,18 @@
         {
           "@type": "ListItem",
           "position": 2,
-          "name": "Hire event staff",
-          "item": "https://vergoltd.com/hire"
+          "name": "Birmingham",
+          "item": "https://vergoltd.com/birmingham"
         }
       ]
     }
   ]
 }) %>
     <section class="page-hero-plain shell">
-      <h1>Event staff for hire in London</h1>
+      <span class="eyebrow">Birmingham</span>
+      <h1>Event staff in Birmingham</h1>
       <p class="home-slogan"><%~ it.t.SLOGAN %></p>
-      <p class="lede"><a href="/hire/waiting-staff">Waiting</a>, <a href="/hire/bar-staff">bar</a>, <a href="/hire/kitchen-porters">kitchen porters</a>, runners, hosts, in London and <a href="/birmingham">Birmingham</a>. Food and bar too: see <a href="/book-an-event">full events</a>.</p>
+      <p class="lede"><a href="/hire/waiting-staff">Waiting</a>, <a href="/hire/bar-staff">bar</a>, <a href="/hire/kitchen-porters">kitchen porters</a>, runners, hosts. Same staff standards, same rates as London.</p>
       <div class="btn-row">
         <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
       </div>
@@ -54,6 +55,11 @@
     <%~ it.blocks["guarantees"]() %>
 
     <%~ it.blocks["rates"]() %>
+
+    <section class="section shell" aria-labelledby="where-heading">
+      <h2 id="where-heading" class="section-label">Where we work</h2>
+      <p>City-centre venues, the NEC and ICC, Digbeth, the Jewellery Quarter and private venues across Birmingham. Put the venue postcode on your quote and we'll confirm names.</p>
+    </section>
 
     <section class="section shell" aria-labelledby="howitworks-heading">
       <h2 id="howitworks-heading" class="section-label">How it works</h2>
@@ -78,9 +84,10 @@
 
     <%~ it.blocks["working-with-us"]() %>
 
-    <%~ it.blocks["testimonials"]() %>
-
-    <%~ it.blocks["recent-work"]() %>
+    <section class="section shell" aria-labelledby="work-heading">
+      <h2 id="work-heading" class="section-label">Work in Birmingham</h2>
+      <p>Waiting, bar or kitchen experience and based in or near Birmingham? <a href="/work/apply">Apply for shifts</a>.</p>
+    </section>
 
     <section class="section shell" aria-labelledby="byoccasion-heading">
       <h2 id="byoccasion-heading" class="section-label">By occasion</h2>
@@ -92,4 +99,4 @@
       </ul>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Got a date?" }) %>
+    <%~ it.blocks["cta"]({ "heading": "Got a date in Birmingham?" }) %>
