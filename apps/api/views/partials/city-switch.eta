@@ -1,0 +1,5 @@
+<%/* London / Birmingham choice under a hero H1. Pass { current: "london" | "birmingham" }. */%>
+<nav class="city-switch" aria-label="Choose your city">
+  <a href="/"<%~ it.current === "london" ? ' aria-current="page"' : '' %>>London</a>
+  <a href="/birmingham"<%~ it.current === "birmingham" ? ' aria-current="page"' : '' %>>Birmingham</a>
+</nav>

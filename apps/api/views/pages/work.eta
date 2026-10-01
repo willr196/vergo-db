@@ -2,7 +2,7 @@
 <% layout('/layouts/base', {
   meta: {
     "title": "Event & Hospitality Work in London | VERGO Staffing",
-    "description": "Properly employed hospitality and event work across London and Birmingham. Payslips, holiday pay, pension.",
+    "description": "Properly employed hospitality and event work in London, and a team starting in Birmingham. Payslips, holiday pay, pension.",
     "ogImage": "/images/og/work.jpg",
     "canonical": "/work"
   },
@@ -29,8 +29,8 @@
 }) %>
     <section class="page-hero-plain shell">
       <span class="eyebrow">Work for us</span>
-      <h1>Event shifts in London and Birmingham</h1>
-      <p class="lede">Weddings, corporate functions, private parties and production catering.</p>
+      <h1>Event shifts in London</h1>
+      <p class="lede">Weddings, corporate functions, private parties and production catering. Now building a team in <a href="/birmingham">Birmingham</a> too.</p>
       <div class="btn-row">
         <a href="/work/apply" class="btn btn-primary">Apply now</a>
       </div>

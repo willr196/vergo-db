@@ -49,6 +49,7 @@
     <section class="home-hero home-hero--centred shell">
       <img class="home-logo" src="/images/vergo-mark-600.webp" srcset="/images/vergo-mark-400.webp 400w, /images/vergo-mark-600.webp 600w" sizes="(min-width: 1000px) 300px, (min-width: 600px) 30vw, 180px" width="600" height="600" alt="" fetchpriority="high">
       <h1>London event staff</h1>
+      <%~ include('/partials/city-switch', { current: "london" }) %>
       <p class="home-slogan"><%~ it.t.SLOGAN %></p>
       <p class="lede">Vetted, briefed staff. <%~ it.t.HEADLINE_RATE %>, no booking fees.</p>
       <div class="btn-row">
@@ -56,7 +57,6 @@
       </div>
       <p class="home-today">Need someone today? <a href="<%~ it.t.PHONE_TEL %>">Call <%~ it.t.PHONE %></a> or <a href="<%~ it.t.WHATSAPP_URL %>" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>.</p>
       <p class="home-roles"><a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/weddings">Weddings</a> · <a href="/hire/production-catering">Film and TV</a> · <a href="/book-an-event">Full events</a></p>
-      <p class="home-today">Now in Birmingham too: <a href="/birmingham">event staff in Birmingham</a>.</p>
     </section>
     </div>
 
@@ -65,7 +65,7 @@
       <a class="path-banner" href="/work">
         <span class="path-kicker">Work with us</span>
         <h2 class="path-title">Apply for work</h2>
-        <p class="path-line">Waiting, bar and kitchen shifts in London and Birmingham.</p>
+        <p class="path-line">Waiting, bar and kitchen shifts in London. Now hiring in Birmingham.</p>
         <span class="path-go">Apply &rarr;</span>
       </a>
       <a class="path-banner path-banner--main" href="/hire">
