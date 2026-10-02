@@ -4,6 +4,7 @@ import { Resend } from 'resend';
 import { env } from '../../env';
 import { emailSendingSuppressed } from './suppression';
 import { prisma } from '../../prisma';
+import { SITE } from '../../site/content';
 import type { SendEmailOptions, EmailResult, EmailType } from './types';
 
 let resend: Resend | null = null;
@@ -26,7 +27,7 @@ export const FROM_EMAIL = env.resendFromEmail || 'noreply@vergoltd.com';
  * to wrobb@vergoltd.com went missing.
  */
 export const TO_EMAIL: string[] = [
-  ...new Set([env.resendToEmail || 'wrobb@vergoltd.com', env.resendBackupToEmail].filter(Boolean)),
+  ...new Set([env.resendToEmail || 'booking@vergoltd.com', env.resendBackupToEmail].filter(Boolean)),
 ];
 
 interface SendOptions extends SendEmailOptions {
@@ -86,7 +87,8 @@ async function sendOne(options: SendOptions): Promise<EmailResult> {
     to,
     subject,
     html,
-    replyTo,
+    // Replies to noreply@ would vanish; send them to the public inbox instead.
+    replyTo = SITE.publicEmail,
     tags = [],
     from = FROM_EMAIL,
     emailType,

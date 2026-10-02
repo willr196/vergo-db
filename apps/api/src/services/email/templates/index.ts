@@ -1,6 +1,7 @@
 // Email template builders for each email type
 
 import { env } from '../../../env';
+import { SITE } from '../../../site/content';
 import type { EmailTemplateData } from '../types';
 import {
   safe,
@@ -143,7 +144,7 @@ export const clientRejectionEmail = (data: EmailTemplateData): string => {
       <p>Thank you for your interest in registering <strong>${safe(data.companyName)}</strong> with VERGO.</p>
       ${paragraph('After reviewing your application, we\'re unable to approve your business account at this time.')}
       ${data.reason ? infoBox(`<p style="margin: 0; color: #333;"><strong>Reason:</strong> ${safe(data.reason)}</p>`, 'info') : ''}
-      ${paragraph(`If you believe this was a mistake or would like more information, please contact ${emailLink('wrobb@vergoltd.com')} and we\'ll be happy to discuss further.`)}
+      ${paragraph(`If you believe this was a mistake or would like more information, please contact ${emailLink(SITE.publicEmail)} and we\'ll be happy to discuss further.`)}
       <p>Best regards,<br><strong>The VERGO Team</strong></p>
     `),
   });
@@ -211,7 +212,7 @@ export const jobRejectionEmail = (data: EmailTemplateData): string => {
       ${paragraph(`Thank you for submitting <strong>${safe(data.jobTitle)}</strong> to VERGO.`)}
       ${paragraph('We are unable to publish this listing in its current form.')}
       ${data.reason ? infoBox(`<p style="margin: 0; color: #333;"><strong>Reason:</strong> ${safe(data.reason)}</p>`, 'info') : ''}
-      ${paragraph(`You are welcome to revise and resubmit the listing, or contact ${emailLink('wrobb@vergoltd.com')} if you would like to discuss it.`)}
+      ${paragraph(`You are welcome to revise and resubmit the listing, or contact ${emailLink(SITE.publicEmail)} if you would like to discuss it.`)}
       <p>Best regards,<br><strong>The VERGO Team</strong></p>
     `),
   });

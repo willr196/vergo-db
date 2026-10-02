@@ -12,8 +12,7 @@ export const SITE = {
   jurisdiction: 'England and Wales',
   registeredOffice: '96 Sulivan Court, London, SW6 3DB',
   founderName: 'Will Robb',
-  /** Switch to hello@vergoltd.com once that mailbox exists. */
-  publicEmail: 'wrobb@vergoltd.com',
+  publicEmail: 'booking@vergoltd.com',
   /** jobs@vergoltd.com once it exists; empty means applicants use publicEmail. */
   jobsEmail: '',
   phoneDisplay: '07944 505783',

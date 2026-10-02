@@ -115,7 +115,7 @@ export const env = {
   resendApiKey: process.env.RESEND_API_KEY ?? '',
   resendConfigured: Boolean(process.env.RESEND_API_KEY),
   resendFromEmail: process.env.RESEND_FROM_EMAIL ?? 'noreply@vergoltd.com',
-  resendToEmail: process.env.RESEND_TO_EMAIL ?? 'wrobb@vergoltd.com',
+  resendToEmail: process.env.RESEND_TO_EMAIL ?? 'booking@vergoltd.com',
   resendToEmailConfigured: Boolean(process.env.RESEND_TO_EMAIL),
   /** A second inbox for lead alerts, so one blocked mailbox never hides a lead. Empty turns it off. */
   resendBackupToEmail: process.env.RESEND_BACKUP_TO_EMAIL ?? 'vergo6633@gmail.com',

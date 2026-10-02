@@ -3,6 +3,7 @@ import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
 import { sendStaffRequestEmail, sendGeneralEnquiryEmail } from '../services/email';
 import { prisma } from '../prisma';
+import { SITE } from '../site/content';
 
 const r = Router();
 
@@ -124,7 +125,7 @@ r.post('/staff-request', contactLimiter, async (req, res, next) => {
     console.error('[ERROR] Staff request failed:', error);
     
     res.status(500).json({ 
-      error: 'Unable to process your request. Please try again or email us directly at wrobb@vergoltd.com' 
+      error: `Unable to process your request. Please try again or email us directly at ${SITE.publicEmail}` 
     });
   }
 });
@@ -187,7 +188,7 @@ r.post('/general', contactLimiter, async (req, res, next) => {
     console.error('[ERROR] General enquiry failed:', error);
     
     res.status(500).json({ 
-      error: 'Unable to send your message. Please try again or email us directly at wrobb@vergoltd.com' 
+      error: `Unable to send your message. Please try again or email us directly at ${SITE.publicEmail}` 
     });
   }
 });
