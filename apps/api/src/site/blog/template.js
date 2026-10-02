@@ -18,6 +18,8 @@ const { escapeHtml, renderBlocks, renderInline } = require('./markdown');
 
 const ORIGIN = 'https://vergoltd.com';
 const OG_IMAGE = `${ORIGIN}/images/og/blog.jpg`;
+/** The square mark the homepage's organisation uses; a publisher logo, unlike the share banner. */
+const LOGO = `${ORIGIN}/images/vergo-mark.jpg`;
 
 const AUTHOR = {
   name: 'Will Robb',
@@ -53,9 +55,12 @@ function head({ title, description, route, ogType = 'website', noindex = false }
 ${noindex ? '  <meta name="robots" content="noindex, nofollow">\n' : ''}  <meta property="og:title" content="${attr(title)}">
   <meta property="og:description" content="${attr(description)}">
   <meta property="og:image" content="${OG_IMAGE}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:url" content="${url}">
   <meta property="og:type" content="${ogType}">
   <meta property="og:site_name" content="VERGO Staffing">
+  <meta property="og:locale" content="en_GB">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="${url}">
   <link rel="stylesheet" href="/vergo-blog.css">`;
@@ -92,7 +97,7 @@ function articleJsonLd(post) {
       name: 'VERGO Staffing',
       legalName: 'Vergo Ltd',
       url: ORIGIN,
-      logo: { '@type': 'ImageObject', url: OG_IMAGE },
+      logo: { '@type': 'ImageObject', url: LOGO },
     },
   };
 }
@@ -242,7 +247,7 @@ function renderIndex(posts) {
       name: 'VERGO Staffing',
       legalName: 'Vergo Ltd',
       url: ORIGIN,
-      logo: { '@type': 'ImageObject', url: OG_IMAGE },
+      logo: { '@type': 'ImageObject', url: LOGO },
     },
     blogPost: posts.map((post) => ({
       '@type': 'BlogPosting',
@@ -258,7 +263,7 @@ function renderIndex(posts) {
 <html lang="en-GB">
 <head>
 ${head({
-    title: 'Blog | VERGO Staffing',
+    title: 'Event Staffing Costs and Guides | VERGO Staffing',
     description: INDEX_DESCRIPTION,
     route: '/blog',
     // An index with nothing on it is worse than no index. It stays out of the
@@ -266,6 +271,14 @@ ${head({
     noindex: posts.length === 0,
   })}
 ${jsonLd(itemList)}
+${jsonLd({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${ORIGIN}/` },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${ORIGIN}/blog` },
+    ],
+  })}
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>

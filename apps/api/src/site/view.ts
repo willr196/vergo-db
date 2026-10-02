@@ -104,6 +104,52 @@ export function fillTokens(text: string, tokens: Record<string, string> = siteTo
   return text.replace(/{{([A-Z0-9_]+)}}/g, (match, key: string) => (key in tokens ? tokens[key] : match));
 }
 
+/* ------------------------------------------------------------ breadcrumbs */
+
+const ORIGIN = 'https://vergoltd.com';
+
+/** What a parent section is called in a breadcrumb trail. */
+const SECTION_NAMES: Record<string, string> = {
+  '/hire': 'Hire event staff',
+  '/special-events': 'Special events',
+  '/work': 'Work for us',
+  '/blog': 'Blog',
+};
+
+/**
+ * BreadcrumbList for a page, Home down to the page itself. The page's own
+ * name is its title without the "| VERGO Staffing" suffix. The base layout
+ * adds this to every indexable page below the homepage that doesn't carry
+ * its own trail.
+ */
+export function breadcrumbJsonLd(pagePath: string, title: string) {
+  const parts = pagePath.split('/').filter(Boolean);
+  const crumbs = [{ name: 'Home', path: '/' }];
+  parts.slice(0, -1).forEach((_, i) => {
+    const p = '/' + parts.slice(0, i + 1).join('/');
+    if (SECTION_NAMES[p]) crumbs.push({ name: SECTION_NAMES[p], path: p });
+  });
+  crumbs.push({ name: title.replace(/\s*\|\s*VERGO Staffing$/, ''), path: pagePath });
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: ORIGIN + c.path })),
+  };
+}
+
+/** "96 Sulivan Court, London, SW6 3DB" as a schema.org PostalAddress (street, town, postcode). */
+export function postalAddress(text: string) {
+  const parts = text.split(',').map((s) => s.trim()).filter(Boolean);
+  if (parts.length < 3) return undefined;
+  return {
+    '@type': 'PostalAddress',
+    streetAddress: parts.slice(0, -2).join(', '),
+    addressLocality: parts[parts.length - 2],
+    postalCode: parts[parts.length - 1],
+    addressCountry: 'GB',
+  };
+}
+
 /* ---------------------------------------------------------------- seasons */
 
 export interface SeasonState {
@@ -210,6 +256,8 @@ export function pageData(ctx: PageContext) {
     photoSources,
     esc,
     jsonLdString,
+    breadcrumbJsonLd,
+    postalAddress,
   };
   const blocks: Record<string, BlockFn> = {};
   for (const [name, file] of Object.entries(BLOCKS)) {

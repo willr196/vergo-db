@@ -11,6 +11,16 @@
           <li><a href="/work">Work for us</a></li>
         </ul>
       </nav>
+      <nav class="footer-col" aria-label="Services">
+        <ul class="footer-links">
+          <li><a href="/hire/waiting-staff">Waiting staff</a></li>
+          <li><a href="/hire/bar-staff">Bar staff</a></li>
+          <li><a href="/hire/kitchen-porters">Kitchen porters</a></li>
+          <li><a href="/hire/weddings">Wedding staff</a></li>
+          <li><a href="/hire/production-catering">Film and TV catering</a></li>
+          <li><a href="/special-events/christmas">Christmas parties</a></li>
+        </ul>
+      </nav>
       <nav class="footer-col" aria-label="Legal">
         <ul class="footer-links">
           <li><a href="/terms">Terms of business</a></li>

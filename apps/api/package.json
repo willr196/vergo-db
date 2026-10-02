@@ -10,7 +10,7 @@
     "pretest": "node scripts/ensure-prisma-client-link.js",
     "test": "npm run build && node --test dist/src/__tests__/*.test.js",
     "validate:pages": "node scripts/validate-page-consistency.js",
-    "validate:seo": "node scripts/validate-seo.js",
+    "validate:seo": "npm run build && node --test dist/src/__tests__/seo.test.js",
     "prisma": "node scripts/guard-db-target.js \"prisma (raw CLI)\" && prisma",
     "prisma:deploy": "node scripts/guard-db-target.js \"prisma migrate deploy\" && node scripts/prisma-deploy-with-retry.js",
     "prisma:deploy:raw": "node scripts/guard-db-target.js \"prisma migrate deploy (raw)\" && prisma migrate deploy",

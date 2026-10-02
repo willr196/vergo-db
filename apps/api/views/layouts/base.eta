@@ -4,13 +4,14 @@
   and its own markup becomes it.body, which fills <main>.
 
   meta: title, description, canonical (path, e.g. "/terms"), ogImage (path under
-  /images/og/), robots (optional, e.g. "noindex").
+  /images/og/, 1200x630), robots (optional, e.g. "noindex").
+  A BreadcrumbList is added to any indexable page below "/" that has none.
   jsonLd: plain objects, serialised here. They are hashed into the page's CSP
   as it is sent (site/view.ts), so they need no nonce.
 */%>
 <% const origin = 'https://vergoltd.com'; const m = it.meta; %>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
   <%~ include('/partials/head', it) %>
   <title><%= m.title %></title>
@@ -20,7 +21,10 @@
   <meta property="og:image" content="<%= origin + (m.ogImage || '/images/og/home.jpg') %>">
   <meta property="og:url" content="<%= origin + m.canonical %>">
   <meta property="og:type" content="<%= m.ogType || 'website' %>">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="VERGO Staffing">
+  <meta property="og:locale" content="en_GB">
   <meta name="twitter:card" content="summary_large_image">
 <% if (m.robots) { %>
   <meta name="robots" content="<%= m.robots %>">
@@ -29,7 +33,14 @@
 <% const styles = it.styles || []; styles.forEach(function (href) { %>
   <link rel="stylesheet" href="<%= href %>">
 <% }) %>
-<% const jsonLd = it.jsonLd || []; jsonLd.forEach(function (data) { %>
+<%
+  const jsonLd = (it.jsonLd || []).slice();
+  // Every indexable page below the homepage gets a breadcrumb trail unless it brings its own.
+  if (m.canonical !== '/' && !/noindex/.test(m.robots || '') && !jsonLd.some(function (d) { return d && d['@type'] === 'BreadcrumbList'; })) {
+    jsonLd.push(it.breadcrumbJsonLd(m.canonical, m.title));
+  }
+%>
+<% jsonLd.forEach(function (data) { %>
   <script type="application/ld+json">
 <%~ it.jsonLdString(data) %>
   </script>

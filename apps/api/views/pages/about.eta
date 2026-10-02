@@ -1,8 +1,8 @@
 <%/* /about: moved from public/about.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
 <% layout('/layouts/base', {
   meta: {
-    "title": "About VERGO | VERGO Staffing",
-    "description": `London event staff, now taking Birmingham bookings, picked and briefed by the founder, ${it.t.FOUNDER_NAME}. Everyone interviewed, every booking briefed, one person accountable.`,
+    "title": "About VERGO, Founder-Led Event Staffing | VERGO Staffing",
+    "description": `London event staff, now taking Birmingham bookings, picked and briefed by the founder, ${it.t.FOUNDER_NAME}. Everyone interviewed, every booking briefed.`,
     "ogImage": "/images/og/about.jpg",
     "canonical": "/about"
   },

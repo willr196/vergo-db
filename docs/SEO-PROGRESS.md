@@ -66,8 +66,9 @@ so the brief's defaults stand except where the code overruled them:
 - Special events brief forms: `pages/js/halloween-team.js` drives every
   `form[data-se-brief]` and posts to `/api/v1/quotes` as an ENQUIRY.
 - Checks: `npm test`, `npm run validate:pages`, `npm run validate:seo` (in
-  `apps/api`). `validate:seo` now enforces titles, descriptions, og tags and
-  sitemap membership.
+  `apps/api`). `validate:seo` runs `src/__tests__/seo.test.ts` (also part of
+  `npm test`), which crawls every sitemap page as served: titles, descriptions,
+  canonicals, og tags, one H1, alt text, JSON-LD, breadcrumbs, internal links.
 - CSS/JS are served `Cache-Control: public, no-cache` (revalidate every time).
   They used to be cached 7 days without versioned URLs, which left returning
   phones with stale CSS against new HTML.
@@ -95,6 +96,26 @@ above. Password resets and the other login flows are out of scope: Will is not
 doing logins yet.
 
 ## Phase log
+
+### SEO audit (2026-10-02)
+
+- The old `scripts/validate-seo.js` only read `public/*.html` and a static
+  sitemap, both gone since the Eta move, so it checked admin pages only.
+  Replaced by `src/__tests__/seo.test.ts`.
+- Every indexable page below `/` now carries a BreadcrumbList (added by the
+  base layout when a page has none; the blog index got its own).
+- `lang="en-GB"`, `og:locale` and og image dimensions on every page. The
+  organisation schema carries the registered office as its address. Blog
+  publisher logo is the square mark, not the share banner.
+- Homepage title names Birmingham; About and blog index titles say what the
+  pages are. About description trimmed to 155.
+- Footer has a services column (the role pages had 4 to 7 inbound links). The
+  Halloween page links its cost post; the trust strip's "PAYE hospitality
+  staff" links the PAYE post.
+- **For Will:** `www.vergoltd.com` resolves to an IONOS parking page
+  (217.160.0.47), not Fly. Point www at Fly (CNAME to `vergo-app.fly.dev`,
+  then `fly certs add www.vergoltd.com`); the app already 301s www to the
+  apex.
 
 ### Phase 3 (2026-09-20)
 

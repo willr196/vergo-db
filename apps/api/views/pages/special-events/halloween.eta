@@ -498,6 +498,7 @@
       </div>
       <p class="se-rates-invite">Specialist performers, decor and full experiences: quoted on the brief. <%~ it.t.MIN_HOURS %>-hour minimum.</p>
       <p class="se-caveat">Themed staff wear the look; performers are cast to act.</p>
+      <p class="se-caveat">What a whole night costs, worked through: <a href="/blog/halloween-event-staff-london">Halloween event staff in London</a>.</p>
       <div class="btn-row se-rates-cta">
         <a href="#build" class="btn btn-primary">Build your Halloween team</a>
       </div>

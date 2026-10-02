@@ -1,8 +1,8 @@
 <%/* /: moved from public/index.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
 <% layout('/layouts/base', {
   meta: {
-    "title": "Event and Hospitality Staff in London | VERGO Staffing",
-    "description": `Waiting staff, bar staff, kitchen porters, runners and hosts across London. ${it.t.HEADLINE_RATE} per person, four-hour minimum.`,
+    "title": "Event Staff Hire in London & Birmingham | VERGO Staffing",
+    "description": `Waiting staff, bar staff, kitchen porters, runners and hosts across London and Birmingham. ${it.t.HEADLINE_RATE} per person, four-hour minimum.`,
     "ogImage": "/images/og/home.jpg",
     "canonical": "/"
   },
@@ -21,6 +21,7 @@
       "image": "https://vergoltd.com/images/og/home.jpg",
       "description": "Event and hospitality staffing across London and Birmingham: waiting staff, bar staff, kitchen porters, runners, hosts and front of house.",
       "telephone": `${it.t.PHONE_E164}`,
+      "address": it.postalAddress(it.t.REGISTERED_OFFICE),
       "email": `${it.t.EMAIL}`,
       "areaServed": [
         { "@type": "City", "name": "London" },

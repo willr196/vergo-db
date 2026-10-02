@@ -7,6 +7,6 @@
 <% } %>
         <li>Right to work checked</li>
         <li>Employers' and public liability insured<%= insurers.length ? ' (' + insurers.join(', ') + ')' : '' %></li>
-        <li>PAYE hospitality staff</li>
+        <li><a href="/blog/paye-vs-self-employed-event-staff">PAYE hospitality staff</a></li>
       </ul>
     </section>
