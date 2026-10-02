@@ -183,6 +183,7 @@ model QuoteRequest {
   eventDate     DateTime?
   eventEndDate  DateTime?
   location      String
+  city          String?
   venue         String?
   staffCount    Int
   roles         String

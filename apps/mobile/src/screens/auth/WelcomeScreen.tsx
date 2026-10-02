@@ -33,7 +33,7 @@ export function WelcomeScreen({ navigation }: Props) {
               </View>
               <View style={styles.logoCopy}>
                 <Text style={styles.brandName}>VERGO</Text>
-                <Text style={styles.brandMeta}>London hospitality staffing</Text>
+                <Text style={styles.brandMeta}>London & Birmingham hospitality staffing</Text>
               </View>
             </View>
 

@@ -122,7 +122,9 @@ export function MyQuotesScreen({ navigation }: Props) {
         <View style={styles.quoteDetails}>
           <View style={styles.detailRow}>
             <Text style={styles.detailIcon}>📍</Text>
-            <Text style={styles.detailText}>{item.location}</Text>
+            <Text style={styles.detailText}>
+              {item.city ? `${item.location}, ${item.city}` : item.location}
+            </Text>
           </View>
 
           <View style={styles.detailRow}>

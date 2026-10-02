@@ -24,6 +24,8 @@ const createQuoteSchema = z.object({
   eventDate: z.string().optional().refine((v) => !v || !Number.isNaN(Date.parse(v)), 'Event date is not a date'),
   eventEndDate: z.string().optional().refine((v) => !v || !Number.isNaN(Date.parse(v)), 'End date is not a date'),
   location: z.string().min(2).max(200).trim(),
+  // Optional so app builds from before the city question still post fine.
+  city: z.enum(['London', 'Birmingham']).optional(),
   venue: z.string().max(200).optional(),
   requestedLane: z.enum(['FLEX', 'SELECT', 'MANAGED']).optional(),
   staffCount: z.number().int().min(1).max(500),
@@ -53,6 +55,7 @@ async function emailQuoteFromApp(quote: {
   eventType: string;
   eventDate: Date | null;
   location: string;
+  city: string | null;
   venue: string | null;
   staffCount: number;
   roles: string;
@@ -79,6 +82,7 @@ async function emailQuoteFromApp(quote: {
       ['Occasion', quote.eventType],
       ['Date', date],
       ['Times', times],
+      ['City', quote.city || 'Not given'],
       ['Location', quote.location],
       ['Venue', quote.venue || 'Not given'],
       ['Staff', quote.staffCount],
@@ -88,7 +92,7 @@ async function emailQuoteFromApp(quote: {
     ];
     const cell = 'padding: 8px; border: 1px solid #ddd;';
     const sent = await sendQuoteNotificationEmail({
-      subject: `APP QUOTE: ${quote.eventType} - ${quote.staffCount} staff${quote.eventDate ? ` on ${date}` : ''} (${client.companyName})`,
+      subject: `APP QUOTE${quote.city ? ` (${quote.city})` : ''}: ${quote.eventType} - ${quote.staffCount} staff${quote.eventDate ? ` on ${date}` : ''} (${client.companyName})`,
       html: `
         <h2 style="margin-bottom: 4px;">Quote request from the app</h2>
         <p style="margin-top: 0;">From a signed-in client account. It is in Admin &gt; Quotes as NEW.</p>
@@ -105,7 +109,7 @@ async function emailQuoteFromApp(quote: {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <p>Hi ${escapeHtml(client.contactName)},</p>
-          <p>We've got your request for ${escapeHtml(quote.staffCount)} staff (${escapeHtml(quote.roles)}) for your ${escapeHtml(quote.eventType)}, ${escapeHtml(date)}. Nothing is confirmed until we come back to you with names. ${escapeHtml(SITE_TERMS.confirmationPromise)}</p>
+          <p>We've got your request for ${escapeHtml(quote.staffCount)} staff (${escapeHtml(quote.roles)}) for your ${escapeHtml(quote.eventType)}, ${escapeHtml(date)}. Nothing is confirmed until we come back to you with names.${quote.city === 'Birmingham' ? '' : ` ${escapeHtml(SITE_TERMS.confirmationPromise)}`}</p>
           <p>You can follow it in the VERGO app under Quotes. If anything is urgent, reply to this email.</p>
           <p>The VERGO team</p>
           <p style="color: #666; font-size: 12px;">Reference: ${escapeHtml(quote.id)}</p>
@@ -245,6 +249,7 @@ r.get('/quotes', async (req, res) => {
           eventDate: true,
           eventEndDate: true,
           location: true,
+          city: true,
           venue: true,
           requestedLane: true,
           staffCount: true,
@@ -271,6 +276,7 @@ r.get('/quotes', async (req, res) => {
       eventDate: q.eventDate?.toISOString() || null,
       eventEndDate: q.eventEndDate?.toISOString() || null,
       location: q.location,
+      city: q.city,
       venue: q.venue,
       requestedLane: q.requestedLane,
       staffCount: q.staffCount,
@@ -324,6 +330,7 @@ r.get('/quotes/:id', async (req, res) => {
         eventDate: true,
         eventEndDate: true,
         location: true,
+        city: true,
         venue: true,
         requestedLane: true,
         staffCount: true,
@@ -350,6 +357,7 @@ r.get('/quotes/:id', async (req, res) => {
       eventDate: quote.eventDate?.toISOString() || null,
       eventEndDate: quote.eventEndDate?.toISOString() || null,
       location: quote.location,
+      city: quote.city,
       venue: quote.venue,
       requestedLane: quote.requestedLane,
       staffCount: quote.staffCount,
@@ -397,6 +405,7 @@ r.post('/quotes', async (req, res) => {
         eventDate: data.eventDate ? new Date(data.eventDate) : null,
         eventEndDate: data.eventEndDate ? new Date(data.eventEndDate) : null,
         location: data.location,
+        city: data.city || null,
         venue: data.venue || null,
         requestedLane: data.requestedLane || null,
         staffCount: data.staffCount,
@@ -419,6 +428,7 @@ r.post('/quotes', async (req, res) => {
       eventDate: quote.eventDate?.toISOString() || null,
       eventEndDate: quote.eventEndDate?.toISOString() || null,
       location: quote.location,
+      city: quote.city,
       venue: quote.venue,
       requestedLane: quote.requestedLane,
       staffCount: quote.staffCount,

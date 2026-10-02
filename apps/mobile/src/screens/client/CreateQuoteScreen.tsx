@@ -19,7 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Button, DateTimePickerInput } from '../../components';
-import { clientApi, CreateQuoteRequest } from '../../api/clientApi';
+import { clientApi, CreateQuoteRequest, City } from '../../api/clientApi';
 import type { RootStackParamList } from '../../types';
 import { useClientInfo } from './useClientInfo';
 
@@ -48,7 +48,14 @@ const ROLE_OPTIONS = [
   'Chefs and cooks',
 ];
 
-const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+const CITIES: City[] = ['London', 'Birmingham'];
+
+const LOCATION_EXAMPLES: Record<City, string> = {
+  London: 'Postcode or area, e.g. EC2A or Shoreditch',
+  Birmingham: 'Postcode or area, e.g. B1 or Digbeth',
+};
+
+const TIME_PATTERN =/^([01]\d|2[0-3]):[0-5]\d$/;
 
 function tomorrow(): Date {
   const d = new Date();
@@ -66,6 +73,7 @@ function toDateOnly(d: Date): string {
 // Track which fields have validation errors
 type FieldErrors = {
   eventType?: boolean;
+  city?: boolean;
   location?: boolean;
   roles?: boolean;
 };
@@ -85,6 +93,10 @@ export function CreateQuoteScreen({ navigation }: Props) {
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [showEventTypes, setShowEventTypes] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  // The same-day names promise is London's for now; Birmingham has no local
+  // team yet, so the site and its emails leave it out there too.
+  const promise = info && formData.city !== 'Birmingham' ? info.terms.confirmationPromise : '';
 
   const updateField = <K extends keyof CreateQuoteRequest>(
     field: K,
@@ -109,6 +121,9 @@ export function CreateQuoteScreen({ navigation }: Props) {
     if (!formData.eventType.trim()) {
       errors.eventType = true;
     }
+    if (!formData.city) {
+      errors.city = true;
+    }
     if (!formData.location.trim()) {
       errors.location = true;
     }
@@ -120,6 +135,7 @@ export function CreateQuoteScreen({ navigation }: Props) {
 
     // Return error message for alert
     if (errors.eventType) return 'Please select an occasion type';
+    if (errors.city) return 'Please choose London or Birmingham';
     if (errors.location) return 'Please enter a location';
     if (formData.staffCount < 1) return 'Please enter the number of staff needed';
     if (errors.roles) return 'Please select at least one role';
@@ -157,7 +173,7 @@ export function CreateQuoteScreen({ navigation }: Props) {
 
       Alert.alert(
         'Request sent',
-        `Nothing is confirmed until we come back to you with names.${info ? ` ${info.terms.confirmationPromise}` : ''}`,
+        `Nothing is confirmed until we come back to you with names.${promise ? ` ${promise}` : ''}`,
         [
           {
             text: 'See your requests',
@@ -189,7 +205,7 @@ export function CreateQuoteScreen({ navigation }: Props) {
           <Text style={styles.title}>Request staff</Text>
           <Text style={styles.subtitle}>
             {info
-              ? `${info.rates.headline} per person, ${info.rates.minimumHours}-hour minimum. ${info.terms.confirmationPromise}`
+              ? `${info.rates.headline} per person, ${info.rates.minimumHours}-hour minimum.${promise ? ` ${promise}` : ''}`
               : 'Tell us the date, times and roles and we come back to you with names.'}
           </Text>
 
@@ -258,6 +274,39 @@ export function CreateQuoteScreen({ navigation }: Props) {
             />
           </View>
 
+          {/* City */}
+          <View style={styles.section}>
+            <Text style={[styles.label, fieldErrors.city && styles.labelError]}>
+              City *
+            </Text>
+            <View style={[styles.cityRow, fieldErrors.city && styles.rolesGridError]}>
+              {CITIES.map((city) => (
+                <TouchableOpacity
+                  key={city}
+                  style={[styles.roleChip, formData.city === city && styles.roleChipActive]}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: formData.city === city }}
+                  onPress={() => {
+                    updateField('city', city);
+                    clearFieldError('city');
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.roleChipText,
+                      formData.city === city && styles.roleChipTextActive,
+                    ]}
+                  >
+                    {city}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {fieldErrors.city && (
+              <Text style={styles.errorText}>Please choose London or Birmingham</Text>
+            )}
+          </View>
+
           {/* Location */}
           <View style={styles.section}>
             <Text style={[styles.label, fieldErrors.location && styles.labelError]}>
@@ -265,7 +314,7 @@ export function CreateQuoteScreen({ navigation }: Props) {
             </Text>
             <TextInput
               style={[styles.input, fieldErrors.location && styles.inputError]}
-              placeholder="Postcode or area, e.g. EC2A or Shoreditch"
+              placeholder={LOCATION_EXAMPLES[formData.city ?? 'London']}
               placeholderTextColor={colors.textMuted}
               value={formData.location}
               onChangeText={(text) => {
@@ -551,6 +600,15 @@ const styles = StyleSheet.create({
   rolesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+    padding: spacing.sm,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  cityRow: {
+    flexDirection: 'row',
     gap: spacing.sm,
     marginTop: spacing.sm,
     padding: spacing.sm,

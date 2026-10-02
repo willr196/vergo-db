@@ -113,6 +113,8 @@ describe('CreateQuoteScreen', () => {
       fireEvent.press(getByText('Select occasion type'));
       fireEvent.press(getByText('Corporate Event'));
 
+      fireEvent.press(getByText('London'));
+
       // Select a role
       fireEvent.press(getByText('Bar staff'));
 
@@ -134,6 +136,8 @@ describe('CreateQuoteScreen', () => {
       // Select event type
       fireEvent.press(getByText('Select occasion type'));
       fireEvent.press(getByText('Corporate Event'));
+
+      fireEvent.press(getByText('London'));
 
       // Fill location
       fireEvent.changeText(
@@ -271,20 +275,82 @@ describe('CreateQuoteScreen', () => {
   });
 
   describe('Form Submission', () => {
-    const fillValidForm = (getByText: any, getByPlaceholderText: any) => {
+    const fillValidForm = (getByText: any, getByPlaceholderText: any, city = 'London') => {
       // Select event type
       fireEvent.press(getByText('Select occasion type'));
       fireEvent.press(getByText('Corporate Event'));
 
+      fireEvent.press(getByText(city));
+
       // Fill location
       fireEvent.changeText(
-        getByPlaceholderText('Postcode or area, e.g. EC2A or Shoreditch'),
+        getByPlaceholderText(/^Postcode or area/),
         'London'
       );
 
       // Select role
       fireEvent.press(getByText('Bar staff'));
     };
+
+    it('should ask for a city before sending', async () => {
+      const { getByText, getByPlaceholderText, queryByText } = render(
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
+      );
+
+      fireEvent.press(getByText('Select occasion type'));
+      fireEvent.press(getByText('Corporate Event'));
+      fireEvent.changeText(getByPlaceholderText(/^Postcode or area/), 'EC2A');
+      fireEvent.press(getByText('Bar staff'));
+      fireEvent.press(getByText('Send request'));
+
+      await waitFor(() => {
+        expect(Alert.alert).toHaveBeenCalledWith('Missing Information', 'Please choose London or Birmingham');
+      });
+      expect(queryByText('Please choose London or Birmingham')).toBeTruthy();
+      expect(clientApi.createQuote).not.toHaveBeenCalled();
+    });
+
+    it('should promise same-day names for London', async () => {
+      (clientApi.createQuote as jest.Mock).mockResolvedValue({ id: '1' });
+
+      const { getByText, getByPlaceholderText } = render(
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
+      );
+
+      fillValidForm(getByText, getByPlaceholderText, 'London');
+      fireEvent.press(getByText('Send request'));
+
+      await waitFor(() => {
+        expect(Alert.alert).toHaveBeenCalledWith(
+          'Request sent',
+          'Nothing is confirmed until we come back to you with names. Names the same day.',
+          expect.any(Array)
+        );
+      });
+    });
+
+    it('should send Birmingham and leave out the same-day promise', async () => {
+      (clientApi.createQuote as jest.Mock).mockResolvedValue({ id: '1' });
+
+      const { getByText, getByPlaceholderText, findByText } = render(
+        <CreateQuoteScreen navigation={mockNavigation as never} route={mockRoute as never} />
+      );
+
+      fillValidForm(getByText, getByPlaceholderText, 'Birmingham');
+      expect(await findByText('£18.50/hr per person, 4-hour minimum.')).toBeTruthy();
+      expect(getByPlaceholderText('Postcode or area, e.g. B1 or Digbeth')).toBeTruthy();
+
+      fireEvent.press(getByText('Send request'));
+
+      await waitFor(() => {
+        expect(clientApi.createQuote).toHaveBeenCalledWith(expect.objectContaining({ city: 'Birmingham' }));
+        expect(Alert.alert).toHaveBeenCalledWith(
+          'Request sent',
+          'Nothing is confirmed until we come back to you with names.',
+          expect.any(Array)
+        );
+      });
+    });
 
     it('should submit form with valid data', async () => {
       (clientApi.createQuote as jest.Mock).mockResolvedValue({ id: '1' });
@@ -302,6 +368,7 @@ describe('CreateQuoteScreen', () => {
           expect.objectContaining({
             eventType: 'Corporate Event',
             location: 'London',
+            city: 'London',
             staffCount: 1,
             roles: 'Bar staff',
             eventDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),

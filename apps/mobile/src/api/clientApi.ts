@@ -49,6 +49,7 @@ export interface QuoteRequest {
   eventDate: string | null;
   eventEndDate: string | null;
   location: string;
+  city?: City | null;
   venue: string | null;
   staffCount: number;
   roles: string;
@@ -63,6 +64,9 @@ export interface QuoteRequest {
   updatedAt: string;
 }
 
+/** The cities we take bookings in. Matches the website's quote form. */
+export type City = 'London' | 'Birmingham';
+
 export type QuoteStatus = 'new' | 'quoted' | 'accepted' | 'rejected' | 'completed' | 'cancelled';
 
 export interface CreateQuoteRequest {
@@ -70,6 +74,7 @@ export interface CreateQuoteRequest {
   eventDate?: string;
   eventEndDate?: string;
   location: string;
+  city?: City;
   venue?: string;
   staffCount: number;
   roles: string;
