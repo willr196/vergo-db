@@ -14,6 +14,7 @@ import { getRightToWorkSummary, getExpiringChecks, summariseChecks } from '../se
 import { sendRightToWorkRequestEmail } from '../services/email';
 import { uploadBuffer, presignDownload } from '../services/s3';
 import { env } from '../env';
+import { identityNumberIn } from '../ops/compliance';
 
 const r = Router();
 
@@ -96,6 +97,12 @@ r.post('/:applicantId', adminAuth, async (req, res, next) => {
     });
     if (!applicant) {
       return res.status(404).json({ error: 'Applicant not found' });
+    }
+
+    // The reference says where the evidence is; the number itself stays out.
+    const identity = data.reference ? identityNumberIn(data.reference) : null;
+    if (identity) {
+      return res.status(400).json({ error: `That reference looks like a ${identity}. Don't store it: note where the evidence is kept instead.` });
     }
 
     // A time-limited (List B) permission is only meaningful with a follow-up

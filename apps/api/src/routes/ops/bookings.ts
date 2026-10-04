@@ -22,6 +22,7 @@ import { STATUS_TRANSITIONS } from '../adminBookings';
 import { renderTemplate, needsWording } from '../../ops/documents';
 import { companyValues } from './workers';
 import { handle, fail, ymd, clock, optionalText, money, dateOnly } from './common';
+import { MIN_RATE } from '../../site/settings';
 
 const r = Router();
 
@@ -483,7 +484,10 @@ r.post('/bookings/:id/paid', handle(async (req, res) => {
 
 const LIVE = ['PENDING', 'CONFIRMED'] as const;
 
-async function warningsFor(workerId: string, date: string, start: string, finish: string, requirement: { role: string; requiredQualifications: string[] } | null, excludeId?: string) {
+/** Readiness items that assignmentWarnings does not already raise on its own. */
+const COVERED_ELSEWHERE = /right to work|right-to-work|zero-hours agreement|key information document|not active/i;
+
+async function warningsFor(workerId: string, date: string, start: string, finish: string, requirement: { role: string; requiredQualifications: string[] } | null, excludeId?: string, rates?: { payRate: number | null; chargeRate: number | null }) {
   const worker = await loadWorker(workerId);
   if (!worker) fail(404, 'Worker not found');
   const candidate = shiftInterval(date, start, finish);
@@ -515,6 +519,10 @@ async function warningsFor(workerId: string, date: string, start: string, finish
     workerRoles: worker.roles,
     requiredQualifications: requirement?.requiredQualifications ?? [],
     workerQualifications: worker.qualifications,
+    payRate: rates?.payRate ?? null,
+    chargeRate: rates?.chargeRate ?? null,
+    payFloor: MIN_RATE,
+    otherMissing: worker.readiness.ready ? [] : worker.readiness.missing.filter((m) => !COVERED_ELSEWHERE.test(m)),
   });
   return { worker, warnings };
 }
@@ -536,7 +544,8 @@ r.post('/bookings/:id/assignments/check', handle(async (req, res) => {
   const booking = await getOpsBooking(req.params.id);
   const requirement = booking.requirements.find((x) => x.id === body.requirementId);
   if (!requirement) fail(404, 'Requirement not found on this booking');
-  const { warnings } = await warningsFor(body.workerId, dateKey(booking.eventDate), body.plannedStart ?? booking.startTime, body.plannedFinish ?? booking.expectedFinish, requirement);
+  const { warnings } = await warningsFor(body.workerId, dateKey(booking.eventDate), body.plannedStart ?? booking.startTime, body.plannedFinish ?? booking.expectedFinish, requirement, undefined,
+    { payRate: body.payRate ?? Number(requirement.workerPayRate), chargeRate: body.clientChargeRate ?? Number(requirement.clientChargeRate) });
   res.json({ ok: true, data: { warnings, ...canProceed(warnings, body.overrideReason) } });
 }));
 
@@ -554,14 +563,14 @@ r.post('/bookings/:id/assignments', handle(async (req, res) => {
   const date = dateKey(booking.eventDate);
   const start = body.plannedStart ?? booking.startTime;
   const finish = body.plannedFinish ?? booking.expectedFinish;
-  const { worker, warnings } = await warningsFor(body.workerId, date, start, finish, requirement);
+  const payRate = body.payRate ?? Number(requirement.workerPayRate);
+  const chargeRate = body.clientChargeRate ?? Number(requirement.clientChargeRate);
+  const { worker, warnings } = await warningsFor(body.workerId, date, start, finish, requirement, undefined, { payRate, chargeRate });
   const verdict = canProceed(warnings, body.overrideReason);
   if (!verdict.ok) fail(409, verdict.needsReason ? 'Warnings need an override reason.' : 'This assignment is blocked.', { warnings, ...verdict });
 
   let hours: number;
   try { hours = shiftHours(start, finish, requirement.breakMins); } catch (e: any) { fail(400, e.message); }
-  const payRate = body.payRate ?? Number(requirement.workerPayRate);
-  const chargeRate = body.clientChargeRate ?? Number(requirement.clientChargeRate);
   const minimum = toNum(requirement.minimumHours) ?? PRICING.minimumChargeHours;
   const client = await prisma.client.findUniqueOrThrow({ where: { id: booking.clientId }, select: { subscriptionTier: true } });
   const terms = body.status === 'CONFIRMED'
@@ -645,7 +654,8 @@ r.patch('/assignments/:id', handle(async (req, res) => {
   let warnings: Awaited<ReturnType<typeof warningsFor>>['warnings'] = [];
   const confirming = body.status === 'CONFIRMED' || (before.status === 'CONFIRMED' && (body.plannedStart || body.plannedFinish));
   if (confirming) {
-    ({ warnings } = await warningsFor(before.staffId, dateKey(before.eventDate), start, finish, before.requirement, before.id));
+    ({ warnings } = await warningsFor(before.staffId, dateKey(before.eventDate), start, finish, before.requirement, before.id,
+      { payRate: body.payRate ?? toNum(before.staffPayRate), chargeRate: body.clientChargeRate ?? toNum(before.hourlyRateCharged) }));
     const verdict = canProceed(warnings, body.overrideReason);
     if (!verdict.ok) fail(409, verdict.needsReason ? 'Warnings need an override reason.' : 'This assignment is blocked.', { warnings, ...verdict });
   }
@@ -686,7 +696,8 @@ r.post('/assignments/:id/replace', handle(async (req, res) => {
   if (!(LIVE as readonly string[]).includes(old.status)) fail(409, 'Only an offered or accepted assignment can be replaced.');
   const booking = await getOpsBooking(old.opsBookingId);
   const date = dateKey(old.eventDate);
-  const { worker, warnings } = await warningsFor(body.workerId, date, old.shiftStart, old.shiftEnd, old.requirement);
+  const { worker, warnings } = await warningsFor(body.workerId, date, old.shiftStart, old.shiftEnd, old.requirement, undefined,
+    { payRate: toNum(old.staffPayRate), chargeRate: toNum(old.hourlyRateCharged) });
   const verdict = canProceed(warnings, body.overrideReason);
   if (!verdict.ok) fail(409, verdict.needsReason ? 'Warnings need an override reason.' : 'This assignment is blocked.', { warnings, ...verdict });
 

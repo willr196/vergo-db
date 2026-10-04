@@ -11,7 +11,7 @@ import {
   loadWorkers, loadWorker, ensureApplicant, unusablePasswordHash, ensureDefaultTemplates, WORKER_WHERE,
   type WorkerView,
 } from '../../ops/service';
-import { looksLikeShareCode } from '../../ops/compliance';
+import { identityNumberIn } from '../../ops/compliance';
 import {
   renderTemplate, needsWording, ACCEPTABLE_TYPES, DOC_TYPE_LABELS, templateKeys, type OpsDocType,
 } from '../../ops/documents';
@@ -188,6 +188,17 @@ const updateWorker = z.object({
   optOutEvidence: optionalText(500),
 });
 
+/**
+ * The audit log records that these changed and who changed them, not the
+ * values: it is kept long and read widely, and the record holds the details.
+ */
+const PERSONAL_FIELDS = ['phone', 'dateOfBirth', 'emergencyContactName', 'emergencyContactPhone', 'internalNotes', 'experienceNotes', 'payrollExternalReference', 'pensionNotes'];
+function redactPersonal(values: Record<string, unknown>) {
+  for (const key of PERSONAL_FIELDS) {
+    if (key in values) values[key] = values[key] == null || values[key] === '' ? null : '(recorded)';
+  }
+}
+
 r.patch('/workers/:id', handle(async (req, res) => {
   const body = updateWorker.parse(req.body);
   const actor = actorOf(req);
@@ -220,20 +231,18 @@ r.patch('/workers/:id', handle(async (req, res) => {
     });
 
     const changes = diff((before ?? {}) as Record<string, unknown>, profileData);
-    const userChanges: Record<string, unknown> = {};
     if (phone !== undefined && phone !== user.phone) {
       await tx.user.update({ where: { id: user.id }, data: { phone } });
-      changes.oldValue.phone = user.phone; changes.newValue.phone = phone; userChanges.phone = phone;
+      changes.oldValue.phone = user.phone; changes.newValue.phone = phone;
     }
     const prevDob = user.applicant?.dateOfBirth ? dateKey(user.applicant.dateOfBirth) : null;
     if (dateOfBirth !== undefined && dateOfBirth !== prevDob) {
       const applicantId = await ensureApplicant(user.id, tx);
-      const prev = prevDob;
-      {
-        await tx.applicant.update({ where: { id: applicantId }, data: { dateOfBirth: dateOfBirth ? dateOnly(dateOfBirth) : null } });
-        changes.oldValue.dateOfBirth = prev; changes.newValue.dateOfBirth = dateOfBirth;
-      }
+      await tx.applicant.update({ where: { id: applicantId }, data: { dateOfBirth: dateOfBirth ? dateOnly(dateOfBirth) : null } });
+      changes.oldValue.dateOfBirth = prevDob; changes.newValue.dateOfBirth = dateOfBirth;
     }
+    redactPersonal(changes.oldValue);
+    redactPersonal(changes.newValue);
     // Margins read User.pensionEnrolled; keep it in step with the recorded status.
     if (profileFields.pensionStatus) {
       const enrolled = profileFields.pensionStatus === 'ENROLLED' || profileFields.pensionStatus === 'OPTED_IN';
@@ -327,8 +336,9 @@ r.post('/workers/:id/rtw-checks', handle(async (req, res) => {
   if (body.outcome === 'PASS' && !body.prescribedCheckConfirmed) {
     fail(400, 'A pass can only be recorded once you confirm the prescribed check was actually performed. Uploading or holding a document is not the check.');
   }
-  if (body.evidenceReference && looksLikeShareCode(body.evidenceReference)) {
-    fail(400, 'That looks like a share code. Do not store share codes; record where the evidence is kept (e.g. "Profile PDF in RTW folder, 2026-10-03").');
+  const identity = body.evidenceReference ? identityNumberIn(body.evidenceReference) : null;
+  if (identity) {
+    fail(400, `That looks like a ${identity}. Do not store it; record where the evidence is kept (e.g. "Profile PDF in RTW folder, 2026-10-03").`);
   }
   const today = londonDateKey(new Date());
   if (body.performedOn > today) fail(400, 'The check date cannot be in the future.');

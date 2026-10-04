@@ -121,7 +121,7 @@ test("editing a page's FAQ moves that page's lastmod in the sitemap, and only th
 
   await refreshContent();
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { sitemapXml } = require('../site/sitemap');
+  const { sitemapXml, PAGES } = require('../site/sitemap');
   const xml: string = sitemapXml();
   const lastmod = (p: string) => {
     const at = xml.indexOf(`<loc>https://vergoltd.com${p}</loc>`);
@@ -129,5 +129,8 @@ test("editing a page's FAQ moves that page's lastmod in the sitemap, and only th
   };
   const today = new Date().toISOString().slice(0, 10);
   assert.equal(lastmod('/hire/weddings'), today);
-  assert.equal(lastmod('/hire/bar-staff'), '2026-09-26');
+  // Untouched pages keep the date in the sitemap config, which
+  // tools/sitemap-lastmod.mjs rewrites, so read it rather than hard-code it.
+  const configured = PAGES.find((p: { path: string }) => p.path === '/hire/bar-staff').lastmod;
+  assert.equal(lastmod('/hire/bar-staff'), configured);
 });

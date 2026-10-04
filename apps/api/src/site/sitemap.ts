@@ -25,7 +25,7 @@ interface SitemapPage {
 }
 
 // PAGES:START (tools/sitemap-lastmod.mjs rewrites the lastmod values)
-const PAGES: SitemapPage[] = [
+export const PAGES: SitemapPage[] = [
   { path: '/', lastmod: '2026-10-02', changefreq: 'weekly', priority: '1.0', shows: ['testimonials', 'recentWork', 'photos', 'promos'] },
   { path: '/hire', lastmod: '2026-10-01', changefreq: 'monthly', priority: '0.9', shows: ['testimonials', 'recentWork'] },
   { path: '/birmingham', lastmod: '2026-10-01', changefreq: 'monthly', priority: '0.8' },

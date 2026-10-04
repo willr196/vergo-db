@@ -67,6 +67,19 @@ export function looksLikeShareCode(value: string): boolean {
   return /^[A-Za-z0-9]{9}$/.test(compact) && /[A-Za-z]/.test(compact) && /\d/.test(compact);
 }
 
+/**
+ * Share codes, National Insurance numbers and passport numbers (UK passports
+ * are nine digits) all stay out of the evidence reference, which should say
+ * where the evidence is kept, not what it says.
+ */
+export function identityNumberIn(value: string): 'share code' | 'National Insurance number' | 'passport number' | null {
+  const compact = value.replace(/[\s-]/g, '');
+  if (/^[A-Z]{2}\d{6}[A-D]$/i.test(compact)) return 'National Insurance number';
+  if (/^\d{9}$/.test(compact)) return 'passport number';
+  if (looksLikeShareCode(value)) return 'share code';
+  return null;
+}
+
 // ── Documents ──────────────────────────────────────────────────────────────
 
 export type ContractStatus = 'not_issued' | 'issued' | 'accepted' | 'superseded';
@@ -156,6 +169,8 @@ export interface Readiness {
 }
 
 const present = (value: string | null | undefined) => value != null && value.trim() !== '';
+/** Placeholder addresses (e.g. from the vergo_admin import) end in .invalid and reach nobody. */
+const realEmail = (value: string | null | undefined) => present(value) && !/\.invalid$/i.test(value!.trim());
 
 /**
  * READY needs every one of: active, right to work valid, the zero-hours
@@ -181,7 +196,7 @@ export function computeReadiness(input: ReadinessInput): Readiness {
       : 'Zero-hours agreement not issued');
   }
   if (input.kidStatus !== 'issued') missing.push('Key Information Document not issued');
-  if (!present(input.email)) missing.push('Email missing');
+  if (!realEmail(input.email)) missing.push('Email missing');
   if (!present(input.phone)) missing.push('Phone number missing');
   if (!present(input.emergencyContactName) || !present(input.emergencyContactPhone)) {
     missing.push('Emergency contact missing');

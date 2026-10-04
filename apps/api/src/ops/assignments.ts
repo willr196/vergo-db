@@ -37,10 +37,17 @@ export interface AssignmentCheckInput {
   workerRoles: string[];
   requiredQualifications: string[];
   workerQualifications: string[];
+  /** Hourly rates for the shift, when known. */
+  payRate?: number | null;
+  chargeRate?: number | null;
+  /** The National Living Wage the site quotes (21 and over). */
+  payFloor?: number;
+  /** Readiness items not covered by the checks above (contact details, payroll). */
+  otherMissing?: string[];
 }
 
 export interface AssignmentWarning {
-  code: 'rtw' | 'documents' | 'inactive' | 'unavailable' | 'overlap' | 'role' | 'qualification';
+  code: 'rtw' | 'documents' | 'inactive' | 'unavailable' | 'overlap' | 'role' | 'qualification' | 'not_ready' | 'pay_rate' | 'charge_rate';
   message: string;
   /** Blocking warnings cannot be overridden. */
   blocking: boolean;
@@ -93,6 +100,19 @@ export function assignmentWarnings(input: AssignmentCheckInput): AssignmentWarni
   const lacking = input.requiredQualifications.filter((q) => !have.has(norm(q)));
   if (lacking.length) {
     warnings.push({ code: 'qualification', blocking: false, message: `Missing required qualification: ${lacking.join(', ')}.` });
+  }
+
+  if (input.otherMissing?.length) {
+    warnings.push({ code: 'not_ready', blocking: false, message: `Worker is not Ready for Work: ${input.otherMissing.join('; ')}.` });
+  }
+
+  // Soft, not blocking: workers under 21 have a lower legal minimum, and the
+  // age band is a judgement for the office.
+  if (input.payRate != null && input.payFloor != null && input.payRate < input.payFloor) {
+    warnings.push({ code: 'pay_rate', blocking: false, message: `Pay of £${input.payRate.toFixed(2)}/h is below the National Living Wage of £${input.payFloor.toFixed(2)}/h. Only lawful for a worker under 21 at their age-band rate.` });
+  }
+  if (input.payRate != null && input.chargeRate != null && input.chargeRate < input.payRate) {
+    warnings.push({ code: 'charge_rate', blocking: false, message: `The client charge of £${input.chargeRate.toFixed(2)}/h is below the worker's pay of £${input.payRate.toFixed(2)}/h.` });
   }
 
   return warnings;

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { computeReadiness, opsRtwStatus, rtwExpiryBucket, contractPosition, kidPosition, looksLikeShareCode, type ReadinessInput } from '../ops/compliance';
+import { computeReadiness, opsRtwStatus, rtwExpiryBucket, contractPosition, kidPosition, looksLikeShareCode, identityNumberIn, type ReadinessInput } from '../ops/compliance';
 import { bookingProfit, type ProfitAssignment } from '../ops/profit';
 import { findOverlaps, assignmentWarnings, canProceed, type AssignmentCheckInput } from '../ops/assignments';
 import { awrWeeks, AWR_LABEL } from '../ops/awr';
@@ -315,4 +315,86 @@ test('CSV export neutralises formulas and round-trips through the parser', () =>
 test('direct hire: relevant period is the later of 14 weeks from first or 8 weeks after last', () => {
   assert.equal(relevantPeriodEnd('2026-01-05', '2026-01-10'), '2026-04-13');
   assert.equal(relevantPeriodEnd('2026-01-05', '2026-06-01'), '2026-07-28');
+});
+
+// ── Pre-deployment audit (2026-10-04): the cases named in the review ──────
+
+test('ready: each single gap on its own makes a worker not ready', () => {
+  const cases: Array<[Partial<ReadinessInput>, string]> = [
+    [{ rtwStatus: 'expired' }, 'Right to work has expired'],
+    [{ contractStatus: 'not_issued' }, 'Zero-hours agreement not issued'],
+    [{ kidStatus: 'not_issued' }, 'Key Information Document not issued'],
+    [{ payrollStatus: 'PENDING' }, 'Payroll onboarding pending'],
+    [{ phone: null }, 'Phone number missing'],
+  ];
+  for (const [change, reason] of cases) {
+    const r = computeReadiness({ ...READY, ...change });
+    assert.equal(r.ready, false, reason);
+    assert.deepEqual(r.missing, [reason]);
+  }
+});
+
+test('ready: a placeholder .invalid email is not a way to reach the worker', () => {
+  const r = computeReadiness({ ...READY, email: 'staff-abc@import.vergoltd.invalid' });
+  assert.equal(r.ready, false);
+  assert.deepEqual(r.missing, ['Email missing']);
+});
+
+test('RTW: permanent and time-limited passes are valid until a follow-up falls due', () => {
+  const permanent = { status: 'PASSED' as const, expiresAt: null };
+  assert.equal(opsRtwStatus({ summary: permanent, followUpDue: null, blocked: false }, NOW), 'valid');
+  assert.equal(rtwExpiryBucket(permanent, NOW), 'no_expiry');
+  const limited = { status: 'PASSED' as const, expiresAt: new Date('2026-11-15T00:00:00Z') };
+  assert.equal(opsRtwStatus({ summary: limited, followUpDue: new Date('2026-11-01T00:00:00Z'), blocked: false }, NOW), 'valid');
+  assert.equal(rtwExpiryBucket(limited, NOW), 'within_60');
+  assert.equal(opsRtwStatus({ summary: { status: 'PENDING', expiresAt: null }, followUpDue: null, blocked: false }, NOW), 'follow_up_required');
+});
+
+test('identity numbers are refused as evidence references, ordinary notes are not', () => {
+  assert.equal(identityNumberIn('W2X 4Y6 Z8A'), 'share code');
+  assert.equal(identityNumberIn('QQ 12 34 56 C'), 'National Insurance number');
+  assert.equal(identityNumberIn('123456789'), 'passport number');
+  assert.equal(identityNumberIn('Profile PDF in RTW folder, 2026-10-03'), null);
+  assert.equal(identityNumberIn('Seen in person by WR'), null);
+});
+
+test('assignment: pay below the floor and charge below pay are flagged, softly', () => {
+  const w = assignmentWarnings({ ...CHECK, payRate: 11.5, chargeRate: 11, payFloor: 12.71 });
+  assert.deepEqual(w.map((x) => x.code), ['pay_rate', 'charge_rate']);
+  assert.ok(w.every((x) => !x.blocking));
+  assert.deepEqual(assignmentWarnings({ ...CHECK, payRate: 13, chargeRate: 19, payFloor: 12.71 }), []);
+});
+
+test('assignment: readiness gaps not covered elsewhere (payroll, contact) are raised', () => {
+  const w = assignmentWarnings({ ...CHECK, otherMissing: ['Payroll onboarding pending'] });
+  assert.equal(w[0].code, 'not_ready');
+  assert.match(w[0].message, /Payroll onboarding pending/);
+});
+
+test('profit: a multi-worker booking adds each shift, with minimum hours and uplift per worker', () => {
+  const p = bookingProfit([
+    shift(),                                        // 6h
+    shift({ hours: 2 }),                            // billed at the 4h minimum
+    shift({ hours: 5, afterMidnightHours: 2 }),     // 2h after midnight at ×1.25
+  ], []);
+  assert.equal(p.countedAssignments, 3);
+  assert.equal(p.billableHours, 15);
+  assert.equal(p.revenue.hoursPence, 1850 * 15);
+  assert.equal(p.revenue.afterMidnightPence, Math.round(1850 * 2 * 0.25));
+  assert.equal(p.workerWagesPence, 1271 * 6 + 1271 * 4 + 1271 * 5);
+  assert.equal(p.grossContributionPence, p.revenuePence - p.workerWagesPence - p.holidayPayPence);
+});
+
+test('profit: travel and expenses come off contribution, never revenue', () => {
+  const without = bookingProfit([shift()], []);
+  const withTravel = bookingProfit([shift({ travelPence: 1000, expensesPence: 250 })], []);
+  assert.equal(withTravel.revenuePence, without.revenuePence);
+  assert.equal(withTravel.grossContributionPence, without.grossContributionPence - 1250);
+});
+
+test('profit: costs with zero revenue give a negative contribution and no margin', () => {
+  const p = bookingProfit([], [{ kind: 'COST', category: 'equipment', amountPence: 2000 }]);
+  assert.equal(p.revenuePence, 0);
+  assert.equal(p.grossContributionPence, -2000);
+  assert.equal(p.grossMargin, null);
 });

@@ -6,6 +6,7 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
+import type { BookingStatus } from '@prisma/client';
 import { prisma } from '../../prisma';
 import { writeAudit, actorOf, diff } from '../../ops/audit';
 import { unusablePasswordHash, FILLING_STATUSES } from '../../ops/service';
@@ -123,7 +124,7 @@ r.post('/leads/:id/convert', handle(async (req, res) => {
 // assignment rows the Bookings screen and the worker app use. Bookings with
 // places still to fill are listed per day underneath.
 
-const ROTA_HIDDEN = ['CANCELLED', 'REJECTED'];
+const ROTA_HIDDEN: BookingStatus[] = ['CANCELLED', 'REJECTED'];
 
 r.get('/rota', handle(async (req, res) => {
   const q = z.object({ week: ymd.optional() }).parse(req.query);
@@ -136,7 +137,7 @@ r.get('/rota', handle(async (req, res) => {
 
   const [rows, bookings] = await Promise.all([
     prisma.booking.findMany({
-      where: { eventDate: { gte: from, lt: to }, status: { notIn: ROTA_HIDDEN as any } },
+      where: { eventDate: { gte: from, lt: to }, status: { notIn: ROTA_HIDDEN } },
       orderBy: [{ eventDate: 'asc' }, { shiftStart: 'asc' }],
       select: {
         id: true, eventDate: true, shiftStart: true, shiftEnd: true, role: true, venue: true, status: true,

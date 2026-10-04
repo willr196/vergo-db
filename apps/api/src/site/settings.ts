@@ -11,7 +11,7 @@ import { SITE } from './content';
  */
 
 /** The worker pay floor the site quotes; a charge rate below it can't be right. */
-const MIN_RATE = 12.71;
+export const MIN_RATE = 12.71;
 const rate = z.number().min(MIN_RATE).max(100);
 const line = (max: number) => z.string().trim().max(max);
 
