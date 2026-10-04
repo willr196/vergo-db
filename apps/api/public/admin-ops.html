@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VERGO Ops | VERGO Events — Event Staffing in London</title>
+  <meta name="description" content="VERGO Ops: internal operations console for workers, compliance, bookings and timesheets.">
+  <meta property="og:title" content="VERGO Ops | VERGO Events — Event Staffing in London">
+  <meta property="og:description" content="VERGO Ops: internal operations console for workers, compliance, bookings and timesheets.">
+  <meta property="og:image" content="https://vergoltd.com/logo.png">
+  <meta property="og:url" content="https://vergoltd.com/ops">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://vergoltd.com/ops">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
+  <link rel="stylesheet" href="/pages/css/admin-ops.css?v=1">
+</head>
+<body>
+  <a href="#as-content" class="as-skip-link">Skip to main content</a>
+
+  <div class="as-main">
+    <header class="as-topbar">
+      <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
+      <h1 class="as-topbar-title">VERGO Ops</h1>
+    </header>
+
+    <nav class="ops-subnav" id="ops-subnav" aria-label="VERGO Ops sections">
+      <a href="#/dashboard" data-route="dashboard">Dashboard</a>
+      <a href="#/workers" data-route="workers">Workers</a>
+      <a href="#/rtw" data-route="rtw">Right to work</a>
+      <a href="#/bookings" data-route="bookings">Bookings</a>
+      <a href="#/timesheets" data-route="timesheets">Timesheets</a>
+      <a href="#/clients" data-route="clients">Clients</a>
+      <a href="#/documents" data-route="documents">Documents</a>
+      <a href="#/awr" data-route="awr">AWR</a>
+      <a href="#/direct-hire" data-route="direct-hire">Direct hire</a>
+      <a href="#/payroll" data-route="payroll">Payroll history</a>
+      <a href="#/exports" data-route="exports">Exports</a>
+      <a href="#/audit" data-route="audit">Audit log</a>
+      <a href="#/settings" data-route="settings">Settings</a>
+    </nav>
+
+    <main class="ops-page" id="as-content" tabindex="-1">
+      <div class="as-skeleton" style="max-width:240px"></div>
+    </main>
+  </div>
+
+  <div id="ops-modal" class="modal-backdrop d-none" role="dialog" aria-modal="true" aria-labelledby="ops-modal-title">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 id="ops-modal-title"></h2>
+        <button class="modal-close" type="button" data-ops-close aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="ops-modal-body"></div>
+      <div class="modal-footer" id="ops-modal-footer"></div>
+    </div>
+  </div>
+
+  <script src="/js/admin-core.js"></script>
+  <script src="/js/admin-nav.js"></script>
+  <script src="/pages/js/admin-ops.js?v=1"></script>
+</body>
+</html>

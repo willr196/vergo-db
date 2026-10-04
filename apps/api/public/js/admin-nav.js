@@ -19,6 +19,9 @@
     { href: 'admin-jobs',             icon: '💼', label: 'Jobs' },
     { href: 'admin-job-applications', icon: '📝', label: 'Applications' },
 
+    { group: 'Operations' },
+    { href: 'ops',                    icon: '🧭', label: 'VERGO Ops' },
+
     { group: 'Admin' },
     { href: 'admin-comms',            icon: '📬', label: 'Messages' },
     { href: 'admin-analytics',        icon: '📊', label: 'Analytics' },

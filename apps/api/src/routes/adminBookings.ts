@@ -7,6 +7,7 @@ import { sendBookingReviewRequestEmail } from '../services/email';
 import { bookingMoney, floatPosition, shiftHours } from '../lib/money';
 import { PRICING, getPublicRateCard } from '../config/pricing';
 import { SITE } from '../site/content';
+import { writeAuditBestEffort } from '../ops/audit';
 
 const r = Router();
 r.use(adminAuth);
@@ -504,7 +505,7 @@ r.patch('/:id/timesheet', async (req, res, next) => {
 
     const existing = await prisma.booking.findUnique({
       where: { id: req.params.id },
-      select: { id: true, checkedInAt: true, checkedOutAt: true },
+      select: { id: true, checkedInAt: true, checkedOutAt: true, hoursWorked: true, opsBookingId: true },
     });
     if (!existing) return res.status(404).json({ ok: false, error: 'Booking not found' });
 
@@ -533,6 +534,15 @@ r.patch('/:id/timesheet', async (req, res, next) => {
         client: { select: clientSelectForMoney },
         staff: { select: staffSelectForMoney },
       },
+    });
+
+    await writeAuditBestEffort(req.session.username || 'admin', {
+      action: 'TIMESHEET_MODIFIED',
+      entityType: existing.opsBookingId ? 'OpsBooking' : 'Booking',
+      entityId: existing.opsBookingId ?? existing.id,
+      oldValue: { assignmentId: existing.id, checkedInAt: existing.checkedInAt, checkedOutAt: existing.checkedOutAt, hoursWorked: existing.hoursWorked },
+      newValue: { assignmentId: existing.id, checkedInAt: booking.checkedInAt, checkedOutAt: booking.checkedOutAt, hoursWorked: booking.hoursWorked },
+      reason: 'Corrected in admin Bookings',
     });
 
     res.json({ ok: true, data: shapeBooking(booking) });
@@ -1117,6 +1127,14 @@ r.patch('/:id/status', async (req, res, next) => {
     console.log(
       `[AUDIT] Booking status changed | bookingId=${booking.id} from=${existing.status} to=${status} admin=${req.session.username || 'admin'}`
     );
+    await writeAuditBestEffort(req.session.username || 'admin', {
+      action: 'ASSIGNMENT_CHANGED',
+      entityType: booking.opsBookingId ? 'OpsBooking' : 'Booking',
+      entityId: booking.opsBookingId ?? booking.id,
+      oldValue: { assignmentId: booking.id, status: existing.status },
+      newValue: { assignmentId: booking.id, status },
+      reason: rejectionReason ?? null,
+    });
 
     res.json({ ok: true, data: shapeBooking(booking) });
   } catch (error) {
@@ -1278,6 +1296,14 @@ r.post('/:id/complete', async (req, res, next) => {
     });
 
     console.log(`[BOOKING] Completed: ${booking.id} | Hours: ${finalHours} (billed ${billableHours}) | Total: £${finalTotal}`);
+    await writeAuditBestEffort(req.session.username || 'admin', {
+      action: 'TIMESHEET_APPROVED',
+      entityType: booking.opsBookingId ? 'OpsBooking' : 'Booking',
+      entityId: booking.opsBookingId ?? booking.id,
+      oldValue: { assignmentId: booking.id, status: booking.status, hoursEstimated: booking.hoursEstimated },
+      newValue: { assignmentId: booking.id, status: 'COMPLETED', hours: finalHours, billableHours },
+      reason: 'Completed in admin Bookings',
+    });
 
     // No review request goes out automatically. The office sends one with the
     // "Send review request" button (POST /:id/review-request) once it knows

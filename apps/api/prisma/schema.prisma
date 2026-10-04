@@ -45,32 +45,41 @@ model Applicant {
 /// List B (time-limited) permissions require a follow-up check before expiresAt,
 /// so history is retained rather than overwritten.
 model RightToWorkCheck {
-  id           String     @id @default(cuid())
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  applicantId  String
-  method       RtwMethod
+  id                       String     @id @default(cuid())
+  createdAt                DateTime   @default(now())
+  updatedAt                DateTime   @updatedAt
+  applicantId              String
+  method                   RtwMethod
   /// e.g. "UK passport", "Share code", "BRP" — free text so the List A/B
   /// document names can change without a migration.
-  documentType String?    @db.VarChar(120)
+  documentType             String?    @db.VarChar(120)
   /// Share code or document number.
-  reference    String?    @db.VarChar(120)
-  validFrom    DateTime?
+  reference                String?    @db.VarChar(120)
+  validFrom                DateTime?
   /// Null means permanent right to work (List A). A date means a follow-up
   /// check is required before it lapses.
-  expiresAt    DateTime?
-  outcome      RtwOutcome @default(PENDING)
+  expiresAt                DateTime?
+  outcome                  RtwOutcome @default(PENDING)
   /// Admin username who performed the check.
-  checkedBy    String     @db.VarChar(100)
-  checkedAt    DateTime   @default(now())
+  checkedBy                String     @db.VarChar(100)
+  checkedAt                DateTime   @default(now())
   /// S3 key for the retained copy of the document evidence.
-  documentKey  String?    @db.VarChar(500)
-  notes        String?    @db.VarChar(1000)
+  documentKey              String?    @db.VarChar(500)
+  notes                    String?    @db.VarChar(1000)
+  /// VERGO Ops: the person who actually performed the check, when that is not
+  /// the admin recording it.
+  performedBy              String?    @db.VarChar(100)
+  /// VERGO Ops: the admin's positive statement that the prescribed check was
+  /// carried out. Null on checks recorded before this field existed. An upload
+  /// on its own is never treated as proof that the check happened.
+  prescribedCheckConfirmed Boolean?
+  /// VERGO Ops: date a follow-up check is due, when one is needed before expiry.
+  followUpDue              DateTime?
   // Restrict, not Cascade: this is compliance evidence and must survive an
   // applicant record being deleted. There is no applicant-delete path today,
   // but the FK shouldn't rely on that staying true — deleting an applicant
   // with RTW history should fail loudly rather than silently erase it.
-  applicant    Applicant  @relation(fields: [applicantId], references: [id], onDelete: Restrict)
+  applicant                Applicant  @relation(fields: [applicantId], references: [id], onDelete: Restrict)
 
   @@index([applicantId])
   @@index([outcome])
@@ -127,34 +136,34 @@ model AdminUser {
 }
 
 model Client {
-  id                    String             @id @default(cuid())
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
+  id                    String               @id @default(cuid())
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
   companyName           String
   industry              String?
   website               String?
   vatNumber             String?
   companySize           String?
   contactName           String
-  email                 String             @unique
+  email                 String               @unique
   passwordHash          String
   phone                 String?
   jobTitle              String?
-  status                ClientStatus       @default(PENDING)
+  status                ClientStatus         @default(PENDING)
   approvedAt            DateTime?
   approvedBy            String?
   rejectionReason       String?
-  emailVerified         Boolean            @default(false)
+  emailVerified         Boolean              @default(false)
   verifyToken           String?
   verifyTokenExp        DateTime?
   resetToken            String?
   resetTokenExp         DateTime?
-  failedAttempts        Int                @default(0)
+  failedAttempts        Int                  @default(0)
   lockedUntil           DateTime?
   lastLoginAt           DateTime?
   adminNotes            String?
-  subscriptionTier      SubscriptionTier   @default(STANDARD)
-  subscriptionStatus    SubscriptionStatus @default(ACTIVE)
+  subscriptionTier      SubscriptionTier     @default(STANDARD)
+  subscriptionStatus    SubscriptionStatus   @default(ACTIVE)
   subscriptionStartedAt DateTime?
   subscriptionExpiresAt DateTime?
   logo                  String?
@@ -162,9 +171,22 @@ model Client {
   description           String?
   address               String?
   city                  String?
-  seqId                 Int                @unique @default(autoincrement())
+  seqId                 Int                  @unique @default(autoincrement())
+  /// VERGO Ops hirer record. companyName is the legal/business name and
+  /// industry is the nature of business.
+  tradingName           String?              @db.VarChar(200)
+  billingAddress        String?              @db.VarChar(500)
+  venueAddresses        String[]             @default([])
+  paymentTerms          String?              @db.VarChar(200)
+  clientType            ClientType           @default(BUSINESS_HIRER)
+  termsVersion          String?              @db.VarChar(40)
+  termsSentAt           DateTime?
+  termsAcceptedAt       DateTime?
+  termsAcceptedBy       String?              @db.VarChar(200)
   bookings              Booking[]
   bookingTemplates      BookingTemplate[]
+  opsBookings           OpsBooking[]
+  directHireTracking    DirectHireTracking[]
   jobs                  Job[]
   pushTokens            PushToken[]
   quoteRequests         QuoteRequest[]
@@ -198,6 +220,7 @@ model QuoteRequest {
   clientId      String
   requestedLane BookingLane?
   bookings      Booking[]
+  opsBookings   OpsBooking[]
   client        Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@index([clientId])
@@ -247,10 +270,10 @@ model SubscriptionPlan {
 }
 
 model Booking {
-  id                         String           @id @default(cuid())
-  createdAt                  DateTime         @default(now())
-  updatedAt                  DateTime         @updatedAt
-  status                     BookingStatus    @default(PENDING)
+  id                         String            @id @default(cuid())
+  createdAt                  DateTime          @default(now())
+  updatedAt                  DateTime          @updatedAt
+  status                     BookingStatus     @default(PENDING)
   eventName                  String?
   eventDate                  DateTime
   eventEndDate               DateTime?
@@ -258,12 +281,12 @@ model Booking {
   venue                      String?
   shiftStart                 String
   shiftEnd                   String
-  hoursEstimated             Decimal?         @db.Decimal(5, 2)
+  hoursEstimated             Decimal?          @db.Decimal(5, 2)
   clientTierAtBooking        SubscriptionTier
   staffTierAtBooking         StaffTier
-  hourlyRateCharged          Decimal          @db.Decimal(10, 2)
-  staffPayRate               Decimal?         @db.Decimal(10, 2)
-  totalEstimated             Decimal?         @db.Decimal(10, 2)
+  hourlyRateCharged          Decimal           @db.Decimal(10, 2)
+  staffPayRate               Decimal?          @db.Decimal(10, 2)
+  totalEstimated             Decimal?          @db.Decimal(10, 2)
   clientNotes                String?
   adminNotes                 String?
   rejectionReason            String?
@@ -277,14 +300,14 @@ model Booking {
   /// minimum the client is charged for.
   checkedInAt                DateTime?
   checkedOutAt               DateTime?
-  hoursWorked                Decimal?         @db.Decimal(5, 2)
+  hoursWorked                Decimal?          @db.Decimal(5, 2)
   /// Anything the worker needs to flag at check-out: overrun, a problem on
   /// site, a task that took longer than briefed.
   workerShiftNotes           String?
   clientId                   String
   staffId                    String
   quoteRequestId             String?
-  bookingLane                BookingLane      @default(FLEX)
+  bookingLane                BookingLane       @default(FLEX)
   /// Set when the client is invoiced for this booking; starts the float clock.
   invoicedAt                 DateTime?
   /// +14 days from invoicedAt — when staff pay for this booking falls due.
@@ -295,11 +318,33 @@ model Booking {
   /// Set when this booking was generated from a BookingTemplate, so a
   /// re-run of that template's generation can't double-book the same day.
   templateId                 String?
-  client                     Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  quoteRequest               QuoteRequest?    @relation(fields: [quoteRequestId], references: [id])
-  staff                      User             @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  template                   BookingTemplate? @relation(fields: [templateId], references: [id])
+  /// VERGO Ops: set when this row is an assignment on an Ops booking. The
+  /// existing Booking row stays the worker's shift and the timesheet, so the
+  /// app's check-in/out and the admin timesheet screen keep working as before.
+  opsBookingId               String?
+  requirementId              String?
+  role                       String?           @db.VarChar(80)
+  holidayPayMethod           HolidayPayMethod?
+  /// Unpaid break, minutes. Worked hours are net of it.
+  breakMins                  Int?
+  /// When a worker is swapped out the old row is CANCELLED and points here.
+  replacedByBookingId        String?
+  /// Reason an admin gave for confirming despite a pre-assignment warning.
+  warningOverrideReason      String?           @db.VarChar(500)
+  timesheetClientApprovedAt  DateTime?
+  timesheetClientApprovedBy  String?           @db.VarChar(200)
+  timesheetAdminApprovedAt   DateTime?
+  timesheetAdminApprovedBy   String?           @db.VarChar(100)
+  timesheetDisputedAt        DateTime?
+  timesheetDisputeReason     String?           @db.VarChar(500)
+  client                     Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  quoteRequest               QuoteRequest?     @relation(fields: [quoteRequestId], references: [id])
+  staff                      User              @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  template                   BookingTemplate?  @relation(fields: [templateId], references: [id])
   review                     BookingReview?
+  opsBooking                 OpsBooking?       @relation(fields: [opsBookingId], references: [id], onDelete: Restrict)
+  requirement                OpsRequirement?   @relation(fields: [requirementId], references: [id], onDelete: SetNull)
+  workerDocuments            WorkerDocument[]
 
   @@unique([templateId, eventDate])
   @@index([clientId])
@@ -310,6 +355,8 @@ model Booking {
   @@index([createdAt])
   @@index([clientPaidAt, staffPaidAt])
   @@index([checkedInAt, checkedOutAt])
+  @@index([opsBookingId])
+  @@index([staffId, eventDate])
 }
 
 model BookingTemplate {
@@ -429,6 +476,10 @@ model User {
   availability       Availability[]
   jobInvites         JobInvite[]
   applicant          Applicant?              @relation(fields: [applicantId], references: [id])
+  workerProfile      WorkerProfile?
+  workerDocuments    WorkerDocument[]
+  historicPayments   HistoricPayment[]
+  directHireTracking DirectHireTracking[]
 
   @@index([email])
   @@index([userType])
@@ -940,4 +991,356 @@ model ContentChange {
   when   DateTime @default(now())
 
   @@index([when])
+}
+
+// ============================================
+// VERGO OPS (internal admin: /ops)
+// ============================================
+// Compliance and commercial tracking for the employment business. Workers are
+// the existing User rows (userType JOB_SEEKER); WorkerProfile carries the Ops
+// fields. An Ops booking is the event; its assignments are the existing
+// Booking rows (one worker, one shift), which already carry check-in/out and
+// so remain the timesheet. Nothing here is deleted automatically, and these
+// are tracking fields, not a substitute for payroll, pension or legal advice.
+
+enum ClientType {
+  BUSINESS_HIRER
+  PRIVATE_CONSUMER
+  AGENCY
+  VENUE
+  CATERER
+  PRODUCTION
+  OTHER
+}
+
+enum WorkerActiveStatus {
+  ACTIVE
+  INACTIVE
+  LEFT
+}
+
+enum PayrollStatus {
+  NOT_ADDED
+  PENDING
+  ACTIVE
+  LEAVER
+}
+
+enum PensionStatus {
+  NOT_ASSESSED
+  NOT_ELIGIBLE_CURRENTLY
+  ELIGIBLE
+  ENROLLED
+  OPTED_IN
+  OPTED_OUT
+  ENTITLED_WORKER
+  POSTPONED
+  REVIEW_REQUIRED
+}
+
+enum HolidayPayMethod {
+  /// 12.07% paid with each shift's wages.
+  ROLLED_UP
+  /// Accrued and taken as paid leave.
+  ACCRUED
+}
+
+enum OpsDocumentType {
+  KEY_INFORMATION_DOCUMENT
+  ZERO_HOURS_AGREEMENT
+  ASSIGNMENT_CONFIRMATION
+  RTW_CHECKLIST
+  ONBOARDING_CHECKLIST
+}
+
+enum WorkerDocumentStatus {
+  ISSUED
+  ACCEPTED
+  SUPERSEDED
+  WITHDRAWN
+}
+
+enum OpsBookingStatus {
+  DRAFT
+  QUOTED
+  CONFIRMED
+  STAFFING
+  FULLY_STAFFED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  INVOICED
+  PAID
+}
+
+enum OpsCostKind {
+  /// Agreed additional charge to the client (adds to revenue).
+  CHARGE
+  /// A direct cost of the booking.
+  COST
+}
+
+enum TransferFeeStatus {
+  NOT_APPLICABLE
+  POSSIBLE
+  INVOICED
+  PAID
+  WAIVED
+}
+
+model WorkerProfile {
+  id                       String             @id @default(cuid())
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+  userId                   String             @unique
+  activeStatus             WorkerActiveStatus @default(ACTIVE)
+  roles                    String[]           @default([])
+  qualifications           String[]           @default([])
+  experienceNotes          String?            @db.VarChar(2000)
+  internalNotes            String?            @db.VarChar(2000)
+  /// 1 to 5, internal only.
+  internalRating           Int?
+  availabilityNotes        String?            @db.VarChar(1000)
+  emergencyContactName     String?            @db.VarChar(120)
+  emergencyContactPhone    String?            @db.VarChar(40)
+  /// Admin block on top of the check history, e.g. a check under investigation.
+  rtwBlocked               Boolean            @default(false)
+  rtwBlockedReason         String?            @db.VarChar(500)
+  payrollStatus            PayrollStatus      @default(NOT_ADDED)
+  /// The payroll provider's employee reference. Not an NI number.
+  payrollExternalReference String?            @db.VarChar(120)
+  pensionStatus            PensionStatus      @default(NOT_ASSESSED)
+  pensionLastAssessedAt    DateTime?
+  pensionNotes             String?            @db.VarChar(1000)
+  readyOverride            Boolean            @default(false)
+  readyOverrideReason      String?            @db.VarChar(500)
+  readyOverrideBy          String?            @db.VarChar(100)
+  readyOverrideAt          DateTime?
+  user                     User               @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([activeStatus])
+  @@index([payrollStatus])
+  @@index([pensionStatus])
+}
+
+/// One version of a document's wording. Never edited once saved: a change is a
+/// new version and the old one is retired, so what a worker was issued can
+/// always be shown again.
+model DocumentTemplate {
+  id         String           @id @default(cuid())
+  createdAt  DateTime         @default(now())
+  type       OpsDocumentType
+  version    Int
+  title      String           @db.VarChar(200)
+  /// Plain text with {{placeholders}}; rendered to a print page.
+  body       String
+  changeNote String?          @db.VarChar(500)
+  createdBy  String           @db.VarChar(100)
+  retiredAt  DateTime?
+  issued     WorkerDocument[]
+
+  @@unique([type, version])
+  @@index([type, retiredAt])
+}
+
+/// A document issued to a worker. renderedBody is the exact text issued.
+model WorkerDocument {
+  id                   String               @id @default(cuid())
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  userId               String
+  templateId           String
+  type                 OpsDocumentType
+  version              Int
+  /// Assignment confirmations belong to one assignment (Booking row).
+  bookingId            String?
+  status               WorkerDocumentStatus @default(ISSUED)
+  issuedAt             DateTime             @default(now())
+  issuedBy             String               @db.VarChar(100)
+  /// Electronic acceptance as recorded by an admin: the name the worker gave
+  /// and when. Not a qualified electronic signature.
+  acceptedAt           DateTime?
+  acceptedName         String?              @db.VarChar(200)
+  acceptanceMethod     String?              @db.VarChar(200)
+  acceptanceRecordedBy String?              @db.VarChar(100)
+  supersededAt         DateTime?
+  renderedBody         String
+  user                 User                 @relation(fields: [userId], references: [id], onDelete: Restrict)
+  template             DocumentTemplate     @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  booking              Booking?             @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+
+  @@index([userId, type])
+  @@index([bookingId])
+  @@index([status])
+}
+
+model OpsBooking {
+  id                       String           @id @default(cuid())
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
+  /// VB-2026-0001
+  reference                String           @unique @db.VarChar(20)
+  clientId                 String
+  quoteRequestId           String?
+  bookingType              String?          @db.VarChar(80)
+  eventType                String?          @db.VarChar(120)
+  venue                    String?          @db.VarChar(200)
+  address                  String?          @db.VarChar(500)
+  /// London calendar date of the event.
+  eventDate                DateTime         @db.Date
+  /// HH:MM, London time.
+  startTime                String           @db.VarChar(5)
+  expectedFinish           String           @db.VarChar(5)
+  actualFinish             String?          @db.VarChar(5)
+  guestNumbers             Int?
+  onSiteContactName        String?          @db.VarChar(120)
+  onSiteContactPhone       String?          @db.VarChar(40)
+  vergoLead                String?          @db.VarChar(120)
+  status                   OpsBookingStatus @default(DRAFT)
+  notes                    String?          @db.VarChar(4000)
+  /// Snapshot when created for a private consumer: B2B terms do not apply and
+  /// separate consumer booking terms are needed.
+  consumerTermsRequired    Boolean          @default(false)
+  termsVersionAtBooking    String?          @db.VarChar(40)
+  invoiceRef               String?          @db.VarChar(80)
+  invoicedAt               DateTime?
+  paidAt                   DateTime?
+  /// Actual payroll figures entered once payroll has run; they replace the
+  /// estimate in the profit view. Whole pence.
+  actualWagesPence         Int?
+  actualHolidayPayPence    Int?
+  actualEmployerCostsPence Int?
+  actualPayrollNote        String?          @db.VarChar(500)
+  actualPayrollRecordedBy  String?          @db.VarChar(100)
+  actualPayrollRecordedAt  DateTime?
+  client                   Client           @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  quoteRequest             QuoteRequest?    @relation(fields: [quoteRequestId], references: [id], onDelete: SetNull)
+  requirements             OpsRequirement[]
+  costs                    OpsBookingCost[]
+  assignments              Booking[]
+
+  @@index([clientId])
+  @@index([eventDate])
+  @@index([status])
+}
+
+model OpsRequirement {
+  id                      String     @id @default(cuid())
+  createdAt               DateTime   @default(now())
+  updatedAt               DateTime   @updatedAt
+  opsBookingId            String
+  role                    String     @db.VarChar(80)
+  quantity                Int
+  clientChargeRate        Decimal    @db.Decimal(10, 2)
+  workerPayRate           Decimal    @db.Decimal(10, 2)
+  /// Falls back to the site-wide minimum when empty.
+  minimumHours            Decimal?   @db.Decimal(5, 2)
+  /// Multiplier on the charge rate for hours after midnight, e.g. 1.25.
+  afterMidnightMultiplier Decimal?   @db.Decimal(4, 2)
+  /// Per worker, per shift.
+  travelContribution      Decimal?   @db.Decimal(10, 2)
+  /// Per worker, per shift.
+  expenses                Decimal?   @db.Decimal(10, 2)
+  breakMins               Int        @default(0)
+  requiredExperience      String?    @db.VarChar(500)
+  requiredQualifications  String[]   @default([])
+  dressCode               String?    @db.VarChar(500)
+  equipment               String?    @db.VarChar(500)
+  duties                  String?    @db.VarChar(2000)
+  healthSafetyRisks       String?    @db.VarChar(2000)
+  riskControls            String?    @db.VarChar(2000)
+  breakInfo               String?    @db.VarChar(500)
+  opsBooking              OpsBooking @relation(fields: [opsBookingId], references: [id], onDelete: Restrict)
+  assignments             Booking[]
+
+  @@index([opsBookingId])
+}
+
+model OpsBookingCost {
+  id           String      @id @default(cuid())
+  createdAt    DateTime    @default(now())
+  opsBookingId String
+  kind         OpsCostKind
+  /// equipment, costume, food_drink, supplier, worker_other, other, charge
+  category     String      @db.VarChar(40)
+  description  String      @db.VarChar(300)
+  amountPence  Int
+  createdBy    String      @db.VarChar(100)
+  opsBooking   OpsBooking  @relation(fields: [opsBookingId], references: [id], onDelete: Restrict)
+
+  @@index([opsBookingId])
+}
+
+/// Historic Payroll Reconstruction: what was actually paid, organised for
+/// Basic PAYE Tools, payroll software or an accountant. Never generates FPS
+/// files, tax codes or tax due.
+model HistoricPayment {
+  id               String   @id @default(cuid())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  userId           String?
+  /// As written in the source record; kept even when matched to a worker.
+  workerName       String   @db.VarChar(200)
+  paymentDate      DateTime @db.Date
+  hours            Decimal? @db.Decimal(7, 2)
+  basePay          Decimal? @db.Decimal(10, 2)
+  holidayPay       Decimal? @db.Decimal(10, 2)
+  grossTransferred Decimal  @db.Decimal(10, 2)
+  notes            String?  @db.VarChar(1000)
+  payrollCorrected Boolean  @default(false)
+  fpsSubmitted     Boolean  @default(false)
+  hmrcReconciled   Boolean  @default(false)
+  importBatch      String?  @db.VarChar(60)
+  createdBy        String   @db.VarChar(100)
+  user             User?    @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([paymentDate])
+}
+
+/// Transfer / direct-hire tracking aid, one row per worker and hirer.
+model DirectHireTracking {
+  id                   String            @id @default(cuid())
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  userId               String
+  clientId             String
+  lastAssignmentDate   DateTime?         @db.Date
+  relevantPeriodEnd    DateTime?         @db.Date
+  directHireReported   Boolean           @default(false)
+  directHireReportedAt DateTime?
+  extendedHireOption   Boolean           @default(false)
+  transferFeeStatus    TransferFeeStatus @default(NOT_APPLICABLE)
+  notes                String?           @db.VarChar(1000)
+  user                 User              @relation(fields: [userId], references: [id], onDelete: Restrict)
+  client               Client            @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, clientId])
+  @@index([clientId])
+}
+
+/// Ops configuration that changes by tax year or by decision: pension
+/// thresholds, the pension duties start date. Validated in src/ops/settings.ts.
+model OpsSetting {
+  key       String   @id @db.VarChar(80)
+  value     Json
+  updatedAt DateTime @updatedAt
+  updatedBy String   @db.VarChar(100)
+}
+
+/// Every material Ops change: who, when, what, before and after.
+model AuditLog {
+  id         String   @id @default(cuid())
+  at         DateTime @default(now())
+  actor      String   @db.VarChar(100)
+  action     String   @db.VarChar(80)
+  entityType String   @db.VarChar(40)
+  entityId   String   @db.VarChar(40)
+  oldValue   Json?
+  newValue   Json?
+  reason     String?  @db.VarChar(1000)
+
+  @@index([entityType, entityId])
+  @@index([at])
+  @@index([action])
 }

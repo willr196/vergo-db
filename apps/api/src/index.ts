@@ -52,6 +52,8 @@ import adminMatching from './routes/adminMatching';
 import adminRightToWork from './routes/adminRightToWork';
 import adminUsers from './routes/adminUsers';
 import adminSiteContent from './routes/adminSiteContent';
+import opsApi from './routes/ops';
+import opsPrint from './routes/ops/print';
 import { sendMedia } from './site/media';
 import webAuth from './routes/webAuth';
 import { logger, requestLogger } from './services/logger';
@@ -259,7 +261,7 @@ const INDEXABLE_HOST = 'vergoltd.com';
 app.use((req, res, next) => {
   const host = String(req.headers['x-forwarded-host'] || req.headers.host || '')
     .split(',')[0].trim().toLowerCase().replace(/:\d+$/, '');
-  if (host !== INDEXABLE_HOST || /^\/(admin|login)/i.test(req.path)) {
+  if (host !== INDEXABLE_HOST || /^\/(admin|login|ops)/i.test(req.path)) {
     res.setHeader('X-Robots-Tag', 'noindex');
   }
   next();
@@ -544,6 +546,16 @@ app.get([
   res.sendFile(path.join(publicDir, file));
 });
 
+// VERGO Ops: the internal operations console. One page, hash-routed, plus
+// print pages for issued documents. Same admin session as the rest of admin.
+// The file is admin-ops.html so the admin page checks cover it; its own URL
+// goes to /ops rather than letting the static handler serve it.
+app.get(['/ops', '/ops/'], adminPageAuth, (_req, res) => {
+  res.sendFile(path.join(publicDir, 'admin-ops.html'));
+});
+app.get(['/admin-ops', '/admin-ops.html'], (_req, res) => res.redirect(302, '/ops'));
+app.use('/ops/print', adminPageAuth, opsPrint);
+
 // Admin analytics page — custom CSP to allow Chart.js CDN
 app.get('/admin-analytics', adminPageAuth, (_req, res) => {
   res.setHeader(
@@ -613,6 +625,7 @@ app.use('/api/v1/admin/matching', adminMatching);
 app.use('/api/v1/admin/right-to-work', adminRightToWork);
 app.use('/api/v1/admin/users', adminUsers);
 app.use('/api/v1/admin/site-content', adminSiteContent);
+app.use('/api/v1/ops', opsApi);
 
 // Photos uploaded in admin Site content (S3, or uploads/ in development).
 app.get('/media/site/:file', (req, res, next) => {
