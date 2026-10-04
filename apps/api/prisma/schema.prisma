@@ -186,6 +186,8 @@ model Client {
   bookings              Booking[]
   bookingTemplates      BookingTemplate[]
   opsBookings           OpsBooking[]
+  /// VERGO Ops: the outreach lead this client was won from, if any.
+  opsLead               OpsLead?
   directHireTracking    DirectHireTracking[]
   jobs                  Job[]
   pushTokens            PushToken[]
@@ -1175,34 +1177,34 @@ model WorkerDocument {
 }
 
 model OpsBooking {
-  id                       String           @id @default(cuid())
-  createdAt                DateTime         @default(now())
-  updatedAt                DateTime         @updatedAt
+  id                       String            @id @default(cuid())
+  createdAt                DateTime          @default(now())
+  updatedAt                DateTime          @updatedAt
   /// VB-2026-0001
-  reference                String           @unique @db.VarChar(20)
+  reference                String            @unique @db.VarChar(20)
   clientId                 String
   quoteRequestId           String?
-  bookingType              String?          @db.VarChar(80)
-  eventType                String?          @db.VarChar(120)
-  venue                    String?          @db.VarChar(200)
-  address                  String?          @db.VarChar(500)
+  bookingType              String?           @db.VarChar(80)
+  eventType                String?           @db.VarChar(120)
+  venue                    String?           @db.VarChar(200)
+  address                  String?           @db.VarChar(500)
   /// London calendar date of the event.
-  eventDate                DateTime         @db.Date
+  eventDate                DateTime          @db.Date
   /// HH:MM, London time.
-  startTime                String           @db.VarChar(5)
-  expectedFinish           String           @db.VarChar(5)
-  actualFinish             String?          @db.VarChar(5)
+  startTime                String            @db.VarChar(5)
+  expectedFinish           String            @db.VarChar(5)
+  actualFinish             String?           @db.VarChar(5)
   guestNumbers             Int?
-  onSiteContactName        String?          @db.VarChar(120)
-  onSiteContactPhone       String?          @db.VarChar(40)
-  vergoLead                String?          @db.VarChar(120)
-  status                   OpsBookingStatus @default(DRAFT)
-  notes                    String?          @db.VarChar(4000)
+  onSiteContactName        String?           @db.VarChar(120)
+  onSiteContactPhone       String?           @db.VarChar(40)
+  vergoLead                String?           @db.VarChar(120)
+  status                   OpsBookingStatus  @default(DRAFT)
+  notes                    String?           @db.VarChar(4000)
   /// Snapshot when created for a private consumer: B2B terms do not apply and
   /// separate consumer booking terms are needed.
-  consumerTermsRequired    Boolean          @default(false)
-  termsVersionAtBooking    String?          @db.VarChar(40)
-  invoiceRef               String?          @db.VarChar(80)
+  consumerTermsRequired    Boolean           @default(false)
+  termsVersionAtBooking    String?           @db.VarChar(40)
+  invoiceRef               String?           @db.VarChar(80)
   invoicedAt               DateTime?
   paidAt                   DateTime?
   /// Actual payroll figures entered once payroll has run; they replace the
@@ -1210,14 +1212,15 @@ model OpsBooking {
   actualWagesPence         Int?
   actualHolidayPayPence    Int?
   actualEmployerCostsPence Int?
-  actualPayrollNote        String?          @db.VarChar(500)
-  actualPayrollRecordedBy  String?          @db.VarChar(100)
+  actualPayrollNote        String?           @db.VarChar(500)
+  actualPayrollRecordedBy  String?           @db.VarChar(100)
   actualPayrollRecordedAt  DateTime?
-  client                   Client           @relation(fields: [clientId], references: [id], onDelete: Restrict)
-  quoteRequest             QuoteRequest?    @relation(fields: [quoteRequestId], references: [id], onDelete: SetNull)
+  client                   Client            @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  quoteRequest             QuoteRequest?     @relation(fields: [quoteRequestId], references: [id], onDelete: SetNull)
   requirements             OpsRequirement[]
   costs                    OpsBookingCost[]
   assignments              Booking[]
+  scheduleItems            OpsScheduleItem[]
 
   @@index([clientId])
   @@index([eventDate])
@@ -1343,4 +1346,71 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([at])
   @@index([action])
+}
+
+/// VERGO Ops: a company approached for work, before it is a client. Kept apart
+/// from Client so prospects never reach the booking dropdown. Converting a lead
+/// creates the Client and keeps the link. (Merged from the old local tool.)
+model OpsLead {
+  id           String         @id @default(cuid())
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  company      String         @db.VarChar(200)
+  contactName  String?        @db.VarChar(120)
+  contactEmail String?        @db.VarChar(255)
+  contactPhone String?        @db.VarChar(40)
+  /// When you last reached out. The list is ordered by this.
+  contactedOn  DateTime       @db.Date
+  channel      OpsLeadChannel @default(EMAIL)
+  stage        OpsLeadStage   @default(CONTACTED)
+  notes        String?        @db.VarChar(4000)
+  clientId     String?        @unique
+  client       Client?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@index([stage, contactedOn])
+}
+
+enum OpsLeadChannel {
+  EMAIL
+  PHONE
+  IN_PERSON
+  OTHER
+}
+
+enum OpsLeadStage {
+  CONTACTED
+  REPLIED
+  WON
+  LOST
+}
+
+/// VERGO Ops: one line of a booking's running order (arrival, briefing, doors,
+/// pack-down). Event milestones, not shifts: editing them never changes hours,
+/// pay or charges.
+model OpsScheduleItem {
+  id           String     @id @default(cuid())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  opsBookingId String
+  /// HH:MM when known; null for a note with no fixed time yet.
+  time         String?    @db.VarChar(5)
+  title        String     @db.VarChar(200)
+  assignee     String?    @db.VarChar(120)
+  notes        String?    @db.VarChar(1000)
+  opsBooking   OpsBooking @relation(fields: [opsBookingId], references: [id], onDelete: Cascade)
+
+  @@index([opsBookingId, time])
+}
+
+/// Records imported from the old local VERGO Ops tool (Documents/vergo_admin),
+/// legacy id to new id, so the import can be re-run without duplicating.
+model OpsLegacyImport {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  /// Client, Staff, Job, Assignment, Lead or JobScheduleItem.
+  entity    String   @db.VarChar(40)
+  legacyId  String   @db.VarChar(40)
+  newId     String   @db.VarChar(40)
+
+  @@unique([entity, legacyId])
 }

@@ -16,6 +16,7 @@
     "prisma:deploy:raw": "node scripts/guard-db-target.js \"prisma migrate deploy (raw)\" && prisma migrate deploy",
     "seed": "node scripts/guard-db-target.js \"seed\" && tsx prisma/seed.ts",
     "db:reset": "node scripts/guard-db-target.js \"db:reset (DESTRUCTIVE)\" && tsx prisma/reset.ts",
+    "import:vergo-admin": "node scripts/guard-db-target.js \"import:vergo-admin\" && tsx prisma/import-vergo-admin.ts",
     "seed:jobs": "node scripts/guard-db-target.js \"seed:jobs\" && tsx prisma/seed-jobs.ts",
     "seed:marketplace": "node scripts/guard-db-target.js \"seed:marketplace\" && tsx prisma/seed-marketplace.ts",
     "seed:terms": "node scripts/guard-db-target.js \"seed:terms\" && tsx prisma/seed-terms.ts",

@@ -815,6 +815,7 @@
           }), 'Nobody assigned yet.') + '</div>';
       }).join('') : '<div class="ops-empty">Add a requirement (role, quantity and rates) before assigning workers.</div>') +
       '</div>' +
+      '<div class="ops-card" id="running-order"><div class="as-skeleton" style="max-width:200px"></div></div>' +
 
       '<div class="ops-grid-2">' + profitPanel(b) +
         '<div><div class="ops-card"><div class="ops-head"><h3 style="margin:0">Costs and charges</h3><button class="btn btn-sm btn-primary" id="add-cost">Add</button></div>' +
@@ -831,6 +832,7 @@
       '<div class="ops-card"><h3 style="margin-top:0">History</h3>' + auditTable(b.audit) + '</div>';
 
     var reload = function () { return viewBooking(id); };
+    loadRunningOrder(id, b.reference);
 
     main.querySelector('#save-status').addEventListener('click', async function () {
       var status = main.querySelector('#status-select').value;
@@ -1210,11 +1212,185 @@
     });
   }
 
+  // ── Rota ────────────────────────────────────────────────────────────────
+  // One week: people down, days across, from the same assignments as the
+  // Bookings screen. Places still to fill are listed under each day.
+
+  function shortDay(ymd) {
+    var d = new Date(ymd + 'T12:00:00Z');
+    return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+  }
+
+  async function viewRota(query) {
+    var d = await api('/rota' + (query.week ? '?week=' + encodeURIComponent(query.week) : ''));
+    var today = todayLondon();
+    var head = '<tr><th>Person</th>' + d.days.map(function (k) {
+      return '<th class="' + (k === today ? 'ops-today' : '') + '">' + esc(shortDay(k)) + '</th>';
+    }).join('') + '</tr>';
+    var shiftCell = function (s) {
+      var link = s.opsBookingId ? '#/booking/' + s.opsBookingId : null;
+      return '<' + (link ? 'a href="' + esc(link) + '"' : 'div') + ' class="ops-rota-shift">' +
+        '<strong>' + esc(s.start + '–' + s.finish) + '</strong>' +
+        '<span>' + esc([s.role, s.client || s.venue].filter(Boolean).join(' · ') || '—') + '</span>' +
+        (s.status !== 'CONFIRMED' && s.status !== 'COMPLETED' ? chip(ASSIGNMENT_WORDS[s.status] || words(s.status), CHIPS.assignment[s.status]) : '') +
+        '</' + (link ? 'a' : 'div') + '>';
+    };
+    var rows = d.people.map(function (p) {
+      return '<tr><td><a class="detail-link" href="#/worker/' + esc(p.id) + '">' + esc(p.name) + '</a></td>' + d.days.map(function (k) {
+        return '<td class="' + (k === today ? 'ops-today' : '') + '">' + (p.days[k] || []).map(shiftCell).join('') + '</td>';
+      }).join('') + '</tr>';
+    });
+    var gaps = d.days.filter(function (k) { return (d.shortfalls[k] || []).length; }).map(function (k) {
+      return '<div class="ops-rota-gap-day"><div class="ops-field-label">' + esc(shortDay(k)) + '</div>' + d.shortfalls[k].map(function (g) {
+        return '<a class="ops-rota-gap" href="#/booking/' + esc(g.opsBookingId) + '"><strong>' + esc(g.reference) + '</strong> ' + esc(g.client) +
+          ' · ' + esc(g.start + '–' + g.finish) + ' ' + chip(g.unfilled + ' to fill', 'warn') + '</a>';
+      }).join('') + '</div>';
+    }).join('');
+
+    main.innerHTML = '<div class="ops-head"><div><h2>Rota</h2><div class="ops-lede">Week of ' + day(d.week) + '. Cancelled and declined shifts are hidden.</div></div>' +
+      '<div class="ops-actions"><a class="btn btn-ghost btn-sm" href="#/rota?week=' + esc(d.previousWeek) + '">← Previous</a>' +
+      '<a class="btn btn-ghost btn-sm" href="#/rota">This week</a>' +
+      '<a class="btn btn-ghost btn-sm" href="#/rota?week=' + esc(d.nextWeek) + '">Next →</a>' +
+      '<input type="date" id="rota-jump" class="as-input" style="width:auto" value="' + esc(d.week) + '" aria-label="Jump to week"></div></div>' +
+      '<div class="as-table-wrap ops-rota">' + (rows.length
+        ? '<div class="ops-scroll"><table class="ops-table"><thead>' + head + '</thead><tbody>' + rows.join('') + '</tbody></table></div>'
+        : '<div class="ops-empty">Nobody is rostered this week.</div>') + '</div>' +
+      '<h3>Still to fill</h3>' + (gaps || '<div class="ops-empty">Every booking this week has its places filled.</div>');
+    main.querySelector('#rota-jump').addEventListener('change', function (e) { if (e.target.value) setQuery('rota', { week: e.target.value }); });
+  }
+
+  // ── Leads ───────────────────────────────────────────────────────────────
+  // Companies approached for work, before they are clients. Converting one
+  // creates the client and keeps the link.
+
+  var LEAD_STAGES = ['CONTACTED', 'REPLIED', 'WON', 'LOST'];
+  var LEAD_CHANNELS = [['EMAIL', 'Email'], ['PHONE', 'Phone'], ['IN_PERSON', 'In person'], ['OTHER', 'Other']];
+  var LEAD_CHIP = { CONTACTED: 'info', REPLIED: 'warn', WON: 'ok', LOST: 'muted' };
+
+  function leadFields(l) {
+    l = l || {};
+    return field('Company', 'company', l.company, 'text', { required: true }) +
+      field('Contact name', 'contactName', l.contactName) +
+      field('Contact email', 'contactEmail', l.contactEmail, 'email') +
+      field('Contact phone', 'contactPhone', l.contactPhone) +
+      field('Last contacted', 'contactedOn', l.contactedOn || todayLondon(), 'date', { required: true }) +
+      field('How', 'channel', l.channel || 'EMAIL', 'select', { options: LEAD_CHANNELS }) +
+      field('Stage', 'stage', l.stage || 'CONTACTED', 'select', { options: LEAD_STAGES }) +
+      field('Notes', 'notes', l.notes, 'textarea', { wide: true });
+  }
+
+  async function viewLeads(query) {
+    var params = new URLSearchParams(query).toString();
+    var leads = await api('/leads' + (params ? '?' + params : ''));
+    var count = function (s) { return leads.filter(function (l) { return l.stage === s; }).length; };
+    main.innerHTML = '<div class="ops-head"><div><h2>Leads</h2><div class="ops-lede">Companies you have approached for work. A lead is not a client until it is converted, so prospects stay out of the booking list.</div></div><button class="btn btn-primary" id="new-lead">Add lead</button></div>' +
+      (query.stage ? '' : '<div class="kpi-grid ops-kpis">' + LEAD_STAGES.map(function (s) {
+        return kpi(words(s), count(s), null, s === 'WON' ? 'success' : s === 'REPLIED' ? 'warning' : null, '#/leads?stage=' + s);
+      }).join('') + '</div>') +
+      '<form class="as-filters" id="filters"><div class="as-filter-group"><label>Search</label><input type="search" name="search" value="' + esc(query.search || '') + '" placeholder="Company, contact"></div>' +
+      '<div class="as-filter-group"><label>Stage</label><select name="stage">' + options(LEAD_STAGES, query.stage, 'Any') + '</select></div></form>' +
+      '<div class="as-table-wrap">' + table(['Company', 'Contact', 'Last contacted', 'How', 'Stage', ''], leads.map(function (l) {
+        return '<tr><td><strong>' + esc(l.company) + '</strong>' + (l.notes ? '<div class="text-muted fs-sm">' + esc(l.notes.length > 90 ? l.notes.slice(0, 90) + '…' : l.notes) + '</div>' : '') + '</td>' +
+          '<td>' + esc(l.contactName || '—') + (l.contactEmail ? '<div class="text-muted fs-sm">' + esc(l.contactEmail) + '</div>' : '') + (l.contactPhone ? '<div class="text-muted fs-sm">' + esc(l.contactPhone) + '</div>' : '') + '</td>' +
+          '<td>' + day(l.contactedOn) + '</td><td>' + esc(words(l.channel)) + '</td><td>' + chip(words(l.stage), LEAD_CHIP[l.stage]) + '</td>' +
+          '<td class="ops-actions">' + (l.client
+            ? '<a class="btn btn-sm btn-ghost" href="#/client/' + esc(l.client.id) + '">Client: ' + esc(l.client.companyName) + '</a>'
+            : '<button class="btn btn-sm btn-success" data-convert="' + esc(l.id) + '">Make client</button>') +
+          '<button class="btn btn-sm btn-ghost" data-edit-lead="' + esc(l.id) + '">Edit</button>' +
+          '<button class="btn btn-sm btn-danger-quiet" data-del-lead="' + esc(l.id) + '">Delete</button></td></tr>';
+      }), query.stage || query.search ? 'No leads match.' : 'No leads yet. Add the companies you reach out to.') + '</div>';
+
+    var byId = {};
+    leads.forEach(function (l) { byId[l.id] = l; });
+    var form = main.querySelector('#filters');
+    form.addEventListener('change', function () { setQuery('leads', Object.fromEntries(new FormData(form))); });
+    form.addEventListener('submit', function (e) { e.preventDefault(); setQuery('leads', Object.fromEntries(new FormData(form))); });
+    var reload = function () { return viewLeads(query); };
+    main.querySelector('#new-lead').addEventListener('click', function () {
+      openModal('Add lead', '<div class="ops-form">' + leadFields() + '</div>', [{ label: 'Add lead', onClick: async function (b) {
+        await api('/leads', { method: 'POST', body: compact(readForm(b)) }); toast('Lead added'); reload();
+      } }]);
+    });
+    on(main, '[data-edit-lead]', 'click', function (_e, el) {
+      openModal('Edit lead', '<div class="ops-form">' + leadFields(byId[el.dataset.editLead]) + '</div>', [{ label: 'Save', onClick: async function (b) {
+        await api('/leads/' + el.dataset.editLead, { method: 'PATCH', body: readForm(b) }); toast('Saved'); reload();
+      } }]);
+    });
+    on(main, '[data-del-lead]', 'click', async function (_e, el) {
+      if (!(await confirmDialog('Delete the lead for ' + byId[el.dataset.delLead].company + '? A client made from it is kept.', 'Delete', true))) return;
+      try { await api('/leads/' + el.dataset.delLead, { method: 'DELETE' }); toast('Lead deleted'); reload(); } catch (err) { fail(err); }
+    });
+    on(main, '[data-convert]', 'click', function (_e, el) {
+      var l = byId[el.dataset.convert];
+      openModal('Make ' + l.company + ' a client', '<p class="mb-2">Creates an approved client from this lead and marks the lead won. They get no portal login until they set a password.</p><div class="ops-form">' +
+        field('Client email', 'email', l.contactEmail, 'email', { required: true, wide: true, hint: 'A client needs a unique email.' }) + '</div>',
+        [{ label: 'Make client', kind: 'btn-success', onClick: async function (b) {
+          var made = await api('/leads/' + l.id + '/convert', { method: 'POST', body: compact(readForm(b)) });
+          toast(made.companyName + ' is now a client'); location.hash = '#/client/' + made.clientId;
+        } }]);
+    });
+  }
+
+  // ── Running order (on a booking) ────────────────────────────────────────
+  // What happens when on the day. Not shifts: editing it never changes pay.
+
+  async function loadRunningOrder(bookingId, reference) {
+    var slot = main.querySelector('#running-order');
+    if (!slot) return;
+    var items;
+    try { items = await api('/bookings/' + encodeURIComponent(bookingId) + '/schedule'); } catch (err) { slot.innerHTML = alertBox('danger', 'Could not load the running order: ' + err.message); return; }
+    var byId = {};
+    items.forEach(function (i) { byId[i.id] = i; });
+    var lineFields = function (i) {
+      i = i || {};
+      return field('Time', 'time', i.time, 'time', { hint: 'Leave empty for a note with no fixed time.' }) +
+        field('What happens', 'title', i.title, 'text', { required: true }) +
+        field('Who', 'assignee', i.assignee) +
+        field('Notes', 'notes', i.notes, 'textarea', { wide: true });
+    };
+    slot.innerHTML = '<div class="ops-head"><h3 style="margin:0">Running order</h3><div class="ops-actions">' +
+      (items.length ? '<button class="btn btn-sm btn-ghost" id="print-ro">Print</button>' : '') +
+      '<button class="btn btn-sm btn-primary" id="add-ro">Add line</button></div></div>' +
+      table(['Time', 'What happens', 'Who', 'Notes', ''], items.map(function (i) {
+        return '<tr><td class="ops-mono">' + esc(i.time || '—') + '</td><td><strong>' + esc(i.title) + '</strong></td><td>' + esc(i.assignee || '') + '</td><td class="fs-sm">' + esc(i.notes || '') + '</td>' +
+          '<td class="ops-actions"><button class="btn btn-sm btn-ghost" data-edit-ro="' + esc(i.id) + '">Edit</button><button class="btn btn-sm btn-danger-quiet" data-del-ro="' + esc(i.id) + '">Remove</button></td></tr>';
+      }), 'No running order yet: arrival, briefing, doors, service, pack-down.');
+    var reload = function () { return loadRunningOrder(bookingId, reference); };
+    slot.querySelector('#add-ro').addEventListener('click', function () {
+      openModal('Add to running order', '<div class="ops-form">' + lineFields() + '</div>', [{ label: 'Add', onClick: async function (b) {
+        await api('/bookings/' + bookingId + '/schedule', { method: 'POST', body: compact(readForm(b)) }); reload();
+      } }]);
+    });
+    on(slot, '[data-edit-ro]', 'click', function (_e, el) {
+      openModal('Edit line', '<div class="ops-form">' + lineFields(byId[el.dataset.editRo]) + '</div>', [{ label: 'Save', onClick: async function (b) {
+        await api('/schedule/' + el.dataset.editRo, { method: 'PATCH', body: readForm(b) }); reload();
+      } }]);
+    });
+    on(slot, '[data-del-ro]', 'click', async function (_e, el) {
+      if (!(await confirmDialog('Remove "' + byId[el.dataset.delRo].title + '" from the running order?', 'Remove', true))) return;
+      try { await api('/schedule/' + el.dataset.delRo, { method: 'DELETE' }); reload(); } catch (err) { fail(err); }
+    });
+    var printBtn = slot.querySelector('#print-ro');
+    if (printBtn) printBtn.addEventListener('click', function () {
+      var w = window.open('', '_blank');
+      if (!w) return fail(new Error('Allow pop-ups to print the running order.'));
+      w.document.write('<!doctype html><meta charset="utf-8"><title>Running order ' + esc(reference) + '</title>' +
+        '<style>body{font:14px/1.4 system-ui,sans-serif;margin:32px;color:#111}h1{font-size:20px}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #ccc;padding:8px;text-align:left;vertical-align:top}th{font-size:11px;text-transform:uppercase;color:#555}</style>' +
+        '<h1>Running order · ' + esc(reference) + '</h1><table><tr><th>Time</th><th>What happens</th><th>Who</th><th>Notes</th></tr>' +
+        items.map(function (i) { return '<tr><td>' + esc(i.time || '') + '</td><td>' + esc(i.title) + '</td><td>' + esc(i.assignee || '') + '</td><td>' + esc(i.notes || '') + '</td></tr>'; }).join('') +
+        '</table>');
+      w.document.close();
+      w.focus();
+      w.print();
+    });
+  }
+
   // ── Router ──────────────────────────────────────────────────────────────
 
   var ROUTES = {
     dashboard: viewDashboard, workers: viewWorkers, worker: viewWorker, rtw: viewRtw,
     clients: viewClients, client: viewClient, bookings: viewBookings, booking: viewBooking,
+    rota: viewRota, leads: viewLeads,
     timesheets: viewTimesheets, documents: viewDocuments, awr: viewAwr, 'direct-hire': viewDirectHire,
     payroll: viewPayroll, exports: viewExports, audit: viewAudit, settings: viewSettings,
   };

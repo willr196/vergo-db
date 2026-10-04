@@ -85,3 +85,14 @@ a.kpi-card { text-decoration: none; color: inherit; display: block; }
   .ops-subnav { padding: 8px 12px; }
   .ops-table th, .ops-table td { padding: 7px 6px; }
 }
+
+/* Rota: one week, people down, days across. */
+.ops-rota .ops-table th, .ops-rota .ops-table td { min-width: 120px; }
+.ops-rota .ops-table td:first-child, .ops-rota .ops-table th:first-child { min-width: 140px; white-space: nowrap; }
+.ops-rota .ops-today { background: var(--as-gold-bg); }
+.ops-rota-shift { display: block; padding: 6px 8px; margin-bottom: 6px; border-radius: 6px; border: 1px solid var(--as-border); background: var(--as-bg); color: var(--as-text); text-decoration: none; font-size: 0.78rem; }
+a.ops-rota-shift:hover { border-color: rgba(212,175,55,0.45); }
+.ops-rota-shift strong { display: block; font-variant-numeric: tabular-nums; }
+.ops-rota-shift span { display: block; color: var(--as-muted); }
+.ops-rota-gap-day { margin-bottom: 10px; }
+.ops-rota-gap { display: block; padding: 8px 10px; margin-top: 4px; border-radius: 6px; border: 1px solid rgba(245,158,11,0.3); background: var(--as-warning-bg); color: var(--as-text); text-decoration: none; font-size: 0.84rem; }

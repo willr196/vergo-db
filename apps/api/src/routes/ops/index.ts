@@ -9,11 +9,13 @@ import { adminAuth } from '../../middleware/adminAuth';
 import workers from './workers';
 import bookings from './bookings';
 import admin from './admin';
+import planning from './planning';
 
 const r = Router();
 r.use(adminAuth);
 r.use(workers);
 r.use(bookings);
 r.use(admin);
+r.use(planning);
 
 export default r;
