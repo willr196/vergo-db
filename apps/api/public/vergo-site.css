@@ -1121,17 +1121,6 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 .legal-content ul, .legal-content ol { padding-left: 1.3em; }
 .legal-content li { margin-bottom: 0.5em; }
 
-/* Hiring staff is the main line of business, so its banner leads: wider,
-   taller, a larger heading and a stronger wash. */
-.path-banner--main {
-  background:
-    radial-gradient(120% 90% at 100% 0%, rgba(var(--accent-rgb), 0.18), rgba(var(--accent-rgb), 0) 65%),
-    var(--surface);
-  border-color: rgba(var(--accent-rgb), 0.35);
-}
-.path-banner--main .path-title { font-size: clamp(34px, 4vw, 48px); }
-.path-banner--main .path-line { font-size: 17px; color: var(--text-secondary); }
-@media (min-width: 860px) { .path-banner--main { min-height: 260px; } }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
@@ -1295,6 +1284,38 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 .path-banner:hover .path-go { color: var(--accent-hover); }
 @media (prefers-reduced-motion: reduce) { .path-banner { transition: none; } .path-banner:hover { transform: none; } }
 @media (max-width: 640px) { .path-banner { min-height: 0; padding: 22px 20px 20px; } }
+
+/* Hiring staff is the main line of business, so its banner is the
+   centrepiece: a solid green card with dark ink, first on phones, and the
+   wide, tall middle column from 860px (placed in column 2 explicitly; the
+   other two fill the columns either side). After .path-banner so it wins. */
+.path-banner--main {
+  background:
+    radial-gradient(120% 100% at 100% 0%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 60%),
+    var(--accent);
+  border: 0;
+  color: var(--accent-ink);
+  box-shadow: 0 18px 44px rgba(var(--accent-rgb), 0.28);
+}
+.path-banner--main:hover,
+.path-banner--main:focus-visible {
+  color: var(--accent-ink);
+  box-shadow: 0 22px 52px rgba(var(--accent-rgb), 0.38);
+}
+.path-banner--main .path-kicker { color: var(--accent-ink); opacity: 0.8; }
+.path-banner--main .path-title { font-size: clamp(36px, 4.4vw, 54px); color: var(--accent-ink); }
+.path-banner--main .path-line { font-size: 18px; color: var(--accent-ink); opacity: 0.85; }
+.path-banner--main .path-go {
+  align-self: flex-start;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: var(--accent-ink);
+  color: var(--accent);
+}
+.path-banner--main:hover .path-go { color: var(--accent-hover); }
+@media (min-width: 860px) {
+  .path-banner--main { grid-column: 2; grid-row: 1; min-height: 320px; padding: 36px 34px 30px; }
+}
 
 .trust-strip {
   border-top: 1px solid var(--hairline-soft);

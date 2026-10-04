@@ -5,6 +5,7 @@ import { TO_EMAIL, sendQuoteNotificationEmail, sendQuoteConfirmationEmail } from
 import { emailSendingSuppressed } from "../services/email/suppression";
 import { logger, maskEmail } from "../services/logger";
 import { SITE_TERMS } from "../config/pricing";
+import { prisma } from "../prisma";
 
 const r = Router();
 
@@ -309,6 +310,56 @@ function normaliseQuotePayload(body: unknown) {
   };
 }
 
+/** Stores a public request as a Contact: a booking as STAFF_REQUEST, a
+ *  question as GENERAL. Fields Contact has no column for go into the message
+ *  as labelled lines, so the admin sees the whole brief. Returns the id. */
+async function saveWebsiteRequest(data: z.infer<typeof quoteRequestSchema>): Promise<string> {
+  const isBooking = data.intent === "BOOKING";
+  const parsedDate = data.eventDate ? new Date(data.eventDate) : null;
+  const eventDate = parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate : null;
+  const roles = data.staffByRole?.length
+    ? data.staffByRole.map((entry) => `${entry.role} × ${entry.count}`)
+    : data.roles || [];
+  const details: Array<[string, string | number | undefined]> = [
+    ["City", data.city],
+    ["Venue", data.venue],
+    ["Location", data.location],
+    ["Date", data.eventDate && !eventDate ? data.eventDate : undefined],
+    ["Shift", data.shiftStart || data.shiftEnd
+      ? `${data.shiftStart || "?"} - ${data.shiftEnd || "?"}${data.shiftEndsNextDay ? " (next day)" : ""}`
+      : undefined],
+    ["Days", data.duration],
+    ["Dress code", data.dressCode],
+    ["Service level", data.serviceLevel === "PREMIUM" ? "Premium" : data.serviceLevel === "STANDARD" ? "Standard" : undefined],
+    ["Lane", data.requestedLane],
+  ];
+  const detailText = details
+    .filter(([, value]) => value !== undefined && value !== "")
+    .map(([label, value]) => `${label}: ${value}`)
+    .join("\n");
+  const message = [data.message?.trim(), detailText].filter(Boolean).join("\n\n") || "(no message)";
+
+  const saved = await prisma.contact.create({
+    data: {
+      name: data.name || "Not given",
+      email: data.email || "",
+      phone: data.phone || null,
+      company: data.company || null,
+      type: isBooking ? "STAFF_REQUEST" : "GENERAL",
+      subject: isBooking ? "Booking request" : "Question from the quote page",
+      eventType: data.eventType || null,
+      eventDate,
+      guests: data.guestCount ?? null,
+      staffCount: data.staffNeeded ?? null,
+      roles: roles.length ? JSON.stringify(roles) : null,
+      message,
+      status: "NEW",
+    },
+    select: { id: true },
+  });
+  return saved.id;
+}
+
 // ============================================
 // POST /api/v1/quotes - Submit quote request (PUBLIC)
 // ============================================
@@ -323,12 +374,19 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       return res.status(201).json({ ok: true, message: "Quote request received" });
     }
     
-    const savedQuoteId: string | null = null;
     const isBooking = data.intent === "BOOKING";
     logger.info(
       { email: data.email ? maskEmail(data.email) : null, intent: data.intent },
-      'Public quote request received without client linkage'
+      'Public quote request received'
     );
+
+    // Every request lands in Admin > Requests as well as the inbox, so a lost
+    // or filtered email no longer means a lost lead. A failed save never
+    // blocks the request: the email still goes.
+    const savedQuoteId = await saveWebsiteRequest(data).catch((err) => {
+      logger.error({ event: 'quote_save_failed', err }, 'Website request was not saved to the admin panel');
+      return null;
+    });
     
     // Build the quote details for logging/email
     const quoteDetails = {
@@ -391,7 +449,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
                 ? "They asked to book. Confirm availability and come back with a confirmation."
                 : "This is a question, not a booking. Nothing has been committed."}
             </p>
-            ${savedQuoteId ? `<p style="color: green;"><strong>✅ Saved to database:</strong> ${safe(savedQuoteId)}</p>` : '<p style="color: orange;"><strong>⚠️ Email only</strong> (no linked client account)</p>'}
+            ${savedQuoteId ? `<p style="color: green;"><strong>✅ Saved to database:</strong> ${safe(savedQuoteId)}</p>` : '<p style="color: orange;"><strong>⚠️ Email only</strong> (could not save to Admin &gt; Requests)</p>'}
             <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Name</td><td style="padding: 8px; border: 1px solid #ddd;">${safe(quoteDetails.name)}</td></tr>
               <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Email</td><td style="padding: 8px; border: 1px solid #ddd;"><a href="mailto:${safe(data.email)}">${safe(data.email)}</a></td></tr>

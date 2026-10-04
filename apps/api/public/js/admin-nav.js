@@ -14,6 +14,7 @@
 
   var NAV = [
     { group: 'Staffing' },
+    { href: 'admin-requests',         icon: '🙋', label: 'Staff requests' },
     { href: 'admin',                  icon: '📥', label: 'Pipeline' },
     { href: 'admin-staff',            icon: '👤', label: 'Staff' },
     { href: 'admin-jobs',             icon: '💼', label: 'Jobs' },

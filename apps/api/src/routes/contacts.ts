@@ -65,6 +65,25 @@ r.patch('/:id/status', adminAuth, async (req, res, next) => {
 });
 
 // ============================================
+// PATCH /api/v1/contacts/:id/notes - Internal notes (ADMIN)
+// ============================================
+r.patch('/:id/notes', adminAuth, async (req, res, next) => {
+  try {
+    const { notes } = z.object({ notes: z.string().max(2000).transform((v) => v.replace(/<[^>]*>/g, '')) }).parse(req.body);
+    const updated = await prisma.contact.update({
+      where: { id: req.params.id },
+      data: { adminNotes: notes || null }
+    });
+    res.json({ ok: true, data: updated });
+  } catch (error: any) {
+    if (error?.code === 'P2025') {
+      return res.status(404).json({ error: 'Contact not found' });
+    }
+    next(error);
+  }
+});
+
+// ============================================
 // DELETE /api/v1/contacts/:id - Delete contact (ADMIN)
 // ============================================
 r.delete('/:id', adminAuth, async (req, res, next) => {

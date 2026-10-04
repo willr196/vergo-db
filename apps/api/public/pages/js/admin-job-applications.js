@@ -113,6 +113,7 @@
     if (app.status !== 'REJECTED' && app.status !== 'WITHDRAWN') {
       buttons.push('<button type="button" class="btn btn-danger-quiet btn-sm" data-action="open-reject" data-app-id="' + id + '">Reject</button>');
     }
+    buttons.push('<button type="button" class="btn btn-danger-quiet btn-sm" data-action="delete-app" data-app-id="' + id + '">Delete</button>');
     return '<div class="as-row-actions">' + buttons.join('') + '</div>';
   }
 
@@ -210,6 +211,7 @@
         actions.push('<button type="button" class="btn btn-danger-quiet" data-action="open-reject" data-from-modal="true" data-app-id="' + esc(app.id) + '">Reject</button>');
       }
     }
+    actions.push('<button type="button" class="btn btn-danger-quiet" data-action="delete-app" data-from-modal="true" data-app-id="' + esc(app.id) + '">Delete</button>');
     actions.push('<button type="button" class="btn btn-ghost" data-action="close-detail">Close</button>');
     document.getElementById('modal-footer').innerHTML = actions.join('');
 
@@ -277,6 +279,26 @@
     await loadApplications();
   }
 
+  // ── Delete ──────────────────────────────────────────────
+  async function deleteApplication(id, fromModal) {
+    var app = findApplication(id);
+    if (!app) return;
+    var who = app.user.firstName + ' ' + app.user.lastName;
+    var warn = app.status === 'CONFIRMED' ? ' They are confirmed, so the place goes back to the job.' : '';
+    if (!confirm('Delete ' + who + "'s application for " + app.job.title + '? This cannot be undone.' + warn)) return;
+
+    try {
+      await get('/api/v1/job-applications/' + encodeURIComponent(id), { method: 'DELETE' });
+    } catch (e) {
+      toast(e.message, 'error');
+      return;
+    }
+
+    if (fromModal) AdminCore.closeModal('detail-modal');
+    toast('Application deleted', 'success');
+    await loadApplications();
+  }
+
   async function saveNotes(id) {
     var notes = document.getElementById('admin-notes').value;
     try {
@@ -305,6 +327,7 @@
     if (action === 'close-detail')  return AdminCore.closeModal('detail-modal');
     if (action === 'open-detail')   return appId && openDetail(appId);
     if (action === 'save-notes')    return appId && saveNotes(appId);
+    if (action === 'delete-app')    return appId && deleteApplication(appId, fromModal);
     if (action === 'open-reject')   return appId && openReject(appId, fromModal);
     if (action === 'close-reject')  return closeReject();
     if (action === 'confirm-reject') return confirmReject(el);

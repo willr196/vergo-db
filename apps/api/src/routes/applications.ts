@@ -1431,6 +1431,38 @@ r.patch('/:id/status', adminAuth, async (req, res, next) => {
 });
 
 // ============================================
+// DELETE APPLICATION (ADMIN)
+// ============================================
+// Removes the application and its CV. The applicant record stays: it can carry
+// right-to-work evidence (kept by law) and a worker login.
+r.delete('/:id', adminAuth, async (req, res, next) => {
+  try {
+    const existing = await prisma.application.findUnique({
+      where: { id: req.params.id },
+      select: { id: true, cvKey: true, applicantId: true }
+    });
+    if (!existing) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+
+    await prisma.application.delete({ where: { id: existing.id } });
+
+    // The same file can back another application from the same person.
+    if (existing.cvKey) {
+      const stillUsed = await prisma.application.count({ where: { cvKey: existing.cvKey } });
+      if (!stillUsed) {
+        deleteStoredCv(existing.cvKey).catch((err) => console.error('[CV] delete after application delete:', err));
+      }
+    }
+
+    const adminUsername = (req.session as any)?.username || "admin";
+    authLogger.info({ action: 'application_deleted', admin: adminUsername, applicationId: existing.id, applicantId: existing.applicantId }, 'Admin deleted application');
+
+    res.json({ ok: true, id: existing.id, data: { id: existing.id, deleted: true } });
+  } catch (e) { next(e); }
+});
+
+// ============================================
 // SEND ROSTER LOGIN EMAIL (ADMIN)
 // ============================================
 r.post('/:id/roster-approval-email', adminAuth, async (req, res, next) => {

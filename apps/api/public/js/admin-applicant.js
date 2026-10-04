@@ -409,7 +409,8 @@
         ? '<a class="btn btn-ghost btn-sm" href="' + esc(downloadHref) + '" target="_blank" rel="noopener noreferrer">Open CV</a>'
         : '<button class="btn btn-ghost btn-sm" data-action="open-cv" data-app-id="' + esc(detail.id) + '" data-cv-url="' + esc(detail.cvKey || '') + '">Open CV</button>')
       + renderStatusActions(detail.id, detail.status)
-      + renderRosterLoginEmailAction(detail.id, detail.status, detail.account);
+      + renderRosterLoginEmailAction(detail.id, detail.status, detail.account)
+      + '<button class="btn btn-danger-quiet btn-sm" data-action="delete-application" data-app-id="' + esc(detail.id) + '">Delete</button>';
 
     wireDrawerNotesAutoSave(detail.id, notesValue);
     loadRightToWork(applicant.id, detail.status);
@@ -791,6 +792,23 @@
     }
   }
 
+  // Deletes the application and its CV. The person's record, any
+  // right-to-work checks and their worker login are kept.
+  async function deleteApplication(appId) {
+    var app = findApplication(appId);
+    var applicantName = app ? (app.firstName + ' ' + app.lastName).trim() : 'this applicant';
+    if (!confirm('Delete the application from ' + applicantName + '?\n\nThis removes the application and their CV and cannot be undone. Right-to-work records and any worker login are kept.')) return;
+
+    try {
+      await fetch_('/api/v1/applications/' + appId, { method: 'DELETE' });
+      notify('Application deleted', 'success');
+      closeDrawer();
+      await onChange();
+    } catch (e) {
+      notify('Failed: ' + e.message, 'error');
+    }
+  }
+
   async function sendRosterLoginEmail(appId) {
     var app = findApplication(appId);
     var applicantName = app ? (app.firstName + ' ' + app.lastName).trim() : 'this applicant';
@@ -910,6 +928,7 @@
     if (action === 'open-cv')            return openCV(el.dataset.appId, el.dataset.cvUrl || '');
     if (action === 'update-status')      return updateStatus(el.dataset.appId, el.dataset.status);
     if (action === 'send-roster-login')  return sendRosterLoginEmail(el.dataset.appId);
+    if (action === 'delete-application') return deleteApplication(el.dataset.appId);
     if (action === 'save-notes')         return saveNotes(el.dataset.appId);
     if (action === 'open-rtw-modal')     return openRtwModal(el.dataset.applicantId);
     if (action === 'close-rtw-modal')    return AdminCore.closeModal('rtw-modal');

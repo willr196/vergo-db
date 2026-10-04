@@ -2,12 +2,12 @@
   The homepage's seasonal strip: the season in the header right now (so
   Halloween until 31 October, then Christmas to 20 December), or nothing.
   Kept small on purpose: a thumbnail from the photo tagged "season-<key>",
-  the heading, the prices on one line, and a text link.
+  the heading and a text link. No prices: the homepage carries none, so
+  the promo's price lines show on its own page only.
 */%>
 <% const promo = it.season.header; %>
 <% if (promo) { %>
 <% const photo = it.photos('season-' + promo.key)[0]; const srcs = photo ? it.photoSources(photo) : null; %>
-<% const prices = promo.homeLines.filter(function (l) { return typeof l !== 'string'; }); %>
 <section class="section-tight shell season-feature" data-season="<%= promo.key %>" aria-labelledby="<%= promo.key %>-heading">
       <div class="season-feature-row">
 <% if (photo) { %>
@@ -15,13 +15,6 @@
 <% } %>
         <div>
           <h2 id="<%= promo.key %>-heading"><%= promo.homeHeading %></h2>
-<% if (prices.length) { %>
-          <ul class="season-prices">
-<% prices.forEach(function (l) { %>
-            <li><%= it.fillTokens(l.label) %> <strong><%= it.fillTokens(l.price) %></strong></li>
-<% }) %>
-          </ul>
-<% } %>
 <% if (promo.homeCtaLabel && promo.homeCtaHref) { %>
           <a href="<%= promo.homeCtaHref %>" class="season-link"><%= promo.homeCtaLabel %> &rarr;</a>
 <% } %>

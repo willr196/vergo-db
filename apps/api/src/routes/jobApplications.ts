@@ -436,4 +436,36 @@ r.patch("/:id/notes", adminAuth, async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
+// DELETE /api/v1/job-applications/:id - remove an application outright. A
+// confirmed one gives its place back to the job, as un-confirming does.
+r.delete("/:id", adminAuth, async (req, res, next) => {
+  try {
+    const application = await prisma.jobApplication.findUnique({
+      where: { id: req.params.id },
+      select: { id: true, status: true, jobId: true }
+    });
+    if (!application) return res.status(404).json({ error: "Not found" });
+
+    await prisma.$transaction(async (tx) => {
+      await tx.jobApplication.delete({ where: { id: application.id } });
+      if (application.status === "CONFIRMED") {
+        const job = await tx.job.findUnique({
+          where: { id: application.jobId },
+          select: { staffConfirmed: true, status: true }
+        });
+        if (job && job.staffConfirmed > 0) {
+          await tx.job.update({
+            where: { id: application.jobId },
+            data: { staffConfirmed: { decrement: 1 }, ...(job.status === "FILLED" ? { status: "OPEN" } : {}) }
+          });
+        }
+      }
+    });
+
+    console.log(`[AUDIT] Job application deleted | ID: ${application.id} | Status: ${application.status} | Admin: ${req.session.username}`);
+
+    res.json({ ok: true, id: application.id, data: { id: application.id, deleted: true } });
+  } catch (error) { next(error); }
+});
+
 export default r;

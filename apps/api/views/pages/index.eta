@@ -1,8 +1,8 @@
-<%/* /: moved from public/index.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<%/* /: moved from public/index.html. Shared blocks and contact details come from it.blocks and it.t. No prices on this page. */%>
 <% layout('/layouts/base', {
   meta: {
     "title": "Event Staff Hire in London & Birmingham | VERGO Staffing",
-    "description": `Waiting staff, bar staff, kitchen porters, runners and hosts across London and Birmingham. ${it.t.HEADLINE_RATE} per person, four-hour minimum.`,
+    "description": `Waiting staff, bar staff, kitchen porters, runners and hosts across London and Birmingham. Vetted, briefed and right-to-work checked.`,
     "ogImage": "/images/og/home.jpg",
     "canonical": "/"
   },
@@ -27,7 +27,6 @@
         { "@type": "City", "name": "London" },
         { "@type": "City", "name": "Birmingham" }
       ],
-      "priceRange": "££",
       "sameAs": [
         `${it.t.INSTAGRAM_URL}`,
         "https://maps.google.com/?cid=13724807393397816489"
@@ -52,28 +51,30 @@
       <h1>London event staff</h1>
       <%~ include('/partials/city-switch', { current: "london" }) %>
       <p class="home-slogan"><%~ it.t.SLOGAN %></p>
-      <p class="lede">Vetted, briefed staff. <%~ it.t.HEADLINE_RATE %>, no booking fees.</p>
+      <p class="lede">Vetted, briefed staff for events across London and Birmingham.</p>
       <div class="btn-row">
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        <a href="/hire" class="btn btn-primary">Hire staff</a>
+        <a href="/hire/quote" class="btn btn-secondary">Get a quote</a>
       </div>
       <p class="home-today">Need someone today? <a href="<%~ it.t.PHONE_TEL %>">Call <%~ it.t.PHONE %></a> or <a href="<%~ it.t.WHATSAPP_URL %>" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>.</p>
       <p class="home-roles"><a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/weddings">Weddings</a> · <a href="/hire/production-catering">Film and TV</a> · <a href="/book-an-event">Full events</a></p>
     </section>
     </div>
 
-    <!-- The three ways in: work for us, hire staff, or have us run the event. -->
+    <!-- The three ways in. Hire staff is the centrepiece: first in the markup
+         (so first on phones), centred and largest from 860px. -->
     <nav class="section-tight shell path-banners" aria-label="Where to start">
+      <a class="path-banner path-banner--main" href="/hire">
+        <span class="path-kicker">Most booked</span>
+        <h2 class="path-title">Hire staff for your event</h2>
+        <p class="path-line">Waiting staff, bar staff, kitchen porters and hosts across London and Birmingham.</p>
+        <span class="path-go">Hire staff &rarr;</span>
+      </a>
       <a class="path-banner" href="/work">
         <span class="path-kicker">Work with us</span>
         <h2 class="path-title">Apply for work</h2>
         <p class="path-line">Waiting, bar and kitchen shifts in London. Now hiring in Birmingham.</p>
         <span class="path-go">Apply &rarr;</span>
-      </a>
-      <a class="path-banner path-banner--main" href="/hire">
-        <span class="path-kicker">Staffing</span>
-        <h2 class="path-title">Hire staff for your event</h2>
-        <p class="path-line">Waiting staff, bar staff, kitchen porters and hosts.</p>
-        <span class="path-go">Hire staff &rarr;</span>
       </a>
       <a class="path-banner" href="/book-an-event">
         <span class="path-kicker">Full events</span>
