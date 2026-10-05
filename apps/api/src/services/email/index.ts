@@ -668,3 +668,35 @@ export async function sendBookingReviewRequestEmail(data: {
     ],
   }) as Promise<EmailResult>;
 }
+
+// ============================================
+// DOCUMENTS (VERGO Ops)
+// ============================================
+
+/** Sends the secure document link. Never throws; check `success`. */
+export async function sendDocumentLinkEmail(data: {
+  to: string;
+  name: string;
+  kind: 'worker' | 'client';
+  url: string;
+  expiresAt: Date;
+  userId?: string;
+  clientId?: string;
+}): Promise<EmailResult> {
+  const html = templates.documentLinkEmail({
+    recipientName: data.name,
+    kind: data.kind,
+    url: data.url,
+    expiresOn: data.expiresAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' }),
+  });
+  const result = await sendEmailSilent({
+    to: data.to,
+    subject: data.kind === 'worker' ? 'VERGO: your employment documents to read and agree' : 'VERGO Staffing: Terms of Business to accept',
+    html,
+    emailType: 'document-link',
+    userId: data.userId,
+    clientId: data.clientId,
+    tags: [{ name: 'category', value: 'document-link' }, { name: 'source', value: 'ops' }],
+  });
+  return result ?? { id: '', success: false, error: 'Email not sent' };
+}

@@ -44,10 +44,12 @@ export interface AssignmentCheckInput {
   payFloor?: number;
   /** Readiness items not covered by the checks above (contact details, payroll). */
   otherMissing?: string[];
+  /** The hirer's terms position (booking gate). Not ok means staff are being supplied without accepted terms. */
+  clientTerms?: { ok: boolean; message: string | null } | null;
 }
 
 export interface AssignmentWarning {
-  code: 'rtw' | 'documents' | 'inactive' | 'unavailable' | 'overlap' | 'role' | 'qualification' | 'not_ready' | 'pay_rate' | 'charge_rate';
+  code: 'rtw' | 'documents' | 'inactive' | 'unavailable' | 'overlap' | 'role' | 'qualification' | 'not_ready' | 'pay_rate' | 'charge_rate' | 'client_terms';
   message: string;
   /** Blocking warnings cannot be overridden. */
   blocking: boolean;
@@ -113,6 +115,10 @@ export function assignmentWarnings(input: AssignmentCheckInput): AssignmentWarni
   }
   if (input.payRate != null && input.chargeRate != null && input.chargeRate < input.payRate) {
     warnings.push({ code: 'charge_rate', blocking: false, message: `The client charge of £${input.chargeRate.toFixed(2)}/h is below the worker's pay of £${input.payRate.toFixed(2)}/h.` });
+  }
+
+  if (input.clientTerms && !input.clientTerms.ok) {
+    warnings.push({ code: 'client_terms', blocking: false, message: `${input.clientTerms.message} Supplying staff now needs a written reason.` });
   }
 
   return warnings;

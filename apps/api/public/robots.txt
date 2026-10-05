@@ -8,6 +8,8 @@ Disallow: /admin
 Disallow: /api
 Disallow: /login
 Disallow: /ops
+# Personal document links (each one is also noindex).
+Disallow: /d/
 
 Sitemap: https://vergoltd.com/sitemap.xml
 

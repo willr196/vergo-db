@@ -19,10 +19,12 @@ import { shiftInterval, dateKey, londonDateKey } from '../../ops/time';
 import { shiftHours } from '../../lib/money';
 import { PRICING, ON_COSTS } from '../../config/pricing';
 import { STATUS_TRANSITIONS } from '../adminBookings';
-import { renderTemplate, needsWording } from '../../ops/documents';
-import { companyValues } from './workers';
+import { needsWording, sha256 } from '../../ops/documents';
+import { renderFrom, clientTermsPositionOf, clientTermsPositions } from '../../ops/documentService';
+import { clientTermsGate } from '../../ops/compliance';
 import { handle, fail, ymd, clock, optionalText, money, dateOnly } from './common';
 import { MIN_RATE } from '../../site/settings';
+import { loadOpsSettings } from '../../ops/settings';
 
 const r = Router();
 
@@ -37,9 +39,10 @@ const clientSelect = {
   termsAcceptedBy: true, status: true, createdAt: true,
 } satisfies Prisma.ClientSelect;
 
+/** The current business Terms of Business version, as "v3". */
 async function currentB2bTermsVersion() {
-  const terms = await prisma.termsVersion.findFirst({ where: { publishedAt: { not: null } }, orderBy: { publishedAt: 'desc' }, select: { version: true } });
-  return terms?.version ?? null;
+  const tpl = await prisma.documentTemplate.findFirst({ where: { type: 'CLIENT_TERMS_OF_BUSINESS', retiredAt: null }, orderBy: { version: 'desc' }, select: { version: true } });
+  return tpl ? `v${tpl.version}` : null;
 }
 
 r.get('/clients', handle(async (req, res) => {
@@ -58,7 +61,8 @@ r.get('/clients', handle(async (req, res) => {
     orderBy: { companyName: 'asc' },
     take: 500,
   });
-  res.json({ ok: true, data: { clients, currentTermsVersion: await currentB2bTermsVersion() } });
+  const positions = await clientTermsPositions(clients.map((c) => c.id));
+  res.json({ ok: true, data: { clients: clients.map((c) => ({ ...c, terms: positions.get(c.id) ?? null })), currentTermsVersion: await currentB2bTermsVersion() } });
 }));
 
 const clientBody = z.object({
@@ -133,11 +137,11 @@ r.post('/clients/:id/terms', handle(async (req, res) => {
   const client = await prisma.client.findUnique({ where: { id: req.params.id }, select: clientSelect });
   if (!client) fail(404, 'Client not found');
 
-  if (client.clientType === 'PRIVATE_CONSUMER') {
-    const b2b = await currentB2bTermsVersion();
-    if (!body.consumerTerms || (b2b && body.version === b2b)) {
-      fail(400, 'This client is a private consumer. The B2B Terms of Business do not apply; record the separate consumer booking terms and tick that they are consumer terms.');
-    }
+  if (client.clientType !== 'PRIVATE_CONSUMER') {
+    fail(400, 'Business Terms of Business are issued and accepted under Documents & Terms, against the exact version issued. This form is for consumer booking terms only.');
+  }
+  if (!body.consumerTerms || /^v?\d+$/i.test(body.version)) {
+    fail(400, 'This client is a private consumer. The B2B Terms of Business do not apply; record the separate consumer booking terms (by their own name or reference) and tick that they are consumer terms.');
   }
   if (body.action === 'accepted' && !body.acceptedBy) fail(400, 'Record who accepted the terms.');
   if (body.date > londonDateKey(new Date())) fail(400, 'Date cannot be in the future.');
@@ -218,6 +222,8 @@ const bookingBody = z.object({
   vergoLead: optionalText(120),
   status: z.enum(OPS_STATUSES).optional(),
   notes: optionalText(4000),
+  advancePaymentRequired: z.boolean().optional(),
+  paymentTermsDays: z.number().int().min(0).max(120).nullable().optional(),
 });
 
 async function getOpsBooking(id: string): Promise<OpsBookingRow> {
@@ -226,10 +232,27 @@ async function getOpsBooking(id: string): Promise<OpsBookingRow> {
   return booking;
 }
 
-function bookingWarnings(b: ReturnType<typeof shapeOpsBooking>) {
+/**
+ * Whether the client's terms let staff be supplied. A business needs the
+ * current Terms of Business accepted through Ops; a private consumer needs
+ * separate consumer booking terms, recorded on the client, and is never
+ * given the B2B Terms. Drafts and quotes are never blocked by this.
+ */
+export async function termsGateFor(clientId: string) {
+  const [position, client] = await Promise.all([
+    clientTermsPositionOf(clientId),
+    prisma.client.findUnique({ where: { id: clientId }, select: { termsAcceptedAt: true } }),
+  ]);
+  const gate = clientTermsGate(position);
+  if (gate.code === 'consumer_terms_required' && client?.termsAcceptedAt) return { ok: true, code: null, message: null };
+  return gate;
+}
+
+async function bookingWarnings(b: ReturnType<typeof shapeOpsBooking>) {
   const warnings: string[] = [];
-  if (b.consumerTermsRequired) warnings.push('Private consumer booking: the B2B Terms of Business do not apply. Separate consumer booking terms are required.');
-  else if (b.client.clientType === 'BUSINESS_HIRER' && !b.client.termsAcceptedAt) warnings.push('This hirer has not accepted the Terms of Business.');
+  const gate = await termsGateFor(b.client.id);
+  if (gate.message) warnings.push(gate.message + (['DRAFT', 'QUOTED'].includes(b.status) ? ' Fine for a draft or quote; needed before staff are supplied.' : ' Needed before staff are supplied.'));
+  if (b.advancePaymentRequired && !b.paidAt) warnings.push('Advance payment required before the event.');
   if (b.staffing.unfilled > 0 && !['CANCELLED', 'COMPLETED', 'INVOICED', 'PAID'].includes(b.status)) warnings.push(`${b.staffing.unfilled} slot(s) unfilled.`);
   return warnings;
 }
@@ -239,6 +262,9 @@ r.post('/bookings', handle(async (req, res) => {
   const actor = actorOf(req);
   const client = await prisma.client.findUnique({ where: { id: body.clientId }, select: { id: true, clientType: true, termsVersion: true, termsAcceptedAt: true } });
   if (!client) fail(404, 'Client not found');
+  const termsPosition = await clientTermsPositionOf(client.id);
+  const commercial = (await loadOpsSettings()).clientCommercialTerms;
+  const previousBookings = await prisma.opsBooking.count({ where: { clientId: client.id, status: { not: 'CANCELLED' } } });
   if (body.status && ['INVOICED', 'PAID'].includes(body.status)) fail(400, 'Use the invoice and paid actions for those statuses.');
 
   const consumer = client.clientType === 'PRIVATE_CONSUMER';
@@ -253,7 +279,9 @@ r.post('/bookings', handle(async (req, res) => {
           quoteRequestId: body.quoteRequestId || null,
           reference,
           consumerTermsRequired: consumer,
-          termsVersionAtBooking: !consumer && client.termsAcceptedAt ? client.termsVersion : null,
+          termsVersionAtBooking: !consumer && termsPosition.status === 'accepted' ? `v${termsPosition.acceptedVersion}` : null,
+          advancePaymentRequired: body.advancePaymentRequired ?? (commercial.firstBookingAdvancePayment && previousBookings === 0),
+          paymentTermsDays: body.paymentTermsDays ?? null,
         },
         select: { id: true },
       });
@@ -264,13 +292,13 @@ r.post('/bookings', handle(async (req, res) => {
   if (!created) fail(500, 'Could not allocate a booking reference, try again.');
   await writeAudit(actor, { action: 'BOOKING_CREATED', entityType: 'OpsBooking', entityId: created.id, newValue: body });
   const shaped = shapeOpsBooking(await getOpsBooking(created.id));
-  res.status(201).json({ ok: true, data: { ...shaped, warnings: bookingWarnings(shaped) } });
+  res.status(201).json({ ok: true, data: { ...shaped, warnings: await bookingWarnings(shaped) } });
 }));
 
 r.get('/bookings/:id', handle(async (req, res) => {
   const shaped = shapeOpsBooking(await getOpsBooking(req.params.id));
   const audit = await prisma.auditLog.findMany({ where: { entityType: 'OpsBooking', entityId: shaped.id }, orderBy: { at: 'desc' }, take: 100 });
-  res.json({ ok: true, data: { ...shaped, warnings: bookingWarnings(shaped), audit } });
+  res.json({ ok: true, data: { ...shaped, warnings: await bookingWarnings(shaped), audit } });
 }));
 
 r.patch('/bookings/:id', handle(async (req, res) => {
@@ -306,7 +334,7 @@ r.patch('/bookings/:id', handle(async (req, res) => {
     }
   });
   const shaped = shapeOpsBooking(await getOpsBooking(before.id));
-  res.json({ ok: true, data: { ...shaped, warnings: bookingWarnings(shaped) } });
+  res.json({ ok: true, data: { ...shaped, warnings: await bookingWarnings(shaped) } });
 }));
 
 /** Move a live booking between Confirmed / Staffing / Fully staffed as its assignments change. */
@@ -343,6 +371,9 @@ const requirementBody = z.object({
   healthSafetyRisks: optionalText(2000),
   riskControls: optionalText(2000),
   breakInfo: optionalText(500),
+  overtimeChargeRate: money.nullable().optional(),
+  overtimeAfterHours: z.number().min(0).max(24).nullable().optional(),
+  otherCharges: optionalText(500),
 });
 
 r.post('/bookings/:id/requirements', handle(async (req, res) => {
@@ -487,9 +518,13 @@ const LIVE = ['PENDING', 'CONFIRMED'] as const;
 /** Readiness items that assignmentWarnings does not already raise on its own. */
 const COVERED_ELSEWHERE = /right to work|right-to-work|zero-hours agreement|key information document|not active/i;
 
-async function warningsFor(workerId: string, date: string, start: string, finish: string, requirement: { role: string; requiredQualifications: string[] } | null, excludeId?: string, rates?: { payRate: number | null; chargeRate: number | null }) {
+async function warningsFor(workerId: string, date: string, start: string, finish: string, requirement: { role: string; requiredQualifications: string[]; opsBookingId?: string } | null, excludeId?: string, rates?: { payRate: number | null; chargeRate: number | null }) {
   const worker = await loadWorker(workerId);
   if (!worker) fail(404, 'Worker not found');
+  const opsBooking = requirement?.opsBookingId
+    ? await prisma.opsBooking.findUnique({ where: { id: requirement.opsBookingId }, select: { clientId: true } })
+    : null;
+  const termsGate = opsBooking ? await termsGateFor(opsBooking.clientId) : null;
   const candidate = shiftInterval(date, start, finish);
   const nearby = await prisma.booking.findMany({
     where: {
@@ -523,6 +558,7 @@ async function warningsFor(workerId: string, date: string, start: string, finish
     chargeRate: rates?.chargeRate ?? null,
     payFloor: MIN_RATE,
     otherMissing: worker.readiness.ready ? [] : worker.readiness.missing.filter((m) => !COVERED_ELSEWHERE.test(m)),
+    clientTerms: termsGate,
   });
   return { worker, warnings };
 }
@@ -740,11 +776,15 @@ r.post('/assignments/:id/confirmation', handle(async (req, res) => {
   if (needsWording(template.body)) fail(400, 'The assignment confirmation template still has gaps marked "VERGO WORDING NEEDED".');
   const req2 = a.requirement;
   const gbp = (v: number | null) => (v == null ? null : `£${v.toFixed(2)}`);
-  const rendered = renderTemplate(template.body, {
-    ...companyValues(),
+  let duration: string | null = null;
+  try {
+    const span = shiftInterval(dateKey(a.eventDate), a.shiftStart, a.shiftEnd);
+    const mins = Math.round((span.end.getTime() - span.start.getTime()) / 60000);
+    duration = `About ${Math.floor(mins / 60)}h${mins % 60 ? ` ${mins % 60}m` : ''}, a single shift${a.breakMins ? ` including a ${a.breakMins}-minute unpaid break` : ''}`;
+  } catch { duration = null; }
+  const rendered = renderFrom(template, {
     'worker.name': `${a.staff.firstName} ${a.staff.lastName}`.trim(),
-    today: londonDateKey(new Date()),
-    'doc.version': template.version,
+    'assignment.duration': duration,
     'assignment.reference': booking.reference,
     'assignment.client': booking.client.tradingName || booking.client.companyName,
     'assignment.clientBusiness': booking.client.industry,
@@ -773,9 +813,9 @@ r.post('/assignments/:id/confirmation', handle(async (req, res) => {
   const doc = await prisma.$transaction(async (tx) => {
     await tx.workerDocument.updateMany({ where: { bookingId: a.id, type: 'ASSIGNMENT_CONFIRMATION', status: { in: ['ISSUED', 'ACCEPTED'] } }, data: { status: 'SUPERSEDED', supersededAt: new Date() } });
     const created = await tx.workerDocument.create({
-      data: { userId: a.staffId, templateId: template.id, type: 'ASSIGNMENT_CONFIRMATION', version: template.version, bookingId: a.id, issuedBy: actor, renderedBody: rendered },
+      data: { userId: a.staffId, templateId: template.id, type: 'ASSIGNMENT_CONFIRMATION', version: template.version, bookingId: a.id, issuedBy: actor, renderedBody: rendered, bodySha256: sha256(rendered) },
     });
-    await writeAudit(actor, { action: 'DOCUMENT_ISSUED', entityType: 'Worker', entityId: a.staffId, newValue: { documentId: created.id, type: 'ASSIGNMENT_CONFIRMATION', booking: booking.reference } }, tx);
+    await writeAudit(actor, { action: 'ASSIGNMENT_CONFIRMATION_ISSUED', entityType: 'Worker', entityId: a.staffId, newValue: { documentId: created.id, version: template.version, booking: booking.reference, assignmentId: a.id } }, tx);
     return created;
   });
   res.status(201).json({ ok: true, data: doc });

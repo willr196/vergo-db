@@ -189,6 +189,8 @@ model Client {
   /// VERGO Ops: the outreach lead this client was won from, if any.
   opsLead               OpsLead?
   directHireTracking    DirectHireTracking[]
+  clientDocuments       ClientDocument[]
+  documentLinks         DocumentLink[]
   jobs                  Job[]
   pushTokens            PushToken[]
   quoteRequests         QuoteRequest[]
@@ -480,6 +482,7 @@ model User {
   applicant          Applicant?              @relation(fields: [applicantId], references: [id])
   workerProfile      WorkerProfile?
   workerDocuments    WorkerDocument[]
+  documentLinks      DocumentLink[]
   historicPayments   HistoricPayment[]
   directHireTracking DirectHireTracking[]
 
@@ -1053,6 +1056,13 @@ enum OpsDocumentType {
   ASSIGNMENT_CONFIRMATION
   RTW_CHECKLIST
   ONBOARDING_CHECKLIST
+  /// Business hirers only. Private consumers never receive these.
+  CLIENT_TERMS_OF_BUSINESS
+}
+
+enum DocumentLinkKind {
+  WORKER_PACK
+  CLIENT_TERMS
 }
 
 enum WorkerDocumentStatus {
@@ -1129,17 +1139,27 @@ model WorkerProfile {
 /// new version and the old one is retired, so what a worker was issued can
 /// always be shown again.
 model DocumentTemplate {
-  id         String           @id @default(cuid())
-  createdAt  DateTime         @default(now())
-  type       OpsDocumentType
-  version    Int
-  title      String           @db.VarChar(200)
+  id                   String           @id @default(cuid())
+  createdAt            DateTime         @default(now())
+  type                 OpsDocumentType
+  version              Int
+  title                String           @db.VarChar(200)
   /// Plain text with {{placeholders}}; rendered to a print page.
-  body       String
-  changeNote String?          @db.VarChar(500)
-  createdBy  String           @db.VarChar(100)
-  retiredAt  DateTime?
-  issued     WorkerDocument[]
+  body                 String
+  changeNote           String?          @db.VarChar(500)
+  createdBy            String           @db.VarChar(100)
+  /// Set when a newer version replaces this one (the superseded date).
+  retiredAt            DateTime?
+  /// The date this version takes effect, shown on the document.
+  effectiveDate        DateTime?        @db.Date
+  /// A material change: anyone on an earlier version must agree this one
+  /// before they count as current. Otherwise earlier acceptances stand.
+  requiresReacceptance Boolean          @default(false)
+  /// Values from Ops settings (KID pay example, commercial terms) frozen into
+  /// this version, so one version number always means one wording.
+  variables            Json?
+  issued               WorkerDocument[]
+  clientDocuments      ClientDocument[]
 
   @@unique([type, version])
   @@index([type, retiredAt])
@@ -1167,6 +1187,18 @@ model WorkerDocument {
   acceptanceRecordedBy String?              @db.VarChar(100)
   supersededAt         DateTime?
   renderedBody         String
+  /// SHA-256 of renderedBody when issued. The snapshot is never edited.
+  bodySha256           String?              @db.VarChar(64)
+  /// KID only: when the worker confirmed it had been provided to them.
+  acknowledgedAt       DateTime?
+  acknowledgedVia      String?              @db.VarChar(60)
+  /// Self-service acceptance: the statement ticked, the link used, the
+  /// worker's own login if they were signed in, and the request details.
+  acceptanceStatement  String?              @db.VarChar(500)
+  acceptedViaLinkId    String?              @db.VarChar(40)
+  acceptedAuthUserId   String?              @db.VarChar(40)
+  acceptanceIp         String?              @db.VarChar(64)
+  acceptanceUserAgent  String?              @db.VarChar(300)
   user                 User                 @relation(fields: [userId], references: [id], onDelete: Restrict)
   template             DocumentTemplate     @relation(fields: [templateId], references: [id], onDelete: Restrict)
   booking              Booking?             @relation(fields: [bookingId], references: [id], onDelete: Restrict)
@@ -1204,6 +1236,10 @@ model OpsBooking {
   /// separate consumer booking terms are needed.
   consumerTermsRequired    Boolean           @default(false)
   termsVersionAtBooking    String?           @db.VarChar(40)
+  /// Payment before the event (e.g. a first booking), and the days allowed
+  /// after invoice otherwise. Empty uses the Ops commercial default.
+  advancePaymentRequired   Boolean           @default(false)
+  paymentTermsDays         Int?
   invoiceRef               String?           @db.VarChar(80)
   invoicedAt               DateTime?
   paidAt                   DateTime?
@@ -1253,6 +1289,12 @@ model OpsRequirement {
   healthSafetyRisks       String?    @db.VarChar(2000)
   riskControls            String?    @db.VarChar(2000)
   breakInfo               String?    @db.VarChar(500)
+  /// Booking-specific charges the Terms of Business refer to.
+  overtimeChargeRate      Decimal?   @db.Decimal(10, 2)
+  /// Hours per worker after which the overtime rate applies.
+  overtimeAfterHours      Decimal?   @db.Decimal(5, 2)
+  /// Specialist rates or other agreed charges, in words.
+  otherCharges            String?    @db.VarChar(500)
   opsBooking              OpsBooking @relation(fields: [opsBookingId], references: [id], onDelete: Restrict)
   assignments             Booking[]
 
@@ -1413,4 +1455,61 @@ model OpsLegacyImport {
   newId     String   @db.VarChar(40)
 
   @@unique([entity, legacyId])
+}
+
+/// Business-client Terms of Business as issued to one hirer: the exact text
+/// (renderedBody) of the version issued, and the acceptance recorded against
+/// it. Never edited after acceptance; a newer issue supersedes it.
+model ClientDocument {
+  id                   String               @id @default(cuid())
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  clientId             String
+  templateId           String
+  version              Int
+  status               WorkerDocumentStatus @default(ISSUED)
+  issuedAt             DateTime             @default(now())
+  issuedBy             String               @db.VarChar(100)
+  renderedBody         String
+  bodySha256           String               @db.VarChar(64)
+  acceptedAt           DateTime?
+  legalBusinessName    String?              @db.VarChar(200)
+  acceptedByName       String?              @db.VarChar(200)
+  acceptedByJobTitle   String?              @db.VarChar(120)
+  typedName            String?              @db.VarChar(200)
+  /// e.g. "Electronic acceptance via secure link", or how an admin received it.
+  acceptanceMethod     String?              @db.VarChar(200)
+  acceptanceStatement  String?              @db.VarChar(500)
+  /// The admin who recorded an acceptance received outside the link, if any.
+  acceptanceRecordedBy String?              @db.VarChar(100)
+  acceptedViaLinkId    String?              @db.VarChar(40)
+  acceptanceIp         String?              @db.VarChar(64)
+  acceptanceUserAgent  String?              @db.VarChar(300)
+  supersededAt         DateTime?
+  client               Client               @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  template             DocumentTemplate     @relation(fields: [templateId], references: [id], onDelete: Restrict)
+
+  @@index([clientId, status])
+  @@index([templateId])
+}
+
+/// A secure link that opens one worker's documents or one client's Terms.
+/// Only the SHA-256 of the token is stored; the token is shown once.
+model DocumentLink {
+  id           String           @id @default(cuid())
+  createdAt    DateTime         @default(now())
+  kind         DocumentLinkKind
+  tokenHash    String           @unique @db.VarChar(64)
+  userId       String?
+  clientId     String?
+  createdBy    String           @db.VarChar(100)
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  lastOpenedAt DateTime?
+  emailedAt    DateTime?
+  user         User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client       Client?          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([clientId])
 }

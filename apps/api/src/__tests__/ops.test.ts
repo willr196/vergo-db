@@ -114,9 +114,8 @@ test('KID status: issued or not, never accepted', () => {
 });
 
 test('templates with gaps cannot be issued, and missing values show as gaps', () => {
-  assert.equal(needsWording(DEFAULT_TEMPLATES.KEY_INFORMATION_DOCUMENT.body), true);
-  assert.equal(needsWording(DEFAULT_TEMPLATES.ZERO_HOURS_AGREEMENT.body), true);
-  assert.equal(needsWording(DEFAULT_TEMPLATES.ASSIGNMENT_CONFIRMATION.body), false);
+  assert.equal(needsWording('Pay: [[VERGO WORDING NEEDED: rates]]'), true);
+  for (const tpl of Object.values(DEFAULT_TEMPLATES)) assert.equal(needsWording(tpl.body), false, tpl.title);
   assert.equal(renderTemplate('Hi {{worker.name}}, {{ missing }}', { 'worker.name': 'Ana' }), 'Hi Ana, [not recorded: missing]');
 });
 

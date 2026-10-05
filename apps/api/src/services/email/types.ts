@@ -55,7 +55,9 @@ export type EmailType =
   | 'shift-reminder'
   // Matching / invites
   | 'job-invite'
-  | 'booking-review-request';
+  | 'booking-review-request'
+  // VERGO Ops documents
+  | 'document-link';
 
 export interface EmailTemplateData {
   // Common fields

@@ -10,6 +10,7 @@ import workers from './workers';
 import bookings from './bookings';
 import admin from './admin';
 import planning from './planning';
+import documents from './documents';
 
 const r = Router();
 r.use(adminAuth);
@@ -17,5 +18,6 @@ r.use(workers);
 r.use(bookings);
 r.use(admin);
 r.use(planning);
+r.use(documents);
 
 export default r;

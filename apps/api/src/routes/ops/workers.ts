@@ -8,14 +8,10 @@ import { z } from 'zod';
 import { prisma } from '../../prisma';
 import { writeAudit, actorOf, diff } from '../../ops/audit';
 import {
-  loadWorkers, loadWorker, ensureApplicant, unusablePasswordHash, ensureDefaultTemplates, WORKER_WHERE,
+  loadWorkers, loadWorker, ensureApplicant, unusablePasswordHash, WORKER_WHERE,
   type WorkerView,
 } from '../../ops/service';
 import { identityNumberIn } from '../../ops/compliance';
-import {
-  renderTemplate, needsWording, ACCEPTABLE_TYPES, DOC_TYPE_LABELS, templateKeys, type OpsDocType,
-} from '../../ops/documents';
-import { SITE } from '../../site/content';
 import { dateKey, londonDateKey } from '../../ops/time';
 import { handle, fail, ymd, optionalText, dateOnly } from './common';
 
@@ -374,153 +370,6 @@ r.post('/workers/:id/rtw-checks', handle(async (req, res) => {
     }, tx);
   });
   res.status(201).json({ ok: true, data: await loadWorker(worker.id) });
-}));
-
-// ── Document templates ────────────────────────────────────────────────────
-
-const DOC_TYPES = Object.keys(DOC_TYPE_LABELS) as [OpsDocType, ...OpsDocType[]];
-
-r.get('/templates', handle(async (_req, res) => {
-  await ensureDefaultTemplates();
-  const templates = await prisma.documentTemplate.findMany({
-    orderBy: [{ type: 'asc' }, { version: 'desc' }],
-    include: { _count: { select: { issued: true } } },
-  });
-  res.json({
-    ok: true,
-    data: templates.map((t) => ({
-      ...t, label: DOC_TYPE_LABELS[t.type as OpsDocType], current: t.retiredAt == null,
-      needsWording: needsWording(t.body), keys: templateKeys(t.body), issuedCount: t._count.issued,
-    })),
-  });
-}));
-
-const newTemplateBody = z.object({
-  type: z.enum(DOC_TYPES),
-  title: z.string().trim().min(3).max(200),
-  body: z.string().min(20).max(60000),
-  changeNote: z.string().trim().min(3).max(500),
-});
-
-// A change is always a new version. The previous one is retired, never edited,
-// so documents already issued keep pointing at the wording they were given.
-r.post('/templates', handle(async (req, res) => {
-  const body = newTemplateBody.parse(req.body);
-  const actor = actorOf(req);
-  const created = await prisma.$transaction(async (tx) => {
-    const current = await tx.documentTemplate.findFirst({ where: { type: body.type }, orderBy: { version: 'desc' } });
-    const version = (current?.version ?? 0) + 1;
-    await tx.documentTemplate.updateMany({ where: { type: body.type, retiredAt: null }, data: { retiredAt: new Date() } });
-    const tpl = await tx.documentTemplate.create({
-      data: { type: body.type, version, title: body.title, body: body.body, changeNote: body.changeNote, createdBy: actor },
-    });
-    await writeAudit(actor, {
-      action: 'DOCUMENT_TEMPLATE_REPLACED', entityType: 'DocumentTemplate', entityId: tpl.id,
-      oldValue: current ? { id: current.id, version: current.version } : null, newValue: { version, title: body.title },
-      reason: body.changeNote,
-    }, tx);
-    return tpl;
-  });
-  res.status(201).json({ ok: true, data: created });
-}));
-
-// ── Issuing documents ─────────────────────────────────────────────────────
-
-export function companyValues(): Record<string, string> {
-  return {
-    'company.legalName': SITE.legalName,
-    'company.number': SITE.companyNumber,
-    'company.registeredOffice': SITE.registeredOffice,
-    'company.email': SITE.publicEmail,
-    'company.phone': SITE.phoneDisplay,
-  };
-}
-
-const issueBody = z.object({ type: z.enum(DOC_TYPES).refine((t) => t !== 'ASSIGNMENT_CONFIRMATION', 'Assignment confirmations are issued from the assignment') });
-
-r.post('/workers/:id/documents', handle(async (req, res) => {
-  const { type } = issueBody.parse(req.body);
-  const actor = actorOf(req);
-  await ensureDefaultTemplates();
-  const worker = await loadWorker(req.params.id);
-  if (!worker) fail(404, 'Worker not found');
-  const template = await prisma.documentTemplate.findFirst({ where: { type, retiredAt: null }, orderBy: { version: 'desc' } });
-  if (!template) fail(400, 'No current template for this document.');
-  if (needsWording(template.body)) {
-    fail(400, `The current ${DOC_TYPE_LABELS[type]} template still has gaps marked "VERGO WORDING NEEDED". Add the approved wording as a new version first.`);
-  }
-
-  const rendered = renderTemplate(template.body, {
-    ...companyValues(),
-    'worker.name': worker.name, 'worker.firstName': worker.firstName, 'worker.email': worker.email, 'worker.phone': worker.phone,
-    today: londonDateKey(new Date()), 'doc.version': template.version,
-  });
-
-  const doc = await prisma.$transaction(async (tx) => {
-    const superseded = await tx.workerDocument.updateMany({
-      where: { userId: worker.id, type, status: { in: ['ISSUED', 'ACCEPTED'] } },
-      data: { status: 'SUPERSEDED', supersededAt: new Date() },
-    });
-    const created = await tx.workerDocument.create({
-      data: { userId: worker.id, templateId: template.id, type, version: template.version, issuedBy: actor, renderedBody: rendered },
-    });
-    await writeAudit(actor, {
-      action: type === 'KEY_INFORMATION_DOCUMENT' ? 'KID_ISSUED' : 'DOCUMENT_ISSUED',
-      entityType: 'Worker', entityId: worker.id,
-      oldValue: { superseded: superseded.count },
-      newValue: { documentId: created.id, type, version: template.version },
-    }, tx);
-    return created;
-  });
-  res.status(201).json({ ok: true, data: doc });
-}));
-
-const acceptBody = z.object({
-  acceptedName: z.string().trim().min(2).max(200),
-  acceptedAt: z.string().datetime().optional(),
-  method: z.string().trim().min(3).max(200),
-});
-
-r.post('/documents/:id/accept', handle(async (req, res) => {
-  const body = acceptBody.parse(req.body);
-  const actor = actorOf(req);
-  const doc = await prisma.workerDocument.findUnique({ where: { id: req.params.id } });
-  if (!doc) fail(404, 'Document not found');
-  if (!ACCEPTABLE_TYPES.has(doc.type as OpsDocType)) fail(400, `A ${DOC_TYPE_LABELS[doc.type as OpsDocType]} is issued, not accepted.`);
-  if (doc.status !== 'ISSUED') fail(409, `This document is ${doc.status.toLowerCase()}; only an issued, current document can be accepted.`);
-  const acceptedAt = body.acceptedAt ? new Date(body.acceptedAt) : new Date();
-  if (acceptedAt < doc.issuedAt || acceptedAt > new Date()) fail(400, 'Acceptance time must be after issue and not in the future.');
-
-  const updated = await prisma.$transaction(async (tx) => {
-    const u = await tx.workerDocument.update({
-      where: { id: doc.id },
-      data: { status: 'ACCEPTED', acceptedAt, acceptedName: body.acceptedName, acceptanceMethod: body.method, acceptanceRecordedBy: actor },
-    });
-    await writeAudit(actor, {
-      action: doc.type === 'ZERO_HOURS_AGREEMENT' ? 'CONTRACT_ACCEPTED' : 'DOCUMENT_ACCEPTED',
-      entityType: 'Worker', entityId: doc.userId,
-      oldValue: { status: doc.status },
-      newValue: { documentId: doc.id, version: doc.version, acceptedName: body.acceptedName, acceptedAt, method: body.method },
-    }, tx);
-    return u;
-  });
-  res.json({ ok: true, data: updated });
-}));
-
-r.post('/documents/:id/withdraw', handle(async (req, res) => {
-  const { reason } = z.object({ reason: z.string().trim().min(5).max(500) }).parse(req.body);
-  const actor = actorOf(req);
-  const doc = await prisma.workerDocument.findUnique({ where: { id: req.params.id } });
-  if (!doc) fail(404, 'Document not found');
-  if (doc.status === 'WITHDRAWN' || doc.status === 'SUPERSEDED') fail(409, `Already ${doc.status.toLowerCase()}.`);
-  await prisma.$transaction(async (tx) => {
-    await tx.workerDocument.update({ where: { id: doc.id }, data: { status: 'WITHDRAWN', supersededAt: new Date() } });
-    await writeAudit(actor, {
-      action: 'DOCUMENT_WITHDRAWN', entityType: 'Worker', entityId: doc.userId,
-      oldValue: { status: doc.status }, newValue: { documentId: doc.id, status: 'WITHDRAWN' }, reason,
-    }, tx);
-  });
-  res.json({ ok: true });
 }));
 
 export default r;

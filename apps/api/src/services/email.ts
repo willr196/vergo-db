@@ -36,4 +36,6 @@ export {
   // Matching / invites
   sendJobInviteEmail,
   sendBookingReviewRequestEmail,
+  // VERGO Ops documents
+  sendDocumentLinkEmail,
 } from './email/index';

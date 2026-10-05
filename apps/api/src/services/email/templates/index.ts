@@ -510,3 +510,25 @@ export const rosterApprovalEmail = (data: EmailTemplateData): string => {
     `),
   });
 };
+
+// ============================================
+// DOCUMENTS (VERGO Ops)
+// ============================================
+
+/** A secure link to a worker's documents or a client's Terms of Business. */
+export const documentLinkEmail = (data: { recipientName: string; kind: 'worker' | 'client'; url: string; expiresOn: string }): string => {
+  const worker = data.kind === 'worker';
+  return composeEmail({
+    body: emailBody(`
+      ${sectionHeading(worker ? 'Your VERGO employment documents' : 'VERGO Staffing Terms of Business')}
+      <p>Hi ${safe(data.recipientName)},</p>
+      ${paragraph(worker
+        ? 'Before your first shift we need you to read your Key Information Document and then read and agree your VERGO Zero-Hours Employment Agreement. It takes a few minutes, and you can download or print both.'
+        : 'Please read our Terms of Business for Temporary Staff Supply and, if you are authorised to, accept them on behalf of your business. We need them accepted before staff are supplied.')}
+      ${primaryButton(worker ? 'Open my documents' : 'Open the Terms of Business', data.url)}
+      ${infoBox(`<p style="margin: 0; font-size: 14px;">This link is personal to ${worker ? 'you' : 'your business'}. Please do not forward it. It works until ${safe(data.expiresOn)}; after that, reply and we will send a new one.</p>`, 'info')}
+      ${paragraph('Any questions, just reply to this email.')}
+      <p>Thanks,<br><strong>The VERGO Team</strong></p>
+    `),
+  });
+};

@@ -298,6 +298,13 @@
         kpi('KIDs not issued', w.kidsNotIssued, null, w.kidsNotIssued ? 'warning' : null, '#/workers?kid=not_issued') +
         kpi('No pension status', w.pensionNotAssessed, null, w.pensionNotAssessed ? 'warning' : null, '#/workers?pension=NOT_ASSESSED') +
       '</div>' +
+      '<div class="kpi-section-title">Documents &amp; Terms</div><div class="kpi-grid ops-kpis">' +
+        kpi('Workers missing KID', w.missingKid, null, w.missingKid ? 'warning' : null, '#/documents?tab=workers&pack=kid_missing') +
+        kpi('Workers missing agreement', w.missingAgreement, null, w.missingAgreement ? 'warning' : null, '#/documents?tab=workers&pack=contract_missing') +
+        kpi('Clients without current Terms', d.terms.clientsWithoutCurrentTerms, 'Business clients', d.terms.clientsWithoutCurrentTerms ? 'warning' : null, '#/documents?tab=clients&terms=missing') +
+        kpi('Workers on superseded contract', w.onSupersededContract, null, w.onSupersededContract ? 'warning' : null, '#/documents?tab=workers&pack=outdated') +
+        kpi('Clients on superseded Terms', d.terms.clientsOnSupersededTerms, null, d.terms.clientsOnSupersededTerms ? 'warning' : null, '#/documents?tab=clients&terms=older') +
+      '</div>' +
       '<div class="kpi-section-title">Work</div><div class="kpi-grid ops-kpis">' +
         kpi('Upcoming assignments', a.upcoming, 'Next 14 days', 'info') +
         kpi('Unfilled slots', a.unfilledSlots, null, a.unfilledSlots ? 'warning' : null, '#/bookings?staffed=not_full') +
@@ -400,7 +407,6 @@
     var w = await api('/workers/' + encodeURIComponent(id));
     var r = w.readiness;
     var ACCEPTABLE = { ZERO_HOURS_AGREEMENT: true, ASSIGNMENT_CONFIRMATION: true };
-    var DOC_LABELS = { KEY_INFORMATION_DOCUMENT: 'Key Information Document', ZERO_HOURS_AGREEMENT: 'Zero-hours agreement', ASSIGNMENT_CONFIRMATION: 'Assignment confirmation', RTW_CHECKLIST: 'RTW checklist', ONBOARDING_CHECKLIST: 'Onboarding checklist' };
 
     main.innerHTML =
       '<div class="ops-head"><div><a href="#/workers" class="text-muted fs-sm">← Workers</a><h2>' + esc(w.name) + ' ' + readyChip(r) + '</h2>' +
@@ -455,16 +461,19 @@
         }), 'No right-to-work check recorded.') +
       '</div>' +
 
-      '<div class="ops-card"><div class="ops-head"><h3 style="margin:0">Documents</h3><div class="ops-actions">' +
-        '<button class="btn btn-sm btn-primary" data-issue="KEY_INFORMATION_DOCUMENT">Issue KID</button>' +
-        '<button class="btn btn-sm btn-primary" data-issue="ZERO_HOURS_AGREEMENT">Issue agreement</button>' +
+      '<div class="ops-card"><div class="ops-head"><h3 style="margin:0">Documents ' + chip(PACK_WORDS[w.documentPack], PACK_CHIPS[w.documentPack]) + '</h3><div class="ops-actions">' +
+        '<button class="btn btn-sm btn-primary" id="issue-pack">Issue current pack</button>' +
+        '<button class="btn btn-sm btn-ghost" id="send-link">Send secure link</button>' +
+        '<button class="btn btn-sm btn-ghost" id="revoke-links">Revoke links</button>' +
+        '<button class="btn btn-sm btn-ghost" data-issue="KEY_INFORMATION_DOCUMENT">Issue KID only</button>' +
         '<button class="btn btn-sm btn-ghost" data-issue="RTW_CHECKLIST">RTW checklist</button>' +
         '<button class="btn btn-sm btn-ghost" data-issue="ONBOARDING_CHECKLIST">Onboarding checklist</button></div></div>' +
-        '<p class="fs-sm">Agreement ' + chip(words(w.contract.status), CHIPS.contract[w.contract.status]) + (w.contract.version ? ' v' + w.contract.version : '') + (w.contract.newerVersionAvailable ? ' ' + chip('newer version available', 'warn') : '') +
-        ' · KID ' + chip(words(w.kid.status), CHIPS.kid[w.kid.status]) + (w.kid.version ? ' v' + w.kid.version : '') + (w.kid.newerVersionAvailable ? ' ' + chip('newer version available', 'warn') : '') + '</p>' +
-        table(['Document', 'Version', 'Status', 'Issued', 'Accepted', ''], w.documents.map(function (doc) {
+        '<div class="ops-aid">Order: the Key Information Document is issued first, then the employment agreement. The worker reads both through their secure link, confirms receipt of the KID, and agrees the agreement by typing their name. If they agreed some other way (e.g. replying to an email), record it with how and when.</div>' +
+        '<div class="ops-grid-2" style="margin:10px 0"><div><strong>Key Information Document</strong><br>' + kidCell(w.kid) + '</div><div><strong>Employment agreement</strong><br>' + contractCell(w.contract) + '</div></div>' +
+        table(['Document', 'Version', 'Status', 'Issued', 'Acknowledged / agreed', ''], w.documents.map(function (doc) {
           return '<tr><td>' + esc(DOC_LABELS[doc.type] || doc.type) + '</td><td>v' + doc.version + '</td><td>' + chip(words(doc.status), CHIPS.doc[doc.status]) + '</td><td>' + when(doc.issuedAt) + '<div class="text-muted fs-sm">' + esc(doc.issuedBy) + '</div></td><td>' +
-            (doc.acceptedAt ? when(doc.acceptedAt) + '<div class="text-muted fs-sm">as "' + esc(doc.acceptedName) + '", ' + esc(doc.acceptanceMethod || '') + '</div>' : '—') + '</td><td class="ops-actions">' +
+            (doc.acknowledgedAt ? '<div>Receipt acknowledged ' + when(doc.acknowledgedAt) + '</div>' : '') +
+            (doc.acceptedAt ? when(doc.acceptedAt) + '<div class="text-muted fs-sm">as "' + esc(doc.acceptedName) + '", ' + esc(doc.acceptanceMethod || '') + '</div>' : (doc.acknowledgedAt ? '' : '—')) + '</td><td class="ops-actions">' +
             '<a class="btn btn-sm btn-ghost" target="_blank" rel="noopener" href="/ops/print/document/' + esc(doc.id) + '">Print</a>' +
             (doc.status === 'ISSUED' && ACCEPTABLE[doc.type] ? '<button class="btn btn-sm btn-success" data-accept="' + esc(doc.id) + '">Record acceptance</button>' : '') +
             (doc.status === 'ISSUED' || doc.status === 'ACCEPTED' ? '<button class="btn btn-sm btn-danger-quiet" data-withdraw="' + esc(doc.id) + '">Withdraw</button>' : '') + '</td></tr>';
@@ -523,6 +532,17 @@
           await api('/workers/' + id + '/rtw-block', { method: 'POST', body: { blocked: true, reason: readForm(b).reason } }); reload();
         } }]);
     });
+    main.querySelector('#issue-pack').addEventListener('click', function () { issuePackFor(id, w.name, reload); });
+    main.querySelector('#send-link').addEventListener('click', function () {
+      openModal('Send secure link: ' + w.name, '<p>A new personal link to ' + esc(w.name) + '\'s documents, valid for 30 days. Earlier links keep working until they expire unless you revoke them.</p>', [
+        { label: 'Copy link', kind: 'btn-ghost', onClick: async function () { var l = await api('/workers/' + id + '/document-link', { method: 'POST', body: { email: false } }); setTimeout(function () { showLink('Secure link: ' + w.name, l); }, 0); } },
+        { label: 'Email link', onClick: async function () { var l = await api('/workers/' + id + '/document-link', { method: 'POST', body: { email: true } }); setTimeout(function () { showLink('Secure link: ' + w.name, l); }, 0); } },
+      ]);
+    });
+    main.querySelector('#revoke-links').addEventListener('click', async function () {
+      if (!(await confirmDialog('Revoke every secure document link for ' + w.name + '? They will need a new link.', 'Revoke', true))) return;
+      try { var r2 = await api('/workers/' + id + '/document-links/revoke', { method: 'POST' }); toast(r2.revoked + ' link(s) revoked'); } catch (err) { fail(err); }
+    });
     on(main, 'button[data-issue]', 'click', async function (_e, el) {
       var type = el.dataset.issue;
       var label = el.textContent;
@@ -537,7 +557,7 @@
         '<p class="fs-sm mb-2">Record the worker\'s acceptance as they gave it. This is a record of agreement, not a qualified electronic signature.</p><div class="ops-form">' +
         field('Name the worker typed', 'acceptedName', w.name, 'text', { required: true }) +
         field('Accepted at', 'acceptedAt', toLocalInput(new Date().toISOString()), 'datetime', { required: true }) +
-        field('How', 'method', 'Typed name in reply to emailed agreement', 'text', { wide: true, required: true }) + '</div>',
+        field('How', 'method', 'Typed name in reply to emailed agreement', 'text', { wide: true, required: true, hint: 'The Key Information Document must have been issued before this time.' }) + '</div>',
         [{ label: 'Record acceptance', kind: 'btn-success', onClick: async function (b) {
           await api('/documents/' + el.dataset.accept + '/accept', { method: 'POST', body: readForm(b) });
           toast('Acceptance recorded'); reload();
@@ -614,13 +634,13 @@
 
   async function viewClients(query) {
     var data = await api('/clients' + (query.search || query.type ? '?' + new URLSearchParams(query) : ''));
-    main.innerHTML = '<div class="ops-head"><div><h2>Clients and hirers</h2><div class="ops-lede">Current Terms of Business: ' + esc(data.currentTermsVersion || 'none published') + '. Private consumers need separate consumer booking terms.</div></div><button class="btn btn-primary" id="new-client">Add client</button></div>' +
+    main.innerHTML = '<div class="ops-head"><div><h2>Clients and hirers</h2><div class="ops-lede">Current business Terms of Business: ' + esc(data.currentTermsVersion || 'none yet') + '. Private consumers need separate consumer booking terms.</div></div><button class="btn btn-primary" id="new-client">Add client</button></div>' +
       '<form class="as-filters" id="filters"><div class="as-filter-group"><label>Search</label><input type="search" name="search" value="' + esc(query.search || '') + '"></div>' +
       '<div class="as-filter-group"><label>Type</label><select name="type">' + options(CLIENT_TYPES, query.type, 'Any') + '</select></div></form>' +
       '<div class="as-table-wrap">' + table(['Client', 'Type', 'Contact', 'Terms', '>Bookings'], data.clients.map(function (c) {
         var terms = c.clientType === 'PRIVATE_CONSUMER'
-          ? (c.termsAcceptedAt ? chip('Consumer terms ' + (c.termsVersion || ''), 'ok') : chip('Consumer terms needed', 'warn'))
-          : (c.termsAcceptedAt ? chip('Accepted ' + (c.termsVersion || ''), c.termsVersion === data.currentTermsVersion ? 'ok' : 'warn') : c.termsSentAt ? chip('Sent, not accepted', 'warn') : chip('Not sent', 'bad'));
+          ? (c.termsAcceptedAt ? chip('Consumer terms recorded', 'ok') : chip('Consumer booking terms required', 'warn'))
+          : termsChip(c.terms);
         return '<tr class="clickable" data-href="#/client/' + esc(c.id) + '"><td><strong>' + esc(c.companyName) + '</strong>' + (c.tradingName ? '<div class="text-muted fs-sm">t/a ' + esc(c.tradingName) + '</div>' : '') + '</td><td>' + esc(words(c.clientType)) + '</td><td>' + esc(c.contactName) + '<div class="text-muted fs-sm">' + esc(c.email) + '</div></td><td>' + terms + '</td><td class="num">' + c._count.opsBookings + '</td></tr>';
       }), 'No clients.') + '</div>';
     var form = main.querySelector('#filters');
@@ -636,24 +656,39 @@
   }
 
   async function viewClient(id) {
-    var c = await api('/clients/' + encodeURIComponent(id));
+    var both = await Promise.all([api('/clients/' + encodeURIComponent(id)), api('/clients/' + encodeURIComponent(id) + '/terms')]);
+    var c = both[0], t = both[1];
     var consumer = c.clientType === 'PRIVATE_CONSUMER';
     main.innerHTML = '<a href="#/clients" class="text-muted fs-sm">← Clients</a><h2>' + esc(c.companyName) + '</h2><div class="ops-lede">' + esc(words(c.clientType)) + '</div>' +
       (consumer ? alertBox('warning', 'Private consumer: the B2B Terms of Business must not be used. Bookings for this client are flagged as needing separate consumer booking terms.') : '') +
       '<div class="ops-grid-2"><div class="ops-card"><h3 style="margin-top:0">Details</h3><div class="ops-form" id="client-form">' + clientFields(c) +
       '<div class="wide"><button class="btn btn-primary btn-sm" id="save-client">Save</button></div></div></div>' +
-      '<div class="ops-card"><h3 style="margin-top:0">Terms</h3>' +
-        '<div class="detail-grid"><div class="detail-row"><span class="detail-label">Version</span><span class="detail-value">' + esc(c.termsVersion || '—') + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label">Current B2B version</span><span class="detail-value">' + esc(c.currentTermsVersion || '—') + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label">Sent</span><span class="detail-value">' + day(c.termsSentAt) + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label">Accepted</span><span class="detail-value">' + day(c.termsAcceptedAt) + (c.termsAcceptedBy ? ' by ' + esc(c.termsAcceptedBy) : '') + '</span></div></div>' +
-        '<h3>Record terms</h3><div class="ops-form" id="terms-form">' +
-          field('Action', 'action', 'sent', 'select', { options: [['sent', 'Sent'], ['accepted', 'Accepted']] }) +
-          field('Version', 'version', consumer ? '' : c.currentTermsVersion, 'text', { required: true }) +
-          field('Date', 'date', todayLondon(), 'date', { required: true }) +
-          field('Accepted by (name)', 'acceptedBy', '') +
-          (consumer ? field('These are the separate consumer booking terms, not the B2B Terms of Business', 'consumerTerms', false, 'checkbox', { wide: true }) : '') +
-          '<div class="wide"><button class="btn btn-primary btn-sm" id="save-terms">Record</button></div></div>' +
+      (consumer
+        ? '<div class="ops-card"><h3 style="margin-top:0">Consumer booking terms</h3>' +
+          '<p class="fs-sm">Private consumer: the business Terms of Business are never issued here. Record the separate consumer booking terms this client agreed.</p>' +
+          '<div class="detail-grid"><div class="detail-row"><span class="detail-label">Terms</span><span class="detail-value">' + esc(c.termsVersion || '—') + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">Sent</span><span class="detail-value">' + day(c.termsSentAt) + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">Accepted</span><span class="detail-value">' + day(c.termsAcceptedAt) + (c.termsAcceptedBy ? ' by ' + esc(c.termsAcceptedBy) : '') + '</span></div></div>' +
+          '<h3>Record consumer terms</h3><div class="ops-form" id="terms-form">' +
+            field('Action', 'action', 'sent', 'select', { options: [['sent', 'Sent'], ['accepted', 'Accepted']] }) +
+            field('Consumer terms name or reference', 'version', '', 'text', { required: true, hint: 'e.g. "Private event booking terms, Oct 2026"' }) +
+            field('Date', 'date', todayLondon(), 'date', { required: true }) +
+            field('Accepted by (name)', 'acceptedBy', '') +
+            field('These are the separate consumer booking terms, not the B2B Terms of Business', 'consumerTerms', false, 'checkbox', { wide: true }) +
+            '<div class="wide"><button class="btn btn-primary btn-sm" id="save-terms">Record</button></div></div>'
+        : '<div class="ops-card"><div class="ops-head"><h3 style="margin:0">Terms of Business</h3><div class="ops-actions">' +
+            '<button class="btn btn-sm btn-primary" id="issue-terms">Issue current Terms</button>' +
+            '<button class="btn btn-sm btn-ghost" id="terms-link">Send secure link</button>' +
+            '<button class="btn btn-sm btn-ghost" id="terms-revoke">Revoke links</button></div></div>' +
+          '<p>' + termsChip(t.position) + ' <span class="text-muted fs-sm">Current version: ' + (t.currentVersion ? 'v' + t.currentVersion : 'none') + '</span></p>' +
+          (t.gate.ok ? '' : alertBox('warning', t.gate.message + ' Drafts and quotes can go ahead; supplying staff needs a written reason until the Terms are accepted.')) +
+          table(['Version', 'Status', 'Issued', 'Accepted', ''], t.documents.map(function (doc) {
+            return '<tr><td>v' + doc.version + '</td><td>' + chip(words(doc.status), CHIPS.doc[doc.status]) + '</td><td>' + when(doc.issuedAt) + '<div class="text-muted fs-sm">' + esc(doc.issuedBy) + '</div></td><td>' +
+              (doc.acceptedAt ? when(doc.acceptedAt) + '<div class="text-muted fs-sm">' + esc(doc.legalBusinessName || '') + ': ' + esc(doc.acceptedByName || '') + (doc.acceptedByJobTitle ? ' (' + esc(doc.acceptedByJobTitle) + ')' : '') + ', typed "' + esc(doc.typedName || '') + '", ' + esc(doc.acceptanceMethod || '') + '</div>' : '—') + '</td>' +
+              '<td class="ops-actions"><a class="btn btn-sm btn-ghost" target="_blank" rel="noopener" href="/ops/print/client-terms/' + esc(doc.id) + '">Print</a>' +
+              (doc.status === 'ISSUED' ? '<button class="btn btn-sm btn-success" data-terms-accept="' + esc(doc.id) + '">Record acceptance</button>' : '') +
+              (doc.status === 'ISSUED' || doc.status === 'ACCEPTED' ? '<button class="btn btn-sm btn-danger-quiet" data-terms-withdraw="' + esc(doc.id) + '">Withdraw</button>' : '') + '</td></tr>';
+          }), 'Terms of Business not issued to this client yet.')) +
       '</div></div>' +
       '<div class="ops-card"><h3 style="margin-top:0">Bookings</h3>' + table(['Reference', 'Date', 'Event', 'Venue', 'Status'], c.bookings.map(function (b) {
         return '<tr class="clickable" data-href="#/booking/' + esc(b.id) + '"><td>' + esc(b.reference) + '</td><td>' + day(b.eventDate) + '</td><td>' + esc(b.eventType || '—') + '</td><td>' + esc(b.venue || '—') + '</td><td>' + chip(words(b.status), CHIPS.booking[b.status]) + '</td></tr>';
@@ -663,8 +698,47 @@
     main.querySelector('#save-client').addEventListener('click', async function () {
       try { await api('/clients/' + id, { method: 'PATCH', body: readForm(main.querySelector('#client-form')) }); toast('Saved'); viewClient(id); } catch (err) { fail(err); }
     });
-    main.querySelector('#save-terms').addEventListener('click', async function () {
-      try { await api('/clients/' + id + '/terms', { method: 'POST', body: compact(readForm(main.querySelector('#terms-form'))) }); toast('Recorded'); viewClient(id); } catch (err) { fail(err); }
+    var reloadClient = function () { viewClient(id); };
+    var saveTerms = main.querySelector('#save-terms');
+    if (saveTerms) saveTerms.addEventListener('click', async function () {
+      try { await api('/clients/' + id + '/terms', { method: 'POST', body: compact(readForm(main.querySelector('#terms-form'))) }); toast('Recorded'); reloadClient(); } catch (err) { fail(err); }
+    });
+    var issueTerms = main.querySelector('#issue-terms');
+    if (issueTerms) issueTerms.addEventListener('click', function () { issueTermsFor(id, c.companyName, reloadClient); });
+    var termsLink = main.querySelector('#terms-link');
+    if (termsLink) termsLink.addEventListener('click', function () {
+      openModal('Send secure link: ' + c.companyName, '<p>A new link to this client\'s Terms of Business, valid for 30 days.</p>', [
+        { label: 'Copy link', kind: 'btn-ghost', onClick: async function () { var l = await api('/clients/' + id + '/terms-link', { method: 'POST', body: { email: false } }); setTimeout(function () { showLink('Secure link: ' + c.companyName, l); }, 0); } },
+        { label: 'Email link', onClick: async function () { var l = await api('/clients/' + id + '/terms-link', { method: 'POST', body: { email: true } }); setTimeout(function () { showLink('Secure link: ' + c.companyName, l); }, 0); } },
+      ]);
+    });
+    var termsRevoke = main.querySelector('#terms-revoke');
+    if (termsRevoke) termsRevoke.addEventListener('click', async function () {
+      if (!(await confirmDialog('Revoke every secure Terms link for ' + c.companyName + '?', 'Revoke', true))) return;
+      try { var r2 = await api('/clients/' + id + '/terms-links/revoke', { method: 'POST' }); toast(r2.revoked + ' link(s) revoked'); } catch (err) { fail(err); }
+    });
+    on(main, '[data-terms-accept]', 'click', function (_e, el) {
+      openModal('Record Terms acceptance received in writing',
+        '<p class="fs-sm mb-2">Only for an acceptance the client actually gave outside their link, e.g. a signed copy emailed back. Never record one on the client\'s behalf.</p><div class="ops-form">' +
+        field('Legal business name', 'legalBusinessName', c.companyName, 'text', { required: true }) +
+        field('Person accepting', 'acceptedByName', c.contactName, 'text', { required: true }) +
+        field('Job title', 'jobTitle', '') +
+        field('Name they typed or signed', 'typedName', '', 'text', { required: true }) +
+        field('Accepted at', 'acceptedAt', toLocalInput(new Date().toISOString()), 'datetime', { required: true }) +
+        field('How', 'method', 'Signed copy returned by email', 'text', { wide: true, required: true }) +
+        field('They confirmed they are authorised to accept for the hirer', 'authorityConfirmed', false, 'checkbox', { wide: true }) + '</div>',
+        [{ label: 'Record acceptance', kind: 'btn-success', onClick: async function (b2) {
+          var f = readForm(b2);
+          if (!f.authorityConfirmed) throw new Error('Confirm the client confirmed their authority.');
+          await api('/client-terms/' + el.dataset.termsAccept + '/accept', { method: 'POST', body: compact(f) });
+          toast('Acceptance recorded'); reloadClient();
+        } }]);
+    });
+    on(main, '[data-terms-withdraw]', 'click', function (_e, el) {
+      openModal('Withdraw Terms', '<div class="ops-form">' + field('Reason', 'reason', '', 'textarea', { wide: true, required: true }) + '</div>', [{
+        label: 'Withdraw', kind: 'btn-danger', onClick: async function (b2) {
+          await api('/client-terms/' + el.dataset.termsWithdraw + '/withdraw', { method: 'POST', body: readForm(b2) }); reloadClient();
+        } }]);
     });
   }
 
@@ -686,6 +760,8 @@
       field('On-site contact phone', 'onSiteContactPhone', b.onSiteContactPhone) +
       field('VERGO lead', 'vergoLead', b.vergoLead) +
       field('Address', 'address', b.address, 'textarea', { wide: true }) +
+      field('Payment in advance required', 'advancePaymentRequired', b.advancePaymentRequired, 'checkbox', { hint: 'Defaults on for a client\'s first booking when Settings say so.' }) +
+      field('Payment terms (days)', 'paymentTermsDays', b.paymentTermsDays, 'number', { hint: 'Empty uses the Terms of Business default.' }) +
       field('Notes', 'notes', b.notes, 'textarea', { wide: true });
   }
 
@@ -747,6 +823,9 @@
       field('Worker pay rate (£/h)', 'workerPayRate', r.workerPayRate, 'number', { required: true }) +
       field('Minimum hours', 'minimumHours', r.minimumHours, 'number', { hint: 'Empty uses the standard minimum.' }) +
       field('After-midnight multiplier', 'afterMidnightMultiplier', r.afterMidnightMultiplier, 'number', { hint: 'e.g. 1.25' }) +
+      field('Overtime charge rate (£/h)', 'overtimeChargeRate', r.overtimeChargeRate, 'number') +
+      field('Overtime after (hours per shift)', 'overtimeAfterHours', r.overtimeAfterHours, 'number') +
+      field('Specialist rate / other agreed charges', 'otherCharges', r.otherCharges, 'text', { wide: true, hint: 'Shown on the Booking Confirmation.' }) +
       field('Travel contribution (£ per worker)', 'travelContribution', r.travelContribution, 'number') +
       field('Expenses (£ per worker)', 'expenses', r.expenses, 'number') +
       field('Unpaid break (minutes)', 'breakMins', r.breakMins || 0, 'number') +
@@ -794,7 +873,7 @@
 
     main.innerHTML = '<a href="#/bookings" class="text-muted fs-sm">← Bookings</a>' +
       '<div class="ops-head"><div><h2>' + esc(b.reference) + ' ' + chip(words(b.status), CHIPS.booking[b.status]) + '</h2><div class="ops-lede"><a class="detail-link" href="#/client/' + esc(b.client.id) + '">' + esc(b.client.companyName) + '</a> · ' + day(b.eventDate) + ' ' + esc(b.startTime + '–' + b.expectedFinish) + (b.venue ? ' · ' + esc(b.venue) : '') + '</div></div>' +
-      '<div class="ops-actions"><select id="status-select" class="as-input" style="width:auto">' + options(BOOKING_STATUSES.filter(function (s) { return s !== 'INVOICED' && s !== 'PAID'; }).concat(b.status === 'INVOICED' || b.status === 'PAID' ? [b.status] : []), b.status) + '</select><button class="btn btn-sm btn-primary" id="save-status">Set status</button></div></div>' +
+      '<div class="ops-actions"><a class="btn btn-sm btn-ghost" target="_blank" rel="noopener" href="/ops/print/booking/' + esc(b.id) + '">Booking confirmation</a><select id="status-select" class="as-input" style="width:auto">' + options(BOOKING_STATUSES.filter(function (s) { return s !== 'INVOICED' && s !== 'PAID'; }).concat(b.status === 'INVOICED' || b.status === 'PAID' ? [b.status] : []), b.status) + '</select><button class="btn btn-sm btn-primary" id="save-status">Set status</button></div></div>' +
       b.warnings.map(function (w) { return alertBox('warning', w); }).join('') +
 
       '<div class="ops-card"><div class="ops-head"><h3 style="margin:0">Requirements and assignments</h3><button class="btn btn-sm btn-primary" id="add-req">Add requirement</button></div>' +
@@ -880,7 +959,7 @@
     on(main, '[data-confirmation]', 'click', async function (_e, el) {
       try {
         var doc = await api('/assignments/' + el.dataset.confirmation + '/confirmation', { method: 'POST' });
-        toast('Assignment confirmation issued'); window.open('/ops/print/document/' + doc.id, '_blank', 'noopener');
+        toast('Assignment confirmation issued. The worker can also see it through their secure document link.'); window.open('/ops/print/document/' + doc.id, '_blank', 'noopener');
       } catch (err) { fail(err); }
     });
     main.querySelector('#add-cost').addEventListener('click', function () {
@@ -999,34 +1078,232 @@
     });
   }
 
-  // ── Documents ───────────────────────────────────────────────────────────
+  // ── Documents & Terms ───────────────────────────────────────────────────
 
-  async function viewDocuments() {
+  var DOC_LABELS = {
+    KEY_INFORMATION_DOCUMENT: 'Key Information Document', ZERO_HOURS_AGREEMENT: 'Zero-Hours Employment Agreement',
+    ASSIGNMENT_CONFIRMATION: 'Assignment confirmation', CLIENT_TERMS_OF_BUSINESS: 'Terms of Business (business clients)',
+    RTW_CHECKLIST: 'RTW checklist', ONBOARDING_CHECKLIST: 'Onboarding checklist',
+  };
+  var PACK_WORDS = { both_missing: 'Both missing', kid_missing: 'KID missing', contract_missing: 'Contract missing', outdated: 'Superseded / outdated', current: 'Current' };
+  var PACK_CHIPS = { both_missing: 'bad', kid_missing: 'bad', contract_missing: 'warn', outdated: 'warn', current: 'ok' };
+  var TERMS_CHIPS = { consumer_terms_required: 'info', not_issued: 'bad', issued: 'warn', accepted: 'ok', reacceptance_required: 'bad' };
+
+  function termsChip(t) {
+    if (!t) return '—';
+    if (t.status === 'consumer_terms_required') return chip('Consumer booking terms required', 'info');
+    if (t.status === 'not_issued') return chip('Not issued', 'bad');
+    if (t.status === 'issued') return chip('v' + t.pendingVersion + ' issued, not accepted', 'warn');
+    if (t.status === 'reacceptance_required') return chip('v' + t.acceptedVersion + ' accepted; material change, re-acceptance needed', 'bad');
+    return chip('Accepted v' + t.acceptedVersion, t.newerVersionAvailable ? 'warn' : 'ok') + (t.newerVersionAvailable ? ' ' + chip('older version', 'warn') : '') + (t.pendingVersion ? ' ' + chip('v' + t.pendingVersion + ' awaiting', 'muted') : '');
+  }
+  function kidCell(k) {
+    if (k.status !== 'issued') return chip(k.status === 'superseded' ? 'Superseded only' : 'Not issued', 'bad');
+    return chip('v' + k.version + ' issued', k.reacceptanceRequired ? 'bad' : k.newerVersionAvailable ? 'warn' : 'ok') +
+      '<div class="text-muted fs-sm">' + (k.acknowledgedAt ? 'Acknowledged ' + when(k.acknowledgedAt) : 'Not acknowledged yet') + '</div>';
+  }
+  function contractCell(c) {
+    if (c.status === 'accepted') {
+      return chip('v' + c.version + ' agreed', c.reacceptanceRequired ? 'bad' : c.newerVersionAvailable ? 'warn' : 'ok') +
+        (c.pendingVersion ? ' ' + chip('v' + c.pendingVersion + ' awaiting', 'muted') : '') +
+        '<div class="text-muted fs-sm">' + when(c.acceptedAt) + (c.reacceptanceRequired ? ' · material change: must agree current version' : '') + '</div>';
+    }
+    if (c.status === 'issued') return chip('v' + c.version + ' issued, not agreed', 'warn');
+    return chip(c.status === 'superseded' ? 'Superseded only' : 'Not issued', 'bad');
+  }
+
+  /** A freshly made link: shown once, with a copy button. */
+  function showLink(title, link) {
+    var url = location.origin + link.path;
+    var emailNote = link.email
+      ? (link.email.sent ? alertBox('info', 'Emailed to the address on file.') : alertBox('warning', 'Email not sent: ' + (link.email.error || 'unknown error') + '. Copy the link and send it yourself.'))
+      : '';
+    openModal(title, emailNote + '<p class="fs-sm mb-2">Personal secure link, valid until ' + day(link.expiresAt) + '. It opens only this person\'s documents and is shown once, so copy it now.</p>' +
+      '<div class="ops-form"><div class="wide"><input class="as-input" id="link-url" readonly value="' + esc(url) + '"></div></div>', [{
+      label: 'Copy link', onClick: async function (b) {
+        var input = b.querySelector('#link-url');
+        input.select();
+        try { await navigator.clipboard.writeText(url); } catch (_e) { document.execCommand('copy'); }
+        toast('Link copied');
+        return false;
+      },
+    }]);
+  }
+
+  /** Ask whether to email the link or just show it, then run `go(email)`. */
+  function linkChoice(title, message, go) {
+    openModal(title, '<p>' + esc(message) + '</p>', [
+      { label: 'Issue and copy link', kind: 'btn-ghost', onClick: async function () { var l = await go(false); setTimeout(function () { showLink(title, l); }, 0); } },
+      { label: 'Issue and email link', onClick: async function () { var l = await go(true); setTimeout(function () { showLink(title, l); }, 0); } },
+    ]);
+  }
+
+  function issuePackFor(workerId, workerName, done) {
+    linkChoice('Issue current worker pack: ' + workerName,
+      'Issues the current Key Information Document first, then the current Zero-Hours Employment Agreement, skipping any the worker already has at the current version. An agreement already made stays in force until the new one is agreed. Issue dates are today; nothing is backdated.',
+      async function (email) {
+        var r = await api('/workers/' + workerId + '/documents/pack', { method: 'POST', body: { email: email } });
+        toast(r.issued.length ? 'Issued: ' + r.issued.map(function (x) { return DOC_LABELS[x.type] + ' v' + x.version; }).join(', ') : 'Nothing new to issue; link created');
+        if (done) done();
+        return r.link;
+      });
+  }
+
+  function issueTermsFor(clientId, clientName, done) {
+    linkChoice('Issue Terms of Business: ' + clientName,
+      'Issues the current business Terms of Business to this client and makes a secure link for them to accept. An acceptance of an earlier version stays on record and in force until this one is accepted (unless this version was marked as a material change).',
+      async function (email) {
+        var r = await api('/clients/' + clientId + '/terms/issue', { method: 'POST', body: { email: email } });
+        toast('Terms v' + r.document.version + ' issued');
+        if (done) done();
+        return r.link;
+      });
+  }
+
+  var DOC_TABS = [['overview', 'Overview'], ['workers', 'Worker documents'], ['clients', 'Client terms'], ['templates', 'Document templates'], ['versions', 'Versions'], ['outstanding', 'Outstanding acceptances']];
+
+  function docTabs(active) {
+    return '<h2>Documents &amp; Terms</h2><nav class="ops-tabs" aria-label="Documents and Terms">' + DOC_TABS.map(function (t) {
+      return '<a href="#/documents?tab=' + t[0] + '"' + (t[0] === active ? ' class="active" aria-current="page"' : '') + '>' + esc(t[1]) + '</a>';
+    }).join('') + '</nav>';
+  }
+
+  async function viewDocuments(query) {
+    query = (query && typeof query === 'object') ? query : {};
+    var tab = query.tab || 'overview';
+    if (tab === 'templates') return viewTemplates();
+    var d = await api('/documents-terms');
+    var c = d.counts;
+    var review = d.commercialReview.reviewed ? '' : alertBox('warning', d.commercialReview.label + ': the transfer fee, extended hire, payment and cancellation defaults have not been confirmed. Terms of Business cannot be issued until they are.', '#/settings');
+    var html = docTabs(tab) + review;
+
+    if (tab === 'overview') {
+      html += '<div class="ops-lede">Worker onboarding: application / worker created → right to work → Key Information Document issued → employment agreement agreed → payroll onboarding → Ready for Work. Business clients accept the Terms of Business before staff are supplied; private consumers need consumer booking terms instead.</div>' +
+        '<div class="kpi-grid ops-kpis">' +
+          kpi('Workers missing KID', c.workersMissingKid, 'Active workers', c.workersMissingKid ? 'warning' : 'success', '#/documents?tab=workers&pack=kid_missing') +
+          kpi('Workers missing agreement', c.workersMissingAgreement, 'Not agreed (current or still valid)', c.workersMissingAgreement ? 'warning' : 'success', '#/documents?tab=workers&pack=contract_missing') +
+          kpi('Workers on superseded contract', c.workersOnSupersededContract, null, c.workersOnSupersededContract ? 'warning' : null, '#/documents?tab=workers&pack=outdated') +
+          kpi('Clients without current Terms', c.clientsWithoutCurrentTerms, 'Business clients', c.clientsWithoutCurrentTerms ? 'warning' : 'success', '#/documents?tab=clients&terms=missing') +
+          kpi('Clients on superseded Terms', c.clientsOnSupersededTerms, null, c.clientsOnSupersededTerms ? 'warning' : null, '#/documents?tab=clients&terms=older') +
+          kpi('Awaiting acceptance', c.outstandingAcceptances, 'Agreements and Terms issued', c.outstandingAcceptances ? 'info' : null, '#/documents?tab=outstanding') +
+        '</div>';
+    }
+
+    if (tab === 'workers') {
+      var pack = query.pack || '';
+      var rows = d.workers.filter(function (w) {
+        if (!pack) return true;
+        if (pack === 'kid_missing') return w.documentPack === 'kid_missing' || w.documentPack === 'both_missing';
+        if (pack === 'contract_missing') return w.documentPack === 'contract_missing' || w.documentPack === 'both_missing';
+        return w.documentPack === pack;
+      });
+      html += '<div class="ops-lede">Documents outstanding for every worker who has not left. Existing workers are not treated as having documents they were never given: issue the current pack and they agree it on the date they actually do.</div>' +
+        '<form class="as-filters" id="filters"><div class="as-filter-group"><label>Show</label><select name="pack">' +
+        options([['kid_missing', 'KID missing'], ['contract_missing', 'Contract missing'], ['both_missing', 'Both missing'], ['current', 'Current'], ['outdated', 'Superseded / outdated']], pack, 'All') +
+        '</select></div></form><div class="as-table-wrap">' +
+        table(['Worker', 'Documents', 'Key Information Document', 'Employment agreement', 'Ready', ''], rows.map(function (w) {
+          return '<tr><td><a href="#/worker/' + esc(w.id) + '"><strong>' + esc(w.name) + '</strong></a><div class="text-muted fs-sm">' + esc(w.email) + (w.activeStatus !== 'ACTIVE' ? ' · ' + esc(words(w.activeStatus)) : '') + '</div></td>' +
+            '<td>' + chip(PACK_WORDS[w.documentPack], PACK_CHIPS[w.documentPack]) + '</td><td>' + kidCell(w.kid) + '</td><td>' + contractCell(w.contract) + '</td>' +
+            '<td>' + (w.ready ? chip('Ready', 'ok') : chip('Not ready', 'bad')) + '</td>' +
+            '<td class="ops-actions">' + (w.documentPack !== 'current' ? '<button class="btn btn-sm btn-primary" data-pack="' + esc(w.id) + '" data-name="' + esc(w.name) + '">Issue current pack</button>' : '') + '</td></tr>';
+        }), 'No workers in this group.') + '</div>';
+    }
+
+    if (tab === 'clients') {
+      var tf = query.terms || '';
+      var list = d.clients.filter(function (x) {
+        var t = x.terms;
+        if (tf === 'missing') return t.status !== 'consumer_terms_required' && !(t.status === 'accepted' && !t.newerVersionAvailable);
+        if (tf === 'older') return t.acceptedVersion != null && (t.newerVersionAvailable || t.status === 'reacceptance_required');
+        if (tf === 'current') return t.status === 'accepted' && !t.newerVersionAvailable;
+        if (tf === 'consumer') return t.status === 'consumer_terms_required';
+        return true;
+      });
+      html += '<div class="ops-lede">The business Terms of Business, by client. Private consumers never receive them.</div>' +
+        '<form class="as-filters" id="filters"><div class="as-filter-group"><label>Show</label><select name="terms">' +
+        options([['missing', 'Without current Terms'], ['older', 'On a superseded version'], ['current', 'Current'], ['consumer', 'Private consumers']], tf, 'All') +
+        '</select></div></form><div class="as-table-wrap">' +
+        table(['Client', 'Type', 'Terms', 'Booking gate', ''], list.map(function (x) {
+          var b2b = x.clientType !== 'PRIVATE_CONSUMER';
+          return '<tr><td><a href="#/client/' + esc(x.id) + '"><strong>' + esc(x.companyName) + '</strong></a><div class="text-muted fs-sm">' + esc(x.contactName) + ' · ' + esc(x.email) + '</div></td><td>' + esc(words(x.clientType)) + '</td>' +
+            '<td>' + termsChip(x.terms) + '</td><td class="fs-sm">' + (x.gate.ok ? chip('OK to supply', 'ok') : esc(x.gate.message)) + '</td>' +
+            '<td class="ops-actions">' + (b2b && !(x.terms.status === 'accepted' && !x.terms.newerVersionAvailable) && d.commercialReview.reviewed ? '<button class="btn btn-sm btn-primary" data-terms="' + esc(x.id) + '" data-name="' + esc(x.companyName) + '">Issue current Terms</button>' : '') + '</td></tr>';
+        }), 'No clients in this group.') + '</div>';
+    }
+
+    if (tab === 'versions') {
+      var v = d.versions;
+      html += '<div class="ops-lede">Every version is kept. A new version supersedes the old one but never changes what was issued or accepted under it. "Material change" means anyone on an earlier version must agree the new one before they count as current.</div>' +
+        ['KEY_INFORMATION_DOCUMENT', 'ZERO_HOURS_AGREEMENT', 'CLIENT_TERMS_OF_BUSINESS', 'ASSIGNMENT_CONFIRMATION'].map(function (type) {
+          var versions = v.templates.filter(function (t) { return t.type === type; });
+          var h = v.holders[type];
+          var names = function (list) { return list.length ? list.slice(0, 40).map(function (x) { return esc(x.name) + (x.version ? ' (v' + x.version + ')' : ''); }).join(', ') + (list.length > 40 ? '…' : '') : 'None'; };
+          return '<div class="ops-card"><h3 style="margin-top:0">' + esc(DOC_LABELS[type]) + '</h3>' +
+            table(['Version', 'Status', 'Effective', 'Created', 'Superseded', 'Material change'], versions.map(function (t) {
+              return '<tr><td>v' + t.version + ' <a class="fs-sm ops-link" target="_blank" rel="noopener" href="/ops/print/template/' + esc(t.id) + '">preview</a></td><td>' + (t.status === 'CURRENT' ? chip('Current', 'ok') : chip('Superseded', 'muted')) + '</td><td>' + day(t.effectiveDate) + '</td><td>' + when(t.createdAt) + '<div class="text-muted fs-sm">' + esc(t.createdBy) + '</div></td><td>' + (t.supersededAt ? when(t.supersededAt) : '—') + '</td><td>' + (t.requiresReacceptance ? chip('Yes', 'warn') : 'No') + '</td></tr>';
+            }), 'No versions yet.') +
+            (h ? '<div class="ops-holders"><p><strong>' + (type === 'CLIENT_TERMS_OF_BUSINESS' ? 'Accepted' : type === 'KEY_INFORMATION_DOCUMENT' ? 'Issued' : 'Agreed') + ' current version (' + h.current.length + '):</strong> ' + names(h.current) + '</p>' +
+              '<p><strong>On an older version (' + h.older.length + '):</strong> ' + names(h.older) + '</p>' +
+              '<p><strong>Never ' + (type === 'KEY_INFORMATION_DOCUMENT' ? 'issued' : 'accepted') + ' (' + h.never.length + '):</strong> ' + names(h.never) + '</p></div>' : '') +
+            '</div>';
+        }).join('');
+    }
+
+    if (tab === 'outstanding') {
+      var o = d.outstanding;
+      html += '<h3>Employment agreements awaiting agreement</h3>' + table(['Worker', 'Version', 'Issued'], o.agreements.map(function (x) {
+          return '<tr class="clickable" data-href="#/worker/' + esc(x.workerId) + '"><td>' + esc(x.name) + '</td><td>v' + x.version + '</td><td>' + when(x.issuedAt) + '</td></tr>';
+        }), 'None.') +
+        '<h3>KIDs issued, receipt not yet acknowledged</h3>' + table(['Worker', 'Version', 'Issued'], o.kidsNotAcknowledged.map(function (x) {
+          return '<tr class="clickable" data-href="#/worker/' + esc(x.workerId) + '"><td>' + esc(x.name) + '</td><td>v' + x.version + '</td><td>' + when(x.issuedAt) + '</td></tr>';
+        }), 'None.') +
+        '<h3>Terms of Business awaiting acceptance</h3>' + table(['Client', 'Version', 'Issued'], o.clientTerms.map(function (x) {
+          return '<tr class="clickable" data-href="#/client/' + esc(x.clientId) + '"><td>' + esc(x.name) + '</td><td>v' + x.version + '</td><td>' + when(x.issuedAt) + '</td></tr>';
+        }), 'None.');
+    }
+
+    main.innerHTML = html;
+    var form = main.querySelector('#filters');
+    if (form) form.addEventListener('change', function () { setQuery('documents', Object.assign({ tab: tab }, Object.fromEntries(new FormData(form)))); });
+    on(main, 'tr[data-href]', 'click', function (_e, el) { location.hash = el.dataset.href; });
+    var reload = function () { viewDocuments(query); };
+    on(main, '[data-pack]', 'click', function (_e, el) { issuePackFor(el.dataset.pack, el.dataset.name, reload); });
+    on(main, '[data-terms]', 'click', function (_e, el) { issueTermsFor(el.dataset.terms, el.dataset.name, reload); });
+  }
+
+  async function viewTemplates() {
     var templates = await api('/templates');
     var types = [];
     templates.forEach(function (t) { if (types.indexOf(t.type) < 0) types.push(t.type); });
-    main.innerHTML = '<h2>Document templates</h2><div class="ops-lede">Each change is a new version; earlier versions are kept and stay attached to what was issued. A template with "VERGO WORDING NEEDED" gaps cannot be issued. Placeholders like {{worker.name}} are filled in when a document is issued.</div>' +
+    main.innerHTML = docTabs('templates') + '<div class="ops-lede">Each change is a new version; earlier versions are kept and stay attached to what was issued and accepted. A template with "VERGO WORDING NEEDED" gaps cannot be issued. Placeholders like {{worker.name}} are filled in when a document is issued. Versions written by "system" are drafts for legal review.</div>' +
       types.map(function (type) {
         var versions = templates.filter(function (t) { return t.type === type; });
         var current = versions.find(function (t) { return t.current; }) || versions[0];
-        return '<div class="ops-card"><div class="ops-head"><div><h3 style="margin:0">' + esc(current.label) + '</h3><div class="text-muted fs-sm">Current: v' + current.version + ' "' + esc(current.title) + '"' + (current.needsWording ? ' ' + chip('Wording needed', 'bad') : ' ' + chip('Ready to issue', 'ok')) + '</div></div>' +
+        var flags = (current.needsWording ? ' ' + chip('Wording needed', 'bad') : ' ' + chip('Ready to issue', 'ok')) +
+          (current.systemDraft ? ' ' + chip('System draft: legal review', 'warn') : '') +
+          (current.ownerReview && !current.ownerReview.reviewed ? ' ' + chip(current.ownerReview.label, 'bad') : '');
+        return '<div class="ops-card"><div class="ops-head"><div><h3 style="margin:0">' + esc(current.label) + '</h3><div class="text-muted fs-sm">Current: v' + current.version + ', effective ' + day(current.effectiveDate) + flags + '</div></div>' +
           '<div class="ops-actions"><a class="btn btn-sm btn-ghost" target="_blank" rel="noopener" href="/ops/print/template/' + esc(current.id) + '">Preview</a><button class="btn btn-sm btn-primary" data-new="' + esc(current.id) + '">New version</button></div></div>' +
-          table(['Version', 'Title', 'Created', 'By', 'Change', 'Issued', 'Status', ''], versions.map(function (t) {
-            return '<tr><td>v' + t.version + '</td><td>' + esc(t.title) + '</td><td>' + when(t.createdAt) + '</td><td>' + esc(t.createdBy) + '</td><td>' + esc(t.changeNote || '') + '</td><td class="num">' + t.issuedCount + '</td><td>' + (t.current ? chip('Current', 'ok') : chip('Retired ' + day(t.retiredAt), 'muted')) + '</td><td><a class="btn btn-sm btn-ghost" target="_blank" rel="noopener" href="/ops/print/template/' + esc(t.id) + '">Preview</a></td></tr>';
+          table(['Version', 'Status', 'Effective', 'Created', 'Superseded', 'Change', 'Issued', 'Accepted', ''], versions.map(function (t) {
+            return '<tr><td>v' + t.version + (t.requiresReacceptance ? ' ' + chip('material', 'warn') : '') + '</td><td>' + (t.current ? chip('Current', 'ok') : chip('Superseded', 'muted')) + '</td><td>' + day(t.effectiveDate) + '</td><td>' + when(t.createdAt) + '<div class="text-muted fs-sm">' + esc(t.createdBy) + '</div></td><td>' + (t.retiredAt ? when(t.retiredAt) : '—') + '</td><td>' + esc(t.changeNote || '') + '</td><td class="num">' + t.issuedCount + '</td><td class="num">' + t.acceptedCount + '</td><td><a class="btn btn-sm btn-ghost" target="_blank" rel="noopener" href="/ops/print/template/' + esc(t.id) + '">Preview</a></td></tr>';
           })) + '</div>';
       }).join('');
     var byId = {};
     templates.forEach(function (t) { byId[t.id] = t; });
     on(main, '[data-new]', 'click', function (_e, el) {
       var t = byId[el.dataset.new];
-      openModal('New version: ' + t.label, '<p class="text-muted fs-sm mb-2">"# " heading, "## " subheading, "- " list item, blank line between paragraphs. Placeholders in use: ' + esc(t.keys.join(', ') || 'none') + '.</p><div class="ops-form">' +
+      var accepts = t.type === 'ZERO_HOURS_AGREEMENT' || t.type === 'CLIENT_TERMS_OF_BUSINESS' || t.type === 'KEY_INFORMATION_DOCUMENT';
+      openModal('New version: ' + t.label, '<p class="text-muted fs-sm mb-2">"# " heading, "## " subheading, "- " list item, blank line between paragraphs. Placeholders in use: ' + esc(t.keys.join(', ') || 'none') + '. The KID pay example and the commercial terms come from Settings and are frozen into the version when it is saved.</p><div class="ops-form">' +
         field('Title', 'title', t.title, 'text', { wide: true, required: true }) +
         field('Wording', 'body', t.body, 'textarea', { wide: true, required: true, attrs: ' rows="22" style="min-height:360px;font-family:ui-monospace,Consolas,monospace;font-size:12px"' }) +
-        field('What changed', 'changeNote', '', 'text', { wide: true, required: true }) + '</div>',
+        field('What changed', 'changeNote', '', 'text', { wide: true, required: true }) +
+        field('Effective date', 'effectiveDate', todayLondon(), 'date', { required: true }) +
+        (accepts ? field('Material change: everyone on an earlier version must agree (or be re-issued) this version before they count as current', 'requiresReacceptance', false, 'checkbox', { wide: true, hint: 'Leave unticked for corrections that do not change anyone\'s terms. Earlier agreements then stay in force.' }) : '') +
+        '</div>',
         [{ label: 'Save as v' + (t.version + 1), onClick: async function (body) {
           var f = readForm(body);
-          await api('/templates', { method: 'POST', body: { type: t.type, title: f.title, body: body.querySelector('[name=body]').value, changeNote: f.changeNote } });
-          toast('Saved new version'); viewDocuments();
+          await api('/templates', { method: 'POST', body: { type: t.type, title: f.title, body: body.querySelector('[name=body]').value, changeNote: f.changeNote, effectiveDate: f.effectiveDate, requiresReacceptance: Boolean(f.requiresReacceptance) } });
+          toast('Saved new version'); viewTemplates();
         } }]);
     });
   }
@@ -1169,8 +1446,10 @@
   }
 
   async function viewSettings() {
-    var d = await api('/settings');
+    var both = await Promise.all([api('/settings'), api('/commercial-terms')]);
+    var d = both[0], ct = both[1];
     var s = d.settings;
+    var k = s.kidPayExample, t = s.clientCommercialTerms;
     var years = Object.keys(s.pensionThresholds).sort().reverse();
     main.innerHTML = '<h2>Ops settings</h2><div class="ops-lede">Current tax year: ' + esc(d.currentTaxYear) + '. These drive the pension review alerts only. Nothing here enrols anyone or makes a declaration.</div>' +
       '<div class="ops-card"><h3 style="margin-top:0">Workplace pension</h3><div class="ops-form" id="pension-settings">' +
@@ -1182,7 +1461,54 @@
         table(['Tax year', 'Lower qualifying earnings', 'Earnings trigger', 'Upper qualifying earnings', 'Verified'], years.map(function (y) {
           var t = s.pensionThresholds[y];
           return '<tr data-year="' + esc(y) + '"><td>' + esc(y) + '</td><td><input class="as-input" data-k="lowerQualifyingAnnual" type="number" value="' + t.lowerQualifyingAnnual + '"></td><td><input class="as-input" data-k="earningsTriggerAnnual" type="number" value="' + t.earningsTriggerAnnual + '"></td><td><input class="as-input" data-k="upperQualifyingAnnual" type="number" value="' + t.upperQualifyingAnnual + '"></td><td><input type="checkbox" data-k="verified"' + (t.verified ? ' checked' : '') + '></td></tr>';
-        })) + '</div><div class="ops-actions" style="margin-top:10px"><button class="btn btn-sm btn-ghost" id="add-year">Add ' + esc(d.currentTaxYear) + '</button><button class="btn btn-sm btn-primary" id="save-thresholds">Save thresholds</button></div></div>';
+        })) + '</div><div class="ops-actions" style="margin-top:10px"><button class="btn btn-sm btn-ghost" id="add-year">Add ' + esc(d.currentTaxYear) + '</button><button class="btn btn-sm btn-primary" id="save-thresholds">Save thresholds</button></div></div>' +
+      '<div class="ops-card"><h3 style="margin-top:0">Key Information Document: pay example</h3><p class="text-muted fs-sm mb-2">The representative payslip in the KID. Every figure is shown as illustrative. Leave a deduction empty to show it as depending on the worker\'s circumstances rather than inventing a tax result. Saving makes a new KID version (workers on the old one are flagged to be re-issued).</p><div class="ops-form" id="kid-example">' +
+        field('Hours in the pay period', 'hours', k.hours, 'number') +
+        field('Hourly base pay (£)', 'hourlyRate', k.hourlyRate, 'number', { hint: 'Never below the legal minimum that applies.' }) +
+        field('Holiday pay %', 'holidayPayPercent', k.holidayPayPercent, 'number') +
+        field('Income Tax (£, illustrative)', 'incomeTax', k.incomeTax, 'number') +
+        field('Employee NI (£, illustrative)', 'employeeNi', k.employeeNi, 'number') +
+        field('Pension (£, illustrative)', 'pension', k.pension, 'number') +
+        field('Other deductions (£)', 'otherDeductions', k.otherDeductions, 'number') +
+        field('Note shown under the example', 'note', k.note, 'text', { wide: true }) +
+        '<div class="wide"><button class="btn btn-sm btn-primary" id="save-kid-example">Save and make new KID version</button></div></div></div>' +
+      '<div class="ops-card"><h3 style="margin-top:0">Commercial terms (business Terms of Business) ' + (ct.reviewed ? chip('Reviewed by ' + ct.review.reviewedBy + ', ' + when(ct.review.reviewedAt), 'ok') : chip(ct.label, 'bad')) + '</h3>' +
+        '<p class="text-muted fs-sm mb-2">Frozen into each Terms version. Saving a change makes a new Terms version marked as a material change, so clients must accept it, and needs the owner\'s review again before Terms can be issued. A transfer fee is only payable within the relevant period the Conduct Regulations allow, and the hirer always has the extended-hire option instead.</p><div class="ops-form" id="commercial">' +
+        field('Payment terms (days after invoice)', 'paymentTermsDays', t.paymentTermsDays, 'number') +
+        field('First booking paid in advance', 'firstBookingAdvancePayment', t.firstBookingAdvancePayment, 'checkbox') +
+        field('Cancellation charges', 'cancellation', t.cancellation.map(function (c) { return c.withinHours + 'h:' + c.percent + '%'; }).join(', '), 'text', { wide: true, hint: 'Within N hours of the start : % of the cancelled charges, e.g. "48h:10%, 24h:25%". Earlier notice is free.' }) +
+        field('No-show replacement window (minutes)', 'replacementWindowMinutes', t.replacementWindowMinutes, 'number') +
+        field('Transfer fee (% of anticipated gross remuneration)', 'transferFeePercent', t.transferFeePercent, 'number') +
+        field('Transfer fee basis (months of remuneration)', 'transferFeeRemunerationMonths', t.transferFeeRemunerationMonths, 'number') +
+        field('Extended hire option (weeks)', 'extendedHireWeeks', t.extendedHireWeeks, 'number') +
+        '<div class="wide ops-actions"><button class="btn btn-sm btn-primary" id="save-commercial">Save and make new Terms version</button>' +
+        (ct.reviewed ? '' : '<button class="btn btn-sm btn-warning" id="review-commercial">I am the owner and have reviewed these terms</button>') + '</div></div></div>';
+
+    main.querySelector('#save-kid-example').addEventListener('click', async function () {
+      var f = readForm(main.querySelector('#kid-example'));
+      try {
+        var r = await api('/settings/kidPayExample', { method: 'PUT', body: { value: f } });
+        toast('Saved' + (r.newVersion ? '; KID is now v' + r.newVersion.version : '')); viewSettings();
+      } catch (err) { fail(err); }
+    });
+    main.querySelector('#save-commercial').addEventListener('click', async function () {
+      var f = readForm(main.querySelector('#commercial'));
+      try {
+        f.cancellation = String(f.cancellation || '').split(',').map(function (part) {
+          var m = part.trim().match(/^(\d+)\s*h?\s*:\s*(\d+(?:\.\d+)?)\s*%?$/i);
+          if (!m) throw new Error('Cancellation charges should look like "48h:10%, 24h:25%".');
+          return { withinHours: Number(m[1]), percent: Number(m[2]) };
+        });
+        if (!(await confirmDialog('Saving makes a new Terms of Business version. Clients will need to accept it, and the owner must review the terms again. Continue?', 'Save'))) return;
+        var r = await api('/settings/clientCommercialTerms', { method: 'PUT', body: { value: f } });
+        toast('Saved' + (r.newVersion ? '; Terms are now v' + r.newVersion.version : '')); viewSettings();
+      } catch (err) { fail(err); }
+    });
+    var reviewBtn = main.querySelector('#review-commercial');
+    if (reviewBtn) reviewBtn.addEventListener('click', async function () {
+      if (!(await confirmDialog('Confirm you are the owner and have reviewed the payment, cancellation, no-show, transfer fee and extended hire terms shown. This is recorded in the audit log.', 'Confirm review'))) return;
+      try { await api('/commercial-terms/review', { method: 'POST', body: { confirm: true } }); toast('Review recorded'); viewSettings(); } catch (err) { fail(err); }
+    });
 
     main.querySelector('#save-pension').addEventListener('click', async function () {
       var f = readForm(main.querySelector('#pension-settings'));

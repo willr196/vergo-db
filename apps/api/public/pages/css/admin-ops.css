@@ -96,3 +96,12 @@ a.ops-rota-shift:hover { border-color: rgba(212,175,55,0.45); }
 .ops-rota-shift span { display: block; color: var(--as-muted); }
 .ops-rota-gap-day { margin-bottom: 10px; }
 .ops-rota-gap { display: block; padding: 8px 10px; margin-top: 4px; border-radius: 6px; border: 1px solid rgba(245,158,11,0.3); background: var(--as-warning-bg); color: var(--as-text); text-decoration: none; font-size: 0.84rem; }
+
+/* Documents & Terms: tabs and the version holders lists. */
+.ops-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; }
+.ops-tabs a { padding: 6px 12px; border: 1px solid var(--as-border); border-radius: 999px; color: var(--as-muted); text-decoration: none; font-size: 0.82rem; }
+.ops-tabs a:hover { color: var(--as-text); background: var(--as-hover); }
+.ops-tabs a.active { color: var(--as-gold); border-color: rgba(212,175,55,0.35); background: var(--as-gold-bg); }
+.ops-holders { font-size: 0.84rem; margin-top: 10px; }
+.ops-holders p { margin: 0 0 6px; }
+.ops-page a.ops-link { color: var(--as-gold); }

@@ -14,7 +14,9 @@ import {
 import { bookingProfit, COUNTED_STATUSES } from '../../ops/profit';
 import { awrWeeks, AWR_LABEL } from '../../ops/awr';
 import { toCsv, parseCsv, relevantPeriodEnd, RETENTION_CLASSES } from '../../ops/records';
-import { loadOpsSettings, settingsSchemas, type OpsSettingKey } from '../../ops/settings';
+import { loadOpsSettings, settingsSchemas, loadCommercialReview, OWNER_REVIEW_LABEL, type OpsSettingKey } from '../../ops/settings';
+import { clientTermsPositions, cutVersionForSettings } from '../../ops/documentService';
+import { kidCounts, contractCounts } from '../../ops/compliance';
 import { thresholdsFor } from '../../ops/pension';
 import { needsWording, DOC_TYPE_LABELS, type OpsDocType } from '../../ops/documents';
 import { dateKey, londonDateKey, addDays, taxYearOf } from '../../ops/time';
@@ -131,6 +133,16 @@ r.get('/dashboard', handle(async (_req, res) => {
 
   const awrWarn = awr.filter((a) => a.level !== 'none');
 
+  // Documents & Terms counts. Business clients only: private consumers never get the B2B Terms.
+  const businessClients = await prisma.client.findMany({
+    where: { clientType: { not: 'PRIVATE_CONSUMER' }, OR: [{ status: 'APPROVED' }, { opsBookings: { some: {} } }, { clientDocuments: { some: {} } }] },
+    select: { id: true },
+  });
+  const termsPositions = [...(await clientTermsPositions(businessClients.map((c) => c.id))).values()];
+  const commercial = await loadCommercialReview(settings.clientCommercialTerms);
+  if (!commercial.reviewed) alerts.push({ level: 'warning', message: `${OWNER_REVIEW_LABEL}: transfer fee, extended hire, payment and cancellation defaults. Terms of Business cannot be issued until confirmed.`, link: '#/settings' });
+  if (settings.payFrequency !== 'monthly') alerts.push({ level: 'info', message: `Pay frequency in Settings is ${settings.payFrequency.replace('_', '-')}, but the KID and employment agreement say workers are paid monthly. Check which is right.`, link: '#/settings' });
+
   res.json({
     ok: true,
     data: {
@@ -147,6 +159,9 @@ r.get('/dashboard', handle(async (_req, res) => {
         contractsNotAccepted: active.filter((w) => w.contract.status !== 'accepted').length,
         contractsNotIssued: active.filter((w) => w.contract.status === 'not_issued' || w.contract.status === 'superseded').length,
         kidsNotIssued: active.filter((w) => w.kid.status !== 'issued').length,
+        missingKid: active.filter((w) => !kidCounts(w.kid)).length,
+        missingAgreement: active.filter((w) => !contractCounts(w.contract)).length,
+        onSupersededContract: active.filter((w) => w.contract.status === 'superseded' || (w.contract.status === 'accepted' && (w.contract.newerVersionAvailable || w.contract.reacceptanceRequired))).length,
         pensionNotAssessed: active.filter((w) => w.pensionStatus === 'NOT_ASSESSED').length,
       },
       assignments: {
@@ -166,6 +181,11 @@ r.get('/dashboard', handle(async (_req, res) => {
         directLabourPence: monthLabour,
         grossContributionPence: monthContribution,
         averageGrossMargin: monthRevenue > 0 ? monthContribution / monthRevenue : null,
+      },
+      terms: {
+        clientsWithoutCurrentTerms: termsPositions.filter((t) => !(t.status === 'accepted' && !t.newerVersionAvailable)).length,
+        clientsOnSupersededTerms: termsPositions.filter((t) => t.acceptedVersion != null && (t.newerVersionAvailable || t.status === 'reacceptance_required')).length,
+        commercialReviewed: commercial.reviewed,
       },
       awr: { label: AWR_LABEL, warning: awrWarn.filter((a) => a.level === 'warning').length, review: awrWarn.filter((a) => a.level === 'review_required').length, rows: awrWarn.slice(0, 10) },
       alerts,
@@ -423,7 +443,14 @@ r.put('/settings/:key', handle(async (req, res) => {
   const before = await prisma.opsSetting.findUnique({ where: { key } });
   await prisma.opsSetting.upsert({ where: { key }, create: { key, value: value as Prisma.InputJsonValue, updatedBy: actor }, update: { value: value as Prisma.InputJsonValue, updatedBy: actor } });
   await writeAudit(actor, { action: 'SETTING_CHANGED', entityType: 'OpsSetting', entityId: key, oldValue: before?.value ?? null, newValue: value });
-  res.json({ ok: true, data: await loadOpsSettings() });
+  // These values are frozen into the KID and the Terms of Business, so a change is a new version.
+  let newVersion: { type: string; version: number } | null = null;
+  if ((key === 'kidPayExample' || key === 'clientCommercialTerms') && JSON.stringify(before?.value ?? null) !== JSON.stringify(value)) {
+    const type = key === 'kidPayExample' ? 'KEY_INFORMATION_DOCUMENT' : 'CLIENT_TERMS_OF_BUSINESS';
+    const created = await cutVersionForSettings(type, actor);
+    if (created) newVersion = { type, version: created.version };
+  }
+  res.json({ ok: true, data: await loadOpsSettings(), newVersion });
 }));
 
 r.get('/retention', handle(async (_req, res) => {

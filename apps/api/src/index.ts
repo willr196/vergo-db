@@ -54,6 +54,7 @@ import adminUsers from './routes/adminUsers';
 import adminSiteContent from './routes/adminSiteContent';
 import opsApi from './routes/ops';
 import opsPrint from './routes/ops/print';
+import { pages as documentLinkPages, api as documentLinkApi } from './routes/documentLinks';
 import { sendMedia } from './site/media';
 import webAuth from './routes/webAuth';
 import { logger, requestLogger } from './services/logger';
@@ -557,6 +558,10 @@ app.get(['/ops', '/ops/'], adminPageAuth, (_req, res) => {
 });
 app.get(['/admin-ops', '/admin-ops.html'], (_req, res) => res.redirect(302, '/ops'));
 app.use('/ops/print', adminPageAuth, opsPrint);
+// Workers' and clients' secure document links: the token is the credential,
+// scoped to one worker or one client (see routes/documentLinks.ts).
+app.use('/d', documentLinkPages);
+app.use('/api/v1/document-links', documentLinkApi);
 
 // Admin analytics page — custom CSP to allow Chart.js CDN
 app.get('/admin-analytics', adminPageAuth, (_req, res) => {

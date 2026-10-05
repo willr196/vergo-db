@@ -12,13 +12,16 @@ import { prisma } from '../prisma';
 import { summariseChecks, isCheckCurrent } from '../services/rightToWork';
 import { PRICING, ON_COSTS } from '../config/pricing';
 import {
-  opsRtwStatus, rtwExpiryBucket, contractPosition, kidPosition, computeReadiness, type IssuedDoc,
+  opsRtwStatus, rtwExpiryBucket, contractPosition, kidPosition, computeReadiness, docPackStatus, type IssuedDoc, type VersionInfo,
 } from './compliance';
 import { pensionAlerts, type PayFrequency } from './pension';
 import { bookingProfit, type ProfitAssignment, type ProfitExtra } from './profit';
 import { afterMidnightHours, dateKey, londonClock, londonDateKey, addDays } from './time';
 import { loadOpsSettings, type OpsSettings } from './settings';
-import { DEFAULT_TEMPLATES, type OpsDocType } from './documents';
+import type { OpsDocType } from './documents';
+import { versionInfo, ensureDefaultTemplates } from './documentService';
+
+export { ensureDefaultTemplates };
 
 export const toNum = (v: Prisma.Decimal | number | null | undefined) => (v == null ? null : Number(v));
 export const toPence = (v: Prisma.Decimal | number | null | undefined) => (v == null ? 0 : Math.round(Number(v) * 100));
@@ -48,7 +51,7 @@ const workerInclude = {
   },
   workerDocuments: {
     where: { type: { in: ['ZERO_HOURS_AGREEMENT', 'KEY_INFORMATION_DOCUMENT'] as OpsDocType[] } },
-    select: { id: true, type: true, status: true, version: true, issuedAt: true, acceptedAt: true },
+    select: { id: true, type: true, status: true, version: true, issuedAt: true, acceptedAt: true, acknowledgedAt: true },
   },
 } satisfies Prisma.UserInclude;
 
@@ -60,7 +63,7 @@ export async function currentTemplateVersions(): Promise<Record<string, number>>
 }
 
 interface WorkerContext {
-  templateVersions: Record<string, number>;
+  versions: Record<string, VersionInfo>;
   settings: OpsSettings;
   today: string;
   now: Date;
@@ -92,8 +95,8 @@ async function recentPeriodEarnings(userIds: string[], frequency: PayFrequency, 
 async function workerContext(userIds: string[]): Promise<WorkerContext> {
   const now = new Date();
   const today = londonDateKey(now);
-  const [templateVersions, settings, spans] = await Promise.all([
-    currentTemplateVersions(),
+  const [versions, settings, spans] = await Promise.all([
+    versionInfo(),
     loadOpsSettings(),
     prisma.booking.groupBy({
       by: ['staffId'],
@@ -104,7 +107,7 @@ async function workerContext(userIds: string[]): Promise<WorkerContext> {
   ]);
   const periodEarnings = await recentPeriodEarnings(userIds, settings.payFrequency, today);
   const firstLast = new Map(spans.map((s) => [s.staffId, { first: s._min.eventDate, last: s._max.eventDate }]));
-  return { templateVersions, settings, today, now, firstLast, periodEarnings };
+  return { versions, settings, today, now, firstLast, periodEarnings };
 }
 
 export function shapeWorker(user: WorkerRow, ctx: WorkerContext) {
@@ -120,9 +123,9 @@ export function shapeWorker(user: WorkerRow, ctx: WorkerContext) {
 
   const docsOf = (type: string): IssuedDoc[] => user.workerDocuments
     .filter((d) => d.type === type)
-    .map((d) => ({ status: d.status, version: d.version, issuedAt: d.issuedAt, acceptedAt: d.acceptedAt }));
-  const contract = contractPosition(docsOf('ZERO_HOURS_AGREEMENT'), ctx.templateVersions.ZERO_HOURS_AGREEMENT ?? null);
-  const kid = kidPosition(docsOf('KEY_INFORMATION_DOCUMENT'), ctx.templateVersions.KEY_INFORMATION_DOCUMENT ?? null);
+    .map((d) => ({ status: d.status, version: d.version, issuedAt: d.issuedAt, acceptedAt: d.acceptedAt, acknowledgedAt: d.acknowledgedAt }));
+  const contract = contractPosition(docsOf('ZERO_HOURS_AGREEMENT'), ctx.versions.ZERO_HOURS_AGREEMENT ?? { current: null });
+  const kid = kidPosition(docsOf('KEY_INFORMATION_DOCUMENT'), ctx.versions.KEY_INFORMATION_DOCUMENT ?? { current: null });
 
   const activeStatus = profile?.activeStatus ?? 'ACTIVE';
   const payrollStatus = profile?.payrollStatus ?? 'NOT_ADDED';
@@ -131,6 +134,8 @@ export function shapeWorker(user: WorkerRow, ctx: WorkerContext) {
     rtwStatus,
     contractStatus: contract.status,
     kidStatus: kid.status,
+    contractReacceptanceRequired: contract.reacceptanceRequired,
+    kidReissueRequired: kid.reacceptanceRequired,
     email: user.email,
     phone: user.phone,
     emergencyContactName: profile?.emergencyContactName ?? null,
@@ -199,6 +204,7 @@ export function shapeWorker(user: WorkerRow, ctx: WorkerContext) {
     },
     contract,
     kid,
+    documentPack: docPackStatus(kid, contract),
     payrollStatus,
     payrollExternalReference: profile?.payrollExternalReference ?? null,
     pensionStatus,
@@ -258,20 +264,6 @@ export async function ensureApplicant(userId: string, db: Prisma.TransactionClie
 /** A password nobody knows. The worker can set their own through the normal reset flow. */
 export async function unusablePasswordHash() {
   return bcrypt.hash(randomBytes(32).toString('hex'), 12);
-}
-
-// ── Templates ─────────────────────────────────────────────────────────────
-
-/** Version 1 of each template, created the first time Ops needs them. */
-export async function ensureDefaultTemplates() {
-  const existing = await prisma.documentTemplate.findMany({ select: { type: true } });
-  const have = new Set(existing.map((t) => t.type));
-  for (const [type, tpl] of Object.entries(DEFAULT_TEMPLATES) as [OpsDocType, { title: string; body: string }][]) {
-    if (have.has(type)) continue;
-    await prisma.documentTemplate.create({
-      data: { type, version: 1, title: tpl.title, body: tpl.body, createdBy: 'system', changeNote: 'Default layout' },
-    }).catch((error) => { if (error?.code !== 'P2002') throw error; });
-  }
 }
 
 // ── Bookings and profit ───────────────────────────────────────────────────
@@ -369,6 +361,8 @@ export function shapeOpsBooking(booking: OpsBookingRow) {
     vergoLead: booking.vergoLead,
     notes: booking.notes,
     consumerTermsRequired: booking.consumerTermsRequired,
+    advancePaymentRequired: booking.advancePaymentRequired,
+    paymentTermsDays: booking.paymentTermsDays,
     termsVersionAtBooking: booking.termsVersionAtBooking,
     invoiceRef: booking.invoiceRef,
     invoicedAt: booking.invoicedAt,
@@ -389,6 +383,8 @@ export function shapeOpsBooking(booking: OpsBookingRow) {
       afterMidnightMultiplier: toNum(r.afterMidnightMultiplier),
       travelContribution: toNum(r.travelContribution),
       expenses: toNum(r.expenses),
+      overtimeChargeRate: toNum(r.overtimeChargeRate),
+      overtimeAfterHours: toNum(r.overtimeAfterHours),
     })),
     costs: booking.costs,
     assignments: booking.assignments.map(shapeAssignment),

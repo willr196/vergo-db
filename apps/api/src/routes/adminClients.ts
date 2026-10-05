@@ -401,18 +401,19 @@ r.delete("/:id", async (req, res, next) => {
     // booking/financial history and lead history with it. Reserve delete for
     // records with none of that — anything with real history should be
     // suspended instead, which is reversible and doesn't touch the data.
-    const [bookingCount, quoteRequestCount, opsBookingCount, directHireCount] = await Promise.all([
+    const [bookingCount, quoteRequestCount, opsBookingCount, directHireCount, termsDocCount] = await Promise.all([
       prisma.booking.count({ where: { clientId: req.params.id } }),
       prisma.quoteRequest.count({ where: { clientId: req.params.id } }),
       prisma.opsBooking.count({ where: { clientId: req.params.id } }),
       prisma.directHireTracking.count({ where: { clientId: req.params.id } }),
+      prisma.clientDocument.count({ where: { clientId: req.params.id } }),
     ]);
 
     // VERGO Ops bookings and direct-hire records restrict the delete at the
     // database; say so plainly rather than failing with a 500.
-    if (opsBookingCount > 0 || directHireCount > 0) {
+    if (opsBookingCount > 0 || directHireCount > 0 || termsDocCount > 0) {
       return res.status(409).json({
-        error: `This client has ${opsBookingCount} VERGO Ops booking(s) and ${directHireCount} direct-hire record(s). Suspend the client instead.`,
+        error: `This client has ${opsBookingCount} VERGO Ops booking(s), ${directHireCount} direct-hire record(s) and ${termsDocCount} Terms of Business record(s). Suspend the client instead.`,
       });
     }
 
