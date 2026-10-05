@@ -554,8 +554,12 @@ app.get([
 // print pages for issued documents. Same admin session as the rest of admin.
 // The file is admin-ops.html so the admin page checks cover it; its own URL
 // goes to /ops rather than letting the static handler serve it.
+// Its scripts and styles are stamped with a content hash (they're cached as
+// immutable), so a deploy can't leave a browser on last week's admin-ops.js.
 app.get(['/ops', '/ops/'], adminPageAuth, (_req, res) => {
-  res.sendFile(path.join(publicDir, 'admin-ops.html'));
+  const html = versionAssetUrls(fs.readFileSync(path.join(publicDir, 'admin-ops.html'), 'utf8'), publicDir);
+  res.setHeader('Cache-Control', 'no-cache');
+  res.type('html').send(html);
 });
 app.get(['/admin-ops', '/admin-ops.html'], (_req, res) => res.redirect(302, '/ops'));
 app.use('/ops/print', adminPageAuth, opsPrint);
