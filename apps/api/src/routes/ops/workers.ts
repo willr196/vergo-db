@@ -13,7 +13,7 @@ import {
 } from '../../ops/service';
 import { identityNumberIn } from '../../ops/compliance';
 import { dateKey, londonDateKey } from '../../ops/time';
-import { handle, fail, ymd, optionalText, dateOnly } from './common';
+import { handle, fail, ymd, optionalText, dateOnly, money } from './common';
 
 const r = Router();
 
@@ -162,6 +162,40 @@ r.get('/workers/:id', handle(async (req, res) => {
   });
 }));
 
+/**
+ * Upcoming places this worker could be booked onto, for "Book onto a shift"
+ * on their page (the old desktop tool's open jobs). Booking still goes through
+ * POST /bookings/:id/assignments, so every warning and block applies.
+ */
+r.get('/workers/:id/open-shifts', handle(async (req, res) => {
+  const worker = await prisma.user.findFirst({ where: { AND: [WORKER_WHERE, { id: req.params.id }] }, select: { id: true } });
+  if (!worker) fail(404, 'Worker not found');
+  const bookings = await prisma.opsBooking.findMany({
+    where: { eventDate: { gte: dateOnly(londonDateKey(new Date())) }, status: { in: ['DRAFT', 'QUOTED', 'CONFIRMED', 'STAFFING'] } },
+    orderBy: [{ eventDate: 'asc' }, { startTime: 'asc' }],
+    take: 200,
+    select: {
+      id: true, reference: true, eventDate: true, startTime: true, expectedFinish: true, venue: true, eventType: true, status: true,
+      client: { select: { companyName: true } },
+      requirements: { orderBy: { createdAt: 'asc' }, select: { id: true, role: true, quantity: true, clientChargeRate: true, workerPayRate: true } },
+      assignments: { select: { requirementId: true, staffId: true, status: true } },
+    },
+  });
+  const filling = new Set(['PENDING', 'CONFIRMED', 'COMPLETED']);
+  const shifts = bookings.flatMap((b) => b.requirements.flatMap((r) => {
+    const on = b.assignments.filter((a) => a.requirementId === r.id && filling.has(a.status));
+    if (on.some((a) => a.staffId === worker.id)) return [];
+    const unfilled = r.quantity - on.length;
+    if (unfilled <= 0) return [];
+    return [{
+      bookingId: b.id, reference: b.reference, eventDate: dateKey(b.eventDate), startTime: b.startTime, expectedFinish: b.expectedFinish,
+      client: b.client.companyName, venue: b.venue, eventType: b.eventType, status: b.status,
+      requirementId: r.id, role: r.role, unfilled, workerPayRate: Number(r.workerPayRate), clientChargeRate: Number(r.clientChargeRate),
+    }];
+  })).slice(0, 60);
+  res.json({ ok: true, data: shifts });
+}));
+
 const PENSION = ['NOT_ASSESSED', 'NOT_ELIGIBLE_CURRENTLY', 'ELIGIBLE', 'ENROLLED', 'OPTED_IN', 'OPTED_OUT', 'ENTITLED_WORKER', 'POSTPONED', 'REVIEW_REQUIRED'] as const;
 
 const updateWorker = z.object({
@@ -174,6 +208,8 @@ const updateWorker = z.object({
   internalNotes: optionalText(2000),
   internalRating: z.number().int().min(1).max(5).nullable().optional(),
   availabilityNotes: optionalText(1000),
+  /** The usual pay rate, filled in when they are booked onto a shift. */
+  defaultPayRate: money.nullable().optional(),
   emergencyContactName: optionalText(120),
   emergencyContactPhone: optionalText(40),
   payrollStatus: z.enum(['NOT_ADDED', 'PENDING', 'ACTIVE', 'LEAVER']).optional(),

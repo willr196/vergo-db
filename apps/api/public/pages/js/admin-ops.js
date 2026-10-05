@@ -403,6 +403,42 @@
     search();
   }
 
+  /**
+   * "Book onto a shift" on a worker's page: upcoming places still to fill.
+   * Booking goes through the same assignment route as from a booking, so the
+   * same warnings, blocks and override reasons apply.
+   */
+  async function loadOpenShifts(w, done) {
+    var slot = main.querySelector('#open-shifts');
+    if (!slot) return;
+    var shifts;
+    try { shifts = await api('/workers/' + encodeURIComponent(w.id) + '/open-shifts'); } catch (err) { slot.innerHTML = alertBox('danger', 'Could not load open shifts: ' + err.message); return; }
+    slot.innerHTML = '<h3 style="margin-top:0">Book onto a shift</h3>' +
+      '<p class="text-muted fs-sm mb-2">Upcoming bookings with places still to fill' + (w.activeStatus !== 'ACTIVE' ? '. ' + esc(w.name) + ' is not active' : '') + '.</p>' +
+      table(['Date', 'Time', 'Client', 'Booking', 'Role', 'To fill', '>Pay', ''], shifts.map(function (s, i) {
+        return '<tr><td>' + day(s.eventDate) + '</td><td>' + esc(s.startTime + '–' + s.expectedFinish) + '</td><td>' + esc(s.client) + (s.venue ? '<div class="text-muted fs-sm">' + esc(s.venue) + '</div>' : '') + '</td>' +
+          '<td><a class="detail-link" href="#/booking/' + esc(s.bookingId) + '">' + esc(s.reference) + '</a></td><td>' + esc(s.role) + '</td><td>' + chip(String(s.unfilled), 'warn') + '</td>' +
+          '<td class="num">' + rate(w.defaultPayRate != null ? w.defaultPayRate : s.workerPayRate) + '</td><td><button class="btn btn-sm btn-primary" data-book="' + i + '">Book</button></td></tr>';
+      }), 'No upcoming bookings have places to fill.');
+    on(slot, '[data-book]', 'click', function (_e, el) {
+      var s = shifts[Number(el.dataset.book)];
+      openModal('Book ' + w.name + ' onto ' + s.reference, '<p class="text-muted fs-sm mb-2">' + esc(s.role + ' · ' + s.client + ' · ' + day(s.eventDate)) + '</p><div class="ops-form">' +
+        field('Status', 'status', 'PENDING', 'select', { options: [['PENDING', 'Offered'], ['CONFIRMED', 'Accepted (confirmed)']] }) +
+        field('Holiday pay', 'holidayPayMethod', 'ROLLED_UP', 'select', { options: [['ROLLED_UP', 'Rolled up'], ['ACCRUED', 'Accrued']] }) +
+        field('Planned start', 'plannedStart', s.startTime, 'time') + field('Planned finish', 'plannedFinish', s.expectedFinish, 'time') +
+        field('Pay rate (£/h)', 'payRate', w.defaultPayRate != null ? w.defaultPayRate : s.workerPayRate, 'number') +
+        field('Client charge rate (£/h)', 'clientChargeRate', s.clientChargeRate, 'number') + '</div>',
+        [{ label: 'Book', onClick: async function (b) {
+          var data = compact(readForm(b));
+          data.requirementId = s.requirementId;
+          data.workerId = w.id;
+          var res = await submitWithOverride('/bookings/' + s.bookingId + '/assignments', 'POST', data);
+          if (res) { toast('Booked onto ' + s.reference); done(); }
+          return res ? undefined : false;
+        } }]);
+    });
+  }
+
   async function viewWorker(id) {
     var w = await api('/workers/' + encodeURIComponent(id));
     var r = w.readiness;
@@ -425,6 +461,7 @@
           field('Phone', 'phone', w.phone) + field('Date of birth', 'dateOfBirth', w.dateOfBirth, 'date') +
           field('Status', 'activeStatus', w.activeStatus, 'select', { options: ['ACTIVE', 'INACTIVE', 'LEFT'] }) +
           field('Internal rating (1–5)', 'internalRating', w.rating, 'select', { options: ['1', '2', '3', '4', '5'], blank: 'None' }) +
+          field('Usual pay rate (£/h)', 'defaultPayRate', w.defaultPayRate, 'number', { hint: 'Filled in when they are booked onto a shift.' }) +
           field('Roles', 'roles', w.roles, 'list', { wide: true, hint: 'Comma separated, e.g. Waiting staff, Bar staff' }) +
           field('Qualifications', 'qualifications', w.qualifications, 'list', { wide: true, hint: 'Comma separated, e.g. Personal Licence, Food Hygiene L2' }) +
           field('Availability notes', 'availabilityNotes', w.availabilityNotes, 'textarea', { wide: true }) +
@@ -480,6 +517,8 @@
         }), 'Nothing issued yet.') +
       '</div>' +
 
+      '<div class="ops-card" id="open-shifts"><div class="as-skeleton" style="max-width:200px"></div></div>' +
+
       '<div class="ops-card"><h3 style="margin-top:0">Recent shifts</h3>' + table(['Date', 'Time', 'Role', 'Client', 'Booking', 'Status'], w.assignments.map(function (a) {
         return '<tr' + (a.opsBooking ? ' class="clickable" data-href="#/booking/' + esc(a.opsBooking.id) + '"' : '') + '><td>' + day(a.eventDate) + '</td><td>' + esc(a.shiftStart + '–' + a.shiftEnd) + '</td><td>' + esc(a.role || '—') + '</td><td>' + esc(a.client.companyName) + '</td><td>' + esc(a.opsBooking ? a.opsBooking.reference : '—') + '</td><td>' + chip(ASSIGNMENT_WORDS[a.status] || a.status, CHIPS.assignment[a.status]) + '</td></tr>';
       }), 'No shifts yet.') + '</div>' +
@@ -488,6 +527,7 @@
 
     var reload = function () { return viewWorker(id); };
     on(main, 'tr[data-href]', 'click', function (_e, el) { location.hash = el.dataset.href; });
+    loadOpenShifts(w, reload);
 
     main.querySelector('#save-details').addEventListener('click', async function (e) {
       try {
@@ -627,6 +667,7 @@
       field('Phone', 'phone', c.phone) +
       field('Nature of business', 'industry', c.industry) +
       field('Payment terms', 'paymentTerms', c.paymentTerms) +
+      field('Usual charge rate (£/h)', 'defaultChargeRate', c.defaultChargeRate, 'number', { hint: 'Filled in on this client\'s new bookings.' }) +
       field('Billing address', 'billingAddress', c.billingAddress, 'textarea', { wide: true }) +
       field('Venue addresses', 'venueAddresses', c.venueAddresses || [], 'list', { wide: true, hint: 'Comma separated' }) +
       field('Notes', 'adminNotes', c.adminNotes, 'textarea', { wide: true });
@@ -765,12 +806,137 @@
       field('Notes', 'notes', b.notes, 'textarea', { wide: true });
   }
 
+  /**
+   * New booking, as the desktop tool's "New job": the booking, the staff it
+   * needs with their rates, and more dates (each its own booking).
+   */
+  function newBookingModal(clients, presetDate) {
+    var body = openModal('New booking', '<div class="ops-form">' +
+      field('Client', 'clientId', '', 'select', { options: clients.map(function (c) { return [c.id, c.companyName + (c.clientType === 'PRIVATE_CONSUMER' ? ' (private consumer)' : '')]; }), blank: 'Choose…', required: true, wide: true }) +
+      '<div class="wide" id="consumer-note"></div>' +
+      field('Status', 'status', 'DRAFT', 'select', { options: ['DRAFT', 'QUOTED', 'CONFIRMED'] }) + bookingFields({ eventDate: presetDate }) +
+      '<div class="wide"><h3 class="ops-modal-h">Staff needed</h3><div class="text-muted fs-sm">Optional. Add more roles on the booking afterwards.</div></div>' +
+      field('Role', 'req_role', '', 'text', { hint: 'e.g. Waiting staff, Bar staff' }) +
+      field('Staff needed', 'req_quantity', 1, 'number') +
+      field('Charge rate (£/h)', 'req_clientChargeRate', '', 'number', { hint: 'The client\'s usual rate fills in.' }) +
+      field('Pay rate (£/h)', 'req_workerPayRate', '', 'number') +
+      field('Unpaid break (minutes)', 'req_breakMins', 0, 'number') +
+      '<div class="wide"><h3 class="ops-modal-h">More dates</h3></div>' + datesPicker('Also on') + '</div>',
+      [{ label: 'Create booking', onClick: async function (b) {
+        var f = compact(readForm(b));
+        var req = {};
+        Object.keys(f).forEach(function (k) { if (k.indexOf('req_') === 0) { req[k.slice(4)] = f[k]; delete f[k]; } });
+        if (req.role) {
+          if (req.clientChargeRate == null || req.workerPayRate == null) throw new Error('Give the charge rate and pay rate for the staff needed, or leave the role empty.');
+          f.requirement = { role: req.role, quantity: req.quantity || 1, clientChargeRate: req.clientChargeRate, workerPayRate: req.workerPayRate, breakMins: req.breakMins || 0 };
+        }
+        f.extraDates = readDates(b).filter(function (d) { return d !== f.eventDate; });
+        var created = await api('/bookings', { method: 'POST', body: f });
+        toast('Booking ' + created.reference + ' created' + (created.copies.length ? ', and ' + created.copies.length + ' more: ' + created.copies.map(function (c) { return c.reference; }).join(', ') : ''));
+        location.hash = '#/booking/' + created.id;
+      } }]);
+    var count = function () {
+      var first = body.querySelector('[name=eventDate]').value;
+      var n = (first ? 1 : 0) + readDates(body).filter(function (d) { return d !== first; }).length;
+      body.querySelector('[data-dates-count]').textContent = n > 1 ? 'Creates ' + n + ' bookings, one per day.' : '';
+    };
+    bindDates(body, count);
+    body.querySelector('[name=eventDate]').addEventListener('change', count);
+    body.querySelector('[name=clientId]').addEventListener('change', function (e) {
+      var c = clients.find(function (x) { return x.id === e.target.value; });
+      body.querySelector('#consumer-note').innerHTML = c && c.clientType === 'PRIVATE_CONSUMER'
+        ? alertBox('warning', 'Private consumer: this booking will be flagged as needing separate consumer booking terms. The B2B Terms of Business do not apply.') : '';
+      var rateInput = body.querySelector('[name=req_clientChargeRate]');
+      if (c && c.defaultChargeRate != null) rateInput.value = Number(c.defaultChargeRate);
+    });
+  }
+
+  function monthLabel(ym) {
+    return new Date(ym + '-01T12:00:00Z').toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  }
+  function shiftMonth(ym, n) {
+    var d = new Date(ym + '-01T00:00:00Z');
+    d.setUTCMonth(d.getUTCMonth() + n);
+    return d.toISOString().slice(0, 7);
+  }
+
+  /** Month calendar of bookings, as the desktop tool's Jobs calendar. Pick a day to see its bookings. */
+  async function viewBookingCalendar(query, clients) {
+    var month = /^\d{4}-\d{2}$/.test(query.month || '') ? query.month : todayLondon().slice(0, 7);
+    var first = month + '-01';
+    var gridStart = addDays(first, 1 - weekdayOf(first));
+    var last = addDays(shiftMonth(month, 1) + '-01', -1);
+    var gridEnd = addDays(last, 7 - weekdayOf(last));
+    var q = { from: gridStart, to: gridEnd };
+    ['clientId', 'status', 'search'].forEach(function (k) { if (query[k]) q[k] = query[k]; });
+    var bookings = await api('/bookings?' + new URLSearchParams(q));
+    var byDay = {};
+    bookings.forEach(function (b) { (byDay[b.eventDate] = byDay[b.eventDate] || []).push(b); });
+    var today = todayLondon();
+    var selected = query.day && query.day >= gridStart && query.day <= gridEnd ? query.day : null;
+    var go = function (extra) { setQuery('bookings', Object.assign({}, query, { view: 'calendar', month: month }, extra)); };
+
+    var cells = '';
+    for (var d = gridStart; d <= gridEnd; d = addDays(d, 1)) {
+      var list = byDay[d] || [];
+      cells += '<div class="ops-cal-day' + (d.slice(0, 7) !== month ? ' ops-cal-out' : '') + (d === today ? ' ops-cal-today' : '') + (d === selected ? ' ops-cal-selected' : '') + '" data-day="' + d + '">' +
+        '<div class="ops-cal-num">' + Number(d.slice(8)) + '</div>' +
+        list.map(function (b) {
+          var cancelled = b.status === 'CANCELLED';
+          return '<a class="ops-cal-item ops-cal-' + (CHIPS.booking[b.status] || 'muted') + (cancelled ? ' ops-cal-cancelled' : '') + '" href="#/booking/' + esc(b.id) + '" title="' + esc(b.reference + ' · ' + words(b.status)) + '">' +
+            '<strong>' + esc(b.startTime) + '</strong>' +
+            (b.staffing.required ? ' <span class="ops-cal-staff">' + b.staffing.confirmed + '/' + b.staffing.required + '</span>' : '') + ' ' + esc(b.client.companyName) + '</a>';
+        }).join('') + '</div>';
+    }
+
+    var dayPanel = '';
+    if (selected) {
+      var list = byDay[selected] || [];
+      dayPanel = '<div class="ops-card"><div class="ops-head"><h3 style="margin:0">' + esc(shortDay(selected)) + '</h3><button class="btn btn-sm btn-primary" id="new-on-day">New booking on this day</button></div>' +
+        table(['Reference', 'Time', 'Client', 'Event', 'Venue', 'Status', 'Staffed'], list.map(function (b) {
+          return '<tr class="clickable" data-href="#/booking/' + esc(b.id) + '"><td><strong>' + esc(b.reference) + '</strong></td><td>' + esc(b.startTime + '–' + b.expectedFinish) + '</td><td>' + esc(b.client.companyName) + '</td><td>' + esc(b.eventType || '—') + '</td><td>' + esc(b.venue || '—') + '</td><td>' + chip(words(b.status), CHIPS.booking[b.status]) + '</td><td>' +
+            chip(b.staffing.confirmed + '/' + b.staffing.required, b.staffing.fullyStaffed ? 'ok' : b.staffing.required ? 'warn' : 'muted') + '</td></tr>';
+        }), 'Nothing booked on this day.') + '</div>';
+    }
+
+    main.innerHTML = '<div class="ops-head"><div><h2>Bookings</h2><div class="ops-lede">' + esc(monthLabel(month)) + '. Pick a day to see its bookings. Figures after the slash are staff confirmed of staff needed.</div></div>' +
+      '<div class="ops-actions">' + viewSwitch('calendar', query) + '<button class="btn btn-primary" id="new-booking">New booking</button></div></div>' +
+      '<form class="as-filters" id="filters">' +
+        '<div class="as-filter-group"><label>Client</label><select name="clientId">' + options(clients.map(function (c) { return [c.id, c.companyName]; }), query.clientId, 'Any') + '</select></div>' +
+        '<div class="as-filter-group"><label>Status</label><select name="status">' + options(BOOKING_STATUSES, query.status, 'Any') + '</select></div>' +
+        '<div class="as-filter-actions ops-actions"><button class="btn btn-ghost btn-sm" type="button" id="prev-month">← Previous</button><button class="btn btn-ghost btn-sm" type="button" id="this-month">This month</button><button class="btn btn-ghost btn-sm" type="button" id="next-month">Next →</button></div>' +
+      '</form>' +
+      '<div class="ops-cal"><div class="ops-cal-head">' + WEEKDAYS.map(function (w) { return '<div>' + w[1] + '</div>'; }).join('') + '</div><div class="ops-cal-grid">' + cells + '</div></div>' +
+      dayPanel;
+
+    var form = main.querySelector('#filters');
+    form.addEventListener('change', function () { go(Object.assign(Object.fromEntries(new FormData(form)), { day: selected })); });
+    main.querySelector('#prev-month').addEventListener('click', function () { month = shiftMonth(month, -1); go({ day: null }); });
+    main.querySelector('#next-month').addEventListener('click', function () { month = shiftMonth(month, 1); go({ day: null }); });
+    main.querySelector('#this-month').addEventListener('click', function () { month = today.slice(0, 7); go({ day: today }); });
+    on(main, '.ops-cal-day', 'click', function (e, el) { if (!e.target.closest('a')) go({ day: el.dataset.day }); });
+    on(main, 'tr[data-href]', 'click', function (_e, el) { location.hash = el.dataset.href; });
+    main.querySelector('#new-booking').addEventListener('click', function () { newBookingModal(clients, selected); });
+    var onDay = main.querySelector('#new-on-day');
+    if (onDay) onDay.addEventListener('click', function () { newBookingModal(clients, selected); });
+  }
+
+  function viewSwitch(current, query) {
+    var keep = {};
+    ['clientId', 'status', 'search'].forEach(function (k) { if (query[k]) keep[k] = query[k]; });
+    var listHref = '#/bookings' + (Object.keys(keep).length ? '?' + new URLSearchParams(keep) : '');
+    var calHref = '#/bookings?' + new URLSearchParams(Object.assign({ view: 'calendar' }, keep));
+    return '<div class="ops-switch" role="group" aria-label="View"><a class="btn btn-sm ' + (current === 'list' ? 'btn-primary' : 'btn-ghost') + '" href="' + esc(listHref) + '">List</a>' +
+      '<a class="btn btn-sm ' + (current === 'calendar' ? 'btn-primary' : 'btn-ghost') + '" href="' + esc(calHref) + '">Calendar</a></div>';
+  }
+
   async function viewBookings(query) {
+    if (query.view === 'calendar') return viewBookingCalendar(query, (await api('/clients')).clients);
     var params = new URLSearchParams(query).toString();
     var [bookings, clientData] = await Promise.all([api('/bookings' + (params ? '?' + params : '')), api('/clients')]);
     var clients = clientData.clients;
     main.innerHTML = '<div class="ops-head"><div><h2>Bookings</h2><div class="ops-lede">Revenue and margin are estimates until timesheets are approved and actual payroll is entered.</div></div>' +
-      '<div class="ops-actions"><a class="btn btn-ghost btn-sm" href="' + API + '/exports/bookings.csv">Export</a><a class="btn btn-ghost btn-sm" href="' + API + '/exports/profitability.csv">Export profitability</a><button class="btn btn-primary" id="new-booking">New booking</button></div></div>' +
+      '<div class="ops-actions">' + viewSwitch('list', query) + '<a class="btn btn-ghost btn-sm" href="' + API + '/exports/bookings.csv">Export</a><a class="btn btn-ghost btn-sm" href="' + API + '/exports/profitability.csv">Export profitability</a><button class="btn btn-primary" id="new-booking">New booking</button></div></div>' +
       '<form class="as-filters" id="filters">' +
         '<div class="as-filter-group"><label>Search</label><input type="search" name="search" value="' + esc(query.search || '') + '" placeholder="Reference, venue, client"></div>' +
         '<div class="as-filter-group"><label>From</label><input type="date" name="from" value="' + esc(query.from || '') + '"></div>' +
@@ -798,21 +964,7 @@
     form.addEventListener('submit', function (e) { e.preventDefault(); apply(); });
     main.querySelector('#clear').addEventListener('click', function () { location.hash = '#/bookings'; });
     on(main, 'tr[data-href]', 'click', function (_e, el) { location.hash = el.dataset.href; });
-    main.querySelector('#new-booking').addEventListener('click', function () {
-      var body = openModal('New booking', '<div class="ops-form">' +
-        field('Client', 'clientId', '', 'select', { options: clients.map(function (c) { return [c.id, c.companyName + (c.clientType === 'PRIVATE_CONSUMER' ? ' (private consumer)' : '')]; }), blank: 'Choose…', required: true, wide: true }) +
-        '<div class="wide" id="consumer-note"></div>' +
-        field('Status', 'status', 'DRAFT', 'select', { options: ['DRAFT', 'QUOTED', 'CONFIRMED'] }) + bookingFields() + '</div>',
-        [{ label: 'Create booking', onClick: async function (b) {
-          var created = await api('/bookings', { method: 'POST', body: compact(readForm(b)) });
-          toast('Booking ' + created.reference + ' created'); location.hash = '#/booking/' + created.id;
-        } }]);
-      body.querySelector('[name=clientId]').addEventListener('change', function (e) {
-        var c = clients.find(function (x) { return x.id === e.target.value; });
-        body.querySelector('#consumer-note').innerHTML = c && c.clientType === 'PRIVATE_CONSUMER'
-          ? alertBox('warning', 'Private consumer: this booking will be flagged as needing separate consumer booking terms. The B2B Terms of Business do not apply.') : '';
-      });
-    });
+    main.querySelector('#new-booking').addEventListener('click', function () { newBookingModal(clients); });
   }
 
   function requirementFields(r) {
@@ -960,6 +1112,66 @@
     });
   }
 
+  // ── Several dates at once ───────────────────────────────────────────────
+  // As the desktop tool's "+ Add another date" and "runs until": each date is
+  // its own booking, copied from the first (never its staff).
+
+  function addDays(ymd, n) {
+    var d = new Date(ymd + 'T00:00:00Z');
+    d.setUTCDate(d.getUTCDate() + n);
+    return d.toISOString().slice(0, 10);
+  }
+  function datesPicker(label) {
+    return '<div class="wide ops-dates"><label>' + esc(label) + '</label><div class="ops-dates-list"></div>' +
+      '<div class="ops-actions" style="margin-top:6px"><button type="button" class="btn btn-sm btn-ghost" data-dates-add>+ Add another date</button>' +
+      '<span class="text-muted fs-sm">or every day from</span><input type="date" data-range-from class="as-input" style="width:auto"><span class="text-muted fs-sm">to</span><input type="date" data-range-to class="as-input" style="width:auto">' +
+      '<button type="button" class="btn btn-sm btn-ghost" data-range-add>Add these days</button></div>' +
+      '<div class="text-muted fs-sm" data-dates-count style="margin-top:4px"></div></div>';
+  }
+  /** Wire a datesPicker. onChange(dates) runs whenever the list changes. */
+  function bindDates(root, onChange) {
+    var list = root.querySelector('.ops-dates-list');
+    var changed = function () { onChange(readDates(root)); };
+    var addRow = function (value) {
+      var row = document.createElement('div');
+      row.className = 'ops-date-row';
+      row.innerHTML = '<input type="date" data-extra-date value="' + esc(value || '') + '"><button type="button" class="btn btn-sm btn-danger-quiet" aria-label="Remove date">Remove</button>';
+      row.querySelector('input').addEventListener('change', changed);
+      row.querySelector('button').addEventListener('click', function () { row.remove(); changed(); });
+      list.appendChild(row);
+      return row;
+    };
+    root.querySelector('[data-dates-add]').addEventListener('click', function () { addRow('').querySelector('input').focus(); changed(); });
+    root.querySelector('[data-range-add]').addEventListener('click', function () {
+      var from = root.querySelector('[data-range-from]').value, to = root.querySelector('[data-range-to]').value;
+      if (!from || !to || to < from) return fail(new Error('Pick a first and last day, the last on or after the first.'));
+      var have = readDates(root), n = 0;
+      for (var d = from; d <= to && n < 60; d = addDays(d, 1), n++) if (have.indexOf(d) < 0) addRow(d);
+      changed();
+    });
+    changed();
+  }
+  function readDates(root) {
+    var out = [];
+    root.querySelectorAll('[data-extra-date]').forEach(function (el) { if (el.value && out.indexOf(el.value) < 0) out.push(el.value); });
+    return out.sort();
+  }
+
+  function copyBookingModal(b) {
+    var body = openModal('Copy ' + b.reference + ' to other days', '<p class="text-muted fs-sm mb-2">Each date becomes its own booking with the same times, venue, roles, rates and running order. Staff are not copied.</p><div class="ops-form">' + datesPicker('Dates') + '</div>',
+      [{ label: 'Copy', onClick: async function (bd) {
+        var dates = readDates(bd).filter(function (d) { return d !== b.eventDate; });
+        if (!dates.length) throw new Error('Add at least one date.');
+        var res = await api('/bookings/' + b.id + '/copy', { method: 'POST', body: { dates: dates } });
+        toast('Copied: ' + res.copies.map(function (c) { return c.reference + ' (' + day(c.eventDate) + ')'; }).join(', '));
+        location.hash = '#/bookings?view=calendar&month=' + res.copies[0].eventDate.slice(0, 7);
+      } }]);
+    bindDates(body, function (dates) {
+      body.querySelector('[data-dates-count]').textContent = dates.length ? 'Creates ' + dates.length + ' booking' + (dates.length === 1 ? '' : 's') + '.' : '';
+    });
+    body.querySelector('[data-dates-add]').click();
+  }
+
   async function viewBooking(id) {
     var b = await api('/bookings/' + encodeURIComponent(id));
     var reqById = {};
@@ -968,7 +1180,7 @@
 
     main.innerHTML = '<a href="#/bookings" class="text-muted fs-sm">← Bookings</a>' +
       '<div class="ops-head"><div><h2>' + esc(b.reference) + ' ' + chip(words(b.status), CHIPS.booking[b.status]) + '</h2><div class="ops-lede"><a class="detail-link" href="#/client/' + esc(b.client.id) + '">' + esc(b.client.companyName) + '</a> · ' + day(b.eventDate) + ' ' + esc(b.startTime + '–' + b.expectedFinish) + (b.venue ? ' · ' + esc(b.venue) : '') + '</div></div>' +
-      '<div class="ops-actions"><a class="btn btn-sm btn-ghost" target="_blank" rel="noopener" href="/ops/print/booking/' + esc(b.id) + '">Booking confirmation</a><select id="status-select" class="as-input" style="width:auto">' + options(BOOKING_STATUSES.filter(function (s) { return s !== 'INVOICED' && s !== 'PAID'; }).concat(b.status === 'INVOICED' || b.status === 'PAID' ? [b.status] : []), b.status) + '</select><button class="btn btn-sm btn-primary" id="save-status">Set status</button></div></div>' +
+      '<div class="ops-actions"><button class="btn btn-sm btn-ghost" id="copy-booking">Copy to other days</button><a class="btn btn-sm btn-ghost" target="_blank" rel="noopener" href="/ops/print/booking/' + esc(b.id) + '">Booking confirmation</a><select id="status-select" class="as-input" style="width:auto">' + options(BOOKING_STATUSES.filter(function (s) { return s !== 'INVOICED' && s !== 'PAID'; }).concat(b.status === 'INVOICED' || b.status === 'PAID' ? [b.status] : []), b.status) + '</select><button class="btn btn-sm btn-primary" id="save-status">Set status</button></div></div>' +
       b.warnings.map(function (w) { return alertBox('warning', w); }).join('') +
       seriesCard(b) +
 
@@ -1009,6 +1221,7 @@
     var reload = function () { return viewBooking(id); };
     loadRunningOrder(id, b.reference);
     bindSeries(b, reload);
+    main.querySelector('#copy-booking').addEventListener('click', function () { copyBookingModal(b); });
 
     main.querySelector('#save-status').addEventListener('click', async function () {
       var status = main.querySelector('#status-select').value;
@@ -1020,7 +1233,7 @@
       try { await api('/bookings/' + id, { method: 'PATCH', body: readForm(main.querySelector('#booking-form')) }); toast('Saved'); reload(); } catch (err) { fail(err); }
     });
     main.querySelector('#add-req').addEventListener('click', function () {
-      openModal('Add requirement', '<div class="ops-form">' + requirementFields() + '</div>', [{ label: 'Add', onClick: async function (body) {
+      openModal('Add requirement', '<div class="ops-form">' + requirementFields({ clientChargeRate: b.client.defaultChargeRate }) + '</div>', [{ label: 'Add', onClick: async function (body) {
         await api('/bookings/' + id + '/requirements', { method: 'POST', body: compact(readForm(body)) }); reload();
       } }]);
     });
@@ -1119,6 +1332,11 @@
           : alertBox('info', 'No warnings for this worker.');
       } catch (err) { fail(err); }
     };
+    // A worker's usual pay rate fills in when they are picked.
+    body.querySelector('[name=workerId]').addEventListener('change', function (e) {
+      var w = workers.find(function (x) { return x.id === e.target.value; });
+      body.querySelector('[name=payRate]').value = w && w.defaultPayRate != null ? w.defaultPayRate : (r.workerPayRate == null ? '' : r.workerPayRate);
+    });
     body.querySelectorAll('select, input').forEach(function (el) { el.addEventListener('change', check); });
   }
 
@@ -1808,12 +2026,88 @@
     });
   }
 
+  // ── Import from the desktop tool ────────────────────────────────────────
+  // The desktop VERGO Ops tool is kept for offline bookings. Its daily backup
+  // is uploaded here: a preview first, then the import. Re-running only adds
+  // what is new, so the same backup can be uploaded twice safely.
+
+  async function viewImport() {
+    var done = await api('/legacy-import');
+    main.innerHTML = '<div class="ops-head"><div><h2>Import from the desktop tool</h2><div class="ops-lede">Brings bookings made offline in the desktop VERGO Ops tool into Ops: new clients, staff, jobs, people put on jobs, leads and running orders. Nothing already here is changed or removed, and anything imported before is skipped, so uploading the same backup twice is safe.</div></div></div>' +
+      '<div class="ops-grid-2"><div class="ops-card"><h3 style="margin-top:0">1. Choose a backup</h3>' +
+        '<p class="fs-sm">The desktop tool writes one every day at 6pm to <span class="ops-mono">Documents\\vergo_admin\\backups</span>, named like <span class="ops-mono">vergo-ops-2026-10-05-1800.sql</span>. Pick the newest. To include today\'s offline bookings, run <span class="ops-mono">.\\backup.ps1</span> in vergo_admin first.</p>' +
+        '<div class="ops-form"><div class="wide"><label for="import-file">Backup file (.sql)</label><input type="file" id="import-file" accept=".sql,text/plain"></div></div>' +
+        '<div class="ops-actions" style="margin-top:12px"><button class="btn btn-primary" id="import-preview" disabled>Preview</button></div>' +
+        '<p class="text-muted fs-sm" style="margin-top:10px">A change made in the desktop tool to a job already imported is not copied across; make that change here too.</p></div>' +
+      '<div class="ops-card"><h3 style="margin-top:0">Imported so far</h3>' + table(['Records', '>Count', 'Last added'], done.map(function (x) {
+        return '<tr><td>' + esc(x.label) + '</td><td class="num">' + x.count + '</td><td>' + when(x.lastAt) + '</td></tr>';
+      }), 'Nothing imported yet.') + '</div></div>' +
+      '<div id="import-result"></div>';
+
+    var input = main.querySelector('#import-file');
+    var previewBtn = main.querySelector('#import-preview');
+    var slot = main.querySelector('#import-result');
+    var sql = null;
+    input.addEventListener('change', async function () {
+      slot.innerHTML = '';
+      sql = null;
+      previewBtn.disabled = true;
+      var file = input.files[0];
+      if (!file) return;
+      if (file.size > 4500000) return fail(new Error('That file is too large to be a desktop tool backup.'));
+      sql = await file.text();
+      previewBtn.disabled = false;
+    });
+
+    var NAMES = { Client: 'Clients', Staff: 'Staff', Job: 'Jobs', Assignment: 'People on jobs', 'Repeating booking': 'Ongoing jobs', Lead: 'Leads', 'Running order line': 'Running order lines' };
+    var render = function (res) {
+      var entities = Object.keys(res.counts);
+      var created = entities.reduce(function (n, k) { return n + res.counts[k].created + res.counts[k].linked; }, 0) + res.ratesFilled;
+      var s = res.source;
+      slot.innerHTML = '<div class="ops-card"><h3 style="margin-top:0">' + (res.committed ? 'Imported' : '2. Check what will come in') + '</h3>' +
+        '<p class="fs-sm">The backup holds ' + s.clients + ' clients, ' + s.staff + ' staff, ' + s.jobs + ' jobs, ' + s.assignments + ' people on jobs, ' + s.leads + ' leads and ' + s.scheduleItems + ' running order lines.</p>' +
+        table(['Records', '>New', '>Matched to an existing record', '>Already imported or skipped'], entities.map(function (k) {
+          var c = res.counts[k];
+          return '<tr><td>' + esc(NAMES[k] || k) + '</td><td class="num">' + c.created + '</td><td class="num">' + c.linked + '</td><td class="num">' + c.skipped + '</td></tr>';
+        }), 'Nothing in this backup.') +
+        (res.ratesFilled ? '<p class="fs-sm" style="margin-top:8px">Usual rates to fill in on ' + res.ratesFilled + ' client(s) and staff imported earlier.</p>' : '') +
+        (res.report.length ? '<details style="margin-top:10px"' + (res.report.length <= 20 ? ' open' : '') + '><summary class="fs-sm">Details (' + res.report.length + ')</summary><ul class="fs-sm ops-import-report">' + res.report.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul></details>' : '') +
+        (res.committed
+          ? alertBox('info', 'Done.' + (res.seriesDaysAdded ? ' ' + res.seriesDaysAdded + ' upcoming day(s) added to repeating bookings.' : '') + ' Imported clients and staff without an email have a placeholder address ending @import.vergoltd.invalid; correct it on their record.', '#/bookings?view=calendar')
+          : created
+            ? '<div class="ops-actions" style="margin-top:12px"><button class="btn btn-success" id="import-commit">Import these ' + created + ' change(s)</button></div>'
+            : alertBox('info', 'Everything in this backup is already in Ops. Nothing to import.')) +
+        '</div>';
+      var commitBtn = slot.querySelector('#import-commit');
+      if (commitBtn) commitBtn.addEventListener('click', async function () {
+        if (!(await confirmDialog('Import these ' + created + ' change(s) from the desktop tool into Ops?', 'Import'))) return;
+        try {
+          var out = await AdminCore.withLoading(commitBtn, function () { return api('/legacy-import', { method: 'POST', body: { sql: sql, commit: true } }); });
+          toast('Imported from the desktop tool');
+          render(out);
+          var list = await api('/legacy-import');
+          main.querySelector('.ops-grid-2 .ops-card:last-child').innerHTML = '<h3 style="margin-top:0">Imported so far</h3>' + table(['Records', '>Count', 'Last added'], list.map(function (x) {
+            return '<tr><td>' + esc(x.label) + '</td><td class="num">' + x.count + '</td><td>' + when(x.lastAt) + '</td></tr>';
+          }), 'Nothing imported yet.');
+        } catch (err) { fail(err); }
+      });
+    };
+
+    previewBtn.addEventListener('click', async function () {
+      if (!sql) return;
+      try {
+        var res = await AdminCore.withLoading(previewBtn, function () { return api('/legacy-import', { method: 'POST', body: { sql: sql, commit: false } }); });
+        render(res);
+      } catch (err) { fail(err); }
+    });
+  }
+
   // ── Router ──────────────────────────────────────────────────────────────
 
   var ROUTES = {
     dashboard: viewDashboard, workers: viewWorkers, worker: viewWorker, rtw: viewRtw,
     clients: viewClients, client: viewClient, bookings: viewBookings, booking: viewBooking,
-    rota: viewRota, leads: viewLeads,
+    rota: viewRota, leads: viewLeads, import: viewImport,
     timesheets: viewTimesheets, documents: viewDocuments, awr: viewAwr, 'direct-hire': viewDirectHire,
     payroll: viewPayroll, exports: viewExports, audit: viewAudit, settings: viewSettings,
   };

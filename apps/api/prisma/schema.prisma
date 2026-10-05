@@ -183,6 +183,8 @@ model Client {
   termsSentAt           DateTime?
   termsAcceptedAt       DateTime?
   termsAcceptedBy       String?              @db.VarChar(200)
+  /// VERGO Ops: the usual charge rate (GBP/h), filled in on new bookings.
+  defaultChargeRate     Decimal?             @db.Decimal(10, 2)
   bookings              Booking[]
   bookingTemplates      BookingTemplate[]
   opsBookings           OpsBooking[]
@@ -1129,6 +1131,8 @@ model WorkerProfile {
   readyOverrideReason      String?            @db.VarChar(500)
   readyOverrideBy          String?            @db.VarChar(100)
   readyOverrideAt          DateTime?
+  /// The usual pay rate (GBP/h), filled in when they are booked onto a shift.
+  defaultPayRate           Decimal?           @db.Decimal(10, 2)
   user                     User               @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   @@index([activeStatus])

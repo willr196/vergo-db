@@ -181,6 +181,7 @@ export function shapeWorker(user: WorkerRow, ctx: WorkerContext) {
     internalNotes: profile?.internalNotes ?? null,
     rating: profile?.internalRating ?? (user.staffRating != null ? Math.round(Number(user.staffRating)) : null),
     availabilityNotes: profile?.availabilityNotes ?? null,
+    defaultPayRate: toNum(profile?.defaultPayRate),
     emergencyContactName: profile?.emergencyContactName ?? null,
     emergencyContactPhone: profile?.emergencyContactPhone ?? null,
     rtw: {
@@ -322,7 +323,7 @@ export function opsBookingProfit(booking: {
 }
 
 export const opsBookingInclude = {
-  client: { select: { id: true, companyName: true, tradingName: true, clientType: true, industry: true, termsAcceptedAt: true, termsVersion: true } },
+  client: { select: { id: true, companyName: true, tradingName: true, clientType: true, industry: true, termsAcceptedAt: true, termsVersion: true, defaultChargeRate: true } },
   requirements: { orderBy: { createdAt: 'asc' as const } },
   costs: { orderBy: { createdAt: 'asc' as const } },
   assignments: { include: assignmentInclude, orderBy: { createdAt: 'asc' as const } },

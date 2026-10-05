@@ -21,6 +21,7 @@ import { thresholdsFor } from '../../ops/pension';
 import { needsWording, DOC_TYPE_LABELS, type OpsDocType } from '../../ops/documents';
 import { dateKey, londonDateKey, addDays, taxYearOf } from '../../ops/time';
 import { loadOpsBookings } from './bookings';
+import { importLegacy, parsePgDump } from '../../ops/legacyImport';
 import { handle, fail, ymd, optionalText, sendCsv, dateOnly } from './common';
 
 const r = Router();
@@ -406,6 +407,34 @@ r.post('/payroll-history/import', handle(async (req, res) => {
     });
   }
   res.json({ ok: true, data: { rows, committed: commit, created, batch, headers: PAYMENT_HEADERS } });
+}));
+
+// ── Import from the desktop tool ──────────────────────────────────────────
+
+const ENTITY_WORDS: Record<string, string> = {
+  Client: 'Clients', Staff: 'Staff', Job: 'Jobs', Assignment: 'People on jobs', JobSeries: 'Ongoing jobs', Lead: 'Leads', JobScheduleItem: 'Running order lines',
+};
+
+r.get('/legacy-import', handle(async (_req, res) => {
+  const rows = await prisma.opsLegacyImport.groupBy({ by: ['entity'], _count: { _all: true }, _max: { createdAt: true } });
+  res.json({
+    ok: true,
+    data: rows.map((x) => ({ entity: x.entity, label: ENTITY_WORDS[x.entity] ?? x.entity, count: x._count._all, lastAt: x._max.createdAt }))
+      .sort((a, b) => Object.keys(ENTITY_WORDS).indexOf(a.entity) - Object.keys(ENTITY_WORDS).indexOf(b.entity)),
+  });
+}));
+
+/** Preview (commit false) or import a backup file from the desktop tool. */
+r.post('/legacy-import', handle(async (req, res) => {
+  const body = z.object({ sql: z.string().min(1).max(4_500_000), commit: z.boolean().default(false) }).parse(req.body);
+  let data;
+  try { data = parsePgDump(body.sql); } catch (error: any) { fail(400, error.message); }
+  const actor = actorOf(req);
+  const result = await importLegacy(data, { commit: body.commit, actor });
+  if (body.commit) {
+    await writeAudit(actor, { action: 'LEGACY_IMPORT', entityType: 'OpsLegacyImport', entityId: 'vergo_admin', newValue: { source: result.source, counts: result.counts } });
+  }
+  res.json({ ok: true, data: result });
 }));
 
 // ── Audit log ─────────────────────────────────────────────────────────────

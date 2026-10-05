@@ -22,7 +22,7 @@ export { DEFAULT_AHEAD_WEEKS, MAX_AHEAD_WEEKS, isoWeekday, planSeriesDays, type 
 export const SERIES_ACTOR = 'ops:repeating-bookings';
 
 /** Statuses a new day starts in: a draft or quote stays one, anything else is a confirmed booking. */
-function newDayStatus(patternStatus: string): 'DRAFT' | 'QUOTED' | 'CONFIRMED' {
+export function newDayStatus(patternStatus: string): 'DRAFT' | 'QUOTED' | 'CONFIRMED' {
   return patternStatus === 'DRAFT' || patternStatus === 'QUOTED' ? patternStatus : 'CONFIRMED';
 }
 
@@ -48,38 +48,11 @@ export async function fillSeries(seriesId: string, actor = SERIES_ACTOR, today =
   const created: string[] = [];
 
   for (const day of plan.dates) {
-    let done = false;
-    for (let attempt = 0; attempt < 5 && !done; attempt++) {
-      const reference = await nextBookingReference(Number(day.slice(0, 4)));
-      try {
-        await prisma.$transaction(async (tx) => {
-          const booking = await tx.opsBooking.create({
-            data: {
-              reference, clientId: series.clientId, seriesId: series.id,
-              bookingType: p.bookingType, eventType: p.eventType, venue: p.venue, address: p.address,
-              eventDate: new Date(`${day}T00:00:00.000Z`), startTime: p.startTime, expectedFinish: p.expectedFinish,
-              guestNumbers: p.guestNumbers, onSiteContactName: p.onSiteContactName, onSiteContactPhone: p.onSiteContactPhone,
-              vergoLead: p.vergoLead, status: newDayStatus(p.status), notes: p.notes,
-              consumerTermsRequired: p.consumerTermsRequired, termsVersionAtBooking: p.termsVersionAtBooking,
-              paymentTermsDays: p.paymentTermsDays,
-            },
-            select: { id: true },
-          });
-          for (const r of p.requirements) {
-            const { id: _id, createdAt: _c, updatedAt: _u, opsBookingId: _b, ...rest } = r;
-            await tx.opsRequirement.create({ data: { ...rest, opsBookingId: booking.id } });
-          }
-          for (const s of p.scheduleItems) {
-            await tx.opsScheduleItem.create({ data: { opsBookingId: booking.id, time: s.time, title: s.title, assignee: s.assignee, notes: s.notes } });
-          }
-          await writeAudit(actor, { action: 'BOOKING_CREATED', entityType: 'OpsBooking', entityId: booking.id, newValue: { repeatOf: p.reference, seriesId: series.id, eventDate: day } }, tx);
-        });
-        created.push(reference);
-        done = true;
-      } catch (error: any) {
-        if (isSeriesDayClash(error)) { done = true; break; } // already there (another machine, or added before)
-        if (error?.code !== 'P2002') throw error; // a reference race: take the next number
-      }
+    try {
+      const copy = await copyBookingTo(p, day, { seriesId: series.id, status: newDayStatus(p.status), actor, audit: { repeatOf: p.reference, seriesId: series.id } });
+      created.push(copy.reference);
+    } catch (error: any) {
+      if (!isSeriesDayClash(error)) throw error; // already there (another machine, or added before)
     }
   }
 
@@ -87,6 +60,52 @@ export async function fillSeries(seriesId: string, actor = SERIES_ACTOR, today =
     await prisma.opsBookingSeries.update({ where: { id: series.id }, data: { generatedThrough: new Date(`${plan.through}T00:00:00.000Z`) } });
   }
   return created;
+}
+
+type CopySource = Prisma.OpsBookingGetPayload<{ include: { requirements: true; scheduleItems: true } }>;
+
+/**
+ * Copy a booking to another day: times, venue, roles, rates and running order,
+ * never staff. Used by repeating bookings and by "Copy to other days".
+ * Retries on a booking-reference race; any other error is the caller's.
+ */
+export async function copyBookingTo(
+  p: CopySource,
+  day: string,
+  opts: { seriesId?: string | null; status: string; actor: string; audit: Record<string, unknown> },
+): Promise<{ id: string; reference: string }> {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const reference = await nextBookingReference(Number(day.slice(0, 4)));
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const booking = await tx.opsBooking.create({
+          data: {
+            reference, clientId: p.clientId, seriesId: opts.seriesId ?? null,
+            bookingType: p.bookingType, eventType: p.eventType, venue: p.venue, address: p.address,
+            eventDate: new Date(`${day}T00:00:00.000Z`), startTime: p.startTime, expectedFinish: p.expectedFinish,
+            guestNumbers: p.guestNumbers, onSiteContactName: p.onSiteContactName, onSiteContactPhone: p.onSiteContactPhone,
+            vergoLead: p.vergoLead, status: opts.status as Prisma.OpsBookingCreateInput['status'], notes: p.notes,
+            consumerTermsRequired: p.consumerTermsRequired, termsVersionAtBooking: p.termsVersionAtBooking,
+            paymentTermsDays: p.paymentTermsDays,
+          },
+          select: { id: true, reference: true },
+        });
+        for (const r of [...p.requirements].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())) {
+          const { id: _id, createdAt: _c, updatedAt: _u, opsBookingId: _b, ...rest } = r;
+          await tx.opsRequirement.create({ data: { ...rest, opsBookingId: booking.id } });
+        }
+        for (const s of p.scheduleItems) {
+          await tx.opsScheduleItem.create({ data: { opsBookingId: booking.id, time: s.time, title: s.title, assignee: s.assignee, notes: s.notes } });
+        }
+        await writeAudit(opts.actor, { action: 'BOOKING_CREATED', entityType: 'OpsBooking', entityId: booking.id, newValue: { ...opts.audit, eventDate: day } }, tx);
+        return booking;
+      });
+    } catch (error: any) {
+      if (error?.code !== 'P2002' || isSeriesDayClash(error)) throw error;
+      // a reference race: take the next number
+    }
+  }
+  throw new Error('Could not allocate a booking reference, try again.');
 }
 
 /** Fill every active series. Errors on one series are logged and do not stop the others. */

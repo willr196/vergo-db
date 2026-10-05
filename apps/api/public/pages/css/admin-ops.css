@@ -108,3 +108,38 @@ a.ops-rota-shift:hover { border-color: rgba(212,175,55,0.45); }
 .ops-holders { font-size: 0.84rem; margin-top: 10px; }
 .ops-holders p { margin: 0 0 6px; }
 .ops-page a.ops-link { color: var(--as-gold); }
+
+/* Bookings: list / calendar switch, and the month calendar (the desktop tool's Jobs calendar). */
+.ops-switch { display: inline-flex; gap: 4px; }
+.ops-cal { background: var(--as-card); border: 1px solid var(--as-border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+.ops-cal-head, .ops-cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.ops-cal-head div { padding: 8px 10px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--as-muted); font-weight: 600; border-bottom: 1px solid var(--as-border); }
+.ops-cal-day { min-height: 104px; padding: 6px; border-right: 1px solid var(--as-border); border-bottom: 1px solid var(--as-border); cursor: pointer; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ops-cal-day:nth-child(7n) { border-right: none; }
+.ops-cal-day:hover { background: var(--as-hover); }
+.ops-cal-out { opacity: 0.45; }
+.ops-cal-today .ops-cal-num { color: var(--as-gold); font-weight: 700; }
+.ops-cal-selected { background: var(--as-gold-bg); }
+.ops-cal-num { font-size: 0.78rem; color: var(--as-muted); }
+.ops-cal-item { display: block; font-size: 0.72rem; line-height: 1.3; padding: 3px 6px; border-radius: 4px; text-decoration: none; color: var(--as-text); border-left: 3px solid; background: var(--as-bg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ops-cal-item:hover { background: var(--as-hover); }
+.ops-cal-ok { border-left-color: var(--as-success); }
+.ops-cal-warn { border-left-color: var(--as-warning); }
+.ops-cal-info { border-left-color: var(--as-info); }
+.ops-cal-bad { border-left-color: var(--as-error); }
+.ops-cal-muted { border-left-color: #6b7280; }
+.ops-cal-cancelled { text-decoration: line-through; opacity: 0.6; }
+.ops-cal-staff { color: var(--as-muted); font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) {
+  .ops-cal-day { min-height: 64px; padding: 4px; }
+  .ops-cal-item { font-size: 0; padding: 0; height: 6px; border-left-width: 0; background: currentColor; }
+  .ops-cal-ok { color: var(--as-success); } .ops-cal-warn { color: var(--as-warning); } .ops-cal-info { color: var(--as-info); }
+  .ops-cal-bad { color: var(--as-error); } .ops-cal-muted { color: #6b7280; }
+}
+
+/* Several dates at once (new booking, copy to other days). */
+.ops-dates-list { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+.ops-date-row { display: flex; gap: 6px; align-items: center; }
+.ops-date-row input { width: auto !important; }
+.ops-import-report { margin: 8px 0 0 18px; max-height: 320px; overflow: auto; }
+.ops-modal-h { font-size: 0.95rem; color: var(--as-gold); font-weight: 600; margin: 8px 0 0; }

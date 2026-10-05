@@ -204,6 +204,39 @@ sees it through their link.
 6. **Confirmation doc** issues the assignment confirmation from the booking and
    requirement data.
 
+Taken over from the desktop VERGO Ops tool (`Documents/vergo_admin`):
+
+- **Calendar**: Bookings has a List / Calendar switch. The month view shows each
+  booking as time, staff confirmed/needed and client; pick a day to list it and
+  start a booking on it.
+- **New booking** can carry its first role (staff needed, charge and pay rate)
+  and more dates ("+ Add another date", or every day from/to). Each date is its
+  own booking, copied from the first. **Copy to other days** on a booking does
+  the same later. Copies never include staff and are not a repeating booking.
+- **Usual rates**: a client's usual charge rate fills in on new bookings and
+  roles; a worker's usual pay rate fills in when they are assigned.
+- **Book onto a shift** on a worker's page lists upcoming places still to fill.
+  It uses the same assignment checks as assigning from the booking.
+
+## Importing from the desktop tool
+
+The desktop tool stays in use for offline bookings. **Ops > Import** takes one
+of its daily backups (`vergo_admin/backups/vergo-ops-*.sql`, written by
+`backup.ps1`; run it first to include today's work): **Preview** shows what
+would come in, then **Import** writes it. Only the backup's COPY data is read,
+never run, and its login table is skipped.
+
+Every imported row is recorded in `OpsLegacyImport`, so an import only adds
+what is new: clients, staff, jobs, people put on jobs already imported (the
+role's headcount rises to match), ongoing jobs as repeating bookings, leads and
+running orders. A change to a job already imported is not copied; make it in
+both. The same importer runs from the command line
+(`npm run import:vergo-admin [-- --file <backup.sql>] [-- --commit]`); the code
+is `src/ops/legacyImport.ts`.
+
+Imported workers have no right-to-work check (the desktop tool never held one),
+so they cannot be assigned to new shifts here until one is recorded.
+
 ## Timesheets → profit
 
 - Hours come from the worker's check-in/out in the app (existing). In

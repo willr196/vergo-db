@@ -25,6 +25,7 @@ import { clientTermsGate } from '../../ops/compliance';
 import { handle, fail, ymd, clock, optionalText, money, dateOnly } from './common';
 import { MIN_RATE } from '../../site/settings';
 import { loadOpsSettings } from '../../ops/settings';
+import { copyBookingTo, newDayStatus } from '../../ops/series';
 
 const r = Router();
 
@@ -36,7 +37,7 @@ const clientSelect = {
   id: true, companyName: true, tradingName: true, contactName: true, email: true, phone: true,
   billingAddress: true, address: true, venueAddresses: true, industry: true, paymentTerms: true,
   clientType: true, adminNotes: true, termsVersion: true, termsSentAt: true, termsAcceptedAt: true,
-  termsAcceptedBy: true, status: true, createdAt: true,
+  termsAcceptedBy: true, status: true, createdAt: true, defaultChargeRate: true,
 } satisfies Prisma.ClientSelect;
 
 /** The current business Terms of Business version, as "v3". */
@@ -77,6 +78,8 @@ const clientBody = z.object({
   paymentTerms: optionalText(200),
   clientType: z.enum(CLIENT_TYPES),
   adminNotes: optionalText(2000),
+  /** The usual charge rate, filled in on this client's new bookings. */
+  defaultChargeRate: money.nullable().optional(),
 });
 
 // Clients created here have no portal login until they set one through the
@@ -257,8 +260,24 @@ async function bookingWarnings(b: ReturnType<typeof shapeOpsBooking>) {
   return warnings;
 }
 
+/**
+ * A new booking can carry its first requirement and more dates, as the old
+ * desktop tool's "New job" did: each extra date is its own booking, copied
+ * from the first (the same as "Copy to other days").
+ */
+const newBookingBody = bookingBody.extend({
+  extraDates: z.array(ymd).max(60).optional(),
+  requirement: z.object({
+    role: z.string().trim().min(1).max(80),
+    quantity: z.number().int().min(1).max(500),
+    clientChargeRate: money,
+    workerPayRate: money,
+    breakMins: z.number().int().min(0).max(240).optional(),
+  }).optional(),
+});
+
 r.post('/bookings', handle(async (req, res) => {
-  const body = bookingBody.parse(req.body);
+  const { extraDates, requirement, ...body } = newBookingBody.parse(req.body);
   const actor = actorOf(req);
   const client = await prisma.client.findUnique({ where: { id: body.clientId }, select: { id: true, clientType: true, termsVersion: true, termsAcceptedAt: true } });
   if (!client) fail(404, 'Client not found');
@@ -290,9 +309,33 @@ r.post('/bookings', handle(async (req, res) => {
     }
   }
   if (!created) fail(500, 'Could not allocate a booking reference, try again.');
-  await writeAudit(actor, { action: 'BOOKING_CREATED', entityType: 'OpsBooking', entityId: created.id, newValue: body });
+  await writeAudit(actor, { action: 'BOOKING_CREATED', entityType: 'OpsBooking', entityId: created.id, newValue: { ...body, ...(requirement ? { requirement } : {}) } });
+  if (requirement) {
+    await prisma.opsRequirement.create({
+      data: { ...requirement, opsBookingId: created.id, clientChargeRate: new Prisma.Decimal(requirement.clientChargeRate), workerPayRate: new Prisma.Decimal(requirement.workerPayRate) },
+    });
+  }
+  const copies = await copyToDates(created.id, extraDates ?? [], actor);
   const shaped = shapeOpsBooking(await getOpsBooking(created.id));
-  res.status(201).json({ ok: true, data: { ...shaped, warnings: await bookingWarnings(shaped) } });
+  res.status(201).json({ ok: true, data: { ...shaped, copies, warnings: await bookingWarnings(shaped) } });
+}));
+
+/** Copy a booking to other days (never its staff). Each copy stands alone, outside any repeat. */
+async function copyToDates(bookingId: string, dates: string[], actor: string) {
+  const source = await prisma.opsBooking.findUnique({ where: { id: bookingId }, include: { requirements: true, scheduleItems: true } });
+  if (!source) fail(404, 'Booking not found');
+  const own = dateKey(source.eventDate);
+  const copies: { id: string; reference: string; eventDate: string }[] = [];
+  for (const day of [...new Set(dates)].filter((d) => d !== own).sort()) {
+    const copy = await copyBookingTo(source, day, { status: newDayStatus(source.status), actor, audit: { copiedFrom: source.reference } });
+    copies.push({ ...copy, eventDate: day });
+  }
+  return copies;
+}
+
+r.post('/bookings/:id/copy', handle(async (req, res) => {
+  const body = z.object({ dates: z.array(ymd).min(1).max(60) }).parse(req.body);
+  res.status(201).json({ ok: true, data: { copies: await copyToDates(req.params.id, body.dates, actorOf(req)) } });
 }));
 
 r.get('/bookings/:id', handle(async (req, res) => {
