@@ -206,81 +206,17 @@
     </section>
 
     <section class="section-tight shell" aria-label="Halloween staff in costume">
-      <div class="se-photo-pair">
+      <div class="se-photo-pair se-photo-pair--half">
         <figure>
-          <img src="/images/special-events/halloween-bar-800.webp" srcset="/images/special-events/halloween-bar-800.webp 800w, /images/special-events/halloween-bar-1200.webp 1200w" sizes="(min-width: 1212px) 582px, (min-width: 700px) 50vw, 100vw" width="1448" height="1086" loading="lazy"
+          <img src="/images/special-events/halloween-bar-800.webp" srcset="/images/special-events/halloween-bar-800.webp 800w, /images/special-events/halloween-bar-1200.webp 1200w" sizes="(min-width: 700px) 294px, 50vw" width="1448" height="1086" loading="lazy"
                alt="Bartenders in hooded robes and ghost masks pouring cocktails at a candlelit Halloween bar">
           <figcaption>Styling example: themed bar</figcaption>
         </figure>
         <figure>
-          <img src="/images/special-events/halloween-waiting-staff-800.webp" srcset="/images/special-events/halloween-waiting-staff-800.webp 800w, /images/special-events/halloween-waiting-staff-1200.webp 1200w" sizes="(min-width: 1212px) 582px, (min-width: 700px) 50vw, 100vw" width="1448" height="1086" loading="lazy"
+          <img src="/images/special-events/halloween-waiting-staff-800.webp" srcset="/images/special-events/halloween-waiting-staff-800.webp 800w, /images/special-events/halloween-waiting-staff-1200.webp 1200w" sizes="(min-width: 700px) 294px, 50vw" width="1448" height="1086" loading="lazy"
                alt="Waiting staff dressed as a vampire, a mummy, a werewolf and Frankenstein's monster serving drinks and canapés at a Halloween dinner">
           <figcaption>Styling example: waiting staff in character</figcaption>
         </figure>
-      </div>
-    </section>
-
-    <!-- ================================================================
-         What we supply — icon grid, fragments not sentences
-         ================================================================ -->
-    <section class="section shell" id="services" aria-labelledby="services-heading">
-      <h2 id="services-heading" class="se-h2">What we supply</h2>
-
-      <div class="se-service-grid">
-        <article class="se-service">
-          <span class="se-service-ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 4h16l-8 8v8"/><path d="M8 20h8"/></svg>
-          </span>
-          <h3>Themed hospitality staff</h3>
-        </article>
-        <article class="se-service">
-          <span class="se-service-ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 5h8v7a4 4 0 0 1-8 0z"/><path d="M13 5h8v7a4 4 0 0 1-8 0z"/><path d="M5.5 8.5h1M8 8.5h.5M15.5 8.5h1M18 8.5h.5"/></svg>
-          </span>
-          <h3>Character performers</h3>
-        </article>
-        <article class="se-service">
-          <span class="se-service-ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3c4 0 7 3 7 7v5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-5c0-4 3-7 7-7z"/><path d="M9 10v2M15 10v2"/><path d="M9.5 16.5c1.5-1 3.5-1 5 0"/></svg>
-          </span>
-          <h3>Scare actors</h3>
-        </article>
-        <article class="se-service">
-          <span class="se-service-ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="7" r="3.2"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>
-          </span>
-          <h3>Halloween hosts</h3>
-        </article>
-        <article class="se-service">
-          <span class="se-service-ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M17 2.5 21.5 7 10 18.5l-4.5-4.5z"/><path d="M5.5 14 3 21l7-2.5"/></svg>
-          </span>
-          <h3>SFX &amp; makeup artists</h3>
-        </article>
-        <article class="se-service">
-          <span class="se-service-ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="5" y="3" width="14" height="14" rx="2"/><path d="M9 21h6M12 17v4"/><circle cx="12" cy="10" r="2.6"/></svg>
-          </span>
-          <h3>Guest makeup stations</h3>
-        </article>
-        <article class="se-service">
-          <span class="se-service-ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3a2 2 0 0 0-1 3.7V9"/><path d="M12 9 3.5 16.5c-1 .9-.4 2.5 1 2.5h15c1.4 0 2-1.6 1-2.5L12 9z"/></svg>
-          </span>
-          <h3>Costumes &amp; styling</h3>
-        </article>
-        <article class="se-service">
-          <span class="se-service-ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 20h18"/><path d="M5 20V9l7-5 7 5v11"/><path d="M9.5 20v-5h5v5"/></svg>
-          </span>
-          <h3>Decorators &amp; set dressing</h3>
-        </article>
-        <article class="se-service">
-          <span class="se-service-ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 12a8 8 0 0 1 16 0"/><rect x="2.5" y="12" width="4" height="6" rx="1.6"/><rect x="17.5" y="12" width="4" height="6" rx="1.6"/><path d="M20 18v1.5a2.5 2.5 0 0 1-2.5 2.5H13"/></svg>
-          </span>
-          <h3>Event &amp; character leads</h3>
-        </article>
       </div>
     </section>
 
@@ -383,56 +319,37 @@
     <div class="se-band">
       <section class="section shell" id="decor" aria-labelledby="decor-heading">
         <h2 id="decor-heading" class="se-h2">Decor themes</h2>
+        <p class="se-caveat">Suggestions to start from. Mix them, or bring your own.</p>
         <div class="se-decor-grid">
           <article class="se-decor">
             <span class="se-service-idx" aria-hidden="true">01</span>
-            <h3>Deadly Games</h3>
-            <p>Pink-suited guards, a playground gone wrong.</p>
-          </article>
-          <article class="se-decor">
-            <span class="se-service-idx" aria-hidden="true">02</span>
-            <h3>Killer Clown Asylum</h3>
-            <p>Padded cells, straitjackets, carnival gone wrong.</p>
-          </article>
-          <article class="se-decor">
-            <span class="se-service-idx" aria-hidden="true">03</span>
-            <h3>Ghouls, Ghosts &amp; the Undead</h3>
-            <p>Graveyard mist, shrouds, the risen dead.</p>
-          </article>
-          <article class="se-decor">
-            <span class="se-service-idx" aria-hidden="true">04</span>
-            <h3>The Gates of Hell</h3>
-            <p>Red light, chains, smoke and fire.</p>
-          </article>
-          <article class="se-decor">
-            <span class="se-service-idx" aria-hidden="true">05</span>
             <h3>Classic Halloween</h3>
             <p>Webs, spiders, bats, pumpkins, skeletons.</p>
           </article>
           <article class="se-decor">
-            <span class="se-service-idx" aria-hidden="true">06</span>
-            <h3>Gothic Whimsy</h3>
-            <p>Stripes, crooked lines, spindly shadows.</p>
+            <span class="se-service-idx" aria-hidden="true">02</span>
+            <h3>Ghouls, Ghosts &amp; the Undead</h3>
+            <p>Graveyard mist, shrouds, the risen dead.</p>
           </article>
           <article class="se-decor">
-            <span class="se-service-idx" aria-hidden="true">07</span>
+            <span class="se-service-idx" aria-hidden="true">03</span>
+            <h3>The Gates of Hell</h3>
+            <p>Red light, chains, smoke and fire.</p>
+          </article>
+          <article class="se-decor">
+            <span class="se-service-idx" aria-hidden="true">04</span>
             <h3>Witches&rsquo; Nightmare</h3>
             <p>Cauldrons, candles, hexes and herbs.</p>
           </article>
           <article class="se-decor">
-            <span class="se-service-idx" aria-hidden="true">08</span>
-            <h3>The Trap Room</h3>
-            <p>Rust, tiled walls, a game you didn't agree to.</p>
+            <span class="se-service-idx" aria-hidden="true">05</span>
+            <h3>Killer Clown Asylum</h3>
+            <p>Padded cells, straitjackets, carnival gone wrong.</p>
           </article>
           <article class="se-decor">
-            <span class="se-service-idx" aria-hidden="true">09</span>
+            <span class="se-service-idx" aria-hidden="true">06</span>
             <h3>Skeleton After-Party</h3>
             <p>Glowing bones, neon, a dance floor.</p>
-          </article>
-          <article class="se-decor">
-            <span class="se-service-idx" aria-hidden="true">10</span>
-            <h3>Monster House</h3>
-            <p>Boarded windows, a hungry house.</p>
           </article>
           <a class="se-decor se-decor--more" href="#build">
             <span class="se-service-idx" aria-hidden="true">+</span>
@@ -462,6 +379,25 @@
         </div>
       </section>
     </div>
+
+    <!-- ================================================================
+         Halloween events: drinks and food, all optional add-ons
+         ================================================================ -->
+    <section class="section shell" id="drinks-food" aria-labelledby="drinks-food-heading">
+      <h2 id="drinks-food-heading" class="se-h2">Halloween events: drinks and food</h2>
+      <p class="se-caveat">Want more than the team? We can run the whole event, and every part is optional: take one, take all, or bring your own.</p>
+
+      <ul class="se-makeup-lines">
+        <li><strong>You buy the drinks, we run the bar:</strong> bar setup, glassware, ice, mixers, garnishes and themed bartenders.</li>
+        <li><strong>We supply the drinks:</strong> only at venues with a premises licence.</li>
+        <li><strong>Halloween cocktails:</strong> a themed menu, smoking and blood-red serves, mocktails too.</li>
+        <li><strong>Halloween food:</strong> themed canap&eacute;s, bowl food and sweet treats, served in character.</li>
+      </ul>
+
+      <div class="btn-row se-makeup-cta">
+        <a href="#build" class="btn btn-primary">Add drinks or food</a>
+      </div>
+    </section>
 
     <!-- Rates: the figures are tokens filled from config/pricing.ts as the page is served. -->
     <section class="section shell" id="rates" aria-labelledby="rates-heading">
@@ -570,6 +506,18 @@
                 <label for="need-lead">Event / character lead</label>
               </div>
               <div class="checkbox-item">
+                <input type="checkbox" id="need-drinks" name="need" value="Drinks supplied (we bring the bar)">
+                <label for="need-drinks">We bring the drinks</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="need-cocktails" name="need" value="Halloween cocktail menu">
+                <label for="need-cocktails">Halloween cocktails</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="need-food" name="need" value="Halloween food">
+                <label for="need-food">Halloween food</label>
+              </div>
+              <div class="checkbox-item">
                 <input type="checkbox" id="need-planning" name="need" value="Help planning the whole experience">
                 <label for="need-planning">Whole experience</label>
               </div>
@@ -580,17 +528,16 @@
             <legend>Decor theme</legend>
             <p class="form-hint">Only if you want the venue dressed.</p>
             <div class="se-pillset">
-              <label class="se-pill"><input type="radio" name="decorTheme" value="Deadly Games"><span>Deadly Games</span></label>
-              <label class="se-pill"><input type="radio" name="decorTheme" value="Killer Clown Asylum"><span>Killer Clown Asylum</span></label>
+              <label class="se-pill"><input type="radio" name="decorTheme" value="Classic Halloween"><span>Classic Halloween</span></label>
               <label class="se-pill"><input type="radio" name="decorTheme" value="Ghouls, Ghosts &amp; the Undead"><span>Ghouls &amp; Ghosts</span></label>
               <label class="se-pill"><input type="radio" name="decorTheme" value="The Gates of Hell"><span>Gates of Hell</span></label>
-              <label class="se-pill"><input type="radio" name="decorTheme" value="Classic Halloween"><span>Classic Halloween</span></label>
-              <label class="se-pill"><input type="radio" name="decorTheme" value="Gothic Whimsy"><span>Gothic Whimsy</span></label>
               <label class="se-pill"><input type="radio" name="decorTheme" value="Witches&rsquo; Nightmare"><span>Witches&rsquo; Nightmare</span></label>
-              <label class="se-pill"><input type="radio" name="decorTheme" value="The Trap Room"><span>The Trap Room</span></label>
+              <label class="se-pill"><input type="radio" name="decorTheme" value="Killer Clown Asylum"><span>Killer Clown Asylum</span></label>
               <label class="se-pill"><input type="radio" name="decorTheme" value="Skeleton After-Party"><span>Skeleton After-Party</span></label>
-              <label class="se-pill"><input type="radio" name="decorTheme" value="Monster House"><span>Monster House</span></label>
-              <label class="se-pill"><input type="radio" name="decorTheme" value="Something else"><span>Something else</span></label>
+            </div>
+            <div class="form-field se-theme-idea">
+              <label for="hwThemeIdea">Your theme or idea</label>
+              <input type="text" id="hwThemeIdea" name="themeIdea" maxlength="300" placeholder="Describe the look you want, or mix a few">
             </div>
           </fieldset>
           <fieldset class="se-fieldset">
@@ -684,4 +631,4 @@
       </div>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Planning Halloween?", "line": "The last week of October books up first.", "button": "Build your Halloween team", "href": "#build" }) %>
+    <%~ it.blocks["cta"]({ "heading": "Planning Halloween?", "line": "Now booking 23–24 and 30–31 October.", "button": "Build your Halloween team", "href": "#build" }) %>

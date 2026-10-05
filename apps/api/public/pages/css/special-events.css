@@ -583,7 +583,7 @@ body.se-theme-halloween { --se-pumpkin: url('/images/special-events/vergo-pumpki
 }
 @media (min-width: 1000px) {
   .se-decor-grid { grid-template-columns: repeat(3, 1fr); }
-  .se-decor--more { grid-column: span 2; }
+  .se-decor--more { grid-column: 1 / -1; }
 }
 
 .se-decor {
@@ -702,6 +702,7 @@ body.se-theme-halloween { --se-pumpkin: url('/images/special-events/vergo-pumpki
  * otherwise a browser without :has() would show an invisible radio and no
  * selected styling, which is worse than a plain radio group. */
 .se-pillset { display: flex; flex-wrap: wrap; gap: 10px; }
+.se-theme-idea { margin-top: 18px; }
 .se-pill {
   position: relative;
   display: inline-flex;
@@ -1045,6 +1046,8 @@ a.se-hub-card:hover, a.se-hub-card:focus-visible {
 }
 @media (min-width: 700px) { .se-photo-pair { grid-template-columns: 1fr 1fr; } }
 .se-photo-pair figure { margin: 0; }
+/* Halloween: the two photos at half size, side by side at every width. */
+.se-photo-pair--half { max-width: 600px; margin-inline: auto; grid-template-columns: 1fr 1fr; gap: 12px; }
 .se-photo-pair img {
   display: block;
   width: 100%;

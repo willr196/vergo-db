@@ -168,6 +168,8 @@
       if (concept) parts.push('Concept: ' + concept);
       var decor = checkedValue('decorTheme');
       if (decor) parts.push('Decor theme: ' + decor);
+      var themeIdea = value('themeIdea');
+      if (themeIdea) parts.push('Theme idea: ' + themeIdea);
       if (atmosphere) parts.push('Atmosphere: ' + atmosphere);
       if (interaction) parts.push('Interaction level: ' + interaction);
       if (guests) parts.push('Approx guests: ' + guests);

@@ -321,12 +321,16 @@ test('paragraphs run to two sentences at most, and FAQs to three', () => {
 test('Halloween keeps every offering', () => {
   const p = page('/special-events/halloween');
   const t = text(p.root);
-  assert.equal(all(p.root, hasClass('se-service')).length, 9, 'nine services');
+  assert.equal(all(p.root, hasClass('se-service')).length, 0, 'no services grid');
   assert.equal(all(p.root, hasClass('se-involve')).length, 3, 'three levels');
   assert.equal(all(p.root, hasClass('se-concept')).length, 5, 'five concepts');
-  for (const theme of ['Deadly Games', 'Killer Clown Asylum', 'Ghouls, Ghosts & the Undead', 'The Gates of Hell', 'Classic Halloween', 'Gothic Whimsy', "Witches' Nightmare", 'The Trap Room', 'Skeleton After-Party', 'Monster House']) {
+  for (const theme of ['Classic Halloween', 'Ghouls, Ghosts & the Undead', 'The Gates of Hell', "Witches' Nightmare", 'Killer Clown Asylum', 'Skeleton After-Party']) {
     assert.ok(t.includes(theme), `decor theme ${theme}`);
   }
+  for (const gone of ['Deadly Games', 'The Trap Room', 'Gothic Whimsy', 'Monster House', 'Something else']) {
+    assert.ok(!t.includes(gone), `removed theme ${gone}`);
+  }
+  assert.ok(/id="hwThemeIdea"/.test(p.html), 'theme idea field');
   assert.ok(/Makeup and SFX/.test(t), 'makeup section');
   const rates = all(p.root, hasClass('se-rate-figure')).map((n) => text(n).trim());
   assert.deepEqual(rates, [PRICING.specialEvents.themedHospitality, PRICING.specialEvents.characterPerformer, PRICING.specialEvents.makeupArtist].map((n) => `£${n}`));
