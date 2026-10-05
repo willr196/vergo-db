@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { planSeriesDays, isoWeekday, type SeriesPlanInput } from '../ops/series';
+import { planSeriesDays, isoWeekday, type SeriesPlanInput } from '../ops/seriesPlan';
 
 const MON_FRI = [1, 2, 3, 4, 5];
 const base: SeriesPlanInput = { weekdays: MON_FRI, startsOn: '2026-08-31', endsOn: null, generatedThrough: '2026-10-30', aheadWeeks: 2, today: '2026-10-05' };
