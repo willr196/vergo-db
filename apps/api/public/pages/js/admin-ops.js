@@ -784,7 +784,7 @@
         '<div class="as-filter-actions"><button class="btn btn-ghost btn-sm" type="button" id="clear">Clear</button></div>' +
       '</form>' +
       '<div class="as-table-wrap">' + table(['Reference', 'Date', 'Client', 'Event', 'Venue', 'Status', 'Staffed', '>Revenue', '>Margin'], bookings.map(function (b) {
-        return '<tr class="clickable" data-href="#/booking/' + esc(b.id) + '"><td><strong>' + esc(b.reference) + '</strong>' + (b.consumerTermsRequired ? '<div>' + chip('Consumer terms', 'warn') + '</div>' : '') + '</td><td>' + day(b.eventDate) + '<div class="text-muted fs-sm">' + esc(b.startTime + '–' + b.expectedFinish) + '</div></td><td>' + esc(b.client.companyName) + '</td><td>' + esc(b.eventType || '—') + '</td><td>' + esc(b.venue || '—') + '</td><td>' + chip(words(b.status), CHIPS.booking[b.status]) + '</td><td>' +
+        return '<tr class="clickable" data-href="#/booking/' + esc(b.id) + '"><td><strong>' + esc(b.reference) + '</strong>' + (b.series ? ' ' + chip('Repeats', b.series.active ? 'info' : 'muted') : '') + (b.consumerTermsRequired ? '<div>' + chip('Consumer terms', 'warn') + '</div>' : '') + '</td><td>' + day(b.eventDate) + '<div class="text-muted fs-sm">' + esc(b.startTime + '–' + b.expectedFinish) + '</div></td><td>' + esc(b.client.companyName) + '</td><td>' + esc(b.eventType || '—') + '</td><td>' + esc(b.venue || '—') + '</td><td>' + chip(words(b.status), CHIPS.booking[b.status]) + '</td><td>' +
           chip(b.staffing.confirmed + '/' + b.staffing.required, b.staffing.fullyStaffed ? 'ok' : b.staffing.required ? 'warn' : 'muted') + '</td><td class="num">' + gbp(b.profit.revenuePence) + '</td><td class="num">' + pct(b.profit.grossMargin) + (b.profit.isEstimate ? '<div class="text-muted fs-sm">est.</div>' : '') + '</td></tr>';
       }), 'No bookings match.') + '</div>';
 
@@ -865,6 +865,101 @@
         '<div class="wide"><button class="btn btn-sm btn-primary" id="save-actuals">Save actual figures</button></div></div></div>';
   }
 
+  // ── Repeating bookings ──────────────────────────────────────────────────
+
+  var WEEKDAYS = [[1, 'Mon'], [2, 'Tue'], [3, 'Wed'], [4, 'Thu'], [5, 'Fri'], [6, 'Sat'], [7, 'Sun']];
+  function weekdayOf(ymd) { return new Date(ymd + 'T00:00:00Z').getUTCDay() || 7; }
+  function weekdayWords(list) {
+    var key = list.join(',');
+    if (key === '1,2,3,4,5') return 'Monday to Friday';
+    if (key === '1,2,3,4,5,6,7') return 'every day';
+    if (key === '6,7') return 'weekends';
+    return WEEKDAYS.filter(function (d) { return list.indexOf(d[0]) >= 0; }).map(function (d) { return d[1]; }).join(', ');
+  }
+  function weekdayPicker(selected) {
+    return '<div class="wide"><label>Repeats on *</label><div class="ops-weekdays">' + WEEKDAYS.map(function (d) {
+      return '<label class="ops-check"><input type="checkbox" data-weekday="' + d[0] + '"' + (selected.indexOf(d[0]) >= 0 ? ' checked' : '') + '> <span>' + d[1] + '</span></label>';
+    }).join('') + '</div></div>';
+  }
+  function readWeekdays(root) {
+    return Array.prototype.slice.call(root.querySelectorAll('[data-weekday]:checked')).map(function (el) { return Number(el.dataset.weekday); });
+  }
+  function seriesFields(weekdays, endsOn, aheadWeeks) {
+    return weekdayPicker(weekdays) +
+      field('Last day', 'endsOn', endsOn, 'date', { hint: 'Leave empty to keep repeating until you stop it.' }) +
+      field('Keep days ready (weeks ahead)', 'aheadWeeks', aheadWeeks || 6, 'number', { hint: 'New days appear on their own, this far ahead.' });
+  }
+
+  function seriesCard(b) {
+    var s = b.series;
+    if (!s) {
+      return '<div class="ops-card ops-series"><div class="ops-head"><div><h3 style="margin:0">Repeat</h3><div class="text-muted fs-sm">For an ongoing contract: Ops adds a copy of this booking on the days you pick, ahead of time. Staff are not copied.</div></div>' +
+        '<button class="btn btn-sm btn-ghost" id="series-start">Make this repeat</button></div></div>';
+    }
+    var isPattern = s.patternBookingId === b.id;
+    var span = (s.endsOn ? 'until ' + day(s.endsOn) : 'until stopped');
+    return '<div class="ops-card ops-series"><div class="ops-head"><div><h3 style="margin:0">Repeats ' + esc(weekdayWords(s.weekdays)) + ' ' + (s.active ? chip('Active', 'ok') : chip('Stopped', 'muted')) + '</h3>' +
+      '<div class="text-muted fs-sm">From ' + day(s.startsOn) + ' ' + esc(span) + '. ' +
+        (s.active ? 'Days are ready up to ' + (s.generatedThrough ? day(s.generatedThrough) : '—') + ' and keep being added ' + s.aheadWeeks + ' weeks ahead. ' : '') +
+        'New days copy ' + (isPattern ? 'this booking' : '<a class="detail-link" href="#/booking/' + esc(s.patternBookingId) + '">' + esc(s.patternReference) + '</a>') + ': times, venue, roles, rates and running order.</div></div>' +
+      '<div class="ops-actions">' +
+        '<a class="btn btn-sm btn-ghost" href="#/bookings?clientId=' + esc(b.client.id) + '&from=' + esc(todayLondon()) + '">Upcoming days</a>' +
+        (s.active && !isPattern ? '<button class="btn btn-sm btn-ghost" id="series-pattern">Copy this day from now on</button>' : '') +
+        (s.active ? '<button class="btn btn-sm btn-ghost" id="series-change">Change</button><button class="btn btn-sm btn-danger-quiet" id="series-stop">Stop repeating</button>'
+          : '<button class="btn btn-sm btn-primary" id="series-restart">Restart</button>') +
+      '</div></div></div>';
+  }
+
+  function bindSeries(b, reload) {
+    var s = b.series;
+    var startBtn = main.querySelector('#series-start');
+    if (startBtn) startBtn.addEventListener('click', function () {
+      openModal('Make ' + b.reference + ' repeat', '<p class="text-muted fs-sm mb-2">Each new day is its own booking, copied from this one, so it can be staffed, changed or cancelled on its own. Changing this booking later changes the days added after that.</p><div class="ops-form">' + seriesFields([weekdayOf(b.eventDate)], null, 6) + '</div>',
+        [{ label: 'Start repeating', onClick: async function (body) {
+          var f = readForm(body);
+          var res = await api('/bookings/' + b.id + '/repeat', { method: 'POST', body: { weekdays: readWeekdays(body), endsOn: f.endsOn, aheadWeeks: f.aheadWeeks || 6 } });
+          toast(res.added.length ? 'Repeating. ' + res.added.length + ' day(s) added.' : 'Repeating. No new days due yet.'); reload();
+        } }]);
+    });
+    if (!s) return;
+    var change = main.querySelector('#series-change');
+    if (change) change.addEventListener('click', function () {
+      openModal('Change repeat', '<p class="text-muted fs-sm mb-2">New days follow this from today. Days already in Ops stay as they are; change or cancel those on their own page.</p><div class="ops-form">' + seriesFields(s.weekdays, s.endsOn, s.aheadWeeks) + '</div>',
+        [{ label: 'Save', onClick: async function (body) {
+          var f = readForm(body);
+          var res = await api('/series/' + s.id, { method: 'PATCH', body: { weekdays: readWeekdays(body), endsOn: f.endsOn, aheadWeeks: f.aheadWeeks || 6 } });
+          toast('Saved' + (res.added.length ? '. ' + res.added.length + ' day(s) added.' : '')); reload();
+        } }]);
+    });
+    var pattern = main.querySelector('#series-pattern');
+    if (pattern) pattern.addEventListener('click', async function () {
+      if (!(await confirmDialog('Copy this day (' + b.reference + ') for every new day from now on? Days already added are not changed.', 'Use this day'))) return;
+      try { await api('/series/' + s.id, { method: 'PATCH', body: { patternBookingId: b.id } }); toast('New days will copy ' + b.reference); reload(); } catch (err) { fail(err); }
+    });
+    var stop = main.querySelector('#series-stop');
+    if (stop) stop.addEventListener('click', function () {
+      var last = b.eventDate > todayLondon() ? b.eventDate : todayLondon();
+      openModal('Stop repeating', '<div class="ops-form">' +
+        field('Last day that goes ahead', 'lastDay', last, 'date', { required: true }) +
+        field('Cancel the later days nobody is on yet', 'cancelLaterDays', true, 'checkbox', { wide: true, hint: 'Days with staff on them are kept and listed, so you can stand them down yourself.' }) + '</div>',
+        [{ label: 'Stop repeating', kind: 'btn-danger', onClick: async function (body) {
+          var res = await api('/series/' + s.id + '/stop', { method: 'POST', body: readForm(body) });
+          var msg = 'Stopped. ' + res.cancelled.length + ' later day(s) cancelled.';
+          if (res.kept.length) msg += ' Still booked, with staff: ' + res.kept.map(function (k) { return k.reference + ' (' + k.eventDate + ')'; }).join(', ') + '.';
+          toast(msg, res.kept.length ? 'warning' : 'success'); reload();
+        } }]);
+    });
+    var restart = main.querySelector('#series-restart');
+    if (restart) restart.addEventListener('click', function () {
+      openModal('Restart repeating', '<p class="text-muted fs-sm mb-2">New days are added from today onwards. Days cancelled when it stopped stay cancelled; reopen any of those from their own page.</p><div class="ops-form">' + seriesFields(s.weekdays, null, s.aheadWeeks) + '</div>',
+        [{ label: 'Restart', onClick: async function (body) {
+          var f = readForm(body);
+          var res = await api('/series/' + s.id, { method: 'PATCH', body: { active: true, weekdays: readWeekdays(body), endsOn: f.endsOn, aheadWeeks: f.aheadWeeks || 6 } });
+          toast('Repeating again' + (res.added.length ? '. ' + res.added.length + ' day(s) added.' : '.')); reload();
+        } }]);
+    });
+  }
+
   async function viewBooking(id) {
     var b = await api('/bookings/' + encodeURIComponent(id));
     var reqById = {};
@@ -875,6 +970,7 @@
       '<div class="ops-head"><div><h2>' + esc(b.reference) + ' ' + chip(words(b.status), CHIPS.booking[b.status]) + '</h2><div class="ops-lede"><a class="detail-link" href="#/client/' + esc(b.client.id) + '">' + esc(b.client.companyName) + '</a> · ' + day(b.eventDate) + ' ' + esc(b.startTime + '–' + b.expectedFinish) + (b.venue ? ' · ' + esc(b.venue) : '') + '</div></div>' +
       '<div class="ops-actions"><a class="btn btn-sm btn-ghost" target="_blank" rel="noopener" href="/ops/print/booking/' + esc(b.id) + '">Booking confirmation</a><select id="status-select" class="as-input" style="width:auto">' + options(BOOKING_STATUSES.filter(function (s) { return s !== 'INVOICED' && s !== 'PAID'; }).concat(b.status === 'INVOICED' || b.status === 'PAID' ? [b.status] : []), b.status) + '</select><button class="btn btn-sm btn-primary" id="save-status">Set status</button></div></div>' +
       b.warnings.map(function (w) { return alertBox('warning', w); }).join('') +
+      seriesCard(b) +
 
       '<div class="ops-card"><div class="ops-head"><h3 style="margin:0">Requirements and assignments</h3><button class="btn btn-sm btn-primary" id="add-req">Add requirement</button></div>' +
       (b.requirements.length ? b.requirements.map(function (r) {
@@ -912,6 +1008,7 @@
 
     var reload = function () { return viewBooking(id); };
     loadRunningOrder(id, b.reference);
+    bindSeries(b, reload);
 
     main.querySelector('#save-status').addEventListener('click', async function () {
       var status = main.querySelector('#status-select').value;

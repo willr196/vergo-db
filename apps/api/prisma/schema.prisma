@@ -186,6 +186,7 @@ model Client {
   bookings              Booking[]
   bookingTemplates      BookingTemplate[]
   opsBookings           OpsBooking[]
+  opsBookingSeries      OpsBookingSeries[]
   /// VERGO Ops: the outreach lead this client was won from, if any.
   opsLead               OpsLead?
   directHireTracking    DirectHireTracking[]
@@ -1209,38 +1210,38 @@ model WorkerDocument {
 }
 
 model OpsBooking {
-  id                       String            @id @default(cuid())
-  createdAt                DateTime          @default(now())
-  updatedAt                DateTime          @updatedAt
+  id                       String             @id @default(cuid())
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
   /// VB-2026-0001
-  reference                String            @unique @db.VarChar(20)
+  reference                String             @unique @db.VarChar(20)
   clientId                 String
   quoteRequestId           String?
-  bookingType              String?           @db.VarChar(80)
-  eventType                String?           @db.VarChar(120)
-  venue                    String?           @db.VarChar(200)
-  address                  String?           @db.VarChar(500)
+  bookingType              String?            @db.VarChar(80)
+  eventType                String?            @db.VarChar(120)
+  venue                    String?            @db.VarChar(200)
+  address                  String?            @db.VarChar(500)
   /// London calendar date of the event.
-  eventDate                DateTime          @db.Date
+  eventDate                DateTime           @db.Date
   /// HH:MM, London time.
-  startTime                String            @db.VarChar(5)
-  expectedFinish           String            @db.VarChar(5)
-  actualFinish             String?           @db.VarChar(5)
+  startTime                String             @db.VarChar(5)
+  expectedFinish           String             @db.VarChar(5)
+  actualFinish             String?            @db.VarChar(5)
   guestNumbers             Int?
-  onSiteContactName        String?           @db.VarChar(120)
-  onSiteContactPhone       String?           @db.VarChar(40)
-  vergoLead                String?           @db.VarChar(120)
-  status                   OpsBookingStatus  @default(DRAFT)
-  notes                    String?           @db.VarChar(4000)
+  onSiteContactName        String?            @db.VarChar(120)
+  onSiteContactPhone       String?            @db.VarChar(40)
+  vergoLead                String?            @db.VarChar(120)
+  status                   OpsBookingStatus   @default(DRAFT)
+  notes                    String?            @db.VarChar(4000)
   /// Snapshot when created for a private consumer: B2B terms do not apply and
   /// separate consumer booking terms are needed.
-  consumerTermsRequired    Boolean           @default(false)
-  termsVersionAtBooking    String?           @db.VarChar(40)
+  consumerTermsRequired    Boolean            @default(false)
+  termsVersionAtBooking    String?            @db.VarChar(40)
   /// Payment before the event (e.g. a first booking), and the days allowed
   /// after invoice otherwise. Empty uses the Ops commercial default.
-  advancePaymentRequired   Boolean           @default(false)
+  advancePaymentRequired   Boolean            @default(false)
   paymentTermsDays         Int?
-  invoiceRef               String?           @db.VarChar(80)
+  invoiceRef               String?            @db.VarChar(80)
   invoicedAt               DateTime?
   paidAt                   DateTime?
   /// Actual payroll figures entered once payroll has run; they replace the
@@ -1248,19 +1249,54 @@ model OpsBooking {
   actualWagesPence         Int?
   actualHolidayPayPence    Int?
   actualEmployerCostsPence Int?
-  actualPayrollNote        String?           @db.VarChar(500)
-  actualPayrollRecordedBy  String?           @db.VarChar(100)
+  actualPayrollNote        String?            @db.VarChar(500)
+  actualPayrollRecordedBy  String?            @db.VarChar(100)
   actualPayrollRecordedAt  DateTime?
-  client                   Client            @relation(fields: [clientId], references: [id], onDelete: Restrict)
-  quoteRequest             QuoteRequest?     @relation(fields: [quoteRequestId], references: [id], onDelete: SetNull)
+  client                   Client             @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  quoteRequest             QuoteRequest?      @relation(fields: [quoteRequestId], references: [id], onDelete: SetNull)
   requirements             OpsRequirement[]
   costs                    OpsBookingCost[]
   assignments              Booking[]
   scheduleItems            OpsScheduleItem[]
+  /// Set when this booking is one day of a repeating booking.
+  seriesId                 String?
+  series                   OpsBookingSeries?  @relation("SeriesDays", fields: [seriesId], references: [id], onDelete: SetNull)
+  /// Repeating bookings that copy this booking for each new day.
+  patternFor               OpsBookingSeries[] @relation("SeriesPattern")
 
+  @@unique([seriesId, eventDate])
   @@index([clientId])
   @@index([eventDate])
   @@index([status])
+}
+
+/// A booking that repeats on set weekdays (an ongoing contract). Ops keeps
+/// real OpsBooking days created aheadWeeks in advance, each a copy of the
+/// pattern booking (times, venue, roles, rates, running order; never staff),
+/// so the rota, calendar, staffing and invoicing treat every day normally.
+model OpsBookingSeries {
+  id               String       @id @default(cuid())
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  clientId         String
+  /// The booking each new day is copied from.
+  patternBookingId String
+  /// 1 = Monday .. 7 = Sunday (ISO weekday numbering).
+  weekdays         Int[]
+  startsOn         DateTime     @db.Date
+  /// Last day of the run; empty repeats until stopped.
+  endsOn           DateTime?    @db.Date
+  aheadWeeks       Int          @default(6)
+  /// The latest day considered so far; new days are only ever added after it.
+  generatedThrough DateTime?    @db.Date
+  active           Boolean      @default(true)
+  createdBy        String?      @db.VarChar(100)
+  client           Client       @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  patternBooking   OpsBooking   @relation("SeriesPattern", fields: [patternBookingId], references: [id], onDelete: Restrict)
+  days             OpsBooking[] @relation("SeriesDays")
+
+  @@index([active])
+  @@index([clientId])
 }
 
 model OpsRequirement {

@@ -326,6 +326,7 @@ export const opsBookingInclude = {
   requirements: { orderBy: { createdAt: 'asc' as const } },
   costs: { orderBy: { createdAt: 'asc' as const } },
   assignments: { include: assignmentInclude, orderBy: { createdAt: 'asc' as const } },
+  series: { select: { id: true, weekdays: true, startsOn: true, endsOn: true, active: true, aheadWeeks: true, generatedThrough: true, patternBookingId: true, patternBooking: { select: { reference: true } } } },
 } satisfies Prisma.OpsBookingInclude;
 
 export type OpsBookingRow = Prisma.OpsBookingGetPayload<{ include: typeof opsBookingInclude }>;
@@ -367,6 +368,17 @@ export function shapeOpsBooking(booking: OpsBookingRow) {
     invoiceRef: booking.invoiceRef,
     invoicedAt: booking.invoicedAt,
     paidAt: booking.paidAt,
+    series: booking.series ? {
+      id: booking.series.id,
+      weekdays: booking.series.weekdays,
+      startsOn: dateKey(booking.series.startsOn),
+      endsOn: booking.series.endsOn ? dateKey(booking.series.endsOn) : null,
+      active: booking.series.active,
+      aheadWeeks: booking.series.aheadWeeks,
+      generatedThrough: booking.series.generatedThrough ? dateKey(booking.series.generatedThrough) : null,
+      patternBookingId: booking.series.patternBookingId,
+      patternReference: booking.series.patternBooking.reference,
+    } : null,
     actualPayroll: {
       wagesPence: booking.actualWagesPence,
       holidayPayPence: booking.actualHolidayPayPence,

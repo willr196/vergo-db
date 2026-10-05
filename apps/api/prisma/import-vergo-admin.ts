@@ -30,8 +30,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { Prisma, PrismaClient } from '@prisma/client';
+// The app's own client, so the repeating-booking fill at the end shares it.
+import { prisma } from '../src/prisma';
 import bcrypt from 'bcrypt';
 import crypto from 'node:crypto';
+import { fillAllSeries } from '../src/ops/series';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { Client: PgClient, types: pgTypes } = require('pg');
@@ -42,7 +45,6 @@ pgTypes.setTypeParser(1082, (v: string) => v);
 const COMMIT = process.argv.includes('--commit');
 const PLACEHOLDER_DOMAIN = 'import.vergoltd.invalid';
 const MIN_PAY_RATE = 12.71;
-const prisma = new PrismaClient();
 
 type Row = Record<string, any>;
 
@@ -62,7 +64,38 @@ const num = (v: unknown) => (v == null ? null : Number(v));
 const dateOnly = (v: string) => new Date(`${v}T00:00:00.000Z`);
 /** Jobs the old tool held with no client (it allowed that) go under this one. */
 const NO_CLIENT = '__no_client__';
-const titleCase = (v: string) => v.trim().replace(/\s+/g, ' ').replace(/(^|[\s'-])(\p{L})/gu, (_m, a, b) => a + b.toUpperCase());
+
+/**
+ * Corrections to the old tool's client records, by its client name in lower
+ * case, taken from VERGO's own invoices (Downloads/VERGO-Invoice-004, -008).
+ */
+const CLIENT_CORRECTIONS: Record<string, { companyName?: string; billingAddress?: string; clientType?: 'CATERER' | 'OTHER' }> = {
+  popcorn: { companyName: 'Popcorn Catering', billingAddress: '3 Kingfisher Court, Bowesfield Park, Stockton-On-Tees TS18 3EX', clientType: 'CATERER' },
+};
+
+/**
+ * The client of a job the old tool kept without one, read from its title
+ * ("KARAS JOBS", "LORRAINE - 1xb 1xw", "debs job"). A match to one of the old
+ * tool's own clients uses it; otherwise a client is created by that name
+ * (once per name). Anything unreadable goes under the holding client.
+ */
+const CLIENT_FROM_TITLE: { match: RegExp; oldClientName?: string; name?: string }[] = [
+  { match: /^karas\b/i, oldClientName: 'karas' },
+  // Invoice 006 (6 Sep 2026) bills this job to Dan Barraclough.
+  { match: /^dan\b/i, name: 'Dan Barraclough' },
+];
+function clientFromTitle(title: string | null): { oldClientName?: string; name?: string } | null {
+  const t = (title ?? '').trim();
+  const rule = CLIENT_FROM_TITLE.find((r) => r.match.test(t));
+  if (rule) return rule;
+  const m = t.match(/^([A-Za-z]+)(?:'s)?\s*(?:-|\bjobs?\b)/i);
+  return m ? { name: titleCase(m[1].toLowerCase()) } : null;
+}
+const digits = (v: unknown) => {
+  const d = typeof v === 'string' ? v.replace(/\D/g, '') : '';
+  return d.startsWith('44') ? '0' + d.slice(2) : d;
+};
+const titleCase = (v: string) => v.trim().replace(/\s+/g, ' ').replace(/(^|[\s-])(\p{L})/gu, (_m, a, b) => a + b.toUpperCase());
 
 async function unusablePasswordHash() {
   return bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
@@ -142,13 +175,17 @@ async function main() {
     const finalEmail = email ?? `client-${c.id}@${PLACEHOLDER_DOMAIN}`;
     const notes = [clean(c.notes), c.defaultChargeRate != null ? `Usual charge rate £${Number(c.defaultChargeRate).toFixed(2)}/h.` : null, 'Imported from the old VERGO Ops tool.']
       .filter(Boolean).join(' ');
-    if (!COMMIT) { fakeId('Client', c.id); tally('Client', 'created', `${c.name}${email ? '' : ' (placeholder email)'}`); continue; }
+    const fix = CLIENT_CORRECTIONS[c.name.trim().toLowerCase()] ?? {};
+    const companyName = fix.companyName ?? titleCase(c.name.trim().toLowerCase());
+    const label = `${companyName}${companyName !== c.name.trim() ? ` (was "${c.name.trim()}")` : ''}${email ? '' : ' (placeholder email)'}`;
+    if (!COMMIT) { fakeId('Client', c.id); tally('Client', 'created', label); continue; }
     const passwordHash = await unusablePasswordHash();
     await prisma.$transaction(async (tx) => {
       const created = await tx.client.create({
         data: {
-          companyName: c.name.trim(), contactName: clean(c.contactName) ?? c.name.trim(), email: finalEmail,
+          companyName, contactName: clean(c.contactName) ?? companyName, email: finalEmail,
           phone: clean(c.contactPhone), adminNotes: notes, passwordHash, status: c.archived ? 'SUSPENDED' : 'APPROVED',
+          billingAddress: fix.billingAddress ?? null, ...(fix.clientType ? { clientType: fix.clientType } : {}),
           approvedAt: new Date(), approvedBy: actor, createdAt: c.createdAt,
         },
         select: { id: true },
@@ -156,12 +193,41 @@ async function main() {
       await remember(tx, 'Client', c.id, created.id);
       await tx.auditLog.create({ data: { actor, action: 'CLIENT_CREATED', entityType: 'Client', entityId: created.id, newValue: { importedFrom: 'vergo_admin', legacyId: c.id } } });
     });
-    tally('Client', 'created', `${c.name}${email ? '' : ' (placeholder email)'}`);
+    tally('Client', 'created', label);
   }
 
-  // The holding client for jobs recorded without one. Reassign each booking
-  // to the right client from its page once imported.
-  if (jobs.some((j) => !j.clientId) && !(await mapped('Client', NO_CLIENT))) {
+  // Jobs kept without a client: find it from the title (see CLIENT_FROM_TITLE).
+  // Each job's client key is recorded here so the jobs step can resolve it.
+  const oldClientIdByName = new Map(clients.map((c) => [c.name.trim().toLowerCase(), c.id as string]));
+  const clientKeyOfJob = new Map<string, string>();
+  for (const j of jobs) {
+    if (j.clientId) { clientKeyOfJob.set(j.id, j.clientId); continue; }
+    const found = clientFromTitle(j.title);
+    const oldId = found?.oldClientName ? oldClientIdByName.get(found.oldClientName) : undefined;
+    clientKeyOfJob.set(j.id, oldId ?? (found?.name ? `title:${found.name.toLowerCase()}` : NO_CLIENT));
+    if (!oldId && found?.name) {
+      const key = `title:${found.name.toLowerCase()}`;
+      if (await resolve('Client', key)) continue;
+      if (!COMMIT) { fakeId('Client', key); tally('Client', 'created', `${found.name} (from the job title "${clean(j.title)}", placeholder email)`); continue; }
+      await prisma.$transaction(async (tx) => {
+        const created = await tx.client.create({
+          data: {
+            companyName: found.name!, contactName: found.name!, email: `client-${key.replace(/[^a-z0-9]+/g, '-')}@${PLACEHOLDER_DOMAIN}`,
+            passwordHash: await unusablePasswordHash(), status: 'APPROVED', approvedAt: new Date(), approvedBy: actor, clientType: 'OTHER',
+            adminNotes: `Created by the import from the old VERGO Ops tool, which recorded "${clean(j.title)}" with no client. Add their contact details, and set the type to private consumer if this is a private customer.`,
+          },
+          select: { id: true },
+        });
+        await remember(tx, 'Client', key, created.id);
+        await tx.auditLog.create({ data: { actor, action: 'CLIENT_CREATED', entityType: 'Client', entityId: created.id, newValue: { importedFrom: 'vergo_admin', fromJobTitle: clean(j.title) } } });
+      });
+      tally('Client', 'created', `${found.name} (from the job title "${clean(j.title)}", placeholder email)`);
+    }
+  }
+
+  // The holding client for jobs whose client cannot be read from the title.
+  // Reassign each booking to the right client from its page once imported.
+  if ([...clientKeyOfJob.values()].includes(NO_CLIENT) && !(await mapped('Client', NO_CLIENT))) {
     const email = `no-client@${PLACEHOLDER_DOMAIN}`;
     const existing = await prisma.client.findUnique({ where: { email }, select: { id: true } });
     if (!COMMIT) { fakeId('Client', NO_CLIENT); tally('Client', existing ? 'linked' : 'created', 'No client recorded (imported): holding client for jobs the old tool kept without one'); }
@@ -180,11 +246,21 @@ async function main() {
   }
 
   // ── Staff -> workers ─────────────────────────────────────────────────────
+  // Someone with no email in the old tool may already be on the site (an
+  // applicant, or added in Ops): match them by phone number before creating.
+  const workerPhones = new Map<string, { id: string; userType: string }>();
+  for (const u of await prisma.user.findMany({ where: { userType: 'JOB_SEEKER', phone: { not: null } }, select: { id: true, userType: true, phone: true } })) {
+    const key = digits(u.phone);
+    if (key.length >= 10) workerPhones.set(key, workerPhones.has(key) ? { id: '', userType: 'AMBIGUOUS' } : u);
+  }
   for (const s of staff) {
     if (await mapped('Staff', s.id)) { tally('Staff', 'skipped'); continue; }
     const name = `${titleCase(s.firstName)} ${titleCase(s.lastName)}`;
     const email = isEmail(s.email) ? s.email.trim().toLowerCase() : null;
-    const existing = email ? await prisma.user.findUnique({ where: { email }, select: { id: true, userType: true } }) : null;
+    const byPhone = !email && digits(s.phone).length >= 10 ? workerPhones.get(digits(s.phone)) : undefined;
+    const existing = email
+      ? await prisma.user.findUnique({ where: { email }, select: { id: true, userType: true } })
+      : byPhone && byPhone.userType !== 'AMBIGUOUS' ? byPhone : null;
     if (existing && existing.userType !== 'JOB_SEEKER') {
       tally('Staff', 'skipped', `${name}: ${email} belongs to a non-worker account, not imported`);
       continue;
@@ -215,7 +291,7 @@ async function main() {
   const usedRefs = new Set<string>();
   for (const j of jobs) {
     if (await mapped('Job', j.id)) { tally('Job', 'skipped'); continue; }
-    const clientId = await resolve('Client', j.clientId ?? NO_CLIENT);
+    const clientId = await resolve('Client', clientKeyOfJob.get(j.id) ?? NO_CLIENT);
     if (!clientId) { tally('Job', 'skipped', `${j.reference}: its client was not imported`); continue; }
     const crew = assignmentsByJob.get(j.id) ?? [];
     const payRates = crew.map((a) => num(a.rateOverride) ?? num(staffById.get(a.staffId)?.hourlyRate)).filter((v): v is number => v != null);
@@ -226,7 +302,11 @@ async function main() {
     const paid = j.invoiceStatus === 'PAID';
     const invoiced = paid || j.invoiceStatus === 'INVOICED';
     const status = j.status === 'CANCELLED' ? 'CANCELLED' : paid ? 'PAID' : invoiced ? 'INVOICED' : j.status === 'COMPLETED' ? 'COMPLETED' : j.status === 'DRAFT' ? 'DRAFT' : 'CONFIRMED';
-    const role = (clean(j.roleNeeded) ?? clean(j.title) ?? 'Event staff').slice(0, 80);
+    // The old tool often held the client in the title ("Dan JOB", "LORRAINE -
+    // 1xb 1xw") and left the role empty: not a role, so "Event staff".
+    const fromTitle = !clean(j.roleNeeded);
+    const roleText = clean(j.roleNeeded) ?? clean(j.title);
+    const role = (roleText && !/\bjobs?\b/i.test(roleText) && !(fromTitle && !j.clientId && clientFromTitle(roleText)) ? roleText : 'Event staff').slice(0, 80);
     const quantity = Math.max(j.staffNeeded ?? 0, crew.length, 1);
     const chargeRate = Number(j.chargeRate);
     const reference = await nextReference(Number(date.slice(0, 4)), usedRefs);
@@ -283,6 +363,44 @@ async function main() {
     tally('Job', 'created', `${j.reference} ${date} -> ${reference}`);
   }
 
+  // ── Ongoing jobs -> repeating bookings ───────────────────────────────────
+  // The old tool stored an ongoing job as one row per day sharing a seriesId,
+  // with repeatDays (1 = Monday .. 7 = Sunday, as here). Its imported days are
+  // linked to one repeating booking whose pattern is the latest day, and which
+  // carries on from the old tool's last day, so Ops keeps adding days.
+  const ongoing = new Map<string, Row[]>();
+  for (const j of jobs) if (j.seriesId && j.ongoing) ongoing.set(j.seriesId, [...(ongoing.get(j.seriesId) ?? []), j]);
+  for (const [seriesKey, days] of ongoing) {
+    if (await mapped('JobSeries', seriesKey)) { tally('Repeating booking', 'skipped'); continue; }
+    days.sort((a, b) => (a.date < b.date ? -1 : 1));
+    const first = days[0];
+    const last = days[days.length - 1];
+    const weekdays = [...new Set<number>((last.repeatDays ?? []).map(Number))].filter((d) => d >= 1 && d <= 7).sort();
+    const endsOn: string | null = days.map((d) => d.endDate).filter(Boolean).sort().pop() ?? null;
+    const describe = `${clean(last.title) ?? 'Ongoing job'}: ${days.length} days ${first.date} to ${last.date}, repeating on days ${weekdays.join(',')} ${endsOn ? 'until ' + endsOn : 'until stopped'}`;
+    if (!weekdays.length) { tally('Repeating booking', 'skipped', `${describe}: no repeat days recorded`); continue; }
+    if (!COMMIT) { tally('Repeating booking', 'created', describe); continue; }
+    const patternId = await mapped('Job', last.id);
+    const clientId = patternId ? (await prisma.opsBooking.findUnique({ where: { id: patternId }, select: { clientId: true } }))?.clientId : null;
+    if (!patternId || !clientId) { tally('Repeating booking', 'skipped', `${describe}: its days were not imported`); continue; }
+    await prisma.$transaction(async (tx) => {
+      const series = await tx.opsBookingSeries.create({
+        data: {
+          clientId, patternBookingId: patternId, weekdays, startsOn: dateOnly(first.date), endsOn: endsOn ? dateOnly(endsOn) : null,
+          generatedThrough: dateOnly(last.date), createdBy: actor,
+        },
+        select: { id: true },
+      });
+      for (const d of days) {
+        const bookingId = await tx.opsLegacyImport.findUnique({ where: { entity_legacyId: { entity: 'Job', legacyId: d.id } } });
+        if (bookingId) await tx.opsBooking.update({ where: { id: bookingId.newId }, data: { seriesId: series.id } });
+      }
+      await remember(tx, 'JobSeries', seriesKey, series.id);
+      await tx.auditLog.create({ data: { actor, action: 'BOOKING_SERIES_STARTED', entityType: 'OpsBooking', entityId: patternId, newValue: { importedFrom: 'vergo_admin', seriesId: series.id, weekdays, days: days.length } } });
+    });
+    tally('Repeating booking', 'created', describe);
+  }
+
   // ── Leads ────────────────────────────────────────────────────────────────
   for (const l of leads) {
     if (await mapped('Lead', l.id)) { tally('Lead', 'skipped'); continue; }
@@ -316,6 +434,10 @@ async function main() {
   console.log(report.join('\n'));
   console.log('\nSummary (created / linked to an existing record / skipped):');
   for (const [entity, c] of Object.entries(counts)) console.log(`  ${entity.padEnd(16)} ${c.created} / ${c.linked} / ${c.skipped}`);
+  if (COMMIT) {
+    const added = await fillAllSeries('import:vergo-admin');
+    if (added) console.log(`\nRepeating bookings: added ${added} upcoming day(s) after the old tool's last day.`);
+  }
   if (!COMMIT) console.log('\nDry run only. Run again with --commit to import.');
 }
 

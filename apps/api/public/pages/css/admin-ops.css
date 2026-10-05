@@ -34,6 +34,9 @@
 .ops-form textarea, .modal textarea { min-height: 70px; resize: vertical; }
 .ops-check { display: flex; gap: 8px; align-items: flex-start; font-size: 0.85rem; text-transform: none; letter-spacing: 0; color: var(--as-text); font-weight: 400; }
 .ops-check input { margin-top: 3px; }
+.ops-weekdays { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 6px; }
+.ops-weekdays .ops-check { align-items: center; }
+.ops-weekdays .ops-check input { margin-top: 0; }
 
 .ops-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
 .ops-table th { text-align: left; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--as-muted); padding: 9px 10px; border-bottom: 1px solid var(--as-border); white-space: nowrap; }

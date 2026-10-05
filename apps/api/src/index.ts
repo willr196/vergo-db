@@ -59,6 +59,7 @@ import { sendMedia } from './site/media';
 import webAuth from './routes/webAuth';
 import { logger, requestLogger } from './services/logger';
 import { startMemoryMonitoring, stopMemoryMonitoring } from './services/memory';
+import { startSeriesFiller, stopSeriesFiller } from './ops/series';
 import { initSentry, sentryErrorHandler, flushSentry } from './services/sentry';
 import { enforceHttpsRedirect } from './utils/httpsRedirect';
 import { clearRenderCaches, sendPublicHtml, renderPublicSource, versionAssetUrls, virtualAsset, PUBLIC_HTML_CACHE_CONTROL } from './lib/publicHtml';
@@ -931,6 +932,7 @@ async function startServer() {
   // Initialize email queue (gracefully handles missing Redis)
   await emailQueue.initialize();
   startMemoryMonitoring();
+  startSeriesFiller();
 
   const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Server listening on 0.0.0.0:${PORT}`);
@@ -945,6 +947,7 @@ async function startServer() {
 
       // Shutdown services
       stopMemoryMonitoring();
+      stopSeriesFiller();
       await emailQueue.shutdown();
       await flushSentry();
 
