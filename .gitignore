@@ -38,8 +38,10 @@ coverage/
 *.sh
 
 # Screenshot comparisons (tools/screenshot-diff.mjs)
-tools/screenshots/compare/
-tools/screenshots/.chrome-profile/
+tools/screenshots/
 
 # Photos uploaded through the admin in local development (production uses S3)
 apps/api/uploads/
+
+# Claude Code local settings and worktrees
+.claude/

@@ -3,6 +3,10 @@
 VERGO's platform: the public site at vergoltd.com, the admin panel, the API
 and the mobile app. See `CLAUDE.md` for the layout of the monorepo.
 
+The internal operations console, **VERGO Ops** (`/ops`: workers, compliance,
+bookings, timesheets, profit, payroll history), is documented in
+[docs/VERGO-OPS.md](docs/VERGO-OPS.md).
+
 ## The public site
 
 Every public page is rendered by the API (`apps/api`, Express) on request.
