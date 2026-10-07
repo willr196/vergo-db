@@ -80,7 +80,7 @@
       toast('Failed: ' + e.message, 'error');
       if (resultEl) resultEl.innerHTML = '<div class="alert-error alert">' + esc(e.message) + '</div>';
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Add Admin'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Add admin'; }
     }
   }
 
@@ -125,7 +125,7 @@
       toast('Failed: ' + e.message, 'error');
       if (resultEl) resultEl.innerHTML = '<div class="alert-error alert">' + esc(e.message) + '</div>';
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Update Password'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Update password'; }
     }
   }
 

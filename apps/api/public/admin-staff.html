@@ -16,10 +16,10 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=10">
 </head>
-<body>
+<body class="as-panel">
   <a href="#as-content" class="as-skip-link">Skip to main content</a>
 
   <div class="as-main">
@@ -68,14 +68,17 @@
             <label for="filter-role">Role</label>
             <select id="filter-role">
               <option value="">All roles</option>
-              <option value="Bartender">Bartender</option>
-              <option value="Barista">Barista</option>
-              <option value="Front of House">Front of House</option>
-              <option value="Waiter">Waiter</option>
-              <option value="Chef">Chef</option>
-              <option value="Kitchen Porter">Kitchen Porter</option>
-              <option value="Runner">Runner</option>
             </select>
+          </div>
+          <div class="as-filter-group">
+            <label for="filter-group">Group</label>
+            <select id="filter-group">
+              <option value="">All groups</option>
+            </select>
+            <span id="filter-group-manage" class="group-manage d-none">
+              <button type="button" class="btn-link" data-action="group-rename" data-select="filter-group">Rename</button>
+              <button type="button" class="btn-link" data-action="group-delete" data-select="filter-group">Delete group</button>
+            </span>
           </div>
           <div class="as-filter-group">
             <label for="filter-location">Near</label>
@@ -120,6 +123,7 @@
 
   <script src="/js/admin-core.js"></script>
   <script src="/js/admin-nav.js"></script>
+  <script src="/js/admin-groups.js"></script>
   <script src="/js/admin-applicant.js"></script>
   <script src="/pages/js/admin-staff.js"></script>
 </body>

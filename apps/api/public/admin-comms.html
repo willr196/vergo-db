@@ -16,10 +16,10 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=10">
 </head>
-<body>
+<body class="as-panel">
   <a href="#as-content" class="as-skip-link">Skip to main content</a>
 
   <div class="as-main">
@@ -49,7 +49,7 @@
             </select>
           </div>
           <div class="mb-2">
-            <label class="as-label" for="push-title">Notification Title</label>
+            <label class="as-label" for="push-title">Notification title</label>
             <input type="text" id="push-title" class="as-input" placeholder="e.g. New job available!" maxlength="100">
           </div>
           <div class="mb-2">
@@ -57,7 +57,7 @@
             <textarea id="push-body" placeholder="Notification body text…" maxlength="500"></textarea>
           </div>
           <div id="push-result" class="mb-2"></div>
-          <button class="btn btn-primary" data-action="send-push">Send Push Notification</button>
+          <button class="btn btn-primary" data-action="send-push">Send push notification</button>
         </div>
       </div>
 
@@ -84,7 +84,7 @@
             <textarea id="email-body" style="min-height:200px" placeholder="Email body…" maxlength="10000"></textarea>
           </div>
           <div id="email-result" class="mb-2"></div>
-          <button class="btn btn-primary" data-action="send-email">Send Email Broadcast</button>
+          <button class="btn btn-primary" data-action="send-email">Send email broadcast</button>
         </div>
       </div>
 

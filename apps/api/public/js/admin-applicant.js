@@ -185,13 +185,12 @@
     "          <div class=\"detail-row\">" +
     "            <label class=\"as-label\" for=\"cand-role\">Role</label>" +
     "            <select id=\"cand-role\" class=\"as-input\">" +
-    "              <option value=\"Bartender\">Bartender</option>" +
-    "              <option value=\"Barista\">Barista</option>" +
-    "              <option value=\"Front of House\">Front of House</option>" +
-    "              <option value=\"Waiter\">Waiter</option>" +
-    "              <option value=\"Chef\">Chef</option>" +
-    "              <option value=\"Kitchen Porter\">Kitchen Porter</option>" +
-    "              <option value=\"Runner\">Runner</option>" +
+    "              <option value=\"Waiting staff\">Waiting staff</option>" +
+    "              <option value=\"Bar staff\">Bar staff</option>" +
+    "              <option value=\"Kitchen porters\">Kitchen porters</option>" +
+    "              <option value=\"Runners\">Runners</option>" +
+    "              <option value=\"Hosts and front of house\">Hosts and front of house</option>" +
+    "              <option value=\"Chefs and cooks\">Chefs and cooks</option>" +
     "            </select>" +
     "          </div>" +
     "          <div class=\"detail-row\">" +
@@ -350,6 +349,7 @@
       + '</div>'
       + '<div class="drawer-section mb-2"><span class="detail-label">Preferred job types</span><div class="pill-wrap mt-1">' + preferredJobTypes + '</div></div>'
       + '<div class="drawer-section mb-2"><span class="detail-label">Roles applied for</span><div class="pill-wrap mt-1">' + rolePills + '</div></div>'
+      + (window.AdminGroups ? AdminGroups.drawerSection(detail) : '')
       + '<div class="drawer-section mb-2"><span class="detail-label">Bio</span><p class="drawer-copy">' + esc(applicant.bio || 'No bio provided.') + '</p></div>'
       + '<div class="detail-grid mb-2">'
       + '<div class="detail-row"><span class="detail-label">Years of experience</span><span class="detail-value">' + esc(applicant.yearsExperience != null ? String(applicant.yearsExperience) : 'Not provided') + '</span></div>'
@@ -986,6 +986,10 @@
 
       document.addEventListener('click', handleClick);
       document.addEventListener('change', handleChange);
+      // Group membership changed (admin-groups.js): redraw the open person.
+      window.addEventListener('admin-groups-changed', function () {
+        if (activeDrawerAppId) refreshOpenDrawer(activeDrawerAppId).catch(function () {});
+      });
 
       return openRequestedFromUrl();
     },

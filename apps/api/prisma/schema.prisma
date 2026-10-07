@@ -9,36 +9,37 @@ datasource db {
 }
 
 model Applicant {
-  id                String             @id @default(cuid())
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  id                String                 @id @default(cuid())
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
   firstName         String
   lastName          String
-  email             String             @unique
+  email             String                 @unique
   phone             String?
   /// Self-declared on the application form. NOT evidence of a right-to-work
   /// check — see the RightToWorkCheck records for the verified position.
   rightToWorkUk     Boolean?
-  averageRating     Decimal?           @db.Decimal(3, 2)
+  averageRating     Decimal?               @db.Decimal(3, 2)
   availability      String?
   bio               String?
   city              String?
   dateOfBirth       DateTime?
-  hourlyRate        Decimal?           @db.Decimal(10, 2)
+  hourlyRate        Decimal?               @db.Decimal(10, 2)
   postcode          String?
   /// Event types the applicant prefers to work (Weddings, Corporate Events, etc.)
   preferredJobTypes String?
   /// Job roles the applicant is suited for (bartender, chef, etc.) — a
   /// different concept from preferredJobTypes above, despite the similar name.
-  preferredRoles    String[]           @default([])
-  profileVisible    Boolean            @default(false)
+  preferredRoles    String[]               @default([])
+  profileVisible    Boolean                @default(false)
   promotedToGoldAt  DateTime?
-  staffTier         String             @default("STANDARD")
-  totalBookings     Int                @default(0)
+  staffTier         String                 @default("STANDARD")
+  totalBookings     Int                    @default(0)
   yearsExperience   Int?
   applications      Application[]
   user              User?
   rightToWorkChecks RightToWorkCheck[]
+  groups            CandidateGroupMember[]
 }
 
 /// Evidence of a completed right-to-work check. One row per check performed;
@@ -84,6 +85,28 @@ model RightToWorkCheck {
   @@index([applicantId])
   @@index([outcome])
   @@index([expiresAt])
+}
+
+/// Admin-named shortlists ("Good bartenders", "Reliable for weddings").
+/// Membership is per person, not per application, and one person can sit in
+/// several groups.
+model CandidateGroup {
+  id        String                 @id @default(cuid())
+  createdAt DateTime               @default(now())
+  name      String                 @unique @db.VarChar(80)
+  members   CandidateGroupMember[]
+}
+
+model CandidateGroupMember {
+  groupId     String
+  applicantId String
+  addedAt     DateTime       @default(now())
+  addedBy     String?        @db.VarChar(100)
+  group       CandidateGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  applicant   Applicant      @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, applicantId])
+  @@index([applicantId])
 }
 
 model Role {

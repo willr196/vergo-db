@@ -205,6 +205,84 @@
       </div>
     </section>
 
+    <!-- Rates: the figures are tokens filled from config/pricing.ts as the page is served. -->
+    <section class="section shell" id="rates" aria-labelledby="rates-heading">
+      <h2 id="rates-heading" class="se-h2">Rates</h2>
+
+      <div class="se-rate-grid">
+        <article class="se-rate">
+          <p class="se-rate-tag">Hospitality</p>
+          <h3>Themed hospitality staff</h3>
+          <p class="se-rate-price">
+            <span class="se-rate-figure"><%~ it.t.THEMED_RATE %></span>
+            <span class="se-rate-unit">per hour</span>
+          </p>
+          <p class="se-rate-copy">Waiters, bartenders, runners and hosts, styled to your theme.</p>
+        </article>
+        <article class="se-rate">
+          <p class="se-rate-tag">Performers</p>
+          <h3>Scare actors and character performers</h3>
+          <p class="se-rate-price">
+            <span class="se-rate-figure"><%~ it.t.PERFORMER_RATE %></span>
+            <span class="se-rate-unit">per hour</span>
+          </p>
+          <p class="se-rate-copy">Actors cast for your concept, intensity set to suit.</p>
+        </article>
+        <article class="se-rate">
+          <p class="se-rate-tag">Makeup</p>
+          <h3>Halloween makeup artists</h3>
+          <p class="se-rate-price">
+            <span class="se-rate-figure"><%~ it.t.MAKEUP_RATE %></span>
+            <span class="se-rate-unit">per hour</span>
+          </p>
+          <p class="se-rate-copy">Halloween makeup, character styling and straightforward SFX.</p>
+        </article>
+      </div>
+      <p class="se-rates-invite">Specialist performers, decor and full experiences: quoted on the brief. <%~ it.t.MIN_HOURS %>-hour minimum.</p>
+      <p class="se-caveat">Themed staff wear the look; performers are cast to act.</p>
+      <p class="se-caveat">What a whole night costs, worked through: <a href="/blog/halloween-event-staff-london">Halloween event staff in London</a>.</p>
+      <div class="btn-row se-rates-cta">
+        <a href="#build" class="btn btn-primary">Build your Halloween team</a>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         Makeup
+         ================================================================ -->
+    <div class="se-band se-band--deep">
+      <section class="section shell" id="makeup" aria-labelledby="makeup-heading">
+        <h2 id="makeup-heading" class="se-h2">Makeup and SFX</h2>
+
+        <ul class="se-makeup-lines">
+          <li><strong>Staff and performer makeup:</strong> wounds, bruising, fake blood, zombie, vampire, ghost, aging, prosthetics.</li>
+          <li><strong>Guest makeup stations:</strong> corporate parties, hotels, bars, private parties, brand events, members' clubs.</li>
+        </ul>
+
+        <div class="btn-row se-makeup-cta">
+          <a href="#build" class="btn btn-primary">Add makeup to your event</a>
+        </div>
+      </section>
+    </div>
+
+    <!-- ================================================================
+         Halloween events: drinks and food, all optional add-ons
+         ================================================================ -->
+    <section class="section shell" id="drinks-food" aria-labelledby="drinks-food-heading">
+      <h2 id="drinks-food-heading" class="se-h2">Halloween events: drinks and food</h2>
+      <p class="se-caveat">Want more than the team? We can run the whole event, and every part is optional: take one, take all, or bring your own.</p>
+
+      <ul class="se-makeup-lines">
+        <li><strong>You buy the drinks, we run the bar:</strong> bar setup, glassware, ice, mixers, garnishes and themed bartenders.</li>
+        <li><strong>We supply the drinks:</strong> only at venues with a premises licence.</li>
+        <li><strong>Halloween cocktails:</strong> a themed menu, smoking and blood-red serves, mocktails too.</li>
+        <li><strong>Halloween food:</strong> themed canap&eacute;s, bowl food and sweet treats, served in character.</li>
+      </ul>
+
+      <div class="btn-row se-makeup-cta">
+        <a href="#build" class="btn btn-primary">Add drinks or food</a>
+      </div>
+    </section>
+
     <section class="section-tight shell" aria-label="Halloween staff in costume">
       <div class="se-photo-pair se-photo-pair--half">
         <figure>
@@ -362,83 +440,6 @@
         </div>
       </section>
     </div>
-    <!-- ================================================================
-         Makeup
-         ================================================================ -->
-    <div class="se-band se-band--deep">
-      <section class="section shell" id="makeup" aria-labelledby="makeup-heading">
-        <h2 id="makeup-heading" class="se-h2">Makeup and SFX</h2>
-
-        <ul class="se-makeup-lines">
-          <li><strong>Staff and performer makeup:</strong> wounds, bruising, fake blood, zombie, vampire, ghost, aging, prosthetics.</li>
-          <li><strong>Guest makeup stations:</strong> corporate parties, hotels, bars, private parties, brand events, members' clubs.</li>
-        </ul>
-
-        <div class="btn-row se-makeup-cta">
-          <a href="#build" class="btn btn-primary">Add makeup to your event</a>
-        </div>
-      </section>
-    </div>
-
-    <!-- ================================================================
-         Halloween events: drinks and food, all optional add-ons
-         ================================================================ -->
-    <section class="section shell" id="drinks-food" aria-labelledby="drinks-food-heading">
-      <h2 id="drinks-food-heading" class="se-h2">Halloween events: drinks and food</h2>
-      <p class="se-caveat">Want more than the team? We can run the whole event, and every part is optional: take one, take all, or bring your own.</p>
-
-      <ul class="se-makeup-lines">
-        <li><strong>You buy the drinks, we run the bar:</strong> bar setup, glassware, ice, mixers, garnishes and themed bartenders.</li>
-        <li><strong>We supply the drinks:</strong> only at venues with a premises licence.</li>
-        <li><strong>Halloween cocktails:</strong> a themed menu, smoking and blood-red serves, mocktails too.</li>
-        <li><strong>Halloween food:</strong> themed canap&eacute;s, bowl food and sweet treats, served in character.</li>
-      </ul>
-
-      <div class="btn-row se-makeup-cta">
-        <a href="#build" class="btn btn-primary">Add drinks or food</a>
-      </div>
-    </section>
-
-    <!-- Rates: the figures are tokens filled from config/pricing.ts as the page is served. -->
-    <section class="section shell" id="rates" aria-labelledby="rates-heading">
-      <h2 id="rates-heading" class="se-h2">Rates</h2>
-
-      <div class="se-rate-grid">
-        <article class="se-rate">
-          <p class="se-rate-tag">Hospitality</p>
-          <h3>Themed hospitality staff</h3>
-          <p class="se-rate-price">
-            <span class="se-rate-figure"><%~ it.t.THEMED_RATE %></span>
-            <span class="se-rate-unit">per hour</span>
-          </p>
-          <p class="se-rate-copy">Waiters, bartenders, runners and hosts, styled to your theme.</p>
-        </article>
-        <article class="se-rate">
-          <p class="se-rate-tag">Performers</p>
-          <h3>Scare actors and character performers</h3>
-          <p class="se-rate-price">
-            <span class="se-rate-figure"><%~ it.t.PERFORMER_RATE %></span>
-            <span class="se-rate-unit">per hour</span>
-          </p>
-          <p class="se-rate-copy">Actors cast for your concept, intensity set to suit.</p>
-        </article>
-        <article class="se-rate">
-          <p class="se-rate-tag">Makeup</p>
-          <h3>Halloween makeup artists</h3>
-          <p class="se-rate-price">
-            <span class="se-rate-figure"><%~ it.t.MAKEUP_RATE %></span>
-            <span class="se-rate-unit">per hour</span>
-          </p>
-          <p class="se-rate-copy">Halloween makeup, character styling and straightforward SFX.</p>
-        </article>
-      </div>
-      <p class="se-rates-invite">Specialist performers, decor and full experiences: quoted on the brief. <%~ it.t.MIN_HOURS %>-hour minimum.</p>
-      <p class="se-caveat">Themed staff wear the look; performers are cast to act.</p>
-      <p class="se-caveat">What a whole night costs, worked through: <a href="/blog/halloween-event-staff-london">Halloween event staff in London</a>.</p>
-      <div class="btn-row se-rates-cta">
-        <a href="#build" class="btn btn-primary">Build your Halloween team</a>
-      </div>
-    </section>
 
     <!-- ================================================================
          Enquiry — posts to the existing quote endpoint as an ENQUIRY.

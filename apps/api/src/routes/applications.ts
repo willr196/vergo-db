@@ -13,6 +13,7 @@ import { env } from '../env';
 import { sendApplicationNotificationEmail, sendApplicationConfirmationToApplicant, sendRosterApprovalEmail, sendRightToWorkRequestEmail } from '../services/email';
 import { summariseChecks } from '../services/rightToWork';
 import { authLogger } from '../services/logger';
+import { groupRoleCounts, roleNamesForLabel } from '../services/roleGroups';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -756,6 +757,8 @@ const listQuerySchema = z.object({
   role: z.string().trim().min(1).max(100).optional(),
   search: z.string().trim().min(1).max(200).optional(),
   location: z.string().trim().min(2).max(100).optional(),
+  // A candidate group id (admin Settings > groups); see adminCandidateGroups.ts.
+  candidateGroup: z.string().trim().min(1).max(40).optional(),
   // The roster is two different lists doing two different jobs: people you are
   // still deciding about, and people who already work for you. `group` picks
   // one. Omitted, you get the old behaviour — everything but rejected.
@@ -838,51 +841,46 @@ r.post('/manual', adminAuth, async (req, res, next) => {
 
 const statsQuerySchema = z.object({
   role: z.string().trim().min(1).max(100).optional(),
+  candidateGroup: z.string().trim().min(1).max(40).optional(),
   search: z.string().trim().min(1).max(200).optional()
 });
 
-function roleNameVariants(roleName: string) {
-  const name = roleName.trim();
-  if (!name) return [];
-
-  // Historical imports contain both singular and plural role names (for
-  // example, "Kitchen Porter" and "Kitchen porters"). Treat those as the
-  // same admin filter while retaining the original role records.
-  const singular = name.replace(/s$/i, '');
-  return [...new Set([singular, singular + 's'])];
+// A role filter is a label ("Bar staff"); match every stored name grouped
+// under it, old wording included. See services/roleGroups.ts.
+async function resolveRoleNames(role?: string) {
+  if (!role) return undefined;
+  const stored = await prisma.role.findMany({ select: { name: true } });
+  const names = roleNamesForLabel(role, stored.map((r) => r.name));
+  return names.length ? names : [role];
 }
 
 const PIPELINE_STATUSES = ['RECEIVED', 'REVIEWING', 'SHORTLISTED'] as const;
 
-function buildApplicationWhere(filters: { status?: string; role?: string; search?: string; group?: 'pipeline' | 'staff'; includeRejected?: boolean }) {
+function buildApplicationWhere(filters: { status?: string; roleNames?: string[]; search?: string; candidateGroup?: string; group?: 'pipeline' | 'staff'; includeRejected?: boolean }) {
   const where: any = {};
   // An explicit status is always narrower than a group, so it wins.
   if (filters.status) where.status = filters.status;
   else if (filters.group === 'staff') where.status = 'HIRED';
   else if (filters.group === 'pipeline') where.status = { in: [...PIPELINE_STATUSES] };
   else if (!filters.includeRejected) where.status = { not: 'REJECTED' };
-  if (filters.role) {
-    where.roles = {
-      some: {
-        role: {
-          name: {
-            in: roleNameVariants(filters.role),
-            mode: 'insensitive'
-          }
-        }
-      }
-    };
+  if (filters.roleNames) {
+    where.roles = { some: { role: { name: { in: filters.roleNames, mode: 'insensitive' } } } };
+  }
+  const applicantConditions: any[] = [];
+  if (filters.candidateGroup) {
+    applicantConditions.push({ groups: { some: { groupId: filters.candidateGroup } } });
   }
   if (filters.search) {
-    where.applicant = {
+    applicantConditions.push({
       OR: [
         { firstName: { contains: filters.search, mode: 'insensitive' } },
         { lastName: { contains: filters.search, mode: 'insensitive' } },
         { email: { contains: filters.search, mode: 'insensitive' } },
         { phone: { contains: filters.search, mode: 'insensitive' } }
       ]
-    };
+    });
   }
+  if (applicantConditions.length) where.applicant = { AND: applicantConditions };
   return where;
 }
 
@@ -1006,9 +1004,15 @@ function shapeApplicationListItem(app: any) {
     cvUploadedAt: app.cvUploadedAt ?? null,
     source: app.source,
     status: app.status,
+    groups: shapeGroups(app.applicant.groups),
     account: shapeRosterAccount(app.applicant.user),
     rightToWork: summariseChecks(app.applicant.rightToWorkChecks ?? [])
   };
+}
+
+function shapeGroups(groups: any[] | undefined) {
+  return (groups || []).map((m: any) => ({ id: m.group.id, name: m.group.name }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 async function shapeApplicationDetail(app: any) {
@@ -1070,6 +1074,7 @@ async function shapeApplicationDetail(app: any) {
       postcode: app.applicant.postcode ?? '',
       preferredJobTypes: splitCommaSeparated(app.applicant.preferredJobTypes)
     },
+    groups: shapeGroups(app.applicant.groups),
     account: shapeRosterAccount(app.applicant.user)
   };
 }
@@ -1077,7 +1082,7 @@ async function shapeApplicationDetail(app: any) {
 r.get('/', adminAuth, async (req, res, next) => {
   try {
     const query = listQuerySchema.parse(req.query);
-    const where = buildApplicationWhere(query);
+    const where = buildApplicationWhere({ ...query, roleNames: await resolveRoleNames(query.role) });
     const orderBy = buildApplicationOrderBy(query.sortCol, query.sortDir) as any;
 
     if (query.location) {
@@ -1091,7 +1096,8 @@ r.get('/', adminAuth, async (req, res, next) => {
           applicant: {
             include: {
               user: { select: { id: true, emailVerified: true, mustChangePassword: true, lastLoginAt: true } },
-              rightToWorkChecks: { select: { outcome: true, expiresAt: true, checkedAt: true, checkedBy: true } }
+              rightToWorkChecks: { select: { outcome: true, expiresAt: true, checkedAt: true, checkedBy: true } },
+              groups: { select: { group: { select: { id: true, name: true } } } }
             }
           },
           roles: { include: { role: true } }
@@ -1135,7 +1141,8 @@ r.get('/', adminAuth, async (req, res, next) => {
               },
               rightToWorkChecks: {
                 select: { outcome: true, expiresAt: true, checkedAt: true, checkedBy: true }
-              }
+              },
+              groups: { select: { group: { select: { id: true, name: true } } } }
             }
           },
           roles: {
@@ -1165,7 +1172,7 @@ r.get('/', adminAuth, async (req, res, next) => {
 r.get('/stats', adminAuth, async (req, res, next) => {
   try {
     const query = statsQuerySchema.parse(req.query);
-    const where = buildApplicationWhere({ role: query.role, search: query.search, includeRejected: true });
+    const where = buildApplicationWhere({ roleNames: await resolveRoleNames(query.role), search: query.search, candidateGroup: query.candidateGroup, includeRejected: true });
 
     const grouped = await prisma.application.groupBy({
       by: ['status'],
@@ -1182,6 +1189,23 @@ r.get('/stats', adminAuth, async (req, res, next) => {
 
     const payload = { total, counts };
     res.json({ ok: true, ...payload, data: payload });
+  } catch (e) { next(e); }
+});
+
+// ============================================
+// ROLE FILTER OPTIONS (ADMIN) — built from the roles people actually applied
+// for, so a reworded apply form shows up in the filters on its own.
+// ?group=pipeline|staff narrows the counts to that list.
+// ============================================
+r.get('/roles', adminAuth, async (req, res, next) => {
+  try {
+    const group = req.query.group === 'staff' ? 'staff' : req.query.group === 'pipeline' ? 'pipeline' : undefined;
+    const where = buildApplicationWhere({ group, includeRejected: true });
+    const roles = await prisma.role.findMany({
+      select: { name: true, _count: { select: { applications: { where: { application: where } } } } }
+    });
+    const options = groupRoleCounts(roles.map((r) => ({ name: r.name, count: r._count.applications })));
+    res.json({ ok: true, roles: options, data: { roles: options } });
   } catch (e) { next(e); }
 });
 
@@ -1257,6 +1281,7 @@ r.get('/:id', adminAuth, async (req, res, next) => {
       include: {
         applicant: {
           include: {
+            groups: { select: { group: { select: { id: true, name: true } } } },
             user: {
               select: {
                 id: true,

@@ -38,7 +38,7 @@
       toast('Failed: ' + e.message, 'error');
       if (resultEl) resultEl.innerHTML = '<div class="alert-error alert">' + esc(e.message) + '</div>';
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Send Push Notification'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Send push notification'; }
     }
   }
 
@@ -71,7 +71,7 @@
       toast('Failed: ' + e.message, 'error');
       if (resultEl) resultEl.innerHTML = '<div class="alert-error alert">' + esc(e.message) + '</div>';
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Send Email Broadcast'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Send email broadcast'; }
     }
   }
 

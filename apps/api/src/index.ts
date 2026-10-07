@@ -51,6 +51,7 @@ import adminStaff from './routes/adminStaff';
 import adminMatching from './routes/adminMatching';
 import adminRightToWork from './routes/adminRightToWork';
 import adminUsers from './routes/adminUsers';
+import adminCandidateGroups from './routes/adminCandidateGroups';
 import adminSiteContent from './routes/adminSiteContent';
 import opsApi from './routes/ops';
 import opsPrint from './routes/ops/print';
@@ -636,6 +637,7 @@ app.use('/api/v1/admin/staff', adminStaff);
 app.use('/api/v1/admin/matching', adminMatching);
 app.use('/api/v1/admin/right-to-work', adminRightToWork);
 app.use('/api/v1/admin/users', adminUsers);
+app.use('/api/v1/admin/candidate-groups', adminCandidateGroups);
 app.use('/api/v1/admin/site-content', adminSiteContent);
 app.use('/api/v1/ops', opsApi);
 

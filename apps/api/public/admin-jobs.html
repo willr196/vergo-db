@@ -16,10 +16,10 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=10">
 </head>
-<body>
+<body class="as-panel">
   <a href="#as-content" class="as-skip-link">Skip to main content</a>
 
   <div class="as-main">
@@ -27,7 +27,7 @@
       <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
       <h1 class="as-topbar-title">Jobs</h1>
       <div class="as-topbar-right">
-        <button class="btn btn-primary btn-sm" data-action="open-create-modal">+ Add Job</button>
+        <button class="btn btn-primary btn-sm" data-action="open-create-modal">+ Add job</button>
       </div>
     </header>
 
@@ -37,7 +37,7 @@
         <div class="pending-banner-text">
           <strong><span id="pending-count">0</span> job(s) awaiting approval</strong>
         </div>
-        <button class="btn btn-warning btn-sm" data-action="filter-pending">Review Now</button>
+        <button class="btn btn-warning btn-sm" data-action="filter-pending">Review now</button>
       </div>
 
       <!-- Filters -->
@@ -45,7 +45,7 @@
         <div class="as-filter-group">
           <label for="filter-status">Status</label>
           <select id="filter-status">
-            <option value="">All Statuses</option>
+            <option value="">All statuses</option>
             <option value="DRAFT">Draft</option>
             <option value="OPEN">Open</option>
             <option value="FILLED">Filled</option>
@@ -55,9 +55,9 @@
         <div class="as-filter-group">
           <label for="filter-type">Type</label>
           <select id="filter-type">
-            <option value="">All Types</option>
+            <option value="">All types</option>
             <option value="INTERNAL">VERGO Jobs</option>
-            <option value="EXTERNAL">External Jobs</option>
+            <option value="EXTERNAL">External jobs</option>
           </select>
         </div>
       </div>
@@ -89,7 +89,7 @@
   <div id="job-modal" class="modal-backdrop d-none">
     <div class="modal modal-lg">
       <div class="modal-header">
-        <h2 id="modal-title">Add New Job</h2>
+        <h2 id="modal-title">Add new job</h2>
         <button class="modal-close" type="button" data-action="close-modal">&#x2715;</button>
       </div>
       <form id="job-form">
@@ -98,7 +98,7 @@
 
           <div class="form-row">
             <div class="form-group full-width">
-              <label class="as-label" for="job-title">Job Title *</label>
+              <label class="as-label" for="job-title">Job title *</label>
               <input id="job-title" type="text" name="title" required placeholder="e.g. Bartender - Corporate Event" class="as-input">
             </div>
           </div>
@@ -113,7 +113,7 @@
             <div class="form-group">
               <label class="as-label" for="job-type">Type *</label>
               <select id="job-type" name="type" required class="as-input">
-                <option value="EXTERNAL">External (Other Company)</option>
+                <option value="EXTERNAL">External (other company)</option>
                 <option value="INTERNAL">Internal (VERGO)</option>
               </select>
             </div>
@@ -121,7 +121,7 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="as-label" for="job-companyname">Company Name</label>
+              <label class="as-label" for="job-companyname">Company name</label>
               <input id="job-companyname" type="text" name="companyName" placeholder="e.g. ABC Events Ltd" class="as-input">
             </div>
             <div class="form-group">
@@ -136,14 +136,14 @@
               <input id="job-venue" type="text" name="venue" placeholder="e.g. The Dorchester Hotel" class="as-input">
             </div>
             <div class="form-group">
-              <label class="as-label" for="job-eventdate">Event Date</label>
+              <label class="as-label" for="job-eventdate">Event date</label>
               <input id="job-eventdate" type="date" name="eventDate" class="as-input">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="as-label" for="job-eventenddate">Event End Date</label>
+              <label class="as-label" for="job-eventenddate">Event end date</label>
               <input id="job-eventenddate" type="date" name="eventEndDate" class="as-input">
               <span class="text-muted fs-sm">Leave blank for a single-day job.</span>
             </div>
@@ -152,33 +152,33 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="as-label" for="job-shiftstart">Shift Start</label>
+              <label class="as-label" for="job-shiftstart">Shift start</label>
               <input id="job-shiftstart" type="time" name="shiftStart" class="as-input">
             </div>
             <div class="form-group">
-              <label class="as-label" for="job-shiftend">Shift End</label>
+              <label class="as-label" for="job-shiftend">Shift end</label>
               <input id="job-shiftend" type="time" name="shiftEnd" class="as-input">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="as-label" for="job-payrate">Pay Rate (£)</label>
+              <label class="as-label" for="job-payrate">Pay rate (£)</label>
               <input id="job-payrate" type="number" name="payRate" step="0.01" min="0" max="1000" placeholder="15.00" class="as-input">
             </div>
             <div class="form-group">
-              <label class="as-label" for="job-paytype">Pay Type</label>
+              <label class="as-label" for="job-paytype">Pay type</label>
               <select id="job-paytype" name="payType" class="as-input">
-                <option value="HOURLY">Per Hour</option>
-                <option value="DAILY">Per Day</option>
-                <option value="FIXED">Fixed Fee</option>
+                <option value="HOURLY">Per hour</option>
+                <option value="DAILY">Per day</option>
+                <option value="FIXED">Fixed fee</option>
               </select>
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="as-label" for="job-staffneeded">Staff Needed (per day)</label>
+              <label class="as-label" for="job-staffneeded">Staff needed (per day)</label>
               <input id="job-staffneeded" type="number" name="staffNeeded" min="1" max="100" value="1" class="as-input">
               <span class="text-muted fs-sm">Applies to every day; adjust individual days below.</span>
             </div>
@@ -209,14 +209,14 @@
           </div>
 
           <div class="form-group">
-            <label class="as-label" for="job-closingdate">Application Deadline</label>
+            <label class="as-label" for="job-closingdate">Application deadline</label>
             <input id="job-closingdate" type="date" name="closingDate" class="as-input">
           </div>
         </div>
 
         <div class="modal-footer">
           <button type="button" class="btn btn-ghost" data-action="close-modal">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="save-btn">Save Job</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">Save job</button>
         </div>
       </form>
     </div>

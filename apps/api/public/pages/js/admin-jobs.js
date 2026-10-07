@@ -74,7 +74,7 @@ let jobs = [];
       const tbody = document.getElementById('jobs-table');
       
       if (jobs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><h3>No jobs yet</h3><p>Click "Add Job" to create your first listing</p></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><h3>No jobs yet</h3><p>Click "Add job" to create your first listing</p></td></tr>';
         return;
       }
       
@@ -141,7 +141,7 @@ let jobs = [];
     // Open create modal
     function openCreateModal() {
       editingId = null;
-      document.getElementById('modal-title').textContent = 'Add New Job';
+      document.getElementById('modal-title').textContent = 'Add new job';
       document.getElementById('job-form').reset();
       document.getElementById('form-alert').innerHTML = '';
       JobStaffing.renderDayPlan();
@@ -154,7 +154,7 @@ let jobs = [];
       if (!job) return;
       
       editingId = id;
-      document.getElementById('modal-title').textContent = 'Edit Job';
+      document.getElementById('modal-title').textContent = 'Edit job';
       document.getElementById('form-alert').innerHTML = '';
       
       const form = document.getElementById('job-form');
@@ -249,7 +249,7 @@ let jobs = [];
         formAlert.innerHTML = `<div class="alert alert-error">${escapeHtml(err.message)}</div>`;
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Save Job';
+        btn.textContent = 'Save job';
       }
     }
     

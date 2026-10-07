@@ -285,6 +285,37 @@
       AdminCore.escapeHtml(message || 'No results found') + '</td></tr>';
   };
 
+  // ── Application status labels ─────────────────────────────────────────
+  // The words the pipeline uses, not the database enum ("RECEIVED" is "New").
+  var APPLICATION_STATUS_LABELS = { RECEIVED: 'New', REVIEWING: 'Reviewing', SHORTLISTED: 'Selected', HIRED: 'Hired', REJECTED: 'Rejected' };
+  AdminCore.applicationStatusLabel = function (status) {
+    return APPLICATION_STATUS_LABELS[status] || status;
+  };
+
+  // ── Role filter options ───────────────────────────────────────────────
+  /**
+   * Fills a role <select> from the roles people actually applied for, grouped
+   * under the apply form's labels, so the filter follows the form's wording.
+   * Keeps the first ("All roles") option and the current choice.
+   * @param {HTMLSelectElement} select
+   * @param {'pipeline'|'staff'} [group]
+   */
+  AdminCore.loadRoleOptions = async function (select, group) {
+    if (!select) return;
+    try {
+      var data = await AdminCore.fetchJSON('/api/v1/applications/roles' + (group ? '?group=' + group : ''));
+      var current = select.value;
+      var first = select.options[0] ? select.options[0].outerHTML : '';
+      select.innerHTML = first + (data.roles || []).map(function (r) {
+        var label = AdminCore.escapeHtml(r.label);
+        return '<option value="' + label + '">' + label + ' (' + r.count + ')</option>';
+      }).join('');
+      select.value = current;
+    } catch (e) {
+      console.error('Role options failed to load', e);
+    }
+  };
+
   // ── Expose globally ───────────────────────────────────────────────────
   window.AdminCore = AdminCore;
 })();

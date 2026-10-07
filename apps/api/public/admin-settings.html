@@ -16,10 +16,10 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=10">
 </head>
-<body>
+<body class="as-panel">
   <a href="#as-content" class="as-skip-link">Skip to main content</a>
 
   <div class="as-main">
@@ -30,31 +30,31 @@
 
     <div class="as-content" id="as-content">
       <div class="as-tabs" id="settings-tabs">
-        <button class="as-tab active" data-tab="account">Account Security</button>
-        <button class="as-tab" data-tab="admins">Admin Users</button>
+        <button class="as-tab active" data-tab="account">Account security</button>
+        <button class="as-tab" data-tab="admins">Admin users</button>
       </div>
 
       <!-- ── Account Security ───────────────────────── -->
       <div id="account-tab" class="tab-content active">
         <div style="max-width:480px">
-          <div class="as-section-hdr"><span class="as-section-title">Change Password</span></div>
+          <div class="as-section-hdr"><span class="as-section-title">Change password</span></div>
           <p class="text-muted fs-sm mb-2">Update the password for your own admin account.</p>
 
           <div class="mb-2">
-            <label class="as-label" for="cp-current">Current Password</label>
+            <label class="as-label" for="cp-current">Current password</label>
             <input type="password" id="cp-current" class="as-input" autocomplete="current-password">
           </div>
           <div class="mb-2">
-            <label class="as-label" for="cp-new">New Password</label>
+            <label class="as-label" for="cp-new">New password</label>
             <input type="password" id="cp-new" class="as-input" autocomplete="new-password">
           </div>
           <div class="mb-2">
-            <label class="as-label" for="cp-confirm">Confirm New Password</label>
+            <label class="as-label" for="cp-confirm">Confirm new password</label>
             <input type="password" id="cp-confirm" class="as-input" autocomplete="new-password">
           </div>
           <p class="text-muted fs-sm mb-2">At least 12 characters, with uppercase, lowercase, and a number.</p>
           <div id="cp-result" class="mb-2"></div>
-          <button class="btn btn-primary" data-action="change-password">Update Password</button>
+          <button class="btn btn-primary" data-action="change-password">Update password</button>
         </div>
       </div>
 
@@ -85,7 +85,7 @@
         </div>
 
         <div style="max-width:480px">
-          <div class="as-section-hdr"><span class="as-section-title">Add Admin</span></div>
+          <div class="as-section-hdr"><span class="as-section-title">Add admin</span></div>
           <div class="mb-2">
             <label class="as-label" for="na-username">Username</label>
             <input type="text" id="na-username" class="as-input" autocomplete="off" maxlength="100">
@@ -96,7 +96,7 @@
           </div>
           <p class="text-muted fs-sm mb-2">At least 12 characters, with uppercase, lowercase, and a number. This is a temporary password — the new admin will be required to set their own on first login.</p>
           <div id="na-result" class="mb-2"></div>
-          <button class="btn btn-primary" data-action="add-admin">Add Admin</button>
+          <button class="btn btn-primary" data-action="add-admin">Add admin</button>
         </div>
       </div>
 

@@ -58,7 +58,7 @@
     if (charts.funnel) charts.funnel.destroy();
     var selectedStatus = ['SHORT', 'LISTED'].join('');
 
-    var labels = funnel.map(function (f) { return f.status === selectedStatus ? 'Selected' : f.status; });
+    var labels = funnel.map(function (f) { return AdminCore.applicationStatusLabel(f.status); });
     var values = funnel.map(function (f) { return f.count; });
     var colors = funnel.map(function (f) {
       if (f.status === 'RECEIVED')   return INFO;
@@ -133,7 +133,7 @@
 
     // Funnel
     AdminCore.exportCSV(
-      lastData.funnel.map(function (f) { return { Status: f.status, Count: f.count }; }),
+      lastData.funnel.map(function (f) { return { Status: AdminCore.applicationStatusLabel(f.status), Count: f.count }; }),
       'analytics-funnel'
     );
   }

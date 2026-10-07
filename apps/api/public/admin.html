@@ -16,10 +16,10 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=7">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=10">
 </head>
-<body>
+<body class="as-panel">
   <a href="#as-content" class="as-skip-link">Skip to main content</a>
 
   <div class="as-main">
@@ -73,6 +73,12 @@
           <span class="as-bulk-count"><span id="app-bulk-count">0</span> selected</span>
           <button class="btn btn-success btn-sm" data-action="bulk-select">Select</button>
           <button class="btn btn-danger-quiet btn-sm" data-action="bulk-reject">Reject</button>
+          <span class="as-bulk-sep" aria-hidden="true"></span>
+          <select id="bulk-group-select" class="as-input as-input-sm" aria-label="Group"></select>
+          <input type="text" id="bulk-group-new" class="as-input as-input-sm d-none" maxlength="80" placeholder="Group name, e.g. Good bartenders" aria-label="New group name">
+          <button class="btn btn-ghost btn-sm" data-action="bulk-group-add">Add to group</button>
+          <button class="btn btn-ghost btn-sm d-none" id="bulk-group-move" data-action="bulk-group-move">Move</button>
+          <button class="btn btn-ghost btn-sm d-none" id="bulk-group-remove" data-action="bulk-group-remove">Remove</button>
           <button class="btn btn-ghost btn-sm" data-action="bulk-clear">Clear</button>
         </div>
 
@@ -91,14 +97,17 @@
             <label for="filter-role">Role</label>
             <select id="filter-role">
               <option value="">All roles</option>
-              <option value="Bartender">Bartender</option>
-              <option value="Barista">Barista</option>
-              <option value="Front of House">Front of House</option>
-              <option value="Waiter">Waiter</option>
-              <option value="Chef">Chef</option>
-              <option value="Kitchen Porter">Kitchen Porter</option>
-              <option value="Runner">Runner</option>
             </select>
+          </div>
+          <div class="as-filter-group">
+            <label for="filter-group">Group</label>
+            <select id="filter-group">
+              <option value="">All groups</option>
+            </select>
+            <span id="filter-group-manage" class="group-manage d-none">
+              <button type="button" class="btn-link" data-action="group-rename" data-select="filter-group">Rename</button>
+              <button type="button" class="btn-link" data-action="group-delete" data-select="filter-group">Delete group</button>
+            </span>
           </div>
           <div class="as-filter-group">
             <label for="filter-search">Search</label>
@@ -157,6 +166,7 @@
 
   <script src="/js/admin-core.js"></script>
   <script src="/js/admin-nav.js"></script>
+  <script src="/js/admin-groups.js"></script>
   <script src="/js/admin-applicant.js"></script>
   <script src="/pages/js/admin-pipeline.js"></script>
 </body>

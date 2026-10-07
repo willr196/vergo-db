@@ -18,7 +18,7 @@
   var rows = [];
   var selectedIds = new Set();
   var sort = { col: 'createdAt', dir: 'desc' };
-  var filters = { status: '', role: '', search: '', location: '' };
+  var filters = { status: '', role: '', group: '', search: '', location: '' };
   var view = 'main'; // rejected applications deliberately live outside the pipeline
   var page = 1;
   var totalPages = 1;
@@ -128,13 +128,19 @@
       params.set('group', 'pipeline');
     }
     if (filters.role) params.set('role', filters.role);
+    if (filters.group) params.set('candidateGroup', filters.group);
     if (filters.search) params.set('search', filters.search);
     if (filters.location) params.set('location', filters.location);
     if (extra) Object.keys(extra).forEach(function (k) { params.set(k, extra[k]); });
     return params;
   }
 
+  // Filters can change while a slower request is still out; only the newest
+  // request may draw the list.
+  var loadSeq = 0;
+
   async function load() {
+    var seq = ++loadSeq;
     try {
       var params = buildParams({
         page: page,
@@ -144,10 +150,13 @@
         sortDir: sort.dir
       });
       var data = await fetch_('/api/v1/applications?' + params.toString());
+      if (seq !== loadSeq) return;
       rows = data.applications || [];
       var total = data.pagination ? data.pagination.total : rows.length;
       totalPages = data.pagination ? data.pagination.totalPages : 1;
-      if (page > totalPages) {
+      // No matches means 0 pages; page 1 is then fine, and reloading it would
+      // loop until the rate limiter locks the whole panel out.
+      if (totalPages > 0 && page > totalPages) {
         page = Math.max(1, totalPages);
         return load();
       }
@@ -163,6 +172,7 @@
     try {
       var params = new URLSearchParams();
       if (filters.role) params.set('role', filters.role);
+      if (filters.group) params.set('candidateGroup', filters.group);
       if (filters.search) params.set('search', filters.search);
       var qs = params.toString();
       var data = await fetch_('/api/v1/applications/stats' + (qs ? '?' + qs : ''));
@@ -218,6 +228,7 @@
             + '<button type="button" class="applicant-link as-stack-title" data-action="open-drawer" data-app-id="' + esc(app.id) + '">' + name + '</button>'
             + '<span class="text-muted fs-sm">' + esc(app.email || '') + '</span>'
             + (app.phone ? '<span class="text-muted fs-sm">' + esc(app.phone) + '</span>' : '')
+            + AdminGroups.pills(app.groups)
           + '</div>'
         + '</td>'
         + '<td>' + AdminApplicant.renderRolePills(app.roles || []) + '</td>'
@@ -267,25 +278,28 @@
     filters = {
       status: status,
       role: document.getElementById('filter-role').value,
+      group: document.getElementById('filter-group').value,
       search: document.getElementById('filter-search').value.trim(),
       location: document.getElementById('filter-location').value.trim()
     };
     page = 1;
     selectedIds.clear();
+    refreshBulkGroups();
     reload();
   }
 
   function clearFilters() {
-    ['filter-status', 'filter-role', 'filter-search', 'filter-location'].forEach(function (id) {
+    ['filter-status', 'filter-role', 'filter-group', 'filter-search', 'filter-location'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.value = '';
     });
     document.querySelectorAll('#app-stats .kpi-card').forEach(function (c) { c.classList.remove('kpi-active'); });
-    filters = { status: '', role: '', search: '', location: '' };
+    filters = { status: '', role: '', group: '', search: '', location: '' };
     view = 'main';
     document.getElementById('rejected-pile-banner').style.display = 'none';
     page = 1;
     selectedIds.clear();
+    refreshBulkGroups();
     reload();
   }
 
@@ -321,6 +335,49 @@
     if (!bar || !count) return;
     count.textContent = selectedIds.size;
     bar.classList.toggle('visible', selectedIds.size > 0);
+  }
+
+  // The group controls in the bulk bar. Built when the groups or the Group
+  // filter change, not on every tick, so a half-made choice isn't wiped.
+  // Filtering by a group adds "Move" and "Remove" for that group.
+  function refreshBulkGroups() {
+    AdminGroups.fillFilter(document.getElementById('filter-group'));
+    var select = document.getElementById('bulk-group-select');
+    if (!select) return;
+    var current = filters.group ? AdminGroups.byId(filters.group) : null;
+    select.innerHTML = AdminGroups.optionsHtml('Choose a group…', true, current && current.id);
+    document.getElementById('bulk-group-new').classList.add('d-none');
+    var move = document.getElementById('bulk-group-move');
+    var out = document.getElementById('bulk-group-remove');
+    move.classList.toggle('d-none', !current);
+    out.classList.toggle('d-none', !current);
+    if (current) {
+      move.textContent = 'Move from ' + current.name;
+      out.textContent = 'Remove from ' + current.name;
+    }
+  }
+
+  async function bulkGroup(mode, btn) {
+    if (!selectedIds.size) return;
+    var ids = Array.from(selectedIds);
+    try {
+      if (mode === 'remove') {
+        var current = AdminGroups.byId(filters.group);
+        if (!current) return;
+        await AdminCore.withLoading(btn, function () { return AdminGroups.removeMembers(current.id, ids); });
+        toast(ids.length + ' removed from ' + current.name, 'success');
+      } else {
+        var groupId = await AdminGroups.chosenGroupId('bulk-group-select', 'bulk-group-new');
+        if (!groupId) return;
+        var from = mode === 'move' ? filters.group : undefined;
+        await AdminCore.withLoading(btn, function () { return AdminGroups.addMembers(groupId, ids, from); });
+        toast(ids.length + (mode === 'move' ? ' moved to ' : ' added to ') + (AdminGroups.byId(groupId) || {}).name, 'success');
+      }
+      selectedIds.clear();
+      updateBulkBar();
+    } catch (e) {
+      toast('Group update failed: ' + e.message, 'error');
+    }
   }
 
   async function bulkUpdateStatus(status, btn) {
@@ -393,6 +450,9 @@
     if (action === 'show-pipeline')      return showPipeline();
     if (action === 'bulk-select')        return bulkUpdateStatus(SELECTED_STATUS, el);
     if (action === 'bulk-reject')        return bulkUpdateStatus('REJECTED', el);
+    if (action === 'bulk-group-add')     return bulkGroup('add', el);
+    if (action === 'bulk-group-move')    return bulkGroup('move', el);
+    if (action === 'bulk-group-remove')  return bulkGroup('remove', el);
     if (action === 'bulk-clear')         { selectedIds.clear(); updateBulkBar(); render(rows.length); return; }
     if (action === 'export-csv')         return exportCsv(el);
     if (action === 'prev-page')          { page--; return load(); }
@@ -431,7 +491,7 @@
     var el = document.getElementById(id);
     if (el) el.addEventListener('input', debounced);
   });
-  ['filter-status', 'filter-role'].forEach(function (id) {
+  ['filter-status', 'filter-role', 'filter-group'].forEach(function (id) {
     var el = document.getElementById(id);
     if (el) el.addEventListener('change', applyFilters);
   });
@@ -461,8 +521,16 @@
     var session = await AdminCore.checkAuth();
     if (!session) return;
 
+    await AdminGroups.load();
+    refreshBulkGroups();
     await AdminApplicant.init({ onChange: reload });
-    await reload();
+    await Promise.all([reload(), AdminCore.loadRoleOptions(document.getElementById('filter-role'), 'pipeline')]);
+    window.addEventListener('admin-groups-changed', function () {
+      // A deleted group can't stay as the filter.
+      if (filters.group && !AdminGroups.byId(filters.group)) filters.group = '';
+      refreshBulkGroups();
+      reload();
+    });
     setInterval(loadStats, REFRESH_INTERVAL);
   }
 

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../prisma";
 import { adminAuth } from "../middleware/adminAuth";
+import { groupRoleCounts } from "../services/roleGroups";
 
 const r = Router();
 r.use(adminAuth);
@@ -50,8 +51,6 @@ r.get("/", async (_req, res, next) => {
       prisma.applicationRole.groupBy({
         by: ["roleId"],
         _count: { applicationId: true },
-        orderBy: { _count: { applicationId: "desc" } },
-        take: 8,
       }),
       // Rolling 12-month taxable turnover from confirmed bookings — computed on
       // page load only (no polling/background job) to stay within the DB's CU-hour budget.
@@ -93,10 +92,15 @@ r.get("/", async (_req, res, next) => {
     const roleNameMap: Record<string, string> = {};
     roles.forEach((r) => { roleNameMap[r.id] = r.name; });
 
-    const topRoles = roleStats.map((r) => ({
-      role: roleNameMap[r.roleId] || r.roleId,
+    // Old and new wording of the same role ("Bartender", "Bar staff") count
+    // as one bar; see services/roleGroups.ts.
+    const topRoles = groupRoleCounts(roleStats.map((r) => ({
+      name: roleNameMap[r.roleId] || r.roleId,
       count: r._count.applicationId,
-    }));
+    })))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8)
+      .map((g) => ({ role: g.label, count: g.count }));
 
     // Applicant funnel
     const funnelOrder = ["RECEIVED", "REVIEWING", "SHORTLISTED", "HIRED", "REJECTED"];

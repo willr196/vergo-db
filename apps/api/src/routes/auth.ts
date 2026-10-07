@@ -74,6 +74,13 @@ async function verifyCredentials(username: string, password: string) {
   return { user, passwordMatches };
 }
 
+// A lock that has run out starts the count again; otherwise the count stays
+// at 5 and the next single typo locks the account for another 30 minutes.
+function priorFailedAttempts(user: { failedAttempts: number; lockedUntil: Date | null }) {
+  if (user.lockedUntil && user.lockedUntil <= new Date()) return 0;
+  return user.failedAttempts || 0;
+}
+
 // ============================================
 // POST /api/v1/auth/login
 // ============================================
@@ -103,7 +110,7 @@ r.post("/login", loginLimiter, async (req, res) => {
     // Handle invalid credentials
     if (!user || !passwordMatches) {
       if (user) {
-        const newFailedAttempts = (user.failedAttempts || 0) + 1;
+        const newFailedAttempts = priorFailedAttempts(user) + 1;
         const shouldLock = newFailedAttempts >= 5;
         
         await prisma.adminUser.update({
@@ -205,7 +212,7 @@ r.post("/force-change-password", loginLimiter, async (req, res) => {
 
     if (!user || !passwordMatches) {
       if (user) {
-        const newFailedAttempts = (user.failedAttempts || 0) + 1;
+        const newFailedAttempts = priorFailedAttempts(user) + 1;
         const shouldLock = newFailedAttempts >= 5;
         await prisma.adminUser.update({
           where: { id: user.id },

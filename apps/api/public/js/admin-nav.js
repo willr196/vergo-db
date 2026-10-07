@@ -18,7 +18,7 @@
     { href: 'admin',                  icon: '📥', label: 'Pipeline' },
     { href: 'admin-staff',            icon: '👤', label: 'Staff' },
     { href: 'admin-jobs',             icon: '💼', label: 'Jobs' },
-    { href: 'admin-job-applications', icon: '📝', label: 'Applications' },
+    { href: 'admin-job-applications', icon: '📝', label: 'Job applications' },
 
     { group: 'Operations' },
     { href: 'ops',                    icon: '🧭', label: 'VERGO Ops' },

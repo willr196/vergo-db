@@ -1068,3 +1068,40 @@ a.se-hub-card:hover, a.se-hub-card:focus-visible {
 .se-makeup-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; max-width: 72ch; }
 .se-makeup-lines li { color: var(--text-secondary); }
 .se-makeup-lines strong { color: var(--text); }
+
+/* ------------------------------------------------------------------ *
+ * Halloween: compact pass. Offers lead the page, so the hero headline,
+ * pumpkin, tier numbers and concept cards give up their room to them.
+ * ------------------------------------------------------------------ */
+body.se-theme-halloween .se-hero h1 {
+  font-size: clamp(32px, 5vw, 58px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+}
+body.se-theme-halloween .se-hero-inner { padding: 64px 40px 56px; }
+@media (min-width: 900px) { body.se-theme-halloween .se-hero-inner { padding: 88px 40px 72px; } }
+@media (max-width: 640px) { body.se-theme-halloween .se-hero-inner { padding: 48px 20px 128px; } }
+body.se-theme-halloween .se-hero { background-size: cover, cover, 200px auto, cover, cover; background-position: center, center, right 7% bottom 36px, center, center bottom; }
+@media (max-width: 900px) { body.se-theme-halloween .se-hero { background-size: cover, cover, 130px auto, cover, cover; } }
+@media (max-width: 640px) { body.se-theme-halloween .se-hero { background-size: cover, cover, 96px auto, cover, cover; background-position: center, center, right 7% bottom 20px, center, center bottom; } }
+body.se-theme-halloween .se-hero .btn-row { margin-top: 24px; }
+
+body.se-theme-halloween .se-involve-grid { margin-top: 28px; gap: 14px; }
+body.se-theme-halloween .se-involve { padding: 22px 22px 18px; }
+body.se-theme-halloween .se-involve-num { font-size: 36px; margin-bottom: 0; }
+body.se-theme-halloween .se-involve h3 { font-size: 22px; margin: 8px 0 6px; }
+body.se-theme-halloween .se-involve-sub { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+/* Concepts: five small tiles in one row on desktop, no flagship banner. */
+body.se-theme-halloween .se-concept-grid { margin-top: 28px; gap: 12px; grid-template-columns: 1fr 1fr; }
+@media (min-width: 700px) { body.se-theme-halloween .se-concept-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1000px) { body.se-theme-halloween .se-concept-grid { grid-template-columns: repeat(5, 1fr); } }
+body.se-theme-halloween .se-concept--feature { grid-column: auto; }
+body.se-theme-halloween .se-concept-media,
+body.se-theme-halloween .se-concept--feature .se-concept-media { aspect-ratio: 16 / 10; }
+body.se-theme-halloween .se-concept-title,
+body.se-theme-halloween .se-concept--feature .se-concept-title { font-size: 18px; line-height: 1.1; padding: 0 12px 10px; }
+body.se-theme-halloween .se-concept-body,
+body.se-theme-halloween .se-concept--feature .se-concept-body { padding: 10px 12px 12px; }
+body.se-theme-halloween .se-concept-chars { font-size: 13px; line-height: 1.4; }

@@ -17,7 +17,7 @@
 
   var rows = [];
   var sort = { col: 'fullName', dir: 'asc' };
-  var filters = { role: '', search: '', location: '', concern: '' };
+  var filters = { role: '', group: '', search: '', location: '', concern: '' };
   var page = 1;
   var totalPages = 1;
   var PAGE_SIZE = 25;
@@ -78,6 +78,7 @@
   function buildParams(extra) {
     var params = new URLSearchParams({ group: 'staff' });
     if (filters.role) params.set('role', filters.role);
+    if (filters.group) params.set('candidateGroup', filters.group);
     if (filters.search) params.set('search', filters.search);
     if (filters.location) params.set('location', filters.location);
     if (extra) Object.keys(extra).forEach(function (k) { params.set(k, extra[k]); });
@@ -99,7 +100,12 @@
     });
   }
 
+  // Filters can change while a slower request is still out; only the newest
+  // request may draw the list.
+  var loadSeq = 0;
+
   async function load() {
+    var seq = ++loadSeq;
     try {
       var params = buildParams({
         page: page,
@@ -108,10 +114,13 @@
         sortDir: sort.dir
       });
       var data = await fetch_('/api/v1/applications?' + params.toString());
+      if (seq !== loadSeq) return;
       rows = data.applications || [];
       var total = data.pagination ? data.pagination.total : rows.length;
       totalPages = data.pagination ? data.pagination.totalPages : 1;
-      if (page > totalPages) {
+      // No matches means 0 pages; page 1 is then fine, and reloading it would
+      // loop until the rate limiter locks the whole panel out.
+      if (totalPages > 0 && page > totalPages) {
         page = Math.max(1, totalPages);
         return load();
       }
@@ -184,6 +193,7 @@
             + '<button type="button" class="applicant-link as-stack-title" data-action="open-drawer" data-app-id="' + esc(app.id) + '">' + name + '</button>'
             + '<span class="text-muted fs-sm">' + esc(app.email || '') + '</span>'
             + (app.phone ? '<span class="text-muted fs-sm">' + esc(app.phone) + '</span>' : '')
+            + AdminGroups.pills(app.groups)
           + '</div>'
         + '</td>'
         + '<td>' + AdminApplicant.renderRolePills(app.roles || []) + '</td>'
@@ -217,6 +227,7 @@
   function applyFilters() {
     filters = {
       role: document.getElementById('filter-role').value,
+      group: document.getElementById('filter-group').value,
       search: document.getElementById('filter-search').value.trim(),
       location: document.getElementById('filter-location').value.trim(),
       concern: filters.concern
@@ -226,11 +237,12 @@
   }
 
   function clearFilters() {
-    ['filter-role', 'filter-search', 'filter-location'].forEach(function (id) {
+    ['filter-role', 'filter-group', 'filter-search', 'filter-location'].forEach(function (id) {
       document.getElementById(id).value = '';
     });
     document.querySelectorAll('#staff-stats .kpi-card').forEach(function (c) { c.classList.remove('kpi-active'); });
-    filters = { role: '', search: '', location: '', concern: '' };
+    filters = { role: '', group: '', search: '', location: '', concern: '' };
+    AdminGroups.fillFilter(document.getElementById('filter-group'));
     page = 1;
     reload();
   }
@@ -302,6 +314,10 @@
     document.getElementById(id).addEventListener('input', debounced);
   });
   document.getElementById('filter-role').addEventListener('change', applyFilters);
+  document.getElementById('filter-group').addEventListener('change', function () {
+    applyFilters();
+    AdminGroups.fillFilter(document.getElementById('filter-group'));
+  });
 
   // Stat cards narrow the list to whatever they are counting.
   document.getElementById('staff-stats').addEventListener('click', function (e) {
@@ -325,8 +341,15 @@
     var session = await AdminCore.checkAuth();
     if (!session) return;
 
+    await AdminGroups.load();
+    AdminGroups.fillFilter(document.getElementById('filter-group'));
     await AdminApplicant.init({ onChange: reload });
-    await reload();
+    await Promise.all([reload(), AdminCore.loadRoleOptions(document.getElementById('filter-role'), 'staff')]);
+    window.addEventListener('admin-groups-changed', function () {
+      AdminGroups.fillFilter(document.getElementById('filter-group'));
+      filters.group = document.getElementById('filter-group').value;
+      reload();
+    });
   }
 
   window.addEventListener('load', init);
