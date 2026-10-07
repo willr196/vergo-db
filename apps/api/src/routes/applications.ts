@@ -1488,6 +1488,90 @@ r.delete('/:id', adminAuth, async (req, res, next) => {
 });
 
 // ============================================
+// DELETE PERSON (ADMIN)
+// ============================================
+// Removes someone entirely: every application and CV, their worker login and
+// profile, and their candidate record. Meant for people hired by mistake or
+// who never started. Nothing is emailed. Refused while they have anything we
+// must keep or that would silently vanish with them: right-to-work checks,
+// issued documents, bookings, worked or confirmed shifts, payments, direct-hire
+// records. Those people stay on the roster (reject or deactivate them instead).
+r.delete('/:id/person', adminAuth, async (req, res, next) => {
+  try {
+    const app = await prisma.application.findUnique({
+      where: { id: req.params.id },
+      select: {
+        applicant: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            applications: { select: { id: true, cvKey: true } },
+            user: { select: { id: true } },
+            _count: { select: { rightToWorkChecks: true } }
+          }
+        }
+      }
+    });
+    if (!app) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+    const applicant = app.applicant;
+    const userId = applicant.user?.id ?? null;
+
+    const blockers: string[] = [];
+    if (applicant._count.rightToWorkChecks) blockers.push(`${applicant._count.rightToWorkChecks} right-to-work check(s)`);
+    if (userId) {
+      const [bookings, templates, assignments, confirmed, documents, payments, directHire] = await Promise.all([
+        prisma.booking.count({ where: { staffId: userId } }),
+        prisma.bookingTemplate.count({ where: { staffId: userId } }),
+        prisma.jobAssignment.count({ where: { userId } }),
+        prisma.jobApplication.count({ where: { userId, status: 'CONFIRMED' } }),
+        prisma.workerDocument.count({ where: { userId } }),
+        prisma.historicPayment.count({ where: { userId } }),
+        prisma.directHireTracking.count({ where: { userId } })
+      ]);
+      if (bookings) blockers.push(`${bookings} booking(s)`);
+      if (templates) blockers.push(`${templates} repeat-booking template(s)`);
+      if (assignments) blockers.push(`${assignments} shift assignment(s)`);
+      if (confirmed) blockers.push(`${confirmed} confirmed shift application(s)`);
+      if (documents) blockers.push(`${documents} issued document(s)`);
+      if (payments) blockers.push(`${payments} payment record(s)`);
+      if (directHire) blockers.push(`${directHire} direct-hire record(s)`);
+    }
+    if (blockers.length) {
+      return res.status(409).json({
+        error: `${applicant.firstName} ${applicant.lastName} has ${blockers.join(', ')}, so they can't be deleted. Reject them or mark them inactive instead.`
+      });
+    }
+
+    const applicationIds = applicant.applications.map((a) => a.id);
+    await prisma.$transaction(async (tx) => {
+      if (userId) {
+        await tx.workerProfile.deleteMany({ where: { userId } });
+        await tx.emailPreferences.deleteMany({ where: { userId } });
+        // Tokens, shift applications, invites, availability, saved jobs and
+        // document links cascade with the user.
+        await tx.user.delete({ where: { id: userId } });
+      }
+      await tx.application.deleteMany({ where: { applicantId: applicant.id } });
+      await tx.fileUploadVerification.deleteMany({ where: { applicantId: applicant.id } });
+      await tx.applicant.delete({ where: { id: applicant.id } });
+    });
+
+    const cvKeys = [...new Set(applicant.applications.map((a) => a.cvKey).filter((k): k is string => Boolean(k)))];
+    for (const key of cvKeys) {
+      deleteStoredCv(key).catch((err) => console.error('[CV] delete after person delete:', err));
+    }
+
+    const adminUsername = (req.session as any)?.username || "admin";
+    authLogger.info({ action: 'person_deleted', admin: adminUsername, applicantId: applicant.id, userId, applicationIds }, 'Admin deleted person');
+
+    res.json({ ok: true, id: applicant.id, data: { id: applicant.id, deleted: true } });
+  } catch (e) { next(e); }
+});
+
+// ============================================
 // SEND ROSTER LOGIN EMAIL (ADMIN)
 // ============================================
 r.post('/:id/roster-approval-email', adminAuth, async (req, res, next) => {

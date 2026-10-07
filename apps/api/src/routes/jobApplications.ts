@@ -22,9 +22,10 @@ const applySchema = z.object({
 const updateStatusSchema = z.object({
   status: z.enum(["PENDING", "REVIEWED", "SHORTLISTED", "CONFIRMED", "REJECTED", "WITHDRAWN"]),
   // Admins often move an application to REJECTED for their own bookkeeping — a
-  // duplicate, a mistake, someone they have already spoken to — and telling the
-  // worker would be noise at best. Defaults true so existing callers are unchanged.
-  notifyApplicant: z.boolean().optional().default(true)
+  // duplicate, a mistake, someone they have already spoken to. A rejection is
+  // only emailed when the caller explicitly asks; confirmations still email by
+  // default.
+  notifyApplicant: z.boolean().optional()
 });
 
 type StatusChangeContext = {
@@ -266,7 +267,9 @@ r.get("/:id", adminAuth, async (req, res, next) => {
 // ADMIN: Update status
 r.patch("/:id/status", adminAuth, async (req, res, next) => {
   try {
-    const { status, notifyApplicant } = updateStatusSchema.parse(req.body);
+    const parsedStatus = updateStatusSchema.parse(req.body);
+    const status = parsedStatus.status;
+    const notifyApplicant = parsedStatus.notifyApplicant ?? status !== "REJECTED";
     
     const application = await prisma.jobApplication.findUnique({
       where: { id: req.params.id },

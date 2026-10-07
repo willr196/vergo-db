@@ -410,7 +410,9 @@
         : '<button class="btn btn-ghost btn-sm" data-action="open-cv" data-app-id="' + esc(detail.id) + '" data-cv-url="' + esc(detail.cvKey || '') + '">Open CV</button>')
       + renderStatusActions(detail.id, detail.status)
       + renderRosterLoginEmailAction(detail.id, detail.status, detail.account)
-      + '<button class="btn btn-danger-quiet btn-sm" data-action="delete-application" data-app-id="' + esc(detail.id) + '">Delete</button>';
+      + (detail.status === 'HIRED'
+        ? '<button class="btn btn-danger-quiet btn-sm" data-action="delete-person" data-app-id="' + esc(detail.id) + '">Delete person</button>'
+        : '<button class="btn btn-danger-quiet btn-sm" data-action="delete-application" data-app-id="' + esc(detail.id) + '">Delete</button>');
 
     wireDrawerNotesAutoSave(detail.id, notesValue);
     loadRightToWork(applicant.id, detail.status);
@@ -809,6 +811,24 @@
     }
   }
 
+  // Removes a hired person entirely: applications, CV, worker login and
+  // candidate record. No email is sent. The server refuses if they have
+  // right-to-work checks, documents, bookings or shifts on record.
+  async function deletePerson(appId) {
+    var app = findApplication(appId);
+    var applicantName = app ? (app.firstName + ' ' + app.lastName).trim() : 'this person';
+    if (!confirm('Delete ' + applicantName + ' completely?\n\nThis removes them from the roster with their applications, CV and worker login. Nothing is emailed to them. It cannot be undone.')) return;
+
+    try {
+      await fetch_('/api/v1/applications/' + appId + '/person', { method: 'DELETE' });
+      notify(applicantName + ' deleted', 'success');
+      closeDrawer();
+      await onChange();
+    } catch (e) {
+      AdminCore.notify(e.message, 'error', 9000);
+    }
+  }
+
   async function sendRosterLoginEmail(appId) {
     var app = findApplication(appId);
     var applicantName = app ? (app.firstName + ' ' + app.lastName).trim() : 'this applicant';
@@ -929,6 +949,7 @@
     if (action === 'update-status')      return updateStatus(el.dataset.appId, el.dataset.status);
     if (action === 'send-roster-login')  return sendRosterLoginEmail(el.dataset.appId);
     if (action === 'delete-application') return deleteApplication(el.dataset.appId);
+    if (action === 'delete-person')      return deletePerson(el.dataset.appId);
     if (action === 'save-notes')         return saveNotes(el.dataset.appId);
     if (action === 'open-rtw-modal')     return openRtwModal(el.dataset.applicantId);
     if (action === 'close-rtw-modal')    return AdminCore.closeModal('rtw-modal');
