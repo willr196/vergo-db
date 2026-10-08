@@ -182,7 +182,29 @@ Booking > assignment > **Confirmation doc**: hirer, nature of business, date,
 expected duration, position, duties, location, hours, breaks, pay rate,
 expenses/travel, dress, requirements, H&S risks and controls, on-site and VERGO
 contacts. Issue time recorded (`ASSIGNMENT_CONFIRMATION_ISSUED`); the worker
-sees it through their link.
+sees it through their link, and in the app on the shift.
+
+### In the worker app
+
+A worker signed in to the VERGO app sees the same things as their secure link,
+without needing it:
+
+- **Profile > My documents** (also a prompt on Shifts while anything is
+  waiting): read the KID and confirm it, then read and agree the agreement by
+  ticking the statement and typing their name. Same rules and same service as
+  the link (`acknowledgeKid` / `acceptAgreement`); the evidence records
+  channel `app`, the signed-in user, IP and device. API:
+  `/api/v1/mobile/documents` (`src/routes/mobileDocuments.ts`).
+- **A shift offered from Ops** shows the role, dress code, what to bring,
+  breaks, travel contribution, on-site contact (tap to call), VERGO lead,
+  duties, H&S risks and controls, the running order and the assignment
+  confirmation. Never the charge rate or anything about other workers.
+- **Accepting or declining** in the app writes `ASSIGNMENT_CHANGED` (by the
+  worker's name, "in the app") and moves the booking between Confirmed /
+  Staffing / Fully staffed, the same as the office doing it.
+- A worker who has an agreement **issued but not agreed** cannot accept an Ops
+  shift until they agree it; the app sends them to My documents. With no
+  agreement issued it is the office's call, made when offering.
 
 ## Bookings and assignments
 
@@ -312,7 +334,8 @@ and paid. It also covers moving and cancelling bookings, replacing a worker,
 overrides, RTW refusals, the dashboard, AWR, direct hire, every CSV export, the
 payroll CSV import, settings, leads, the rota, and that nothing answers without
 an admin session. `opsDocuments.test.ts` covers the KID, agreement and Terms
-links; `opsDesktop.test.ts` the desktop import. They truncate tables, so they
+links; `opsWorkerApp.test.ts` the worker app (documents agreed in the app, shift
+details, accepting and declining); `opsDesktop.test.ts` the desktop import. They truncate tables, so they
 refuse any database that is not local with "test" in its name.
 
 **Demo data.** `npm run seed:ops-demo` adds, through the real Ops API, eight

@@ -17,6 +17,7 @@ export { authApi } from './auth';
 export { jobsApi } from './jobs';
 export { applicationsApi } from './applications';
 export { shiftsApi } from './shifts';
+export { documentsApi } from './documents';
 export type { ShiftListResponse } from './shifts';
 
 // NEW: Client API for quotes-based dashboard

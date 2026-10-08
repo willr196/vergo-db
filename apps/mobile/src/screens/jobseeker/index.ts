@@ -12,3 +12,5 @@ export { ShiftDetailScreen } from './ShiftDetailScreen';
 export { ProfileScreen } from './ProfileScreen';
 export { EditProfileScreen } from './EditProfileScreen';
 export { ApplyToJobScreen } from './ApplyToJobScreen';
+export { MyDocumentsScreen } from './MyDocumentsScreen';
+export { WorkerDocumentScreen } from './WorkerDocumentScreen';

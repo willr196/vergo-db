@@ -109,12 +109,12 @@ async function performTokenRefresh(): Promise<string> {
 
 async function handleRefreshFailure(refreshError: unknown): Promise<never> {
   logger.warn('Token refresh failed:', refreshError);
-  const formattedRefreshError = axios.isAxiosError(refreshError)
+  const formattedRefreshError: ApiError = axios.isAxiosError(refreshError)
     ? formatError(refreshError)
-    : {
+    : toApiError({
         message: refreshError instanceof Error ? refreshError.message : 'Token refresh failed',
         code: 'TOKEN_REFRESH_FAILED',
-      };
+      });
   const isRefreshTokenReplay = formattedRefreshError.code === 'REFRESH_TOKEN_REUSE_DETECTED';
   const forceLogout =
     (coerceBoolean(formattedRefreshError.forceLogout) ?? false) ||
@@ -135,11 +135,14 @@ async function handleRefreshFailure(refreshError: unknown): Promise<never> {
     });
   }
 
-  return Promise.reject({
-    ...formattedRefreshError,
+  return Promise.reject(toApiError({
+    message: formattedRefreshError.message,
+    code: formattedRefreshError.code,
+    status: formattedRefreshError.status,
+    details: formattedRefreshError.details,
     forceLogout,
     reauthRequired: forceLogout || formattedRefreshError.reauthRequired,
-  } as ApiError);
+  }));
 }
 
 // Response interceptor - handle errors and token refresh
@@ -204,7 +207,7 @@ function reportApiFailure(error: AxiosError): void {
 }
 
 // Error formatting
-export interface ApiError {
+export interface ApiError extends Error {
   message: string;
   code?: string;
   status?: number;
@@ -213,32 +216,39 @@ export interface ApiError {
   forceLogout?: boolean;
 }
 
+// A real Error carrying the API's fields, so screens that check
+// `instanceof Error` show the server's message ("Only pending shifts can be
+// confirmed") rather than their generic fallback.
+function toApiError(fields: Omit<ApiError, 'name'>): ApiError {
+  return Object.assign(new Error(fields.message), fields) as ApiError;
+}
+
 function formatError(error: AxiosError): ApiError {
   if (error.response) {
     // Server responded with error
     const data = error.response.data as Record<string, unknown>;
     const code = data.code as string | undefined;
     const isRefreshTokenReplay = code === 'REFRESH_TOKEN_REUSE_DETECTED';
-    return {
+    return toApiError({
       message: (data.message as string) || (data.error as string) || 'An error occurred',
       code,
       status: error.response.status,
       details: data.details as Record<string, unknown>,
       reauthRequired: (coerceBoolean(data.reauthRequired) ?? false) || isRefreshTokenReplay,
       forceLogout: (coerceBoolean(data.forceLogout) ?? false) || isRefreshTokenReplay,
-    };
+    });
   } else if (error.request) {
     // Request made but no response
-    return {
+    return toApiError({
       message: 'Network error. Please check your connection.',
       code: 'NETWORK_ERROR',
-    };
+    });
   } else {
     // Request setup error
-    return {
+    return toApiError({
       message: error.message || 'An unexpected error occurred',
       code: 'REQUEST_ERROR',
-    };
+    });
   }
 }
 

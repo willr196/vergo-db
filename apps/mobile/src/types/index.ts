@@ -316,6 +316,74 @@ export interface Shift {
     companyName: string;
     contactName: string;
   };
+  role?: string | null;
+  /// Set when the office offered this shift through VERGO Ops.
+  ops?: ShiftOpsDetails | null;
+}
+
+export interface RunningOrderItem {
+  id: string;
+  time: string | null;
+  title: string;
+  assignee: string | null;
+  notes: string | null;
+}
+
+export interface ShiftOpsDetails {
+  reference: string;
+  eventType: string | null;
+  address: string | null;
+  bookingStatus: string;
+  onSiteContact: { name: string | null; phone: string | null } | null;
+  vergoLead: string | null;
+  breakMins: number | null;
+  dressCode: string | null;
+  equipment: string | null;
+  duties: string | null;
+  healthSafetyRisks: string | null;
+  riskControls: string | null;
+  breakInfo: string | null;
+  requiredExperience: string | null;
+  travelContribution: number | null;
+  /// Detail screen only.
+  runningOrder?: RunningOrderItem[];
+  confirmationDocumentId?: string | null;
+}
+
+// ============================================
+// Worker documents (VERGO Ops)
+// ============================================
+
+export interface WorkerDocumentsSummary {
+  kid: { id: string; version: number; issuedAt: string; acknowledgedAt: string | null } | null;
+  agreement: {
+    id: string;
+    version: number;
+    issuedAt: string;
+    acceptedAt: string | null;
+    acceptedName: string | null;
+    /// The version this one replaces once agreed, if one was agreed before.
+    replacesVersion: number | null;
+  } | null;
+  confirmations: { id: string; issuedAt: string; date: string | null; start: string | null; role: string | null; venue: string | null }[];
+  toDo: number;
+  statements: { kidAcknowledgement: string; agreement: string };
+}
+
+export type WorkerDocumentType = 'KEY_INFORMATION_DOCUMENT' | 'ZERO_HOURS_AGREEMENT' | 'ASSIGNMENT_CONFIRMATION';
+
+export interface WorkerDocumentDetail {
+  id: string;
+  type: WorkerDocumentType;
+  title: string;
+  version: number;
+  status: 'ISSUED' | 'ACCEPTED' | 'SUPERSEDED';
+  issuedAt: string;
+  acknowledgedAt: string | null;
+  acceptedAt: string | null;
+  acceptedName: string | null;
+  /// Plain text: "# " and "## " headings, "- " list items, blank lines between paragraphs.
+  body: string;
 }
 
 // ============================================
@@ -390,6 +458,8 @@ export type RootStackParamList = {
   ApplicationDetail: { applicationId: string };
   ShiftDetail: { shiftId: string };
   EditProfile: undefined;
+  MyDocuments: undefined;
+  WorkerDocument: { documentId: string };
 
   // Client
   ClientTabs: NavigatorScreenParams<ClientTabParamList> | undefined;

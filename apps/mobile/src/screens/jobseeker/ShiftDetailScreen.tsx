@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Modal, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Linking, Modal, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { shiftsApi } from '../../api';
@@ -41,7 +41,18 @@ export function ShiftDetailScreen({ navigation, route }: Props) {
       { text: 'Confirm shift', onPress: async () => {
         setConfirming(true);
         try { setShift(await shiftsApi.confirmShift(shiftId)); }
-        catch (confirmError) { Alert.alert('Could not confirm', confirmError instanceof Error ? confirmError.message : 'Please try again.'); }
+        catch (confirmError) {
+          const message = confirmError instanceof Error ? confirmError.message : 'Please try again.';
+          // An agreement waiting to be agreed: offer the way straight there.
+          if ((confirmError as { code?: string }).code === 'AGREEMENT_PENDING') {
+            Alert.alert('Agreement needed first', message, [
+              { text: 'Not now', style: 'cancel' },
+              { text: 'Open my documents', onPress: () => navigation.navigate('MyDocuments') },
+            ]);
+          } else {
+            Alert.alert('Could not confirm', message);
+          }
+        }
         finally { setConfirming(false); }
       } },
     ]);
@@ -105,6 +116,7 @@ export function ShiftDetailScreen({ navigation, route }: Props) {
         {shift.status === 'REJECTED' && shift.rejectionReason && <View style={styles.cancellationCard}><Text style={styles.cancellationTitle}>Your decline note</Text><Text style={styles.cancellationText}>{shift.rejectionReason}</Text></View>}
         <View style={styles.section}><Text style={styles.eventName}>{shift.eventName || 'Event shift'}</Text><Text style={styles.company}>{shift.client.companyName}</Text><DetailRow icon="📅" label="Date" value={formatDate(shift.eventDate)} /><DetailRow icon="⏰" label="Time" value={`${formatTime(shift.shiftStart)} – ${formatTime(shift.shiftEnd)}`} /><DetailRow icon="📍" label="Location" value={`${shift.venue ? `${shift.venue}, ` : ''}${shift.location}`} /><DetailRow icon="👤" label="Contact" value={shift.client.contactName} /></View>
         <View style={styles.section}><Text style={styles.sectionTitle}>Pay</Text><DetailRow icon="💷" label="Rate" value={shift.staffPayRate != null ? `£${shift.staffPayRate.toFixed(2)} per hour` : 'To be confirmed'} />{shift.expectedPay != null && <DetailRow icon="✨" label="Estimated pay" value={`£${shift.expectedPay.toFixed(2)}`} />}</View>
+        {shift.ops && <OpsDetails shift={shift} onOpenDocument={(documentId) => navigation.navigate('WorkerDocument', { documentId })} />}
         {shift.clientNotes && <View style={styles.section}><Text style={styles.sectionTitle}>Shift instructions</Text><Text style={styles.notes}>{shift.clientNotes}</Text></View>}
         {hasAttendance && (
           <View style={styles.section}>
@@ -132,6 +144,66 @@ export function ShiftDetailScreen({ navigation, route }: Props) {
   );
 }
 
+/**
+ * What the office set on a VERGO Ops booking: the role, what to wear and
+ * bring, breaks, who to ask for, the job and its risks, and the running order.
+ * Only the parts that were filled in are shown.
+ */
+function OpsDetails({ shift, onOpenDocument }: { shift: Shift; onOpenDocument: (documentId: string) => void }) {
+  const ops = shift.ops!;
+  const breaks = ops.breakInfo || (ops.breakMins ? `${ops.breakMins} minutes, unpaid` : null);
+  const contact = ops.onSiteContact;
+  const runningOrder = ops.runningOrder ?? [];
+  return (
+    <>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>On the day</Text>
+        {shift.role && <DetailRow icon="🧑‍🍳" label="Role" value={shift.role} />}
+        {ops.dressCode && <DetailRow icon="👔" label="Dress code" value={ops.dressCode} />}
+        {ops.equipment && <DetailRow icon="🎒" label="Bring" value={ops.equipment} />}
+        {breaks && <DetailRow icon="☕" label="Breaks" value={breaks} />}
+        {ops.travelContribution != null && ops.travelContribution > 0 && <DetailRow icon="🚆" label="Travel" value={`£${ops.travelContribution.toFixed(2)} towards travel`} />}
+        {contact && (
+          <TouchableOpacity disabled={!contact.phone} onPress={() => contact.phone && Linking.openURL(`tel:${contact.phone.replace(/s+/g, '')}`)} accessibilityRole={contact.phone ? 'link' : undefined}>
+            <DetailRow icon="📞" label="Ask for on site" value={[contact.name, contact.phone].filter(Boolean).join(', ')} />
+          </TouchableOpacity>
+        )}
+        {ops.vergoLead && <DetailRow icon="⭐" label="VERGO lead" value={ops.vergoLead} />}
+        {ops.requiredExperience && <DetailRow icon="📋" label="Experience needed" value={ops.requiredExperience} />}
+        <Text style={styles.reference}>Booking {ops.reference}</Text>
+      </View>
+      {ops.duties && <View style={styles.section}><Text style={styles.sectionTitle}>The job</Text><Text style={styles.notes}>{ops.duties}</Text></View>}
+      {(ops.healthSafetyRisks || ops.riskControls) && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Health and safety</Text>
+          {ops.healthSafetyRisks && <DetailRow icon="⚠️" label="Risks" value={ops.healthSafetyRisks} />}
+          {ops.riskControls && <DetailRow icon="🛡️" label="How they are controlled" value={ops.riskControls} />}
+        </View>
+      )}
+      {runningOrder.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Running order</Text>
+          {runningOrder.map((item) => (
+            <View key={item.id} style={styles.roRow}>
+              <Text style={styles.roTime}>{item.time ?? '—'}</Text>
+              <View style={styles.rowCopy}>
+                <Text style={styles.roTitle}>{item.title}</Text>
+                {(item.assignee || item.notes) && <Text style={styles.roNotes}>{[item.assignee, item.notes].filter(Boolean).join(' · ')}</Text>}
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+      {ops.confirmationDocumentId && (
+        <TouchableOpacity style={[styles.section, styles.linkRow]} onPress={() => onOpenDocument(ops.confirmationDocumentId!)} accessibilityRole="button">
+          <Text style={styles.linkText}>Your assignment confirmation</Text>
+          <Text style={styles.linkChevron}>›</Text>
+        </TouchableOpacity>
+      )}
+    </>
+  );
+}
+
 function DetailRow({ icon, label, value }: { icon: string; label: string; value: string }) { return <View style={styles.row}><Text style={styles.rowIcon}>{icon}</Text><View style={styles.rowCopy}><Text style={styles.rowLabel}>{label}</Text><Text style={styles.rowValue}>{value}</Text></View></View>; }
 
 const styles = StyleSheet.create({
@@ -141,7 +213,15 @@ const styles = StyleSheet.create({
   statusCard: { backgroundColor: colors.successSoft, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.lg }, pendingCard: { backgroundColor: colors.warningSoft }, declinedCard: { backgroundColor: colors.errorSoft }, statusTitle: { color: colors.textPrimary, fontSize: typography.fontSize.lg, fontWeight: '700' as const, textTransform: 'capitalize' }, statusText: { color: colors.textSecondary, fontSize: typography.fontSize.sm, marginTop: spacing.xs },
   cancellationCard: { backgroundColor: colors.warningSoft, borderWidth: 1, borderColor: colors.warning, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.lg }, cancellationTitle: { color: colors.textPrimary, fontSize: typography.fontSize.md, fontWeight: '700' as const }, cancellationText: { color: colors.textSecondary, fontSize: typography.fontSize.sm, lineHeight: 21, marginTop: spacing.xs },
   section: { backgroundColor: colors.surfaceStrong, borderWidth: 1, borderColor: colors.surfaceBorder, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md }, eventName: { color: colors.textPrimary, fontSize: typography.fontSize.xl, fontWeight: '700' as const }, company: { color: colors.textSecondary, fontSize: typography.fontSize.md, marginTop: spacing.xs, marginBottom: spacing.lg }, sectionTitle: { color: colors.textPrimary, fontSize: typography.fontSize.md, fontWeight: '700' as const, marginBottom: spacing.sm }, notes: { color: colors.textSecondary, fontSize: typography.fontSize.md, lineHeight: 23 },
-  row: { flexDirection: 'row', paddingVertical: spacing.sm }, rowIcon: { width: 30, fontSize: typography.fontSize.md }, rowCopy: { flex: 1 }, rowLabel: { color: colors.textMuted, fontSize: typography.fontSize.xs }, rowValue: { color: colors.textPrimary, fontSize: typography.fontSize.md, marginTop: 2 }, footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: spacing.lg, paddingBottom: spacing.xl, backgroundColor: colors.background, borderTopWidth: 1, borderTopColor: colors.surfaceBorder }, declineButton: { alignItems: 'center', marginTop: spacing.md, paddingVertical: spacing.xs }, declineButtonText: { color: colors.error, fontSize: typography.fontSize.md, fontWeight: '700' as const }, modalOverlay: { flex: 1, justifyContent: 'center', padding: spacing.lg, backgroundColor: 'rgba(0, 0, 0, 0.45)' }, modalCard: { backgroundColor: colors.surfaceStrong, borderRadius: borderRadius.lg, padding: spacing.lg }, modalTitle: { color: colors.textPrimary, fontSize: typography.fontSize.xl, fontWeight: '700' as const }, modalCopy: { color: colors.textSecondary, fontSize: typography.fontSize.sm, lineHeight: 20, marginTop: spacing.sm }, reasonInput: { minHeight: 112, marginTop: spacing.md, padding: spacing.md, color: colors.textPrimary, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.surfaceBorder, borderRadius: borderRadius.md, fontSize: typography.fontSize.md }, characterCount: { alignSelf: 'flex-end', color: colors.textMuted, fontSize: typography.fontSize.xs, marginTop: spacing.xs }, modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.lg, marginTop: spacing.lg }, cancelAction: { color: colors.textSecondary, fontSize: typography.fontSize.md, fontWeight: '600' as const }, footerHint: { color: colors.textMuted, fontSize: typography.fontSize.xs, textAlign: 'center', marginTop: spacing.sm }, attendanceHint: { color: colors.textSecondary, fontSize: typography.fontSize.sm, lineHeight: 20, marginTop: spacing.sm }, confirmAction: { color: colors.primary, fontSize: typography.fontSize.md, fontWeight: '700' as const }, confirmDeclineAction: { color: colors.error, fontSize: typography.fontSize.md, fontWeight: '700' as const },
+  row: { flexDirection: 'row', paddingVertical: spacing.sm },
+  reference: { color: colors.textMuted, fontSize: typography.fontSize.xs, marginTop: spacing.sm },
+  roRow: { flexDirection: 'row', paddingVertical: spacing.sm, borderTopWidth: 1, borderTopColor: colors.surfaceBorder },
+  roTime: { width: 56, color: colors.textPrimary, fontSize: typography.fontSize.md, fontWeight: '700' as const, fontVariant: ['tabular-nums'] },
+  roTitle: { color: colors.textPrimary, fontSize: typography.fontSize.md },
+  roNotes: { color: colors.textSecondary, fontSize: typography.fontSize.sm, marginTop: 2 },
+  linkRow: { flexDirection: 'row', alignItems: 'center' },
+  linkText: { flex: 1, color: colors.primaryDark, fontSize: typography.fontSize.md, fontWeight: '700' as const },
+  linkChevron: { color: colors.textMuted, fontSize: typography.fontSize.xl }, rowIcon: { width: 30, fontSize: typography.fontSize.md }, rowCopy: { flex: 1 }, rowLabel: { color: colors.textMuted, fontSize: typography.fontSize.xs }, rowValue: { color: colors.textPrimary, fontSize: typography.fontSize.md, marginTop: 2 }, footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: spacing.lg, paddingBottom: spacing.xl, backgroundColor: colors.background, borderTopWidth: 1, borderTopColor: colors.surfaceBorder }, declineButton: { alignItems: 'center', marginTop: spacing.md, paddingVertical: spacing.xs }, declineButtonText: { color: colors.error, fontSize: typography.fontSize.md, fontWeight: '700' as const }, modalOverlay: { flex: 1, justifyContent: 'center', padding: spacing.lg, backgroundColor: 'rgba(0, 0, 0, 0.45)' }, modalCard: { backgroundColor: colors.surfaceStrong, borderRadius: borderRadius.lg, padding: spacing.lg }, modalTitle: { color: colors.textPrimary, fontSize: typography.fontSize.xl, fontWeight: '700' as const }, modalCopy: { color: colors.textSecondary, fontSize: typography.fontSize.sm, lineHeight: 20, marginTop: spacing.sm }, reasonInput: { minHeight: 112, marginTop: spacing.md, padding: spacing.md, color: colors.textPrimary, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.surfaceBorder, borderRadius: borderRadius.md, fontSize: typography.fontSize.md }, characterCount: { alignSelf: 'flex-end', color: colors.textMuted, fontSize: typography.fontSize.xs, marginTop: spacing.xs }, modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.lg, marginTop: spacing.lg }, cancelAction: { color: colors.textSecondary, fontSize: typography.fontSize.md, fontWeight: '600' as const }, footerHint: { color: colors.textMuted, fontSize: typography.fontSize.xs, textAlign: 'center', marginTop: spacing.sm }, attendanceHint: { color: colors.textSecondary, fontSize: typography.fontSize.sm, lineHeight: 20, marginTop: spacing.sm }, confirmAction: { color: colors.primary, fontSize: typography.fontSize.md, fontWeight: '700' as const }, confirmDeclineAction: { color: colors.error, fontSize: typography.fontSize.md, fontWeight: '700' as const },
 });
 
 export default ShiftDetailScreen;

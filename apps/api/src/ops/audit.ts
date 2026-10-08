@@ -17,6 +17,13 @@ export function actorOf(req: Request): string {
   return req.session?.username || 'admin';
 }
 
+/** A worker acting for themselves in the app, by name so the audit log reads plainly. */
+export async function workerAppActor(userId: string): Promise<string> {
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { firstName: true, lastName: true } });
+  const name = user ? `${user.firstName} ${user.lastName}`.trim() : `worker ${userId}`;
+  return `${name.slice(0, 70)} (worker, in the app)`;
+}
+
 /** Dates to ISO strings and Decimals to numbers, so the JSON reads cleanly. */
 function plain(value: unknown): Prisma.InputJsonValue | undefined {
   if (value === undefined) return undefined;

@@ -3,14 +3,16 @@
  * Job seeker profile management
  */
 
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
@@ -18,6 +20,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 import { Button, Avatar, LoadingScreen } from '../../components';
 import { useAuthStore, selectJobSeeker } from '../../store';
+import { documentsApi } from '../../api';
 import type { RootStackParamList, JobSeekerTabParamList, AvailabilityStatus } from '../../types';
 
 type Props = CompositeScreenProps<
@@ -34,6 +37,17 @@ const AVAILABILITY_CONFIG: Record<AvailabilityStatus, { label: string; color: st
 export function ProfileScreen({ navigation }: Props) {
   const { logout, isLoading } = useAuthStore();
   const user = useAuthStore(selectJobSeeker);
+  // Employment documents from VERGO: null until loaded, or if they could not be.
+  const [documentsToDo, setDocumentsToDo] = useState<number | null>(null);
+  const [hasDocuments, setHasDocuments] = useState(false);
+
+  useFocusEffect(useCallback(() => {
+    let live = true;
+    documentsApi.getSummary()
+      .then((s) => { if (live) { setDocumentsToDo(s.toDo); setHasDocuments(Boolean(s.kid || s.agreement)); } })
+      .catch(() => { if (live) setDocumentsToDo(null); });
+    return () => { live = false; };
+  }, []));
   
   const handleLogout = () => {
     Alert.alert(
@@ -149,6 +163,27 @@ export function ProfileScreen({ navigation }: Props) {
           </View>
         </View>
         
+        {/* Employment documents */}
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={[styles.documentsRow, (documentsToDo ?? 0) > 0 && styles.documentsRowTodo]}
+            onPress={() => navigation.navigate('MyDocuments')}
+            accessibilityRole="button"
+            accessibilityLabel="My documents"
+          >
+            <View style={styles.documentsCopy}>
+              <Text style={styles.documentsTitle}>My documents</Text>
+              <Text style={[styles.documentsStatus, (documentsToDo ?? 0) > 0 && styles.documentsStatusTodo]}>
+                {(documentsToDo ?? 0) > 0
+                  ? `${documentsToDo} to read and agree`
+                  : hasDocuments ? 'Key information and employment agreement: up to date' : 'Key information and employment agreement'}
+              </Text>
+            </View>
+            {(documentsToDo ?? 0) > 0 && <View style={styles.documentsBadge}><Text style={styles.documentsBadgeText}>{documentsToDo}</Text></View>}
+            <Text style={styles.documentsChevron}>›</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Sections */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Verification Status</Text>
@@ -428,6 +463,55 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.md,
     fontWeight: '600' as const,
     marginBottom: spacing.sm,
+  },
+
+  documentsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
+  },
+  documentsRowTodo: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+  },
+  documentsCopy: { flex: 1 },
+  documentsTitle: {
+    color: colors.textPrimary,
+    fontSize: typography.fontSize.md,
+    fontWeight: '600' as const,
+  },
+  documentsStatus: {
+    color: colors.textSecondary,
+    fontSize: typography.fontSize.sm,
+    marginTop: 2,
+  },
+  documentsStatusTodo: {
+    color: colors.primaryDark,
+    fontWeight: '600' as const,
+  },
+  documentsBadge: {
+    minWidth: 24,
+    height: 24,
+    borderRadius: 12,
+    paddingHorizontal: 6,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: spacing.sm,
+  },
+  documentsBadgeText: {
+    color: colors.textInverse,
+    fontSize: typography.fontSize.xs,
+    fontWeight: '700' as const,
+  },
+  documentsChevron: {
+    color: colors.textMuted,
+    fontSize: typography.fontSize.xl,
+    marginLeft: spacing.sm,
   },
   
   verificationList: {

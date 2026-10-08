@@ -229,8 +229,11 @@ export async function issueWorkerPack(userId: string, actor: string) {
 }
 
 export interface AcceptanceEvidence {
-  /** 'link' for the worker's or client's own secure link, 'admin' when recorded by an admin. */
-  channel: 'link' | 'admin';
+  /**
+   * 'link' for the worker's or client's own secure link, 'app' for a worker
+   * signed in to the VERGO app as themselves, 'admin' when recorded by an admin.
+   */
+  channel: 'link' | 'app' | 'admin';
   method: string;
   recordedBy?: string | null;
   linkId?: string | null;
@@ -283,7 +286,7 @@ export async function acceptAgreement(userId: string, docId: string, typedName: 
     where: { userId, type: 'KEY_INFORMATION_DOCUMENT', status: 'ISSUED' }, orderBy: { issuedAt: 'desc' },
   });
   if (!kid || kid.issuedAt > at) fail(409, 'The Key Information Document must be issued before the agreement can be agreed.');
-  if (evidence.channel === 'link' && !kid.acknowledgedAt) fail(409, 'Please confirm you have received the Key Information Document first.');
+  if (evidence.channel !== 'admin' && !kid.acknowledgedAt) fail(409, 'Please confirm you have received the Key Information Document first.');
 
   return prisma.$transaction(async (tx) => {
     const updated = await tx.workerDocument.update({

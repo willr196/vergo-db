@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, type CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { shiftsApi } from '../../api';
+import { documentsApi, shiftsApi } from '../../api';
 import { EmptyState, ErrorState } from '../../components';
 import { borderRadius, colors, spacing, typography } from '../../theme';
 import { formatDate, formatTime } from '../../utils';
@@ -45,6 +45,7 @@ export function ShiftsScreen({ navigation }: Props) {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [total, setTotal] = useState(0);
+  const [documentsToDo, setDocumentsToDo] = useState(0);
 
   const load = useCallback(async (refresh = false, filter = activeFilter) => {
     refresh ? setRefreshing(true) : setLoading(true);
@@ -101,6 +102,12 @@ export function ShiftsScreen({ navigation }: Props) {
   }, [activeFilter.id]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
+  // Documents waiting to be agreed hold up accepting VERGO shifts, so say so here.
+  useFocusEffect(useCallback(() => {
+    let live = true;
+    documentsApi.getSummary().then((s) => { if (live) setDocumentsToDo(s.toDo); }).catch(() => {});
+    return () => { live = false; };
+  }, []));
 
   if (loading && shifts.length === 0) {
     return <SafeAreaView style={styles.center}><ActivityIndicator color={colors.primary} size="large" /></SafeAreaView>;
@@ -122,6 +129,13 @@ export function ShiftsScreen({ navigation }: Props) {
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor={colors.primary} />}
         ListHeaderComponent={
+          <>
+          {documentsToDo > 0 && (
+            <TouchableOpacity style={styles.documentsBanner} onPress={() => navigation.navigate('MyDocuments')} accessibilityRole="button">
+              <Text style={styles.documentsBannerTitle}>Your employment documents are waiting</Text>
+              <Text style={styles.documentsBannerText}>Read and agree them so you can accept VERGO shifts. Tap to open.</Text>
+            </TouchableOpacity>
+          )}
           <FlatList
             horizontal
             data={SHIFT_FILTERS}
@@ -139,6 +153,7 @@ export function ShiftsScreen({ navigation }: Props) {
               </TouchableOpacity>
             )}
           />
+          </>
         }
         ListEmptyComponent={<EmptyState icon="🗓️" title="No shifts found" message={activeFilter.id === 'upcoming' ? 'Your upcoming shift requests and confirmed shifts will appear here.' : 'There are no shifts in this view.'} />}
         ListFooterComponent={
@@ -158,7 +173,7 @@ export function ShiftsScreen({ navigation }: Props) {
               <Text style={styles.date}>{formatDate(item.eventDate)}</Text>
             </View>
             <Text style={styles.eventName}>{item.eventName || 'Event shift'}</Text>
-            <Text style={styles.company}>{item.client.companyName}</Text>
+            <Text style={styles.company}>{[item.role, item.client.companyName].filter(Boolean).join(' · ')}</Text>
             <Text style={styles.meta}>⏰ {formatTime(item.shiftStart)} – {formatTime(item.shiftEnd)}</Text>
             <Text style={styles.meta}>📍 {item.venue ? `${item.venue}, ` : ''}{item.location}</Text>
             {item.expectedPay != null && <Text style={styles.pay}>Estimated £{item.expectedPay.toFixed(2)}</Text>}
@@ -192,6 +207,9 @@ const styles = StyleSheet.create({
   company: { color: colors.textSecondary, fontSize: typography.fontSize.sm, marginTop: spacing.xs, marginBottom: spacing.sm },
   meta: { color: colors.textMuted, fontSize: typography.fontSize.sm, marginTop: spacing.xs },
   pay: { color: colors.primaryDark, fontSize: typography.fontSize.md, fontWeight: '700' as const, marginTop: spacing.md },
+  documentsBanner: { backgroundColor: colors.primarySoft, borderWidth: 1, borderColor: colors.primary, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md },
+  documentsBannerTitle: { color: colors.textPrimary, fontSize: typography.fontSize.md, fontWeight: '700' as const },
+  documentsBannerText: { color: colors.textSecondary, fontSize: typography.fontSize.sm, marginTop: spacing.xs },
   footerLoader: { paddingVertical: spacing.md },
   retryMore: { alignItems: 'center', paddingVertical: spacing.md },
   retryMoreText: { color: colors.error, fontSize: typography.fontSize.sm, fontWeight: '600' as const },

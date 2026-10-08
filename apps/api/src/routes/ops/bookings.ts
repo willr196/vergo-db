@@ -267,13 +267,9 @@ async function bookingWarnings(b: ReturnType<typeof shapeOpsBooking>) {
  */
 const newBookingBody = bookingBody.extend({
   extraDates: z.array(ymd).max(60).optional(),
-  requirement: z.object({
-    role: z.string().trim().min(1).max(80),
-    quantity: z.number().int().min(1).max(500),
-    clientChargeRate: money,
-    workerPayRate: money,
-    breakMins: z.number().int().min(0).max(240).optional(),
-  }).optional(),
+  // The whole first role, the same as adding it afterwards (dress code, duties,
+  // risks and the rest are what the worker sees in the app).
+  requirement: z.lazy(() => requirementBody).optional(),
 });
 
 r.post('/bookings', handle(async (req, res) => {
@@ -312,7 +308,10 @@ r.post('/bookings', handle(async (req, res) => {
   await writeAudit(actor, { action: 'BOOKING_CREATED', entityType: 'OpsBooking', entityId: created.id, newValue: { ...body, ...(requirement ? { requirement } : {}) } });
   if (requirement) {
     await prisma.opsRequirement.create({
-      data: { ...requirement, opsBookingId: created.id, clientChargeRate: new Prisma.Decimal(requirement.clientChargeRate), workerPayRate: new Prisma.Decimal(requirement.workerPayRate) },
+      data: {
+        ...requirement, opsBookingId: created.id, clientChargeRate: new Prisma.Decimal(requirement.clientChargeRate), workerPayRate: new Prisma.Decimal(requirement.workerPayRate),
+        afterMidnightMultiplier: requirement.afterMidnightMultiplier ?? PRICING.afterMidnightMultiplier,
+      },
     });
   }
   const copies = await copyToDates(created.id, extraDates ?? [], actor);
@@ -433,7 +432,7 @@ async function moveShiftsWithBooking(
 }
 
 /** Move a live booking between Confirmed / Staffing / Fully staffed as its assignments change. */
-async function syncStaffingStatus(bookingId: string, actor: string) {
+export async function syncStaffingStatus(bookingId: string, actor: string) {
   const booking = await getOpsBooking(bookingId);
   if (!['CONFIRMED', 'STAFFING', 'FULLY_STAFFED'].includes(booking.status)) return;
   const staffing = staffingOf(booking);

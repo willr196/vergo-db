@@ -49,6 +49,8 @@ import {
   ProfileScreen,
   EditProfileScreen,
   ApplyToJobScreen,
+  MyDocumentsScreen,
+  WorkerDocumentScreen,
 } from '../screens/jobseeker';
 
 // Client Screens
@@ -252,6 +254,8 @@ function JobSeekerStack() {
       />
       <Stack.Screen name="ApplicationDetail" component={ApplicationDetailScreen} />
       <Stack.Screen name="ShiftDetail" component={ShiftDetailScreen} />
+      <Stack.Screen name="MyDocuments" component={MyDocumentsScreen} />
+      <Stack.Screen name="WorkerDocument" component={WorkerDocumentScreen} />
       <Stack.Screen
         name="EditProfile"
         component={EditProfileScreen}
@@ -320,6 +324,8 @@ export function RootNavigator() {
         ApplyToJob: 'job/:jobId/apply',
         ApplicationDetail: 'application/:applicationId',
         ShiftDetail: 'shift/:shiftId',
+        MyDocuments: 'documents',
+        WorkerDocument: 'documents/:documentId',
         EditProfile: 'profile/edit',
         ClientTabs: {
           screens: {

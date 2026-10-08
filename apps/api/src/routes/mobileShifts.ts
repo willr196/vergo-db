@@ -5,6 +5,8 @@ import { prisma } from '../prisma';
 import { requireUserJwt } from '../middleware/jwtAuth';
 import { sendPushToClient } from '../services/notifications';
 import { PRICING } from '../config/pricing';
+import { writeAudit, workerAppActor } from '../ops/audit';
+import { syncStaffingStatus } from './ops/bookings';
 
 const r = Router();
 
@@ -63,17 +65,82 @@ const bookingInclude = {
       contactName: true,
     },
   },
+  // A shift offered through VERGO Ops: what the worker needs to know for the
+  // day. Never the charge rate, the margin or anything about other workers.
+  opsBooking: {
+    select: {
+      reference: true, eventType: true, address: true,
+      onSiteContactName: true, onSiteContactPhone: true, vergoLead: true, status: true,
+    },
+  },
+  requirement: {
+    select: {
+      role: true, dressCode: true, equipment: true, duties: true, healthSafetyRisks: true, riskControls: true,
+      breakInfo: true, requiredExperience: true, travelContribution: true,
+    },
+  },
 } satisfies Prisma.BookingInclude;
+
+// The detail screen also gets the running order and the assignment
+// confirmation, if one has been issued for this shift.
+const detailInclude = {
+  ...bookingInclude,
+  opsBooking: {
+    select: {
+      ...bookingInclude.opsBooking.select,
+      scheduleItems: { select: { id: true, time: true, title: true, assignee: true, notes: true }, orderBy: { createdAt: 'asc' } },
+    },
+  },
+  workerDocuments: {
+    where: { type: 'ASSIGNMENT_CONFIRMATION', status: { in: ['ISSUED', 'ACCEPTED'] } },
+    select: { id: true },
+    orderBy: { issuedAt: 'desc' },
+    take: 1,
+  },
+} satisfies Prisma.BookingInclude;
+
+type ShiftRow = Prisma.BookingGetPayload<{ include: typeof bookingInclude }>
+  | Prisma.BookingGetPayload<{ include: typeof detailInclude }>;
+
+function shapeOps(booking: ShiftRow) {
+  const o = booking.opsBooking;
+  if (!o) return null;
+  const req = booking.requirement;
+  const items = 'scheduleItems' in o ? o.scheduleItems : undefined;
+  return {
+    reference: o.reference,
+    eventType: o.eventType,
+    address: o.address,
+    bookingStatus: o.status,
+    onSiteContact: o.onSiteContactName || o.onSiteContactPhone ? { name: o.onSiteContactName, phone: o.onSiteContactPhone } : null,
+    vergoLead: o.vergoLead,
+    breakMins: booking.breakMins ?? null,
+    dressCode: req?.dressCode ?? null,
+    equipment: req?.equipment ?? null,
+    duties: req?.duties ?? null,
+    healthSafetyRisks: req?.healthSafetyRisks ?? null,
+    riskControls: req?.riskControls ?? null,
+    breakInfo: req?.breakInfo ?? null,
+    requiredExperience: req?.requiredExperience ?? null,
+    travelContribution: numberOrNull(req?.travelContribution),
+    // Detail only. Timed lines in clock order, then untimed notes, as in Ops.
+    runningOrder: items
+      ? [...items.filter((i) => i.time).sort((a, b) => a.time!.localeCompare(b.time!)), ...items.filter((i) => !i.time)]
+      : undefined,
+    confirmationDocumentId: 'workerDocuments' in booking ? booking.workerDocuments[0]?.id ?? null : undefined,
+  };
+}
 
 function numberOrNull(value: Prisma.Decimal | null | undefined): number | null {
   return value == null ? null : Number(value);
 }
 
-function shapeShift(booking: Prisma.BookingGetPayload<{ include: typeof bookingInclude }>) {
+function shapeShift(booking: ShiftRow) {
   return {
     id: booking.id,
     status: booking.status,
     eventName: booking.eventName,
+    role: booking.role ?? booking.requirement?.role ?? null,
     eventDate: booking.eventDate.toISOString(),
     eventEndDate: booking.eventEndDate?.toISOString() ?? null,
     location: booking.location,
@@ -108,7 +175,27 @@ function shapeShift(booking: Prisma.BookingGetPayload<{ include: typeof bookingI
       companyName: booking.client.companyName,
       contactName: booking.client.contactName,
     },
+    ops: shapeOps(booking),
   };
+}
+
+/**
+ * When a worker accepts or declines a VERGO Ops offer in the app, Ops hears
+ * about it the way it would from the office: an audit row, and the booking
+ * moves between Confirmed / Staffing / Fully staffed.
+ */
+async function tellOps(shift: { id: string; opsBookingId: string | null }, userId: string, to: 'CONFIRMED' | 'REJECTED', reason?: string | null) {
+  if (!shift.opsBookingId) return;
+  const actor = await workerAppActor(userId);
+  await writeAudit(actor, {
+    action: 'ASSIGNMENT_CHANGED', entityType: 'OpsBooking', entityId: shift.opsBookingId,
+    oldValue: { assignmentId: shift.id, status: 'PENDING' },
+    newValue: { assignmentId: shift.id, status: to },
+    reason: to === 'CONFIRMED'
+      ? 'Accepted by the worker in the app'
+      : reason ? `Declined by the worker in the app: ${reason}` : 'Declined by the worker in the app',
+  });
+  await syncStaffingStatus(shift.opsBookingId, actor);
 }
 
 r.use(requireUserJwt);
@@ -176,7 +263,7 @@ r.get('/:id', async (req, res, next) => {
   try {
     const booking = await prisma.booking.findFirst({
       where: { id: req.params.id, staffId: req.auth!.userId },
-      include: bookingInclude,
+      include: detailInclude,
     });
     if (!booking) return res.status(404).json({ ok: false, error: 'Shift not found' });
 
@@ -193,11 +280,28 @@ r.post('/:id/confirm', async (req, res, next) => {
 
     const existing = await prisma.booking.findFirst({
       where: { id: req.params.id, staffId: req.auth!.userId },
-      select: { id: true, status: true, clientId: true, eventName: true, eventDate: true },
+      select: { id: true, status: true, clientId: true, eventName: true, eventDate: true, opsBookingId: true },
     });
     if (!existing) return res.status(404).json({ ok: false, error: 'Shift not found' });
     if (existing.status !== 'PENDING') {
       return res.status(409).json({ ok: false, error: 'Only pending shifts can be confirmed' });
+    }
+
+    // An Ops shift waits for an agreement the worker has been sent and can
+    // agree themselves, in My documents. With none issued it is the office's
+    // call, made when they offered the shift.
+    if (existing.opsBookingId) {
+      const agreements = await prisma.workerDocument.findMany({
+        where: { userId: req.auth!.userId, type: 'ZERO_HOURS_AGREEMENT', status: { in: ['ISSUED', 'ACCEPTED'] } },
+        select: { status: true },
+      });
+      if (agreements.some((a) => a.status === 'ISSUED') && !agreements.some((a) => a.status === 'ACCEPTED')) {
+        return res.status(409).json({
+          ok: false,
+          code: 'AGREEMENT_PENDING',
+          error: 'Please read and agree your employment agreement first. It is in Profile > My documents.',
+        });
+      }
     }
 
     const activeTerms = await prisma.termsVersion.findFirst({
@@ -216,6 +320,8 @@ r.post('/:id/confirm', async (req, res, next) => {
       },
       include: bookingInclude,
     });
+
+    await tellOps(existing, req.auth!.userId, 'CONFIRMED');
 
     sendPushToClient(
       existing.clientId,
@@ -240,7 +346,7 @@ r.post('/:id/decline', async (req, res, next) => {
 
     const existing = await prisma.booking.findFirst({
       where: { id: req.params.id, staffId: req.auth!.userId },
-      select: { id: true, status: true, clientId: true, eventName: true },
+      select: { id: true, status: true, clientId: true, eventName: true, opsBookingId: true },
     });
     if (!existing) return res.status(404).json({ ok: false, error: 'Shift not found' });
     if (existing.status !== 'PENDING') {
@@ -255,6 +361,8 @@ r.post('/:id/decline', async (req, res, next) => {
       },
       include: bookingInclude,
     });
+
+    await tellOps(existing, req.auth!.userId, 'REJECTED', reason);
 
     sendPushToClient(
       existing.clientId,
