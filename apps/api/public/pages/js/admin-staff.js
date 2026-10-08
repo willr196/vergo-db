@@ -186,11 +186,20 @@
     }
 
     tbody.innerHTML = shown.map(function (app) {
-      var name = esc(((app.firstName || '') + ' ' + (app.lastName || '')).trim() || 'Unnamed');
+      var fullName = ((app.firstName || '') + ' ' + (app.lastName || '')).trim();
+      var name = esc(fullName || 'Unnamed');
+      // Hiring emails nobody; this is where the welcome email is sent from,
+      // until a right-to-work check clears them.
+      var emailBtn = (app.rightToWork && app.rightToWork.clearedToWork)
+        ? ''
+        : AdminApplicant.renderHireEmailButton(app.applicantId, fullName);
       return '<tr>'
         + '<td>'
           + '<div class="as-stack">'
-            + '<button type="button" class="applicant-link as-stack-title" data-action="open-drawer" data-app-id="' + esc(app.id) + '">' + name + '</button>'
+            + '<span class="as-name-line">'
+              + '<button type="button" class="applicant-link as-stack-title" data-action="open-drawer" data-app-id="' + esc(app.id) + '">' + name + '</button>'
+              + emailBtn
+            + '</span>'
             + '<span class="text-muted fs-sm">' + esc(app.email || '') + '</span>'
             + (app.phone ? '<span class="text-muted fs-sm">' + esc(app.phone) + '</span>' : '')
             + AdminGroups.pills(app.groups)

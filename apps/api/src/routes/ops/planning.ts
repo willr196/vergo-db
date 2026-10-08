@@ -73,8 +73,8 @@ r.patch('/leads/:id', handle(async (req, res) => {
     data: { ...body, ...(body.contactedOn ? { contactedOn: dateOnly(body.contactedOn) } : {}) },
     select: leadSelect,
   });
-  const { oldValue, newValue } = diff(shapeLead(before) as Record<string, unknown>, body as Record<string, unknown>);
-  await writeAudit(actorOf(req), { action: 'LEAD_UPDATED', entityType: 'OpsLead', entityId: lead.id, oldValue, newValue });
+  const { oldValue, newValue, changed } = diff(shapeLead(before) as Record<string, unknown>, body as Record<string, unknown>);
+  if (changed) await writeAudit(actorOf(req), { action: 'LEAD_UPDATED', entityType: 'OpsLead', entityId: lead.id, oldValue, newValue });
   res.json({ ok: true, data: shapeLead(lead) });
 }));
 
@@ -230,7 +230,9 @@ r.patch('/schedule/:id', handle(async (req, res) => {
   const before = await prisma.opsScheduleItem.findUnique({ where: { id: req.params.id } });
   if (!before) fail(404, 'Running order line not found');
   const item = await prisma.opsScheduleItem.update({ where: { id: before.id }, data: body, select: scheduleSelect });
-  await writeAudit(actorOf(req), { action: 'RUNNING_ORDER_CHANGED', entityType: 'OpsBooking', entityId: before.opsBookingId, oldValue: { title: before.title, time: before.time }, newValue: { updated: item } });
+  if (diff(before as Record<string, unknown>, body as Record<string, unknown>).changed) {
+    await writeAudit(actorOf(req), { action: 'RUNNING_ORDER_CHANGED', entityType: 'OpsBooking', entityId: before.opsBookingId, oldValue: { title: before.title, time: before.time }, newValue: { updated: item } });
+  }
   res.json({ ok: true, data: await scheduleOf(before.opsBookingId) });
 }));
 

@@ -52,7 +52,7 @@
     "  <div class=\"as-drawer-backdrop\" id=\"app-drawer-backdrop\"></div>" +
     "  <div class=\"as-drawer\" id=\"app-drawer\">" +
     "    <div class=\"as-drawer-header\">" +
-    "      <h2 id=\"drawer-name\">Applicant</h2>" +
+    "      <div class=\"as-drawer-title\"><h2 id=\"drawer-name\">Applicant</h2><span id=\"drawer-name-actions\"></span></div>" +
     "      <button class=\"as-drawer-close\" data-action=\"close-drawer\" aria-label=\"Close\">&#x2715;</button>" +
     "    </div>" +
     "    <div class=\"as-drawer-body\" id=\"drawer-body\"></div>" +
@@ -551,6 +551,14 @@
         : '<button class="btn btn-ghost btn-sm" data-action="resend-rtw-request" data-applicant-id="' + esc(applicantId) + '">Re-send request</button>')
       + '</div>';
 
+    var nameSlot = document.getElementById('drawer-name-actions');
+    if (nameSlot) {
+      var drawerDetail = applicationDetails[activeDrawerAppId];
+      nameSlot.innerHTML = appStatus === 'HIRED' && !summary.clearedToWork
+        ? renderHireEmailButton(applicantId, drawerDetail && drawerDetail.applicant ? drawerDetail.applicant.fullName : '')
+        : '';
+    }
+
     var footerSlot = document.getElementById('drawer-rtw-footer-action');
     if (footerSlot) {
       footerSlot.innerHTML = blocking
@@ -704,10 +712,18 @@
     }
   }
 
+  // Hiring emails nobody: the offer has often gone by text already. This
+  // button, beside a hired person's name in the drawer and the Staff list,
+  // sends the welcome email that asks for their right-to-work evidence.
+  function renderHireEmailButton(applicantId, name) {
+    return '<button type="button" class="btn btn-primary btn-sm" data-action="resend-rtw-request" data-applicant-id="'
+      + esc(applicantId) + '" data-name="' + esc(name || '') + '" title="Send the welcome email asking for right-to-work evidence">Email</button>';
+  }
+
   async function resendRtwRequest(applicantId, btn) {
     var detail = applicationDetails[activeDrawerAppId];
-    var name = detail && detail.applicant ? detail.applicant.fullName : 'this applicant';
-    if (!confirm('Re-send the right-to-work request email to ' + name + '?')) return;
+    var name = (btn && btn.dataset.name) || (detail && detail.applicant ? detail.applicant.fullName : '') || 'this person';
+    if (!confirm('Email ' + name + ' the welcome / right-to-work request?\n\nIt asks for their share code, or an appointment to see their passport.')) return;
 
     try {
       var result = await AdminCore.withLoading(btn, function () {
@@ -741,6 +757,7 @@
     var app = findApplication(appId);
     activeDrawerAppId = appId;
     document.getElementById('drawer-name').textContent = app ? app.firstName + ' ' + app.lastName : 'Applicant';
+    document.getElementById('drawer-name-actions').innerHTML = '';
     document.getElementById('drawer-body').innerHTML = '<div class="drawer-loading">Loading applicant details…</div>';
     document.getElementById('drawer-footer').innerHTML = '';
     document.getElementById('app-drawer-backdrop').classList.add('open');
@@ -774,16 +791,16 @@
   // ── Actions ─────────────────────────────────────────────
   async function updateStatus(appId, status) {
     if (status === 'REJECTED' && !confirm('Move this application to the rejected pile?')) return;
-    if (status === 'HIRED' && !confirm('Mark this applicant as hired?\n\nThis emails them asking for their right-to-work evidence (share code, or an appointment to see their passport).')) return;
+    if (status === 'HIRED' && !confirm('Mark this applicant as hired?\n\nNothing is emailed. Use the Email button beside their name if you want to send the welcome / right-to-work request.')) return;
     try {
-      var result = await fetch_('/api/v1/applications/' + appId + '/status', {
+      await fetch_('/api/v1/applications/' + appId + '/status', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
       notify(
-        result && result.rightToWorkRequestSent
-          ? 'Hired — right-to-work request emailed'
+        status === 'HIRED'
+          ? 'Hired. Nothing emailed: the Email button is beside their name'
           : 'Status updated to ' + formatApplicationStatus(status),
         'success'
       );
@@ -1030,5 +1047,6 @@
     renderStatusActions: renderStatusActions,
     renderRowActions: renderRowActions,
     renderRolePills: renderRolePills,
+    renderHireEmailButton: renderHireEmailButton,
   };
 }());

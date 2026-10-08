@@ -1,4 +1,4 @@
-import type { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, type PrismaClient } from '@prisma/client';
 import type { Request } from 'express';
 import { prisma } from '../prisma';
 
@@ -20,7 +20,11 @@ export function actorOf(req: Request): string {
 /** Dates to ISO strings and Decimals to numbers, so the JSON reads cleanly. */
 function plain(value: unknown): Prisma.InputJsonValue | undefined {
   if (value === undefined) return undefined;
-  return JSON.parse(JSON.stringify(value, (_k, v) => (v && typeof v === 'object' && v.constructor?.name === 'Decimal' ? Number(v) : v)));
+  // A Decimal's toJSON makes it a string before a replacer sees it, so look at
+  // the holder's original value: money is compared and logged as a number.
+  return JSON.parse(JSON.stringify(value, function (this: any, k: string, v: unknown) {
+    return Prisma.Decimal.isDecimal(this[k]) ? Number(this[k]) : v;
+  }));
 }
 
 /** Write one audit row. Pass the transaction client when inside one, so the log and the change commit together. */

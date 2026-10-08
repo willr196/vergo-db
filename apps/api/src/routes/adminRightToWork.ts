@@ -224,10 +224,10 @@ r.get('/:applicantId', adminAuth, async (req, res, next) => {
 });
 
 // ============================================
-// RE-SEND THE REQUEST FOR EVIDENCE
+// SEND THE REQUEST FOR EVIDENCE
 //
-// The request goes out automatically when an applicant is hired; this exists
-// for when it is lost, ignored, or the address needed correcting.
+// Hiring does not email anyone (the offer often goes out by text). This is the
+// "Email" button beside a hired person's name, and the re-send in the drawer.
 // ============================================
 r.post('/:applicantId/request', adminAuth, async (req, res, next) => {
   try {

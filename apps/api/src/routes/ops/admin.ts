@@ -7,7 +7,7 @@ import { Router } from 'express';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../../prisma';
-import { writeAudit, actorOf } from '../../ops/audit';
+import { writeAudit, actorOf, diff } from '../../ops/audit';
 import {
   loadWorkers, loadWorker, assignmentInclude, profitAssignment, shapeAssignment, toNum, currentTemplateVersions,
 } from '../../ops/service';
@@ -280,6 +280,12 @@ const paymentBody = z.object({
   hmrcReconciled: z.boolean().optional(),
 });
 
+async function assertWorkerId(userId: string | null | undefined) {
+  if (!userId) return;
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { userType: true } });
+  if (!user || user.userType !== 'JOB_SEEKER') fail(404, 'No worker with that id. Leave the payment unlinked and keep the name.');
+}
+
 function shapePayment(p: Prisma.HistoricPaymentGetPayload<{}>) {
   return { ...p, paymentDate: dateKey(p.paymentDate), hours: toNum(p.hours), basePay: toNum(p.basePay), holidayPay: toNum(p.holidayPay), grossTransferred: toNum(p.grossTransferred) };
 }
@@ -309,6 +315,7 @@ r.get('/payroll-history', handle(async (req, res) => {
 r.post('/payroll-history', handle(async (req, res) => {
   const body = paymentBody.parse(req.body);
   const actor = actorOf(req);
+  await assertWorkerId(body.userId);
   const row = await prisma.historicPayment.create({ data: { ...body, userId: body.userId || null, paymentDate: dateOnly(body.paymentDate), createdBy: actor } });
   await writeAudit(actor, { action: 'HISTORIC_PAYMENT_ADDED', entityType: 'HistoricPayment', entityId: row.id, newValue: body });
   res.status(201).json({ ok: true, data: shapePayment(row) });
@@ -319,11 +326,13 @@ r.patch('/payroll-history/:id', handle(async (req, res) => {
   const actor = actorOf(req);
   const before = await prisma.historicPayment.findUnique({ where: { id: req.params.id } });
   if (!before) fail(404, 'Payment not found');
+  await assertWorkerId(body.userId);
   const row = await prisma.historicPayment.update({
     where: { id: before.id },
     data: { ...body, ...(body.paymentDate ? { paymentDate: dateOnly(body.paymentDate) } : {}) },
   });
-  await writeAudit(actor, { action: 'HISTORIC_PAYMENT_UPDATED', entityType: 'HistoricPayment', entityId: row.id, oldValue: shapePayment(before), newValue: body });
+  const changes = diff(shapePayment(before) as Record<string, unknown>, body as Record<string, unknown>);
+  if (changes.changed) await writeAudit(actor, { action: 'HISTORIC_PAYMENT_UPDATED', entityType: 'HistoricPayment', entityId: row.id, ...changes });
   res.json({ ok: true, data: shapePayment(row) });
 }));
 
@@ -471,7 +480,9 @@ r.put('/settings/:key', handle(async (req, res) => {
   const actor = actorOf(req);
   const before = await prisma.opsSetting.findUnique({ where: { key } });
   await prisma.opsSetting.upsert({ where: { key }, create: { key, value: value as Prisma.InputJsonValue, updatedBy: actor }, update: { value: value as Prisma.InputJsonValue, updatedBy: actor } });
-  await writeAudit(actor, { action: 'SETTING_CHANGED', entityType: 'OpsSetting', entityId: key, oldValue: before?.value ?? null, newValue: value });
+  if (JSON.stringify(before?.value ?? null) !== JSON.stringify(value)) {
+    await writeAudit(actor, { action: 'SETTING_CHANGED', entityType: 'OpsSetting', entityId: key, oldValue: before?.value ?? null, newValue: value });
+  }
   // These values are frozen into the KID and the Terms of Business, so a change is a new version.
   let newVersion: { type: string; version: number } | null = null;
   if ((key === 'kidPayExample' || key === 'clientCommercialTerms') && JSON.stringify(before?.value ?? null) !== JSON.stringify(value)) {

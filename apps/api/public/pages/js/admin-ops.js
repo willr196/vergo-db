@@ -111,6 +111,8 @@
     }
     var input;
     if (type === 'textarea') input = '<textarea' + attrs + '>' + esc(value == null ? '' : value) + '</textarea>';
+    // One item per line, for things that contain commas themselves (addresses).
+    else if (type === 'lines') input = '<textarea' + attrs + ' rows="3">' + esc(Array.isArray(value) ? value.join('\n') : (value || '')) + '</textarea>';
     else if (type === 'select') input = '<select' + attrs + '>' + options(extra.options || [], value, extra.blank) + '</select>';
     else {
       var v = value == null ? '' : (type === 'list' && Array.isArray(value) ? value.join(', ') : value);
@@ -128,6 +130,7 @@
       if (t === 'checkbox') v = el.checked;
       else if (t === 'number') v = el.value.trim() === '' ? null : Number(el.value);
       else if (t === 'list') v = el.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+      else if (t === 'lines') v = el.value.split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean);
       else if (t === 'datetime') v = el.value ? new Date(el.value).toISOString() : null;
       else v = el.value.trim() === '' ? null : el.value.trim();
       out[el.name] = v;
@@ -669,7 +672,7 @@
       field('Payment terms', 'paymentTerms', c.paymentTerms) +
       field('Usual charge rate (£/h)', 'defaultChargeRate', c.defaultChargeRate, 'number', { hint: 'Filled in on this client\'s new bookings.' }) +
       field('Billing address', 'billingAddress', c.billingAddress, 'textarea', { wide: true }) +
-      field('Venue addresses', 'venueAddresses', c.venueAddresses || [], 'list', { wide: true, hint: 'Comma separated' }) +
+      field('Venue addresses', 'venueAddresses', c.venueAddresses || [], 'lines', { wide: true, hint: 'One address per line' }) +
       field('Notes', 'adminNotes', c.adminNotes, 'textarea', { wide: true });
   }
 

@@ -29,7 +29,7 @@ data has not been imported.
 | API | `src/routes/ops/` (`workers.ts`, `bookings.ts`, `admin.ts`, `print.ts`) |
 | Rules (pure, tested) | `src/ops/` (`compliance.ts`, `assignments.ts`, `profit.ts`, `awr.ts`, `pension.ts`, `records.ts`, `documents.ts`, `time.ts`) |
 | Loading and decoration | `src/ops/service.ts` |
-| Tests | `src/__tests__/ops.test.ts` |
+| Tests | `src/__tests__/ops*.test.ts` (rules), `src/__integration__/ops*.test.ts` (real database); see Testing |
 
 ## Data model
 
@@ -203,6 +203,10 @@ sees it through their link.
    between Confirmed / Staffing / Fully staffed automatically as slots fill.
 6. **Confirmation doc** issues the assignment confirmation from the booking and
    requirement data.
+7. Changing a booking's date, times, venue or address moves its offered and
+   accepted shifts with it, so the worker app and rota stay right. A shift
+   given its own start or finish keeps that time. Cancelling the booking
+   cancels its live shifts.
 
 Taken over from the desktop VERGO Ops tool (`Documents/vergo_admin`):
 
@@ -251,8 +255,9 @@ so they cannot be assigned to new shifts here until one is recorded.
   other costs, gross contribution and margin. It is labelled **Estimate** until
   the actual wages/holiday/employer figures from payroll are entered on the
   booking, which then replace the estimate line by line.
-- **Invoice** needs every assignment completed, and stamps the shifts too so
-  the existing float/pay-run figures agree. Once invoiced, timesheets lock.
+- **Invoice** needs a confirmed booking, every assignment completed, and
+  something to bill (an approved shift or a charge). It stamps the shifts too
+  so the existing float/pay-run figures agree. Once invoiced, timesheets lock.
 
 ## Historic Payroll Reconstruction
 
@@ -287,6 +292,76 @@ overrides, booking status, assignment changes, rate changes, timesheet edits
 and approvals, profit overrides, settings, exports. Timesheet corrections,
 status changes and completions in the older admin Bookings screen are logged
 too (best-effort there).
+
+## Testing
+
+Four layers, quickest first. All from `apps/api`.
+
+| What | Command | Needs |
+|---|---|---|
+| Rules (ready for work, profit, overlaps, RTW expiry, AWR, documents) | `npm test` | nothing |
+| The API against a real database | `npm run test:integration` | the test Postgres: `docker compose -f infra/docker-compose.yml up -d db-test` |
+| A demo world to click through | `npm run seed:ops-demo` | a local database |
+| Every Ops screen in a real browser | `npm run check:ops-ui` | a running server, an admin login, Chrome |
+
+**Integration tests.** `opsLifecycle.test.ts` runs a whole working day through
+the real routes: a worker made ready, a client on accepted Terms, a booking
+staffed through the checks (an RTW block, an overlap needing a reason), then
+timesheets edited, disputed, approved, profit checked to the penny, invoiced
+and paid. It also covers moving and cancelling bookings, replacing a worker,
+overrides, RTW refusals, the dashboard, AWR, direct hire, every CSV export, the
+payroll CSV import, settings, leads, the rota, and that nothing answers without
+an admin session. `opsDocuments.test.ts` covers the KID, agreement and Terms
+links; `opsDesktop.test.ts` the desktop import. They truncate tables, so they
+refuse any database that is not local with "test" in its name.
+
+**Demo data.** `npm run seed:ops-demo` adds, through the real Ops API, eight
+workers in different states (ready, RTW ending in 20 days, no RTW, agreement
+not agreed, ready by override, RTW blocked, inactive), three clients (Terms
+accepted, Terms issued only, a private consumer) and bookings from a paid
+invoice to a draft. Those include yesterday's shifts awaiting approval (one
+disputed) and ten weekly shifts behind an AWR warning. It also adds payroll
+history and two leads. Names say "Demo", emails are `@example.com`, nothing is
+emailed, and it runs only once per database. Best on a database of its own:
+
+```
+docker exec vergo-test-db psql -U testuser -d postgres -c "CREATE DATABASE vergo_demo"
+$env:DATABASE_URL = "postgresql://testuser:testpass@localhost:5434/vergo_demo"; $env:DIRECT_DATABASE_URL = $env:DATABASE_URL
+npx prisma db push --skip-generate
+npm run seed:ops-demo
+npm run build; $env:RESEND_API_KEY = ""; $env:PORT = "4310"; npm start
+```
+
+Add an admin login to that database (insert an `AdminUser` with a bcrypt
+hash), then open `http://127.0.0.1:4310/ops`.
+
+**Browser check.** With the server running:
+
+```
+$env:OPS_ADMIN_USER = "..."; $env:OPS_ADMIN_PASS = "..."; $env:BASE_URL = "http://127.0.0.1:4310"
+npm run check:ops-ui
+```
+
+It logs in with headless Chrome and opens all 23 Ops screens and tabs, plus
+workers, clients and bookings one by one. It fails on any script error, any
+"Could not load this page" message, or any error from the Ops API. It then
+checks the main screens at phone width. Read-only by default. On a local demo
+database, `$env:OPS_UI_WRITE = "1"` also opens every edit form (worker, client,
+booking, requirement, lead, payment, direct hire, settings) and saves it
+unchanged; each save must succeed. The API allows 120 requests a minute, so
+restart the server between runs if it reports a 429.
+
+**By hand, after a change** (ten minutes on the demo data):
+
+1. Dashboard: the counts match the demo (Ana, Ben, Cat and Finn ready; Cat's RTW ending soon; timesheets awaiting).
+2. Bookings > the part-staffed one > assign Dev: blocked (no right to work).
+3. Same booking > assign Eve: a warning that needs a written reason.
+4. Timesheets: approve Ana's; Cat's is disputed and will not approve until resolved.
+5. The invoiced booking: profit shows Estimate; enter actual payroll and it changes to actual.
+6. Change an upcoming booking's date: its shifts move (check the worker's page).
+7. Riverside Demo Venue: Terms issued, not accepted; its booking warns.
+8. Payroll history > Import CSV: preview a file with a bad row; the import refuses it.
+9. Exports: each CSV downloads and opens in Excel.
 
 ## Deploying to Fly.io safely
 

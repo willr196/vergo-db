@@ -367,6 +367,7 @@ r.patch('/bookings/:id', handle(async (req, res) => {
         }, tx);
       }
     }
+    await moveShiftsWithBooking(tx, before, body, actor);
     const comparable = { ...before, eventDate: dateKey(before.eventDate) } as unknown as Record<string, unknown>;
     const changes = diff(comparable, body as Record<string, unknown>);
     if (changes.changed) {
@@ -379,6 +380,57 @@ r.patch('/bookings/:id', handle(async (req, res) => {
   const shaped = shapeOpsBooking(await getOpsBooking(before.id));
   res.json({ ok: true, data: { ...shaped, warnings: await bookingWarnings(shaped) } });
 }));
+
+/**
+ * A booking's live shifts follow it to a new date, time or venue, so the
+ * worker's app, the rota and the timesheets never show the old one. A shift
+ * given its own start or finish keeps that time; only times that matched the
+ * booking's move.
+ */
+async function moveShiftsWithBooking(
+  tx: Prisma.TransactionClient,
+  before: OpsBookingRow,
+  body: { eventDate?: string; startTime?: string; expectedFinish?: string; venue?: string | null; address?: string | null },
+  actor: string,
+) {
+  const changed = (key: 'startTime' | 'expectedFinish' | 'venue' | 'address') => body[key] !== undefined && body[key] !== before[key];
+  const dateMoved = body.eventDate !== undefined && body.eventDate !== dateKey(before.eventDate);
+  if (!dateMoved && !changed('startTime') && !changed('expectedFinish') && !changed('venue') && !changed('address')) return;
+
+  const moved: string[] = [];
+  for (const a of before.assignments.filter((x) => x.status === 'PENDING' || x.status === 'CONFIRMED')) {
+    const start = changed('startTime') && a.shiftStart === before.startTime ? body.startTime! : a.shiftStart;
+    const finish = changed('expectedFinish') && a.shiftEnd === before.expectedFinish ? body.expectedFinish! : a.shiftEnd;
+    const data: Prisma.BookingUpdateInput = {};
+    if (dateMoved) data.eventDate = dateOnly(body.eventDate!);
+    if (changed('venue')) data.venue = body.venue ?? null;
+    if (changed('venue') || changed('address')) {
+      const address = body.address !== undefined ? body.address : before.address;
+      const venue = body.venue !== undefined ? body.venue : before.venue;
+      data.location = address ?? venue ?? 'To be confirmed';
+    }
+    if (start !== a.shiftStart || finish !== a.shiftEnd) {
+      let hours: number;
+      try { hours = shiftHours(start, finish, a.breakMins ?? 0); } catch (e: any) { fail(400, e.message); }
+      const minimum = toNum(a.requirement?.minimumHours) ?? PRICING.minimumChargeHours;
+      Object.assign(data, {
+        shiftStart: start, shiftEnd: finish, hoursEstimated: new Prisma.Decimal(hours),
+        totalEstimated: new Prisma.Decimal((Number(a.hourlyRateCharged) * Math.max(hours, minimum)).toFixed(2)),
+      });
+    }
+    if (Object.keys(data).length) {
+      await tx.booking.update({ where: { id: a.id }, data });
+      moved.push(a.id);
+    }
+  }
+  if (moved.length) {
+    await writeAudit(actor, {
+      action: 'ASSIGNMENT_CHANGED', entityType: 'OpsBooking', entityId: before.id,
+      newValue: { moved, eventDate: body.eventDate, startTime: body.startTime, expectedFinish: body.expectedFinish, venue: body.venue },
+      reason: 'Booking moved; its shifts moved with it',
+    }, tx);
+  }
+}
 
 /** Move a live booking between Confirmed / Staffing / Fully staffed as its assignments change. */
 async function syncStaffingStatus(bookingId: string, actor: string) {
@@ -525,6 +577,10 @@ r.post('/bookings/:id/invoice', handle(async (req, res) => {
   const booking = await getOpsBooking(req.params.id);
   if (booking.invoicedAt) fail(409, 'Already invoiced.');
   if (booking.status === 'CANCELLED') fail(409, 'A cancelled booking cannot be invoiced.');
+  if (booking.status === 'DRAFT' || booking.status === 'QUOTED') fail(409, `This booking is still ${booking.status.toLowerCase()}. Confirm it first.`);
+  if (!booking.assignments.some((a) => a.status === 'COMPLETED') && !booking.costs.some((c) => c.kind === 'CHARGE')) {
+    fail(409, 'Nothing to invoice yet: no approved shifts and no charges on this booking.');
+  }
   const unfinished = booking.assignments.filter((a) => a.status === 'PENDING' || a.status === 'CONFIRMED');
   if (unfinished.length) fail(409, `${unfinished.length} assignment(s) are not completed yet. Approve their timesheets first.`);
   const now = new Date();

@@ -10,7 +10,7 @@ import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { env } from '../env';
-import { sendApplicationNotificationEmail, sendApplicationConfirmationToApplicant, sendRosterApprovalEmail, sendRightToWorkRequestEmail } from '../services/email';
+import { sendApplicationNotificationEmail, sendApplicationConfirmationToApplicant, sendRosterApprovalEmail } from '../services/email';
 import { summariseChecks } from '../services/rightToWork';
 import { authLogger } from '../services/logger';
 import { groupRoleCounts, roleNamesForLabel } from '../services/roleGroups';
@@ -1394,18 +1394,7 @@ r.patch('/:id/status', adminAuth, async (req, res, next) => {
 
     const existing = await prisma.application.findUnique({
       where: { id: req.params.id },
-      select: {
-        id: true,
-        applicantId: true,
-        status: true,
-        applicant: {
-          select: {
-            firstName: true,
-            email: true,
-            rightToWorkChecks: { select: { outcome: true, expiresAt: true, checkedAt: true, checkedBy: true } }
-          }
-        }
-      }
+      select: { id: true }
     });
 
     if (!existing) {
@@ -1420,37 +1409,14 @@ r.patch('/:id/status', adminAuth, async (req, res, next) => {
     const adminUsername = (req.session as any)?.username || "admin";
     authLogger.info({ action: 'application_status_changed', admin: adminUsername, applicationId: req.params.id, status: parsed.data.status }, 'Admin changed application status');
 
-    // Hiring someone is the point at which the right-to-work check becomes
-    // due, so ask them for it then. Only on the transition into HIRED, and
-    // only if they are not already cleared — re-hiring an already-verified
-    // worker should not pester them for evidence we hold.
-    let rightToWorkRequestSent = false;
-    if (parsed.data.status === 'HIRED' && existing.status !== 'HIRED') {
-      const alreadyCleared = summariseChecks(existing.applicant.rightToWorkChecks ?? []).clearedToWork;
-      if (!alreadyCleared) {
-        rightToWorkRequestSent = true;
-        sendRightToWorkRequestEmail({
-          to: existing.applicant.email,
-          name: existing.applicant.firstName
-        })
-          .then((result) => {
-            authLogger.info({
-              action: 'right_to_work_request_sent',
-              admin: adminUsername,
-              applicationId: app.id,
-              success: Boolean(result?.success)
-            }, 'Right-to-work request email sent on hire');
-          })
-          .catch((err) => console.error('[EMAIL] right to work request:', err));
-      }
-    }
-
+    // Hiring sends nothing. The offer has often already gone out by text, so
+    // the welcome / right-to-work request email is a separate button
+    // (POST /api/v1/admin/right-to-work/:applicantId/request) pressed by choice.
     res.json({
       ok: true,
       id: app.id,
       status: app.status,
-      rightToWorkRequestSent,
-      data: { id: app.id, status: app.status, rightToWorkRequestSent }
+      data: { id: app.id, status: app.status }
     });
   } catch (e) { next(e); }
 });
