@@ -1576,3 +1576,179 @@ model DocumentLink {
   @@index([userId])
   @@index([clientId])
 }
+
+// ============================================================================
+// VERGO Scheduling
+//
+// The desktop admin tool (Documents/vergo_admin) on the web, with its exact
+// structure: clients, one-day jobs, people, the crew on each job, running
+// orders and outreach. Its own tables, deliberately separate from VERGO Ops:
+// nothing here is a worker account, an Ops booking or a payroll record.
+// Field names match the desktop tool's, so its backups restore row for row
+// (ids included). See src/scheduling/ and docs/VERGO-SCHEDULING.md.
+// ============================================================================
+
+model SchedClient {
+  id                String     @id @default(cuid())
+  name              String
+  contactName       String?
+  contactEmail      String?
+  contactPhone      String?
+  /// Pre-fills Job.chargeRate when you create a job for this client.
+  defaultChargeRate Decimal?   @db.Decimal(10, 2)
+  notes             String?
+  archived          Boolean    @default(false)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  jobs              SchedJob[]
+  /// The outreach that won this client, if it came from one.
+  lead              SchedLead?
+
+  @@index([archived, name])
+  @@map("sched_client")
+}
+
+/// One job on one day. A job running three days is three jobs sharing a seriesId.
+model SchedJob {
+  id            String                 @id @default(cuid())
+  /// VJ-0042.
+  reference     String                 @unique
+  clientId      String?
+  client        SchedClient?           @relation(fields: [clientId], references: [id])
+  title         String
+  venueName     String?
+  date          DateTime               @db.Date
+  /// 24-hour HH:MM. endTime <= startTime means it runs past midnight.
+  startTime     String
+  endTime       String
+  breakMinutes  Int                    @default(0)
+  /// Last day of a run; null on a one-day job.
+  endDate       DateTime?              @db.Date
+  ongoing       Boolean                @default(false)
+  /// 1=Monday to 7=Sunday. Empty means every day.
+  repeatDays    Int[]
+  seriesId      String?
+  staffNeeded   Int?
+  roleNeeded    String?
+  /// Per hour, ex VAT. What you charge the client.
+  chargeRate    Decimal                @db.Decimal(10, 2)
+  status        SchedJobStatus         @default(CONFIRMED)
+  invoiceStatus SchedInvoiceStatus     @default(NOT_INVOICED)
+  notes         String?
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  assignments   SchedAssignment[]
+  scheduleItems SchedJobScheduleItem[]
+
+  @@index([date])
+  @@index([clientId, date])
+  @@index([status, date])
+  @@index([invoiceStatus, status, date])
+  @@index([seriesId, date])
+  @@map("sched_job")
+}
+
+enum SchedJobStatus {
+  DRAFT
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum SchedInvoiceStatus {
+  NOT_INVOICED
+  INVOICED
+  PAID
+}
+
+/// A person who can be put on a job. Not a payroll record and not a worker account.
+model SchedStaff {
+  id          String            @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String?           @unique
+  phone       String?
+  /// Base rate for costing; holiday pay is added on top. No default: no rate, no assignment.
+  hourlyRate  Decimal?          @db.Decimal(10, 2)
+  status      SchedStaffStatus  @default(ACTIVE)
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  assignments SchedAssignment[]
+
+  @@index([status, lastName])
+  @@map("sched_staff")
+}
+
+enum SchedStaffStatus {
+  ACTIVE
+  INACTIVE
+}
+
+/// A person on a job.
+model SchedAssignment {
+  id           String     @id @default(cuid())
+  jobId        String
+  job          SchedJob   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  staffId      String
+  staff        SchedStaff @relation(fields: [staffId], references: [id])
+  hours        Decimal    @db.Decimal(5, 2)
+  rateOverride Decimal?   @db.Decimal(10, 2)
+  notes        String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([jobId, staffId])
+  @@index([staffId])
+  @@map("sched_assignment")
+}
+
+/// One line on a job's running order. Not a shift: editing it never changes hours.
+model SchedJobScheduleItem {
+  id        String   @id @default(cuid())
+  jobId     String
+  job       SchedJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  time      String?
+  title     String
+  assignee  String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([jobId, time])
+  @@map("sched_job_schedule_item")
+}
+
+/// A company approached for work, before it is a client.
+model SchedLead {
+  id           String           @id @default(cuid())
+  company      String
+  contactName  String?
+  contactEmail String?
+  contactPhone String?
+  contactedOn  DateTime         @db.Date
+  channel      SchedLeadChannel @default(EMAIL)
+  stage        SchedLeadStage   @default(CONTACTED)
+  notes        String?
+  clientId     String?          @unique
+  client       SchedClient?     @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([stage, contactedOn])
+  @@map("sched_lead")
+}
+
+enum SchedLeadChannel {
+  EMAIL
+  PHONE
+  IN_PERSON
+  OTHER
+}
+
+enum SchedLeadStage {
+  CONTACTED
+  REPLIED
+  WON
+  LOST
+}

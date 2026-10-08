@@ -7,6 +7,10 @@ The internal operations console, **VERGO Ops** (`/ops`: workers, compliance,
 bookings, timesheets, profit, payroll history), is documented in
 [docs/VERGO-OPS.md](docs/VERGO-OPS.md).
 
+**VERGO Scheduling** (`/scheduling/`) is the desktop admin tool on the web,
+same screens and structure, kept separate from Ops:
+[docs/VERGO-SCHEDULING.md](docs/VERGO-SCHEDULING.md).
+
 ## The public site
 
 Every public page is rendered by the API (`apps/api`, Express) on request.

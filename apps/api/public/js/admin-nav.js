@@ -22,6 +22,7 @@
 
     { group: 'Operations' },
     { href: 'ops',                    icon: '🧭', label: 'VERGO Ops' },
+    { href: 'scheduling/',            icon: '🗓️', label: 'VERGO Scheduling' },
 
     { group: 'Admin' },
     { href: 'admin-comms',            icon: '📬', label: 'Messages' },
