@@ -205,6 +205,13 @@ without needing it:
 - A worker who has an agreement **issued but not agreed** cannot accept an Ops
   shift until they agree it; the app sends them to My documents. With no
   agreement issued it is the office's call, made when offering.
+- **Their phone is told** (push, `src/ops/workerNotify.ts`) when the office
+  offers a shift, books them, changes its time, date or venue, cancels it or
+  replaces them, and when a KID or agreement is issued. Tapping opens the shift
+  or My documents. Nothing is sent for a past shift, for recording a worker's
+  own "no", or for a save that changed nothing. Ops says after each one whether
+  it reached their phone; if they are not on the app it says to let them know
+  yourself.
 
 ## Bookings and assignments
 
@@ -335,7 +342,8 @@ overrides, RTW refusals, the dashboard, AWR, direct hire, every CSV export, the
 payroll CSV import, settings, leads, the rota, and that nothing answers without
 an admin session. `opsDocuments.test.ts` covers the KID, agreement and Terms
 links; `opsWorkerApp.test.ts` the worker app (documents agreed in the app, shift
-details, accepting and declining); `opsDesktop.test.ts` the desktop import. They truncate tables, so they
+details, accepting and declining); `opsWorkerNotify.test.ts` what their phone is
+told; `opsDesktop.test.ts` the desktop import. They truncate tables, so they
 refuse any database that is not local with "test" in its name.
 
 **Demo data.** `npm run seed:ops-demo` adds, through the real Ops API, eight

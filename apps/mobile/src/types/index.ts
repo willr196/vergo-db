@@ -494,7 +494,8 @@ export type NotificationType =
   | 'new_applicant'
   | 'job_filled'
   | 'shift_request'
-  | 'shift_confirmed';
+  | 'shift_confirmed'
+  | 'documents';
 
 export interface PushNotification {
   id: string;

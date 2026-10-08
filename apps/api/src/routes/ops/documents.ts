@@ -25,6 +25,7 @@ import {
 } from '../../ops/settings';
 import { sendDocumentLinkEmail } from '../../services/email';
 import { handle, fail, ymd, optionalText } from './common';
+import { notifyDocumentsWaiting } from '../../ops/workerNotify';
 
 const r = Router();
 
@@ -87,7 +88,8 @@ r.post('/workers/:id/documents', handle(async (req, res) => {
   const worker = await loadWorker(req.params.id);
   if (!worker) fail(404, 'Worker not found');
   const doc = await issueWorkerDocument(worker.id, type, actorOf(req));
-  res.status(201).json({ ok: true, data: doc });
+  const notified = type === 'KEY_INFORMATION_DOCUMENT' || type === 'ZERO_HOURS_AGREEMENT' ? await notifyDocumentsWaiting(worker.id) : null;
+  res.status(201).json({ ok: true, data: { ...doc, notified } });
 }));
 
 const linkBody = z.object({ email: z.boolean().optional() });
@@ -125,7 +127,8 @@ r.post('/workers/:id/documents/pack', handle(async (req, res) => {
   if (!worker) fail(404, 'Worker not found');
   const result = await issueWorkerPack(worker.id, actor);
   const link = await workerLink(worker.id, actor, email ?? false);
-  res.status(201).json({ ok: true, data: { ...result, link } });
+  const notified = result.issued.length ? await notifyDocumentsWaiting(worker.id) : null;
+  res.status(201).json({ ok: true, data: { ...result, link, notified } });
 }));
 
 r.post('/workers/:id/document-link', handle(async (req, res) => {

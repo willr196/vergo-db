@@ -36,6 +36,13 @@
 
   function toast(msg, type) { AdminCore.toast(msg, type || 'success'); }
   function fail(err) { toast(err.message || String(err), 'error'); }
+  // After a change the worker should hear about: say whether their phone was
+  // told, or that they are not on the app and need a text or call instead.
+  function toastNotified(msg, notified) {
+    if (!notified) return toast(msg);
+    if (notified.hasApp) return toast(msg + '. Sent to their phone.');
+    AdminCore.toast(msg + '. They are not on the VERGO app, so let them know yourself.', 'warning', 8000);
+  }
 
   function gbp(pence) {
     if (pence == null) return '—';
@@ -436,7 +443,7 @@
           data.requirementId = s.requirementId;
           data.workerId = w.id;
           var res = await submitWithOverride('/bookings/' + s.bookingId + '/assignments', 'POST', data);
-          if (res) { toast('Booked onto ' + s.reference); done(); }
+          if (res) { toastNotified('Booked onto ' + s.reference, res.notified); done(); }
           return res ? undefined : false;
         } }]);
     });
@@ -592,7 +599,7 @@
       if (!(await confirmDialog(label + ': issue the current version to ' + w.name + '? Any earlier live copy is marked superseded.', 'Issue'))) return;
       try {
         var doc = await api('/workers/' + id + '/documents', { method: 'POST', body: { type: type } });
-        toast('Issued'); window.open('/ops/print/document/' + doc.id, '_blank', 'noopener'); reload();
+        toastNotified('Issued', doc.notified); window.open('/ops/print/document/' + doc.id, '_blank', 'noopener'); reload();
       } catch (err) { fail(err); }
     });
     on(main, 'button[data-accept]', 'click', function (_e, el) {
@@ -1255,7 +1262,7 @@
       if ((status === 'CANCELLED' || status === 'NO_SHOW') && !(await confirmDialog(status === 'CANCELLED' ? 'Cancel this assignment?' : 'Record a no-show? The shift will not be charged or paid.', 'Yes', true))) return;
       try {
         var res = await submitWithOverride('/assignments/' + el.dataset.a, 'PATCH', { status: status });
-        if (res) { toast('Updated'); reload(); }
+        if (res) { toastNotified('Updated', res.notified); reload(); }
       } catch (err) { if (err.message !== 'Assignment blocked') fail(err); }
     });
     on(main, '[data-replace]', 'click', async function (_e, el) {
@@ -1266,13 +1273,13 @@
         field('Why', 'reason', '', 'text', { required: true, wide: true }) + '</div>',
         [{ label: 'Replace', onClick: async function (body) {
           var res = await submitWithOverride('/assignments/' + el.dataset.replace + '/replace', 'POST', readForm(body));
-          if (res) { toast('Replaced'); reload(); }
+          if (res) { toastNotified('Replaced', res.notified); reload(); }
         } }]);
     });
     on(main, '[data-confirmation]', 'click', async function (_e, el) {
       try {
         var doc = await api('/assignments/' + el.dataset.confirmation + '/confirmation', { method: 'POST' });
-        toast('Assignment confirmation issued. The worker can also see it through their secure document link.'); window.open('/ops/print/document/' + doc.id, '_blank', 'noopener');
+        toast('Assignment confirmation issued. The worker can also see it on the shift in the app, and through their secure document link.'); window.open('/ops/print/document/' + doc.id, '_blank', 'noopener');
       } catch (err) { fail(err); }
     });
     main.querySelector('#add-cost').addEventListener('click', function () {
@@ -1321,7 +1328,7 @@
         var data = compact(readForm(bd));
         data.requirementId = r.id;
         var res = await submitWithOverride('/bookings/' + b.id + '/assignments', 'POST', data);
-        if (res) { toast('Assigned'); done(); }
+        if (res) { toastNotified('Assigned', res.notified); done(); }
         return res ? undefined : false;
       } }]);
     var check = async function () {
@@ -1461,7 +1468,8 @@
       'Issues the current Key Information Document first, then the current Zero-Hours Employment Agreement, skipping any the worker already has at the current version. An agreement already made stays in force until the new one is agreed. Issue dates are today; nothing is backdated.',
       async function (email) {
         var r = await api('/workers/' + workerId + '/documents/pack', { method: 'POST', body: { email: email } });
-        toast(r.issued.length ? 'Issued: ' + r.issued.map(function (x) { return DOC_LABELS[x.type] + ' v' + x.version; }).join(', ') : 'Nothing new to issue; link created');
+        if (r.issued.length) toastNotified('Issued: ' + r.issued.map(function (x) { return DOC_LABELS[x.type] + ' v' + x.version; }).join(', '), r.notified);
+        else toast('Nothing new to issue; link created');
         if (done) done();
         return r.link;
       });

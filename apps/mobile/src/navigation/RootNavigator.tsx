@@ -111,6 +111,8 @@ function handleNotificationTap(
   } else if (type === 'shift_request' && userType === 'jobseeker') {
     const bookingId = readStringDataField(data, 'bookingId');
     if (bookingId) navigationRef.navigate('ShiftDetail', { shiftId: bookingId });
+  } else if (type === 'documents' && userType === 'jobseeker') {
+    navigationRef.navigate('MyDocuments');
   } else if ((type === 'shift_confirmed' || type === 'shift_declined') && userType === 'client') {
     const bookingId = readStringDataField(data, 'bookingId');
     if (bookingId) navigationRef.navigate('BookingDetail', { bookingId });

@@ -26,6 +26,7 @@ import { handle, fail, ymd, clock, optionalText, money, dateOnly } from './commo
 import { MIN_RATE } from '../../site/settings';
 import { loadOpsSettings } from '../../ops/settings';
 import { copyBookingTo, newDayStatus } from '../../ops/series';
+import { notifyShifts } from '../../ops/workerNotify';
 
 const r = Router();
 
@@ -352,6 +353,8 @@ r.patch('/bookings/:id', handle(async (req, res) => {
   const data: Prisma.OpsBookingUpdateInput = { ...body, ...(body.eventDate ? { eventDate: dateOnly(body.eventDate) } : {}) };
   delete (data as any).quoteRequestId;
 
+  const cancelling = body.status === 'CANCELLED' && before.status !== 'CANCELLED';
+  let moved: string[] = [];
   await prisma.$transaction(async (tx) => {
     await tx.opsBooking.update({ where: { id: before.id }, data });
     // Cancelling the booking cancels its live assignments, so the workers'
@@ -366,7 +369,7 @@ r.patch('/bookings/:id', handle(async (req, res) => {
         }, tx);
       }
     }
-    await moveShiftsWithBooking(tx, before, body, actor);
+    if (!cancelling) moved = await moveShiftsWithBooking(tx, before, body, actor);
     const comparable = { ...before, eventDate: dateKey(before.eventDate) } as unknown as Record<string, unknown>;
     const changes = diff(comparable, body as Record<string, unknown>);
     if (changes.changed) {
@@ -376,6 +379,9 @@ r.patch('/bookings/:id', handle(async (req, res) => {
       }, tx);
     }
   });
+  // Tell the workers' phones, now the change has committed.
+  if (cancelling) await notifyShifts('cancelled', before.assignments.filter((a) => a.status === 'PENDING' || a.status === 'CONFIRMED').map((a) => a.id));
+  else await notifyShifts('changed', moved);
   const shaped = shapeOpsBooking(await getOpsBooking(before.id));
   res.json({ ok: true, data: { ...shaped, warnings: await bookingWarnings(shaped) } });
 }));
@@ -391,10 +397,10 @@ async function moveShiftsWithBooking(
   before: OpsBookingRow,
   body: { eventDate?: string; startTime?: string; expectedFinish?: string; venue?: string | null; address?: string | null },
   actor: string,
-) {
+): Promise<string[]> {
   const changed = (key: 'startTime' | 'expectedFinish' | 'venue' | 'address') => body[key] !== undefined && body[key] !== before[key];
   const dateMoved = body.eventDate !== undefined && body.eventDate !== dateKey(before.eventDate);
-  if (!dateMoved && !changed('startTime') && !changed('expectedFinish') && !changed('venue') && !changed('address')) return;
+  if (!dateMoved && !changed('startTime') && !changed('expectedFinish') && !changed('venue') && !changed('address')) return [];
 
   const moved: string[] = [];
   for (const a of before.assignments.filter((x) => x.status === 'PENDING' || x.status === 'CONFIRMED')) {
@@ -429,6 +435,7 @@ async function moveShiftsWithBooking(
       reason: 'Booking moved; its shifts moved with it',
     }, tx);
   }
+  return moved;
 }
 
 /** Move a live booking between Confirmed / Staffing / Fully staffed as its assignments change. */
@@ -749,7 +756,8 @@ r.post('/bookings/:id/assignments', handle(async (req, res) => {
     return row;
   });
   await syncStaffingStatus(booking.id, actor);
-  res.status(201).json({ ok: true, data: { assignmentId: created.id, warnings, booking: shapeOpsBooking(await getOpsBooking(booking.id)) } });
+  const notified = (await notifyShifts(body.status === 'CONFIRMED' ? 'booked' : 'offered', [created.id])).get(created.id);
+  res.status(201).json({ ok: true, data: { assignmentId: created.id, warnings, notified: notified ?? null, booking: shapeOpsBooking(await getOpsBooking(booking.id)) } });
 }));
 
 const assignmentUpdate = z.object({
@@ -819,7 +827,15 @@ r.patch('/assignments/:id', handle(async (req, res) => {
     }, tx);
   });
   await syncStaffingStatus(before.opsBookingId, actor);
-  res.json({ ok: true, data: shapeOpsBooking(await getOpsBooking(before.opsBookingId)) });
+  // REJECTED here records a worker's own no; nothing to tell them.
+  const statusMoved = body.status && body.status !== before.status;
+  const live = before.status === 'PENDING' || before.status === 'CONFIRMED';
+  const timesMoved = (body.plannedStart && body.plannedStart !== before.shiftStart) || (body.plannedFinish && body.plannedFinish !== before.shiftEnd);
+  const notice = statusMoved
+    ? body.status === 'CANCELLED' && live ? 'cancelled' : body.status === 'CONFIRMED' ? 'booked' : body.status === 'PENDING' ? 'offered' : null
+    : timesMoved && live ? 'changed' : null;
+  const notified = notice ? (await notifyShifts(notice, [before.id])).get(before.id) ?? null : null;
+  res.json({ ok: true, data: { ...shapeOpsBooking(await getOpsBooking(before.opsBookingId)), notified } });
 }));
 
 // Swap a worker out: the old row is cancelled and points at the new one.
@@ -835,7 +851,7 @@ r.post('/assignments/:id/replace', handle(async (req, res) => {
   const verdict = canProceed(warnings, body.overrideReason);
   if (!verdict.ok) fail(409, verdict.needsReason ? 'Warnings need an override reason.' : 'This assignment is blocked.', { warnings, ...verdict });
 
-  await prisma.$transaction(async (tx) => {
+  const replacementId = await prisma.$transaction(async (tx) => {
     const { id: _id, createdAt: _c, updatedAt: _u, staff: _s, requirement: _r, ...copy } = old as any;
     const replacement = await tx.booking.create({
       data: {
@@ -858,9 +874,12 @@ r.post('/assignments/:id/replace', handle(async (req, res) => {
       oldValue: { assignmentId: old.id, worker: `${old.staff.firstName} ${old.staff.lastName}` },
       newValue: { assignmentId: replacement.id, worker: worker.name, replaced: true }, reason: body.reason,
     }, tx);
+    return replacement.id;
   });
   await syncStaffingStatus(booking.id, actor);
-  res.json({ ok: true, data: shapeOpsBooking(await getOpsBooking(booking.id)) });
+  await notifyShifts('cancelled', [old.id]);
+  const notified = (await notifyShifts(body.status === 'CONFIRMED' ? 'booked' : 'offered', [replacementId])).get(replacementId) ?? null;
+  res.json({ ok: true, data: { ...shapeOpsBooking(await getOpsBooking(booking.id)), notified } });
 }));
 
 // Assignment confirmation, generated from the booking and requirement.
