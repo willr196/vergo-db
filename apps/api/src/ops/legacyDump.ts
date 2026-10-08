@@ -25,6 +25,11 @@ const BOOLEAN_COLUMNS = new Set(['archived', 'ongoing']);
 const INTEGER_COLUMNS = new Set(['breakMinutes', 'staffNeeded']);
 const INT_ARRAY_COLUMNS = new Set(['repeatDays']);
 
+/** pg_dump's last line; every complete backup has it. */
+const DUMP_COMPLETE = '-- PostgreSQL database dump complete';
+const INCOMPLETE = 'This backup is incomplete: the backup run was cut short before it finished, so it does not hold all your data. '
+  + 'Nothing was read from it. Choose an earlier vergo-ops-*.sql file from vergo_admin/backups.';
+
 /** One field of COPY text format: \N is null, backslash escapes as pg_dump writes them. */
 function copyField(raw: string): string | null {
   if (raw === '\\N') return null;
@@ -57,13 +62,26 @@ export function parsePgDump(sql: string): LegacyData {
     for (i++; i < lines.length && lines[i] !== '\\.'; i++) {
       if (!key) continue;
       const fields = lines[i].split('\t');
-      if (fields.length !== columns.length) throw new Error(`The backup's ${m[1]} table has a malformed row.`);
+      if (fields.length !== columns.length) {
+        // The last line of a file that stops mid-row is short, not malformed.
+        if (i >= lines.length - 2) throw new Error(INCOMPLETE);
+        throw new Error(`The backup's ${m[1]} table has a malformed row.`);
+      }
       data[key].push(Object.fromEntries(columns.map((c, n) => [c, typed(c, copyField(fields[n]))])));
     }
+    // A table's rows always end with "\.". Running out of file first means the
+    // backup stopped part way, and what was read is only some of the data.
+    if (i >= lines.length) throw new Error(INCOMPLETE);
     if (key) seen.add(m[1]);
   }
   for (const required of ['Client', 'Staff', 'Job', 'Assignment']) {
-    if (!seen.has(required)) throw new Error('This is not a backup from the desktop VERGO Ops tool (no ' + required + ' table found). Choose a vergo-ops-*.sql file from vergo_admin/backups.');
+    if (!seen.has(required)) {
+      // A pg_dump without its closing line was cut short (8 Oct 2026: a run
+      // killed before any data was written), which is not the same as the
+      // wrong file.
+      if (/PostgreSQL database dump/.test(sql) && !sql.includes(DUMP_COMPLETE)) throw new Error(INCOMPLETE);
+      throw new Error('This is not a backup from the desktop VERGO Ops tool (no ' + required + ' table found). Choose a vergo-ops-*.sql file from vergo_admin/backups.');
+    }
   }
   data.jobs.sort((a, b) => (a.date === b.date ? String(a.startTime).localeCompare(String(b.startTime)) : a.date < b.date ? -1 : 1));
   for (const k of ['clients', 'staff', 'assignments', 'leads', 'scheduleItems'] as const) {

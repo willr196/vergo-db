@@ -76,7 +76,10 @@ a:hover { text-decoration: underline; }
 .sidebar-foot .foot-link { display: block; margin-top: 0.4rem; color: var(--text-dim); text-decoration: none; }
 .sidebar-foot .foot-link:hover, .sidebar-foot .foot-link.active { color: var(--gold); }
 
-.main { padding: 1.75rem 2rem 4rem; max-width: 1400px; }
+/* min-width: 0 lets the column shrink below its widest table on a phone, so
+   tables scroll inside their own box instead of widening the page. (The
+   website addition to the desktop styles; on a computer nothing changes.) */
+.main { padding: 1.75rem 2rem 4rem; max-width: 1400px; min-width: 0; }
 .page-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
 .page-head p { margin: 0.25rem 0 0; color: var(--text-dim); font-size: 0.9rem; }
 

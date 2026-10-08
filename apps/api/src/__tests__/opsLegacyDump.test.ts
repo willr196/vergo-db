@@ -56,3 +56,32 @@ test('turns COPY text into the values the importer expects', () => {
 test('refuses a file that is not a desktop tool backup', () => {
   assert.throws(() => parsePgDump('SELECT 1;'), /not a backup from the desktop VERGO Ops tool/);
 });
+
+// A backup run killed part way (8 Oct 2026) leaves a file that stops wherever
+// pg_dump had got to. None of it may be read as though it were all the data.
+test('says a backup cut short is incomplete, wherever it stops', () => {
+  const lines = dump.split('\r\n');
+  const at = (text: string) => lines.findIndex((l) => l.startsWith(text));
+
+  // Before any data, as on 8 Oct: only the start of the table definitions.
+  const beforeData = ['-- PostgreSQL database dump', 'SET client_encoding = \'UTF8\';', 'CREATE TABLE public."AdminUser" ('].join('\r\n');
+  assert.throws(() => parsePgDump(beforeData), /backup is incomplete/);
+
+  // Between two rows of a table: every line looks fine, but the table never ends.
+  const midTable = lines.slice(0, at('j1')).join('\r\n');
+  assert.throws(() => parsePgDump(midTable), /backup is incomplete/);
+  assert.throws(() => parsePgDump(midTable + '\r\n'), /backup is incomplete/);
+
+  // Part way through a row.
+  const midRow = lines.slice(0, at('j1')).join('\r\n') + '\r\nj1\tVJ-1\t2026-09';
+  assert.throws(() => parsePgDump(midRow), /backup is incomplete/);
+
+  // A finished backup is still read, with or without pg_dump's closing line.
+  assert.equal(parsePgDump(dump).jobs.length, 2);
+  assert.equal(parsePgDump(dump + '\r\n--\r\n-- PostgreSQL database dump complete\r\n--\r\n').jobs.length, 2);
+});
+
+test('a malformed row in the middle is still called malformed, not incomplete', () => {
+  const broken = dump.replace('s1\tJada\tX\t12.71', 's1\tJada\t12.71');
+  assert.throws(() => parsePgDump(broken), /Staff table has a malformed row/);
+});

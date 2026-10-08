@@ -25,8 +25,9 @@ timesheets, invoicing); Scheduling is the quick booking board you already know.
 
 - The screens are the desktop's Svelte source, unchanged apart from: the
   login (the admin login replaces the desktop's own), "Scheduling" under the
-  VERGO mark, and three links at the foot of the sidebar (Restore a desktop
-  backup, VERGO Ops, Sign out).
+  VERGO mark, three links at the foot of the sidebar (Restore a desktop
+  backup, VERGO Ops, Sign out), and `min-width: 0` on `.main` so every screen
+  fits a phone (tables scroll inside their box; on a computer nothing changes).
 - The API routes are the desktop's own route files
   (`src/scheduling/routes/*.ts`), run through a small Fastify-to-Express
   adapter (`fastifyShim.ts`) so they did not need rewriting. Only their imports
@@ -61,6 +62,10 @@ restores on a click.
   will clash on their VJ numbers, because each side counts from its own
   highest.
 
+A backup whose run was cut short (the file stops part way, as on 8 Oct 2026)
+is refused as incomplete, wherever it stops, so part of the data is never taken
+for all of it. `backup.ps1` now also refuses to keep one (see its README).
+
 Only the COPY blocks of the file are read; nothing in it is run. The desktop's
 login (AdminUser) is never read.
 
@@ -83,8 +88,8 @@ Commit the built files with the source. For hot reload, run the API on 4310
 
 If the desktop tool changes, copy its `apps/admin/src` over `apps/scheduling/src`
 again and redo the edits listed under "Kept exact on purpose" (all in
-`App.svelte`, `lib/api.ts`, `pages/Restore.svelte` and the `foot-link` rule in
-`app.css`).
+`App.svelte`, `lib/api.ts`, `pages/Restore.svelte`, and the `foot-link` rules
+and `.main` min-width in `app.css`).
 
 ## Tests
 

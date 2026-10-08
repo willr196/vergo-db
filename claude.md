@@ -5,6 +5,8 @@ Monorepo with three apps:
 - `apps/api` - Express.js backend, Prisma ORM, PostgreSQL, deployed on Fly.io
 - `apps/mobile` - React Native/Expo (TypeScript), Zustand state, Axios API client
 - `apps/api/public/` - Web frontend (static HTML/JS pages)
+- `apps/scheduling` - VERGO Scheduling: the desktop admin tool's Svelte screens, built into
+  `apps/api/public/scheduling/` (commit the build). API in `apps/api/src/scheduling/`. See docs/VERGO-SCHEDULING.md
 
 ## Auth
 - Web: session-based (`express-session`, cookie `vergo.sid`)
