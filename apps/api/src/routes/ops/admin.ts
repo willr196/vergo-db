@@ -22,7 +22,6 @@ import { needsWording, DOC_TYPE_LABELS, type OpsDocType } from '../../ops/docume
 import { dateKey, londonDateKey, addDays, taxYearOf } from '../../ops/time';
 import { loadOpsBookings } from './bookings';
 import { importLegacy, parsePgDump } from '../../ops/legacyImport';
-import { readSchedulingTables, schedulingRowCount } from '../../ops/schedulingSource';
 import { handle, fail, ymd, optionalText, sendCsv, dateOnly } from './common';
 
 const r = Router();
@@ -434,31 +433,15 @@ r.get('/legacy-import', handle(async (_req, res) => {
   });
 }));
 
-/** How much is still in the old VERGO Scheduling tables, to offer bringing it across. */
-r.get('/legacy-import/scheduling', handle(async (_req, res) => {
-  res.json({ ok: true, data: { rows: await schedulingRowCount() } });
-}));
-
-/**
- * Preview (commit false) or import: a backup file from the desktop tool, or
- * (source "scheduling") what was entered in VERGO Scheduling before it was
- * folded into Ops.
- */
+/** Preview (commit false) or import a backup file from the desktop tool. */
 r.post('/legacy-import', handle(async (req, res) => {
-  const body = z.union([
-    z.object({ sql: z.string().min(1).max(4_500_000), commit: z.boolean().default(false) }),
-    z.object({ source: z.literal('scheduling'), commit: z.boolean().default(false) }),
-  ]).parse(req.body);
+  const body = z.object({ sql: z.string().min(1).max(4_500_000), commit: z.boolean().default(false) }).parse(req.body);
   let data;
-  if ('sql' in body) {
-    try { data = parsePgDump(body.sql); } catch (error: any) { fail(400, error.message); }
-  } else {
-    data = await readSchedulingTables();
-  }
+  try { data = parsePgDump(body.sql); } catch (error: any) { fail(400, error.message); }
   const actor = actorOf(req);
   const result = await importLegacy(data, { commit: body.commit, actor });
   if (body.commit) {
-    await writeAudit(actor, { action: 'LEGACY_IMPORT', entityType: 'OpsLegacyImport', entityId: 'sql' in body ? 'vergo_admin' : 'vergo_scheduling', newValue: { source: result.source, counts: result.counts } });
+    await writeAudit(actor, { action: 'LEGACY_IMPORT', entityType: 'OpsLegacyImport', entityId: 'vergo_admin', newValue: { source: result.source, counts: result.counts } });
   }
   res.json({ ok: true, data: result });
 }));

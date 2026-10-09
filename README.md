@@ -5,8 +5,11 @@ and the mobile app. See `CLAUDE.md` for the layout of the monorepo.
 
 The internal operations console, **VERGO Ops** (`/ops`: workers, compliance,
 bookings, timesheets, profit, payroll history), is documented in
-[docs/VERGO-OPS.md](docs/VERGO-OPS.md). VERGO Scheduling is part of it now;
-`/scheduling/` opens Ops.
+[docs/VERGO-OPS.md](docs/VERGO-OPS.md).
+
+**VERGO Scheduling** (`/scheduling/`) is the desktop admin tool on the web,
+same screens and structure, kept separate from Ops:
+[docs/VERGO-SCHEDULING.md](docs/VERGO-SCHEDULING.md).
 
 ## The public site
 

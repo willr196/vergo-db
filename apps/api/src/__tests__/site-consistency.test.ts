@@ -49,10 +49,11 @@ interface Page {
   root: Node;
 }
 
-// The admin panel and its login page are out of scope.
+// The admin panel, its login page and VERGO Scheduling (an admin app, built
+// from apps/scheduling) are out of scope.
 const pages: Page[] = walk(publicDir)
   .map((file) => path.relative(publicDir, file).split(path.sep).join('/'))
-  .filter((rel) => !/^admin/.test(rel) && rel !== 'login.html')
+  .filter((rel) => !/^admin/.test(rel) && !rel.startsWith('scheduling/') && rel !== 'login.html')
   .map((rel) => {
     const file = path.join(publicDir, rel);
     const html = renderPublicSource(fs.readFileSync(file, 'utf8'), file, publicDir);

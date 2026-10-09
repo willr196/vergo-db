@@ -1578,13 +1578,14 @@ model DocumentLink {
 }
 
 // ============================================================================
-// VERGO Scheduling (retired, read only)
+// VERGO Scheduling
 //
-// The desktop tool's tables as VERGO Scheduling kept them on the web, before
-// it was folded into VERGO Ops (9 Oct 2026). Nothing writes to them now. They
-// are kept only so Ops > Import > VERGO Scheduling can bring what was entered
-// there into Ops (src/ops/schedulingSource.ts); drop them in a later migration
-// once that has been done in production.
+// The desktop admin tool (Documents/vergo_admin) on the web, with its exact
+// structure: clients, one-day jobs, people, the crew on each job, running
+// orders and outreach. Its own tables, deliberately separate from VERGO Ops:
+// nothing here is a worker account, an Ops booking or a payroll record.
+// Field names match the desktop tool's, so its backups restore row for row
+// (ids included). See src/scheduling/ and docs/VERGO-SCHEDULING.md.
 // ============================================================================
 
 model SchedClient {

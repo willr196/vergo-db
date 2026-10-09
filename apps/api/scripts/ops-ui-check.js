@@ -42,7 +42,7 @@ const CHROME = process.env.CHROME_BIN || [
 ].find((p) => fs.existsSync(p));
 
 const SCREENS = [
-  'dashboard', 'workers', 'workers?ready=not_ready', 'rtw', 'clients', 'bookings', 'bookings?status=INVOICED', 'bookings?view=calendar',
+  'dashboard', 'workers', 'workers?ready=not_ready', 'rtw', 'clients', 'bookings', 'bookings?view=calendar',
   'rota', 'leads', 'timesheets', 'documents', 'documents?tab=workers', 'documents?tab=clients', 'documents?tab=templates',
   'documents?tab=versions', 'documents?tab=outstanding', 'awr', 'direct-hire', 'payroll', 'exports', 'audit', 'settings', 'import',
 ];

@@ -1,12 +1,12 @@
 # VERGO Events Platform
 
 ## Architecture
-Monorepo with two apps:
+Monorepo with three apps:
 - `apps/api` - Express.js backend, Prisma ORM, PostgreSQL, deployed on Fly.io
 - `apps/mobile` - React Native/Expo (TypeScript), Zustand state, Axios API client
 - `apps/api/public/` - Web frontend (static HTML/JS pages)
-- VERGO Ops (`/ops`) is the one operations console; VERGO Scheduling was folded into it
-  (9 Oct 2026). Its `sched_*` tables are read only, for Ops > Import. See docs/VERGO-OPS.md
+- `apps/scheduling` - VERGO Scheduling: the desktop admin tool's Svelte screens, built into
+  `apps/api/public/scheduling/` (commit the build). API in `apps/api/src/scheduling/`. See docs/VERGO-SCHEDULING.md
 
 ## Auth
 - Web: session-based (`express-session`, cookie `vergo.sid`)

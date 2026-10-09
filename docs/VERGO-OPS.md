@@ -5,15 +5,8 @@ hirers, bookings, assignments, timesheets, booking profit, and the tracking
 aids for AWR, pensions, direct hire and historic payroll.
 
 It is part of the main API (`apps/api`), not a separate app. The older local
-tool in `Documents/vergo_admin` (also called "VERGO Ops") is separate; its
-bookings come in through Ops > Import (see "Importing from the desktop tool").
-
-It is the one operations console. VERGO Scheduling (the desktop tool's own
-screens on the web, at `/scheduling/`) was folded into it on 9 Oct 2026, because
-it was the same thing twice: its Dashboard, Jobs, Rota, People, Clients and
-Outreach are Ops' Dashboard, Bookings, Rota, Workers, Clients and Leads, and its
-Awaiting payment and Completed lists are the quick lists on Bookings.
-`/scheduling/` now opens Ops.
+tool in `Documents/vergo_admin` (also called "VERGO Ops") is separate and its
+data has not been imported.
 
 ## Access and authentication
 
@@ -276,18 +269,6 @@ is `src/ops/legacyImport.ts`.
 
 Imported workers have no right-to-work check (the desktop tool never held one),
 so they cannot be assigned to new shifts here until one is recorded.
-
-### Bringing across VERGO Scheduling
-
-What was entered in VERGO Scheduling is still in its own tables (`sched_*`),
-read only. While any of it is not in Ops yet, Ops > Import shows a **VERGO
-Scheduling** card: **Preview what comes across**, then import, exactly as with
-a backup (same importer, `src/ops/schedulingSource.ts` reads the tables). Rows
-that Scheduling restored from a desktop backup kept the desktop's ids, so
-anything already imported from that backup is skipped, not doubled. As with a
-backup, a job already in Ops is not updated: an edit made to it in Scheduling
-has to be made in Ops by hand. Once it is all across in production, a later
-migration can drop the `sched_*` tables.
 
 ## Timesheets → profit
 
