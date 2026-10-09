@@ -101,6 +101,60 @@ test('a desktop backup imports once, with usual rates, and people added offline 
   assert.equal(summary.find((x: any) => x.entity === 'Assignment').count, 2);
 });
 
+test('VERGO Scheduling comes across into Ops once, without doubling what a backup already brought', async () => {
+  await prisma.$executeRawUnsafe('TRUNCATE TABLE sched_job_schedule_item, sched_assignment, sched_lead, sched_job, sched_staff, sched_client CASCADE');
+  assert.equal(ok(await admin('GET', '/legacy-import/scheduling')).rows, 0);
+  ok(await admin('POST', '/legacy-import', { sql: backup(), commit: true }));
+
+  // Scheduling restored the same backup (same ids), then a new client, person
+  // and two-day run were made on the web.
+  const at = new Date('2026-09-01T09:00:00Z');
+  await prisma.schedClient.createMany({ data: [
+    { id: 'c1', name: 'Popcorn', contactName: 'Jo', defaultChargeRate: '15.00', createdAt: at },
+    { id: 'web-c', name: 'Hackney Hall', contactEmail: 'events@hackneyhall.example.com', defaultChargeRate: '18.00' },
+  ] });
+  await prisma.schedStaff.createMany({ data: [
+    { id: 's1', firstName: 'jada', lastName: 'smith', email: 'jada.desktop@example.com', hourlyRate: '12.71', createdAt: at },
+    { id: 'web-s', firstName: 'Ola', lastName: 'Ade', email: 'ola.web@example.com', hourlyRate: '14.00' },
+  ] });
+  await prisma.schedJob.createMany({ data: [
+    { id: 'j1', reference: 'VJ-0001', clientId: 'c1', title: 'Studio lunch', venueName: 'Warner Bros Studio', date: new Date('2026-12-01T00:00:00Z'), startTime: '07:00', endTime: '17:00', breakMinutes: 30, chargeRate: '15.00', staffNeeded: 1, roleNeeded: 'Kitchen porter', createdAt: at },
+    { id: 'web-j1', reference: 'VJ-0002', clientId: 'web-c', title: 'Gala', venueName: 'Hackney Hall', date: new Date('2026-12-12T00:00:00Z'), startTime: '18:00', endTime: '01:00', chargeRate: '18.00', staffNeeded: 1, roleNeeded: 'Bartender', seriesId: 'run1', endDate: new Date('2026-12-13T00:00:00Z') },
+    { id: 'web-j2', reference: 'VJ-0003', clientId: 'web-c', title: 'Gala', venueName: 'Hackney Hall', date: new Date('2026-12-13T00:00:00Z'), startTime: '18:00', endTime: '01:00', chargeRate: '18.00', staffNeeded: 1, roleNeeded: 'Bartender', seriesId: 'run1', endDate: new Date('2026-12-13T00:00:00Z') },
+  ] });
+  await prisma.schedAssignment.createMany({ data: [
+    { id: 'as1', jobId: 'j1', staffId: 's1', hours: '9.5', createdAt: at },
+    { id: 'web-a', jobId: 'web-j1', staffId: 'web-s', hours: '7', rateOverride: '15.00' },
+  ] });
+  await prisma.schedLead.create({ data: { id: 'web-l', company: 'Shoreditch Arts', contactedOn: new Date('2026-10-02T00:00:00Z'), stage: 'REPLIED' } });
+  await prisma.schedJobScheduleItem.create({ data: { jobId: 'web-j1', time: '17:30', title: 'Staff arrive' } });
+
+  assert.equal(ok(await admin('GET', '/legacy-import/scheduling')).rows, 5, 'web client, person, two jobs and the lead');
+  const preview = ok(await admin('POST', '/legacy-import', { source: 'scheduling' }));
+  assert.equal(preview.committed, false);
+  assert.equal(preview.counts.Job.created, 2);
+  assert.equal(preview.counts.Job.skipped, 1, 'the job the backup already brought');
+  assert.equal(await prisma.opsBooking.count(), 1, 'a preview writes nothing');
+
+  const done = ok(await admin('POST', '/legacy-import', { source: 'scheduling', commit: true }));
+  assert.equal(done.counts.Client.created, 1);
+  assert.equal(done.counts.Staff.created, 1);
+  assert.equal(done.counts.Assignment.created, 1);
+  assert.equal(done.counts.Lead.created, 1);
+  assert.equal(done.counts['Running order line'].created, 1);
+  assert.equal(await prisma.opsBooking.count(), 3);
+  const gala = await prisma.opsBooking.findFirstOrThrow({ where: { venue: 'Hackney Hall', eventDate: new Date('2026-12-12T00:00:00Z') }, include: { assignments: true, requirements: true } });
+  assert.equal(gala.startTime, '18:00');
+  assert.equal(Number(gala.requirements[0].clientChargeRate), 18);
+  assert.equal(Number(gala.assignments[0].staffPayRate), 15, 'the rate the person was on');
+  assert.equal(await prisma.auditLog.count({ where: { action: 'LEGACY_IMPORT', entityId: 'vergo_scheduling' } }), 1);
+
+  assert.equal(ok(await admin('GET', '/legacy-import/scheduling')).rows, 0, 'nothing left to bring across');
+  const again = ok(await admin('POST', '/legacy-import', { source: 'scheduling', commit: true }));
+  assert.equal(Object.values(again.counts).reduce((n: number, c: any) => n + c.created + c.linked, 0), 0);
+  assert.equal(await prisma.opsBooking.count(), 3);
+});
+
 test('a file that is not a desktop backup is refused', async () => {
   const res = await admin('POST', '/legacy-import', { sql: 'DROP TABLE "User";' });
   assert.equal(res.statusCode, 400);

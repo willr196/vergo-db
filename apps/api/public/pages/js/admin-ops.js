@@ -947,6 +947,10 @@
     var clients = clientData.clients;
     main.innerHTML = '<div class="ops-head"><div><h2>Bookings</h2><div class="ops-lede">Revenue and margin are estimates until timesheets are approved and actual payroll is entered.</div></div>' +
       '<div class="ops-actions">' + viewSwitch('list', query) + '<a class="btn btn-ghost btn-sm" href="' + API + '/exports/bookings.csv">Export</a><a class="btn btn-ghost btn-sm" href="' + API + '/exports/profitability.csv">Export profitability</a><button class="btn btn-primary" id="new-booking">New booking</button></div></div>' +
+      // The desktop tool's (and VERGO Scheduling's) Awaiting payment and Completed lists.
+      '<nav class="ops-tabs" aria-label="Quick lists">' + [['', 'All'], ['INVOICED', 'Awaiting payment'], ['COMPLETED', 'Completed, not invoiced'], ['PAID', 'Paid']].map(function (t) {
+        return '<a href="#/bookings' + (t[0] ? '?status=' + t[0] : '') + '"' + ((query.status || '') === t[0] ? ' class="active"' : '') + '>' + t[1] + '</a>';
+      }).join('') + '</nav>' +
       '<form class="as-filters" id="filters">' +
         '<div class="as-filter-group"><label>Search</label><input type="search" name="search" value="' + esc(query.search || '') + '" placeholder="Reference, venue, client"></div>' +
         '<div class="as-filter-group"><label>From</label><input type="date" name="from" value="' + esc(query.from || '') + '"></div>' +
@@ -2043,8 +2047,13 @@
   // what is new, so the same backup can be uploaded twice safely.
 
   async function viewImport() {
-    var done = await api('/legacy-import');
+    var [done, sched] = await Promise.all([api('/legacy-import'), api('/legacy-import/scheduling')]);
     main.innerHTML = '<div class="ops-head"><div><h2>Import from the desktop tool</h2><div class="ops-lede">Brings bookings made offline in the desktop VERGO Ops tool into Ops: new clients, staff, jobs, people put on jobs, leads and running orders. Nothing already here is changed or removed, and anything imported before is skipped, so uploading the same backup twice is safe.</div></div></div>' +
+      // VERGO Scheduling (the desktop screens on the web) is now part of Ops;
+      // what was entered there comes across the same way as a backup.
+      (sched.rows ? '<div class="ops-card"><h3 style="margin-top:0">VERGO Scheduling</h3>' +
+        '<p class="fs-sm">VERGO Scheduling is now part of Ops. It still holds ' + sched.rows + ' client, person, job and lead record(s) not yet in Ops. Bring them into Ops to see and keep working on them here: jobs become bookings, people become workers, Outreach becomes Leads.</p>' +
+        '<div class="ops-actions" style="margin-top:12px"><button class="btn btn-primary" id="import-scheduling">Preview what comes across</button></div></div>' : '') +
       '<div class="ops-grid-2"><div class="ops-card"><h3 style="margin-top:0">1. Choose a backup</h3>' +
         '<p class="fs-sm">The desktop tool writes one every day at 6pm to <span class="ops-mono">Documents\\vergo_admin\\backups</span>, named like <span class="ops-mono">vergo-ops-2026-10-05-1800.sql</span>. Pick the newest. To include today\'s offline bookings, run <span class="ops-mono">.\\backup.ps1</span> in vergo_admin first.</p>' +
         '<div class="ops-form"><div class="wide"><label for="import-file">Backup file (.sql)</label><input type="file" id="import-file" accept=".sql,text/plain"></div></div>' +
@@ -2058,15 +2067,16 @@
     var input = main.querySelector('#import-file');
     var previewBtn = main.querySelector('#import-preview');
     var slot = main.querySelector('#import-result');
-    var sql = null;
+    // What to import from: { sql } from a backup file, or { source: 'scheduling' }.
+    var from = null;
     input.addEventListener('change', async function () {
       slot.innerHTML = '';
-      sql = null;
+      from = null;
       previewBtn.disabled = true;
       var file = input.files[0];
       if (!file) return;
       if (file.size > 4500000) return fail(new Error('That file is too large to be a desktop tool backup.'));
-      sql = await file.text();
+      from = { sql: await file.text() };
       previewBtn.disabled = false;
     });
 
@@ -2075,8 +2085,9 @@
       var entities = Object.keys(res.counts);
       var created = entities.reduce(function (n, k) { return n + res.counts[k].created + res.counts[k].linked; }, 0) + res.ratesFilled;
       var s = res.source;
+      var what = from && from.source === 'scheduling' ? 'VERGO Scheduling' : 'the desktop tool';
       slot.innerHTML = '<div class="ops-card"><h3 style="margin-top:0">' + (res.committed ? 'Imported' : '2. Check what will come in') + '</h3>' +
-        '<p class="fs-sm">The backup holds ' + s.clients + ' clients, ' + s.staff + ' staff, ' + s.jobs + ' jobs, ' + s.assignments + ' people on jobs, ' + s.leads + ' leads and ' + s.scheduleItems + ' running order lines.</p>' +
+        '<p class="fs-sm">' + (what === 'VERGO Scheduling' ? 'VERGO Scheduling holds ' : 'The backup holds ') + s.clients + ' clients, ' + s.staff + ' staff, ' + s.jobs + ' jobs, ' + s.assignments + ' people on jobs, ' + s.leads + ' leads and ' + s.scheduleItems + ' running order lines.</p>' +
         table(['Records', '>New', '>Matched to an existing record', '>Already imported or skipped'], entities.map(function (k) {
           var c = res.counts[k];
           return '<tr><td>' + esc(NAMES[k] || k) + '</td><td class="num">' + c.created + '</td><td class="num">' + c.linked + '</td><td class="num">' + c.skipped + '</td></tr>';
@@ -2087,14 +2098,14 @@
           ? alertBox('info', 'Done.' + (res.seriesDaysAdded ? ' ' + res.seriesDaysAdded + ' upcoming day(s) added to repeating bookings.' : '') + ' Imported clients and staff without an email have a placeholder address ending @import.vergoltd.invalid; correct it on their record.', '#/bookings?view=calendar')
           : created
             ? '<div class="ops-actions" style="margin-top:12px"><button class="btn btn-success" id="import-commit">Import these ' + created + ' change(s)</button></div>'
-            : alertBox('info', 'Everything in this backup is already in Ops. Nothing to import.')) +
+            : alertBox('info', 'Everything in ' + (what === 'VERGO Scheduling' ? 'VERGO Scheduling' : 'this backup') + ' is already in Ops. Nothing to import.')) +
         '</div>';
       var commitBtn = slot.querySelector('#import-commit');
       if (commitBtn) commitBtn.addEventListener('click', async function () {
-        if (!(await confirmDialog('Import these ' + created + ' change(s) from the desktop tool into Ops?', 'Import'))) return;
+        if (!(await confirmDialog('Import these ' + created + ' change(s) from ' + what + ' into Ops?', 'Import'))) return;
         try {
-          var out = await AdminCore.withLoading(commitBtn, function () { return api('/legacy-import', { method: 'POST', body: { sql: sql, commit: true } }); });
-          toast('Imported from the desktop tool');
+          var out = await AdminCore.withLoading(commitBtn, function () { return api('/legacy-import', { method: 'POST', body: Object.assign({}, from, { commit: true }) }); });
+          toast('Imported from ' + what);
           render(out);
           var list = await api('/legacy-import');
           main.querySelector('.ops-grid-2 .ops-card:last-child').innerHTML = '<h3 style="margin-top:0">Imported so far</h3>' + table(['Records', '>Count', 'Last added'], list.map(function (x) {
@@ -2104,12 +2115,21 @@
       });
     };
 
-    previewBtn.addEventListener('click', async function () {
-      if (!sql) return;
+    var preview = async function (btn) {
+      if (!from) return;
       try {
-        var res = await AdminCore.withLoading(previewBtn, function () { return api('/legacy-import', { method: 'POST', body: { sql: sql, commit: false } }); });
+        var res = await AdminCore.withLoading(btn, function () { return api('/legacy-import', { method: 'POST', body: Object.assign({}, from, { commit: false }) }); });
         render(res);
+        slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } catch (err) { fail(err); }
+    };
+    previewBtn.addEventListener('click', function () { preview(previewBtn); });
+    var schedBtn = main.querySelector('#import-scheduling');
+    if (schedBtn) schedBtn.addEventListener('click', function () {
+      input.value = '';
+      previewBtn.disabled = true;
+      from = { source: 'scheduling' };
+      preview(schedBtn);
     });
   }
 

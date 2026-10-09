@@ -56,7 +56,7 @@ import adminCandidateGroups from './routes/adminCandidateGroups';
 import adminSiteContent from './routes/adminSiteContent';
 import opsApi from './routes/ops';
 import opsPrint from './routes/ops/print';
-import schedulingApi from './scheduling';
+import { schedulingRowCount } from './ops/schedulingSource';
 import { pages as documentLinkPages, api as documentLinkApi } from './routes/documentLinks';
 import { sendMedia } from './site/media';
 import webAuth from './routes/webAuth';
@@ -566,14 +566,12 @@ app.get(['/ops', '/ops/'], adminPageAuth, (_req, res) => {
 });
 app.get(['/admin-ops', '/admin-ops.html'], (_req, res) => res.redirect(302, '/ops'));
 
-// VERGO Scheduling: the desktop admin tool (Documents/vergo_admin) on the web,
-// its exact screens, built from apps/scheduling into public/scheduling.
-// Separate from Ops; same admin session. Its hashed assets are served by the
-// static handler; the page itself only through here, behind the login.
-app.get(['/scheduling', '/scheduling/', '/scheduling/index.html'], adminPageAuth, (req, res) => {
-  if (req.path !== '/scheduling/') return res.redirect(302, '/scheduling/');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.sendFile(path.join(publicDir, 'scheduling', 'index.html'));
+// VERGO Scheduling was folded into Ops (9 Oct 2026). Old links land on Ops:
+// on Import while its tables still hold anything not brought across yet.
+app.get(/^\/scheduling(\/.*)?$/, adminPageAuth, (_req, res, next) => {
+  schedulingRowCount()
+    .then((n) => res.redirect(302, n ? '/ops#/import' : '/ops#/bookings'))
+    .catch(next);
 });
 app.use('/ops/print', adminPageAuth, opsPrint);
 // Workers' and clients' secure document links: the token is the credential,
@@ -653,7 +651,6 @@ app.use('/api/v1/admin/users', adminUsers);
 app.use('/api/v1/admin/candidate-groups', adminCandidateGroups);
 app.use('/api/v1/admin/site-content', adminSiteContent);
 app.use('/api/v1/ops', opsApi);
-app.use('/api/v1/scheduling', schedulingApi);
 
 // Photos uploaded in admin Site content (S3, or uploads/ in development).
 app.get('/media/site/:file', (req, res, next) => {
