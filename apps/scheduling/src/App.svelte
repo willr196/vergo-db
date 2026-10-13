@@ -83,7 +83,8 @@
       <div class="sidebar-foot">
         <div>{username}</div>
         <a href="#/restore" class="foot-link" class:active={route.name === 'restore'}>Restore a desktop backup</a>
-        <a href="/ops" class="foot-link">VERGO Ops ↗</a>
+        <a href="/admin-jobs" class="foot-link">Jobs in the app ↗</a>
+        <a href="/admin-requests" class="foot-link">← Admin panel</a>
         <button class="btn sm" style="margin-top:.5rem" onclick={signOut}>Sign out</button>
       </div>
     </aside>

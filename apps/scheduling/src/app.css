@@ -95,6 +95,7 @@ a:hover { text-decoration: underline; }
 .card h2 { margin-bottom: 0.85rem; }
 
 .grid { display: grid; gap: 1rem; }
+.grid > .card + .card { margin-top: 0; } /* the gap spaces grid cards; the stacked-card margin would drop all but the first */
 .grid.cols-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
 .grid.cols-4 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 

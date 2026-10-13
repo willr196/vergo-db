@@ -131,7 +131,7 @@
 
   // ── Staffing modal ─────────────────────────────────────
 
-  var staffing = { jobId: null, jobTitle: '', days: [], candidates: [] };
+  var staffing = { jobId: null, jobTitle: '', days: [], candidates: [], linked: false };
 
   function staffingAlert(message, type) {
     var box = document.getElementById('staffing-alert');
@@ -152,15 +152,18 @@
     }
 
     host.innerHTML = staffing.days.map(function (day) {
-      var assignedIds = day.assignments.map(function (a) { return a.userId; });
+      var assignedIds = day.assignments.map(function (a) { return a.userId; }).filter(Boolean);
 
       var crew = day.assignments.length
         ? day.assignments.map(function (person) {
+            var remove = staffing.linked
+              ? ' data-action="remove-person" data-staff-id="' + esc(person.staffId) + '" data-date="' + esc(day.date) + '"'
+              : ' data-action="unassign-day" data-day-id="' + esc(day.id) + '" data-user-id="' + esc(person.userId) + '"';
+            var contact = [person.email, person.phone].filter(Boolean).map(esc).join(' · ');
             return '<div class="staffing-crew-row">'
               + '<div class="staffing-crew-name"><strong>' + esc(person.name) + '</strong>'
-              + '<span>' + esc(person.email) + (person.phone ? ' · ' + esc(person.phone) : '') + '</span></div>'
-              + '<button type="button" class="btn btn-ghost btn-sm" data-action="unassign-day"'
-              + ' data-day-id="' + esc(day.id) + '" data-user-id="' + esc(person.userId) + '">Remove</button>'
+              + '<span>' + contact + (staffing.linked && !person.userId ? ' <em class="no-account">no app account</em>' : '') + '</span></div>'
+              + '<button type="button" class="btn btn-ghost btn-sm"' + remove + '>Remove</button>'
               + '</div>';
           }).join('')
         : '<p class="staffing-empty">Nobody rostered on this day yet.</p>';
@@ -174,7 +177,7 @@
 
       var full = day.spotsLeft <= 0;
       var adder = staffing.candidates.length === 0
-        ? '<p class="staffing-empty">No applicants to roster yet.</p>'
+        ? (staffing.linked ? '' : '<p class="staffing-empty">No applicants to roster yet.</p>')
         : '<div class="staffing-add">'
           + '<select class="as-input" data-day-picker="' + esc(day.id) + '"' + (options ? '' : ' disabled') + '>'
           + (options || '<option value="">Everyone available is already on this day</option>')
@@ -185,7 +188,9 @@
 
       return '<div class="staffing-day">'
         + '<div class="staffing-day-head">'
-        + '<span class="staffing-day-date">' + esc(formatDay(day.date)) + '</span>'
+        + '<span class="staffing-day-date">' + esc(formatDay(day.date))
+        + (day.reference ? ' <a class="sched-tag" href="/scheduling/#/jobs/' + encodeURIComponent(day.schedJobId) + '">' + esc(day.reference) + '</a>' : '')
+        + '</span>'
         + '<span class="staffing-day-count">'
         + '<span class="badge badge-' + (full ? 'success' : 'warning') + '">'
         + day.staffAssigned + ' / ' + day.staffNeeded + ' staffed</span>'
@@ -215,7 +220,8 @@
   }
 
   async function openStaffingModal(jobId) {
-    staffing = { jobId: jobId, jobTitle: '', days: [], candidates: [] };
+    staffing = { jobId: jobId, jobTitle: '', days: [], candidates: [], linked: false };
+    document.getElementById('staffing-add-person').classList.add('d-none');
     document.getElementById('staffing-title').textContent = 'Staffing';
     document.getElementById('staffing-sub').textContent = '';
     document.getElementById('staffing-days').innerHTML = '<div class="drawer-loading">Loading days…</div>';
@@ -231,6 +237,8 @@
       staffing.days = data.days || [];
       staffing.candidates = data.candidates || [];
       staffing.jobTitle = data.job.title;
+      staffing.linked = Boolean(data.job.schedSynced);
+      renderAddPerson();
       document.getElementById('staffing-title').textContent = 'Staffing — ' + data.job.title;
       renderStaffingSummary();
       renderStaffingDays();
@@ -243,7 +251,7 @@
   function closeStaffingModal() {
     if (!staffing.jobId) return;
     AdminCore.closeModal('staffing-modal');
-    staffing = { jobId: null, jobTitle: '', days: [], candidates: [] };
+    staffing = { jobId: null, jobTitle: '', days: [], candidates: [], linked: false };
     if (typeof window.onStaffingClosed === 'function') window.onStaffingClosed();
   }
 
@@ -287,6 +295,99 @@
       var payload = await res.json();
       var data = payload.data || payload;
       if (!res.ok) throw new Error(data.error || 'Failed to remove worker');
+      absorbDays(data.days);
+    } catch (err) {
+      staffingAlert(err.message);
+    }
+  }
+
+  // ── Adding anyone to a Scheduling job ──────────────────
+
+  /** The "which days" choice: every day to come, or one day. */
+  function renderAddPerson() {
+    var box = document.getElementById('staffing-add-person');
+    if (!staffing.linked) { box.classList.add('d-none'); return; }
+    var today = todayKey();
+    var upcoming = staffing.days.filter(function (d) { return d.date >= today; });
+    var select = document.getElementById('add-person-days');
+    select.innerHTML = '<option value="">Every day to come (' + upcoming.length + ')</option>'
+      + staffing.days.map(function (d) {
+          return '<option value="' + esc(d.date) + '">' + esc(formatDayShort(d.date)) + '</option>';
+        }).join('');
+    document.getElementById('add-person-search').value = '';
+    document.getElementById('add-person-results').innerHTML = '';
+    document.getElementById('add-person-form').reset();
+    box.classList.remove('d-none');
+  }
+
+  function chosenDates() {
+    var value = document.getElementById('add-person-days').value;
+    return value ? [value] : undefined;
+  }
+
+  var searchTimer = null;
+  var searchSeq = 0;
+  function searchPeople(q) {
+    clearTimeout(searchTimer);
+    var host = document.getElementById('add-person-results');
+    if (q.trim().length < 2) { host.innerHTML = ''; return; }
+    searchTimer = setTimeout(async function () {
+      var seq = ++searchSeq;
+      try {
+        var res = await fetch('/api/v1/jobs/admin/people/search?q=' + encodeURIComponent(q.trim()), { credentials: 'include' });
+        var payload = await res.json();
+        if (seq !== searchSeq) return; // a later search owns the box now
+        var people = (payload.data || payload).people || [];
+        host.innerHTML = people.length
+          ? people.map(function (p) {
+              var key = p.userId ? 'data-user-id="' + esc(p.userId) + '"' : 'data-staff-id="' + esc(p.staffId) + '"';
+              var tag = p.kind === 'worker' ? 'App worker' : 'Scheduling' + (p.hourlyRate ? ' · £' + p.hourlyRate.toFixed(2) + '/hr' : ' · no rate');
+              return '<div class="add-person-row"><div><strong>' + esc(p.name) + '</strong>'
+                + '<span>' + esc(tag) + (p.email ? ' · ' + esc(p.email) : '') + '</span></div>'
+                + '<button type="button" class="btn btn-primary btn-sm" data-action="add-found-person" ' + key + '>Add</button></div>';
+            }).join('')
+          : '<p class="staffing-empty">Nobody found. Add them by hand below.</p>';
+      } catch (err) {
+        host.innerHTML = '<p class="staffing-empty">Search failed: ' + esc(err.message) + '</p>';
+      }
+    }, 250);
+  }
+
+  async function addPerson(body) {
+    staffingAlert('');
+    var dates = chosenDates();
+    if (dates) body.dates = dates;
+    var res = await fetch('/api/v1/jobs/admin/' + encodeURIComponent(staffing.jobId) + '/people', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    var payload = await res.json();
+    var data = payload.data || payload;
+    if (!res.ok) {
+      // Someone with no rate can be given one right here and tried again.
+      if (res.status === 422 && !body.hourlyRate) {
+        var rate = prompt((data.error || 'They need an hourly rate.') + '\n\nHourly rate (£):');
+        if (rate && Number(rate) > 0) return addPerson(Object.assign({}, body, { hourlyRate: Number(rate) }));
+      }
+      throw new Error(data.error || 'Could not add them');
+    }
+    absorbDays(data.days);
+    staffingAlert(data.added
+      ? data.name + ' added to ' + data.added + ' day(s).'
+      : data.name + ' is already on those days.', 'success');
+    return data;
+  }
+
+  async function removePerson(staffId, date) {
+    staffingAlert('');
+    try {
+      var res = await fetch('/api/v1/jobs/admin/' + encodeURIComponent(staffing.jobId) + '/people/'
+        + encodeURIComponent(staffId) + '?date=' + encodeURIComponent(date), { method: 'DELETE', credentials: 'include' });
+      var payload = await res.json();
+      var data = payload.data || payload;
+      if (!res.ok) throw new Error(data.error || 'Failed to remove');
       absorbDays(data.days);
     } catch (err) {
       staffingAlert(err.message);
@@ -347,6 +448,12 @@
     if (action === 'close-staffing') return closeStaffingModal();
     if (action === 'assign-day') return assignToDay(el.dataset.dayId);
     if (action === 'unassign-day') return unassignFromDay(el.dataset.dayId, el.dataset.userId);
+    if (action === 'remove-person') return removePerson(el.dataset.staffId, el.dataset.date);
+    if (action === 'add-found-person') {
+      var body = el.dataset.userId ? { userId: el.dataset.userId } : { staffId: el.dataset.staffId };
+      el.disabled = true;
+      return addPerson(body).catch(function (err) { staffingAlert(err.message); }).finally(function () { el.disabled = false; });
+    }
   });
 
   // Headcount edits save on commit (blur or Enter), not on every keystroke.
@@ -354,6 +461,20 @@
     if (e.target.matches('[data-day-need]')) saveHeadcounts();
     if (e.target.matches('#job-form [name="eventDate"], #job-form [name="eventEndDate"]')) renderDayPlan();
     if (e.target.matches('#job-form [name="staffNeeded"]')) applyDefaultToAllDays();
+  });
+
+  document.getElementById('add-person-search').addEventListener('input', function (e) { searchPeople(e.target.value); });
+
+  document.getElementById('add-person-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var form = e.target;
+    addPerson({
+      firstName: form.firstName.value.trim(),
+      lastName: form.lastName.value.trim(),
+      email: form.email.value.trim() || null,
+      phone: form.phone.value.trim() || null,
+      hourlyRate: form.hourlyRate.value ? Number(form.hourlyRate.value) : null
+    }).then(function () { form.reset(); }).catch(function (err) { staffingAlert(err.message); });
   });
 
   document.getElementById('staffing-modal').addEventListener('click', function (e) {

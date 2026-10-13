@@ -579,6 +579,10 @@ model Job {
   savedBy        SavedJob[]
   invites        JobInvite[]
   days           JobDay[]
+  /// Made from (or pushed to) VERGO Scheduling. Its days, times, venue, headcount
+  /// and crew follow the Scheduling jobs that point at it (SchedJob.appJobId).
+  schedSynced    Boolean          @default(false)
+  schedJobs      SchedJob[]
 
   @@index([status, type])
   @@index([clientId])
@@ -1635,6 +1639,9 @@ model SchedJob {
   status        SchedJobStatus         @default(CONFIRMED)
   invoiceStatus SchedInvoiceStatus     @default(NOT_INVOICED)
   notes         String?
+  /// The Admin > Jobs listing (worker app) this day belongs to. One per run.
+  appJobId      String?
+  appJob        Job?                   @relation(fields: [appJobId], references: [id], onDelete: SetNull)
   createdAt     DateTime               @default(now())
   updatedAt     DateTime               @updatedAt
   assignments   SchedAssignment[]
@@ -1645,6 +1652,7 @@ model SchedJob {
   @@index([status, date])
   @@index([invoiceStatus, status, date])
   @@index([seriesId, date])
+  @@index([appJobId])
   @@map("sched_job")
 }
 

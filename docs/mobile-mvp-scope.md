@@ -28,11 +28,11 @@ marketplace did not, so its screens were deleted.
 
 ## The client journey
 
-1. Register, verify the email, wait for approval in Admin > Clients (the office
+1. Register, verify the email, wait for approval in Admin > Inbox > Client sign-ups (the office
    is emailed on registration), then sign in.
 2. Request staff: date, times, location, roles, headcount. The office is
    emailed the request and the client gets a receipt, the same as the
-   website's quote form. It also appears in Admin > Quotes as NEW.
+   website's quote form. It also appears in Admin > Inbox > App requests as NEW.
 3. Follow each request's status.
 4. See bookings once the office creates them: the named worker, times, and the
    check-in, check-out and hours the worker recorded.

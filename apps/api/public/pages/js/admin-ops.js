@@ -2138,6 +2138,8 @@
     document.querySelectorAll('#ops-subnav a').forEach(function (a) {
       a.classList.toggle('active', a.dataset.route === (NAV_OF[name] || name));
     });
+    var more = document.querySelector('#ops-subnav .ops-more');
+    if (more) more.open = false;
     closeModal();
     main.innerHTML = '<div class="as-skeleton" style="max-width:240px"></div>';
     try {

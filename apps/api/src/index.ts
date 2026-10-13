@@ -45,9 +45,7 @@ import adminScheduledEmails from './routes/adminScheduledEmails';
 import adminStats from './routes/adminStats';
 import adminQuotes from './routes/adminQuotes';
 import adminNotifications from './routes/adminNotifications';
-import adminAnalytics from './routes/adminAnalytics';
 import adminBookings from './routes/adminBookings';
-import adminMarketplace from './routes/adminMarketplace';
 import adminStaff from './routes/adminStaff';
 import adminMatching from './routes/adminMatching';
 import adminRightToWork from './routes/adminRightToWork';
@@ -527,7 +525,6 @@ app.get([
   '/admin-clients',
   '/admin-jobs',
   '/admin-job-applications',
-  '/admin-marketplace',
   '/admin-bookings',
   '/admin-quotes',
   '/admin-requests',
@@ -541,7 +538,6 @@ app.get([
     '/admin-clients': 'admin-clients.html',
     '/admin-jobs': 'admin-jobs.html',
     '/admin-job-applications': 'admin-job-applications.html',
-    '/admin-marketplace': 'admin-marketplace.html',
     '/admin-bookings': 'admin-bookings.html',
     '/admin-quotes': 'admin-quotes.html',
     '/admin-requests': 'admin-requests.html',
@@ -581,14 +577,8 @@ app.use('/ops/print', adminPageAuth, opsPrint);
 app.use('/d', documentLinkPages);
 app.use('/api/v1/document-links', documentLinkApi);
 
-// Admin analytics page — custom CSP to allow Chart.js CDN
-app.get('/admin-analytics', adminPageAuth, (_req, res) => {
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'"
-  );
-  res.sendFile(path.join(publicDir, 'admin-analytics.html'));
-});
+// Admin pages that were removed: a bookmark lands on the Inbox.
+app.get(['/admin-analytics', '/admin-marketplace'], (_req, res) => res.redirect(302, '/admin-requests'));
 
 app.use('/api/v1/user', userAuth);
 
@@ -639,13 +629,11 @@ app.use('/api/v1/unsubscribe', unsubscribe);
 // Admin: scheduled emails management
 app.use('/api/v1/admin/scheduled-emails', adminScheduledEmails);
 
-// Admin: stats, quotes, notifications, analytics
+// Admin: stats, quotes, notifications, bookings
 app.use('/api/v1/admin/stats', adminStats);
 app.use('/api/v1/admin/quotes', adminQuotes);
 app.use('/api/v1/admin/notifications', adminNotifications);
-app.use('/api/v1/admin/analytics', adminAnalytics);
 app.use('/api/v1/admin/bookings', adminBookings);
-app.use('/api/v1/admin/marketplace', adminMarketplace);
 app.use('/api/v1/admin/staff', adminStaff);
 app.use('/api/v1/admin/matching', adminMatching);
 app.use('/api/v1/admin/right-to-work', adminRightToWork);

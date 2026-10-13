@@ -42,8 +42,12 @@ Monorepo with three apps:
 
 ## Admin Panel
 - Location: apps/api/public/
-- Pages: admin.html (roster/dashboard), admin-jobs.html, admin-job-applications.html, admin-clients.html
-- Backend routes: apps/api/src/routes/adminClients.ts, adminJobs.ts etc.
+- Five sections, each page a tab in one (SECTIONS in public/js/admin-nav.js):
+  Inbox (admin-requests, admin-job-applications, admin-quotes, admin-clients),
+  Board (/scheduling/, admin-jobs), People (admin = pipeline, admin-staff),
+  Ops (/ops, admin-bookings), Settings (admin-site-content, admin-comms, admin-settings).
+  A new page goes into a section, not onto the sidebar. Login lands on Inbox.
+- Backend routes: apps/api/src/routes/admin*.ts, jobs.ts, jobApplications.ts, contacts.ts
 - Auth: session-based (web), same as the rest of the web platform
 - Stack: vanilla HTML/CSS/JS (no framework), dark theme (#0a0a0a bg, #D4AF37 gold accent).
   Admin keeps #D4AF37; the public site is dark charcoal with a green accent.

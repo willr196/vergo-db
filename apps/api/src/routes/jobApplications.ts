@@ -11,6 +11,7 @@ import {
 } from "../services/email";
 import { sendPushToUser } from "../services/notifications";
 import { summariseChecks } from "../services/rightToWork";
+import { addPersonToAppJob, removePersonFromAppJob } from "../scheduling/appJobs";
 
 const r = Router();
 
@@ -408,6 +409,20 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
       await prisma.jobApplication.update({ where: { id: req.params.id }, data: { status } });
     }
     
+    // A job on VERGO Scheduling: confirming puts them on its days still to
+    // come, and un-confirming takes them off. The status change stands either
+    // way; if the board can't take them (no hourly rate), the admin is told.
+    let crewWarning: string | null = null;
+    if (application.job.schedSynced && previousStatus !== status && (status === "CONFIRMED" || previousStatus === "CONFIRMED")) {
+      try {
+        if (status === "CONFIRMED") await addPersonToAppJob(application.jobId, { userId: application.user.id });
+        else await removePersonFromAppJob(application.jobId, { userId: application.user.id });
+      } catch (err) {
+        crewWarning = err instanceof Error ? err.message : "Could not update the Scheduling crew";
+        console.warn(`[SCHEDULING SYNC] Crew not updated for application ${req.params.id}: ${crewWarning}`);
+      }
+    }
+
     // AUDIT LOG
     console.log(`[AUDIT] Application status changed | applicationId=${req.params.id} userId=${application.user.id} jobId=${application.jobId} from=${previousStatus} to=${status} notified=${notifyApplicant} admin=${req.session.username}`);
 
@@ -415,7 +430,7 @@ r.patch("/:id/status", adminAuth, async (req, res, next) => {
     // roll back a status change the admin has already been told succeeded.
     notifyWorkerOfStatusChange(application, previousStatus, status, notifyApplicant);
 
-    const statusPayload = { id: req.params.id, status, applicantNotified: notifyApplicant };
+    const statusPayload = { id: req.params.id, status, applicantNotified: notifyApplicant, crewWarning };
     res.json({ ok: true, ...statusPayload, data: statusPayload });
   } catch (error) {
     if (error instanceof z.ZodError) return res.status(400).json({ error: "Invalid status" });
@@ -445,7 +460,7 @@ r.delete("/:id", adminAuth, async (req, res, next) => {
   try {
     const application = await prisma.jobApplication.findUnique({
       where: { id: req.params.id },
-      select: { id: true, status: true, jobId: true }
+      select: { id: true, status: true, jobId: true, userId: true, job: { select: { schedSynced: true } } }
     });
     if (!application) return res.status(404).json({ error: "Not found" });
 
@@ -464,6 +479,11 @@ r.delete("/:id", adminAuth, async (req, res, next) => {
         }
       }
     });
+
+    if (application.status === "CONFIRMED" && application.job.schedSynced) {
+      await removePersonFromAppJob(application.jobId, { userId: application.userId }).catch((err) =>
+        console.warn("[SCHEDULING SYNC] Crew not updated after deleting application", application.id, err));
+    }
 
     console.log(`[AUDIT] Job application deleted | ID: ${application.id} | Status: ${application.status} | Admin: ${req.session.username}`);
 

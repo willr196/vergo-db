@@ -163,6 +163,20 @@ body {
 
 .as-content { padding: 24px; flex: 1; }
 
+/* A section's pages, as tabs under the topbar (admin-nav.js). */
+.as-section-tabs {
+  display: flex; gap: 4px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+  padding: 0 24px; background: var(--as-card);
+  border-bottom: 1px solid var(--as-border);
+}
+.as-section-tabs a {
+  color: var(--as-muted); text-decoration: none; font-size: 0.85rem; white-space: nowrap;
+  padding: 10px 12px; border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.as-section-tabs a:hover { color: var(--as-text); }
+.as-section-tabs a.active { color: var(--as-gold); border-bottom-color: var(--as-gold); }
+@media (max-width: 768px) { .as-section-tabs { padding: 0 12px; } }
+
 /* ── Mobile hamburger ──────────────────────────────── */
 #as-menu-btn {
   display: none;

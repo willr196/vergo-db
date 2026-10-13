@@ -20,8 +20,23 @@ import {
   sendJobRejectionEmail,
   sendJobSubmissionNotification,
 } from "../services/email";
+import {
+  AppJobError,
+  addPersonToAppJob,
+  getLinkedCrewDays,
+  removePersonFromAppJob,
+  setAppJobHeadcounts,
+  syncAppJobsQuietly,
+} from "../scheduling/appJobs";
 
 const r = Router();
+
+/// What VERGO Scheduling owns on a job it is linked to. Admin edits to these
+/// are dropped: they are changed on the board and follow from there.
+const SCHEDULING_FIELDS = [
+  "title", "venue", "companyName", "eventDate", "eventEndDate",
+  "shiftStart", "shiftEnd", "staffNeeded", "days",
+] as const;
 
 const submitLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -54,7 +69,7 @@ const createJobSchema = z.object({
   days: z
     .array(
       z.object({
-        date: z.string().regex(/^d{4}-d{2}-d{2}$/, "Expected YYYY-MM-DD"),
+        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD"),
         staffNeeded: z.number().int().min(1).max(100),
       })
     )
@@ -284,6 +299,7 @@ async function listAdminJobs(req: Request, res: Response, next: NextFunction) {
   try {
     const query = listJobsQuerySchema.parse(req.query);
     const skip = (query.page - 1) * query.limit;
+    await syncAppJobsQuietly();
     
     const where: any = {};
     if (query.status) where.status = query.status;
@@ -306,6 +322,11 @@ async function listAdminJobs(req: Request, res: Response, next: NextFunction) {
           days: {
             select: { id: true, date: true, staffNeeded: true, _count: { select: { assignments: true } } },
             orderBy: { date: "asc" }
+          },
+          schedJobs: {
+            where: { status: { not: "CANCELLED" } },
+            select: { id: true, reference: true, date: true, _count: { select: { assignments: true } } },
+            orderBy: { date: "asc" }
           }
         }
       }),
@@ -315,12 +336,16 @@ async function listAdminJobs(req: Request, res: Response, next: NextFunction) {
     // The list only needs the shape of the roster, not the names on it: how
     // many day-slots exist and how many are filled, so the table can show
     // "11/14 staffed" without a request per job.
-    const shapedJobs = jobs.map(({ days, ...job }) => {
+    const today = toDayKey(new Date());
+    const shapedJobs = jobs.map(({ days, schedJobs, ...job }) => {
       // Defensive: a job that predates per-day staffing, or a caller that
       // selected without the relation, must still shape rather than throw.
       const jobDays = days ?? [];
       const slots = jobDays.reduce((sum, day) => sum + day.staffNeeded, 0);
-      const filled = jobDays.reduce((sum, day) => sum + day._count.assignments, 0);
+      // On a Scheduling job the crew is the board's, account or not.
+      const filled = job.schedSynced
+        ? schedJobs.reduce((sum, day) => sum + day._count.assignments, 0)
+        : jobDays.reduce((sum, day) => sum + day._count.assignments, 0);
       return {
         ...job,
         staffing: {
@@ -330,7 +355,14 @@ async function listAdminJobs(req: Request, res: Response, next: NextFunction) {
           fullyStaffed: jobDays.length > 0 && filled >= slots,
           firstDate: jobDays.length > 0 ? toDayKey(jobDays[0].date) : null,
           lastDate: jobDays.length > 0 ? toDayKey(jobDays[jobDays.length - 1].date) : null
-        }
+        },
+        // Where to open it on the board: the next day to come, else the last.
+        scheduling: job.schedSynced
+          ? (() => {
+              const next = schedJobs.find((s) => toDayKey(s.date) >= today) ?? schedJobs[schedJobs.length - 1];
+              return { schedJobId: next?.id ?? null, reference: next?.reference ?? null, days: schedJobs.length };
+            })()
+          : null
       };
     });
     
@@ -402,7 +434,7 @@ const daysBodySchema = z.object({
   days: z
     .array(
       z.object({
-        date: z.string().regex(/^d{4}-d{2}-d{2}$/, "Expected YYYY-MM-DD"),
+        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD"),
         staffNeeded: z.number().int().min(1).max(100),
       })
     )
@@ -423,12 +455,15 @@ async function findAdminJob(id: string) {
       eventEndDate: true,
       shiftStart: true,
       shiftEnd: true,
+      schedSynced: true,
+      payRate: true,
+      payType: true,
     },
   });
 }
 
 function handleStaffingError(error: unknown, res: Response, next: NextFunction) {
-  if (error instanceof JobStaffingError) {
+  if (error instanceof JobStaffingError || error instanceof AppJobError) {
     return res.status(error.status).json({ error: error.message });
   }
   if (error instanceof z.ZodError) {
@@ -440,11 +475,13 @@ function handleStaffingError(error: unknown, res: Response, next: NextFunction) 
 // GET /api/v1/jobs/admin/:id/days - the day plan plus who can be rostered
 r.get("/admin/:id/days", adminAuth, async (req, res, next) => {
   try {
+    await syncAppJobsQuietly();
     const job = await findAdminJob(req.params.id);
     if (!job) return res.status(404).json({ error: "Job not found" });
 
+    // A Scheduling job's crew is whoever is on its days there, account or not.
     // Jobs created before per-day staffing have no days; seed them on first view.
-    const days = await ensureJobDays(job.id);
+    const days = job.schedSynced ? await getLinkedCrewDays(job.id) : await ensureJobDays(job.id);
     const candidates = await getJobCandidates(job.id);
 
     const payload = { job, days, candidates };
@@ -461,7 +498,13 @@ r.put("/admin/:id/days", adminAuth, async (req, res, next) => {
     if (!job) return res.status(404).json({ error: "Job not found" });
 
     const body = daysBodySchema.parse(req.body);
-    const days = await replaceJobDays(job.id, body.days);
+    let days;
+    if (job.schedSynced) {
+      await setAppJobHeadcounts(job.id, body.days);
+      days = await getLinkedCrewDays(job.id);
+    } else {
+      days = await replaceJobDays(job.id, body.days);
+    }
 
     console.log(`[AUDIT] Job days updated | ID: ${job.id} | Admin: ${req.session.username} | Days: ${days.length}`);
 
@@ -471,11 +514,27 @@ r.put("/admin/:id/days", adminAuth, async (req, res, next) => {
   }
 });
 
+/** The calendar date of one of a job's days, for the Scheduling side. */
+async function dayKeyOf(jobId: string, dayId: string) {
+  const day = await prisma.jobDay.findFirst({ where: { id: dayId, jobId }, select: { date: true } });
+  if (!day) throw new JobStaffingError("Day not found on this job", 404);
+  return toDayKey(day.date);
+}
+
 // POST /api/v1/jobs/admin/:id/days/:dayId/assignments - roster someone on
 r.post("/admin/:id/days/:dayId/assignments", adminAuth, async (req, res, next) => {
   try {
     const body = assignBodySchema.parse(req.body);
-    const days = await assignStaffToDay(req.params.id, req.params.dayId, body.userId);
+    const job = await findAdminJob(req.params.id);
+    if (!job) return res.status(404).json({ error: "Job not found" });
+
+    let days;
+    if (job.schedSynced) {
+      await addPersonToAppJob(job.id, { userId: body.userId }, [await dayKeyOf(job.id, req.params.dayId)]);
+      days = await getLinkedCrewDays(job.id);
+    } else {
+      days = await assignStaffToDay(req.params.id, req.params.dayId, body.userId);
+    }
 
     console.log(`[AUDIT] Job day assignment added | Job: ${req.params.id} | Day: ${req.params.dayId} | User: ${body.userId} | Admin: ${req.session.username}`);
 
@@ -488,13 +547,106 @@ r.post("/admin/:id/days/:dayId/assignments", adminAuth, async (req, res, next) =
 // DELETE /api/v1/jobs/admin/:id/days/:dayId/assignments/:userId - take them off
 r.delete("/admin/:id/days/:dayId/assignments/:userId", adminAuth, async (req, res, next) => {
   try {
-    const days = await unassignStaffFromDay(req.params.id, req.params.dayId, req.params.userId);
+    const job = await findAdminJob(req.params.id);
+    if (!job) return res.status(404).json({ error: "Job not found" });
+
+    let days;
+    if (job.schedSynced) {
+      await removePersonFromAppJob(job.id, { userId: req.params.userId }, [await dayKeyOf(job.id, req.params.dayId)]);
+      days = await getLinkedCrewDays(job.id);
+    } else {
+      days = await unassignStaffFromDay(req.params.id, req.params.dayId, req.params.userId);
+    }
 
     console.log(`[AUDIT] Job day assignment removed | Job: ${req.params.id} | Day: ${req.params.dayId} | User: ${req.params.userId} | Admin: ${req.session.username}`);
 
     res.json({ ok: true, days, data: { days } });
   } catch (error) {
     handleStaffingError(error, res, next);
+  }
+});
+
+// ============================================
+// ADMIN: people on a VERGO Scheduling job, by hand
+//
+// Anyone can go on: a worker account, someone already in Scheduling, or a
+// name typed in (no account needed). Without dates it is every day to come.
+// ============================================
+const dayKey = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD");
+const rate = z.number().positive().max(1000).nullable().optional();
+const addPersonSchema = z.union([
+  z.object({ userId: z.string().min(1), hourlyRate: rate, dates: z.array(dayKey).max(366).optional() }),
+  z.object({ staffId: z.string().min(1), hourlyRate: rate, dates: z.array(dayKey).max(366).optional() }),
+  z.object({
+    firstName: z.string().trim().min(1, "First name is required").max(100),
+    lastName: z.string().trim().min(1, "Last name is required").max(100),
+    email: z.string().trim().email().max(255).nullable().optional().or(z.literal("")),
+    phone: z.string().trim().max(40).nullable().optional(),
+    hourlyRate: rate,
+    dates: z.array(dayKey).max(366).optional(),
+  }),
+]);
+
+r.post("/admin/:id/people", adminAuth, async (req, res, next) => {
+  try {
+    const { dates, ...person } = addPersonSchema.parse(req.body);
+    const result = await addPersonToAppJob(req.params.id, person, dates);
+    const days = await getLinkedCrewDays(req.params.id);
+
+    console.log(`[AUDIT] Person added to job | Job: ${req.params.id} | Staff: ${result.staffId} | Days: ${result.added} | Admin: ${req.session.username}`);
+
+    res.json({ ok: true, ...result, days, data: { ...result, days } });
+  } catch (error) {
+    handleStaffingError(error, res, next);
+  }
+});
+
+// DELETE /api/v1/jobs/admin/:id/people/:staffId[?date=YYYY-MM-DD]
+r.delete("/admin/:id/people/:staffId", adminAuth, async (req, res, next) => {
+  try {
+    const date = typeof req.query.date === "string" ? dayKey.parse(req.query.date) : undefined;
+    const result = await removePersonFromAppJob(req.params.id, { staffId: req.params.staffId }, date ? [date] : undefined);
+    const days = await getLinkedCrewDays(req.params.id);
+
+    console.log(`[AUDIT] Person removed from job | Job: ${req.params.id} | Staff: ${req.params.staffId} | Days: ${result.removed} | Admin: ${req.session.username}`);
+
+    res.json({ ok: true, ...result, days, data: { ...result, days } });
+  } catch (error) {
+    handleStaffingError(error, res, next);
+  }
+});
+
+// GET /api/v1/jobs/admin/people/search?q= - workers and Scheduling people to add
+r.get("/admin/people/search", adminAuth, async (req, res, next) => {
+  try {
+    const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
+    if (q.length < 2) return res.json({ ok: true, people: [], data: { people: [] } });
+    const match = { contains: q, mode: "insensitive" as const };
+    const [workers, staff] = await Promise.all([
+      prisma.user.findMany({
+        where: { userType: "JOB_SEEKER", OR: [{ firstName: match }, { lastName: match }, { email: match }] },
+        select: { id: true, firstName: true, lastName: true, email: true, phone: true },
+        take: 10,
+      }),
+      prisma.schedStaff.findMany({
+        where: { OR: [{ firstName: match }, { lastName: match }, { email: match }] },
+        select: { id: true, firstName: true, lastName: true, email: true, phone: true, hourlyRate: true, status: true },
+        take: 10,
+      }),
+    ]);
+    const workerEmails = new Set(workers.map((w) => w.email.toLowerCase()));
+    const people = [
+      ...workers.map((w) => ({ kind: "worker", userId: w.id, name: `${w.firstName} ${w.lastName}`.trim(), email: w.email, phone: w.phone })),
+      ...staff
+        .filter((s) => !s.email || !workerEmails.has(s.email.toLowerCase()))
+        .map((s) => ({
+          kind: "scheduling", staffId: s.id, name: `${s.firstName} ${s.lastName}`.trim(), email: s.email, phone: s.phone,
+          hourlyRate: s.hourlyRate ? Number(s.hourlyRate) : null, inactive: s.status === "INACTIVE",
+        })),
+    ];
+    res.json({ ok: true, people, data: { people } });
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -631,6 +783,9 @@ r.post("/", adminAuth, async (req, res, next) => {
     // AUDIT LOG
     console.log(`[AUDIT] Job created | ID: ${job.id} | Title: ${job.title} | Admin: ${req.session.username} | Type: ${data.type} | Status: ${data.status}`);
 
+    // An internal job with dates goes on the Scheduling board straight away.
+    if (job.type === "INTERNAL" && days.length > 0) await syncAppJobsQuietly();
+
     const created = { ...job, staffNeeded: crewSizeFromDays(days, job.staffNeeded), days };
     res.status(201).json({ ok: true, job: created, data: created });
     
@@ -658,6 +813,13 @@ r.patch("/:id", adminAuth, async (req, res, next) => {
     
     if (!existing) {
       return res.status(404).json({ error: "Job not found" });
+    }
+
+    // Dates, times, venue, client and headcount of a Scheduling job are
+    // changed on the board; here they would only be overwritten again.
+    if (existing.schedSynced) {
+      for (const field of SCHEDULING_FIELDS) delete (data as Record<string, unknown>)[field];
+      delete (data as Record<string, unknown>).type;
     }
     
     // If role is being changed, verify it exists
@@ -711,13 +873,16 @@ r.patch("/:id", adminAuth, async (req, res, next) => {
       (data.eventEndDate !== undefined && `${existing.eventEndDate?.toISOString() ?? ''}` !== `${job.eventEndDate?.toISOString() ?? ''}`);
 
     let days;
-    if (data.days) {
+    if (job.schedSynced) {
+      days = await getLinkedCrewDays(job.id);
+    } else if (data.days) {
       days = await replaceJobDays(job.id, data.days);
     } else if (datesChanged) {
       days = await refitJobDaysToRange(job.id);
     } else {
       days = await ensureJobDays(job.id);
     }
+    if (!job.schedSynced && job.type === "INTERNAL" && days.length > 0) await syncAppJobsQuietly();
 
     // AUDIT LOG
     console.log(`[AUDIT] Job updated | ID: ${job.id} | Admin: ${req.session.username} | Fields: ${Object.keys(data).join(', ')}`);
@@ -842,11 +1007,18 @@ r.delete("/:id", adminAuth, async (req, res, next) => {
   try {
     const existing = await prisma.job.findUnique({ 
       where: { id: req.params.id },
-      include: { _count: { select: { applications: true } } }
+      include: { _count: { select: { applications: true, schedJobs: true } } }
     });
     
     if (!existing) {
       return res.status(404).json({ error: "Job not found" });
+    }
+
+    // Deleting it here would only bring it back on the next sync.
+    if (existing._count.schedJobs > 0) {
+      return res.status(409).json({
+        error: "This job is on VERGO Scheduling. Close it here to take it off the app, or cancel or delete it in Scheduling.",
+      });
     }
     
     await prisma.job.delete({ where: { id: req.params.id } });

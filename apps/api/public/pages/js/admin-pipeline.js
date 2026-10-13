@@ -73,9 +73,7 @@
     var pendingRosterLogin = onboarding.pendingRosterLogin || [];
     var expiringRtw = onboarding.expiringRtw || [];
 
-    var warnings = (alerts || []).filter(function (a) {
-      return !(AdminCore.staffOnly && a.category === 'client');
-    });
+    var warnings = alerts || [];
 
     // The warnings summarise the lists below them, so they only earn a line
     // when they are saying something the lists do not.

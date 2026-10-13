@@ -9,10 +9,43 @@ One difference from the desktop: the Jobs list is the default view, and a
 client with more than one day on the board (POPCORN's weekday kitchen porters)
 is one header row, closed until clicked, that opens into its jobs and runs.
 
-It is its own thing, separate from VERGO Ops. Its clients, people and jobs are
-not Ops clients, workers or bookings, and nothing in it reaches the worker app.
-Ops is for the employment-business side (compliance, documents, assignments,
-timesheets, invoicing); Scheduling is the quick booking board you already know.
+It is separate from VERGO Ops: its clients, people and jobs are not Ops
+clients, workers or bookings. Ops is for the employment-business side
+(compliance, documents, assignments, timesheets, invoicing); Scheduling is the
+quick booking board you already know. Its jobs are Admin > Jobs, though (below).
+
+## Scheduling and Admin > Jobs
+
+One set of jobs. The board owns the work; Admin > Jobs ("Jobs in the app")
+owns the listing workers see. `src/scheduling/appJobs.ts`, one function,
+`syncAppJobs()`, run after every change on the board and before Admin reads.
+
+| | Set on the board | Set in Admin > Jobs |
+|---|---|---|
+| Dates, times, venue, client, headcount per day | ✓ (greyed in Admin) | |
+| Crew | ✓ | ✓ Staffing: add anyone, it lands on the board |
+| Description, pay, requirements, deadline | | ✓ |
+| Published in the worker app | | ✓ Publish / Unpublish |
+
+- Every run (or single day) with a day still to come is one Admin job, made as
+  a **draft**: nothing reaches the app until Publish. A run wholly in the past
+  is left alone. Cancelling or deleting all its days closes the listing.
+- An **internal** job made in Admin with dates goes onto the board (one day per
+  job day, client made by name, charge rate £0 with a "Charge rate needed"
+  note), then follows it. External jobs (other companies' listings and website
+  submissions) never go on the board: they have no dates and VERGO doesn't staff them.
+- **Crew** lives on the board. A board person whose email is a worker account is
+  rostered on that day in the app; that roster is rewritten by the sync, never
+  edited on its own. In Admin > Jobs > Staffing you can add a worker, someone
+  already on the board, or a name typed in (no account needed), on every day to
+  come or one day. The board's rule holds: no hourly rate, no job (the job's
+  hourly pay is used if the person has none).
+- **Confirming** an application puts the worker on every day to come;
+  un-confirming or deleting it takes them off.
+- A linked job can't be deleted in Admin (it would come back); close it, or
+  cancel or delete it on the board. Days are added and removed on the board.
+- Link: `sched_job.appJobId` → `Job`, and `Job.schedSynced` (migration
+  `20261012120000_scheduling_app_jobs`). Tests: `schedulingAppJobs.test.ts`.
 
 ## Where it lives
 
@@ -29,8 +62,8 @@ timesheets, invoicing); Scheduling is the quick booking board you already know.
 
 - The screens are the desktop's Svelte source, unchanged apart from: the
   login (the admin login replaces the desktop's own), "Scheduling" under the
-  VERGO mark, three links at the foot of the sidebar (Restore a desktop
-  backup, VERGO Ops, Sign out), and `min-width: 0` on `.main` so every screen
+  VERGO mark, links at the foot of the sidebar (Restore a desktop
+  backup, Jobs in the app, back to the Admin panel, Sign out), and `min-width: 0` on `.main` so every screen
   fits a phone (tables scroll inside their box; on a computer nothing changes).
 - The API routes are the desktop's own route files
   (`src/scheduling/routes/*.ts`), run through a small Fastify-to-Express

@@ -263,8 +263,9 @@
   async function updateStatus(id, status, fromModal) {
     if (status === 'CONFIRMED' && !confirm('Confirm this applicant for the shift? They will be emailed.')) return;
 
+    var result;
     try {
-      await get('/api/v1/job-applications/' + encodeURIComponent(id) + '/status', {
+      result = await get('/api/v1/job-applications/' + encodeURIComponent(id) + '/status', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: status })
@@ -275,7 +276,14 @@
     }
 
     if (fromModal) AdminCore.closeModal('detail-modal');
-    toast('Application marked ' + statusLabel(status).toLowerCase(), 'success');
+    // On a Scheduling job, confirming also puts them on the board. When that
+    // could not happen (no hourly rate, say), the status still changed: say so.
+    if (result && result.crewWarning) {
+      toast('Application marked ' + statusLabel(status).toLowerCase()
+        + ', but not put on the Scheduling board: ' + result.crewWarning, 'error');
+    } else {
+      toast('Application marked ' + statusLabel(status).toLowerCase(), 'success');
+    }
     await loadApplications();
   }
 

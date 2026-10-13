@@ -17,7 +17,23 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=10">
+  <link rel="stylesheet" href="/pages/css/admin-shared.css?v=12">
+  <style>
+    .sched-tag { display: inline-block; margin-top: 2px; font-size: 12px; color: #D4AF37; text-decoration: none; }
+    .sched-tag:hover { text-decoration: underline; }
+    .sched-note { padding: 10px 12px; border: 1px solid rgba(212,175,55,.35); border-radius: 8px; background: rgba(212,175,55,.08); font-size: 13px; line-height: 1.5; margin: 0 0 14px; }
+    .sched-note a { color: #D4AF37; }
+    .add-person { border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 12px; margin-bottom: 16px; display: grid; gap: 8px; }
+    .add-person-head { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .add-person-head select { max-width: 260px; }
+    .add-person-results { display: grid; gap: 4px; }
+    .add-person-results:empty { display: none; }
+    .add-person-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; background: rgba(255,255,255,.03); }
+    .add-person-row span { display: block; font-size: 12px; opacity: .7; }
+    .add-person-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 8px; }
+    #add-person-manual summary { cursor: pointer; font-size: 13px; opacity: .8; }
+    .no-account { font-size: 11px; opacity: .6; }
+  </style>
 </head>
 <body class="as-panel">
   <a href="#as-content" class="as-skip-link">Skip to main content</a>
@@ -25,8 +41,9 @@
   <div class="as-main">
     <header class="as-topbar">
       <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
-      <h1 class="as-topbar-title">Jobs</h1>
+      <h1 class="as-topbar-title">Board</h1>
       <div class="as-topbar-right">
+        <a class="btn btn-ghost btn-sm" href="/scheduling/#/jobs" title="Jobs are booked on the board and appear here as drafts">🗓️ Scheduling</a>
         <button class="btn btn-primary btn-sm" data-action="open-create-modal">+ Add job</button>
       </div>
     </header>
@@ -95,6 +112,7 @@
       <form id="job-form">
         <div class="modal-body">
           <div id="form-alert"></div>
+          <p id="sched-note" class="sched-note d-none"></p>
 
           <div class="form-row">
             <div class="form-group full-width">
@@ -232,6 +250,25 @@
       <div class="modal-body">
         <div id="staffing-alert"></div>
         <p id="staffing-sub" class="text-muted fs-sm mb-2"></p>
+        <div id="staffing-add-person" class="add-person d-none">
+          <div class="add-person-head">
+            <strong>Add someone</strong>
+            <select id="add-person-days" class="as-input" aria-label="Which days"></select>
+          </div>
+          <input id="add-person-search" class="as-input" type="search" autocomplete="off" placeholder="Search workers and Scheduling people by name or email">
+          <div id="add-person-results" class="add-person-results"></div>
+          <details id="add-person-manual">
+            <summary>Not on the list? Add them by hand (no app account needed)</summary>
+            <form id="add-person-form" class="add-person-form">
+              <input class="as-input" name="firstName" required maxlength="100" placeholder="First name" aria-label="First name">
+              <input class="as-input" name="lastName" required maxlength="100" placeholder="Last name" aria-label="Last name">
+              <input class="as-input" name="email" type="email" maxlength="255" placeholder="Email (optional)" aria-label="Email">
+              <input class="as-input" name="phone" maxlength="40" placeholder="Phone (optional)" aria-label="Phone">
+              <input class="as-input" name="hourlyRate" type="number" step="0.01" min="0.01" max="1000" placeholder="£ per hour" aria-label="Hourly rate">
+              <button type="submit" class="btn btn-primary btn-sm">Add</button>
+            </form>
+          </details>
+        </div>
         <div id="staffing-days"><div class="drawer-loading">Loading days…</div></div>
       </div>
       <div class="modal-footer">

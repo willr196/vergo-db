@@ -26,7 +26,7 @@
   <div class="as-main">
     <header class="as-topbar">
       <button id="as-menu-btn" aria-label="Toggle navigation">&#9776;</button>
-      <h1 class="as-topbar-title">VERGO Ops</h1>
+      <h1 class="as-topbar-title">Ops</h1>
     </header>
 
     <nav class="ops-subnav" id="ops-subnav" aria-label="VERGO Ops sections">
@@ -37,15 +37,21 @@
       <a href="#/rota" data-route="rota">Rota</a>
       <a href="#/timesheets" data-route="timesheets">Timesheets</a>
       <a href="#/clients" data-route="clients">Clients</a>
-      <a href="#/leads" data-route="leads">Leads</a>
-      <a href="#/import" data-route="import">Import</a>
-      <a href="#/documents" data-route="documents">Documents &amp; Terms</a>
-      <a href="#/awr" data-route="awr">AWR</a>
-      <a href="#/direct-hire" data-route="direct-hire">Direct hire</a>
-      <a href="#/payroll" data-route="payroll">Payroll history</a>
-      <a href="#/exports" data-route="exports">Exports</a>
-      <a href="#/audit" data-route="audit">Audit log</a>
-      <a href="#/settings" data-route="settings">Settings</a>
+      <!-- The rest are monthly or one-off jobs, so they wait under More. -->
+      <details class="ops-more">
+        <summary>More</summary>
+        <div class="ops-more-menu">
+          <a href="#/documents" data-route="documents">Documents &amp; Terms</a>
+          <a href="#/leads" data-route="leads">Leads</a>
+          <a href="#/import" data-route="import">Import</a>
+          <a href="#/awr" data-route="awr">AWR</a>
+          <a href="#/direct-hire" data-route="direct-hire">Direct hire</a>
+          <a href="#/payroll" data-route="payroll">Payroll history</a>
+          <a href="#/exports" data-route="exports">Exports</a>
+          <a href="#/audit" data-route="audit">Audit log</a>
+          <a href="#/settings" data-route="settings">Settings</a>
+        </div>
+      </details>
     </nav>
 
     <main class="ops-page" id="as-content" tabindex="-1">

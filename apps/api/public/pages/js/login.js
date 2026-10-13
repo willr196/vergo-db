@@ -40,7 +40,7 @@
     function getSafeRedirectPath() {
       const redirect = new URLSearchParams(window.location.search).get('redirect');
       if (!redirect || !redirect.startsWith('/') || redirect.startsWith('//')) {
-        return '/admin-jobs';
+        return '/admin-requests';
       }
       return redirect;
     }

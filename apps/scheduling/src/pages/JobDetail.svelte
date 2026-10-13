@@ -31,6 +31,7 @@
     status: string;
     invoiceStatus: string;
     notes: string | null;
+    appJobId: string | null;
     scheduledHours: string;
     client: { id: string; name: string } | null;
     crew: Crew[];
@@ -282,6 +283,9 @@
         {#if job.breakMinutes}({job.breakMinutes} min break){/if}
         {#if job.venueName} · {job.venueName}{/if}
       </p>
+      {#if job.appJobId}
+        <p style="font-size:.85rem"><a href="/admin-jobs?job={job.appJobId}">In the app: listing, applications and publishing →</a></p>
+      {/if}
     {/if}
   </div>
   {#if job && !editing}

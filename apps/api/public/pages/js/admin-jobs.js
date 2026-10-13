@@ -109,6 +109,15 @@ let jobs = [];
             <button type="button" class="btn btn-small btn-reject" data-action="reject-job" data-job-id="${job.id}">✗ Reject</button>
             <button type="button" class="btn btn-small btn-edit" data-action="edit-job" data-job-id="${job.id}">Edit</button>
           `;
+        } else if (job.schedSynced) {
+          // A VERGO Scheduling job: the board owns its days and crew, so it is
+          // published or closed here, never deleted (it would only come back).
+          const live = job.status === 'OPEN' || job.status === 'FILLED';
+          actionButtons = `
+            <button type="button" class="btn btn-small btn-primary" data-action="open-staffing" data-job-id="${job.id}">Staffing</button>
+            <button type="button" class="btn btn-small ${live ? 'btn-ghost' : 'btn-approve'}" data-action="${live ? 'unpublish-job' : 'publish-job'}" data-job-id="${job.id}">${live ? 'Unpublish' : 'Publish'}</button>
+            <button type="button" class="btn btn-small btn-edit" data-action="edit-job" data-job-id="${job.id}">Edit</button>
+          `;
         } else {
           actionButtons = `
             <button type="button" class="btn btn-small btn-primary" data-action="open-staffing" data-job-id="${job.id}">Staffing</button>
@@ -117,11 +126,18 @@ let jobs = [];
           `;
         }
 
+        const sched = job.scheduling;
+        const schedTag = sched
+          ? `<a class="sched-tag" href="/scheduling/#/jobs/${encodeURIComponent(sched.schedJobId || '')}" title="Open on VERGO Scheduling">🗓️ ${escapeHtml(sched.reference || 'Scheduling')}${sched.days > 1 ? ` · ${sched.days} days` : ''}</a>`
+          : '';
+        const statusLabel = { DRAFT: 'Draft · not in app', OPEN: 'Published', FILLED: 'Filled', CLOSED: 'Closed', PENDING: 'Pending' }[job.status] || job.status;
+
         return `
           <tr>
             <td class="job-title-cell">
               <strong><button type="button" class="applicant-link" data-action="open-staffing" data-job-id="${job.id}" title="Open staffing for this job">${escapeHtml(job.title)}</button></strong>
               <span>${escapeHtml(roleName)}</span>
+              ${schedTag}
             </td>
             <td>
               ${escapeHtml(companyDisplay)}
@@ -131,18 +147,45 @@ let jobs = [];
             <td class="hide-mobile">${pay}</td>
             <td class="hide-mobile">${job._count?.applications || 0}</td>
             <td>${staffedCell}</td>
-            <td><span class="status status-${job.status.toLowerCase()}">${job.status}</span></td>
+            <td><span class="status status-${job.status.toLowerCase()}">${escapeHtml(statusLabel)}</span></td>
             <td class="actions">${actionButtons}</td>
           </tr>
         `;
       }).join('');
     }
     
+    // On a VERGO Scheduling job, dates, times, venue, client and headcount are
+    // changed on the board. Here they show, greyed, with the way there.
+    const SCHEDULING_FIELDS = ['title', 'type', 'companyName', 'venue', 'eventDate', 'eventEndDate', 'shiftStart', 'shiftEnd', 'staffNeeded'];
+    function lockSchedulingFields(job) {
+      const form = document.getElementById('job-form');
+      const locked = Boolean(job && job.schedSynced);
+      SCHEDULING_FIELDS.forEach((name) => {
+        const field = form.elements[name];
+        if (field) field.disabled = locked;
+      });
+      document.querySelectorAll('#day-plan input').forEach((input) => { input.disabled = locked; });
+      const note = document.getElementById('sched-note');
+      if (!note) return;
+      if (locked) {
+        const sched = job.scheduling || {};
+        note.innerHTML = 'This job is on VERGO Scheduling (' + escapeHtml(sched.reference || 'board') + '). '
+          + 'Change its dates, times, venue, client and headcount there: '
+          + '<a href="/scheduling/#/jobs/' + encodeURIComponent(sched.schedJobId || '') + '">open in Scheduling</a>. '
+          + 'Here you set what workers see in the app: description, pay, requirements and whether it is published.';
+        note.classList.remove('d-none');
+      } else {
+        note.classList.add('d-none');
+        note.innerHTML = '';
+      }
+    }
+
     // Open create modal
     function openCreateModal() {
       editingId = null;
       document.getElementById('modal-title').textContent = 'Add new job';
       document.getElementById('job-form').reset();
+      lockSchedulingFields(null);
       document.getElementById('form-alert').innerHTML = '';
       JobStaffing.renderDayPlan();
       AdminCore.openModal('job-modal');
@@ -178,7 +221,8 @@ let jobs = [];
 
       // Fetched rather than taken from the row: the saved plan may differ from
       // what the date range alone would imply.
-      JobStaffing.loadDayPlanForJob(id);
+      lockSchedulingFields(job);
+      JobStaffing.loadDayPlanForJob(id).then(() => lockSchedulingFields(job));
 
       AdminCore.openModal('job-modal');
     }
@@ -238,7 +282,12 @@ let jobs = [];
         const result = payload.data ?? payload;
         
         if (!res.ok) {
-          throw new Error(result.error || 'Failed to save job');
+          // Name the field that failed rather than a bare "Invalid input"
+          const issue = Array.isArray(result.details) ? result.details[0] : null;
+          const detail = issue && issue.message
+            ? ` (${(issue.path || []).join('.') || 'form'}: ${issue.message})`
+            : '';
+          throw new Error((result.error || 'Failed to save job') + detail);
         }
         
         closeModal();
@@ -302,6 +351,29 @@ let jobs = [];
       }
     }
     
+    // Publish puts a job in the worker app; unpublish takes it back to draft.
+    async function setPublished(id, publish) {
+      const job = jobs.find(j => j.id === id);
+      if (publish && job && !job.payRate) {
+        if (!confirm(`"${job.title}" has no pay rate yet. Publish it anyway?`)) return;
+      }
+      try {
+        const res = await fetch(`/api/v1/jobs/${id}/status`, {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: publish ? 'OPEN' : 'DRAFT' })
+        });
+        const payload = await res.json();
+        const data = payload.data ?? payload;
+        if (!res.ok) throw new Error(data.error || 'Failed to change status');
+        showAlert(publish ? 'Published: workers can see it in the app' : 'Unpublished: back to draft', 'success');
+        loadJobs();
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+
     // Delete job
     async function deleteJob(id) {
       if (!confirm('Are you sure you want to delete this job? This cannot be undone.')) return;
@@ -343,6 +415,8 @@ let jobs = [];
       if (action === 'reject-job') return jobId && rejectJob(jobId);
       if (action === 'edit-job') return jobId && editJob(jobId);
       if (action === 'delete-job') return jobId && deleteJob(jobId);
+      if (action === 'publish-job') return jobId && setPublished(jobId, true);
+      if (action === 'unpublish-job') return jobId && setPublished(jobId, false);
     });
 
     // The staffing modal changes headcounts and rosters, so the Staffed column
@@ -367,4 +441,7 @@ let jobs = [];
       if (!session) return;
       await loadRoles();
       await loadJobs();
+      // Linked from a Scheduling job: open its staffing straight away.
+      const linked = new URLSearchParams(window.location.search).get('job');
+      if (linked) JobStaffing.openStaffingModal(linked);
     })();

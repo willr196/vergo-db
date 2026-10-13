@@ -10,7 +10,7 @@ data has not been imported.
 
 ## Access and authentication
 
-- Open **`/ops`** (also in the admin sidebar under Operations). Same login as
+- Open **`/ops`** (also Ops in the admin sidebar). Same login as
   the admin panel: `/login`, admin accounts from `AdminUser`.
 - Session-based (`vergo.sid`), 30-minute idle and 8-hour absolute timeout, CSRF
   token on every write. Page: `adminPageAuth`. API: `adminAuth` on everything

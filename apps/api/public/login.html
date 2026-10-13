@@ -21,7 +21,8 @@
      font-src and so fell back to default-src 'self' — blocking every font file
      on fonts.gstatic.com and leaving the page in system fallbacks. -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-Frame-Options" content="DENY">
+  <!-- No X-Frame-Options meta: browsers ignore it there and log an error. The
+       server sends it as a header (X-Frame-Options: DENY, frame-ancestors 'none'). -->
 
   <!-- Google Fonts. Cormorant Garamond is required by pages/css/public-auth.css. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -20,9 +20,21 @@ import { jobRoutes } from './routes/jobs';
 import { leadRoutes } from './routes/leads';
 import { toolRoutes } from './routes/tools';
 import { restoreFromBackup } from './restore';
+import { syncAppJobs } from './appJobs';
 
 const r = Router();
 r.use(adminAuth);
+
+// Admin > Jobs follows this board (see appJobs.ts). Any change that went
+// through brings it back into line, after the answer so the board stays quick.
+r.use((req, res, next) => {
+  if (req.method !== 'GET') {
+    res.on('finish', () => {
+      if (res.statusCode < 400) syncAppJobs().catch((error) => console.error('[SCHEDULING SYNC]', error));
+    });
+  }
+  next();
+});
 
 r.get('/me', (req, res) => {
   res.json({ username: req.session?.username ?? 'admin' });
