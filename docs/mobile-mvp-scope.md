@@ -41,6 +41,10 @@ marketplace did not, so its screens were deleted.
    told neither the office nor the worker and skipped the cancellation fee.
 6. Edit the company profile.
 
+The four-hour minimum applies to the client invoice and the worker's pay
+alike (`bookingMoney()` in `apps/api/src/lib/money.ts`). The app shows the
+hours actually recorded and does not round them; only the money is floored.
+
 Phone, email, rates and terms are not in the app. It reads them from
 `GET /api/v1/client/mobile/info`, which serves the same config the website
 renders from, with Admin > Site content applied.
@@ -61,9 +65,6 @@ renders from, with Admin > Site content applied.
   `apps/api/public/.well-known/`.
 - Crash reporting is wired in (`src/utils/errorReporting.ts`) but sends
   nothing until `EXPO_PUBLIC_SENTRY_DSN` is set; it is blank in `eas.json`.
-- The four-hour minimum applies to the client invoice (covered by
-  `shiftLifecycle.test.ts`). Whether it also applies to worker pay is still
-  open; the app shows the recorded hours and does not round.
 - Cancelling in the app, if wanted later, has to notify the office and the
   worker and apply the fee.
 

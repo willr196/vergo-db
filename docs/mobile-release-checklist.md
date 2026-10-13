@@ -101,13 +101,15 @@ breadcrumb.
 
 ## Before you call it done
 
-From the audit's definition of a safe first release, narrowed to worker-only:
+From the audit's definition of a safe first release, covering both journeys:
 
 - [ ] A signed build installs on a real iPhone and a real Android phone
 - [ ] Push arrives on both, and tapping it opens the right screen
 - [ ] Deep links open the app cold, warm, signed in and signed out
 - [ ] A worker can register, apply, get a shift, confirm it, check in and check out
 - [ ] The hours appear in the ops console timesheet view
+- [ ] A client can register, be approved, request staff, and see the booking
+      with the worker's recorded hours
 - [ ] Signing out and signing in as a different worker shows none of the first
       worker's cached data
 - [ ] A forced test crash appears in Sentry with a readable stack trace
@@ -115,7 +117,8 @@ From the audit's definition of a safe first release, narrowed to worker-only:
 
 ## Known and deliberate
 
-- Client screens are in the repo but unreachable. See
+- The client side ships as quotes and bookings only (decision of 28 September
+  2026), with no in-app cancel. See
   [mobile-mvp-scope.md](./mobile-mvp-scope.md).
 - The four-hour minimum always applies, to the client invoice and the worker's
   pay alike. It is enforced in bookingMoney() only, so hoursWorked and
