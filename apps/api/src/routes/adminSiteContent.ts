@@ -30,6 +30,7 @@ const FAQ_PAGES = [
   'hire/kitchen-porters',
   'hire/weddings',
   'hire/production-catering',
+  'hire/corporate-events',
   'work',
   'special-events/christmas',
   'special-events/halloween',

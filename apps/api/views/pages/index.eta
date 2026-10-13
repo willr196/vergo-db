@@ -57,7 +57,7 @@
         <a href="/hire/quote" class="btn btn-secondary">Get a quote</a>
       </div>
       <p class="home-today">Need someone today? <a href="<%~ it.t.PHONE_TEL %>">Call <%~ it.t.PHONE %></a> or <a href="<%~ it.t.WHATSAPP_URL %>" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>.</p>
-      <p class="home-roles"><a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/weddings">Weddings</a> · <a href="/hire/production-catering">Film and TV</a> · <a href="/book-an-event">Full events</a></p>
+      <p class="home-roles"><a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/corporate-events">Corporate and large events</a> · <a href="/hire/weddings">Weddings</a> · <a href="/hire/production-catering">Film and TV</a> · <a href="/book-an-event">Full events</a></p>
     </section>
     </div>
 

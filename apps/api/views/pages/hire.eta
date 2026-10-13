@@ -85,6 +85,7 @@
     <section class="section shell" aria-labelledby="byoccasion-heading">
       <h2 id="byoccasion-heading" class="section-label">By occasion</h2>
       <ul class="link-tiles">
+        <li><a href="/hire/corporate-events">Corporate and large events</a></li>
         <li><a href="/hire/weddings">Weddings</a></li>
         <li><a href="/hire/production-catering">Film and TV</a></li>
         <li><a href="/special-events/christmas">Christmas</a></li>

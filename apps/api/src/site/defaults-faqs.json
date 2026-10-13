@@ -55,6 +55,20 @@
       "answer": "Quoted individually, by section and unit size."
     }
   ],
+  "hire/corporate-events": [
+    {
+      "question": "How many staff can you supply?",
+      "answer": "Send the event, guest numbers and service style. We confirm the team we can put in before you book."
+    },
+    {
+      "question": "Will there be someone in charge of our team?",
+      "answer": "Yes, if you want one, and we recommend it on larger teams. Supervisors are quoted separately."
+    },
+    {
+      "question": "Can we mix roles on one booking?",
+      "answer": "Yes. Waiting staff, bar staff, kitchen porters, runners and hosts are all on the same rate, so one booking covers the lot."
+    }
+  ],
   "hire/waiting-staff": [
     {
       "question": "How many waiting staff do we need?",

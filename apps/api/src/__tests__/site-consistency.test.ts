@@ -261,6 +261,7 @@ const BUDGETS: Record<string, number> = {
   '/hire/kitchen-porters': 160,
   '/hire/weddings': 180,
   '/hire/production-catering': 200,
+  '/hire/corporate-events': 200,
   '/special-events/christmas': 220,
   '/special-events/halloween': 550,
   '/special-events': 120,
@@ -373,7 +374,7 @@ test('Premium is shown only while it is enabled', () => {
 });
 
 test('rate, guarantee and employment wording matches config exactly', () => {
-  const ratePages = ['/hire', '/birmingham', '/hire/waiting-staff', '/hire/bar-staff', '/hire/kitchen-porters', '/hire/weddings', '/hire/production-catering', '/special-events/christmas'];
+  const ratePages = ['/hire', '/birmingham', '/hire/waiting-staff', '/hire/bar-staff', '/hire/kitchen-porters', '/hire/weddings', '/hire/production-catering', '/hire/corporate-events', '/special-events/christmas'];
   for (const url of ratePages) {
     const p = page(url);
     const blocks = all(p.root, (n) => n.attrs['data-block'] === 'rates');

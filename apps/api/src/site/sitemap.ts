@@ -35,6 +35,7 @@ export const PAGES: SitemapPage[] = [
   { path: '/hire/kitchen-porters', lastmod: '2026-09-27', changefreq: 'monthly', priority: '0.8', shows: ['faqs:hire/kitchen-porters'] },
   { path: '/hire/weddings', lastmod: '2026-09-27', changefreq: 'monthly', priority: '0.8', shows: ['faqs:hire/weddings'] },
   { path: '/hire/production-catering', lastmod: '2026-09-27', changefreq: 'monthly', priority: '0.8', shows: ['faqs:hire/production-catering'] },
+  { path: '/hire/corporate-events', lastmod: '2026-10-13', changefreq: 'monthly', priority: '0.9', shows: ['faqs:hire/corporate-events'] },
   { path: '/work', lastmod: '2026-10-01', changefreq: 'monthly', priority: '0.9', shows: ['faqs:work'] },
   { path: '/about', lastmod: '2026-10-02', changefreq: 'monthly', priority: '0.6' },
   { path: '/special-events', lastmod: '2026-09-27', changefreq: 'monthly', priority: '0.8', shows: ['promos'] },
