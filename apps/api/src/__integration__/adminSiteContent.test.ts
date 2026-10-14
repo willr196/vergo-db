@@ -74,7 +74,7 @@ test('a rate save is validated, logged, and on the site at once', async () => {
 
   const tooLow = await send('PUT', '/settings/rates', { ...rates, standardRate: 9 });
   assert.equal(tooLow.statusCode, 400);
-  assert.equal(PRICING.standardRate, 18.5);
+  assert.equal(PRICING.standardRate, 19);
 
   const ok = await send('PUT', '/settings/rates', { ...rates, standardRate: 19.75 });
   assert.equal(ok.statusCode, 200, JSON.stringify(ok.body));

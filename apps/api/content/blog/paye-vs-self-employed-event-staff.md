@@ -15,7 +15,7 @@ draft: false
 - Our hospitality staff are PAYE on casual worker contracts, so payroll, holiday pay and employer National Insurance sit with us rather than with you.
 - At the 2026/27 floor an hour costs £14.67 while the Employment Allowance covers the National Insurance, and £16.81 once that allowance runs out.
 - Direction and equipment are two of the things HMRC's own status tool asks about, and on most catering jobs both of them point the same way.
-- Our published rate starts at £18.50 an hour per person with a four-hour minimum, and there are no booking fees or uniform charges.
+- Our published rate starts at £19.00 an hour per person with a four-hour minimum, and there are no booking fees or uniform charges.
 
 ## What actually changes for you when staff are PAYE?
 
@@ -48,13 +48,13 @@ Here is the arithmetic at the 2026/27 statutory floor. This is the minimum, not 
 | Employer National Insurance at 15 per cent | £2.14 | Above £96 a week per person |
 | **Cost while the Employment Allowance holds** | **£14.67** | National Insurance covered |
 | **Cost once the allowance is used up** | **£16.81** | National Insurance payable in full |
-| Our published charge rate | £18.50 | No booking fee, no uniform charge |
+| Our published charge rate | £19.00 | No booking fee, no uniform charge |
 
 Two things are worth saying plainly about that table.
 
 The National Insurance line does not always bite. The secondary threshold is £5,000 a year, which is £96 a week, so a person working one short shift in a week may fall under it. On a ten hour day they will not.
 
-And the gap between the cost line and £18.50 is not margin. Insurance, the payroll itself and the cost of holding replacement cover all come out of it before anything is left. These figures are correct for 2026/27 and you should verify them on [GOV.UK](https://www.gov.uk/national-minimum-wage-rates) before relying on them. The holiday pay calculation is set out in the [holiday entitlement guidance](https://www.gov.uk/holiday-entitlement-rights).
+And the gap between the cost line and £19.00 is not margin. Insurance, the payroll itself and the cost of holding replacement cover all come out of it before anything is left. These figures are correct for 2026/27 and you should verify them on [GOV.UK](https://www.gov.uk/national-minimum-wage-rates) before relying on them. The holiday pay calculation is set out in the [holiday entitlement guidance](https://www.gov.uk/holiday-entitlement-rights).
 
 Our [published rates and terms](/hire) are on the client page, and the rate you are quoted is the rate on the invoice.
 
@@ -114,7 +114,7 @@ No. Rolled-up holiday pay at 12.07 per cent is inside the published rate and doe
 
 Some genuinely self-employed arrangements exist, but whether yours is one is a question of fact rather than paperwork. HMRC's Check Employment Status for Tax tool is the fastest way to get a defensible answer, and an accountant is the right person to confirm it. We are not able to give you legal or tax advice on your own arrangements.
 
-### What does the £18.50 an hour include?
+### What does the £19.00 an hour include?
 
 The person, their holiday pay, employer National Insurance, pension where it applies, and both insurances. There are no booking fees and no uniform charges. Overruns are charged in thirty minute blocks, and there is a 25 per cent uplift after midnight.
 

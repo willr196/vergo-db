@@ -8,7 +8,7 @@
 
 export const PRICING = {
   /** Waiting staff, bar staff, kitchen porters, runners, hosts and front of house. */
-  standardRate: 18.50,
+  standardRate: 19.00,
   /**
    * The Premium pool: staff with 2+ years' event experience. Chosen for the
    * whole booking on the quote form. Set premiumEnabled to false to drop the
@@ -22,7 +22,7 @@ export const PRICING = {
   /** Applies to the hours worked after midnight, not to the whole shift. */
   afterMidnightMultiplier: 1.25,
   /** Internal only — never render this on any public page. */
-  accountRate: 18.50,
+  accountRate: 19.00,
   vatRegistered: false,
   vatRate: 0.20,
 

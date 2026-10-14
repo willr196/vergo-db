@@ -20,7 +20,7 @@ test.afterEach(() => resetContentForTests());
 
 test('the defaults are today\'s values', () => {
   const s = defaultSettings();
-  assert.equal(s.rates.standardRate, 18.5);
+  assert.equal(s.rates.standardRate, 19);
   assert.equal(s.rates.afterMidnightUpliftPct, 25);
   assert.equal(s.contact.phoneDisplay, SITE.phoneDisplay);
   for (const key of Object.keys(SETTING_SCHEMAS)) {
@@ -56,7 +56,7 @@ test('with the database down, a refresh keeps the site on its last good copy', a
   await refreshContent();
   assert.ok(Date.now() - started < 2000, 'a failed refresh must not hang');
   assert.equal(siteContent().source, 'defaults');
-  assert.equal(PRICING.standardRate, 18.5);
+  assert.equal(PRICING.standardRate, 19);
 });
 
 test('season windows are London days', () => {

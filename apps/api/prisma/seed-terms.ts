@@ -8,8 +8,8 @@ async function main() {
   //
   // Built from config/pricing.ts, the same source as the public /terms page,
   // so a booking's recorded terms can't say something the page doesn't.
-  const version = 'v5';
-  const effectiveDate = new Date('2026-09-26T00:00:00.000Z');
+  const version = 'v6';
+  const effectiveDate = new Date('2026-10-14T00:00:00.000Z');
   const sections = [
     {
       key: 'rates-and-charges',

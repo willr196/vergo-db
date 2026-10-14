@@ -78,7 +78,7 @@ test('a setting that fails validation keeps its default', async () => {
 
   await refreshContent();
   assert.equal(siteContent().source, 'database');
-  assert.equal(PRICING.standardRate, 18.5);
+  assert.equal(PRICING.standardRate, 19);
 });
 
 test('an unpublished review drops off the page', async () => {
