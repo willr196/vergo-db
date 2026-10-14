@@ -172,7 +172,7 @@ export async function createBooking(options: BookingFixtureOptions) {
     eventDate = new Date(),
     status = 'PENDING',
     hoursEstimated = 8,
-    hourlyRateCharged = 18.5,
+    hourlyRateCharged = 19,
     staffPayRate = 13,
     ...rest
   } = options;
