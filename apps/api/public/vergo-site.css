@@ -482,31 +482,27 @@ p:last-child { margin-bottom: 0; }
   position: relative;
   background: radial-gradient(110% 80% at 50% 0%, rgba(var(--accent-rgb), 0.14), rgba(var(--accent-rgb), 0) 70%);
 }
-.home-hero { padding-block: 96px 40px; }
-@media (max-width: 640px) { .home-hero { padding-block: 56px 32px; } }
-.home-hero h1 { max-width: 17ch; }
-.home-hero .lede { max-width: 46ch; font-size: 21px; }
-.home-hero .btn-row { margin: 30px 0 8px; }
-
-/* The logo leads the homepage, so the hero centres around it. The artwork sits
-   on a black square, which shows against the hero backdrop; a circular mask on
-   the ring's centre fades it out, and the negative margin takes back the empty
-   black below the ring. */
-.home-hero--centred { text-align: center; padding-top: 48px; }
-.home-hero--centred h1,
-.home-hero--centred .lede { margin-inline: auto; }
-.home-hero--centred .btn-row { justify-content: center; align-items: center; }
+/* The hero is a left-aligned masthead: the V mark beside the heading, then
+   the city switch and slogan. The pitch and buttons follow the three cards. */
+.home-hero { padding-block: 48px 32px; }
+.home-hero-head { display: flex; align-items: center; gap: clamp(16px, 3vw, 28px); }
+.home-hero-head h1 { margin: 0; }
 /* The V mark is gold on black, so on the charcoal page it sits as a round
    badge. */
 .home-logo {
   display: block;
-  width: clamp(110px, 16vw, 150px);
+  flex: none;
+  width: clamp(72px, 12vw, 120px);
   height: auto;
-  margin: 0 auto 28px;
   border-radius: 50%;
   box-shadow: 0 0 0 1px var(--hairline-strong), 0 12px 32px rgba(0, 0, 0, 0.35);
 }
-@media (max-width: 640px) { .home-hero--centred { padding-top: 32px; } }
+@media (max-width: 640px) { .home-hero { padding-block: 32px 24px; } }
+
+/* Under the three cards: the pitch, the buttons and the same-day line. */
+.home-cta { text-align: center; padding-block: 8px 48px; }
+.home-cta .lede { max-width: 46ch; margin-inline: auto; font-size: 21px; }
+.home-cta .btn-row { justify-content: center; align-items: center; margin: 24px 0 8px; }
 
 /* Stat band */
 .stat-band {
@@ -1232,10 +1228,6 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
  * Homepage: hero help line, trust strip, seasonal feature, beyond staff
  * ------------------------------------------------------------------ */
 .home-today { margin: 8px 0 0; font-size: 15px; color: var(--text-muted); }
-.home-hero--centred .home-today { text-align: center; }
-.home-roles { margin: 32px auto 0; max-width: 72ch; text-wrap: balance; font-size: 14px; color: var(--text-muted); }
-.home-roles a { color: inherit; text-decoration: none; }
-.home-roles a:hover { color: var(--accent); text-decoration: underline; }
 
 /* City choice under the hero H1 (homepage and /birmingham). */
 .city-switch { display: inline-flex; gap: 4px; margin: 18px 0 0; padding: 4px; border: 1px solid var(--hairline-strong); border-radius: var(--radius-pill); }
