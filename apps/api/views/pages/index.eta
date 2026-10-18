@@ -79,9 +79,9 @@
       </a>
       <a class="path-banner" href="/book-an-event">
         <span class="path-kicker">Full events</span>
-        <h2 class="path-title">Book an event</h2>
+        <h2 class="path-title">Book a full event</h2>
         <p class="path-line">Food, bar and staff from one company.</p>
-        <span class="path-go">Book an event &rarr;</span>
+        <span class="path-go">Book a full event &rarr;</span>
       </a>
     </nav>
 
