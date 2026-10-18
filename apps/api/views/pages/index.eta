@@ -49,14 +49,16 @@
     <section class="home-hero shell">
       <div class="home-hero-head">
         <img class="home-logo" src="/images/vergo-mark-400.webp" width="600" height="600" alt="" fetchpriority="high">
-        <h1>Event Staff</h1>
+        <div class="home-hero-centre">
+          <h1>Event Staff</h1>
+          <%~ include('/partials/city-switch', { current: "london" }) %>
+          <p class="home-slogan"><%~ it.t.SLOGAN %></p>
+        </div>
         <a class="home-halloween" href="/special-events/halloween">
           <img src="/images/special-events/vergo-pumpkin.svg" width="420" height="420" alt="">
           <span>Halloween staff</span>
         </a>
       </div>
-      <%~ include('/partials/city-switch', { current: "london" }) %>
-      <p class="home-slogan"><%~ it.t.SLOGAN %></p>
     </section>
     </div>
 

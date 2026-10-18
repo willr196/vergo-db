@@ -482,16 +482,33 @@ p:last-child { margin-bottom: 0; }
   position: relative;
   background: radial-gradient(110% 80% at 50% 0%, rgba(var(--accent-rgb), 0.14), rgba(var(--accent-rgb), 0) 70%);
 }
-/* The hero is a left-aligned masthead: the V mark beside the heading, then
-   the city switch and slogan. The pitch and buttons follow the three cards. */
+/* The hero is a masthead: the V mark top left, the pumpkin top right, and
+   the heading, city switch and slogan centred between them. The equal outer
+   columns keep the middle on the page's centre line. On a phone the two
+   marks share the top row and the middle drops below. The pitch and buttons
+   follow the three cards. */
 .home-hero { padding-block: 48px 32px; }
-.home-hero-head { display: flex; align-items: center; gap: clamp(16px, 3vw, 28px); }
+.home-hero-head {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas: "logo centre halloween";
+  align-items: center;
+  gap: clamp(16px, 3vw, 28px);
+}
+.home-hero-centre { grid-area: centre; text-align: center; }
 .home-hero-head h1 { margin: 0; }
+@media (max-width: 640px) {
+  .home-hero-head {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "logo halloween" "centre centre";
+  }
+}
 /* The V mark is gold on black, so on the charcoal page it sits as a round
    badge. */
 .home-logo {
+  grid-area: logo;
+  justify-self: start;
   display: block;
-  flex: none;
   width: clamp(72px, 12vw, 120px);
   height: auto;
   border-radius: 50%;
@@ -500,12 +517,12 @@ p:last-child { margin-bottom: 0; }
 /* Top right of the masthead: the carved pumpkin over "Halloween staff",
    one link to the Halloween page. */
 .home-halloween {
-  margin-left: auto;
+  grid-area: halloween;
+  justify-self: end;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  flex: none;
   color: var(--ink);
   text-decoration: none;
   font-weight: 600;
