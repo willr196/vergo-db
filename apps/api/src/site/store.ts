@@ -18,8 +18,11 @@ import { applySettings, defaultSettings, parseSettings, SiteSettings } from './s
  * The public site's editable content, held in memory. Pages read it
  * synchronously and never wait on the database:
  *   - at boot it is the built-in defaults (today's site, word for word);
- *   - refreshContent() replaces it with the database copy, every 60 seconds
- *     and straight after an admin save;
+ *   - refreshContent() replaces it with the database copy: at boot, straight
+ *     after an admin save, and when a page reads a copy over 60 seconds old
+ *     (that read gets the old copy; the reload runs behind it). No timer, so
+ *     with no visitors nothing queries and Neon can scale to zero. A 60-second
+ *     timer on two machines used up the free compute in October 2026;
  *   - if the database is slow (over 500ms) or down, the last good copy stays.
  *
  * Logs go to the console, not services/logger: this module is loaded by the
@@ -91,6 +94,7 @@ function defaults(): SiteContent {
 
 let current: SiteContent = defaults();
 applySettings(current.settings);
+let lastRefresh = 0;
 
 const listeners: Array<() => void> = [];
 
@@ -100,6 +104,7 @@ export function onContentChange(fn: () => void): void {
 }
 
 export function siteContent(): SiteContent {
+  if (process.env.NODE_ENV !== 'test' && Date.now() - lastRefresh > REFRESH_MS) void refreshContent();
   return current;
 }
 
@@ -242,6 +247,7 @@ function homeLines(value: unknown): HomeLine[] {
 
 /** Reloads from the database. Never throws: on any failure the last good copy stays. */
 export async function refreshContent(): Promise<void> {
+  lastRefresh = Date.now();
   try {
     const [next, openShifts] = await withTimeout(Promise.all([loadFromDatabase(), loadOpenShifts()]), DB_TIMEOUT_MS);
     setContent({ ...(next || current), openShifts });
@@ -250,11 +256,9 @@ export async function refreshContent(): Promise<void> {
   }
 }
 
-/** Loads now, then every minute. The timer doesn't keep the process alive. */
+/** Loads once at boot. After that, siteContent() reloads on demand. */
 export function startContentRefresh(): void {
   void refreshContent();
-  const timer = setInterval(() => void refreshContent(), REFRESH_MS);
-  timer.unref();
 }
 
 /** Test hook: back to the built-in defaults. */

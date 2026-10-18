@@ -271,7 +271,8 @@ function splitCommaSeparated(value: string | null | undefined) {
 }
 
 // ============================================
-// CLEANUP JOB - Delete expired verifications every 15 minutes
+// CLEANUP JOB - Delete expired verifications every 6 hours. Expiry is checked
+// on use, so this only tidies up, and each run wakes the database: keep it rare.
 // ============================================
 const cleanupInterval = setInterval(async () => {
   try {
@@ -311,7 +312,7 @@ const cleanupInterval = setInterval(async () => {
   } catch (error) {
     console.error('[CLEANUP] Failed to delete expired verifications:', error);
   }
-}, 15 * 60 * 1000);
+}, 6 * 60 * 60 * 1000);
 // Allow the process to exit naturally (important for tests/one-off scripts).
 cleanupInterval.unref?.();
 
