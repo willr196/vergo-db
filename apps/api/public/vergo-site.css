@@ -1269,6 +1269,10 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
  * Homepage: hero help line, trust strip, seasonal feature, beyond staff
  * ------------------------------------------------------------------ */
 .home-today { margin: 8px 0 0; font-size: 15px; color: var(--text-muted); }
+/* Under the same-day line: one link to each role page. */
+.home-roles { margin: 16px auto 0; max-width: 72ch; text-wrap: balance; font-size: 15px; color: var(--text-muted); }
+.home-roles a { white-space: nowrap; color: var(--text); text-decoration: underline; text-decoration-color: var(--hairline-strong); text-underline-offset: 3px; }
+.home-roles a:hover { color: var(--accent); text-decoration-color: currentColor; }
 
 /* City choice under the hero H1 (homepage and /birmingham). */
 .city-switch { display: inline-flex; gap: 4px; margin: 18px 0 0; padding: 4px; border: 1px solid var(--hairline-strong); border-radius: var(--radius-pill); }
