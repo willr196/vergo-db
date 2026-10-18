@@ -10,7 +10,7 @@ import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { env } from '../env';
-import { sendApplicationNotificationEmail, sendApplicationConfirmationToApplicant, sendRosterApprovalEmail } from '../services/email';
+import { sendApplicationNotificationEmail, sendApplicationConfirmationToApplicant, sendRosterApprovalEmail, sendApplicantMessageEmail } from '../services/email';
 import { summariseChecks } from '../services/rightToWork';
 import { authLogger } from '../services/logger';
 import { groupRoleCounts, roleNamesForLabel } from '../services/roleGroups';
@@ -981,6 +981,20 @@ function distanceInMiles(from: PostcodePoint, to: PostcodePoint) {
   return earthRadiusMiles * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// When each row's applicant was last sent a pipeline email, from the delivery log.
+async function withLastEmailed<T extends { email: string }>(rows: T[]): Promise<Array<T & { lastEmailedAt: Date | null }>> {
+  const emails = [...new Set(rows.map((row) => row.email).filter(Boolean))];
+  const sent = emails.length
+    ? await prisma.email.groupBy({
+        by: ['to'],
+        where: { emailType: 'applicant-message', to: { in: emails } },
+        _max: { createdAt: true }
+      })
+    : [];
+  const last = new Map(sent.map((row) => [row.to, row._max.createdAt]));
+  return rows.map((row) => ({ ...row, lastEmailedAt: last.get(row.email) ?? null }));
+}
+
 function shapeApplicationListItem(app: any) {
   return {
     id: app.id,
@@ -1116,7 +1130,7 @@ r.get('/', adminAuth, async (req, res, next) => {
         ...shapeApplicationListItem(app),
         distanceMiles: distanceMiles === null ? null : Math.round(distanceMiles * 10) / 10
       }));
-      const payload = { applications: shaped, pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
+      const payload = { applications: await withLastEmailed(shaped), pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
       return res.json({ ok: true, ...payload, data: payload });
     }
 
@@ -1158,7 +1172,7 @@ r.get('/', adminAuth, async (req, res, next) => {
     const shaped = apps.map(shapeApplicationListItem);
 
     const payload = {
-      applications: shaped,
+      applications: await withLastEmailed(shaped),
       pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) }
     };
 
@@ -1197,6 +1211,23 @@ r.get('/stats', adminAuth, async (req, res, next) => {
 // for, so a reworded apply form shows up in the filters on its own.
 // ?group=pipeline|staff narrows the counts to that list.
 // ============================================
+// The employment contract sent with the pipeline email (content/contracts/),
+// typeset from VERGO_Zero_Hours_Employment_Contract.docx with the company details filled in.
+// Replace the PDF there to change what goes out. Admin-only: opened from the
+// email window so you can check it before sending.
+const EMPLOYMENT_CONTRACT = {
+  path: path.join(process.cwd(), 'content', 'contracts', 'employment-contract.pdf'),
+  filename: 'VERGO Zero Hours Employment Contract.pdf'
+};
+
+r.get('/employment-contract', adminAuth, async (_req, res, next) => {
+  try {
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${EMPLOYMENT_CONTRACT.filename}"`);
+    res.send(await fs.readFile(EMPLOYMENT_CONTRACT.path));
+  } catch (e) { next(e); }
+});
+
 r.get('/roles', adminAuth, async (req, res, next) => {
   try {
     const group = req.query.group === 'staff' ? 'staff' : req.query.group === 'pipeline' ? 'pipeline' : undefined;
@@ -1668,6 +1699,65 @@ r.post('/:id/roster-approval-email', adminAuth, async (req, res, next) => {
       emailSent: true,
       data: { message: 'Roster login email sent.', account, emailSent: true }
     });
+  } catch (e) { next(e); }
+});
+
+// ============================================
+// EMAIL AN APPLICANT (ADMIN)
+// A message written in the pipeline. The employment contract is attached unless
+// unticked, plus any other file chosen. Replies come back to the public inbox.
+// Sent ones show as "Emailed" on the row.
+// ============================================
+const MAX_ATTACHMENT_BYTES = 3 * 1024 * 1024;
+
+const applicantEmailSchema = z.object({
+  subject: z.string().trim().min(1, 'Add a subject.').max(200),
+  message: z.string().trim().min(1, 'Write a message.').max(10000),
+  attachContract: z.boolean().optional().default(false),
+  attachment: z.object({
+    filename: z.string().trim().min(1).max(150),
+    content: z.string().min(1) // base64, no data: prefix
+  }).nullish()
+});
+
+r.post('/:id/email', adminAuth, async (req, res, next) => {
+  try {
+    const parsed = applicantEmailSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid email.' });
+    }
+    const { subject, message, attachContract, attachment } = parsed.data;
+
+    const app = await prisma.application.findUnique({
+      where: { id: req.params.id },
+      select: { id: true, applicant: { select: { id: true, email: true } } }
+    });
+    if (!app) return res.status(404).json({ error: 'Application not found' });
+
+    const attachments: Array<{ filename: string; content: Buffer }> = [];
+    if (attachContract) {
+      attachments.push({ filename: EMPLOYMENT_CONTRACT.filename, content: await fs.readFile(EMPLOYMENT_CONTRACT.path) });
+    }
+    if (attachment) {
+      const content = Buffer.from(attachment.content, 'base64');
+      if (!content.length) return res.status(400).json({ error: 'The attached file is empty.' });
+      if (content.length > MAX_ATTACHMENT_BYTES) {
+        return res.status(413).json({ error: 'The attachment is over 3 MB. Send a smaller file.' });
+      }
+      attachments.push({ filename: attachment.filename.replace(/[\\/\r\n"]/g, '_'), content });
+    }
+
+    const result = await sendApplicantMessageEmail({ to: app.applicant.email, subject, message, attachments });
+    const adminUsername = (req.session as any)?.username || 'admin';
+
+    if (!result.success) {
+      authLogger.warn({ action: 'applicant_email_failed', admin: adminUsername, applicationId: app.id, error: result.error }, 'Admin applicant email failed');
+      return res.status(502).json({ error: `The email did not send: ${result.error || 'Unknown email error'}` });
+    }
+
+    authLogger.info({ action: 'applicant_email_sent', admin: adminUsername, applicationId: app.id, attachments: attachments.map((a) => a.filename) }, 'Admin emailed applicant');
+    const payload = { message: `Email sent to ${app.applicant.email}.`, lastEmailedAt: new Date().toISOString() };
+    res.json({ ok: true, ...payload, data: payload });
   } catch (e) { next(e); }
 });
 

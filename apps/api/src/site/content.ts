@@ -95,6 +95,7 @@ export function siteTokens(): Record<string, string> {
     CONFIRMATION_PROMISE: SITE_TERMS.confirmationPromise,
     NO_SHOW_PROMISE: SITE_TERMS.noShowPromise + SITE_TERMS.noShowExtra,
     FAVOURITES_PROMISE: SITE_TERMS.favouritesPromise,
+    ROSTER_LINE: SITE_TERMS.rosterLine,
     EMPLOYMENT_SHORT: SITE_TERMS.employmentShort,
     EMPLOYMENT_LINE: SITE_TERMS.employmentLine,
     WORKER_PAY_LINE: SITE_TERMS.workerPayLine,

@@ -45,7 +45,8 @@
     <section class="page-hero-plain shell">
       <h1>Event staff for hire in London</h1>
       <p class="home-slogan"><%~ it.t.SLOGAN %></p>
-      <p class="lede"><a href="/hire/waiting-staff">Waiting</a>, <a href="/hire/bar-staff">bar</a>, <a href="/hire/kitchen-porters">kitchen porters</a>, runners, hosts, in London and <a href="/birmingham">Birmingham</a>. Food and bar too: see <a href="/book-an-event">full events</a>.</p>
+      <p class="lede"><a href="/hire/waiting-staff">Waiting</a>, <a href="/hire/bar-staff">bar</a>, <a href="/hire/kitchen-porters">kitchen porters</a>, runners, hosts, <a href="/hire/cleaners">cleaners</a> and <a href="/hire/security">security</a>, in London and <a href="/birmingham">Birmingham</a>. Food and bar too: see <a href="/book-an-event">full events</a>.</p>
+      <p class="lede"><%= it.t.ROSTER_LINE %></p>
       <div class="btn-row">
         <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
       </div>

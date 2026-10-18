@@ -55,6 +55,34 @@
       "answer": "Quoted individually, by section and unit size."
     }
   ],
+  "hire/cleaners": [
+    {
+      "question": "When do your cleaners work?",
+      "answer": "Before the doors open, during service, or once the last guest has gone. Book one shift or all three."
+    },
+    {
+      "question": "Do they bring cleaning kit?",
+      "answer": "Tell us what the venue has. Cleaning kit and consumables are quoted on the brief if you need us to bring them."
+    },
+    {
+      "question": "How are cleaners priced?",
+      "answer": "Quoted on the brief, by headcount, hours and the size of the job."
+    }
+  ],
+  "hire/security": [
+    {
+      "question": "Are your security staff licensed?",
+      "answer": "Yes. Anyone we send to a licensable security role holds a current SIA licence, and we check it before they're booked."
+    },
+    {
+      "question": "How many security staff do we need?",
+      "answer": "It depends on guest numbers, the venue, alcohol and the licence conditions. Send the brief and we'll recommend a number."
+    },
+    {
+      "question": "How is security priced?",
+      "answer": "Quoted on the brief, by headcount, hours and the type of event."
+    }
+  ],
   "hire/corporate-events": [
     {
       "question": "How many staff can you supply?",

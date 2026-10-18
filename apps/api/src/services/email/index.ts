@@ -470,6 +470,31 @@ export async function sendRightToWorkRequestEmail(data: {
 }
 
 // ============================================
+// APPLICANT MESSAGE
+// ============================================
+
+export async function sendApplicantMessageEmail(data: {
+  to: string;
+  subject: string;
+  message: string;
+  attachments?: Array<{ filename: string; content: Buffer }>;
+}): Promise<EmailResult> {
+  const html = templates.applicantMessageEmail({ message: data.message });
+
+  return sendEmail({
+    to: data.to,
+    subject: data.subject,
+    html,
+    attachments: data.attachments,
+    emailType: 'applicant-message',
+    tags: [
+      { name: 'category', value: 'applicant-message' },
+      { name: 'source', value: 'admin' },
+    ],
+  });
+}
+
+// ============================================
 // ROSTER EMAILS
 // ============================================
 

@@ -13,6 +13,7 @@ export interface SendEmailOptions {
   replyTo?: string;
   tags?: Array<{ name: string; value: string }>;
   scheduledAt?: Date;
+  attachments?: Array<{ filename: string; content: Buffer }>;
 }
 
 export type EmailCategory =
@@ -42,6 +43,7 @@ export type EmailType =
   | 'shift-confirmed'               // To worker: you got the shift
   | 'shift-not-selected'            // To worker: not selected this time
   | 'right-to-work-request'         // To hired applicant: send us your RTW evidence
+  | 'applicant-message'             // To applicant: a message written in the pipeline
   // Enquiry emails
   | 'staff-request'
   | 'general-enquiry'

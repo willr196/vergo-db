@@ -111,6 +111,14 @@
               <input type="number" id="count-other" name="roleCount" data-role="Other / to be confirmed" data-role-kind="other" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
             </div>
             <div class="role-count-item">
+              <label for="count-cleaner">Cleaners <span class="label-note">quoted separately</span></label>
+              <input type="number" id="count-cleaner" name="roleCount" data-role="Cleaners" data-role-kind="senior" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
+            </div>
+            <div class="role-count-item">
+              <label for="count-security">Security <span class="label-note">quoted separately</span></label>
+              <input type="number" id="count-security" name="roleCount" data-role="Security" data-role-kind="senior" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
+            </div>
+            <div class="role-count-item">
               <label for="count-chef">Chefs and cooks <span class="label-note">quoted separately</span></label>
               <input type="number" id="count-chef" name="roleCount" data-role="Chefs and cooks" data-role-kind="senior" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
             </div>

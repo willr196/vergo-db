@@ -26,6 +26,8 @@ export {
   sendShiftNotSelectedEmail,
   // Right to work
   sendRightToWorkRequestEmail,
+  // Applicant message (written in the pipeline)
+  sendApplicantMessageEmail,
   // Roster emails
   sendRosterApprovalEmail,
   // Enquiry emails

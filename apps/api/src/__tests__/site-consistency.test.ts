@@ -253,14 +253,16 @@ test('the header never carries a permanent link to /special-events', () => {
 
 const BUDGETS: Record<string, number> = {
   '/': 220,
-  '/hire': 225,
+  '/hire': 240,
   '/birmingham': 225,
   '/hire/waiting-staff': 160,
   '/hire/bar-staff': 160,
   '/hire/kitchen-porters': 160,
   '/hire/weddings': 180,
   '/hire/production-catering': 200,
-  '/hire/corporate-events': 200,
+  '/hire/corporate-events': 215,
+  '/hire/cleaners': 180,
+  '/hire/security': 180,
   '/special-events/christmas': 220,
   '/special-events/halloween': 550,
   '/special-events': 120,
@@ -335,7 +337,7 @@ test('Halloween keeps every offering', () => {
   assert.ok(/Makeup and SFX/.test(t), 'makeup section');
   const rates = all(p.root, hasClass('se-rate-figure')).map((n) => text(n).trim());
   assert.deepEqual(rates, [PRICING.specialEvents.themedHospitality, PRICING.specialEvents.characterPerformer, PRICING.specialEvents.makeupArtist].map((n) => `£${n}`));
-  assert.ok(/Specialist performers, decor and full experiences/.test(t), 'bespoke items');
+  assert.ok(/Specialist performers, venue design and full experiences/.test(t), 'bespoke items');
   assert.ok(/<form[^>]*>/.test(p.html) && /id="build"/.test(p.html), 'the #build form');
 });
 

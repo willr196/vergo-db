@@ -92,7 +92,7 @@
     var promises = readSetting(document.querySelector('form[data-setting="promises"]'));
     var terms = [
       '4-hour minimum', '30-min overrun blocks', '+' + (rates.afterMidnightUpliftPct || 0) + '% after midnight',
-      'No booking or uniform fees', 'Chefs and managers quoted separately.',
+      'No booking or uniform fees', 'Chefs, managers, cleaners and security quoted separately.',
     ];
     var html = '<h3>Rates</h3>';
     if (rates.premiumEnabled) {

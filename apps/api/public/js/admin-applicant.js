@@ -47,6 +47,47 @@
     return null;
   }
 
+  var EMAIL_MODAL_MARKUP =
+    "  <div id=\"applicant-email-modal\" class=\"modal-backdrop d-none\">" +
+    "    <div class=\"modal\">" +
+    "      <div class=\"modal-header\">" +
+    "        <h2>Email applicant</h2>" +
+    "        <button class=\"modal-close\" data-action=\"close-applicant-email\" aria-label=\"Close\">&#x2715;</button>" +
+    "      </div>" +
+    "      <div class=\"modal-body\">" +
+    "        <div id=\"applicant-email-alert\"></div>" +
+    "        <div class=\"detail-row mb-2\"><span class=\"as-label\">To</span><span class=\"detail-value\" id=\"applicant-email-to\"></span></div>" +
+    "        <div class=\"detail-row mb-2\">" +
+    "          <label class=\"as-label\" for=\"applicant-email-subject\">Subject</label>" +
+    "          <input id=\"applicant-email-subject\" class=\"as-input\" maxlength=\"200\">" +
+    "        </div>" +
+    "        <div class=\"detail-row mb-2\">" +
+    "          <label class=\"as-label\" for=\"applicant-email-message\">Message</label>" +
+    "          <textarea id=\"applicant-email-message\" rows=\"14\" maxlength=\"10000\"></textarea>" +
+    "          <div class=\"text-muted fs-sm mt-1\">" +
+    "            <button type=\"button\" class=\"btn-link\" data-action=\"save-applicant-email-default\">Save this wording as my default</button>" +
+    "            &middot; <button type=\"button\" class=\"btn-link\" data-action=\"reset-applicant-email-default\">Back to the original wording</button>" +
+    "          </div>" +
+    "        </div>" +
+    "        <div class=\"detail-row\">" +
+    "          <span class=\"as-label\">Attachments</span>" +
+    "          <label class=\"as-check mb-1\">" +
+    "            <input type=\"checkbox\" id=\"applicant-email-contract\" checked>" +
+    "            <span>&#128206; VERGO Zero Hours Employment Contract.pdf</span>" +
+    "          </label>" +
+    "          <a class=\"btn-link fs-sm\" href=\"/api/v1/applications/employment-contract\" target=\"_blank\" rel=\"noopener\">View the contract</a>" +
+    "          <label class=\"as-label mt-2\" for=\"applicant-email-file\">Another file (optional)</label>" +
+    "          <input type=\"file\" id=\"applicant-email-file\" class=\"as-input\" accept=\".pdf,.doc,.docx,application/pdf\">" +
+    "          <p class=\"text-muted fs-sm mt-1\">PDF or Word, up to 3 MB.</p>" +
+    "        </div>" +
+    "      </div>" +
+    "      <div class=\"modal-footer\">" +
+    "        <button class=\"btn btn-ghost\" data-action=\"close-applicant-email\">Cancel</button>" +
+    "        <button class=\"btn btn-primary\" data-action=\"send-applicant-email\">Send email</button>" +
+    "      </div>" +
+    "    </div>" +
+    "  </div>";
+
   var MARKUP =
     "  <!-- Applicant Detail Drawer -->" +
     "  <div class=\"as-drawer-backdrop\" id=\"app-drawer-backdrop\"></div>" +
@@ -291,6 +332,7 @@
   function renderRowActions(app) {
     var id = esc(app.id);
     var out = ['<button class="btn btn-ghost btn-sm" data-action="open-drawer" data-app-id="' + id + '">View</button>'];
+    out.push(renderEmailButton(app));
 
     var next = NEXT_STEP[app.status];
     if (next) out.push(statusButton(app.id, next.status, next.label, 'btn-primary'));
@@ -408,6 +450,7 @@
       + (downloadHref
         ? '<a class="btn btn-ghost btn-sm" href="' + esc(downloadHref) + '" target="_blank" rel="noopener noreferrer">Open CV</a>'
         : '<button class="btn btn-ghost btn-sm" data-action="open-cv" data-app-id="' + esc(detail.id) + '" data-cv-url="' + esc(detail.cvKey || '') + '">Open CV</button>')
+      + '<button class="btn btn-ghost btn-sm" data-action="open-applicant-email" data-app-id="' + esc(detail.id) + '">Email</button>'
       + renderStatusActions(detail.id, detail.status)
       + renderRosterLoginEmailAction(detail.id, detail.status, detail.account)
       + (detail.status === 'HIRED'
@@ -866,6 +909,143 @@
     }
   }
 
+  // ── Email an applicant ───────────────────────────────────
+  // A pre-written "we're interested" message, editable before it goes, with
+  // the employment contract (content/contracts/) attached by the server. Saved
+  // wording is kept in this browser. {first name} is filled in per person.
+  var EMAIL_DEFAULT_SUBJECT = "VERGO Events: we'd like you on the team";
+  var EMAIL_DEFAULT_MESSAGE = [
+    'Hi {first name},',
+    '',
+    "Thanks for applying to work with VERGO Events. We've been through your application and we're interested in having you on the team.",
+    '',
+    "I've attached your employment contract. Please give it a read, and reply to this email if you have any questions.",
+    '',
+    "Your first shift will be a fully paid trial shift, with a supervisor on site with you throughout, so you'll have someone on hand to show you the ropes.",
+    '',
+    "We're looking at upcoming events now and hope to get you scheduled soon. If anything comes up or changes in the meantime, we'll send you a message.",
+    '',
+    'Speak soon,',
+    'Will',
+    'VERGO Events'
+  ].join('\n');
+  var EMAIL_TEMPLATE_KEY = 'vergo.applicantEmail.template';
+  var MAX_EMAIL_ATTACHMENT = 3 * 1024 * 1024;
+  var emailAppId = null;
+
+  function storageGet(key) {
+    try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { return null; }
+  }
+  function storageSet(key, value) {
+    try {
+      if (value === null) localStorage.removeItem(key);
+      else localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function emailTemplate() {
+    var saved = storageGet(EMAIL_TEMPLATE_KEY);
+    return saved && saved.subject && saved.message ? saved : { subject: EMAIL_DEFAULT_SUBJECT, message: EMAIL_DEFAULT_MESSAGE };
+  }
+
+  function renderEmailButton(app) {
+    var label = app.lastEmailedAt ? 'Emailed ' + fmtD(app.lastEmailedAt) : 'Email';
+    var title = app.lastEmailedAt ? 'Last emailed ' + fmtDt(app.lastEmailedAt) + '. Click to email again.' : 'Email this applicant';
+    return '<button class="btn btn-ghost btn-sm" data-action="open-applicant-email" data-app-id="' + esc(app.id) + '" title="' + esc(title) + '">' + esc(label) + '</button>';
+  }
+
+  // Name and address for an application: the list row if it's on screen,
+  // else the drawer's loaded record.
+  function emailPerson(appId) {
+    return findApplication(appId) || (applicationDetails[appId] || {}).applicant || null;
+  }
+
+  async function openApplicantEmail(appId) {
+    var person = emailPerson(appId);
+    if (!person || !person.email) {
+      try { person = (await loadApplicationDetail(appId)).applicant; } catch (e) { return notify(e.message, 'error'); }
+    }
+    var firstName = String(person.firstName || '').trim() || 'there';
+    var template = emailTemplate();
+
+    emailAppId = appId;
+    document.getElementById('applicant-email-alert').innerHTML = '';
+    document.getElementById('applicant-email-to').textContent =
+      ((person.firstName || '') + ' ' + (person.lastName || '')).trim() + ' <' + person.email + '>';
+    document.getElementById('applicant-email-subject').value = template.subject;
+    document.getElementById('applicant-email-message').value = template.message.replace(/\{first name\}/gi, firstName);
+    document.getElementById('applicant-email-file').value = '';
+    document.getElementById('applicant-email-contract').checked = true;
+    AdminCore.openModal('applicant-email-modal');
+  }
+
+  function saveEmailDefault() {
+    var app = emailPerson(emailAppId) || {};
+    var firstName = String(app.firstName || '').trim();
+    var message = document.getElementById('applicant-email-message').value;
+    // Put the placeholder back where this person's name was in the greeting.
+    if (firstName) message = message.replace(new RegExp('^(\\s*(?:Hi|Hello|Dear|Hey)\\s+)' + firstName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i'), '$1{first name}');
+    var ok = storageSet(EMAIL_TEMPLATE_KEY, { subject: document.getElementById('applicant-email-subject').value.trim(), message: message });
+    notify(ok ? 'Saved. New emails start from this wording.' : 'Could not save in this browser.', ok ? 'success' : 'error');
+  }
+
+  function resetEmailDefault() {
+    storageSet(EMAIL_TEMPLATE_KEY, null);
+    var app = emailPerson(emailAppId) || {};
+    document.getElementById('applicant-email-subject').value = EMAIL_DEFAULT_SUBJECT;
+    document.getElementById('applicant-email-message').value = EMAIL_DEFAULT_MESSAGE.replace(/\{first name\}/gi, String(app.firstName || '').trim() || 'there');
+  }
+
+  async function sendApplicantEmail(btn) {
+    document.getElementById('applicant-email-alert').innerHTML = '';
+    var subject = document.getElementById('applicant-email-subject').value.trim();
+    var message = document.getElementById('applicant-email-message').value.trim();
+    var fileInput = document.getElementById('applicant-email-file');
+
+    if (!subject || !message) {
+      AdminCore.showAlert('Add a subject and a message.', 'error', 'applicant-email-alert');
+      return;
+    }
+
+    var attachContract = document.getElementById('applicant-email-contract').checked;
+    var attachment = null;
+    var picked = fileInput.files && fileInput.files[0];
+    if (picked) {
+      if (picked.size > MAX_EMAIL_ATTACHMENT) {
+        AdminCore.showAlert('That file is over 3 MB. Pick a smaller one.', 'error', 'applicant-email-alert');
+        return;
+      }
+      try {
+        var dataUrl = await readFileAsBase64(picked);
+        attachment = { filename: picked.name, content: dataUrl.slice(dataUrl.indexOf(',') + 1) };
+      } catch (e) {
+        AdminCore.showAlert(e.message, 'error', 'applicant-email-alert');
+        return;
+      }
+    }
+
+    if (!attachContract && !attachment && /attached|attachment/i.test(message)
+      && !confirm('The message mentions an attachment, but no file is attached. Send anyway?')) return;
+
+    try {
+      var result = await AdminCore.withLoading(btn, function () {
+        return fetch_('/api/v1/applications/' + encodeURIComponent(emailAppId) + '/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subject: subject, message: message, attachContract: attachContract, attachment: attachment })
+        });
+      });
+      var row = findApplication(emailAppId);
+      if (row) row.lastEmailedAt = result.lastEmailedAt || new Date().toISOString();
+      AdminCore.closeModal('applicant-email-modal');
+      notify(result.message || 'Email sent.', 'success');
+      await onChange();
+    } catch (e) {
+      AdminCore.showAlert(e.message, 'error', 'applicant-email-alert');
+    }
+  }
+
   async function openCV(appId, cvUrl) {
     if (!cvUrl || cvUrl === 'undefined') {
       notify('No CV available', 'warning');
@@ -976,6 +1156,11 @@
     if (action === 'open-add-candidate') return openAddCandidateModal();
     if (action === 'close-add-candidate-modal') return AdminCore.closeModal('add-candidate-modal');
     if (action === 'submit-add-candidate')      return submitAddCandidate(el);
+    if (action === 'open-applicant-email')      return openApplicantEmail(el.dataset.appId);
+    if (action === 'close-applicant-email')     return AdminCore.closeModal('applicant-email-modal');
+    if (action === 'send-applicant-email')      return sendApplicantEmail(el);
+    if (action === 'save-applicant-email-default')  return saveEmailDefault();
+    if (action === 'reset-applicant-email-default') return resetEmailDefault();
   }
 
   function handleChange(e) {
@@ -1015,7 +1200,8 @@
       opts = opts || {};
       if (typeof opts.onChange === 'function') onChange = opts.onChange;
 
-      document.body.insertAdjacentHTML('beforeend', MARKUP);
+      document.body.insertAdjacentHTML('beforeend', MARKUP + EMAIL_MODAL_MARKUP);
+      AdminCore.initModalBehavior('applicant-email-modal');
       AdminCore.initModalBehavior('rtw-modal');
       AdminCore.initModalBehavior('add-candidate-modal');
 

@@ -395,6 +395,27 @@ export const rightToWorkRequestEmail = (data: EmailTemplateData): string => {
 };
 
 // ============================================
+// APPLICANT MESSAGE (written by admin in the pipeline)
+//
+// The admin's words go out as typed: escaped, a blank line starts a new
+// paragraph, a single line break stays a line break.
+// ============================================
+
+export const applicantMessageEmail = (data: EmailTemplateData): string => {
+  const paragraphs = String(data.message || '')
+    .replace(/\r\n/g, '\n')
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block) => `<p>${block.split('\n').map((line) => safe(line)).join('<br>')}</p>`)
+    .join('\n');
+
+  return composeEmail({
+    body: emailBody(paragraphs),
+  });
+};
+
+// ============================================
 // ENQUIRY EMAILS
 // ============================================
 

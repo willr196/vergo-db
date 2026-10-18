@@ -301,6 +301,8 @@ export const VIEW_ROUTES: ViewRoute[] = [
   { path: '/hire/weddings', view: 'hire/weddings' },
   { path: '/hire/production-catering', view: 'hire/production-catering' },
   { path: '/hire/corporate-events', view: 'hire/corporate-events' },
+  { path: '/hire/cleaners', view: 'hire/cleaners' },
+  { path: '/hire/security', view: 'hire/security' },
   { path: '/hire', view: 'hire' },
   { path: '/birmingham', view: 'birmingham' },
   { path: '/special-events', view: 'special-events' },

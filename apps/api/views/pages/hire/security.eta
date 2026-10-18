@@ -1,0 +1,57 @@
+<%/* /hire/security: event security staff. Quoted on the brief, so no rate block and no price in the structured data. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Event Security Staff for Hire in London | VERGO Staffing",
+    "description": "SIA-licensed event security in London: door supervisors, bag checks, crowd and guest-list control. Quoted on the brief, names confirmed the same day.",
+    "ogImage": "/images/og/hire.jpg",
+    "canonical": "/hire/security"
+  },
+  jsonLd: [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Event security staff hire",
+      "serviceType": "Event security staffing",
+      "url": "https://vergoltd.com/hire/security",
+      "description": "SIA-licensed door supervisors and event security for parties, launches, festivals and venues across London.",
+      "areaServed": {
+        "@type": "City",
+        "name": "London"
+      },
+      "provider": {
+        "@id": "https://vergoltd.com/#organization"
+      }
+    },
+    it.faqJsonLd("hire/security")
+  ]
+}) %>
+    <section class="page-hero-plain shell">
+      <span class="eyebrow">Event security</span>
+      <h1>Event security staff for hire in London</h1>
+      <p class="lede">SIA-licensed door supervisors and event security, booked with the rest of your team.</p>
+      <div class="btn-row">
+        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+      </div>
+    </section>
+
+    <section class="section shell" aria-labelledby="whattheydo-heading">
+      <h2 id="whattheydo-heading" class="section-label">What they do</h2>
+      <ul class="check-list">
+        <li><strong>Doors:</strong> entry, ID and guest-list checks, bag searches</li>
+        <li><strong>Inside:</strong> crowd flow, bars and exits watched, issues handled quietly</li>
+        <li><strong>Close:</strong> guests out safely, venue secured</li>
+      </ul>
+      <p class="section-note"><%= it.t.ROSTER_LINE %> Priced on the brief.</p>
+    </section>
+
+    <%~ it.blocks["guarantees"]() %>
+
+    <section class="section shell" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" class="section-label">Questions</h2>
+      <div class="faq-list">
+        <%~ include('/partials/faq', { items: it.faqs("hire/security"), name: "security-faq", esc: it.esc }) %>
+      </div>
+      <p class="link-row">Also: <a href="/hire/cleaners">Event cleaners</a> · <a href="/hire/corporate-events">Corporate and large events</a> · <a href="/special-events/halloween">Halloween</a></p>
+    </section>
+
+    <%~ it.blocks["cta"]({ "heading": "Need the door covered?" }) %>

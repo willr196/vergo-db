@@ -78,7 +78,7 @@ export const ON_COSTS = {
  */
 export const SITE_TERMS = {
   premiumDefinition: "2+ years' event experience. Silver service, cocktails, weddings, high-end corporate.",
-  seniorRolesQuoted: 'Chefs and managers quoted separately.',
+  seniorRolesQuoted: 'Chefs, managers, cleaners and security quoted separately.',
   paymentTerms: 'First booking paid upfront, then 14 days.',
   cancellation: 'Free 48h+ before. 10% within 48h, 25% within 24h.',
   confirmationPromise: 'Enquire by 6pm, get confirmed names the same day. After 6pm, by 10am.',
@@ -87,6 +87,8 @@ export const SITE_TERMS = {
   noShowExtra: '',
   /** A line under the guarantee block. Empty for none. */
   guaranteeFootnote: '',
+  /** The roster claim, wherever a page talks about how many people we can send. Names no figure. */
+  rosterLine: 'A massive roster of vetted staff, so big teams and late changes get filled.',
   favouritesPromise: "Ask for staff you liked by name. Anyone who wasn't right won't be sent again.",
   /** Marketing pages. */
   employmentShort: 'Hospitality staff employed by us on PAYE.',

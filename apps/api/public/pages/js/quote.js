@@ -288,7 +288,7 @@
     // A brief made up only of senior roles has nothing to price at the standard
     // rate, so there is no figure to show — just the reason why.
     if (!result.billableCount) {
-      showPrompt('Senior roles are quoted individually, so there is no standard-rate figure to show. Send this over and we will come back with a price.');
+      showPrompt('Roles marked "quoted separately" have no standard-rate figure to show. Send this over and we will come back with a price.');
       return;
     }
 
@@ -320,7 +320,7 @@
       notesEl.appendChild(note('Premium: ' + rates.premiumDefinition));
     }
     if (result.hasSenior) {
-      notesEl.appendChild(note('Senior roles quoted individually, not included in this figure.'));
+      notesEl.appendChild(note('Roles marked "quoted separately" are not included in this figure.'));
     }
     if (result.hasOther) {
       notesEl.appendChild(note('"Something else" is estimated at this rate until we confirm the role.'));

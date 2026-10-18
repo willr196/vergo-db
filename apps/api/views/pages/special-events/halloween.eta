@@ -198,7 +198,7 @@
       <div class="se-hero-inner">
         <span class="eyebrow">Halloween by VERGO</span>
         <h1>Halloween event staff and performers in London</h1>
-        <p class="lede">Themed staff, performers, makeup and decor across London.</p>
+        <p class="lede">Themed staff, performers, makeup and full Halloween venue design across London.</p>
         <div class="btn-row">
           <a href="#build" class="btn btn-primary">Build your team</a>
         </div>
@@ -238,7 +238,7 @@
           <p class="se-rate-copy">Halloween makeup, character styling and straightforward SFX.</p>
         </article>
       </div>
-      <p class="se-rates-invite">Specialist performers, decor and full experiences: quoted on the brief. <%~ it.t.MIN_HOURS %>-hour minimum.</p>
+      <p class="se-rates-invite">Specialist performers, venue design and full experiences: quoted on the brief. <%~ it.t.MIN_HOURS %>-hour minimum.</p>
       <p class="se-caveat">Themed staff wear the look; performers are cast to act.</p>
       <p class="se-caveat">What a whole night costs, worked through: <a href="/blog/halloween-event-staff-london">Halloween event staff in London</a>.</p>
       <div class="btn-row se-rates-cta">
@@ -393,11 +393,11 @@
 
     </section>
 
-    <!-- Decor themes: venue dressing, quoted on the brief. Our own themes, no licensed names. -->
+    <!-- Halloween design: we design, dress and strip the venue, quoted on the brief. Our own themes, no licensed names. -->
     <div class="se-band">
       <section class="section shell" id="decor" aria-labelledby="decor-heading">
-        <h2 id="decor-heading" class="se-h2">Decor themes</h2>
-        <p class="se-caveat">Suggestions to start from. Mix them, or bring your own.</p>
+        <h2 id="decor-heading" class="se-h2">Halloween venue design</h2>
+        <p class="se-caveat">We design the look, dress the venue before the doors open and strip it out after. Start from a theme below, mix them, or bring your own.</p>
         <div class="se-decor-grid">
           <article class="se-decor">
             <span class="se-service-idx" aria-hidden="true">01</span>
@@ -436,7 +436,7 @@
           </a>
         </div>
         <div class="btn-row se-makeup-cta">
-          <a href="#build" class="btn btn-primary">Theme your venue</a>
+          <a href="#build" class="btn btn-primary">Design your venue</a>
         </div>
       </section>
     </div>
@@ -499,12 +499,20 @@
                 <label for="need-costume">Costumes / styling</label>
               </div>
               <div class="checkbox-item">
-                <input type="checkbox" id="need-decorators" name="need" value="Decorators and set dressing">
-                <label for="need-decorators">Decorators &amp; set dressing</label>
+                <input type="checkbox" id="need-decorators" name="need" value="Venue design and set dressing">
+                <label for="need-decorators">Venue design &amp; dressing</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="need-lead" name="need" value="Event or character lead">
                 <label for="need-lead">Event / character lead</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="need-security" name="need" value="Security">
+                <label for="need-security">Security</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="need-cleaners" name="need" value="Cleaners">
+                <label for="need-cleaners">Cleaners</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="need-drinks" name="need" value="Drinks supplied (we bring the bar)">

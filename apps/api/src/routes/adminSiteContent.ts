@@ -31,6 +31,8 @@ const FAQ_PAGES = [
   'hire/weddings',
   'hire/production-catering',
   'hire/corporate-events',
+  'hire/cleaners',
+  'hire/security',
   'work',
   'special-events/christmas',
   'special-events/halloween',

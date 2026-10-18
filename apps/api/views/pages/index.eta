@@ -50,6 +50,10 @@
       <div class="home-hero-head">
         <img class="home-logo" src="/images/vergo-mark-400.webp" width="600" height="600" alt="" fetchpriority="high">
         <h1>Event Staff</h1>
+        <a class="home-halloween" href="/special-events/halloween">
+          <img src="/images/special-events/vergo-pumpkin.svg" width="420" height="420" alt="">
+          <span>Halloween staff</span>
+        </a>
       </div>
       <%~ include('/partials/city-switch', { current: "london" }) %>
       <p class="home-slogan"><%~ it.t.SLOGAN %></p>
@@ -62,7 +66,7 @@
       <a class="path-banner path-banner--main" href="/hire">
         <span class="path-kicker">Most booked</span>
         <h2 class="path-title">Hire staff for your event</h2>
-        <p class="path-line">Waiting staff, bar staff, kitchen porters and hosts across London and Birmingham.</p>
+        <p class="path-line">Waiting, bar, kitchen porters, hosts, cleaners and security across London and Birmingham. <%= it.t.ROSTER_LINE %></p>
         <span class="path-go">Hire staff &rarr;</span>
       </a>
       <a class="path-banner" href="/work">

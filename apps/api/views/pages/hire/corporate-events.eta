@@ -38,6 +38,7 @@
       <h2 id="howwerun-heading" class="section-label">How a large booking runs</h2>
       <ul class="check-list">
         <li><strong>One booking, every role:</strong> waiting, bar, kitchen porters, runners and hosts</li>
+        <li><%= it.t.ROSTER_LINE %> <a href="/hire/cleaners">Cleaners</a> and <a href="/hire/security">security</a> too.</li>
         <li><strong>A supervisor on request:</strong> runs the team on the day and is your one contact</li>
         <li><strong>Briefed before the doors open:</strong> running order, floor plan, dress code</li>
       </ul>

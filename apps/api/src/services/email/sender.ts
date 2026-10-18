@@ -90,6 +90,7 @@ async function sendOne(options: SendOptions): Promise<EmailResult> {
     // Replies to noreply@ would vanish; send them to the public inbox instead.
     replyTo = SITE.publicEmail,
     tags = [],
+    attachments,
     from = FROM_EMAIL,
     emailType,
     userId,
@@ -118,6 +119,7 @@ async function sendOne(options: SendOptions): Promise<EmailResult> {
       html,
       replyTo,
       tags,
+      ...(attachments?.length ? { attachments } : {}),
     });
 
     if (result.error) {

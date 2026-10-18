@@ -497,7 +497,31 @@ p:last-child { margin-bottom: 0; }
   border-radius: 50%;
   box-shadow: 0 0 0 1px var(--hairline-strong), 0 12px 32px rgba(0, 0, 0, 0.35);
 }
-@media (max-width: 640px) { .home-hero { padding-block: 32px 24px; } }
+/* Top right of the masthead: the carved pumpkin over "Halloween staff",
+   one link to the Halloween page. */
+.home-halloween {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  text-align: center;
+}
+.home-halloween img { display: block; width: clamp(64px, 9vw, 104px); height: auto; transition: transform 0.2s ease; }
+.home-halloween:hover img,
+.home-halloween:focus-visible img { transform: scale(1.06) rotate(-4deg); }
+.home-halloween:hover span,
+.home-halloween:focus-visible span { color: #ed7a33; }
+@media (max-width: 640px) {
+  .home-hero { padding-block: 32px 24px; }
+  .home-halloween { font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) { .home-halloween img { transition: none; } }
 
 /* Under the three cards: the pitch, the buttons and the same-day line. */
 .home-cta { text-align: center; padding-block: 8px 48px; }
