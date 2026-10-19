@@ -89,6 +89,8 @@ const browserRates = {
   minimumHours: PRICING.minimumChargeHours,
   overrunBlockMinutes: PRICING.overrunBlockMinutes,
   afterMidnightMultiplier: PRICING.afterMidnightMultiplier,
+  newYearsEveMultiplier: PRICING.newYearsEveMultiplier,
+  newYearsEveFromHour: PRICING.newYearsEveFromHour,
 };
 
 function bothQuotes(input: ShiftQuoteInput) {
@@ -144,6 +146,28 @@ test('quoteShift: overnight 22:00 to 02:30', () => {
   assert.equal(q.billedMinutes, 270);
   assert.equal(q.afterMidnightMinutes, 150);
   assert.equal(q.total, r2(4.5 * S + 2.5 * S * U));
+});
+
+const N = PRICING.newYearsEveMultiplier - 1;
+
+test("quoteShift: New Year's Eve 19:00 to 01:00 carries the surcharge on every hour, not the midnight uplift too", () => {
+  const q = bothQuotes({ start: '19:00', end: '01:00', finishesNextDay: true, date: '2026-12-31', staff: one });
+  assert.equal(q.newYearsEveMinutes, 360);
+  assert.equal(q.afterMidnightMinutes, 0);
+  assert.equal(q.total, r2(6 * S + 6 * S * N));
+});
+
+test("quoteShift: New Year's Eve 15:00 to 21:00 carries it only from 7pm", () => {
+  const q = bothQuotes({ start: '15:00', end: '21:00', date: '2026-12-31', staff: one });
+  assert.equal(q.newYearsEveMinutes, 120);
+  assert.equal(q.total, r2(6 * S + 2 * S * N));
+});
+
+test("quoteShift: New Year's Eve daytime, and other dates, carry no surcharge", () => {
+  assert.equal(bothQuotes({ start: '10:00', end: '16:00', date: '2026-12-31', staff: one }).uplift, 0);
+  const q = bothQuotes({ start: '20:00', end: '01:00', finishesNextDay: true, date: '2026-12-30', staff: one });
+  assert.equal(q.newYearsEveMinutes, 0);
+  assert.equal(q.afterMidnightMinutes, 60);
 });
 
 test('quoteShift: a same-day shift that ends before it starts is not priced', () => {

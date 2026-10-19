@@ -61,6 +61,8 @@ export function siteConfigScript(): string {
       minimumHours: PRICING.minimumChargeHours,
       overrunBlockMinutes: PRICING.overrunBlockMinutes,
       afterMidnightMultiplier: PRICING.afterMidnightMultiplier,
+      newYearsEveMultiplier: PRICING.newYearsEveMultiplier,
+      newYearsEveFromHour: PRICING.newYearsEveFromHour,
     },
     specialEvents: {
       themedHospitality: PRICING.specialEvents.themedHospitality,

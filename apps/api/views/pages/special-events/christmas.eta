@@ -1,12 +1,13 @@
 <%/* /special-events/christmas: moved from public/special-events/christmas.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
 <% layout('/layouts/base', {
   meta: {
-    "title": "Christmas Party Staff in London | VERGO Staffing",
-    "description": `Waiting staff, bar staff and kitchen porters for Christmas parties in London. ${it.t.HEADLINE_RATE} per person, four-hour minimum, names the same day.`,
+    "title": "Christmas Party Staff Across the UK | VERGO Staffing",
+    "description": `Christmas party staff anywhere in the UK. Santa, elves, toy soldiers, bar and waiting staff. From ${it.t.STANDARD_RATE_SHORT}/hr, ${it.t.MIN_HOURS_WORD}-hour minimum, same-day confirmation.`,
     "ogImage": "/images/og/christmas.jpg",
     "canonical": "/special-events/christmas"
   },
   styles: ["/pages/css/special-events.css"],
+  scripts: ["/pages/js/halloween-team.js"],
   bodyClass: "se-page se-theme-light se-theme-christmas",
   jsonLd: [
     {
@@ -15,10 +16,10 @@
       "name": "Christmas party staff",
       "serviceType": "Event and hospitality staffing",
       "url": "https://vergoltd.com/special-events/christmas",
-      "description": "Waiting staff, bar staff and kitchen porters for Christmas parties across London, plus festive hosts and costumed teams.",
+      "description": "Christmas and New Year's Eve party staff anywhere in the UK: Santa, Mrs Claus, elves, toy-soldier security, carollers, bar staff, waiting staff and kitchen teams.",
       "areaServed": {
-        "@type": "City",
-        "name": "London"
+        "@type": "Country",
+        "name": "United Kingdom"
       },
       "provider": {
         "@id": "https://vergoltd.com/#organization"
@@ -31,7 +32,7 @@
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Waiting staff, bar staff, kitchen porters, runners and hosts"
+              "name": "Bar and waiting staff"
             },
             "priceSpecification": {
               "@type": "UnitPriceSpecification",
@@ -45,7 +46,7 @@
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Festive hosts and themed hospitality staff"
+              "name": "Elves and festive hosts"
             },
             "priceSpecification": {
               "@type": "UnitPriceSpecification",
@@ -59,7 +60,7 @@
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Character performers"
+              "name": "Santa, Mrs Claus and carollers"
             },
             "priceSpecification": {
               "@type": "UnitPriceSpecification",
@@ -73,7 +74,7 @@
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Makeup artists"
+              "name": "Makeup and face painting"
             },
             "priceSpecification": {
               "@type": "UnitPriceSpecification",
@@ -92,37 +93,121 @@
     <section class="se-hero">
       <div class="se-hero-inner">
         <span class="eyebrow">Christmas by VERGO</span>
-        <h1>Christmas party staff across London</h1>
-        <p class="lede">Office parties, private parties and venue cover through December.</p>
+        <h1>Christmas party staff, wherever you are</h1>
+        <p class="lede">Santa in the grotto, elves on the floor, toy soldiers on the door and mulled wine all night.</p>
         <div class="btn-row">
-          <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+          <a href="#plan" class="btn btn-primary">Plan your party</a>
+          <a href="<%~ it.t.WHATSAPP_URL %>" class="btn btn-secondary" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>
         </div>
       </div>
     </section>
 
+    <!-- Placeholder artwork (public/images/special-events/christmas-*.svg): swap for real photos. -->
+    <section class="section-tight shell" aria-label="Christmas staff at work">
+      <div class="se-photo-pair se-photo-trio">
+        <figure>
+          <img src="/images/special-events/christmas-bar.svg" width="800" height="600" loading="lazy"
+               alt="A bartender in an elf hat pouring drinks at a festive bar">
+          <figcaption>The festive bar</figcaption>
+        </figure>
+        <figure>
+          <img src="/images/special-events/christmas-canapes.svg" width="800" height="600" loading="lazy"
+               alt="A waiter carrying a tray of Christmas canapés">
+          <figcaption>Canapés on the floor</figcaption>
+        </figure>
+        <figure>
+          <img src="/images/special-events/christmas-santa.svg" width="800" height="600" loading="lazy"
+               alt="Santa in his grotto beside a wrapped present">
+          <figcaption>Santa's grotto</figcaption>
+        </figure>
+      </div>
+    </section>
+
     <section class="section shell" id="staffing" aria-labelledby="staffing-heading">
-      <h2 id="staffing-heading" class="se-h2">Roles</h2>
+      <h2 id="staffing-heading" class="se-h2">Who's coming to your party</h2>
       <ul class="se-audience">
-        <li>Waiting staff</li>
+        <li>Santa</li>
+        <li>Mrs Claus</li>
+        <li>Elves</li>
+        <li>Toy soldiers</li>
+        <li>Nutcrackers</li>
+        <li>The Snow Queen</li>
+        <li>Carollers</li>
         <li>Bar staff</li>
-        <li>Kitchen porters</li>
-        <li>Runners</li>
-        <li>Hosts</li>
-        <li>Chefs, quoted separately</li>
+        <li>Waiting staff</li>
+        <li>The kitchen team</li>
+        <li>Chefs</li>
       </ul>
     </section>
 
-    <%~ it.blocks["rates"]() %>
+    <div class="se-band se-band--deep">
+      <section class="section shell" id="festive" aria-labelledby="festive-heading">
+        <h2 id="festive-heading" class="se-h2">Pick your Christmas</h2>
+        <p class="se-caveat">Four favourites to start from, or bring your own idea.</p>
 
-    <%~ it.blocks["guarantees"]() %>
+        <div class="se-concept-grid">
+          <article class="se-concept se-concept--feature" style="--se-c1: #6b1620; --se-c2: #1a0709">
+            <div class="se-concept-inner">
+              <div class="se-concept-media" role="presentation">
+                <h3 class="se-concept-title">Santa's Grotto</h3>
+              </div>
+              <div class="se-concept-body">
+                <p class="se-concept-chars">Santa, Mrs Claus, Elves, Grotto host</p>
+              </div>
+            </div>
+          </article>
 
-    <section class="section shell" id="festive" aria-labelledby="festive-heading">
-      <h2 id="festive-heading" class="se-h2">Themed options</h2>
+          <article class="se-concept" style="--se-c1: #1d3a2a; --se-c2: #07110c">
+            <div class="se-concept-inner">
+              <div class="se-concept-media" role="presentation">
+                <h3 class="se-concept-title">The Toy Factory</h3>
+              </div>
+              <div class="se-concept-body">
+                <p class="se-concept-chars">Toy-soldier security, Nutcracker hosts, Elf waiters</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="se-concept" style="--se-c1: #1c2e4a; --se-c2: #070b12">
+            <div class="se-concept-inner">
+              <div class="se-concept-media" role="presentation">
+                <h3 class="se-concept-title">Winter Wonderland</h3>
+              </div>
+              <div class="se-concept-body">
+                <p class="se-concept-chars">Snow Queen host, Frosted bartenders, Carollers</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="se-concept" style="--se-c1: #3d2a12; --se-c2: #0f0a05">
+            <div class="se-concept-inner">
+              <div class="se-concept-media" role="presentation">
+                <h3 class="se-concept-title">A Victorian Christmas</h3>
+              </div>
+              <div class="se-concept-body">
+                <p class="se-concept-chars">Top-hatted hosts, Dickensian waiters, Mulled-wine bar</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <section class="section shell" id="prices" aria-labelledby="prices-heading">
+      <h2 id="prices-heading" class="se-h2">Prices</h2>
       <ul class="check-list">
-        <li>Festive hosts and themed staff: <%~ it.t.THEMED_RATE %>/hr</li>
-        <li>Character performers: <%~ it.t.PERFORMER_RATE %>/hr</li>
-        <li>Makeup artists: <%~ it.t.MAKEUP_RATE %>/hr</li>
+        <li>Bar and waiting staff: <%~ it.t.STANDARD_RATE_SHORT %>/hr</li>
+        <li>Elves and festive hosts: <%~ it.t.THEMED_RATE %>/hr</li>
+        <li>Santa, Mrs Claus and carollers: <%~ it.t.PERFORMER_RATE %>/hr</li>
+        <li>Makeup and face painting: <%~ it.t.MAKEUP_RATE %>/hr</li>
+        <li>Toy soldiers on the door: SIA-licensed security, in uniform. Quoted on the brief</li>
       </ul>
+      <p class="se-caveat">Per person, per hour. <%~ it.t.MIN_HOURS_WORD.charAt(0).toUpperCase() + it.t.MIN_HOURS_WORD.slice(1) %>-hour minimum. Outside London and Birmingham, travel and accommodation are quoted on the brief.</p>
+    </section>
+
+    <section class="section shell" id="new-years-eve" aria-labelledby="nye-heading">
+      <h2 id="nye-heading" class="se-h2">New Year's Eve</h2>
+      <p class="se-caveat">Seeing the new year in? We staff New Year's Eve too. From <%~ it.t.NYE_FROM %>, hours are charged at +<%~ it.t.NYE_UPLIFT_PCT %>%.</p>
     </section>
 
     <section class="section shell" aria-labelledby="faq-heading">
@@ -130,7 +215,130 @@
       <div class="faq-list">
         <%~ include('/partials/faq', { items: it.faqs("special-events/christmas"), name: "christmas-faq", esc: it.esc }) %>
       </div>
-      <p class="link-row">Themed party? <a href="/special-events#brief">Send us the brief</a></p>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Booking a Christmas party?" }) %>
+    <%~ it.blocks["trust-strip"]() %>
+
+    <%~ it.blocks["testimonials"]({ "featured": "1" }) %>
+
+    <div class="se-band se-band--deep">
+      <section class="section se-form-shell" id="plan" aria-labelledby="plan-heading">
+        <div class="se-form-head">
+          <p class="section-label">Enquiry</p>
+          <h2 id="plan-heading">Plan your party</h2>
+          <p>Nothing here is binding. Tell us where it is and how to reach you; the rest helps if you know it.</p>
+        </div>
+
+        <form id="christmasForm" novalidate data-se-brief data-required="location" data-event-type="Christmas (Special Events)" data-brief-label="Christmas party brief">
+          <div class="hp-field" aria-hidden="true">
+            <label for="xmWebsite">Website</label>
+            <input type="text" id="xmWebsite" name="website" tabindex="-1" autocomplete="off">
+          </div>
+
+          <fieldset class="se-fieldset">
+            <legend>Who's coming</legend>
+            <div class="se-need-grid checkbox-grid">
+              <div class="checkbox-item"><input type="checkbox" id="xm-santa" name="need" value="Santa"><label for="xm-santa">Santa</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="xm-mrs" name="need" value="Mrs Claus"><label for="xm-mrs">Mrs Claus</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="xm-elves" name="need" value="Elves"><label for="xm-elves">Elves</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="xm-soldiers" name="need" value="Toy soldiers (security)"><label for="xm-soldiers">Toy soldiers</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="xm-nutcrackers" name="need" value="Nutcrackers"><label for="xm-nutcrackers">Nutcrackers</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="xm-snowqueen" name="need" value="The Snow Queen"><label for="xm-snowqueen">The Snow Queen</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="xm-carollers" name="need" value="Carollers"><label for="xm-carollers">Carollers</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="xm-bar" name="need" value="Bar staff"><label for="xm-bar">Bar staff</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="xm-waiting" name="need" value="Waiting staff"><label for="xm-waiting">Waiting staff</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="xm-kitchen" name="need" value="Kitchen team"><label for="xm-kitchen">The kitchen team</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="xm-chefs" name="need" value="Chefs"><label for="xm-chefs">Chefs</label></div>
+            </div>
+          </fieldset>
+
+          <fieldset class="se-fieldset">
+            <legend>Theme</legend>
+            <div class="se-pillset">
+              <label class="se-pill"><input type="radio" name="concept" value="Santa's Grotto"><span>Santa's Grotto</span></label>
+              <label class="se-pill"><input type="radio" name="concept" value="The Toy Factory"><span>The Toy Factory</span></label>
+              <label class="se-pill"><input type="radio" name="concept" value="Winter Wonderland"><span>Winter Wonderland</span></label>
+              <label class="se-pill"><input type="radio" name="concept" value="A Victorian Christmas"><span>A Victorian Christmas</span></label>
+              <label class="se-pill"><input type="radio" name="concept" value="Something else"><span>Something else</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="se-fieldset">
+            <legend>Service style</legend>
+            <div class="se-pillset">
+              <label class="se-pill"><input type="radio" name="serviceStyle" value="Drinks and canapés"><span>Drinks and canapés</span></label>
+              <label class="se-pill"><input type="radio" name="serviceStyle" value="Buffet"><span>Buffet</span></label>
+              <label class="se-pill"><input type="radio" name="serviceStyle" value="Seated dinner"><span>Seated dinner</span></label>
+              <label class="se-pill"><input type="radio" name="serviceStyle" value="Bar only"><span>Bar only</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="se-fieldset">
+            <legend>Your party</legend>
+            <p class="form-hint">We need the location and an email or phone number. Everything else is optional.</p>
+
+            <div class="form-row form-row-2">
+              <div class="form-field">
+                <label for="xmName">Name</label>
+                <input type="text" id="xmName" name="name" autocomplete="name">
+              </div>
+              <div class="form-field">
+                <label for="xmCompany">Company <span class="label-note">optional</span></label>
+                <input type="text" id="xmCompany" name="company" autocomplete="organization">
+              </div>
+            </div>
+
+            <div class="form-row form-row-2">
+              <div class="form-field">
+                <label for="xmEmail">Email</label>
+                <input type="email" id="xmEmail" name="email" autocomplete="email">
+              </div>
+              <div class="form-field">
+                <label for="xmPhone">Phone</label>
+                <input type="tel" id="xmPhone" name="phone" autocomplete="tel">
+              </div>
+            </div>
+
+            <div class="form-row form-row-2">
+              <div class="form-field">
+                <label for="xmDate">Date</label>
+                <input type="date" id="xmDate" name="eventDate">
+              </div>
+              <div class="form-field">
+                <label for="xmLocation">Location <span class="label-note">required</span></label>
+                <input type="text" id="xmLocation" name="location" autocomplete="address-level2" placeholder="e.g. Manchester, M1" required>
+              </div>
+            </div>
+
+            <div class="form-row form-row-2">
+              <div class="form-field">
+                <label for="xmStart">Start time</label>
+                <input type="time" id="xmStart" name="shiftStart">
+              </div>
+              <div class="form-field">
+                <label for="xmEnd">Finish time</label>
+                <input type="time" id="xmEnd" name="shiftEnd">
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="xmGuests">Guest numbers</label>
+              <input type="number" id="xmGuests" name="guestCount" min="1" max="100000" step="1" inputmode="numeric" placeholder="e.g. 120">
+            </div>
+
+            <div class="form-field">
+              <label for="xmMessage">Notes</label>
+              <textarea id="xmMessage" name="message" maxlength="2000" placeholder="Venue, timings, anything you're unsure about."></textarea>
+            </div>
+          </fieldset>
+
+          <div class="se-form-actions">
+            <button type="submit" class="btn btn-primary btn-block" id="xmSubmit">Plan my party</button>
+          </div>
+
+          <div class="form-status" id="xmStatus" role="status" hidden></div>
+        </form>
+      </section>
+    </div>
+
+    <%~ it.blocks["cta"]({ "heading": "Let's make it Christmas", "button": "Plan your party", "href": "#plan" }) %>

@@ -94,7 +94,7 @@
     },
     {
       "question": "Can we mix roles on one booking?",
-      "answer": "Yes. Waiting staff, bar staff, kitchen porters, runners and hosts are all on the same rate, so one booking covers the lot."
+      "answer": "Yes. Waiting, bar, kitchen porters, runners and hosts share one rate; cleaners and security join the same booking, quoted separately."
     }
   ],
   "hire/waiting-staff": [
@@ -127,16 +127,24 @@
   ],
   "special-events/christmas": [
     {
-      "question": "Our party runs past midnight. How does that work?",
-      "answer": "Tell us the real finish time when you enquire. The late hours are then in the quote, not a surprise on the invoice."
+      "question": "Can Santa come to our office party?",
+      "answer": "Yes. Santa, Mrs Claus and elves for office parties, grottos and family events. Santas booked for children's events are DBS-checked."
     },
     {
-      "question": "How late can we book Christmas staff?",
-      "answer": "Ask whatever the date. The more notice we have, the more choice you get."
+      "question": "Do you supply the costumes?",
+      "answer": "Yes. The festive team arrives in costume, or we can style yours."
     },
     {
-      "question": "How many staff do we need?",
-      "answer": "Tell us the guest number, the service style and the timings. We recommend a team for your party rather than a ratio."
+      "question": "Do you staff New Year's Eve?",
+      "answer": "Yes. From {{NYE_FROM}} on New Year's Eve, hours are charged at +{{NYE_UPLIFT_PCT}}%. It's the busiest night of the year, so send the date early."
+    },
+    {
+      "question": "How late can we book?",
+      "answer": "Ask whatever the date. Enquire between 8am and 10pm and you'll have confirmed names back the same day."
+    },
+    {
+      "question": "What if someone doesn't turn up?",
+      "answer": "In London and Birmingham, we have a replacement on site within the hour. If we can't, that shift isn't charged. Elsewhere, we agree the backup plan in the quote."
     }
   ],
   "special-events/halloween": [

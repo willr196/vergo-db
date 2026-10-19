@@ -12,7 +12,7 @@ draft: false
 ## In short
 
 - Event staff are either on somebody's payroll or genuinely self-employed, and that call decides who carries the cost if it turns out to be wrong.
-- Our hospitality staff are PAYE on casual worker contracts, so payroll, holiday pay and employer National Insurance sit with us rather than with you.
+- Our hospitality staff are PAYE on zero-hours employment contracts, so payroll, holiday pay and employer National Insurance sit with us rather than with you.
 - At the 2026/27 floor an hour costs £14.67 while the Employment Allowance covers the National Insurance, and £16.81 once that allowance runs out.
 - Direction and equipment are two of the things HMRC's own status tool asks about, and on most catering jobs both of them point the same way.
 - Our published rate starts at £19.00 an hour per person with a four-hour minimum, and there are no booking fees or uniform charges.
@@ -94,7 +94,7 @@ A supplier who cannot answer those quickly is telling you something.
 
 ## What this means if you are booking staff
 
-If you book hospitality staff through us, the answer to all five is the same. They are PAYE on casual worker contracts, holiday pay is inside the rate at 12.07 per cent, we hold both insurances, we check right to work for everyone, and if somebody does not arrive we put a replacement on site within an hour, and with no replacement there is no charge for that shift.
+If you book hospitality staff through us, the answer to all five is the same. They are PAYE on zero-hours employment contracts, holiday pay is inside the rate at 12.07 per cent, we hold both insurances, we check right to work for everyone, and if somebody does not arrive we put a replacement on site within an hour, and with no replacement there is no charge for that shift.
 
 If you engage people directly, none of that is automatic. It is still perfectly possible to do it properly, and for some jobs hiring direct is the cheaper answer. It is just work somebody has to do, and it is worth knowing who that somebody is before the event rather than after it.
 

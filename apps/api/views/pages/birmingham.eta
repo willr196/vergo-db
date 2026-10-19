@@ -13,7 +13,7 @@
       "name": "Event and hospitality staffing in Birmingham",
       "serviceType": "Event and hospitality staffing",
       "url": "https://vergoltd.com/birmingham",
-      "description": "Waiting staff, bar staff, kitchen porters, runners, hosts and front of house for events across Birmingham.",
+      "description": "Waiting staff, bar staff, kitchen porters, runners, hosts and front of house, cleaners and security for events across Birmingham.",
       "areaServed": {
         "@type": "City",
         "name": "Birmingham"
@@ -47,7 +47,7 @@
       <h1>Event staff in Birmingham</h1>
       <%~ include('/partials/city-switch', { current: "birmingham" }) %>
       <p class="home-slogan"><%~ it.t.SLOGAN %></p>
-      <p class="lede"><a href="/hire/waiting-staff">Waiting</a>, <a href="/hire/bar-staff">bar</a>, <a href="/hire/kitchen-porters">kitchen porters</a>, runners, hosts. Same staff standards, same rates as London.</p>
+      <p class="lede"><a href="/hire/waiting-staff">Waiting</a>, <a href="/hire/bar-staff">bar</a>, <a href="/hire/kitchen-porters">kitchen porters</a>, runners, hosts, <a href="/hire/cleaners">cleaners</a> and <a href="/hire/security">security</a>. Same staff standards, same rates as London.</p>
       <div class="btn-row">
         <a href="/hire/quote?city=Birmingham" class="btn btn-primary">Get a quote</a>
       </div>

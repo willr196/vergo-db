@@ -21,6 +21,13 @@ export const PRICING = {
   overrunBlockMinutes: 30,
   /** Applies to the hours worked after midnight, not to the whole shift. */
   afterMidnightMultiplier: 1.25,
+  /**
+   * New Year's Eve: hours worked from newYearsEveFromHour on 31 December to
+   * the end of the shift. Replaces the after-midnight uplift on those hours
+   * rather than stacking with it.
+   */
+  newYearsEveMultiplier: 1.25,
+  newYearsEveFromHour: 19,
   /** Internal only — never render this on any public page. */
   accountRate: 19.00,
   vatRegistered: false,
@@ -116,6 +123,8 @@ export interface ShiftQuoteInput {
   end: string;
   /** The shift finishes the day after it starts. */
   finishesNextDay?: boolean;
+  /** "YYYY-MM-DD", the day the shift starts. Only used for the New Year's Eve surcharge. */
+  date?: string;
   level?: ServiceLevel;
   /** People per role. Senior roles are listed but priced outside the total. */
   staff: Array<{ role: string; count: number; senior?: boolean }>;
@@ -128,13 +137,19 @@ export interface ShiftQuote {
   billedMinutes: number;
   /** Of billedMinutes, how many fall after midnight and carry the uplift. */
   afterMidnightMinutes: number;
+  /** Of billedMinutes, how many carry the New Year's Eve surcharge instead. */
+  newYearsEveMinutes: number;
   pricedPeople: number;
   seniorPeople: number;
   /** people × billed hours × rate, before the uplift. */
   base: number;
-  /** The extra 25% on the after-midnight hours. */
+  /** The extra on the after-midnight or New Year's Eve hours. */
   uplift: number;
   total: number;
+}
+
+function isNewYearsEve(date: string | undefined): boolean {
+  return /^\d{4}-12-31$/.test(String(date || '').trim());
 }
 
 function clockMinutes(value: string): number | null {
@@ -147,8 +162,9 @@ function clockMinutes(value: string): number | null {
 /**
  * Prices one shift the way the quote form shows it. Per person: the shift is
  * billed for at least minimumChargeHours, otherwise rounded up to the next
- * overrun block. Hours worked after midnight carry the uplift; the minimum's
- * padding does not. Senior roles are left out of the figure.
+ * overrun block. Hours worked after midnight carry the uplift, or on New
+ * Year's Eve the hours from 7pm carry the surcharge instead; the minimum's
+ * padding carries neither. Senior roles are left out of the figure.
  *
  * public/pages/js/quote-calc.js is the browser copy of this function; the
  * pricing tests run both over the same cases so they cannot drift.
@@ -164,7 +180,9 @@ export function quoteShift(input: ShiftQuoteInput): ShiftQuote | null {
   const block = PRICING.overrunBlockMinutes;
   const roundUp = (minutes: number) => Math.ceil(minutes / block) * block;
   const billedMinutes = Math.max(PRICING.minimumChargeHours * 60, roundUp(workedMinutes));
-  const afterMidnightMinutes = Math.min(billedMinutes, roundUp(Math.max(0, end - 24 * 60)));
+  const nyeFrom = isNewYearsEve(input.date) ? Math.max(start, PRICING.newYearsEveFromHour * 60) : null;
+  const newYearsEveMinutes = nyeFrom === null ? 0 : Math.min(billedMinutes, roundUp(Math.max(0, end - nyeFrom)));
+  const afterMidnightMinutes = newYearsEveMinutes ? 0 : Math.min(billedMinutes, roundUp(Math.max(0, end - 24 * 60)));
 
   const level = PRICING.premiumEnabled && input.level === 'premium' ? 'premium' : 'standard';
   const rate = level === 'premium' ? PRICING.premiumRate : PRICING.standardRate;
@@ -172,12 +190,15 @@ export function quoteShift(input: ShiftQuoteInput): ShiftQuote | null {
   const seniorPeople = input.staff.filter((s) => s.senior).reduce((n, s) => n + Math.max(0, s.count), 0);
 
   const base = round2(pricedPeople * (billedMinutes / 60) * rate);
-  const uplift = round2(pricedPeople * (afterMidnightMinutes / 60) * rate * (PRICING.afterMidnightMultiplier - 1));
+  const uplift = round2(pricedPeople * rate * (
+    (afterMidnightMinutes / 60) * (PRICING.afterMidnightMultiplier - 1) +
+    (newYearsEveMinutes / 60) * (PRICING.newYearsEveMultiplier - 1)));
   return {
     rate,
     workedMinutes,
     billedMinutes,
     afterMidnightMinutes,
+    newYearsEveMinutes,
     pricedPeople,
     seniorPeople,
     base,
@@ -255,6 +276,8 @@ export function getPublicRateCard() {
     minimumChargeHours: PRICING.minimumChargeHours,
     overrunBlockMinutes: PRICING.overrunBlockMinutes,
     afterMidnightMultiplier: PRICING.afterMidnightMultiplier,
+    newYearsEveMultiplier: PRICING.newYearsEveMultiplier,
+    newYearsEveFromHour: PRICING.newYearsEveFromHour,
     vatRegistered: PRICING.vatRegistered,
     vatRate: PRICING.vatRate,
     holidayPayPercent: round2(ON_COSTS.holidayAccrualRate * 100),

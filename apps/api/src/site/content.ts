@@ -31,6 +31,8 @@ export const SITE = {
     'Runners',
     'Hosts and front of house',
     'Chefs and cooks',
+    'Cleaners',
+    'Security',
   ],
   legal: {
     /** Empty removes the "registered with the ICO" sentence. */
@@ -45,6 +47,12 @@ export const SITE = {
 
 export function jobsEmail(): string {
   return SITE.jobsEmail || SITE.publicEmail;
+}
+
+/** 18 as "6pm". */
+function formatHour(hour: number): string {
+  const h = hour % 12 || 12;
+  return `${h}${hour < 12 ? 'am' : 'pm'}`;
 }
 
 function wholePounds(value: number): string {
@@ -82,13 +90,19 @@ export function siteTokens(): Record<string, string> {
     STANDARD_RATE: formatRate(PRICING.standardRate),
     /** Bare number for structured data: "18.50". */
     STANDARD_RATE_NUMBER: PRICING.standardRate.toFixed(2),
+    /** "£19", whole pounds where the rate has no pence. */
+    STANDARD_RATE_SHORT: wholePounds(PRICING.standardRate),
     PREMIUM_RATE: formatRate(PRICING.premiumRate),
     HEADLINE_RATE: headlineRateText(),
     HEADLINE_RATE_LOWER: headlineRateText().replace(/^From/, 'from'),
     PREMIUM_DEFINITION: SITE_TERMS.premiumDefinition,
     MIN_HOURS: String(PRICING.minimumChargeHours),
+    /** "four", for prose; the figure past ten. */
+    MIN_HOURS_WORD: ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'][PRICING.minimumChargeHours] ?? String(PRICING.minimumChargeHours),
     OVERRUN_MINUTES: String(PRICING.overrunBlockMinutes),
     UPLIFT_PCT: String(upliftPct),
+    NYE_UPLIFT_PCT: String(Math.round((PRICING.newYearsEveMultiplier - 1) * 100)),
+    NYE_FROM: formatHour(PRICING.newYearsEveFromHour),
     SENIOR_ROLES: SITE_TERMS.seniorRolesQuoted,
     PAYMENT_TERMS: SITE_TERMS.paymentTerms,
     CANCELLATION: SITE_TERMS.cancellation,

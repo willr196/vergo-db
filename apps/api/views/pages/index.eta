@@ -2,7 +2,7 @@
 <% layout('/layouts/base', {
   meta: {
     "title": "Event Staff Hire in London & Birmingham | VERGO Staffing",
-    "description": `Waiting staff, bar staff, kitchen porters, runners and hosts across London and Birmingham. Vetted, briefed and right-to-work checked.`,
+    "description": `Waiting staff, bar staff, kitchen porters, runners, hosts, cleaners and security across London and Birmingham. Vetted, briefed and right-to-work checked.`,
     "ogImage": "/images/og/home.jpg",
     "canonical": "/"
   },
@@ -19,7 +19,7 @@
         "url": "https://vergoltd.com/images/vergo-mark.jpg"
       },
       "image": "https://vergoltd.com/images/og/home.jpg",
-      "description": "Event and hospitality staffing across London and Birmingham: waiting staff, bar staff, kitchen porters, runners, hosts and front of house.",
+      "description": "Event and hospitality staffing across London and Birmingham: waiting staff, bar staff, kitchen porters, runners, hosts and front of house, cleaners and security.",
       "telephone": `${it.t.PHONE_E164}`,
       "address": it.postalAddress(it.t.REGISTERED_OFFICE),
       "email": `${it.t.EMAIL}`,

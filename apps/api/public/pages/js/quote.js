@@ -225,6 +225,7 @@
       start: form.elements.shiftStart.value,
       end: form.elements.shiftEnd.value,
       finishesNextDay: nextDay,
+      date: form.elements.eventDate.value,
       level: base.level,
       staff: counts.map(function (entry) {
         return { role: entry.role, count: entry.count, senior: entry.kind === 'senior' };
@@ -300,8 +301,12 @@
     breakdownEl.hidden = false;
     baseLabelEl.textContent = plural(q.pricedPeople, 'person', 'people') + ' × ' + formatHours(billedHours) + ' × ' + money(q.rate);
     baseEl.textContent = money(q.base);
-    upliftRowEl.hidden = !q.afterMidnightMinutes;
-    if (q.afterMidnightMinutes) {
+    upliftRowEl.hidden = !q.afterMidnightMinutes && !q.newYearsEveMinutes;
+    if (q.newYearsEveMinutes) {
+      upliftLabelEl.textContent = '+' + Math.round((rates.newYearsEveMultiplier - 1) * 100) + '% on ' +
+        formatHours(q.newYearsEveMinutes / 60) + ' of New Year\'s Eve';
+      upliftEl.textContent = money(q.uplift);
+    } else if (q.afterMidnightMinutes) {
       upliftLabelEl.textContent = '+' + Math.round((rates.afterMidnightMultiplier - 1) * 100) + '% on ' +
         formatHours(q.afterMidnightMinutes / 60) + ' after midnight';
       upliftEl.textContent = money(q.uplift);

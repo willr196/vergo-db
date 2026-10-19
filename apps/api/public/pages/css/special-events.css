@@ -110,6 +110,7 @@ body.se-theme-christmas .se-hero { --se-hero-img: none; }
 /* Halloween's hero padding reserves a band for the pumpkin below the buttons.
    Christmas has no motif, so that band is just a hole. */
 body.se-theme-christmas .se-hero-inner { padding-bottom: 56px; }
+body.se-theme-christmas .se-concept-grid + .check-list { margin-top: 32px; }
 @media (min-width: 900px) {
   body.se-theme-christmas .se-hero-inner { padding: 112px 40px 72px; }
 }
@@ -1105,3 +1106,6 @@ body.se-theme-halloween .se-concept--feature .se-concept-title { font-size: 18px
 body.se-theme-halloween .se-concept-body,
 body.se-theme-halloween .se-concept--feature .se-concept-body { padding: 10px 12px 12px; }
 body.se-theme-halloween .se-concept-chars { font-size: 13px; line-height: 1.4; }
+
+/* Christmas: three photos in a row from tablet up, one under another on a phone. */
+@media (min-width: 700px) { .se-photo-trio { grid-template-columns: repeat(3, 1fr); } }

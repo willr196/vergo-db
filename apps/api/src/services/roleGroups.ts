@@ -10,7 +10,9 @@ export const ROLE_GROUPS: ReadonlyArray<{ label: string; match: RegExp }> = [
   { label: 'Kitchen porters', match: /^(kitchen porters?|kps?)$/ },
   { label: 'Runners', match: /^(runners?|food runners?)$/ },
   { label: 'Hosts and front of house', match: /^(hosts?( and front of house)?|hostess(es)?|front of house|foh)$/ },
-  { label: 'Chefs and cooks', match: /^(chefs?( and cooks?)?|cooks?)$/ }
+  { label: 'Chefs and cooks', match: /^(chefs?( and cooks?)?|cooks?)$/ },
+  { label: 'Cleaners', match: /^(cleaners?|event cleaners?|cleaning)$/ },
+  { label: 'Security', match: /^(security|event security|security staff|door ?staff|door supervisors?)$/ }
 ];
 
 function normalise(name: string) {

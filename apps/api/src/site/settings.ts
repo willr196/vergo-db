@@ -22,6 +22,8 @@ export const SETTING_SCHEMAS = {
     premiumRate: rate,
     /** The after-midnight uplift, as a percentage: 25 means +25%. */
     afterMidnightUpliftPct: z.number().min(0).max(100),
+    /** The New Year's Eve surcharge from 7pm, as a percentage. Defaulted so rows saved before it existed still parse. */
+    newYearsEveUpliftPct: z.number().min(0).max(100).default(Math.round((PRICING.newYearsEveMultiplier - 1) * 100)),
     themedHospitality: rate,
     characterPerformer: rate,
     makeupArtist: rate,
@@ -67,6 +69,7 @@ export function defaultSettings(): SiteSettings {
       premiumEnabled: DEFAULT_PRICING.premiumEnabled,
       premiumRate: DEFAULT_PRICING.premiumRate,
       afterMidnightUpliftPct: Math.round((DEFAULT_PRICING.afterMidnightMultiplier - 1) * 100),
+      newYearsEveUpliftPct: Math.round((DEFAULT_PRICING.newYearsEveMultiplier - 1) * 100),
       themedHospitality: DEFAULT_PRICING.specialEvents.themedHospitality,
       characterPerformer: DEFAULT_PRICING.specialEvents.characterPerformer,
       makeupArtist: DEFAULT_PRICING.specialEvents.makeupArtist,
@@ -116,6 +119,7 @@ export function applySettings(s: SiteSettings): void {
   PRICING.premiumEnabled = s.rates.premiumEnabled;
   PRICING.premiumRate = s.rates.premiumRate;
   PRICING.afterMidnightMultiplier = 1 + s.rates.afterMidnightUpliftPct / 100;
+  PRICING.newYearsEveMultiplier = 1 + s.rates.newYearsEveUpliftPct / 100;
   PRICING.specialEvents.themedHospitality = s.rates.themedHospitality;
   PRICING.specialEvents.characterPerformer = s.rates.characterPerformer;
   PRICING.specialEvents.makeupArtist = s.rates.makeupArtist;

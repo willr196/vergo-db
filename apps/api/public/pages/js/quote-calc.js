@@ -4,8 +4,9 @@
  * the same cases, so a change to one that is not made to the other fails CI.
  *
  * Per person: billed for at least the minimum, otherwise rounded up to the
- * next overrun block. Hours worked after midnight carry the uplift; the
- * minimum's padding does not. Senior roles are left out of the figure.
+ * next overrun block. Hours worked after midnight carry the uplift, or on New
+ * Year's Eve the hours from 7pm carry the surcharge instead; the minimum's
+ * padding carries neither. Senior roles are left out of the figure.
  *
  * No rate lives here. The rate card is passed in from window.VERGO_CONFIG.rates,
  * which the server builds from pricing.ts.
@@ -22,6 +23,10 @@
     return Math.round((value + Number.EPSILON) * 100) / 100;
   }
 
+  function isNewYearsEve(date) {
+    return /^\d{4}-12-31$/.test(String(date || '').trim());
+  }
+
   function clockMinutes(value) {
     var m = /^(\d{1,2}):(\d{2})$/.exec(String(value || '').trim());
     if (!m) return null;
@@ -30,9 +35,10 @@
   }
 
   /**
-   * input: { start, end, finishesNextDay, level, staff: [{ role, count, senior }] }
+   * input: { start, end, finishesNextDay, date, level, staff: [{ role, count, senior }] }
    * rates: { standardRate, premiumEnabled, premiumRate, minimumHours,
-   *          overrunBlockMinutes, afterMidnightMultiplier }
+   *          overrunBlockMinutes, afterMidnightMultiplier,
+   *          newYearsEveMultiplier, newYearsEveFromHour }
    */
   function quoteShift(input, rates) {
     var start = clockMinutes(input.start);
@@ -45,7 +51,9 @@
     var block = rates.overrunBlockMinutes;
     var roundUp = function (minutes) { return Math.ceil(minutes / block) * block; };
     var billedMinutes = Math.max(rates.minimumHours * 60, roundUp(workedMinutes));
-    var afterMidnightMinutes = Math.min(billedMinutes, roundUp(Math.max(0, end - DAY)));
+    var nyeFrom = isNewYearsEve(input.date) ? Math.max(start, rates.newYearsEveFromHour * 60) : null;
+    var newYearsEveMinutes = nyeFrom === null ? 0 : Math.min(billedMinutes, roundUp(Math.max(0, end - nyeFrom)));
+    var afterMidnightMinutes = newYearsEveMinutes ? 0 : Math.min(billedMinutes, roundUp(Math.max(0, end - DAY)));
 
     var premium = rates.premiumEnabled && input.level === 'premium';
     var rate = premium ? rates.premiumRate : rates.standardRate;
@@ -57,12 +65,15 @@
     });
 
     var base = round2(pricedPeople * (billedMinutes / 60) * rate);
-    var uplift = round2(pricedPeople * (afterMidnightMinutes / 60) * rate * (rates.afterMidnightMultiplier - 1));
+    var uplift = round2(pricedPeople * rate * (
+      (afterMidnightMinutes / 60) * (rates.afterMidnightMultiplier - 1) +
+      (newYearsEveMinutes / 60) * (rates.newYearsEveMultiplier - 1)));
     return {
       rate: rate,
       workedMinutes: workedMinutes,
       billedMinutes: billedMinutes,
       afterMidnightMinutes: afterMidnightMinutes,
+      newYearsEveMinutes: newYearsEveMinutes,
       pricedPeople: pricedPeople,
       seniorPeople: seniorPeople,
       base: base,

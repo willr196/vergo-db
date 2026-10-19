@@ -91,7 +91,7 @@ export interface OpsSettings {
  */
 export const DEFAULT_SETTINGS: OpsSettings = {
   pensionDutiesStartDate: null,
-  payFrequency: 'weekly',
+  payFrequency: 'monthly',
   statePensionAge: 66,
   pensionThresholds: {
     '2025-26': { lowerQualifyingAnnual: 6240, earningsTriggerAnnual: 10000, upperQualifyingAnnual: 50270, verified: false },

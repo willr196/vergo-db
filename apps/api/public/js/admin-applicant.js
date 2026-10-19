@@ -232,6 +232,8 @@
     "              <option value=\"Runners\">Runners</option>" +
     "              <option value=\"Hosts and front of house\">Hosts and front of house</option>" +
     "              <option value=\"Chefs and cooks\">Chefs and cooks</option>" +
+    "              <option value=\"Cleaners\">Cleaners</option>" +
+    "              <option value=\"Security\">Security</option>" +
     "            </select>" +
     "          </div>" +
     "          <div class=\"detail-row\">" +

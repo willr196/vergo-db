@@ -2,7 +2,7 @@
 <% layout('/layouts/base', {
   meta: {
     "title": "Hire Event Staff in London | VERGO Staffing",
-    "description": `Waiting, bar and kitchen staff, runners and hosts across London. ${it.t.HEADLINE_RATE} per person, names the same day, a replacement within the hour.`,
+    "description": `Waiting, bar, kitchen, cleaning and security staff across London. ${it.t.HEADLINE_RATE} per person, names the same day, a replacement within the hour.`,
     "ogImage": "/images/og/hire.jpg",
     "canonical": "/hire"
   },
@@ -13,7 +13,7 @@
       "name": "Event and hospitality staffing",
       "serviceType": "Event and hospitality staffing",
       "url": "https://vergoltd.com/hire",
-      "description": "Waiting staff, bar staff, kitchen porters, runners, hosts and front of house for events across London, with a replacement within the hour on a no-show.",
+      "description": "Waiting staff, bar staff, kitchen porters, runners, hosts and front of house, cleaners and security for events across London, with a replacement within the hour on a no-show.",
       "areaServed": {
         "@type": "City",
         "name": "London"

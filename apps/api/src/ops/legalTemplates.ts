@@ -51,15 +51,16 @@ The following will be deducted from your pay where they apply to you:
 - workplace pension contributions, where you are enrolled or have opted in
 - student loan or postgraduate loan repayments, where HMRC tells VERGO to make them
 - attachment of earnings orders or other deductions VERGO is required to make by law
-- recovery of a genuine overpayment of wages, where the law allows it
+- recovery of a genuine overpayment or duplicate payment of wages, an outstanding advance or early payment, or excess holiday pay, where the law allows it
+- the reasonable replacement cost of property you do not return, or of loss caused by your deliberate act or serious negligence, where the law allows it
 
 ## 7. Fees
 VERGO does not charge you a fee for finding you work.
 
 ## 8. Holiday entitlement and holiday pay
 You are entitled to paid statutory holiday under the Working Time Regulations 1998. Because the hours you work are irregular, your holiday entitlement builds up as you work.
-Where the law allows it for irregular-hours workers, VERGO may pay your holiday pay as rolled-up holiday pay: an additional 12.07% of your pay for the hours you work, paid with your wages each pay period and shown as a separate line on your payslip. Holiday pay that has been rolled up is not paid again when you take the time off, so please plan for this and do take time off to rest.
-Where rolled-up holiday pay does not apply to you, your holiday pay will be calculated and paid when you take holiday, as set out in your employment agreement.
+VERGO pays your holiday pay as rolled-up holiday pay, as the law allows for irregular-hours workers: an additional 12.07% of your pay for the hours you work, paid with your wages each pay period and shown as a separate line on your payslip. Holiday pay that has been rolled up is not paid again when you take the time off, so please plan for this and do take time off to rest.
+If your work pattern stops qualifying for rolled-up holiday pay, VERGO will tell you in writing before changing how your holiday pay is calculated.
 
 ## 9. Other benefits
 Workplace pension: VERGO will assess you for automatic enrolment into a workplace pension scheme as the law requires, and will write to you about your rights.
@@ -130,16 +131,16 @@ This agreement, together with your Key Information Document and the Assignment C
 7.4 You will normally be paid monthly in arrears on the last working day of each calendar month, by bank transfer, for the hours worked and submitted for that pay period.
 7.5 VERGO deducts Income Tax and National Insurance through PAYE, and any other deductions it is required or permitted by law to make, as listed in your Key Information Document. You will receive a payslip each pay period.
 7.6 VERGO may, at its discretion, consider a request for early payment or an advance in exceptional circumstances. You have no entitlement to early payment or to an advance.
-7.7 If you are overpaid by mistake, VERGO may recover the overpayment from later pay where the law allows, and will tell you before doing so.
+7.7 You authorise VERGO, to the extent the law allows, to deduct genuine overpayments, duplicate payments, outstanding advances or early payments, excess holiday pay, and the reasonable replacement cost of unreturned property or of loss caused by your deliberate act or serious negligence. VERGO will explain any deduction other than tax, National Insurance and pension before making it, and no deduction will take your pay below the legal minimum where that would be unlawful.
 
 ## 8. Timesheets
 8.1 You must record the hours you actually work accurately using VERGO's timesheet process (for example by checking in and out in the VERGO app), including the times of unpaid breaks.
 8.2 Hours may be confirmed with the hirer. Deliberately submitting false hours is gross misconduct.
 
 ## 9. Holiday
-9.1 You are entitled to paid statutory holiday under the Working Time Regulations 1998. As an irregular-hours worker your entitlement builds up at 12.07% of the hours you work in each pay period. The holiday year runs from 1 January to 31 December.
-9.2 Where the law allows it for irregular-hours workers, VERGO may pay your holiday pay as rolled-up holiday pay: 12.07% of your pay, paid with your wages and shown as a separate line on your payslip. Where it does, holiday pay is not paid again when you take the time off.
-9.3 Where rolled-up holiday pay is not used, holiday pay is paid when you take holiday, calculated as the law requires.
+9.1 You are entitled to paid statutory holiday under the Working Time Regulations 1998. As an irregular-hours worker your entitlement builds up at 12.07% of the hours you work in each pay period. The holiday year runs from 1 April to 31 March.
+9.2 VERGO pays your holiday pay as rolled-up holiday pay, as the law allows for irregular-hours workers: 12.07% of your pay, paid with your wages and shown as a separate line on your payslip. It is on top of your basic rate, not included within it, and it is not paid again when you take the time off.
+9.3 If your work pattern stops qualifying for rolled-up holiday pay, VERGO may change how your holiday pay is calculated after telling you in writing, as the law requires.
 9.4 Please give VERGO at least twice as much notice as the length of holiday you want to take. You should take time off to rest, and can do so by telling VERGO you are not available.
 9.5 There is no extra entitlement for bank holidays beyond your statutory entitlement.
 
@@ -148,7 +149,7 @@ VERGO will assess you under the workplace pension automatic-enrolment rules and 
 
 ## 11. Travel, expenses, dress and equipment
 11.1 Normal travel between home and an assignment is your own responsibility, unless VERGO tells you otherwise for an assignment.
-11.2 Expenses are paid only where VERGO agrees them in advance in the Assignment Confirmation, against receipts where requested.
+11.2 Business expenses are reimbursed against receipts only where VERGO authorises them in advance, in the Assignment Confirmation or otherwise in writing.
 11.3 The dress code and any equipment needed vary by assignment and will be told to you before the assignment.
 
 ## 12. Absence
@@ -184,19 +185,21 @@ You must keep confidential, during and after your employment, any confidential i
 ## 18. Other work
 You are free to work for others when you are not on a VERGO assignment, provided this does not conflict with an assignment you have already accepted and does not involve a genuine conflict of interest. VERGO does not restrict you from working elsewhere.
 
-## 19. Initial review period
-The first three months of your employment are an initial review period. VERGO may extend it where you have completed very few assignments in that time, and will tell you in writing if it does. Your notice entitlements during this period are set out in clause 21.
+## 19. Probation
+The first three months of your employment are a probationary period. VERGO may reasonably extend it where more time is needed to assess attendance, conduct or capability, or where you have worked too few assignments, and will tell you in writing if it does. Completing probation does not create guaranteed hours. Your notice during probation is set out in clause 21.
 
 ## 20. Training, discipline and grievances
 20.1 There is no compulsory training that you must pay for. Where an assignment needs a qualification or training, this is set out in the Assignment Confirmation.
 20.2 VERGO's disciplinary rules are the conduct standards in this agreement. VERGO will follow a fair procedure in line with the Acas Code of Practice before taking disciplinary action.
-20.3 If you have a grievance or wish to appeal a disciplinary decision, write to VERGO at {{company.email}}. It will be dealt with fairly and without delay.
-20.4 No collective agreement affects your terms of employment.
+20.3 If you have a grievance, put it in writing to the Company Director at {{company.email}}. It will be dealt with fairly and without delay.
+20.4 You may appeal a disciplinary or dismissal decision in writing to the person named in the outcome letter, normally within five working days.
+20.5 While VERGO investigates a serious matter it may suspend you from assignments. During a suspension you are paid for the assignments you had already accepted, and as the law requires.
+20.6 No collective agreement affects your terms of employment.
 
 ## 21. Ending your employment
-21.1 During your first month of employment, either party may end your employment without notice, subject to your statutory rights.
-21.2 After one month's continuous employment, you must give VERGO at least one week's notice in writing.
-21.3 After one month's continuous employment, VERGO will give you the notice set by law: one week's notice, rising to one week for each complete year of continuous employment after two years, up to twelve weeks. Any longer notice VERGO agrees with you in writing will apply instead.
+21.1 During probation, either party may end your employment by giving one week's written notice.
+21.2 After probation, you must give VERGO at least one week's written notice.
+21.3 After probation, VERGO will give you one week's written notice or the statutory minimum notice, whichever is greater. The statutory minimum is one week after one month's continuous employment, then one week for each complete year of continuous employment from two years, up to twelve weeks.
 21.4 VERGO may end your employment without notice for gross misconduct, where the law allows it, after following a fair procedure.
 21.5 The end of an assignment does not by itself end your employment.
 

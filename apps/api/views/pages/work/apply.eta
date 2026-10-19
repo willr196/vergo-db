@@ -152,6 +152,36 @@
                 <option value="5+ years">5+ years</option>
               </select>
             </div>
+
+            <div class="role-row">
+              <div class="checkbox-item">
+                <input type="checkbox" id="role-cleaner" name="roles" value="Cleaners">
+                <label for="role-cleaner">Cleaners</label>
+              </div>
+              <label class="sr-only" for="experience-cleaners">Experience level for Cleaners</label>
+              <select id="experience-cleaners" class="experience-select" data-role="Cleaners" disabled>
+                <option value="">Select experience...</option>
+                <option value="Entry level">Entry level (0–1 years)</option>
+                <option value="1-2 years">1–2 years</option>
+                <option value="3-5 years">3–5 years</option>
+                <option value="5+ years">5+ years</option>
+              </select>
+            </div>
+
+            <div class="role-row">
+              <div class="checkbox-item">
+                <input type="checkbox" id="role-security" name="roles" value="Security">
+                <label for="role-security">Security <span class="label-note">SIA licence</span></label>
+              </div>
+              <label class="sr-only" for="experience-security">Experience level for Security</label>
+              <select id="experience-security" class="experience-select" data-role="Security" disabled>
+                <option value="">Select experience...</option>
+                <option value="Entry level">Entry level (0–1 years)</option>
+                <option value="1-2 years">1–2 years</option>
+                <option value="3-5 years">3–5 years</option>
+                <option value="5+ years">5+ years</option>
+              </select>
+            </div>
           </div>
           <div id="roles-error" class="field-error-message" style="display: none;" role="alert"></div>
         </fieldset>

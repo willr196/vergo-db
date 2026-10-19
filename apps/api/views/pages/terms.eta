@@ -28,7 +28,7 @@
         <li><%~ it.t.MIN_HOURS %>-hour minimum charge per person, per booking</li>
         <li>Time beyond the confirmed end is billed in <%~ it.t.OVERRUN_MINUTES %>-minute blocks</li>
         <li>Hours worked after midnight are charged at +<%~ it.t.UPLIFT_PCT %>%</li>
-        <li>Chefs, cooks, managers and supervisors are quoted and agreed individually before booking</li>
+        <li>Chefs, cooks, managers, supervisors, cleaners and security are quoted and agreed individually before booking</li>
         <li>Full events (food, bar and staff) are quoted individually, and the quote sets out what's included</li>
         <li>There are no booking fees or uniform charges</li>
       </ul>

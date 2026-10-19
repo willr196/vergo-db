@@ -45,7 +45,7 @@
           <tr><th scope="row">Pay</th><td><%~ it.t.WORKER_PAY_LINE %></td></tr>
           <tr><th scope="row">Holiday pay</th><td>Itemised on every payslip</td></tr>
           <tr><th scope="row">Employment</th><td>PAYE. Payslips, and a pension where it applies</td></tr>
-          <tr><th scope="row">Roles</th><td>Waiting staff, bar staff, kitchen porters, runners, hosts and front of house, chefs and cooks</td></tr>
+          <tr><th scope="row">Roles</th><td>Waiting, bar, kitchen porters, runners, hosts, chefs, cleaners and security</td></tr>
         </tbody>
       </table>
     </section>

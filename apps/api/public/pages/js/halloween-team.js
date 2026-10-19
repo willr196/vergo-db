@@ -1,7 +1,11 @@
 /**
  * Special events brief forms — "Build your Halloween team" on
- * /special-events/halloween and the general brief on /special-events.
- * (The file name predates the second form; both pages load this script.)
+ * /special-events/halloween, "Plan your party" on /special-events/christmas
+ * and the general brief on /special-events. (The file name predates the
+ * other forms; all three pages load this script.)
+ *
+ * data-required lists fields a form insists on, comma-separated (Christmas
+ * needs the location, since it books anywhere in the UK).
  *
  * Each form opts in with data-se-brief. data-event-type tags the lead; a form
  * with a "concept" radio group (the general brief) tags it with the concept
@@ -138,11 +142,19 @@
 
     /** An enquiry only has to be answerable. Everything else on this page is a
      *  bonus, because half the point of it is "tell us even if you don't know". */
+    var REQUIRED_MESSAGES = { location: 'Where is the party?' };
+
     function validate() {
       clearErrors();
 
       var email = value('email');
       var phone = value('phone');
+      var missing = (form.dataset.required || '').split(',').map(function (s) { return s.trim(); })
+        .filter(function (name) { return name && !value(name); });
+      if (missing.length) {
+        missing.forEach(function (name) { markInvalid(name, REQUIRED_MESSAGES[name] || 'Needed to reply.'); });
+        return 'Fill in the highlighted fields so we can plan it.';
+      }
 
       if (!email && !phone) {
         markInvalid('email', 'Email or phone — either will do.');
@@ -172,6 +184,8 @@
       if (themeIdea) parts.push('Theme idea: ' + themeIdea);
       if (atmosphere) parts.push('Atmosphere: ' + atmosphere);
       if (interaction) parts.push('Interaction level: ' + interaction);
+      var serviceStyle = checkedValue('serviceStyle');
+      if (serviceStyle) parts.push('Service style: ' + serviceStyle);
       if (guests) parts.push('Approx guests: ' + guests);
       return parts.join(' · ');
     }
@@ -185,6 +199,8 @@
 
     function buildPayload() {
       var needs = checkedValues('need');
+      var start = value('shiftStart');
+      var end = value('shiftEnd');
 
       return {
         intent: 'ENQUIRY',
@@ -198,6 +214,10 @@
         eventDate: value('eventDate') || undefined,
         location: value('location') || undefined,
         guestCount: wholeNumber('guestCount', 100000),
+        shiftStart: start || undefined,
+        shiftEnd: end || undefined,
+        // "HH:MM" strings compare in clock order, so an earlier finish is the next day.
+        shiftEndsNextDay: start && end && end <= start ? true : undefined,
         // What they ticked, in the field the API already renders as "Roles".
         roles: needs.length ? needs : undefined,
         // Folded into the message body server-side.
