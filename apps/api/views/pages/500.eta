@@ -1,0 +1,19 @@
+<%/* The page shown when a public page fails to render (src/index.ts). Rendered from the built-in content, so it stands even when the stored content doesn't. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Something went wrong | VERGO Staffing",
+    "description": "This page didn't load. Try again in a minute, or call or WhatsApp VERGO Staffing.",
+    "ogImage": "/images/og/home.jpg",
+    "robots": "noindex, nofollow",
+    "canonical": "/"
+  }
+}) %>
+    <section class="page-hero-plain shell">
+      <span class="eyebrow">Sorry</span>
+      <h1>This page didn't load</h1>
+      <p class="lede">Something went wrong on our side. Try again in a minute, or call <a href="<%~ it.t.PHONE_TEL %>"><%~ it.t.PHONE %></a>.</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="/hire/quote">Get a quote</a>
+        <a class="btn btn-secondary" href="<%~ it.t.WHATSAPP_URL %>" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>
+      </div>
+    </section>

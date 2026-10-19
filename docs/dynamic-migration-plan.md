@@ -113,3 +113,21 @@ Christmas rendering: the four SVGs (`christmas-bar`, `-canapes`, `-santa`,
 continuous animation is the snow, transform-only (no repaints) and off under
 reduced motion. The uncommitted `special-events.css` change confines it to
 the hero and drops the header blur on the Christmas theme: worth shipping.
+
+## Checks before deploy (2026-10-20)
+
+- `tools/compare-sites.mjs`, `main` against `dynamic-site`, both local on the
+  same database: 99 URLs, 0 differing (pages, `.html` addresses, legacy
+  redirects, 404, sitemap, robots).
+- Database work, with `LOG_DB_QUERIES=1`: 200 public page requests, 0 queries.
+  The job board API (`/api/v1/jobs`) makes 4 per request; forms and the admin
+  hit the database too, as they must. A page view still triggers one content
+  reload when the in-memory copy is over 10 minutes old.
+- A page that fails to render is served from the built-in content (logged,
+  not cached); failing that, the branded 500 page (`views/pages/500.eta`).
+- Rollback, with the two SQL fixes it needs: `docs/site-rollout.md`.
+  Guide for editing: `docs/editing-the-site.md`.
+- Not built: the `SpecialEvent` model (item 5), pending a decision.
+- Found, not caused by this branch: `shiftLifecycle.test.ts` "a worker walks a
+  shift from offer to recorded hours" fails between midnight and 1am BST on
+  `main` too (it builds "today" in UTC).

@@ -112,6 +112,15 @@ export function onContentChange(fn: () => void): void {
   listeners.push(fn);
 }
 
+/**
+ * The built-in content (today's site, word for word), for a render to fall
+ * back on if the live copy breaks it. Rates and terms stay as PRICING holds
+ * them: only the editable blocks (FAQs, reviews, promos...) are swapped.
+ */
+export function builtInContent(): SiteContent {
+  return { ...defaults(), settings: current.settings, rates: current.rates };
+}
+
 /** Set only while an admin preview renders: the content with drafts laid over it. */
 const previewContent = new AsyncLocalStorage<SiteContent>();
 

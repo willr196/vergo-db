@@ -216,3 +216,20 @@ test('event pages switch to next year once their season has passed, and stay up'
   assert.match(after, /<h1>Halloween event staff and performers in London<\/h1>/);
   assert.match(after, /id="halloweenForm"/);
 });
+
+test('a page the stored content breaks renders from the built-in content; the 500 page stands on its own', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { renderView } = require('../site/view');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { builtInContent, withContent } = require('../site/store');
+  const broken = { ...siteContent(), faqs: null };
+  assert.throws(() => withContent(broken, () => renderView('hire/weddings', { path: '/hire/weddings' })));
+  const fallback = withContent(builtInContent(), () => renderView('hire/weddings', { path: '/hire/weddings' }));
+  assert.equal(fallback, renderView('hire/weddings', { path: '/hire/weddings' }), 'the fallback is today\'s page');
+
+  const page = withContent(builtInContent(), () => renderView('500', { path: '/500' }));
+  assert.match(page, /<h1>This page didn't load<\/h1>/);
+  assert.match(page, /noindex, nofollow/);
+  assert.match(page, new RegExp(SITE.phoneDisplay));
+  assert.match(page, /data-shared-header/);
+});

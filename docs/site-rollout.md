@@ -59,3 +59,73 @@ fly deploy -a vergo-app --strategy bluegreen --image <ImageRef>
 ```
 
 The site-content tables can stay: the old code never reads them.
+
+## The `dynamic-site` release (October 2026)
+
+Adds editable terms and company details, revertable history, drafts with
+preview, the rate card in pence, and event pages that switch to next year
+after their season. Three migrations, all additive:
+
+| Migration | What it does |
+|---|---|
+| `20261019120000_promo_event_page` | Two nullable columns on `SeasonalPromo`; fills this year's Halloween line and Christmas end date; swaps the Halloween FAQ's typed dates for `{{SEASON_LINE_HALLOWEEN}}` |
+| `20261020120000_content_drafts` | New table `ContentDraft` |
+| `20261020130000_rate_card_pence` | New table `Rate`, filled from the amounts in the `rates` setting (pounds to pence) |
+
+Before deploying, compare the branch with `main` locally (both servers on
+the same database, see the script's header):
+
+```
+COMPARE_DELAY_MS=550 node tools/compare-sites.mjs http://127.0.0.1:<main> http://127.0.0.1:<branch>
+```
+
+On 2026-10-20 that was 99 URLs, 0 differing (every sitemap page, each old
+`.html` address, every legacy redirect, the 404, `sitemap.xml`, `robots.txt`).
+
+After deploying:
+
+1. `COMPARE_DELAY_MS=550 node tools/compare-sites.mjs https://vergoltd.com https://vergo-app.fly.dev`: 0 differing.
+2. Admin > Site content: the Rates tab shows £19.00, £24.00, £21.00, £26.00,
+   £35.00; History lists nothing new; `/special-events/halloween` still says
+   "Now booking 23–24 and 30–31 October." twice (the closing band and the FAQ).
+3. To see that public pages leave the database alone, run a machine with
+   `LOG_DB_QUERIES=1` and read its log: every `[DB] GET /<page>` line says 0
+   queries, except the one reload a page view triggers when the in-memory copy
+   is over 10 minutes old.
+
+### Rolling it back
+
+Redeploy the previous image, as above. The new tables and columns can stay;
+the old code never reads them. Two things the old code reads differently,
+each fixed with one statement (run them in the Neon console):
+
+1. The Halloween FAQ carries `{{SEASON_LINE_HALLOWEEN}}`, which the old code
+   would print as it is. Put the words back:
+
+   ```sql
+   UPDATE "Faq" SET "answer" = replace("answer", '{{SEASON_LINE_HALLOWEEN}}', 'Now booking 23–24 and 30–31 October.')
+   WHERE "pageKey" = 'special-events/halloween';
+   ```
+
+2. The old code reads the five rates from the `rates` setting, in pounds. If
+   a rate was changed on the new Rates tab, or the "Premium and surcharges"
+   card was saved (which drops the old amounts from that row, so the old code
+   would fall back to the built-in rates and surcharges), copy the card back:
+
+   ```sql
+   UPDATE "SiteSetting" SET "value" = "value" || jsonb_build_object(
+     'standardRate',       (SELECT "amountPence" FROM "Rate" WHERE "key" = 'standard') / 100.0,
+     'premiumRate',        (SELECT "amountPence" FROM "Rate" WHERE "key" = 'premium') / 100.0,
+     'themedHospitality',  (SELECT "amountPence" FROM "Rate" WHERE "key" = 'themed_hospitality') / 100.0,
+     'characterPerformer', (SELECT "amountPence" FROM "Rate" WHERE "key" = 'character_performer') / 100.0,
+     'makeupArtist',       (SELECT "amountPence" FROM "Rate" WHERE "key" = 'makeup_artist') / 100.0)
+   WHERE "key" = 'rates';
+   ```
+
+Terms, company details, promo page lines, drafts and rates other than the
+five are simply not shown by the old code; the pages fall back to what they
+said before this release.
+
+There is no per-page switch back to the old static files: those were
+deleted when the pages moved to templates (September 2026), and every page
+has been served from a template since. A redeploy is the rollback.

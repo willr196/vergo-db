@@ -64,7 +64,8 @@ import { startSeriesFiller, stopSeriesFiller } from './ops/series';
 import { initSentry, sentryErrorHandler, flushSentry } from './services/sentry';
 import { enforceHttpsRedirect } from './utils/httpsRedirect';
 import { clearRenderCaches, sendPublicHtml, renderPublicSource, versionAssetUrls, virtualAsset, PUBLIC_HTML_CACHE_CONTROL } from './lib/publicHtml';
-import { onContentChange, startContentRefresh } from './site/store';
+import { builtInContent, onContentChange, startContentRefresh, withContent } from './site/store';
+import { COUNT_DB_QUERIES, countSessionStore, dbQueryCount } from './lib/dbQueryCount';
 import { sitemapXml } from './site/sitemap';
 import { isBlogPage, renderBlogPage } from './site/blog';
 import { renderView, viewRouteFor, withPageScriptHashes } from './site/view';
@@ -75,6 +76,15 @@ initSentry();
 
 const app = express();
 app.disable('x-powered-by');
+
+// LOG_DB_QUERIES=1: one line per request with the database work it caused (lib/dbQueryCount.ts).
+if (COUNT_DB_QUERIES) {
+  app.use((req, res, next) => {
+    const before = dbQueryCount();
+    res.on('finish', () => console.log(`[DB] ${req.method} ${req.originalUrl} ${res.statusCode} ${dbQueryCount() - before} queries`));
+    next();
+  });
+}
 
 const publicDir = path.join(process.cwd(), 'public');
 const publicDirResolved = path.resolve(publicDir);
@@ -436,24 +446,27 @@ const sessionStoreSsl = dbUsesSsl
     : { rejectUnauthorized: true }
   : false;
 
+const sessionStore = env.nodeEnv === 'test'
+  ? new session.MemoryStore()
+  : new PgSession({
+    conString: env.dbUrl,
+    tableName: 'user_sessions',
+    createTableIfMissing: true,
+    ssl: sessionStoreSsl,
+    // Disabled: the default 15-minute prune timer runs a DB query around the clock,
+    // which keeps the Neon compute endpoint from ever hitting its scale-to-zero idle
+    // window. Expired rows are harmless to leave around for a low-traffic app; prune
+    // manually (DELETE FROM user_sessions WHERE expire < now()) if the table grows.
+    pruneSessionInterval: false
+  });
+if (COUNT_DB_QUERIES) countSessionStore(sessionStore);
+
 app.use(session({
   name: 'vergo.sid',
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: env.nodeEnv === 'test'
-    ? new session.MemoryStore()
-    : new PgSession({
-      conString: env.dbUrl,
-      tableName: 'user_sessions',
-      createTableIfMissing: true,
-      ssl: sessionStoreSsl,
-      // Disabled: the default 15-minute prune timer runs a DB query around the clock,
-      // which keeps the Neon compute endpoint from ever hitting its scale-to-zero idle
-      // window. Expired rows are harmless to leave around for a low-traffic app; prune
-      // manually (DELETE FROM user_sessions WHERE expire < now()) if the table grows.
-      pruneSessionInterval: false
-    }),
+  store: sessionStore,
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -787,9 +800,31 @@ app.use((req, res, next) => {
     res.setHeader('Cache-Control', PUBLIC_HTML_CACHE_CONTROL);
     res.type('html').send(html);
   } catch (err) {
-    next(err);
+    // Most likely stored content the template can't take: serve the page from
+    // the built-in content instead, uncached, so it's back as soon as it's fixed.
+    logger.error({ err, path: req.path }, 'Page failed to render; serving it from the built-in content');
+    try {
+      const html = versionAssetUrls(withContent(builtInContent(), () => renderView(route.view, { path: route.path })), publicDir);
+      withPageScriptHashes(res, html);
+      res.setHeader('Cache-Control', 'no-store');
+      res.type('html').send(html);
+    } catch (fallbackErr) {
+      next(fallbackErr);
+    }
   }
 });
+
+/** The branded 500 page, from the built-in content; plain text if even that fails. */
+function sendErrorPage(res: express.Response): void {
+  res.setHeader('Cache-Control', 'no-store');
+  try {
+    const html = versionAssetUrls(withContent(builtInContent(), () => renderView('500', { path: '/500' })), publicDir);
+    withPageScriptHashes(res, html);
+    res.status(500).type('html').send(html);
+  } catch {
+    res.status(500).type('text/plain').send('Something went wrong. Please try again in a minute.');
+  }
+}
 
 // The blog: /blog and /blog/<slug>, rendered from content/blog/*.md.
 app.get(['/blog', '/blog/:slug'], (req, res, next) => {
@@ -921,7 +956,7 @@ app.use((req, res) => {
 app.use(sentryErrorHandler());
 
 // Error handler (must be last)
-app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (err instanceof ZodError) {
     logger.warn({ err }, 'Request validation failed');
     return res.status(400).json({
@@ -930,6 +965,11 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
     });
   }
   logger.error({ err }, 'Unhandled error');
+  if (res.headersSent) return;
+  // A visitor's page load gets the branded page; API callers keep the JSON.
+  if (req.method === 'GET' && !req.path.startsWith('/api/') && req.accepts(['html', 'json']) === 'html') {
+    return sendErrorPage(res);
+  }
   res.status(500).json({ error: 'Internal server error' });
 });
 
