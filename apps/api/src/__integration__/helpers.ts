@@ -104,6 +104,7 @@ const TABLES_IN_WIPE_ORDER = [
   'SeasonalPromo',
   'ContentChange',
   'ContentDraft',
+  'Rate',
 ];
 
 export async function resetDatabase(): Promise<void> {

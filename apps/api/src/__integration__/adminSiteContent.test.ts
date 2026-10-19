@@ -68,21 +68,74 @@ test('nothing can be edited before the import, and the import changes nothing on
   assert.equal(renderView('hire/weddings', { path: '/hire/weddings' }), before);
 });
 
-test('a rate save is validated, logged, and on the site at once', async () => {
+test('a rate save is validated, stored in pence, logged, and on the site at once', async () => {
   await imported();
-  const rates = (await send('GET', '/')).body.settings.rates;
+  const standard = (await send('GET', '/')).body.rates.find((r: any) => r.key === 'standard');
+  assert.equal(standard.amountPence, 1900);
+  assert.equal(standard.core, true);
 
-  const tooLow = await send('PUT', '/settings/rates', { ...rates, standardRate: 9 });
+  const tooLow = await send('PUT', `/rates/${standard.id}`, { ...standard, amountPence: 900 });
   assert.equal(tooLow.statusCode, 400);
   assert.equal(PRICING.standardRate, 19);
 
-  const ok = await send('PUT', '/settings/rates', { ...rates, standardRate: 19.75 });
+  const ok = await send('PUT', `/rates/${standard.id}`, { ...standard, amountPence: 1975 });
   assert.equal(ok.statusCode, 200, JSON.stringify(ok.body));
+  assert.equal((await prisma.rate.findUniqueOrThrow({ where: { key: 'standard' } })).amountPence, 1975);
   assert.equal(PRICING.standardRate, 19.75);
   assert.match(renderBlock('rates', {}, { path: '/hire' }) || '', /£19\.75/);
 
-  const log = await prisma.contentChange.findFirst({ where: { what: 'Updated rates' } });
+  const log = await prisma.contentChange.findFirst({ where: { what: { startsWith: 'Edited the rate' } } });
   assert.equal(log?.who, 'will');
+
+  // Undo it from the history.
+  assert.equal((await send('POST', `/changes/${log!.id}/revert`)).statusCode, 200);
+  assert.equal(PRICING.standardRate, 19);
+});
+
+test('core rates stay hourly, public and active, and can\'t be deleted; other rates are the admin\'s', async () => {
+  await imported();
+  const premium = (await send('GET', '/')).body.rates.find((r: any) => r.key === 'premium');
+  assert.equal((await send('PUT', `/rates/${premium.id}`, { ...premium, visibility: 'quote_only' })).statusCode, 400);
+  assert.equal((await send('PUT', `/rates/${premium.id}`, { ...premium, active: false })).statusCode, 400);
+  assert.equal((await send('PUT', `/rates/${premium.id}`, { ...premium, key: 'premium_plus' })).statusCode, 400);
+  assert.equal((await send('DELETE', `/rates/${premium.id}`)).statusCode, 400);
+
+  const santa = { key: 'santa', label: 'Santa', amountPence: 4500, unit: 'hour', category: 'seasonal', visibility: 'public', active: true };
+  const added = await send('POST', '/rates', santa);
+  assert.equal(added.statusCode, 201, JSON.stringify(added.body));
+  assert.equal((await send('POST', '/rates', santa)).statusCode, 409, 'keys are unique');
+  assert.equal((await send('POST', '/rates', { ...santa, key: 'standard' })).statusCode, 409);
+  await send('POST', '/rates', { ...santa, key: 'trade', label: 'Trade', amountPence: 1500, visibility: 'quote_only' });
+
+  // An FAQ can carry the new rate as a token.
+  await send('POST', '/faqs', { pageKey: 'special-events/christmas', question: 'Do you supply Santa?', answer: 'Yes, from {{RATE_SANTA}}/hr.' });
+  assert.match(renderView('special-events/christmas', { path: '/special-events/christmas' }), /Yes, from £45\/hr\./);
+
+  // The public API: never quote-only.
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const ratesRouter = require('../routes/rates').default;
+  const pub = express();
+  pub.use('/api/v1/rates', ratesRouter);
+  const res = await inject(pub, { method: 'GET', url: '/api/v1/rates' });
+  const keys = res.body.data.roles.map((r: any) => r.key);
+  assert.ok(keys.includes('santa'));
+  assert.ok(!keys.includes('trade'), 'quote-only rates never reach the public API');
+  assert.equal(res.body.data.roles.find((r: any) => r.key === 'santa').amountPence, 4500);
+
+  assert.equal((await send('DELETE', `/rates/${added.body.item.id}`)).statusCode, 200);
+});
+
+test('the rate card migration carries amounts already edited in the old settings row', async () => {
+  await imported();
+  await prisma.rate.deleteMany();
+  await prisma.siteSetting.update({
+    where: { key: 'rates' },
+    data: { value: { standardRate: 19.75, premiumEnabled: true, premiumRate: 24, afterMidnightUpliftPct: 25, themedHospitality: 22.5, characterPerformer: 26, makeupArtist: 35 } },
+  });
+  const sql = fs.readFileSync(path.join(process.cwd(), 'prisma', 'migrations', '20261020130000_rate_card_pence', 'migration.sql'), 'utf8');
+  await prisma.$executeRawUnsafe(sql.slice(sql.indexOf('WITH s AS')));
+  const rows = Object.fromEntries((await prisma.rate.findMany()).map((r) => [r.key, r.amountPence]));
+  assert.deepEqual(rows, { standard: 1975, premium: 2400, themed_hospitality: 2250, character_performer: 2600, makeup_artist: 3500 });
 });
 
 test('the length limits are enforced on the server', async () => {

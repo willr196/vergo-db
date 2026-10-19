@@ -12,7 +12,7 @@ import { prisma } from '../prisma';
  * Snapshots are the record as JSON without updatedAt, so dates are ISO
  * strings, which Prisma takes back as they are.
  */
-export const TABLES = ['SiteSetting', 'Testimonial', 'RecentWork', 'Faq', 'GalleryPhoto', 'SeasonalPromo'] as const;
+export const TABLES = ['SiteSetting', 'Rate', 'Testimonial', 'RecentWork', 'Faq', 'GalleryPhoto', 'SeasonalPromo'] as const;
 export type Table = (typeof TABLES)[number];
 
 type Snapshot = Record<string, unknown>;
@@ -20,6 +20,11 @@ export type ChangeDetail =
   | { kind: 'row'; table: Table; id: string; before: unknown; after: unknown; revertOf?: string }
   | { kind: 'reorder'; table: Table; before: OrderEntry[]; after: OrderEntry[]; revertOf?: string };
 export interface OrderEntry { id: string; order: number }
+
+/** The column a table keeps its list order in. */
+export function orderField(table: Table): 'order' | 'sortOrder' {
+  return table === 'Rate' ? 'sortOrder' : 'order';
+}
 
 export class RevertError extends Error {
   constructor(message: string, public status = 409) {
@@ -37,6 +42,7 @@ export function snapshot(row: unknown): Snapshot | null {
 
 function delegate(table: Exclude<Table, 'SiteSetting'>): any {
   switch (table) {
+    case 'Rate': return prisma.rate;
     case 'Testimonial': return prisma.testimonial;
     case 'RecentWork': return prisma.recentWork;
     case 'Faq': return prisma.faq;
@@ -82,10 +88,11 @@ export async function revertChange(changeId: string, detail: ChangeDetail): Prom
 
   if (detail.kind === 'reorder') {
     const model = delegate(detail.table as Exclude<Table, 'SiteSetting'>);
-    const rows: OrderEntry[] = await model.findMany({ where: { id: { in: detail.after.map((e) => e.id) } }, select: { id: true, order: true } });
-    const now = new Map(rows.map((r) => [r.id, r.order]));
+    const field = orderField(detail.table);
+    const rows: Array<Record<string, any>> = await model.findMany({ where: { id: { in: detail.after.map((e) => e.id) } }, select: { id: true, [field]: true } });
+    const now = new Map(rows.map((r) => [r.id, r[field]]));
     if (detail.after.some((e) => now.get(e.id) !== e.order)) throw changedSince;
-    await prisma.$transaction(detail.before.map((e) => model.update({ where: { id: e.id }, data: { order: e.order } })));
+    await prisma.$transaction(detail.before.map((e) => model.update({ where: { id: e.id }, data: { [field]: e.order } })));
     return {
       what: `Reverted a reorder of ${detail.table}`,
       detail: { kind: 'reorder', table: detail.table, before: detail.after, after: detail.before, revertOf: changeId },

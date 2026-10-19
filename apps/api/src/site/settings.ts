@@ -12,22 +12,21 @@ import { SITE } from './content';
 
 /** The worker pay floor the site quotes; a charge rate below it can't be right. */
 export const MIN_RATE = 12.71;
-const rate = z.number().min(MIN_RATE).max(100);
 const line = (max: number) => z.string().trim().max(max);
 
 export const SETTING_SCHEMAS = {
+  /**
+   * The amounts themselves are Rate rows, in pence (site/rates.ts). Rows saved
+   * before that carried them too; they're stripped on read, not refused, so
+   * the Premium switch and the surcharges in those rows still apply.
+   */
   rates: z.object({
-    standardRate: rate,
     premiumEnabled: z.boolean(),
-    premiumRate: rate,
     /** The after-midnight uplift, as a percentage: 25 means +25%. */
     afterMidnightUpliftPct: z.number().min(0).max(100),
-    /** The New Year's Eve surcharge from 7pm, as a percentage. Defaulted so rows saved before it existed still parse. */
+    /** The New Year's Eve surcharge, as a percentage. Defaulted so rows saved before it existed still parse. */
     newYearsEveUpliftPct: z.number().min(0).max(100).default(Math.round((PRICING.newYearsEveMultiplier - 1) * 100)),
-    themedHospitality: rate,
-    characterPerformer: rate,
-    makeupArtist: rate,
-  }).strict(),
+  }),
   promises: z.object({
     confirmationPromise: line(200).min(1),
     noShowPromise: line(200).min(1),
@@ -81,14 +80,9 @@ const DEFAULT_SITE = structuredClone(SITE);
 export function defaultSettings(): SiteSettings {
   return {
     rates: {
-      standardRate: DEFAULT_PRICING.standardRate,
       premiumEnabled: DEFAULT_PRICING.premiumEnabled,
-      premiumRate: DEFAULT_PRICING.premiumRate,
       afterMidnightUpliftPct: Math.round((DEFAULT_PRICING.afterMidnightMultiplier - 1) * 100),
       newYearsEveUpliftPct: Math.round((DEFAULT_PRICING.newYearsEveMultiplier - 1) * 100),
-      themedHospitality: DEFAULT_PRICING.specialEvents.themedHospitality,
-      characterPerformer: DEFAULT_PRICING.specialEvents.characterPerformer,
-      makeupArtist: DEFAULT_PRICING.specialEvents.makeupArtist,
     },
     promises: {
       confirmationPromise: DEFAULT_TERMS.confirmationPromise,
@@ -144,14 +138,9 @@ export function parseSettings(rows: Array<{ key: string; value: unknown }>): Sit
 
 /** Lays settings over PRICING, SITE_TERMS and SITE in place, so every reader sees them at once. */
 export function applySettings(s: SiteSettings): void {
-  PRICING.standardRate = s.rates.standardRate;
   PRICING.premiumEnabled = s.rates.premiumEnabled;
-  PRICING.premiumRate = s.rates.premiumRate;
   PRICING.afterMidnightMultiplier = 1 + s.rates.afterMidnightUpliftPct / 100;
   PRICING.newYearsEveMultiplier = 1 + s.rates.newYearsEveUpliftPct / 100;
-  PRICING.specialEvents.themedHospitality = s.rates.themedHospitality;
-  PRICING.specialEvents.characterPerformer = s.rates.characterPerformer;
-  PRICING.specialEvents.makeupArtist = s.rates.makeupArtist;
 
   PRICING.minimumChargeHours = s.terms.minimumChargeHours;
   // Hourly special-events roles carry the site-wide minimum.

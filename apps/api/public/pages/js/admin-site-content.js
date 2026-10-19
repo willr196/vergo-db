@@ -50,6 +50,7 @@
   }
 
   function renderAll() {
+    renderList('rates');
     renderList('testimonials');
     renderList('recent-work');
     renderList('photos');
@@ -87,8 +88,16 @@
   function money(n) { return '£' + Number(n || 0).toFixed(2); }
 
   /** A plain copy of the site's rate and guarantee blocks, fed from the unsaved form values. */
+  /** A core rate's amount in pounds, from the rate card. */
+  function rateOf(key) {
+    var r = (state.rates || []).filter(function (x) { return x.key === key; })[0];
+    return r && r.amountPence !== null ? r.amountPence / 100 : 0;
+  }
+
   function renderPreview() {
     var rates = readSetting(document.querySelector('form[data-setting="rates"]'));
+    rates.standardRate = rateOf('standard');
+    rates.premiumRate = rateOf('premium');
     var promises = readSetting(document.querySelector('form[data-setting="promises"]'));
     var booking = readSetting(document.querySelector('form[data-setting="terms"]'));
     var terms = [
@@ -137,7 +146,30 @@
 
   /* --------------------------------------------------------------- lists */
 
+  var UNITS = { hour: '/hr', day: ' a day', quote: '' };
+
   var TYPES = {
+    rates: {
+      label: 'rate',
+      rows: function () { return state.rates; },
+      summary: function (r) {
+        var amount = r.unit === 'quote' || r.amountPence === null || r.amountPence === undefined ? 'Quoted' : money(r.amountPence / 100) + UNITS[r.unit];
+        return '<p><strong>' + esc(r.label) + '</strong> ' + esc(amount) +
+          (r.visibility === 'quote_only' ? ' <span class="badge badge-muted">Quote only</span>' : '') +
+          (r.active === false ? ' <span class="badge badge-muted">Inactive</span>' : '') +
+          (r.core ? ' <span class="badge badge-muted">Used across the site</span>' : '') + '</p>' +
+          '<p class="sc-meta">' + esc(r.key) + ' · ' + esc(r.category) + (r.visibility === 'public' && r.unit !== 'quote' ? ' · {{RATE_' + esc(r.key.toUpperCase()) + '}}' : '') + '</p>';
+      },
+      fields: [
+        { name: 'key', label: 'Key (lowercase, e.g. santa)', max: 50, required: true },
+        { name: 'label', label: 'Name', max: 120, required: true },
+        { name: 'amountPence', label: 'Amount (£, blank for a quoted role)', type: 'money' },
+        { name: 'unit', label: 'Per', type: 'select', options: [['hour', 'Hour'], ['day', 'Day'], ['quote', 'Quoted per brief']] },
+        { name: 'category', label: 'Group', type: 'select', options: [['standard', 'Standard'], ['seasonal', 'Seasonal'], ['specialist', 'Specialist']] },
+        { name: 'visibility', label: 'Shown', type: 'select', options: [['public', 'On the site and the rate API'], ['quote_only', 'Quote only: never on the site']] },
+        { name: 'active', label: 'Active', type: 'checkbox', default: true },
+      ],
+    },
     testimonials: {
       label: 'review',
       rows: function () { return state.testimonials; },
@@ -307,7 +339,7 @@
           (row._draft ? draftActions(type, row) : '') + '</div>' +
         '<div class="sc-item-actions">' +
           '<button class="btn btn-ghost btn-sm" data-action="edit" data-collection="' + type + '" data-id="' + esc(row.id) + '">Edit</button>' +
-          '<button class="btn btn-danger-quiet btn-sm" data-action="delete" data-collection="' + type + '" data-id="' + esc(row.id) + '">Delete</button>' +
+          (row.core ? '' : '<button class="btn btn-danger-quiet btn-sm" data-action="delete" data-collection="' + type + '" data-id="' + esc(row.id) + '">Delete</button>') +
         '</div></div>';
     }).join('');
   }
@@ -356,6 +388,10 @@
       var page = value || document.getElementById('sc-faq-page').value;
       return '<label class="as-label" for="' + id + '">' + esc(f.label) + '<select class="as-input" id="' + id + '" name="' + f.name + '">' +
         state.faqPages.map(function (p) { return '<option value="' + esc(p) + '"' + (p === page ? ' selected' : '') + '>/' + esc(p) + '</option>'; }).join('') + '</select></label>';
+    }
+    if (f.type === 'money') {
+      var pounds = value === null || value === undefined || value === '' ? '' : (value / 100).toFixed(2);
+      return '<label class="as-label" for="' + id + '">' + esc(f.label) + '<input class="as-input" id="' + id + '" name="' + f.name + '" type="number" step="0.01" min="0" max="2000" value="' + pounds + '"></label>';
     }
     if (f.type === 'file') {
       return '<label class="as-label" for="' + id + '">' + esc(f.label) + '<input class="as-input" id="' + id + '" name="' + f.name + '" type="file" accept="image/*"' + req + '></label>';
@@ -459,6 +495,8 @@
       if (!el) continue;
       if (f.type === 'checkbox') out[f.name] = el.checked;
       else if (f.type === 'number') out[f.name] = el.value === '' ? null : Number(el.value);
+      // Pounds as typed to whole pence, rounded at two places first so 19.99 never becomes 1998.
+      else if (f.type === 'money') out[f.name] = el.value === '' ? null : Math.round(Number(Number(el.value).toFixed(2)) * 100);
       else if (f.type === 'tags') out[f.name] = el.value.split(',').map(function (t) { return t.trim().toLowerCase(); }).filter(Boolean);
       else if (f.type === 'file') {
         if (!el.files || !el.files[0]) throw new Error('Choose a photo to upload.');

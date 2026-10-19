@@ -1022,6 +1022,31 @@ model SeasonalPromo {
   updatedAt    DateTime  @updatedAt
 }
 
+/// The rate card, edited in Admin > Site content > Rates. Money in whole pence.
+/// The core keys (standard, premium, themed_hospitality, character_performer,
+/// makeup_artist) feed config/pricing.ts and can't be removed (src/site/rates.ts).
+model Rate {
+  id          String   @id @default(cuid())
+  /// "standard", "santa"; {{RATE_SANTA}} on the site
+  key         String   @unique @db.VarChar(50)
+  label       String   @db.VarChar(120)
+  /// Null when unit is "quote"
+  amountPence Int?
+  /// "hour", "day" or "quote"
+  unit        String   @default("hour") @db.VarChar(10)
+  /// "standard", "seasonal" or "specialist"
+  category    String   @default("standard") @db.VarChar(20)
+  /// "public", or "quote_only": never on the site or the public API
+  visibility  String   @default("public") @db.VarChar(20)
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  updatedBy   String?  @db.VarChar(200)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
 /// An unpublished edit in "Site content" (FAQs and seasonal promos): previewed
 /// by admins, live only once published. rowId is the record it edits, or null
 /// for a new one.

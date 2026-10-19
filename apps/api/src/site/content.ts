@@ -1,4 +1,5 @@
 import { PRICING, SITE_TERMS, formatRate, headlineRateText } from '../config/pricing';
+import { rateTokens } from './rates';
 
 /**
  * Who we are and how to reach us. Rates and terms live in config/pricing.ts;
@@ -120,6 +121,8 @@ export function siteTokens(): Record<string, string> {
     PERFORMER_RATE_NUMBER: PRICING.specialEvents.characterPerformer.toFixed(2),
     MAKEUP_RATE_NUMBER: PRICING.specialEvents.makeupArtist.toFixed(2),
     ...specialEventCharges(),
+    /** RATE_SANTA, RATE_SANTA_NUMBER...: every public rate on the card, core ones included. */
+    ...rateTokens(),
     PHONE: SITE.phoneDisplay,
     PHONE_TEL: `tel:${SITE.phoneE164}`,
     PHONE_E164: SITE.phoneE164,

@@ -67,7 +67,13 @@ last good copy.
 
 ### Editing content (Admin > Site content)
 
-- **Settings**: rates, the Premium switch, the promises, booking terms
+- **Rates**: the rate card, stored in whole pence. The five rates the pages
+  are built on (standard, premium, themed hospitality, character performer,
+  makeup) can change amount but stay hourly, public and active. Add others
+  (Santa, a day rate, a quote-only role); a public one can go in any FAQ or
+  promo line as `{{RATE_SANTA}}`. Quote-only and inactive rates never reach
+  the site or `GET /api/v1/rates`.
+- **Settings**: the Premium switch and surcharges, the promises, booking terms
   (minimum hours, overrun blocks, New Year's Eve start, cancellation, payment
   terms), contact details, company details and slogan. The minimum and overrun
   blocks also set what Ops charges. The preview shows the rate and guarantee

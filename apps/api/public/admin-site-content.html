@@ -33,6 +33,7 @@
 
       <div class="as-tabs" id="sc-tabs">
         <button class="as-tab active" data-tab="settings">Settings</button>
+        <button class="as-tab" data-tab="rates">Rates</button>
         <button class="as-tab" data-tab="reviews">Reviews</button>
         <button class="as-tab" data-tab="work">Recent work</button>
         <button class="as-tab" data-tab="photos">Photos</button>
@@ -46,19 +47,14 @@
         <div class="sc-grid">
           <div>
             <form class="sc-card" data-setting="rates">
-              <div class="as-section-hdr"><span class="as-section-title">Rates</span></div>
-              <p class="text-muted fs-sm mb-2">Per hour, per person. Between £12.71 and £100.</p>
+              <div class="as-section-hdr"><span class="as-section-title">Premium and surcharges</span></div>
+              <p class="text-muted fs-sm mb-2">The rates themselves are on the Rates tab.</p>
               <div class="sc-fields">
-                <label class="as-label">Standard rate (£)<input class="as-input" name="standardRate" type="number" step="0.01" min="12.71" max="100" required></label>
-                <label class="as-label">Premium rate (£)<input class="as-input" name="premiumRate" type="number" step="0.01" min="12.71" max="100" required></label>
                 <label class="sc-check"><input type="checkbox" name="premiumEnabled"> Show Premium on the site</label>
                 <label class="as-label">After-midnight uplift (%)<input class="as-input" name="afterMidnightUpliftPct" type="number" step="1" min="0" max="100" required></label>
                 <label class="as-label">New Year's Eve surcharge (%)<input class="as-input" name="newYearsEveUpliftPct" type="number" step="1" min="0" max="100" required></label>
-                <label class="as-label">Themed hospitality (£)<input class="as-input" name="themedHospitality" type="number" step="0.01" min="12.71" max="100" required></label>
-                <label class="as-label">Character performer (£)<input class="as-input" name="characterPerformer" type="number" step="0.01" min="12.71" max="100" required></label>
-                <label class="as-label">Makeup artist (£)<input class="as-input" name="makeupArtist" type="number" step="0.01" min="12.71" max="100" required></label>
               </div>
-              <button class="btn btn-primary" type="submit">Save rates</button>
+              <button class="btn btn-primary" type="submit">Save</button>
             </form>
 
             <form class="sc-card" data-setting="promises">
@@ -132,6 +128,11 @@
             <div class="sc-preview-block" id="sc-preview-guarantees"></div>
           </aside>
         </div>
+      </div>
+
+      <div id="rates-tab" class="tab-content">
+        <div class="as-table-toolbar"><div class="as-toolbar-left"><span class="text-muted fs-sm">Per person. Hourly £12.71 to £100, daily up to £2,000. A public rate can go on any page or FAQ as {{RATE_KEY}}, e.g. {{RATE_SANTA}}. Quote-only rates never show on the site.</span></div><div class="as-toolbar-right"><button class="btn btn-primary btn-sm" data-action="new" data-collection="rates">Add a rate</button></div></div>
+        <div id="list-rates" class="sc-list"></div>
       </div>
 
       <div id="reviews-tab" class="tab-content">

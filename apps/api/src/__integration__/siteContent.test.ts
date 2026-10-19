@@ -57,11 +57,7 @@ test('the seed copies the site in, once, and the store then reads the database',
 
 test('a rate changed in the database reaches the rate block', async () => {
   seed();
-  const row = await prisma.siteSetting.findUniqueOrThrow({ where: { key: 'rates' } });
-  await prisma.siteSetting.update({
-    where: { key: 'rates' },
-    data: { value: { ...(row.value as object), standardRate: 19.25 } },
-  });
+  await prisma.rate.update({ where: { key: 'standard' }, data: { amountPence: 1925 } });
 
   await refreshContent();
   assert.equal(PRICING.standardRate, 19.25);
@@ -113,7 +109,7 @@ test("editing a page's FAQ moves that page's lastmod in the sitemap, and only th
   seed();
   // Back-date everything the seed wrote, as if it was imported long ago.
   const old = new Date('2026-01-01T12:00:00Z');
-  for (const table of ['SiteSetting', 'Testimonial', 'RecentWork', 'GalleryPhoto', 'Faq', 'SeasonalPromo']) {
+  for (const table of ['SiteSetting', 'Rate', 'Testimonial', 'RecentWork', 'GalleryPhoto', 'Faq', 'SeasonalPromo']) {
     await prisma.$executeRawUnsafe(`UPDATE "${table}" SET "updatedAt" = $1`, old);
   }
   const faq = await prisma.faq.findFirstOrThrow({ where: { pageKey: 'hire/weddings' } });

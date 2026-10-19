@@ -13,10 +13,11 @@ import { LIMITS, checkLength } from '../site/limits';
 import { londonDay, londonDayEnd } from '../site/defaults';
 import { mediaStorage, storePhoto } from '../site/media';
 import { purgeCdn } from '../site/cdn';
-import { ChangeDetail, RevertError, Table, isRevertible, revertChange, snapshot } from '../site/history';
+import { ChangeDetail, RevertError, Table, isRevertible, orderField, revertChange, snapshot } from '../site/history';
+import { coreProblems, isCoreKey, rateBody } from '../site/rates';
 
 /**
- * Admin "Site content": the settings, reviews, recent work, photos, FAQs and
+ * Admin "Site content": the settings, the rate card, reviews, recent work, photos, FAQs and
  * seasonal promos the public pages are built from. Behind the admin session
  * and CSRF (adminAuth).
  *
@@ -120,8 +121,9 @@ function toYmd(date: Date | null): string | null {
 router.get(
   '/',
   handle(async (_req, res) => {
-    const [settingRows, testimonials, recentWork, photos, faqs, promos, changes, drafts] = await Promise.all([
+    const [settingRows, rates, testimonials, recentWork, photos, faqs, promos, changes, drafts] = await Promise.all([
       prisma.siteSetting.findMany(),
+      prisma.rate.findMany({ orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }] }),
       prisma.testimonial.findMany({ orderBy: [{ order: 'asc' }, { createdAt: 'asc' }] }),
       prisma.recentWork.findMany({ orderBy: [{ order: 'asc' }, { createdAt: 'asc' }] }),
       prisma.galleryPhoto.findMany({ orderBy: [{ order: 'asc' }, { createdAt: 'asc' }] }),
@@ -146,6 +148,7 @@ router.get(
       limits: LIMITS,
       photoStorage: mediaStorage(),
       settings: seeded ? parseSettings(settingRows) : defaultSettings(),
+      rates: rates.map((r) => ({ ...r, core: isCoreKey(r.key) })),
       testimonials,
       recentWork,
       photos,
@@ -197,6 +200,43 @@ router.put(
     await prisma.siteSetting.upsert({ where: { key }, create: { key, value }, update: { value } });
     await saved(req, `Updated ${key}`, rowChange('SiteSetting', key, before?.value ?? null, value));
     res.json({ ok: true, value });
+  }),
+);
+
+/* -------------------------------------------------------------- rate card */
+// Money in whole pence. The core rates (site/rates.ts) feed every page and the
+// quote form, so they stay hourly, public and active; their amounts change.
+
+router.post(
+  '/rates',
+  handle(async (req, res) => {
+    await requireSeeded();
+    const data = rateBody.parse(req.body);
+    if (isCoreKey(data.key) || (await prisma.rate.findUnique({ where: { key: data.key } }))) {
+      throw new ContentError(`There's already a rate with the key "${data.key}".`, 409);
+    }
+    const sortOrder = (await prisma.rate.count()) + 1;
+    const row = await prisma.rate.create({ data: { ...data, amountPence: data.amountPence ?? null, sortOrder, updatedBy: who(req) } });
+    await saved(req, `Added the rate ${row.label}`, rowChange('Rate', row.id, null, row));
+    res.status(201).json({ ok: true, item: row });
+  }),
+);
+
+router.put(
+  '/rates/:id',
+  handle(async (req, res) => {
+    await requireSeeded();
+    const { id: rowId } = id.parse(req.params);
+    const data = rateBody.parse(req.body);
+    const before = await prisma.rate.findUniqueOrThrow({ where: { id: rowId } });
+    const problem = coreProblems(before.key, data);
+    if (problem) throw new ContentError(problem);
+    if (data.key !== before.key && (isCoreKey(data.key) || (await prisma.rate.findUnique({ where: { key: data.key } })))) {
+      throw new ContentError(`There's already a rate with the key "${data.key}".`, 409);
+    }
+    const row = await prisma.rate.update({ where: { id: rowId }, data: { ...data, amountPence: data.amountPence ?? null, updatedBy: who(req) } });
+    await saved(req, `Edited the rate ${row.label}`, rowChange('Rate', row.id, before, row));
+    res.json({ ok: true, item: row });
   }),
 );
 
@@ -568,6 +608,7 @@ const MODELS = {
   faqs: { model: () => prisma.faq, table: 'Faq' as Table, label: 'an FAQ' },
   photos: { model: () => prisma.galleryPhoto, table: 'GalleryPhoto' as Table, label: 'a photo' },
   promos: { model: () => prisma.seasonalPromo, table: 'SeasonalPromo' as Table, label: 'a promo' },
+  rates: { model: () => prisma.rate, table: 'Rate' as Table, label: 'a rate' },
 } as const;
 type Collection = keyof typeof MODELS;
 const collection = z.enum(Object.keys(MODELS) as [Collection, ...Collection[]]);
@@ -578,6 +619,10 @@ router.delete(
     await requireSeeded();
     const which = collection.parse(req.params.collection);
     const { id: rowId } = id.parse({ id: req.params.id });
+    if (which === 'rates') {
+      const rate = await prisma.rate.findUniqueOrThrow({ where: { id: rowId } });
+      if (isCoreKey(rate.key)) throw new ContentError("This rate is used across the site and can't be deleted. Change its amount instead.");
+    }
     const deleted = await (MODELS[which].model() as any).delete({ where: { id: rowId } });
     // A draft of a deleted record has nothing left to publish onto.
     await prisma.contentDraft.deleteMany({ where: { rowId } });
@@ -594,8 +639,10 @@ router.post(
     if (which === 'promos') throw new ContentError('Promos are ordered by their dates.');
     const { ids } = reorder.parse(req.body);
     const model = MODELS[which].model() as any;
-    const before: Array<{ id: string; order: number }> = await model.findMany({ where: { id: { in: ids } }, select: { id: true, order: true } });
-    await prisma.$transaction(ids.map((rowId, order) => model.update({ where: { id: rowId }, data: { order } })));
+    const field = orderField(MODELS[which].table);
+    const rows: Array<Record<string, any>> = await model.findMany({ where: { id: { in: ids } }, select: { id: true, [field]: true } });
+    const before = rows.map((r) => ({ id: r.id as string, order: r[field] as number }));
+    await prisma.$transaction(ids.map((rowId, order) => model.update({ where: { id: rowId }, data: { [field]: order } })));
     await saved(req, `Reordered ${which}`, {
       kind: 'reorder',
       table: MODELS[which].table,

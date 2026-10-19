@@ -72,7 +72,7 @@ Missing: render test for every route at a given date (seasonal switching), "publ
 
 ## Status, 2026-10-19 (branch `dynamic-site`, not deployed)
 
-Done: items 1, 2, 3 and 4 below (drafts: migration `20261020120000_content_drafts`), and page views now reload content at most every
+Done: items 1, 2, 3, 4, 6 and 7 below (drafts: migration `20261020120000_content_drafts`; rate card in pence: `20261020130000_rate_card_pence`), and page views now reload content at most every
 10 minutes per machine instead of every 60 seconds (§7). One additive
 migration, `20261019120000_promo_event_page`.
 

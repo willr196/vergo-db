@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import type { Faq, SeasonalPromo } from '@prisma/client';
+import type { Faq, Rate, SeasonalPromo } from '@prisma/client';
 import { prisma } from '../prisma';
 import {
   defaultFaqs,
@@ -15,6 +15,7 @@ import {
   TestimonialContent,
 } from './defaults';
 import { applySettings, defaultSettings, parseSettings, SiteSettings } from './settings';
+import { applyRates, defaultRates, RateContent, RateCategory, RateUnit, RateVisibility } from './rates';
 
 /**
  * The public site's editable content, held in memory. Pages read it
@@ -59,6 +60,8 @@ export interface ContentDates {
 
 export interface SiteContent {
   settings: SiteSettings;
+  /** The rate card, every row (inactive and quote-only too), in order. */
+  rates: RateContent[];
   testimonials: TestimonialContent[];
   recentWork: RecentWorkContent[];
   photos: PhotoContent[];
@@ -84,6 +87,7 @@ const REFRESH_MS = 10 * 60_000;
 function defaults(): SiteContent {
   return {
     settings: defaultSettings(),
+    rates: defaultRates(),
     testimonials: defaultTestimonials(),
     recentWork: defaultRecentWork(),
     photos: defaultPhotos(),
@@ -98,6 +102,7 @@ function defaults(): SiteContent {
 
 let current: SiteContent = defaults();
 applySettings(current.settings);
+applyRates(current.rates);
 let lastRefresh = 0;
 
 const listeners: Array<() => void> = [];
@@ -125,6 +130,7 @@ export function siteContent(): SiteContent {
 function setContent(next: SiteContent): void {
   current = next;
   applySettings(next.settings);
+  applyRates(next.rates);
   for (const fn of listeners) {
     try {
       fn();
@@ -145,8 +151,9 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 }
 
 async function loadFromDatabase(): Promise<SiteContent | null> {
-  const [settingRows, testimonials, recentWork, photos, faqs, promos] = await Promise.all([
+  const [settingRows, rates, testimonials, recentWork, photos, faqs, promos] = await Promise.all([
     prisma.siteSetting.findMany(),
+    prisma.rate.findMany({ orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }] }),
     prisma.testimonial.findMany({ where: { published: true }, orderBy: [{ order: 'asc' }, { createdAt: 'asc' }] }),
     prisma.recentWork.findMany({ where: { published: true }, orderBy: [{ order: 'asc' }, { createdAt: 'asc' }] }),
     prisma.galleryPhoto.findMany({ where: { published: true }, orderBy: [{ order: 'asc' }, { createdAt: 'asc' }] }),
@@ -163,7 +170,11 @@ async function loadFromDatabase(): Promise<SiteContent | null> {
     prisma.seasonalPromo.aggregate({ _max: { updatedAt: true } }),
     prisma.faq.groupBy({ by: ['pageKey'], _max: { updatedAt: true } }),
   ]);
-  const settingsDates = settingRows.filter((r) => r.key !== SEEDED_MARKER).map((r) => r.updatedAt.getTime());
+  // A rate change dates the pages the same way a settings change does.
+  const settingsDates = [
+    ...settingRows.filter((r) => r.key !== SEEDED_MARKER).map((r) => r.updatedAt.getTime()),
+    ...rates.map((r) => r.updatedAt.getTime()),
+  ];
   const updated: ContentDates = {
     settings: settingsDates.length ? new Date(Math.max(...settingsDates)) : undefined,
     testimonials: t._max.updatedAt || undefined,
@@ -175,6 +186,8 @@ async function loadFromDatabase(): Promise<SiteContent | null> {
 
   return {
     settings: parseSettings(settingRows),
+    // An empty table (imported before the rate card had rows) keeps today's card.
+    rates: rates.length ? rates.map(rateContent) : defaultRates(),
     testimonials: testimonials.map((t) => ({
       quote: t.quote,
       name: t.name,
@@ -227,6 +240,20 @@ async function loadOpenShifts(): Promise<ShiftSummary[]> {
     payRate: Number(j.payRate),
     payType: j.payType,
   }));
+}
+
+function rateContent(r: Rate): RateContent {
+  return {
+    id: r.id,
+    key: r.key,
+    label: r.label,
+    amountPence: r.amountPence,
+    unit: r.unit as RateUnit,
+    category: r.category as RateCategory,
+    visibility: r.visibility as RateVisibility,
+    active: r.active,
+    sortOrder: r.sortOrder,
+  };
 }
 
 /** Published FAQ rows, in order, as each page's list. */

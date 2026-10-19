@@ -1,6 +1,7 @@
 import { prisma } from '../prisma';
 import { defaultFaqs, defaultPhotos, defaultPromos, defaultRecentWork, defaultTestimonials } from './defaults';
 import { defaultSettings, SETTING_KEYS } from './settings';
+import { defaultRates } from './rates';
 import { SEEDED_MARKER } from './store';
 
 /**
@@ -10,6 +11,7 @@ import { SEEDED_MARKER } from './store';
  *
  * Safe to run more than once, and on a database the admin has already edited:
  *   - a setting is written only if its row doesn't exist;
+ *   - the rate card is written only into an empty table;
  *   - reviews, recent work and photos are written only into an empty table;
  *   - a page's FAQs are written only if that page has none;
  *   - a seasonal promo is written only if its key doesn't exist.
@@ -22,6 +24,9 @@ export async function seedSiteContent(who = 'seed-site-content') {
     await prisma.siteSetting.upsert({ where: { key }, create: { key, value: settings[key] }, update: {} });
   }
 
+  if ((await prisma.rate.count()) === 0) {
+    await prisma.rate.createMany({ data: defaultRates().map((r) => ({ ...r, updatedBy: who })) });
+  }
   if ((await prisma.testimonial.count()) === 0) {
     await prisma.testimonial.createMany({ data: defaultTestimonials().map((t, order) => ({ ...t, order })) });
   }
@@ -54,5 +59,6 @@ export async function seedSiteContent(who = 'seed-site-content') {
     photos: await prisma.galleryPhoto.count(),
     faqs: await prisma.faq.count(),
     promos: await prisma.seasonalPromo.count(),
+    rates: await prisma.rate.count(),
   };
 }

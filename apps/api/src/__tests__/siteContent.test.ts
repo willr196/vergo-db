@@ -15,40 +15,85 @@ const { applySettings, defaultSettings, parseSettings, SETTING_SCHEMAS } = requi
 const { refreshContent, resetContentForTests, siteContent } = require('../site/store');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { defaultPromos } = require('../site/defaults');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { applyRates, defaultRates, publicRateList, rateBody, toPence } = require('../site/rates');
 
 test.afterEach(() => resetContentForTests());
 
 test('the defaults are today\'s values', () => {
   const s = defaultSettings();
-  assert.equal(s.rates.standardRate, 19);
   assert.equal(s.rates.afterMidnightUpliftPct, 25);
+  assert.deepEqual(
+    defaultRates().map((r: { key: string; amountPence: number }) => [r.key, r.amountPence]),
+    [['standard', 1900], ['premium', 2400], ['themed_hospitality', 2100], ['character_performer', 2600], ['makeup_artist', 3500]],
+  );
   assert.equal(s.contact.phoneDisplay, SITE.phoneDisplay);
   for (const key of Object.keys(SETTING_SCHEMAS)) {
     assert.ok(SETTING_SCHEMAS[key].safeParse(s[key]).success, `${key} defaults must pass their own schema`);
   }
 });
 
-test('rates outside £12.71 to £100, and uplifts outside 0 to 100%, are refused', () => {
+test('rates are whole pence, hourly £12.71 to £100, and uplifts outside 0 to 100% are refused', () => {
+  const santa = { key: 'santa', label: 'Santa', amountPence: 4500, unit: 'hour', category: 'seasonal', visibility: 'public', active: true };
+  assert.equal(rateBody.safeParse(santa).success, true);
+  assert.equal(rateBody.safeParse({ ...santa, amountPence: 1270 }).success, false);
+  assert.equal(rateBody.safeParse({ ...santa, amountPence: 1271 }).success, true);
+  assert.equal(rateBody.safeParse({ ...santa, amountPence: 10_001 }).success, false);
+  assert.equal(rateBody.safeParse({ ...santa, amountPence: 45.5 }).success, false, 'pence are whole');
+  assert.equal(rateBody.safeParse({ ...santa, unit: 'day', amountPence: 60_000 }).success, true);
+  assert.equal(rateBody.safeParse({ ...santa, unit: 'quote', amountPence: null }).success, true);
+  assert.equal(rateBody.safeParse({ ...santa, unit: 'quote', amountPence: 4500 }).success, false);
+  assert.equal(rateBody.safeParse({ ...santa, unit: 'hour', amountPence: null }).success, false);
+  assert.equal(toPence(19.99), 1999);
+  assert.equal(toPence(0.29), 29);
+
   const rates = defaultSettings().rates;
-  assert.equal(SETTING_SCHEMAS.rates.safeParse({ ...rates, standardRate: 12.70 }).success, false);
-  assert.equal(SETTING_SCHEMAS.rates.safeParse({ ...rates, premiumRate: 100.01 }).success, false);
   assert.equal(SETTING_SCHEMAS.rates.safeParse({ ...rates, afterMidnightUpliftPct: 101 }).success, false);
-  assert.equal(SETTING_SCHEMAS.rates.safeParse({ ...rates, standardRate: 12.71 }).success, true);
 });
 
 test('a bad row keeps its default; a good one is applied everywhere', () => {
-  const good = { ...defaultSettings().rates, standardRate: 20, afterMidnightUpliftPct: 50 };
+  // A rates row saved before the rate card had amounts in it: they're ignored, the rest applies.
+  const legacy = { ...defaultSettings().rates, standardRate: 30, afterMidnightUpliftPct: 50 };
   const settings = parseSettings([
-    { key: 'rates', value: good },
+    { key: 'rates', value: legacy },
     { key: 'promises', value: { confirmationPromise: '' } },
     { key: 'unknown', value: 1 },
   ]);
-  assert.equal(settings.rates.standardRate, 20);
+  assert.equal(settings.rates.afterMidnightUpliftPct, 50);
   assert.equal(settings.promises.confirmationPromise, SITE_TERMS.confirmationPromise);
-
   applySettings(settings);
-  assert.equal(PRICING.standardRate, 20);
+  assert.equal(PRICING.standardRate, 19);
   assert.equal(PRICING.afterMidnightMultiplier, 1.5);
+
+  // The rate card: a good core row applies; a bad one keeps the default.
+  const card = defaultRates().map((r: any) => (r.key === 'standard' ? { ...r, amountPence: 2000 } : r.key === 'premium' ? { ...r, amountPence: 5 } : r));
+  applyRates(card);
+  assert.equal(PRICING.standardRate, 20);
+  assert.equal(PRICING.premiumRate, 24);
+});
+
+test('only active, public rates reach the tokens and the public API', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { siteTokens } = require('../site/content');
+  const base = { category: 'seasonal', active: true, sortOrder: 9 };
+  applyRates([
+    ...defaultRates(),
+    { ...base, key: 'santa', label: 'Santa', amountPence: 4500, unit: 'hour', visibility: 'public' },
+    { ...base, key: 'reindeer', label: 'Reindeer handler', amountPence: 60000, unit: 'day', visibility: 'public' },
+    { ...base, key: 'secret', label: 'Trade rate', amountPence: 1500, unit: 'hour', visibility: 'quote_only' },
+    { ...base, key: 'old', label: 'Retired', amountPence: 2000, unit: 'hour', visibility: 'public', active: false },
+    { ...base, key: 'grotto', label: 'Grotto build', amountPence: null, unit: 'quote', visibility: 'public' },
+  ]);
+  const keys = publicRateList().map((r: { key: string }) => r.key);
+  assert.deepEqual(keys, ['standard', 'premium', 'themed_hospitality', 'character_performer', 'makeup_artist', 'santa', 'reindeer']);
+  const t = siteTokens();
+  assert.equal(t.RATE_SANTA, '£45');
+  assert.equal(t.RATE_SANTA_NUMBER, '45.00');
+  assert.equal(t.RATE_REINDEER, '£600 a day');
+  assert.equal(t.RATE_STANDARD, '£19');
+  assert.equal(t.RATE_SECRET, undefined);
+  assert.equal(t.RATE_OLD, undefined);
+  assert.equal(t.RATE_GROTTO, undefined);
 });
 
 test('with the database down, a refresh keeps the site on its last good copy', async () => {
