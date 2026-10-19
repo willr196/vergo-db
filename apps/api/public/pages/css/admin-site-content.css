@@ -58,3 +58,6 @@
 .sc-line { display: grid; grid-template-columns: 1fr 140px auto; gap: 8px; }
 .sc-line.is-sentence { grid-template-columns: 1fr auto; }
 #sc-form-error { margin-right: auto; }
+/* A draft waiting under an item, or a new item that is only a draft. */
+.sc-draft { margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(212, 175, 55, 0.35); }
+.sc-item.is-draft { border-style: dashed; }

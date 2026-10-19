@@ -273,3 +273,80 @@ test('a promo carries its event page line and in-season date', async () => {
   // The FAQ that carries the token follows the promo's line.
   assert.match(renderView('special-events/halloween', { path: '/special-events/halloween' }), /Now booking 30–31 October only\. Ask anyway/);
 });
+
+test('a draft changes nothing live, shows in the admin preview, and goes live on publish', async () => {
+  await imported();
+  const page = () => renderView('hire/weddings', { path: '/hire/weddings' });
+  const live = page();
+  const first = (await prisma.faq.findMany({ where: { pageKey: 'hire/weddings' }, orderBy: { order: 'asc' } }))[0];
+
+  // An edit to an existing FAQ, and a new one, both as drafts.
+  const edit = await send('POST', '/drafts/faqs', { rowId: first.id, data: { pageKey: 'hire/weddings', question: 'Drafted question?', answer: first.answer } });
+  assert.equal(edit.statusCode, 201, JSON.stringify(edit.body));
+  const fresh = await send('POST', '/drafts/faqs', { data: { pageKey: 'hire/weddings', question: 'Can you do a ceilidh?', answer: 'We can staff one.' } });
+  assert.equal(fresh.statusCode, 201);
+  assert.equal(page(), live, 'drafts never reach the live page');
+
+  // Saving again over the same record replaces its draft rather than adding one.
+  const again = await send('POST', '/drafts/faqs', { rowId: first.id, data: { pageKey: 'hire/weddings', question: 'Drafted again?', answer: first.answer } });
+  assert.equal(again.statusCode, 200);
+  assert.equal(await prisma.contentDraft.count(), 2);
+
+  // Drafts are validated like a save.
+  const tooLong = await send('POST', '/drafts/faqs', { data: { pageKey: 'hire/weddings', question: 'Q?', answer: 'word '.repeat(80) } });
+  assert.equal(tooLong.statusCode, 400);
+
+  const preview = await send('GET', '/preview?path=/hire/weddings');
+  assert.equal(preview.statusCode, 200);
+  assert.match(String(preview.headers['cache-control']), /no-store/);
+  assert.match(preview.raw, /Preview with drafts\. Not live until published\./);
+  assert.match(preview.raw, /Drafted again\?/);
+  assert.match(preview.raw, /Can you do a ceilidh\?/);
+  assert.doesNotMatch(preview.raw, new RegExp(first.question.replace(/[?.]/g, '\$&')));
+  assert.equal(page(), live, 'a preview leaves the live copy alone');
+  assert.equal((await send('GET', '/preview?path=/no-such-page')).statusCode, 404);
+
+  // Publish the edit: live, logged and revertible, and the draft is gone.
+  assert.equal((await send('POST', `/drafts/${again.body.draft.id}/publish`)).statusCode, 200);
+  assert.match(page(), /Drafted again\?/);
+  assert.doesNotMatch(page(), /ceilidh/);
+  const overview = (await send('GET', '/')).body;
+  assert.equal(overview.drafts.length, 1);
+  assert.equal(overview.changes[0].revertible, true);
+
+  // Discard the new one: nothing changes live.
+  assert.equal((await send('DELETE', `/drafts/${fresh.body.draft.id}`)).statusCode, 200);
+  assert.equal(await prisma.contentDraft.count(), 0);
+  assert.doesNotMatch(page(), /ceilidh/);
+});
+
+test('a new promo published from a draft runs its banner; deleting a record drops its draft', async () => {
+  await imported();
+  const promo = {
+    key: 'festival', navLabel: 'Festivals', bannerText: 'Festival bar teams: now booking', href: '/hire',
+    homeHeading: 'Festival season', homeLines: ['Bar teams for festivals.'], startsOn: '2020-01-01', endsOn: '2099-12-31',
+  };
+  const draft = await send('POST', '/drafts/promos', { data: promo });
+  assert.equal(draft.statusCode, 201, JSON.stringify(draft.body));
+  assert.doesNotMatch(renderBlock('header', {}, { path: '/hire' }) || '', /Festival bar teams/);
+  assert.match((await send('GET', '/preview?path=/hire')).raw, /Festival bar teams: now booking/);
+
+  assert.equal((await send('POST', `/drafts/${draft.body.draft.id}/publish`)).statusCode, 200);
+  assert.match(renderBlock('header', {}, { path: '/hire' }) || '', /Festival bar teams: now booking/);
+
+  const row = await prisma.seasonalPromo.findUniqueOrThrow({ where: { key: 'festival' } });
+  await send('POST', '/drafts/promos', { rowId: row.id, data: { ...promo, bannerText: 'Changed' } });
+  assert.equal((await send('DELETE', `/promos/${row.id}`)).statusCode, 200);
+  assert.equal(await prisma.contentDraft.count(), 0);
+});
+
+test('the preview needs an admin session', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const router = require('../routes/adminSiteContent').default;
+  const bare = express();
+  bare.use((req: any, _res: any, next: any) => { req.session = {}; next(); });
+  bare.use(BASE, router);
+  const res = await inject(bare, { method: 'GET', url: `${BASE}/preview?path=/hire` });
+  assert.ok([401, 403].includes(res.statusCode), `got ${res.statusCode}`);
+  assert.doesNotMatch(String(res.raw || ''), /<main/);
+});

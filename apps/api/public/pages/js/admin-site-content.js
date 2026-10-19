@@ -190,6 +190,7 @@
         return state.faqs.filter(function (f) { return f.pageKey === page; });
       },
       summary: function (f) { return '<p><strong>' + esc(f.question) + '</strong></p><p>' + esc(f.answer) + '</p>'; },
+      preview: function (f) { return [['page', '/' + f.pageKey]]; },
       fields: [
         { name: 'pageKey', label: 'Page', type: 'page' },
         { name: 'question', label: 'Question', max: 300, required: true },
@@ -201,6 +202,11 @@
       label: 'seasonal promo',
       ordered: false,
       rows: function () { return state.promos; },
+      preview: function (p) {
+        var links = [['homepage', '/']];
+        if (/^\/[a-z0-9\/-]*$/.test(p.href || '')) links.push(['event page', p.href]);
+        return links;
+      },
       summary: function (p) {
         var nav = p.navStartsOn ? ' · header item ' + p.navStartsOn + ' to ' + (p.navEndsOn || p.endsOn) : '';
         return '<p><strong>' + esc(p.navLabel) + '</strong> ' +
@@ -229,22 +235,76 @@
     },
   };
 
+  /* -------------------------------------------------------------- drafts */
+  // FAQs and promos can be saved as a draft, previewed, then published.
+
+  function isDraftable(type) { return Boolean(TYPES[type].preview); }
+
+  function draftFor(type, rowId) {
+    return (state.drafts || []).filter(function (d) { return d.collection === type && d.rowId === rowId; })[0] || null;
+  }
+
+  /** A new item that exists only as a draft, shaped like a row for the list. */
+  function draftRow(d) {
+    var row = Object.assign({}, d.data);
+    row.id = 'draft-' + d.id;
+    row._draft = d;
+    row._new = true;
+    return row;
+  }
+
+  /** The rows a list shows: the published ones (with any draft attached), then new drafts. */
+  function listRows(type) {
+    var rows = TYPES[type].rows().map(function (r) {
+      var d = isDraftable(type) ? draftFor(type, r.id) : null;
+      return d ? Object.assign({}, r, { _draft: d }) : r;
+    });
+    if (!isDraftable(type)) return rows;
+    var fresh = (state.drafts || []).filter(function (d) { return d.collection === type && !d.rowId; }).map(draftRow);
+    if (type === 'faqs') {
+      var page = document.getElementById('sc-faq-page').value;
+      fresh = fresh.filter(function (r) { return r.pageKey === page; });
+    }
+    return rows.concat(fresh);
+  }
+
+  function previewUrl(path) { return BASE + '/preview?path=' + encodeURIComponent(path); }
+
+  function draftActions(type, row) {
+    var d = row._draft;
+    var links = TYPES[type].preview(Object.assign({}, row, d.data)).map(function (l) {
+      return '<a class="btn btn-ghost btn-sm" href="' + esc(previewUrl(l[1])) + '" target="_blank" rel="noopener">Preview ' + esc(l[0]) + '</a>';
+    }).join('');
+    return '<div class="sc-draft"><span class="badge badge-warning">' + (row._new ? 'New, draft only' : 'Draft changes, not live') + '</span> ' +
+      '<span class="sc-meta">' + esc(d.who) + ', ' + AdminCore.formatDateTime(d.updatedAt) + '</span>' +
+      '<div class="btn-group mt-1">' + links +
+      '<button class="btn btn-primary btn-sm" data-action="publish-draft" data-id="' + esc(d.id) + '">Publish</button>' +
+      '<button class="btn btn-danger-quiet btn-sm" data-action="discard-draft" data-id="' + esc(d.id) + '">Discard draft</button></div></div>';
+  }
+
   function renderList(type) {
     var cfg = TYPES[type];
-    var rows = cfg.rows();
+    var rows = listRows(type);
     var el = document.getElementById('list-' + type);
     if (!rows.length) {
       el.innerHTML = '<p class="text-muted fs-sm">None yet.</p>';
       return;
     }
     var ordered = cfg.ordered !== false;
+    var lastLive = rows.filter(function (r) { return !r._new; }).length - 1;
     el.innerHTML = rows.map(function (row, i) {
+      if (row._new) {
+        return '<div class="sc-item is-draft"><div class="sc-item-order"></div>' +
+          '<div class="sc-item-main">' + cfg.summary(row) + draftActions(type, row) + '</div>' +
+          '<div class="sc-item-actions"><button class="btn btn-ghost btn-sm" data-action="edit" data-collection="' + type + '" data-id="' + esc(row.id) + '">Edit</button></div></div>';
+      }
       return '<div class="sc-item' + (row.published === false ? ' is-hidden' : '') + '">' +
         '<div class="sc-item-order">' + (ordered
           ? '<button class="btn btn-ghost btn-sm" data-action="move" data-collection="' + type + '" data-index="' + i + '" data-dir="-1" aria-label="Move up"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
-            '<button class="btn btn-ghost btn-sm" data-action="move" data-collection="' + type + '" data-index="' + i + '" data-dir="1" aria-label="Move down"' + (i === rows.length - 1 ? ' disabled' : '') + '>↓</button>'
+            '<button class="btn btn-ghost btn-sm" data-action="move" data-collection="' + type + '" data-index="' + i + '" data-dir="1" aria-label="Move down"' + (i >= lastLive ? ' disabled' : '') + '>↓</button>'
           : '') + '</div>' +
-        '<div class="sc-item-main">' + cfg.summary(row) + (row.published === false ? '<p class="sc-meta">Not published</p>' : '') + '</div>' +
+        '<div class="sc-item-main">' + cfg.summary(row) + (row.published === false ? '<p class="sc-meta">Not published</p>' : '') +
+          (row._draft ? draftActions(type, row) : '') + '</div>' +
         '<div class="sc-item-actions">' +
           '<button class="btn btn-ghost btn-sm" data-action="edit" data-collection="' + type + '" data-id="' + esc(row.id) + '">Edit</button>' +
           '<button class="btn btn-danger-quiet btn-sm" data-action="delete" data-collection="' + type + '" data-id="' + esc(row.id) + '">Delete</button>' +
@@ -327,11 +387,16 @@
 
   function openEditor(type, row) {
     var cfg = TYPES[type];
-    editing = { type: type, row: row };
-    document.getElementById('sc-modal-title').textContent = (row ? 'Edit ' : 'Add ') + cfg.label;
+    var draft = row && row._draft ? row._draft : null;
+    // editing.row is the live record, if there is one; a draft-only item has none.
+    editing = { type: type, row: row && !row._new ? row : null, draft: draft };
+    var shown = draft ? Object.assign({}, row, draft.data) : row;
+    document.getElementById('sc-modal-title').textContent = (row ? 'Edit ' : 'Add ') + cfg.label + (draft ? ' (draft)' : '');
     document.getElementById('sc-form-error').textContent = '';
+    document.getElementById('sc-save-draft').classList.toggle('d-none', !isDraftable(type));
+    document.getElementById('sc-save').textContent = isDraftable(type) ? 'Publish' : 'Save';
     document.getElementById('sc-form-body').innerHTML = '<div class="sc-form-grid">' +
-      cfg.fields.filter(function (f) { return !(row && f.newOnly); }).map(function (f) { return fieldHtml(f, row); }).join('') + '</div>';
+      cfg.fields.filter(function (f) { return !(row && f.newOnly); }).map(function (f) { return fieldHtml(f, shown); }).join('') + '</div>';
     updateCounters();
     AdminCore.openModal('sc-modal');
     var first = document.querySelector('#sc-form-body input, #sc-form-body textarea');
@@ -413,15 +478,52 @@
     await AdminCore.withLoading(btn, async function () {
       try {
         var body = await readEditor();
-        var url = BASE + '/' + editing.type + (editing.row ? '/' + encodeURIComponent(editing.row.id) : '');
-        await api(url, {
-          method: editing.row ? 'PUT' : 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
+        if (editing.draft) {
+          // Publishing an item that has a draft: save these fields over the draft, then publish it.
+          await saveDraft(body);
+          await api(BASE + '/drafts/' + encodeURIComponent(editing.draft.id) + '/publish', { method: 'POST' });
+        } else {
+          var url = BASE + '/' + editing.type + (editing.row ? '/' + encodeURIComponent(editing.row.id) : '');
+          await api(url, {
+            method: editing.row ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+        }
         AdminCore.closeModal('sc-modal');
         editing = null;
         toast('Saved. The site shows it now.', 'success');
+        load();
+      } catch (err) {
+        errorEl.textContent = err.message;
+      }
+    });
+  });
+
+  /** Saves the editor's fields as the draft of the item being edited, creating it if needed. */
+  async function saveDraft(body) {
+    var res = editing.draft
+      ? await api(BASE + '/drafts/' + encodeURIComponent(editing.draft.id), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: body }),
+      })
+      : await api(BASE + '/drafts/' + editing.type, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rowId: editing.row ? editing.row.id : null, data: body }),
+      });
+    editing.draft = res.draft;
+  }
+
+  document.getElementById('sc-save-draft').addEventListener('click', async function () {
+    var form = document.getElementById('sc-form');
+    var errorEl = document.getElementById('sc-form-error');
+    errorEl.textContent = '';
+    if (!form.reportValidity()) return;
+    await AdminCore.withLoading(this, async function () {
+      try {
+        await saveDraft(await readEditor());
+        AdminCore.closeModal('sc-modal');
+        editing = null;
+        toast('Draft saved. Nothing on the site has changed; preview it from the list.', 'success');
         load();
       } catch (err) {
         errorEl.textContent = err.message;
@@ -440,7 +542,7 @@
     if (action === 'close') { AdminCore.closeModal('sc-modal'); editing = null; return; }
     if (action === 'new') { openEditor(type, null); return; }
     if (action === 'edit') {
-      var row = TYPES[type].rows().filter(function (r) { return r.id === el.dataset.id; })[0];
+      var row = listRows(type).filter(function (r) { return r.id === el.dataset.id; })[0];
       if (row) openEditor(type, row);
       return;
     }
@@ -472,6 +574,27 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ids: rows.map(function (r) { return r.id; }) }),
         });
+        load();
+      } catch (err) { toast(err.message, 'error'); }
+      return;
+    }
+
+    if (action === 'publish-draft') {
+      await AdminCore.withLoading(el, async function () {
+        try {
+          await api(BASE + '/drafts/' + encodeURIComponent(el.dataset.id) + '/publish', { method: 'POST' });
+          toast('Published. The site shows it now.', 'success');
+          load();
+        } catch (err) { toast(err.message, 'error'); }
+      });
+      return;
+    }
+
+    if (action === 'discard-draft') {
+      if (!window.confirm('Discard this draft? The live version stays as it is.')) return;
+      try {
+        await api(BASE + '/drafts/' + encodeURIComponent(el.dataset.id), { method: 'DELETE' });
+        toast('Draft discarded.', 'success');
         load();
       } catch (err) { toast(err.message, 'error'); }
       return;

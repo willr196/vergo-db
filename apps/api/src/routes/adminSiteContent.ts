@@ -4,12 +4,14 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '../prisma';
 import { adminAuth } from '../middleware/adminAuth';
 import { SETTING_KEYS, SETTING_SCHEMAS, SettingKey, defaultSettings, parseSettings } from '../site/settings';
-import { refreshContent, siteContent, SEEDED_MARKER } from '../site/store';
+import path from 'node:path';
+import { faqsByPage, promoContents, refreshContent, siteContent, withContent, SEEDED_MARKER, SiteContent } from '../site/store';
+import { renderView, seasonState, viewRouteFor, withPageScriptHashes } from '../site/view';
+import { versionAssetUrls } from '../lib/publicHtml';
 import { seedSiteContent } from '../site/seed';
 import { LIMITS, checkLength } from '../site/limits';
 import { londonDay, londonDayEnd } from '../site/defaults';
 import { mediaStorage, storePhoto } from '../site/media';
-import { seasonState } from '../site/view';
 import { purgeCdn } from '../site/cdn';
 import { ChangeDetail, RevertError, Table, isRevertible, revertChange, snapshot } from '../site/history';
 
@@ -118,7 +120,7 @@ function toYmd(date: Date | null): string | null {
 router.get(
   '/',
   handle(async (_req, res) => {
-    const [settingRows, testimonials, recentWork, photos, faqs, promos, changes] = await Promise.all([
+    const [settingRows, testimonials, recentWork, photos, faqs, promos, changes, drafts] = await Promise.all([
       prisma.siteSetting.findMany(),
       prisma.testimonial.findMany({ orderBy: [{ order: 'asc' }, { createdAt: 'asc' }] }),
       prisma.recentWork.findMany({ orderBy: [{ order: 'asc' }, { createdAt: 'asc' }] }),
@@ -126,6 +128,7 @@ router.get(
       prisma.faq.findMany({ orderBy: [{ pageKey: 'asc' }, { order: 'asc' }, { createdAt: 'asc' }] }),
       prisma.seasonalPromo.findMany({ orderBy: { startsAt: 'asc' } }),
       prisma.contentChange.findMany({ orderBy: { when: 'desc' }, take: 30 }),
+      prisma.contentDraft.findMany({ orderBy: { createdAt: 'asc' } }),
     ]);
     const revertedIds = new Set(
       changes.map((c) => (isRevertible(c.detail) ? c.detail.revertOf : undefined)).filter((v): v is string => Boolean(v)),
@@ -159,6 +162,7 @@ router.get(
         bannerLive: p.published && p.startsAt.getTime() <= now && now <= p.endsAt.getTime(),
         headerLive: live.header?.key === p.key,
       })),
+      drafts,
       changes: changes.map((c) => ({
         id: c.id,
         who: c.who,
@@ -275,16 +279,32 @@ const faqBody = z.object({
   published: z.boolean().default(true),
 });
 
+function parseFaq(body: unknown) {
+  const data = faqBody.parse(body);
+  lengthCheck('faqAnswer', data.answer);
+  return data;
+}
+
+/** Saves an FAQ live: a new one (rowId null) goes last on its page. */
+async function publishFaq(req: Request, rowId: string | null, body: unknown) {
+  const data = parseFaq(body);
+  if (!rowId) {
+    const order = (await prisma.faq.count({ where: { pageKey: data.pageKey } })) + 1;
+    const row = await prisma.faq.create({ data: { ...data, order } });
+    await saved(req, `Added an FAQ to ${row.pageKey}: ${row.question}`, rowChange('Faq', row.id, null, row));
+    return row;
+  }
+  const before = await prisma.faq.findUniqueOrThrow({ where: { id: rowId } });
+  const row = await prisma.faq.update({ where: { id: rowId }, data });
+  await saved(req, `Edited an FAQ on ${row.pageKey}: ${row.question}`, rowChange('Faq', row.id, before, row));
+  return row;
+}
+
 router.post(
   '/faqs',
   handle(async (req, res) => {
     await requireSeeded();
-    const data = faqBody.parse(req.body);
-    lengthCheck('faqAnswer', data.answer);
-    const order = (await prisma.faq.count({ where: { pageKey: data.pageKey } })) + 1;
-    const row = await prisma.faq.create({ data: { ...data, order } });
-    await saved(req, `Added an FAQ to ${row.pageKey}: ${row.question}`, rowChange('Faq', row.id, null, row));
-    res.status(201).json({ ok: true, item: row });
+    res.status(201).json({ ok: true, item: await publishFaq(req, null, req.body) });
   }),
 );
 
@@ -293,12 +313,7 @@ router.put(
   handle(async (req, res) => {
     await requireSeeded();
     const { id: rowId } = id.parse(req.params);
-    const data = faqBody.parse(req.body);
-    lengthCheck('faqAnswer', data.answer);
-    const before = await prisma.faq.findUniqueOrThrow({ where: { id: rowId } });
-    const row = await prisma.faq.update({ where: { id: rowId }, data });
-    await saved(req, `Edited an FAQ on ${row.pageKey}: ${row.question}`, rowChange('Faq', row.id, before, row));
-    res.json({ ok: true, item: row });
+    res.json({ ok: true, item: await publishFaq(req, rowId, req.body) });
   }),
 );
 
@@ -352,15 +367,31 @@ function promoData(p: z.infer<typeof promoBody>) {
   };
 }
 
+function parsePromo(body: unknown) {
+  const p = promoBody.parse(body);
+  lengthCheck('banner', p.bannerText);
+  return p;
+}
+
+/** Saves a promo live: new when rowId is null. */
+async function publishPromo(req: Request, rowId: string | null, body: unknown) {
+  const p = parsePromo(body);
+  if (!rowId) {
+    const row = await prisma.seasonalPromo.create({ data: promoData(p) });
+    await saved(req, `Added the ${row.key} promo`, rowChange('SeasonalPromo', row.id, null, row));
+    return row;
+  }
+  const before = await prisma.seasonalPromo.findUniqueOrThrow({ where: { id: rowId } });
+  const row = await prisma.seasonalPromo.update({ where: { id: rowId }, data: promoData(p) });
+  await saved(req, `Edited the ${row.key} promo`, rowChange('SeasonalPromo', row.id, before, row));
+  return row;
+}
+
 router.post(
   '/promos',
   handle(async (req, res) => {
     await requireSeeded();
-    const p = promoBody.parse(req.body);
-    lengthCheck('banner', p.bannerText);
-    const row = await prisma.seasonalPromo.create({ data: promoData(p) });
-    await saved(req, `Added the ${row.key} promo`, rowChange('SeasonalPromo', row.id, null, row));
-    res.status(201).json({ ok: true, item: row });
+    res.status(201).json({ ok: true, item: await publishPromo(req, null, req.body) });
   }),
 );
 
@@ -369,12 +400,125 @@ router.put(
   handle(async (req, res) => {
     await requireSeeded();
     const { id: rowId } = id.parse(req.params);
-    const p = promoBody.parse(req.body);
-    lengthCheck('banner', p.bannerText);
-    const before = await prisma.seasonalPromo.findUniqueOrThrow({ where: { id: rowId } });
-    const row = await prisma.seasonalPromo.update({ where: { id: rowId }, data: promoData(p) });
-    await saved(req, `Edited the ${row.key} promo`, rowChange('SeasonalPromo', row.id, before, row));
-    res.json({ ok: true, item: row });
+    res.json({ ok: true, item: await publishPromo(req, rowId, req.body) });
+  }),
+);
+
+/* ----------------------------------------------------------------- drafts */
+// FAQs and promos can be saved as a draft, previewed (GET /admin-preview, only
+// for a signed-in admin) and published later. Publishing goes through the same
+// publish function as Save, so it is validated, logged and revertible the same.
+
+const DRAFTABLE = {
+  faqs: { parse: parseFaq, publish: publishFaq, model: () => prisma.faq },
+  promos: { parse: parsePromo, publish: publishPromo, model: () => prisma.seasonalPromo },
+} as const;
+type Draftable = keyof typeof DRAFTABLE;
+const draftable = z.enum(Object.keys(DRAFTABLE) as [Draftable, ...Draftable[]]);
+const draftBody = z.object({ rowId: z.string().min(1).max(191).nullable().optional(), data: z.unknown() });
+
+/** One draft per record: saving again over an existing record's draft replaces it. */
+router.post(
+  '/drafts/:collection',
+  handle(async (req, res) => {
+    await requireSeeded();
+    const which = draftable.parse(req.params.collection);
+    const { rowId, data } = draftBody.parse(req.body);
+    const parsed = DRAFTABLE[which].parse(data) as Prisma.InputJsonValue;
+    if (rowId) await (DRAFTABLE[which].model() as any).findUniqueOrThrow({ where: { id: rowId } });
+    const existing = rowId ? await prisma.contentDraft.findFirst({ where: { collection: which, rowId } }) : null;
+    const draft = existing
+      ? await prisma.contentDraft.update({ where: { id: existing.id }, data: { data: parsed, who: who(req) } })
+      : await prisma.contentDraft.create({ data: { collection: which, rowId: rowId || null, data: parsed, who: who(req) } });
+    res.status(existing ? 200 : 201).json({ ok: true, draft });
+  }),
+);
+
+router.put(
+  '/drafts/:id',
+  handle(async (req, res) => {
+    await requireSeeded();
+    const { id: draftId } = id.parse(req.params);
+    const draft = await prisma.contentDraft.findUniqueOrThrow({ where: { id: draftId } });
+    const parsed = DRAFTABLE[draftable.parse(draft.collection)].parse(req.body?.data) as Prisma.InputJsonValue;
+    res.json({ ok: true, draft: await prisma.contentDraft.update({ where: { id: draftId }, data: { data: parsed, who: who(req) } }) });
+  }),
+);
+
+router.post(
+  '/drafts/:id/publish',
+  handle(async (req, res) => {
+    await requireSeeded();
+    const { id: draftId } = id.parse(req.params);
+    const draft = await prisma.contentDraft.findUniqueOrThrow({ where: { id: draftId } });
+    const item = await DRAFTABLE[draftable.parse(draft.collection)].publish(req, draft.rowId, draft.data);
+    await prisma.contentDraft.delete({ where: { id: draftId } });
+    res.json({ ok: true, item });
+  }),
+);
+
+/** The site content with every draft laid over the published rows: what the site will show once they're all published. */
+async function contentWithDrafts(): Promise<SiteContent> {
+  const [faqRows, promoRows, drafts] = await Promise.all([
+    prisma.faq.findMany({ orderBy: [{ pageKey: 'asc' }, { order: 'asc' }, { createdAt: 'asc' }] }),
+    prisma.seasonalPromo.findMany({ orderBy: { startsAt: 'asc' } }),
+    prisma.contentDraft.findMany({ orderBy: { createdAt: 'asc' } }),
+  ]);
+  const lay = <T extends { id: string }>(rows: T[], rowId: string | null, fields: Partial<T>, created: T) => {
+    const i = rowId ? rows.findIndex((r) => r.id === rowId) : -1;
+    if (i >= 0) rows[i] = { ...rows[i], ...fields };
+    else if (!rowId) rows.push(created);
+  };
+  for (const d of drafts) {
+    const stamp = { id: d.id, createdAt: d.createdAt, updatedAt: d.updatedAt };
+    if (d.collection === 'faqs') {
+      const data = faqBody.parse(d.data);
+      lay(faqRows, d.rowId, data, { ...stamp, ...data, order: Number.MAX_SAFE_INTEGER });
+    } else if (d.collection === 'promos') {
+      const data = promoData(promoBody.parse(d.data));
+      lay(promoRows, d.rowId, data, { ...stamp, ...data });
+    }
+  }
+  faqRows.sort((a, b) => a.pageKey.localeCompare(b.pageKey) || a.order - b.order);
+  promoRows.sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime());
+  return {
+    ...siteContent(),
+    faqs: faqsByPage(faqRows.filter((f) => f.published)),
+    promos: promoContents(promoRows.filter((p) => p.published)),
+  };
+}
+
+/**
+ * GET ?path=/special-events/halloween: that page as it will read with every
+ * draft published. Behind the admin session like the rest of this router,
+ * never cached, and marked so nobody mistakes it for the live page.
+ */
+router.get(
+  '/preview',
+  handle(async (req, res) => {
+    const pagePath = z.string().regex(/^\/[a-z0-9/-]*$/).max(200).parse(req.query.path ?? '/');
+    const route = viewRouteFor(pagePath);
+    if (!route) throw new ContentError('There is no page at that address.', 404);
+    const content = await contentWithDrafts();
+    const rendered = withContent(content, () => renderView(route.view, { path: route.path }));
+    const html = versionAssetUrls(rendered, path.join(process.cwd(), 'public')).replace(
+      /<body([^>]*)>/,
+      '<body$1><div role="status" style="position:sticky;top:0;z-index:1000;background:#D4AF37;color:#0a0a0a;font:600 14px/1.4 system-ui,sans-serif;padding:8px 16px;text-align:center">Preview with drafts. Not live until published.</div>',
+    );
+    withPageScriptHashes(res, html);
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    res.type('html').send(html);
+  }),
+);
+
+router.delete(
+  '/drafts/:id',
+  handle(async (req, res) => {
+    await requireSeeded();
+    const { id: draftId } = id.parse(req.params);
+    await prisma.contentDraft.delete({ where: { id: draftId } });
+    res.json({ ok: true });
   }),
 );
 
@@ -435,6 +579,8 @@ router.delete(
     const which = collection.parse(req.params.collection);
     const { id: rowId } = id.parse({ id: req.params.id });
     const deleted = await (MODELS[which].model() as any).delete({ where: { id: rowId } });
+    // A draft of a deleted record has nothing left to publish onto.
+    await prisma.contentDraft.deleteMany({ where: { rowId } });
     await saved(req, `Deleted ${MODELS[which].label}`, rowChange(MODELS[which].table, rowId, deleted, null));
     res.json({ ok: true });
   }),

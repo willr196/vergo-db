@@ -88,7 +88,10 @@ last good copy.
 - **History**: who changed what, and when. **Revert** undoes a change; it's
   refused if the same thing has been changed again since (revert that first).
 
-Every save is live straight away; there's nothing to deploy.
+Every save is live straight away; there's nothing to deploy. FAQs and seasonal
+promos can instead be **saved as a draft**: the list then shows Preview (the
+real page with every draft applied, only for a signed-in admin), Publish and
+Discard. Publishing a draft is logged and revertible like any save.
 
 ### Running it locally
 

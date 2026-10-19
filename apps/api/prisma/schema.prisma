@@ -1022,6 +1022,23 @@ model SeasonalPromo {
   updatedAt    DateTime  @updatedAt
 }
 
+/// An unpublished edit in "Site content" (FAQs and seasonal promos): previewed
+/// by admins, live only once published. rowId is the record it edits, or null
+/// for a new one.
+model ContentDraft {
+  id         String   @id @default(cuid())
+  /// "faqs" or "promos"
+  collection String   @db.VarChar(20)
+  rowId      String?  @db.VarChar(191)
+  /// The editor's fields, already validated
+  data       Json
+  who        String   @db.VarChar(200)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([collection, rowId])
+}
+
 /// Audit log for every admin save in "Site content".
 model ContentChange {
   id     String   @id @default(cuid())

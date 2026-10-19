@@ -1,3 +1,5 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
+import type { Faq, SeasonalPromo } from '@prisma/client';
 import { prisma } from '../prisma';
 import {
   defaultFaqs,
@@ -105,7 +107,17 @@ export function onContentChange(fn: () => void): void {
   listeners.push(fn);
 }
 
+/** Set only while an admin preview renders: the content with drafts laid over it. */
+const previewContent = new AsyncLocalStorage<SiteContent>();
+
+/** Renders with this content in place of the live copy, for this call only (admin previews). */
+export function withContent<T>(content: SiteContent, fn: () => T): T {
+  return previewContent.run(content, fn);
+}
+
 export function siteContent(): SiteContent {
+  const preview = previewContent.getStore();
+  if (preview) return preview;
   if (process.env.NODE_ENV !== 'test' && Date.now() - lastRefresh > REFRESH_MS) void refreshContent();
   return current;
 }
@@ -161,11 +173,6 @@ async function loadFromDatabase(): Promise<SiteContent | null> {
     faqs: Object.fromEntries(faqDates.filter((f) => f._max.updatedAt).map((f) => [f.pageKey, f._max.updatedAt as Date])),
   };
 
-  const faqsByPage: Record<string, FaqContent[]> = {};
-  for (const f of faqs) {
-    (faqsByPage[f.pageKey] ||= []).push({ question: f.question, answer: f.answer });
-  }
-
   return {
     settings: parseSettings(settingRows),
     testimonials: testimonials.map((t) => ({
@@ -188,23 +195,8 @@ async function loadFromDatabase(): Promise<SiteContent | null> {
       width: p.width,
       height: p.height,
     })),
-    faqs: faqsByPage,
-    promos: promos.map((p) => ({
-      key: p.key,
-      navLabel: p.navLabel,
-      bannerText: p.bannerText,
-      href: p.href,
-      homeHeading: p.homeHeading,
-      homeLines: homeLines(p.homeLines),
-      homeCtaLabel: p.homeCtaLabel,
-      homeCtaHref: p.homeCtaHref,
-      startsAt: p.startsAt,
-      endsAt: p.endsAt,
-      navStartsAt: p.navStartsAt,
-      navEndsAt: p.navEndsAt,
-      pageLine: p.pageLine,
-      pageUntil: p.pageUntil,
-    })),
+    faqs: faqsByPage(faqs),
+    promos: promoContents(promos),
     updated,
     openShifts: [],
     source: 'database',
@@ -234,6 +226,35 @@ async function loadOpenShifts(): Promise<ShiftSummary[]> {
     area: j.location,
     payRate: Number(j.payRate),
     payType: j.payType,
+  }));
+}
+
+/** Published FAQ rows, in order, as each page's list. */
+export function faqsByPage(rows: Faq[]): Record<string, FaqContent[]> {
+  const out: Record<string, FaqContent[]> = {};
+  for (const f of rows) {
+    (out[f.pageKey] ||= []).push({ question: f.question, answer: f.answer });
+  }
+  return out;
+}
+
+/** Published promo rows as the site reads them. */
+export function promoContents(rows: SeasonalPromo[]): PromoContent[] {
+  return rows.map((p) => ({
+    key: p.key,
+    navLabel: p.navLabel,
+    bannerText: p.bannerText,
+    href: p.href,
+    homeHeading: p.homeHeading,
+    homeLines: homeLines(p.homeLines),
+    homeCtaLabel: p.homeCtaLabel,
+    homeCtaHref: p.homeCtaHref,
+    startsAt: p.startsAt,
+    endsAt: p.endsAt,
+    navStartsAt: p.navStartsAt,
+    navEndsAt: p.navEndsAt,
+    pageLine: p.pageLine,
+    pageUntil: p.pageUntil,
   }));
 }
 

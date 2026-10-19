@@ -103,6 +103,7 @@ const TABLES_IN_WIPE_ORDER = [
   'Faq',
   'SeasonalPromo',
   'ContentChange',
+  'ContentDraft',
 ];
 
 export async function resetDatabase(): Promise<void> {
@@ -223,6 +224,7 @@ export interface InjectResult {
   statusCode: number;
   body: any;
   raw: string;
+  headers: http.OutgoingHttpHeaders;
 }
 
 export async function inject(app: any, opts: InjectOptions): Promise<InjectResult> {
@@ -249,7 +251,7 @@ export async function inject(app: any, opts: InjectOptions): Promise<InjectResul
       } catch {
         parsed = payload;
       }
-      resolve({ statusCode: res.statusCode, body: parsed, raw: payload });
+      resolve({ statusCode: res.statusCode, body: parsed, raw: payload, headers: res.getHeaders() });
       socket.destroy();
     });
     res.on('error', reject);
