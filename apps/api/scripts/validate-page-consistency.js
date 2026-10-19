@@ -185,8 +185,10 @@ function validatePublicPage(rel, html) {
   return issues;
 }
 
+// Admin pages are noindex, so the search and sharing tags public pages need
+// (description, canonical, og:*) have no job there.
 function validateAdminPage(rel, html) {
-  const issues = validateSharedMeta(html);
+  const issues = [];
 
   const titleMatch = html.match(/<title>([^<]*)<\/title>/i);
   const title = titleMatch ? titleMatch[1].trim() : '';
@@ -223,6 +225,11 @@ function main() {
   let ignoredCount = 0;
 
   for (const file of htmlFiles) {
+    // public/scheduling/ is the built VERGO Scheduling app, not a site page.
+    if (file.rel.startsWith('scheduling/')) {
+      ignoredCount += 1;
+      continue;
+    }
     if (isLegacyAlias(file.rel)) {
       ignoredCount += 1;
       continue;

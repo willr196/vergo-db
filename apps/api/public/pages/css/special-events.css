@@ -147,23 +147,46 @@ body.se-theme-christmas {
   --se-gold-rgb: 212, 175, 55;
   --se-pumpkin: url('/images/special-events/vergo-christmas-tree.svg');
 
-  /* Snow: three drifts of flakes at different sizes, over a red and gold glow. */
+  background-image: none;
+}
+/* The glow and the snow are two fixed layers behind the page rather than the
+   body's own background. The snow falls by moving its layer (transform), which
+   the GPU does on its own; animating background-position instead repainted the
+   whole screen every frame and made the page crawl on phones. */
+body.se-theme-christmas::before,
+body.se-theme-christmas::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+body.se-theme-christmas::before {
+  top: 0;
+  bottom: 0;
+  background:
+    radial-gradient(90% 50% at 80% -8%, rgba(var(--se-gold-rgb), 0.12), rgba(var(--se-gold-rgb), 0) 62%),
+    radial-gradient(80% 45% at 6% 4%, rgba(var(--accent-rgb), 0.16), rgba(var(--accent-rgb), 0) 60%);
+}
+/* Every flake tile is 280px tall, so moving the layer down 280px loops with no seam. */
+body.se-theme-christmas::after {
+  top: -280px;
+  bottom: 0;
   background-image:
     radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.55) 1.2px, transparent 2px),
     radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.4) 1.6px, transparent 2.4px),
-    radial-gradient(circle at 45% 85%, rgba(255, 255, 255, 0.3) 2px, transparent 3px),
-    radial-gradient(90% 50% at 80% -8%, rgba(var(--se-gold-rgb), 0.12), rgba(var(--se-gold-rgb), 0) 62%),
-    radial-gradient(80% 45% at 6% 4%, rgba(var(--accent-rgb), 0.16), rgba(var(--accent-rgb), 0) 60%);
-  background-size: 140px 140px, 220px 220px, 310px 310px, auto, auto;
-  background-attachment: fixed;
-  animation: se-snow 40s linear infinite;
+    radial-gradient(circle at 45% 85%, rgba(255, 255, 255, 0.3) 2px, transparent 3px);
+  background-size: 140px 140px, 210px 280px, 300px 280px;
+  will-change: transform;
+  animation: se-snow 16s linear infinite;
 }
 @keyframes se-snow {
-  from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
-  to { background-position: 40px 1400px, -60px 2200px, 30px 3100px, 0 0, 0 0; }
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, 280px, 0); }
 }
 @media (prefers-reduced-motion: reduce) {
-  body.se-theme-christmas { animation: none; }
+  body.se-theme-christmas::after { animation: none; }
 }
 body.se-theme-christmas .se-hero { --se-hero-img: linear-gradient(transparent, transparent); }
 body.se-theme-christmas .se-concept-grid + .check-list { margin-top: 32px; }
