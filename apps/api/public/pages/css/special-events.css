@@ -105,18 +105,99 @@ body.se-theme-light .se-form-section {
   border-bottom: 1px solid var(--hairline);
 }
 
-body.se-theme-christmas .se-hero { --se-hero-img: none; }
+/* A VERGO Christmas: evergreen ground, falling snow, VERGO gold for the frame
+ * and Christmas red for the action. The same roles as Halloween's black, gold
+ * and orange, so the component layer below needs nothing of its own. The
+ * VERGO tree (the brand V strung in lights) stands in for the pumpkin.
+ */
+body.se-theme-christmas {
+  --hairline: rgba(242, 239, 232, 0.12);
+  --hairline-soft: rgba(242, 239, 232, 0.08);
+  --hairline-strong: rgba(242, 239, 232, 0.16);
+  --panel-fill: rgba(242, 239, 232, 0.03);
+  --card-fill: linear-gradient(180deg, rgba(242, 239, 232, 0.06), rgba(242, 239, 232, 0.01));
 
-/* Halloween's hero padding reserves a band for the pumpkin below the buttons.
-   Christmas has no motif, so that band is just a hole. */
-body.se-theme-christmas .se-hero-inner { padding-bottom: 56px; }
+  --bg: #0c1f17;
+  --footer-bg: #08160f;
+  --header-bg: rgba(12, 31, 23, 0.92);
+
+  --ink: #f7f5ef;
+  --muted: #a9b8af;
+  --line: rgba(242, 239, 232, 0.12);
+  --text: var(--ink);
+  --text-secondary: #dde5df;
+  --text-muted: var(--muted);
+  --surface: rgba(242, 239, 232, 0.04);
+  --hover-fill: rgba(242, 239, 232, 0.09);
+  --accent-soft: rgba(200, 50, 63, 0.16);
+  --error: #ff9a90;
+  --error-soft: rgba(255, 154, 144, 0.12);
+  --success: #8fe0b6;
+  --success-soft: rgba(143, 224, 182, 0.12);
+  --focus: 3px solid #7fbfff;
+
+  /* Christmas red. White ink on it is 5.6:1, so .btn-primary stays AA. */
+  --accent: #c8323f;
+  --accent-hover: #dc4451;
+  --accent-ink: #ffffff;
+  --accent-rgb: 200, 50, 63;
+
+  --se-gold: #d9b85c;
+  --se-gold-hover: #ecd08a;
+  --se-gold-rgb: 212, 175, 55;
+  --se-pumpkin: url('/images/special-events/vergo-christmas-tree.svg');
+
+  /* Snow: three drifts of flakes at different sizes, over a red and gold glow. */
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.55) 1.2px, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.4) 1.6px, transparent 2.4px),
+    radial-gradient(circle at 45% 85%, rgba(255, 255, 255, 0.3) 2px, transparent 3px),
+    radial-gradient(90% 50% at 80% -8%, rgba(var(--se-gold-rgb), 0.12), rgba(var(--se-gold-rgb), 0) 62%),
+    radial-gradient(80% 45% at 6% 4%, rgba(var(--accent-rgb), 0.16), rgba(var(--accent-rgb), 0) 60%);
+  background-size: 140px 140px, 220px 220px, 310px 310px, auto, auto;
+  background-attachment: fixed;
+  animation: se-snow 40s linear infinite;
+}
+@keyframes se-snow {
+  from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
+  to { background-position: 40px 1400px, -60px 2200px, 30px 3100px, 0 0, 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.se-theme-christmas { animation: none; }
+}
+body.se-theme-christmas .se-hero { --se-hero-img: linear-gradient(transparent, transparent); }
 body.se-theme-christmas .se-concept-grid + .check-list { margin-top: 32px; }
-@media (min-width: 900px) {
-  body.se-theme-christmas .se-hero-inner { padding: 112px 40px 72px; }
-}
+/* The tree is taller than the pumpkin, so on a phone it sits lower and smaller
+   to stay inside the band under the buttons. */
 @media (max-width: 640px) {
-  body.se-theme-christmas .se-hero-inner { padding: 56px 20px 48px; }
+  body.se-theme-christmas .se-hero {
+    background-size: cover, cover, 110px auto, cover, cover;
+    background-position: center, center, right 7% bottom 36px, center, center bottom;
+  }
 }
+body.se-theme-christmas .brand-mark {
+  background: transparent url('/images/special-events/vergo-christmas-tree.svg') center / contain no-repeat;
+  border: none;
+  border-radius: 0;
+  width: 30px;
+  height: 30px;
+  color: transparent;
+  font-size: 0;
+}
+body.se-theme-christmas .se-ornament span { background-image: url('/images/special-events/vergo-christmas-tree.svg'); }
+
+/* New Year's Eve: the one line under the heading, set large. */
+.se-nye-line {
+  max-width: 34ch;
+  margin: 0;
+  font-size: clamp(22px, 2.6vw, 30px);
+  line-height: 1.35;
+  color: var(--text);
+}
+.se-nye-line strong { color: var(--se-gold); }
+
+/* The "Other" role reveals a box to say what. */
+.se-other-field[hidden] { display: none; }
 
 /* The header mark becomes the pumpkin for the length of these pages. The V is
    still the V — it is just carved now. Scoped to Halloween, so the logo is

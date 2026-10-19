@@ -40,6 +40,20 @@
     var statusBox = form.querySelector('.form-status');
     var submitBtn = form.querySelector('button[type="submit"]');
 
+    // An "Other" tick box (data-other-for names its text field) shows the
+    // box to say what, and hides it again when unticked.
+    form.querySelectorAll('input[data-other-for]').forEach(function (box) {
+      var input = form.elements[box.dataset.otherFor];
+      var field = input && input.closest ? input.closest('.se-other-field') : null;
+      if (!field) return;
+      function sync() {
+        field.hidden = !box.checked;
+        if (box.checked) input.focus();
+      }
+      box.addEventListener('change', sync);
+      form.addEventListener('reset', function () { field.hidden = true; });
+    });
+
     // Every pick-one group is optional, so a second tap on the chosen option
     // clears it. What was checked is noted as the tap starts, before the
     // browser selects the new option. Space on the chosen option clears it too.
@@ -198,7 +212,11 @@
     }
 
     function buildPayload() {
-      var needs = checkedValues('need');
+      var needs = checkedValues('need').map(function (need) {
+        var box = form.querySelector('input[name="need"][value="' + need + '"][data-other-for]');
+        var said = box ? value(box.dataset.otherFor) : '';
+        return said ? need + ': ' + said : need;
+      });
       var start = value('shiftStart');
       var end = value('shiftEnd');
 

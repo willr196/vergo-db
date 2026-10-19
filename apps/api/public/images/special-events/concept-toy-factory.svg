@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1600 900" width="1600" height="900" role="presentation" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="tf-wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1d3a2a"/><stop offset="100%" stop-color="#07110c"/></linearGradient>
+    <radialGradient id="tf-glow" cx="0.5" cy="0.4" r="0.6"><stop offset="0%" stop-color="#f6e3b8" stop-opacity="0.3"/><stop offset="100%" stop-color="#f6e3b8" stop-opacity="0"/></radialGradient>
+    <g id="tf-soldier">
+      <rect x="-34" y="-150" width="68" height="70" rx="8" fill="#14161a"/>
+      <rect x="-38" y="-86" width="76" height="10" fill="#d4af37"/>
+      <circle cx="0" cy="-52" r="26" fill="#f2d3b8"/>
+      <circle cx="-14" cy="-44" r="6" fill="#e07a7a"/><circle cx="14" cy="-44" r="6" fill="#e07a7a"/>
+      <rect x="-40" y="-24" width="80" height="120" rx="10" fill="#a8202f"/>
+      <path d="M-40 -14 L40 66 M40 -14 L-40 66" stroke="#f4f1ec" stroke-width="8"/>
+      <rect x="-40" y="90" width="80" height="12" fill="#14161a"/>
+      <rect x="-34" y="102" width="28" height="98" fill="#1c2e4a"/><rect x="6" y="102" width="28" height="98" fill="#1c2e4a"/>
+      <rect x="-38" y="196" width="34" height="14" rx="4" fill="#14161a"/><rect x="4" y="196" width="34" height="14" rx="4" fill="#14161a"/>
+    </g>
+  </defs>
+  <rect width="1600" height="900" fill="url(#tf-wall)"/>
+  <rect width="1600" height="900" fill="url(#tf-glow)"/>
+  <rect x="640" y="220" width="320" height="480" rx="8" fill="#0c1a12" stroke="#d4af37" stroke-opacity="0.5" stroke-width="4"/>
+  <path d="M640 220 Q800 140 960 220" fill="#0c1a12" stroke="#d4af37" stroke-opacity="0.5" stroke-width="4"/>
+  <use xlink:href="#tf-soldier" href="#tf-soldier" transform="translate(520 490)"/>
+  <use xlink:href="#tf-soldier" href="#tf-soldier" transform="translate(1080 490)"/>
+  <g transform="translate(260 620)"><rect width="110" height="80" fill="#a8202f"/><rect x="48" width="14" height="80" fill="#d4af37"/></g>
+  <g transform="translate(1250 600)"><rect width="120" height="100" fill="#d4af37"/><rect x="53" width="14" height="100" fill="#1d3a2a"/></g>
+  <g transform="translate(1180 650)"><rect width="70" height="50" fill="#f4f1ec"/><rect x="29" width="12" height="50" fill="#a8202f"/></g>
+  <rect y="700" width="1600" height="200" fill="#050b08"/>
+  <g fill="#f6e3b8" opacity="0.6"><circle cx="150" cy="120" r="4"/><circle cx="420" cy="80" r="3"/><circle cx="1200" cy="90" r="4"/><circle cx="1450" cy="140" r="3"/></g>
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" width="400" height="480" role="presentation">
+  <!-- The VERGO tree: the brand V strung in gold lights across a Christmas tree. -->
+  <defs>
+    <radialGradient id="vt-glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#f6d77a" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#f6d77a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="vt-leaf" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2f7a52"/>
+      <stop offset="100%" stop-color="#14402b"/>
+    </linearGradient>
+  </defs>
+  <circle cx="200" cy="250" r="200" fill="url(#vt-glow)" opacity="0.6"/>
+  <rect x="180" y="410" width="40" height="50" rx="4" fill="#5a3a1c"/>
+  <path d="M200 70 L300 200 H255 L330 300 H280 L360 415 H40 L120 300 H70 L145 200 H100 Z" fill="url(#vt-leaf)"/>
+  <!-- The V, in lights -->
+  <path d="M120 215 L200 385 L280 215" stroke="#d4af37" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <g fill="#fff4cc">
+    <circle cx="120" cy="215" r="7"/><circle cx="140" cy="258" r="7"/><circle cx="160" cy="300" r="7"/><circle cx="180" cy="343" r="7"/><circle cx="200" cy="385" r="8"/>
+    <circle cx="220" cy="343" r="7"/><circle cx="240" cy="300" r="7"/><circle cx="260" cy="258" r="7"/><circle cx="280" cy="215" r="7"/>
+  </g>
+  <g fill="#c8323f">
+    <circle cx="96" cy="390" r="13"/><circle cx="304" cy="388" r="13"/><circle cx="200" cy="170" r="11"/><circle cx="250" cy="330" r="10"/><circle cx="150" cy="330" r="10"/>
+  </g>
+  <path d="M200 22 L212 56 L248 57 L219 78 L230 112 L200 92 L170 112 L181 78 L152 57 L188 56 Z" fill="#f2cf5b"/>
+</svg>

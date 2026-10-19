@@ -8,7 +8,7 @@
   },
   styles: ["/pages/css/special-events.css"],
   scripts: ["/pages/js/halloween-team.js"],
-  bodyClass: "se-page se-theme-light se-theme-christmas",
+  bodyClass: "se-page se-theme-christmas",
   jsonLd: [
     {
       "@context": "https://schema.org",
@@ -92,8 +92,8 @@
 }) %>
     <section class="se-hero">
       <div class="se-hero-inner">
-        <span class="eyebrow">Christmas by VERGO</span>
-        <h1>Christmas party staff, wherever you are</h1>
+        <span class="eyebrow">A VERGO Christmas</span>
+        <h1>Christmas Staff and Bookings</h1>
         <p class="lede">Santa in the grotto, elves on the floor, toy soldiers on the door and mulled wine all night.</p>
         <div class="btn-row">
           <a href="#plan" class="btn btn-primary">Plan your party</a>
@@ -146,7 +146,7 @@
         <p class="se-caveat">Four favourites to start from, or bring your own idea.</p>
 
         <div class="se-concept-grid">
-          <article class="se-concept se-concept--feature" style="--se-c1: #6b1620; --se-c2: #1a0709">
+          <article class="se-concept se-concept--feature" style="--se-c1: #6b1620; --se-c2: #1a0709; --se-concept-img: url(&quot;/images/special-events/concept-santas-grotto.svg&quot;)">
             <div class="se-concept-inner">
               <div class="se-concept-media" role="presentation">
                 <h3 class="se-concept-title">Santa's Grotto</h3>
@@ -157,7 +157,7 @@
             </div>
           </article>
 
-          <article class="se-concept" style="--se-c1: #1d3a2a; --se-c2: #07110c">
+          <article class="se-concept" style="--se-c1: #1d3a2a; --se-c2: #07110c; --se-concept-img: url(&quot;/images/special-events/concept-toy-factory.svg&quot;)">
             <div class="se-concept-inner">
               <div class="se-concept-media" role="presentation">
                 <h3 class="se-concept-title">The Toy Factory</h3>
@@ -168,7 +168,7 @@
             </div>
           </article>
 
-          <article class="se-concept" style="--se-c1: #1c2e4a; --se-c2: #070b12">
+          <article class="se-concept" style="--se-c1: #1c2e4a; --se-c2: #070b12; --se-concept-img: url(&quot;/images/special-events/concept-winter-wonderland.svg&quot;)">
             <div class="se-concept-inner">
               <div class="se-concept-media" role="presentation">
                 <h3 class="se-concept-title">Winter Wonderland</h3>
@@ -179,7 +179,7 @@
             </div>
           </article>
 
-          <article class="se-concept" style="--se-c1: #3d2a12; --se-c2: #0f0a05">
+          <article class="se-concept" style="--se-c1: #3d2a12; --se-c2: #0f0a05; --se-concept-img: url(&quot;/images/special-events/concept-victorian-christmas.svg&quot;)">
             <div class="se-concept-inner">
               <div class="se-concept-media" role="presentation">
                 <h3 class="se-concept-title">A Victorian Christmas</h3>
@@ -201,13 +201,14 @@
         <li>Santa, Mrs Claus and carollers: <%~ it.t.PERFORMER_RATE %>/hr</li>
         <li>Makeup and face painting: <%~ it.t.MAKEUP_RATE %>/hr</li>
         <li>Toy soldiers on the door: SIA-licensed security, in uniform. Quoted on the brief</li>
+        <li>Or whatever you want, <a href="#plan">send us a message</a>.</li>
       </ul>
       <p class="se-caveat">Per person, per hour. <%~ it.t.MIN_HOURS_WORD.charAt(0).toUpperCase() + it.t.MIN_HOURS_WORD.slice(1) %>-hour minimum. Outside London and Birmingham, travel and accommodation are quoted on the brief.</p>
     </section>
 
     <section class="section shell" id="new-years-eve" aria-labelledby="nye-heading">
       <h2 id="nye-heading" class="se-h2">New Year's Eve</h2>
-      <p class="se-caveat">Seeing the new year in? We staff New Year's Eve too. From <%~ it.t.NYE_FROM %>, hours are charged at +<%~ it.t.NYE_UPLIFT_PCT %>%.</p>
+      <p class="se-nye-line">Seeing the new year in? We staff New Year's Eve too. From <%~ it.t.NYE_FROM %>, hours are charged at <strong>+<%~ it.t.NYE_UPLIFT_PCT %>%</strong>.</p>
     </section>
 
     <section class="section shell" aria-labelledby="faq-heading">
@@ -249,6 +250,11 @@
               <div class="checkbox-item"><input type="checkbox" id="xm-waiting" name="need" value="Waiting staff"><label for="xm-waiting">Waiting staff</label></div>
               <div class="checkbox-item"><input type="checkbox" id="xm-kitchen" name="need" value="Kitchen team"><label for="xm-kitchen">The kitchen team</label></div>
               <div class="checkbox-item"><input type="checkbox" id="xm-chefs" name="need" value="Chefs"><label for="xm-chefs">Chefs</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="xm-other" name="need" value="Other" data-other-for="needOther"><label for="xm-other">Other (please specify)</label></div>
+            </div>
+            <div class="form-field se-theme-idea se-other-field" hidden>
+              <label for="xmOther">Who else?</label>
+              <input type="text" id="xmOther" name="needOther" maxlength="200" placeholder="e.g. a magician, a harpist, reindeer">
             </div>
           </fieldset>
 
@@ -340,5 +346,7 @@
         </form>
       </section>
     </div>
+
+    <div class="se-ornament" aria-hidden="true"><span></span></div>
 
     <%~ it.blocks["cta"]({ "heading": "Let's make it Christmas", "button": "Plan your party", "href": "#plan" }) %>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="presentation" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="vc-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3d2a12"/><stop offset="100%" stop-color="#0f0a05"/></linearGradient>
+    <radialGradient id="vc-lamp" cx="0.5" cy="0.5" r="0.5"><stop offset="0%" stop-color="#ffd98a" stop-opacity="0.8"/><stop offset="100%" stop-color="#ffd98a" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#vc-sky)"/>
+  <g fill="#150e06">
+    <path d="M0 720 V300 H180 V240 H240 V300 H420 V720 Z"/>
+    <path d="M1180 720 V280 H1360 V220 H1420 V280 H1600 V720 Z"/>
+  </g>
+  <g fill="#ffd98a" opacity="0.75">
+    <rect x="60" y="380" width="80" height="110"/><rect x="260" y="380" width="80" height="110"/>
+    <rect x="1240" y="360" width="80" height="110"/><rect x="1440" y="360" width="80" height="110"/>
+  </g>
+  <circle cx="560" cy="360" r="140" fill="url(#vc-lamp)"/>
+  <rect x="552" y="380" width="16" height="340" fill="#0b0703"/>
+  <path d="M530 330 H590 L580 390 H540 Z" fill="#ffd98a" stroke="#0b0703" stroke-width="6"/>
+  <g fill="#0b0703">
+    <rect x="770" y="300" width="70" height="60"/><rect x="750" y="355" width="110" height="10"/>
+    <circle cx="805" cy="395" r="30"/>
+    <path d="M760 720 L770 430 Q805 410 840 430 L850 720 Z"/>
+    <rect x="920" y="330" width="60" height="50"/><rect x="903" y="375" width="94" height="10"/>
+    <circle cx="950" cy="410" r="27"/>
+    <path d="M910 720 L918 445 Q950 425 982 445 L990 720 Z"/>
+  </g>
+  <path d="M860 470 L900 455" stroke="#ffd98a" stroke-width="4"/>
+  <rect x="1010" y="610" width="130" height="110" rx="10" fill="#2a1a0b"/>
+  <ellipse cx="1075" cy="610" rx="65" ry="16" fill="#8f1d2c"/>
+  <path d="M1050 590 q10 -30 0 -50 M1080 590 q10 -30 0 -50" stroke="#f6e3b8" stroke-opacity="0.6" stroke-width="4" fill="none"/>
+  <rect y="720" width="1600" height="180" fill="#f4f1ec" opacity="0.85"/>
+  <g fill="#ffffff" opacity="0.8"><circle cx="300" cy="150" r="4"/><circle cx="700" cy="90" r="3"/><circle cx="1000" cy="180" r="4"/><circle cx="1300" cy="120" r="3"/><circle cx="460" cy="560" r="3"/><circle cx="1150" cy="520" r="4"/></g>
+</svg>
