@@ -45,6 +45,22 @@ export const SETTING_SCHEMAS = {
     instagram: z.union([z.literal(''), z.string().trim().url().max(200)]),
     instagramHandle: line(60),
   }).strict(),
+  terms: z.object({
+    /** Also the minimum on booking charges in Ops, not only on the site. */
+    minimumChargeHours: z.number().int().min(1).max(10),
+    overrunBlockMinutes: z.union([z.literal(15), z.literal(30), z.literal(60)]),
+    /** The hour (24-hour clock) on 31 December the New Year's Eve surcharge starts. */
+    newYearsEveFromHour: z.number().int().min(12).max(23),
+    cancellation: line(200).min(1),
+    paymentTerms: line(200).min(1),
+    seniorRolesQuoted: line(200).min(1),
+  }).strict(),
+  company: z.object({
+    legalName: line(120).min(1),
+    companyNumber: z.string().trim().regex(/^([0-9]{8}|[A-Z]{2}[0-9]{6})$/, 'eight digits, or two letters and six digits'),
+    /** "Street, Town, Postcode": the structured data splits it on the commas. */
+    registeredOffice: line(200).regex(/^[^,]+(,[^,]+){2,}$/, 'street, town and postcode, separated by commas'),
+  }).strict(),
   brand: z.object({
     slogan: line(120).min(1),
     /** Empty hides every Google link. */
@@ -91,6 +107,19 @@ export function defaultSettings(): SiteSettings {
       instagram: DEFAULT_SITE.instagram,
       instagramHandle: DEFAULT_SITE.instagramHandle,
     },
+    terms: {
+      minimumChargeHours: DEFAULT_PRICING.minimumChargeHours,
+      overrunBlockMinutes: DEFAULT_PRICING.overrunBlockMinutes as 15 | 30 | 60,
+      newYearsEveFromHour: DEFAULT_PRICING.newYearsEveFromHour,
+      cancellation: DEFAULT_TERMS.cancellation,
+      paymentTerms: DEFAULT_TERMS.paymentTerms,
+      seniorRolesQuoted: DEFAULT_TERMS.seniorRolesQuoted,
+    },
+    company: {
+      legalName: DEFAULT_SITE.legalName,
+      companyNumber: DEFAULT_SITE.companyNumber,
+      registeredOffice: DEFAULT_SITE.registeredOffice,
+    },
     brand: {
       slogan: DEFAULT_SITE.slogan,
       googleReviewsUrl: DEFAULT_SITE.googleReviewsUrl,
@@ -124,6 +153,16 @@ export function applySettings(s: SiteSettings): void {
   PRICING.specialEvents.characterPerformer = s.rates.characterPerformer;
   PRICING.specialEvents.makeupArtist = s.rates.makeupArtist;
 
-  Object.assign(SITE_TERMS, s.promises);
-  Object.assign(SITE, s.contact, s.brand);
+  PRICING.minimumChargeHours = s.terms.minimumChargeHours;
+  // Hourly special-events roles carry the site-wide minimum.
+  PRICING.specialEvents.minimumChargeHours = s.terms.minimumChargeHours;
+  PRICING.overrunBlockMinutes = s.terms.overrunBlockMinutes;
+  PRICING.newYearsEveFromHour = s.terms.newYearsEveFromHour;
+
+  Object.assign(SITE_TERMS, s.promises, {
+    cancellation: s.terms.cancellation,
+    paymentTerms: s.terms.paymentTerms,
+    seniorRolesQuoted: s.terms.seniorRolesQuoted,
+  });
+  Object.assign(SITE, s.contact, s.company, s.brand);
 }

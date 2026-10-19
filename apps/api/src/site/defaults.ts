@@ -59,6 +59,10 @@ export interface PromoContent {
   endsAt: Date;
   navStartsAt?: Date | null;
   navEndsAt?: Date | null;
+  /** The dates line on the event page while in season; may carry {{TOKENS}}. */
+  pageLine?: string | null;
+  /** The event page is in season until this; endsAt when empty. */
+  pageUntil?: Date | null;
 }
 
 export function defaultTestimonials(): TestimonialContent[] {
@@ -145,6 +149,8 @@ export function defaultPromos(year = 2026): PromoContent[] {
       endsAt: londonDayEnd(year, 10, 31),
       navStartsAt: null,
       navEndsAt: null,
+      pageLine: 'Now booking 23–24 and 30–31 October.',
+      pageUntil: null,
     },
     {
       key: 'christmas',
@@ -159,6 +165,9 @@ export function defaultPromos(year = 2026): PromoContent[] {
       endsAt: londonDayEnd(year, 12, 20),
       navStartsAt: londonDay(year, 11, 1),
       navEndsAt: londonDayEnd(year, 12, 20),
+      pageLine: null,
+      // The page sells New Year's Eve too.
+      pageUntil: londonDayEnd(year, 12, 31),
     },
   ];
 }

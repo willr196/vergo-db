@@ -179,3 +179,97 @@ test('a photo upload is re-encoded to WebP widths and served by tag', async () =
 
   assert.ok(siteContent().photos.some((p) => p.alt === 'The bar at a wedding in Richmond'));
 });
+
+/** The newest change in the history, as the admin sees it. */
+async function latestChange() {
+  return (await send('GET', '/')).body.changes[0];
+}
+
+test('a settings change can be reverted, once, and the revert reverted in turn', async () => {
+  await imported();
+  const terms = (await send('GET', '/')).body.settings.terms;
+  assert.equal((await send('PUT', '/settings/terms', { ...terms, minimumChargeHours: 6 })).statusCode, 200);
+  assert.equal(PRICING.minimumChargeHours, 6);
+  const change = await latestChange();
+  assert.equal(change.revertible, true);
+
+  assert.equal((await send('POST', `/changes/${change.id}/revert`)).statusCode, 200);
+  assert.equal(PRICING.minimumChargeHours, 4);
+  assert.match(renderBlock('rates', {}, { path: '/hire' }) || '', /4-hour minimum/);
+
+  const history = (await send('GET', '/')).body.changes;
+  assert.equal(history.find((c: any) => c.id === change.id).reverted, true);
+  assert.equal((await send('POST', `/changes/${change.id}/revert`)).statusCode, 409);
+
+  // Undoing the revert puts the 6 back.
+  assert.equal((await send('POST', `/changes/${history[0].id}/revert`)).statusCode, 200);
+  assert.equal(PRICING.minimumChargeHours, 6);
+});
+
+test('a setting first written by a save is removed again by its revert', async () => {
+  await imported();
+  await prisma.siteSetting.delete({ where: { key: 'company' } });
+  const company = (await send('GET', '/')).body.settings.company;
+  assert.equal((await send('PUT', '/settings/company', { ...company, companyNumber: 'SC123456' })).statusCode, 200);
+  assert.equal((await send('POST', `/changes/${(await latestChange()).id}/revert`)).statusCode, 200);
+  assert.equal(await prisma.siteSetting.findUnique({ where: { key: 'company' } }), null);
+  assert.equal(siteContent().settings.company.companyNumber, '16627585');
+});
+
+test('FAQ edits, deletes, additions and reorders revert; a later edit blocks reverting an earlier one', async () => {
+  await imported();
+  const page = () => renderView('hire/weddings', { path: '/hire/weddings' });
+  const rows = await prisma.faq.findMany({ where: { pageKey: 'hire/weddings' }, orderBy: { order: 'asc' } });
+  const first = rows[0];
+
+  // Edit, then revert: the old wording is back on the page.
+  await send('PUT', `/faqs/${first.id}`, { pageKey: first.pageKey, question: 'Edited question?', answer: first.answer });
+  const edit = await latestChange();
+  await send('PUT', `/faqs/${first.id}`, { pageKey: first.pageKey, question: 'Edited again?', answer: first.answer });
+  const blocked = await send('POST', `/changes/${edit.id}/revert`);
+  assert.equal(blocked.statusCode, 409);
+  assert.match(blocked.body.error, /changed again since/);
+  assert.equal((await send('POST', `/changes/${(await latestChange()).id}/revert`)).statusCode, 200);
+  assert.equal((await send('POST', `/changes/${edit.id}/revert`)).statusCode, 200);
+  assert.equal((await prisma.faq.findUniqueOrThrow({ where: { id: first.id } })).question, first.question);
+
+  // Delete, then revert: the same row is back, with the same id.
+  await send('DELETE', `/faqs/${first.id}`);
+  assert.doesNotMatch(page(), new RegExp(first.question.replace(/[?.]/g, '\$&')));
+  assert.equal((await send('POST', `/changes/${(await latestChange()).id}/revert`)).statusCode, 200);
+  assert.match(page(), new RegExp(first.question.replace(/[?.]/g, '\$&')));
+
+  // Add, then revert: gone.
+  await send('POST', '/faqs', { pageKey: 'hire/weddings', question: 'Can you do a ceilidh?', answer: 'We can staff one.' });
+  assert.equal((await send('POST', `/changes/${(await latestChange()).id}/revert`)).statusCode, 200);
+  assert.doesNotMatch(page(), /ceilidh/);
+
+  // Reorder, then revert: the old order.
+  const ids = rows.map((r) => r.id);
+  await send('POST', '/faqs/reorder', { ids: [...ids].reverse() });
+  assert.equal((await send('POST', `/changes/${(await latestChange()).id}/revert`)).statusCode, 200);
+  const after = await prisma.faq.findMany({ where: { pageKey: 'hire/weddings' }, orderBy: { order: 'asc' } });
+  assert.deepEqual(after.map((r) => r.id), ids);
+});
+
+test('history from before snapshots shows no Revert, and reverting it is refused', async () => {
+  await imported();
+  const old = await prisma.contentChange.create({ data: { who: 'will', what: 'Updated brand', detail: { before: null, after: {} } } });
+  const row = (await send('GET', '/')).body.changes.find((c: any) => c.id === old.id);
+  assert.equal(row.revertible, false);
+  assert.equal((await send('POST', `/changes/${old.id}/revert`)).statusCode, 409);
+});
+
+test('a promo carries its event page line and in-season date', async () => {
+  await imported();
+  const h = (await send('GET', '/')).body.promos.find((p: any) => p.key === 'halloween');
+  assert.equal(h.pageLine, 'Now booking 23–24 and 30–31 October.');
+  const c = (await send('GET', '/')).body.promos.find((p: any) => p.key === 'christmas');
+  assert.equal(c.pageUntilOn, '2026-12-31');
+
+  const res = await send('PUT', `/promos/${h.id}`, { ...h, pageLine: 'Now booking 30–31 October only.', pageUntilOn: '2030-11-01' });
+  assert.equal(res.statusCode, 200, JSON.stringify(res.body));
+  assert.equal(siteContent().promos.find((p) => p.key === 'halloween')?.pageUntil?.toISOString(), '2030-11-01T23:59:59.999Z');
+  // The FAQ that carries the token follows the promo's line.
+  assert.match(renderView('special-events/halloween', { path: '/special-events/halloween' }), /Now booking 30–31 October only\. Ask anyway/);
+});

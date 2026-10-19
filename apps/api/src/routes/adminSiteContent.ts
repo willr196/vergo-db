@@ -11,6 +11,7 @@ import { londonDay, londonDayEnd } from '../site/defaults';
 import { mediaStorage, storePhoto } from '../site/media';
 import { seasonState } from '../site/view';
 import { purgeCdn } from '../site/cdn';
+import { ChangeDetail, RevertError, Table, isRevertible, revertChange, snapshot } from '../site/history';
 
 /**
  * Admin "Site content": the settings, reviews, recent work, photos, FAQs and
@@ -18,7 +19,8 @@ import { purgeCdn } from '../site/cdn';
  * and CSRF (adminAuth).
  *
  * Every save: validates (zod, plus the length limits in site/limits.ts),
- * writes a ContentChange row, reloads the site's in-memory copy (which clears
+ * writes a ContentChange row with what it replaced (site/history.ts, so the
+ * History tab can revert it), reloads the site's in-memory copy (which clears
  * the rendered-page caches), and purges the CDN.
  */
 const router = Router();
@@ -48,8 +50,14 @@ function who(req: Request): string {
   return req.session?.username || 'admin';
 }
 
+/** One record's change, for the history. Settings keep their value; rows a snapshot. */
+function rowChange(table: Table, id: string, before: unknown, after: unknown): ChangeDetail {
+  const keep = (v: unknown) => (table === 'SiteSetting' ? v ?? null : snapshot(v));
+  return { kind: 'row', table, id, before: keep(before), after: keep(after) };
+}
+
 /** After a write: log it, reload what the site serves, purge the CDN. */
-async function saved(req: Request, what: string, detail?: unknown) {
+async function saved(req: Request, what: string, detail?: ChangeDetail) {
   await prisma.contentChange.create({
     data: { who: who(req), what, detail: detail === undefined ? undefined : (detail as Prisma.InputJsonValue) },
   });
@@ -71,6 +79,7 @@ function lengthCheck(kind: Parameters<typeof checkLength>[0], text: string) {
 const handle =
   (fn: (req: Request, res: Response) => Promise<unknown>) => (req: Request, res: Response, next: NextFunction) =>
     fn(req, res).catch((err) => {
+      if (err instanceof RevertError) return res.status(err.status).json({ ok: false, error: err.message });
       if (err instanceof ContentError) return res.status(err.status).json({ ok: false, error: err.message, problems: err.problems });
       if (err instanceof z.ZodError) {
         return res.status(400).json({ ok: false, error: err.issues.map((i) => `${i.path.join('.') || 'value'}: ${i.message}`).join('; ') });
@@ -118,6 +127,9 @@ router.get(
       prisma.seasonalPromo.findMany({ orderBy: { startsAt: 'asc' } }),
       prisma.contentChange.findMany({ orderBy: { when: 'desc' }, take: 30 }),
     ]);
+    const revertedIds = new Set(
+      changes.map((c) => (isRevertible(c.detail) ? c.detail.revertOf : undefined)).filter((v): v is string => Boolean(v)),
+    );
     const seeded = settingRows.some((r) => r.key === SEEDED_MARKER);
     const live = seasonState();
     const now = Date.now();
@@ -142,10 +154,19 @@ router.get(
         endsOn: toYmd(p.endsAt),
         navStartsOn: toYmd(p.navStartsAt),
         navEndsOn: toYmd(p.navEndsAt),
+        pageUntilOn: toYmd(p.pageUntil),
+        pageInSeason: p.published && now <= (p.pageUntil || p.endsAt).getTime(),
         bannerLive: p.published && p.startsAt.getTime() <= now && now <= p.endsAt.getTime(),
         headerLive: live.header?.key === p.key,
       })),
-      changes,
+      changes: changes.map((c) => ({
+        id: c.id,
+        who: c.who,
+        what: c.what,
+        when: c.when,
+        revertible: isRevertible(c.detail) && !revertedIds.has(c.id),
+        reverted: revertedIds.has(c.id),
+      })),
     });
   }),
 );
@@ -170,7 +191,7 @@ router.put(
     const value = SETTING_SCHEMAS[key].parse(req.body);
     const before = await prisma.siteSetting.findUnique({ where: { key } });
     await prisma.siteSetting.upsert({ where: { key }, create: { key, value }, update: { value } });
-    await saved(req, `Updated ${key}`, { before: before?.value ?? null, after: value });
+    await saved(req, `Updated ${key}`, rowChange('SiteSetting', key, before?.value ?? null, value));
     res.json({ ok: true, value });
   }),
 );
@@ -199,7 +220,7 @@ router.post(
     lengthCheck('review', data.quote);
     const order = (await prisma.testimonial.count()) + 1;
     const row = await prisma.testimonial.create({ data: { ...data, url: data.url || null, order } });
-    await saved(req, `Added a review from ${row.name}`);
+    await saved(req, `Added a review from ${row.name}`, rowChange('Testimonial', row.id, null, row));
     res.status(201).json({ ok: true, item: row });
   }),
 );
@@ -211,8 +232,9 @@ router.put(
     const { id: rowId } = id.parse(req.params);
     const data = testimonialBody.parse(req.body);
     lengthCheck('review', data.quote);
+    const before = await prisma.testimonial.findUniqueOrThrow({ where: { id: rowId } });
     const row = await prisma.testimonial.update({ where: { id: rowId }, data: { ...data, url: data.url || null } });
-    await saved(req, `Edited the review from ${row.name}`);
+    await saved(req, `Edited the review from ${row.name}`, rowChange('Testimonial', row.id, before, row));
     res.json({ ok: true, item: row });
   }),
 );
@@ -227,7 +249,7 @@ router.post(
     lengthCheck('recentWork', `${data.title} ${data.detail}`);
     const order = (await prisma.recentWork.count()) + 1;
     const row = await prisma.recentWork.create({ data: { ...data, order } });
-    await saved(req, `Added recent work: ${row.title}`);
+    await saved(req, `Added recent work: ${row.title}`, rowChange('RecentWork', row.id, null, row));
     res.status(201).json({ ok: true, item: row });
   }),
 );
@@ -239,8 +261,9 @@ router.put(
     const { id: rowId } = id.parse(req.params);
     const data = recentWorkBody.parse(req.body);
     lengthCheck('recentWork', `${data.title} ${data.detail}`);
+    const before = await prisma.recentWork.findUniqueOrThrow({ where: { id: rowId } });
     const row = await prisma.recentWork.update({ where: { id: rowId }, data });
-    await saved(req, `Edited recent work: ${row.title}`);
+    await saved(req, `Edited recent work: ${row.title}`, rowChange('RecentWork', row.id, before, row));
     res.json({ ok: true, item: row });
   }),
 );
@@ -260,7 +283,7 @@ router.post(
     lengthCheck('faqAnswer', data.answer);
     const order = (await prisma.faq.count({ where: { pageKey: data.pageKey } })) + 1;
     const row = await prisma.faq.create({ data: { ...data, order } });
-    await saved(req, `Added an FAQ to ${row.pageKey}: ${row.question}`);
+    await saved(req, `Added an FAQ to ${row.pageKey}: ${row.question}`, rowChange('Faq', row.id, null, row));
     res.status(201).json({ ok: true, item: row });
   }),
 );
@@ -272,8 +295,9 @@ router.put(
     const { id: rowId } = id.parse(req.params);
     const data = faqBody.parse(req.body);
     lengthCheck('faqAnswer', data.answer);
+    const before = await prisma.faq.findUniqueOrThrow({ where: { id: rowId } });
     const row = await prisma.faq.update({ where: { id: rowId }, data });
-    await saved(req, `Edited an FAQ on ${row.pageKey}: ${row.question}`);
+    await saved(req, `Edited an FAQ on ${row.pageKey}: ${row.question}`, rowChange('Faq', row.id, before, row));
     res.json({ ok: true, item: row });
   }),
 );
@@ -297,9 +321,12 @@ const promoBody = z
     endsOn: ymd,
     navStartsOn: z.union([z.literal(''), ymd]).optional().nullable(),
     navEndsOn: z.union([z.literal(''), ymd]).optional().nullable(),
+    pageLine: z.string().trim().max(200).optional().nullable(),
+    pageUntilOn: z.union([z.literal(''), ymd]).optional().nullable(),
     published: z.boolean().default(true),
   })
   .refine((p) => p.startsOn <= p.endsOn, { message: 'must end on or after the day it starts', path: ['endsOn'] })
+  .refine((p) => !p.pageUntilOn || p.startsOn <= p.pageUntilOn, { message: 'must be on or after the day it starts', path: ['pageUntilOn'] })
   .refine((p) => !p.navStartsOn || !p.navEndsOn || p.navStartsOn <= p.navEndsOn, {
     message: 'must end on or after the day it starts',
     path: ['navEndsOn'],
@@ -319,6 +346,8 @@ function promoData(p: z.infer<typeof promoBody>) {
     endsAt: endOf(p.endsOn),
     navStartsAt: p.navStartsOn ? startOf(p.navStartsOn) : null,
     navEndsAt: p.navEndsOn ? endOf(p.navEndsOn) : null,
+    pageLine: p.pageLine || null,
+    pageUntil: p.pageUntilOn ? endOf(p.pageUntilOn) : null,
     published: p.published,
   };
 }
@@ -330,7 +359,7 @@ router.post(
     const p = promoBody.parse(req.body);
     lengthCheck('banner', p.bannerText);
     const row = await prisma.seasonalPromo.create({ data: promoData(p) });
-    await saved(req, `Added the ${row.key} promo`);
+    await saved(req, `Added the ${row.key} promo`, rowChange('SeasonalPromo', row.id, null, row));
     res.status(201).json({ ok: true, item: row });
   }),
 );
@@ -342,8 +371,9 @@ router.put(
     const { id: rowId } = id.parse(req.params);
     const p = promoBody.parse(req.body);
     lengthCheck('banner', p.bannerText);
+    const before = await prisma.seasonalPromo.findUniqueOrThrow({ where: { id: rowId } });
     const row = await prisma.seasonalPromo.update({ where: { id: rowId }, data: promoData(p) });
-    await saved(req, `Edited the ${row.key} promo`);
+    await saved(req, `Edited the ${row.key} promo`, rowChange('SeasonalPromo', row.id, before, row));
     res.json({ ok: true, item: row });
   }),
 );
@@ -368,7 +398,7 @@ router.post(
     const row = await prisma.galleryPhoto.create({
       data: { ...stored, alt: body.alt, caption: body.caption || null, tags: body.tags, published: body.published, order },
     });
-    await saved(req, `Added a photo: ${row.alt}`);
+    await saved(req, `Added a photo: ${row.alt}`, rowChange('GalleryPhoto', row.id, null, row));
     res.status(201).json({ ok: true, item: row });
   }),
 );
@@ -379,8 +409,9 @@ router.put(
     await requireSeeded();
     const { id: rowId } = id.parse(req.params);
     const data = photoBody.parse(req.body);
+    const before = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: rowId } });
     const row = await prisma.galleryPhoto.update({ where: { id: rowId }, data: { ...data, caption: data.caption || null } });
-    await saved(req, `Edited a photo: ${row.alt}`);
+    await saved(req, `Edited a photo: ${row.alt}`, rowChange('GalleryPhoto', row.id, before, row));
     res.json({ ok: true, item: row });
   }),
 );
@@ -388,11 +419,11 @@ router.put(
 /* ------------------------------------------------- delete and reorder, all */
 
 const MODELS = {
-  testimonials: { model: () => prisma.testimonial, label: 'a review' },
-  'recent-work': { model: () => prisma.recentWork, label: 'recent work' },
-  faqs: { model: () => prisma.faq, label: 'an FAQ' },
-  photos: { model: () => prisma.galleryPhoto, label: 'a photo' },
-  promos: { model: () => prisma.seasonalPromo, label: 'a promo' },
+  testimonials: { model: () => prisma.testimonial, table: 'Testimonial' as Table, label: 'a review' },
+  'recent-work': { model: () => prisma.recentWork, table: 'RecentWork' as Table, label: 'recent work' },
+  faqs: { model: () => prisma.faq, table: 'Faq' as Table, label: 'an FAQ' },
+  photos: { model: () => prisma.galleryPhoto, table: 'GalleryPhoto' as Table, label: 'a photo' },
+  promos: { model: () => prisma.seasonalPromo, table: 'SeasonalPromo' as Table, label: 'a promo' },
 } as const;
 type Collection = keyof typeof MODELS;
 const collection = z.enum(Object.keys(MODELS) as [Collection, ...Collection[]]);
@@ -404,7 +435,7 @@ router.delete(
     const which = collection.parse(req.params.collection);
     const { id: rowId } = id.parse({ id: req.params.id });
     const deleted = await (MODELS[which].model() as any).delete({ where: { id: rowId } });
-    await saved(req, `Deleted ${MODELS[which].label}`, deleted);
+    await saved(req, `Deleted ${MODELS[which].label}`, rowChange(MODELS[which].table, rowId, deleted, null));
     res.json({ ok: true });
   }),
 );
@@ -417,8 +448,31 @@ router.post(
     if (which === 'promos') throw new ContentError('Promos are ordered by their dates.');
     const { ids } = reorder.parse(req.body);
     const model = MODELS[which].model() as any;
+    const before: Array<{ id: string; order: number }> = await model.findMany({ where: { id: { in: ids } }, select: { id: true, order: true } });
     await prisma.$transaction(ids.map((rowId, order) => model.update({ where: { id: rowId }, data: { order } })));
-    await saved(req, `Reordered ${which}`);
+    await saved(req, `Reordered ${which}`, {
+      kind: 'reorder',
+      table: MODELS[which].table,
+      before,
+      after: ids.map((rowId, order) => ({ id: rowId, order })),
+    });
+    res.json({ ok: true });
+  }),
+);
+
+/* ---------------------------------------------------------------- history */
+
+router.post(
+  '/changes/:id/revert',
+  handle(async (req, res) => {
+    await requireSeeded();
+    const { id: changeId } = id.parse(req.params);
+    const change = await prisma.contentChange.findUniqueOrThrow({ where: { id: changeId } });
+    if (!isRevertible(change.detail)) throw new ContentError('This change was saved before changes could be reverted.', 409);
+    const reverted = await prisma.contentChange.findFirst({ where: { detail: { path: ['revertOf'], equals: changeId } } });
+    if (reverted) throw new ContentError('This change has already been reverted.', 409);
+    const result = await revertChange(changeId, change.detail);
+    await saved(req, result.what, result.detail);
     res.json({ ok: true });
   }),
 );

@@ -150,7 +150,7 @@
   "special-events/halloween": [
     {
       "question": "How far ahead should we book?",
-      "answer": "Now booking 23–24 and 30–31 October. Ask anyway and we'll tell you what's still possible."
+      "answer": "{{SEASON_LINE_HALLOWEEN}} Ask anyway and we'll tell you what's still possible."
     },
     {
       "question": "Do you supply the costumes?",

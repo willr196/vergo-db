@@ -173,6 +173,52 @@ export function seasonState(now: Date = new Date()): SeasonState {
   };
 }
 
+export interface EventSeason {
+  /** False once the promo's page date (or its end date) has passed. */
+  inSeason: boolean;
+  /** The season the page is selling: this one in season, next year's after. */
+  year: number;
+  /** "Halloween", from the promo's header label. */
+  label: string;
+  /** In season: the promo's dates line. Out of season: "Now booking Halloween 2027." */
+  line: string | null;
+}
+
+function londonYear(date: Date): number {
+  return Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', year: 'numeric' }).format(date));
+}
+
+/**
+ * Where an event page stands, from the published promo with the same key.
+ * Out of season the page stays up, as it ranks in search all year, and says
+ * it's booking next year's. With no published promo (deleted, or unpublished
+ * to take the banner down) the page shows as it is, with no dates line.
+ */
+export function eventSeason(key: string, fallbackLabel: string, now: Date = new Date()): EventSeason {
+  const promo = siteContent().promos.find((p) => p.key === key);
+  if (!promo) return { inSeason: true, year: londonYear(now), label: fallbackLabel, line: null };
+  const until = promo.pageUntil || promo.endsAt;
+  const label = promo.navLabel || fallbackLabel;
+  if (now.getTime() <= until.getTime()) {
+    return { inSeason: true, year: londonYear(until), label, line: promo.pageLine ? fillTokens(promo.pageLine) : null };
+  }
+  const year = Math.max(londonYear(until) + 1, londonYear(now));
+  return { inSeason: false, year, label, line: `Now booking ${label} ${year}.` };
+}
+
+/**
+ * {{SEASON_LINE_HALLOWEEN}} and so on, one per promo: its event page's dates
+ * line, or "Now booking Halloween 2027." once the season has passed. For FAQ
+ * answers, which would otherwise keep last season's dates all year.
+ */
+export function seasonLineTokens(now: Date = new Date()): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const p of siteContent().promos) {
+    out[`SEASON_LINE_${p.key.toUpperCase().replace(/-/g, '_')}`] = eventSeason(p.key, p.navLabel, now).line || '';
+  }
+  return out;
+}
+
 /** Changes whenever what the season pieces show changes; part of the rendered-page cache key. */
 export function seasonSignature(now: Date = new Date()): string {
   const s = seasonState(now);
@@ -212,7 +258,7 @@ type BlockFn = (attrs?: PartialAttrs) => string;
 /** Everything a template or partial can read, for the page at ctx.path. */
 export function pageData(ctx: PageContext) {
   const content = siteContent();
-  const tokens = siteTokens();
+  const tokens = { ...siteTokens(), ...seasonLineTokens() };
   const data: Record<string, unknown> = {
     path: ctx.path,
     site: SITE,
@@ -245,6 +291,8 @@ export function pageData(ctx: PageContext) {
     nav: NAV.map((item) => ({ href: item.href, label: item.label, current: item.match(ctx.path) })),
     bannerAllowed: bannerAllowed(ctx.path),
     season: seasonState(),
+    /** An event page's season: it.eventSeason('halloween', 'Halloween'). */
+    eventSeason: (key: string, label: string) => eventSeason(key, label),
     /** Open shifts for /work, formatted: "Sat 4 Oct", "£13.50/hr". */
     shifts: () =>
       content.openShifts.map((s) => ({

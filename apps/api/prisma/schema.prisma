@@ -1012,6 +1012,11 @@ model SeasonalPromo {
   /// The header item's own window, when it differs (Christmas: from 1 November)
   navStartsAt  DateTime?
   navEndsAt    DateTime?
+  /// The line on the event page while it's in season ("Now booking 23–24 and 30–31 October.")
+  pageLine     String?   @db.VarChar(200)
+  /// The event page is in season until this day (default endsAt); after it,
+  /// the page says "Now booking <label> <next year>" (Christmas: to 31 December, for New Year's Eve)
+  pageUntil    DateTime?
   published    Boolean   @default(true)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt

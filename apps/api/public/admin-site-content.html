@@ -53,7 +53,7 @@
                 <label class="as-label">Premium rate (£)<input class="as-input" name="premiumRate" type="number" step="0.01" min="12.71" max="100" required></label>
                 <label class="sc-check"><input type="checkbox" name="premiumEnabled"> Show Premium on the site</label>
                 <label class="as-label">After-midnight uplift (%)<input class="as-input" name="afterMidnightUpliftPct" type="number" step="1" min="0" max="100" required></label>
-                <label class="as-label">New Year's Eve surcharge from 7pm (%)<input class="as-input" name="newYearsEveUpliftPct" type="number" step="1" min="0" max="100" required></label>
+                <label class="as-label">New Year's Eve surcharge (%)<input class="as-input" name="newYearsEveUpliftPct" type="number" step="1" min="0" max="100" required></label>
                 <label class="as-label">Themed hospitality (£)<input class="as-input" name="themedHospitality" type="number" step="0.01" min="12.71" max="100" required></label>
                 <label class="as-label">Character performer (£)<input class="as-input" name="characterPerformer" type="number" step="0.01" min="12.71" max="100" required></label>
                 <label class="as-label">Makeup artist (£)<input class="as-input" name="makeupArtist" type="number" step="0.01" min="12.71" max="100" required></label>
@@ -86,6 +86,32 @@
                 <label class="as-label">Instagram handle<input class="as-input" name="instagramHandle" maxlength="60"></label>
               </div>
               <button class="btn btn-primary" type="submit">Save contact details</button>
+            </form>
+
+            <form class="sc-card" data-setting="terms">
+              <div class="as-section-hdr"><span class="as-section-title">Booking terms</span></div>
+              <p class="text-muted fs-sm mb-2">The minimum and the overrun blocks also set what Ops charges on bookings, not only what the site says.</p>
+              <div class="sc-fields">
+                <label class="as-label">Minimum hours per person<input class="as-input" name="minimumChargeHours" type="number" step="1" min="1" max="10" required></label>
+                <label class="as-label">Overrun billed in blocks of
+                  <select class="as-input" name="overrunBlockMinutes" data-number><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">60 minutes</option></select></label>
+                <label class="as-label">New Year's Eve surcharge starts at (hour, 24-hour clock)<input class="as-input" name="newYearsEveFromHour" type="number" step="1" min="12" max="23" required></label>
+                <label class="as-label">Cancellation<textarea class="as-input" name="cancellation" rows="2" maxlength="200" required></textarea></label>
+                <label class="as-label">Payment terms<input class="as-input" name="paymentTerms" maxlength="200" required></label>
+                <label class="as-label">Roles quoted separately<input class="as-input" name="seniorRolesQuoted" maxlength="200" required></label>
+              </div>
+              <button class="btn btn-primary" type="submit">Save terms</button>
+            </form>
+
+            <form class="sc-card" data-setting="company">
+              <div class="as-section-hdr"><span class="as-section-title">Company details</span></div>
+              <p class="text-muted fs-sm mb-2">Shown in the footer, the legal pages and the search-engine data.</p>
+              <div class="sc-fields">
+                <label class="as-label">Company name<input class="as-input" name="legalName" maxlength="120" required></label>
+                <label class="as-label">Company number<input class="as-input" name="companyNumber" maxlength="8" pattern="[0-9]{8}|[A-Z]{2}[0-9]{6}" required></label>
+                <label class="as-label">Registered office <span class="text-muted">(street, town, postcode)</span><input class="as-input" name="registeredOffice" maxlength="200" required></label>
+              </div>
+              <button class="btn btn-primary" type="submit">Save company details</button>
             </form>
 
             <form class="sc-card" data-setting="brand">
@@ -142,7 +168,7 @@
       <div id="history-tab" class="tab-content">
         <div class="as-table-wrap">
           <table>
-            <thead><tr><th>When</th><th>Who</th><th>What</th></tr></thead>
+            <thead><tr><th>When</th><th>Who</th><th>What</th><th></th></tr></thead>
             <tbody id="sc-history"></tbody>
           </table>
         </div>

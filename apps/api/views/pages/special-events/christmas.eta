@@ -101,6 +101,8 @@
         </div>
       </div>
     </section>
+<% const season = it.eventSeason('christmas', 'Christmas') %>
+    <%~ include('/partials/event-season', { season, href: '#plan', button: 'Plan your party' }) %>
 
     <!-- Placeholder artwork (public/images/special-events/christmas-*.svg): swap for real photos. -->
     <section class="section-tight shell" aria-label="Christmas staff at work">
@@ -349,4 +351,4 @@
 
     <div class="se-ornament" aria-hidden="true"><span></span></div>
 
-    <%~ it.blocks["cta"]({ "heading": "Let's make it Christmas", "button": "Plan your party", "href": "#plan" }) %>
+    <%~ it.blocks["cta"]({ "heading": "Let's make it Christmas", "line": season.line || "", "button": "Plan your party", "href": "#plan" }) %>

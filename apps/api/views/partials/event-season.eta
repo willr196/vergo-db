@@ -1,0 +1,11 @@
+<%/* Under an event page's hero once its season has passed (it.eventSeason in site/view.ts). Shows nothing in season. it: season, href (the enquiry form's anchor), button. */%>
+<% if (!it.season.inSeason) { %>
+    <section class="section shell" aria-labelledby="season-heading" data-block="event-season">
+      <div class="se-form-head">
+        <p class="section-label"><%= it.season.label %> <%= it.season.year %></p>
+        <h2 id="season-heading">Now booking <%= it.season.label %> <%= it.season.year %></h2>
+        <p>Tell us your date and what you have in mind, and we'll be in touch.</p>
+        <div class="btn-row"><a href="<%= it.href %>" class="btn btn-primary"><%= it.button %></a></div>
+      </div>
+    </section>
+<% } %>

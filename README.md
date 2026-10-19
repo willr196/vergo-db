@@ -46,9 +46,10 @@ a template: the consistency test fails on it.
 `pricing.ts` and `content.ts` hold the built-in values. Once the site content
 has been imported (Admin > Site content > Import, once), the database holds
 the live values and they're laid over the built-in ones. The API keeps the
-last good copy in memory, refreshes it every minute and straight after an
-admin save, and never waits more than 500ms for the database: if it's slow or
-down, pages render from the last good copy.
+last good copy in memory, reloads it straight after an admin save (and, when
+someone views a page, if the copy is over 10 minutes old), and never waits
+more than 500ms for the database: if it's slow or down, pages render from the
+last good copy.
 
 ### Adding a page
 
@@ -66,9 +67,11 @@ down, pages render from the last good copy.
 
 ### Editing content (Admin > Site content)
 
-- **Settings**: rates, the Premium switch, the promises, contact details and
-  slogan. The preview shows the rate and guarantee blocks as they'll read
-  before you save.
+- **Settings**: rates, the Premium switch, the promises, booking terms
+  (minimum hours, overrun blocks, New Year's Eve start, cancellation, payment
+  terms), contact details, company details and slogan. The minimum and overrun
+  blocks also set what Ops charges. The preview shows the rate and guarantee
+  blocks as they'll read before you save.
 - **Reviews**: add, edit, reorder; tick where each one shows (homepage, /hire).
   60 words at most, and only real, attributable quotes.
 - **Recent work**: one line per job, 12 words at most.
@@ -77,9 +80,13 @@ down, pages render from the last good copy.
 - **FAQs**: pick the page, then add, edit or reorder. Two sentences and 45
   words at most per answer.
 - **Seasonal promos**: the dates the banner, header item and homepage section
-  run, their text and links. Next year's Halloween and Christmas are edited
+  run, their text and links, the dates line on the event page, and the day the
+  event page stops selling this year. After that day the page stays up and
+  says "Now booking Halloween 2027" (FAQ answers can say the same with
+  `{{SEASON_LINE_HALLOWEEN}}`). Next year's Halloween and Christmas are edited
   here, not in code.
-- **History**: who changed what, and when.
+- **History**: who changed what, and when. **Revert** undoes a change; it's
+  refused if the same thing has been changed again since (revert that first).
 
 Every save is live straight away; there's nothing to deploy.
 

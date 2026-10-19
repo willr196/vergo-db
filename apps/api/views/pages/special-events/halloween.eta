@@ -204,6 +204,8 @@
         </div>
       </div>
     </section>
+<% const season = it.eventSeason('halloween', 'Halloween') %>
+    <%~ include('/partials/event-season', { season, href: '#build', button: 'Build your team' }) %>
 
     <!-- Rates: the figures are tokens filled from config/pricing.ts as the page is served. -->
     <section class="section shell" id="rates" aria-labelledby="rates-heading">
@@ -640,4 +642,4 @@
       </div>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Planning Halloween?", "line": "Now booking 23–24 and 30–31 October.", "button": "Build your Halloween team", "href": "#build" }) %>
+    <%~ it.blocks["cta"]({ "heading": "Planning Halloween?", "line": season.line || "","button": "Build your Halloween team", "href": "#build" }) %>

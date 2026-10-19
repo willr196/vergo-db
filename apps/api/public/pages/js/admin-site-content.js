@@ -78,7 +78,7 @@
     Array.prototype.forEach.call(form.elements, function (el) {
       if (!el.name) return;
       if (el.type === 'checkbox') out[el.name] = el.checked;
-      else if (el.type === 'number') out[el.name] = el.value === '' ? null : Number(el.value);
+      else if (el.type === 'number' || 'number' in el.dataset) out[el.name] = el.value === '' ? null : Number(el.value);
       else out[el.name] = el.value.trim();
     });
     return out;
@@ -90,9 +90,11 @@
   function renderPreview() {
     var rates = readSetting(document.querySelector('form[data-setting="rates"]'));
     var promises = readSetting(document.querySelector('form[data-setting="promises"]'));
+    var booking = readSetting(document.querySelector('form[data-setting="terms"]'));
     var terms = [
-      '4-hour minimum', '30-min overrun blocks', '+' + (rates.afterMidnightUpliftPct || 0) + '% after midnight',
-      'No booking or uniform fees', 'Chefs, managers, cleaners and security quoted separately.',
+      (booking.minimumChargeHours || 0) + '-hour minimum', (booking.overrunBlockMinutes || 0) + '-min overrun blocks',
+      '+' + (rates.afterMidnightUpliftPct || 0) + '% after midnight',
+      'No booking or uniform fees', booking.seniorRolesQuoted, booking.paymentTerms, 'Cancellation: ' + booking.cancellation,
     ];
     var html = '<h3>Rates</h3>';
     if (rates.premiumEnabled) {
@@ -204,6 +206,7 @@
         return '<p><strong>' + esc(p.navLabel) + '</strong> ' +
           (p.headerLive ? '<span class="badge badge-success">In the header now</span> ' : '') +
           (p.bannerLive ? '<span class="badge badge-success">Banner live now</span>' : '<span class="badge badge-muted">Not live</span>') +
+          (p.pageInSeason ? '' : ' <span class="badge badge-muted">Event page: booking next year</span>') +
           '</p><p>' + esc(p.bannerText) + '</p><p class="sc-meta">' + esc(p.startsOn) + ' to ' + esc(p.endsOn) + nav + ' · ' + esc(p.href) + '</p>';
       },
       fields: [
@@ -219,6 +222,8 @@
         { name: 'homeLines', label: 'Homepage lines', type: 'lines' },
         { name: 'homeCtaLabel', label: 'Homepage button text (optional)', max: 80 },
         { name: 'homeCtaHref', label: 'Homepage button link (optional)', max: 200 },
+        { name: 'pageLine', label: 'Dates line on the event page (optional, e.g. "Now booking 23–24 and 30–31 October.")', max: 200 },
+        { name: 'pageUntilOn', label: 'Event page in season until (optional; blank = the banner\'s last day). After it, the page says "Now booking" for next year.', type: 'date' },
         { name: 'published', label: 'Published', type: 'checkbox', default: true },
       ],
     },
@@ -261,8 +266,11 @@
   function renderHistory() {
     var body = document.getElementById('sc-history');
     body.innerHTML = state.changes.length ? state.changes.map(function (c) {
-      return '<tr><td class="text-muted fs-sm">' + AdminCore.formatDateTime(c.when) + '</td><td>' + esc(c.who) + '</td><td>' + esc(c.what) + '</td></tr>';
-    }).join('') : '<tr><td colspan="3" class="empty-state">Nothing yet</td></tr>';
+      var action = c.revertible
+        ? '<button class="btn btn-ghost btn-sm" data-action="revert" data-id="' + esc(c.id) + '">Revert</button>'
+        : (c.reverted ? '<span class="text-muted fs-sm">Reverted</span>' : '');
+      return '<tr><td class="text-muted fs-sm">' + AdminCore.formatDateTime(c.when) + '</td><td>' + esc(c.who) + '</td><td>' + esc(c.what) + '</td><td>' + action + '</td></tr>';
+    }).join('') : '<tr><td colspan="4" class="empty-state">Nothing yet</td></tr>';
   }
 
   /* -------------------------------------------------------------- editor */
@@ -466,6 +474,18 @@
         });
         load();
       } catch (err) { toast(err.message, 'error'); }
+      return;
+    }
+
+    if (action === 'revert') {
+      if (!window.confirm('Undo this change? The site shows the earlier version straight away.')) return;
+      await AdminCore.withLoading(el, async function () {
+        try {
+          await api(BASE + '/changes/' + encodeURIComponent(el.dataset.id) + '/revert', { method: 'POST' });
+          toast('Reverted. The site shows it now.', 'success');
+          load();
+        } catch (err) { toast(err.message, 'error'); }
+      });
       return;
     }
 

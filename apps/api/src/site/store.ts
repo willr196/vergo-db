@@ -19,10 +19,12 @@ import { applySettings, defaultSettings, parseSettings, SiteSettings } from './s
  * synchronously and never wait on the database:
  *   - at boot it is the built-in defaults (today's site, word for word);
  *   - refreshContent() replaces it with the database copy: at boot, straight
- *     after an admin save, and when a page reads a copy over 60 seconds old
+ *     after an admin save, and when a page reads a copy over 10 minutes old
  *     (that read gets the old copy; the reload runs behind it). No timer, so
  *     with no visitors nothing queries and Neon can scale to zero. A 60-second
- *     timer on two machines used up the free compute in October 2026;
+ *     timer on two machines used up the free compute in October 2026. The
+ *     10-minute read is for a second machine, which an admin save on the
+ *     first never reaches, and for the open shifts on /work;
  *   - if the database is slow (over 500ms) or down, the last good copy stays.
  *
  * Logs go to the console, not services/logger: this module is loaded by the
@@ -75,7 +77,7 @@ export interface SiteContent {
 
 export const SEEDED_MARKER = 'contentSeeded';
 const DB_TIMEOUT_MS = 500;
-const REFRESH_MS = 60_000;
+const REFRESH_MS = 10 * 60_000;
 
 function defaults(): SiteContent {
   return {
@@ -200,6 +202,8 @@ async function loadFromDatabase(): Promise<SiteContent | null> {
       endsAt: p.endsAt,
       navStartsAt: p.navStartsAt,
       navEndsAt: p.navEndsAt,
+      pageLine: p.pageLine,
+      pageUntil: p.pageUntil,
     })),
     updated,
     openShifts: [],
