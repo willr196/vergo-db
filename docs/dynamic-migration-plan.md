@@ -88,3 +88,28 @@ Each item is real work the current site lacks. Ordered by value for the effort.
 6. **Per-role `Rate` model in integer pence** (with `public`/`quote_only` visibility). Large: touches `pricing.ts`, `quoteShift`, `quote-calc.js`, `/api/v1/rates`, the admin, and the tests. The existing rates (standard, premium, three special-events roles) work; this is mainly for the pence rule and for adding roles like Santa without code.
 7. **Lighthouse before/after** and the Christmas render check: the last commit already removed the per-frame repaint; the uncommitted `special-events.css` change moves the snow into the hero only.
 8. Not proposed: `USE_TEMPLATES` switch and `_legacy/` folder (the legacy files are deleted and the migration is live; rollback is redeploying a previous Fly image, as `docs/site-rollout.md` describes); `@fastify/view` (wrong framework); Phase 1 session and Fly changes (already true).
+
+## Speed and the Christmas page (2026-10-19)
+
+Lighthouse 12.6, mobile, performance only. "Live" is vergoltd.com (the
+15 October release); "branch" is `dynamic-site` served locally.
+
+| Page | Live score | Live LCP | Branch score | Branch LCP |
+|---|---|---|---|---|
+| `/` | 99 | 1.8 s | 98 | 2.2 s |
+| `/hire` | 99 | 1.7 s | 99 | 2.0 s |
+| `/special-events/christmas` | 100 | 1.7 s | 99 | 2.1 s |
+
+Total blocking time 0 ms and layout shift ≤ 0.002 on all six. The branch's
+extra LCP is the local server, not the code: it speaks HTTP/1.1 where Fly's
+edge speaks HTTP/2, so fonts and CSS queue (render delay 1.75 s vs 1.2 s on
+the homepage). The CSS is byte-identical (same `?v=` hash), server response
+is 20–30 ms on both, and in season the branch adds nothing to these pages. A
+like-for-like "after" needs the branch on Fly.
+
+Christmas rendering: the four SVGs (`christmas-bar`, `-canapes`, `-santa`,
+`vergo-christmas-tree`) are 1.5–1.7 KB with 17–19 shapes each; no filters
+(`feGaussianBlur`, `feTurbulence`), no base64 images, no SMIL. The one
+continuous animation is the snow, transform-only (no repaints) and off under
+reduced motion. The uncommitted `special-events.css` change confines it to
+the hero and drops the header blur on the Christmas theme: worth shipping.
