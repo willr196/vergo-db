@@ -83,6 +83,48 @@
       "answer": "Quoted on the brief, by headcount, hours and the type of event."
     }
   ],
+  "hire/front-of-house": [
+    {
+      "question": "What can front of house staff cover?",
+      "answer": "Greeting, guest lists and wristbands, cloakroom, seating guests and running between rooms. Tell us what the night needs."
+    },
+    {
+      "question": "Are hosts the same rate as waiting staff?",
+      "answer": "Yes. Hosts, runners, waiting and bar staff share one rate and can go on one booking."
+    },
+    {
+      "question": "Can they match our dress code?",
+      "answer": "Yes. Send it with the brief and they arrive dressed for it."
+    }
+  ],
+  "hire/event-chefs": [
+    {
+      "question": "Do your chefs plan the menu?",
+      "answer": "They cook to your menu or your caterer's. For the food planned and handled too, see <a href=\"/book-an-event\">full events</a>."
+    },
+    {
+      "question": "Can you send kitchen porters with them?",
+      "answer": "Yes. Chefs and kitchen porters go on the same booking, so the wash-up is covered."
+    },
+    {
+      "question": "How are chefs priced?",
+      "answer": "From {{CHEF_FROM_RATE}}/hr per chef. The menu, the hours and the kind of kitchen set the rate, and we agree it before you book."
+    }
+  ],
+  "hire/private-parties": [
+    {
+      "question": "Do you staff parties at home?",
+      "answer": "Yes, at houses, gardens and flats as well as hired venues. Tell us about access and the kitchen."
+    },
+    {
+      "question": "How many staff do we need?",
+      "answer": "Tell us guest numbers, how drinks and food are served, and the timings. We'll recommend a team."
+    },
+    {
+      "question": "Do you bring the drinks and glasses?",
+      "answer": "On a staff booking we send people only. For food and drink too, see <a href=\"/book-an-event\">full events</a>."
+    }
+  ],
   "hire/corporate-events": [
     {
       "question": "How many staff can you supply?",
@@ -132,7 +174,7 @@
     },
     {
       "question": "Do you supply the costumes?",
-      "answer": "Yes. The festive team arrives in costume, or we can style yours."
+      "answer": "Yes. The festive team arrives in costume, or we can style yours. Costume and styling is {{COSTUME_FEE}} per booking."
     },
     {
       "question": "Do you staff New Year's Eve?",
@@ -145,24 +187,6 @@
     {
       "question": "What if someone doesn't turn up?",
       "answer": "In London and Birmingham, we have a replacement on site within the hour. If we can't, that shift isn't charged. Elsewhere, we agree the backup plan in the quote."
-    }
-  ],
-  "special-events/halloween": [
-    {
-      "question": "How far ahead should we book?",
-      "answer": "{{SEASON_LINE_HALLOWEEN}} Ask anyway and we'll tell you what's still possible."
-    },
-    {
-      "question": "Do you supply the costumes?",
-      "answer": "Yours styled by us, or sourced and hired for the booking. We don't hold a costume store, so raise the look early."
-    },
-    {
-      "question": "How scary is “scary”?",
-      "answer": "Your call, agreed before the event. Scare level, contact, age range and venue limits all go in the brief."
-    },
-    {
-      "question": "Can we book one or two people?",
-      "answer": "Yes, two themed hosts is a normal booking. The {{MIN_HOURS}}-hour minimum still applies."
     }
   ]
 }

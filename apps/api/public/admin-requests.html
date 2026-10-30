@@ -11,6 +11,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/pages/css/admin-shared.css?v=12">
+  <style>
+    /* Add to board: the check before a job goes on with details missing. */
+    #bj-error { padding: 11px 16px; border-radius: 6px; margin-top: 14px; font-size: 0.875rem; }
+    #bj-error ul { margin: 6px 0 10px 18px; }
+    #bj-error .as-row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .bj-note { padding: 11px 16px; border-radius: 6px; margin-bottom: 14px; font-size: 0.875rem; }
+    .bj-missing { border-color: var(--as-warning) !important; }
+    /* Crew picker: a short scrolling list of board people. */
+    .bj-crew-list { max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;
+      padding: 8px 10px; border: 1px solid var(--as-border); border-radius: 6px; }
+    .bj-crew-list input:disabled + span { opacity: 0.55; }
+    .bj-new-person { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+  </style>
 </head>
 <body class="as-panel">
   <a href="#as-content" class="as-skip-link">Skip to main content</a>

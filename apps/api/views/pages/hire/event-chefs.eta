@@ -1,0 +1,67 @@
+<%/* /hire/event-chefs: chefs and cooks for event kitchens. From CHEF_FROM_RATE; the brief sets the rest, so no rate block. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Event Chefs for Hire in London | VERGO Staffing",
+    "description": `Event chefs and cooks in London for prep, service and the pass, cooking your menu or your caterer's. From ${it.t.CHEF_FROM_RATE}/hr, names confirmed the same day.`,
+    "ogImage": "/images/og/kitchen-porters.jpg",
+    "canonical": "/hire/event-chefs"
+  },
+  jsonLd: [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Event chef hire",
+      "serviceType": "Event kitchen staffing",
+      "url": "https://vergoltd.com/hire/event-chefs",
+      "description": "Chefs and cooks for event kitchens across London: prep, service and the pass, working to the client's or caterer's menu.",
+      "areaServed": {
+        "@type": "City",
+        "name": "London"
+      },
+      "provider": {
+        "@id": "https://vergoltd.com/#organization"
+      },
+      "offers": {
+        "@type": "Offer",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "minPrice": Number(it.t.CHEF_FROM_RATE_NUMBER),
+          "priceCurrency": "GBP",
+          "unitCode": "HUR",
+          "unitText": "per hour, per chef"
+        }
+      }
+    },
+    it.faqJsonLd("hire/event-chefs")
+  ]
+}) %>
+    <section class="page-hero-plain shell">
+      <span class="eyebrow">Event chefs</span>
+      <h1>Event chefs for hire in London</h1>
+      <p class="lede">Chefs and cooks for the prep, the service and the pass, cooking your menu or your caterer's. From <%~ it.t.CHEF_FROM_RATE %>/hr.</p>
+      <div class="btn-row">
+        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+      </div>
+    </section>
+
+    <section class="section shell" aria-labelledby="whattheydo-heading">
+      <h2 id="whattheydo-heading" class="section-label">What they do</h2>
+      <ul class="check-list">
+        <li><strong>Prep:</strong> mise en place to your menu, specs and allergens</li>
+        <li><strong>Service:</strong> on the stove or the pass, plates out on time</li>
+        <li><strong>After:</strong> kitchen cleared down, with <a href="/hire/kitchen-porters">kitchen porters</a> on the wash-up</li>
+      </ul>
+      <p class="section-note"><%= it.t.SENIOR_ROLES %> For the food handled too, see <a href="/book-an-event">full events</a>.</p>
+    </section>
+
+    <%~ it.blocks["guarantees"]() %>
+
+    <section class="section shell" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" class="section-label">Questions</h2>
+      <div class="faq-list">
+        <%~ include('/partials/faq', { items: it.faqs("hire/event-chefs"), name: "event-chefs-faq", esc: it.esc }) %>
+      </div>
+      <p class="link-row">Also: <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/production-catering">Film and TV catering</a> · <a href="/hire/waiting-staff">Waiting staff</a></p>
+    </section>
+
+    <%~ it.blocks["cta"]({ "heading": "Need hands in the kitchen?" }) %>

@@ -26,7 +26,7 @@ Monorepo with three apps:
 - Theme (public site, from 28 Sept 2026): dark charcoal, not black (#1C1F22 bg,
   #25292D surface, #F3F1EC ink, #6FC29B green accent with #0F1D17 button ink),
   tokens on :root in vergo-site.css. The Premium rate card sits a shade deeper
-  and the Halloween page keeps its own near-black palette. The login page
+  and the Christmas page keeps its own seasonal palette. The login page
   (vergo-public-pages.css) and the admin panel (#D4AF37) have their own styles.
 - Public pages are Eta templates in apps/api/views/pages/, rendered on request
   (routes: VIEW_ROUTES in src/site/view.ts; blog: content/blog/*.md). Prices,

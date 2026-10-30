@@ -961,13 +961,13 @@ model RecentWork {
 model GalleryPhoto {
   id        String   @id @default(cuid())
   /// S3 key or a path under public/. With variants, "{w}" in it stands for
-  /// each width: "/images/x/halloween-bar-{w}.webp" with variants [800, 1200].
+  /// each width: "/images/x/bar-{w}.webp" with variants [800, 1200].
   path      String   @db.VarChar(500)
   /// Widths available for srcset, smallest first; empty for a single file
   variants  Int[]    @default([])
   alt       String   @db.VarChar(300)
   caption   String?  @db.VarChar(300)
-  /// Where it shows: "home", "hire", "halloween", ...
+  /// Where it shows: "home", "hire", "season-christmas", ...
   tags      String[]
   width     Int
   height    Int
@@ -981,7 +981,7 @@ model GalleryPhoto {
 
 model Faq {
   id        String   @id @default(cuid())
-  /// The page it belongs to, e.g. "hire/weddings", "special-events/halloween"
+  /// The page it belongs to, e.g. "hire/weddings", "special-events/christmas"
   pageKey   String   @db.VarChar(100)
   question  String   @db.VarChar(300)
   /// May carry simple links and {{TOKENS}}
@@ -996,7 +996,7 @@ model Faq {
 
 model SeasonalPromo {
   id           String    @id @default(cuid())
-  /// "halloween", "christmas", ...
+  /// "christmas", ...
   key          String    @unique @db.VarChar(50)
   navLabel     String    @db.VarChar(40)
   bannerText   String    @db.VarChar(120)
@@ -1009,7 +1009,7 @@ model SeasonalPromo {
   /// The banner and homepage section show between these (Europe/London)
   startsAt     DateTime
   endsAt       DateTime
-  /// The header item's own window, when it differs (Christmas: from 1 November)
+  /// The header item's own window, when it differs from the banner's
   navStartsAt  DateTime?
   navEndsAt    DateTime?
   /// The line on the event page while it's in season ("Now booking 23–24 and 30–31 October.")
@@ -1024,7 +1024,7 @@ model SeasonalPromo {
 
 /// The rate card, edited in Admin > Site content > Rates. Money in whole pence.
 /// The core keys (standard, premium, themed_hospitality, character_performer,
-/// makeup_artist) feed config/pricing.ts and can't be removed (src/site/rates.ts).
+/// santa_claus, makeup_artist, face_painting, event_chef) feed config/pricing.ts and can't be removed (src/site/rates.ts).
 model Rate {
   id          String   @id @default(cuid())
   /// "standard", "santa"; {{RATE_SANTA}} on the site

@@ -689,9 +689,9 @@ export const LEGACY_REDIRECTS: Record<string, string> = {
   '/temporary-bar-staff-london': '/hire/bar-staff',
   '/kitchen-porters-london': '/hire/kitchen-porters',
   '/wedding-staff-london': '/hire/weddings',
-  '/front-of-house-staff-london': '/hire/waiting-staff',
+  '/front-of-house-staff-london': '/hire/front-of-house',
   '/corporate-event-staff-london': '/hire/corporate-events',
-  '/event-chefs-london': '/hire',
+  '/event-chefs-london': '/hire/event-chefs',
   '/festival-staff-london': '/hire/corporate-events',
   '/event-staffing-agency-london': '/hire',
   '/hospitality-staffing-agency-london': '/hire',
@@ -710,8 +710,12 @@ export const LEGACY_REDIRECTS: Record<string, string> = {
 
   // The seasonal pages lived under /events before /special-events.
   '/events': '/special-events',
-  '/events/halloween': '/special-events/halloween',
+  '/events/halloween': '/special-events',
   '/events/christmas': '/special-events/christmas',
+
+  // Halloween, removed 2026-10-30.
+  '/special-events/halloween': '/special-events',
+  '/blog/halloween-event-staff-london': '/special-events',
 
   // Worker side. /apply still shows in search describing self-employed work.
   '/apply': '/work/apply',

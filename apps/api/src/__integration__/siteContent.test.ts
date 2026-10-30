@@ -44,8 +44,8 @@ test('an unseeded database leaves the built-in content in place', async () => {
 test('the seed copies the site in, once, and the store then reads the database', async () => {
   seed();
   seed(); // a second run must not duplicate anything
-  assert.equal(await prisma.faq.count({ where: { pageKey: 'special-events/halloween' } }), 4);
-  assert.equal(await prisma.seasonalPromo.count(), 2);
+  assert.equal(await prisma.faq.count({ where: { pageKey: 'special-events/christmas' } }), 5);
+  assert.equal(await prisma.seasonalPromo.count(), 1);
   const testimonials = await prisma.testimonial.count();
 
   await refreshContent();

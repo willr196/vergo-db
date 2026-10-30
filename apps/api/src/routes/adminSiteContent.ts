@@ -38,9 +38,11 @@ const FAQ_PAGES = [
   'hire/corporate-events',
   'hire/cleaners',
   'hire/security',
+  'hire/front-of-house',
+  'hire/event-chefs',
+  'hire/private-parties',
   'work',
   'special-events/christmas',
-  'special-events/halloween',
 ];
 
 class ContentError extends Error {
@@ -100,7 +102,7 @@ const id = z.object({ id: z.string().min(1).max(191) });
 const text = (max: number) => z.string().trim().min(1).max(max);
 const optionalUrl = z.union([z.literal(''), z.string().trim().url().max(500)]).optional().nullable();
 /** A local page path or an absolute https URL, for links on promos. */
-const href = z.string().trim().max(200).regex(/^(\/[^\s]*|https:\/\/[^\s]+)$/, 'must be a page path like /special-events/halloween');
+const href = z.string().trim().max(200).regex(/^(\/[^\s]*|https:\/\/[^\s]+)$/, 'must be a page path like /special-events/christmas');
 const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'must be a date');
 
 function startOf(d: string): Date {
@@ -529,7 +531,7 @@ async function contentWithDrafts(): Promise<SiteContent> {
 }
 
 /**
- * GET ?path=/special-events/halloween: that page as it will read with every
+ * GET ?path=/special-events/christmas: that page as it will read with every
  * draft published. Behind the admin session like the rest of this router,
  * never cached, and marked so nobody mistakes it for the live page.
  */

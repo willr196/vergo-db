@@ -1,6 +1,6 @@
 <%/*
   The homepage's seasonal strip: the season in the header right now (so
-  Halloween until 31 October, then Christmas to 20 December), or nothing.
+  Christmas from 1 November to 20 December), or nothing.
   Kept small on purpose: a thumbnail from the photo tagged "season-<key>",
   the heading and a text link. No prices: the homepage carries none, so
   the promo's price lines show on its own page only.

@@ -54,10 +54,6 @@
           <%~ include('/partials/city-switch', { current: "london" }) %>
           <p class="home-slogan"><%~ it.t.SLOGAN %></p>
         </div>
-        <a class="home-halloween" href="/special-events/halloween">
-          <img src="/images/special-events/vergo-pumpkin.svg" width="420" height="420" alt="">
-          <span>Halloween staff</span>
-        </a>
       </div>
     </section>
     </div>
@@ -98,8 +94,8 @@
     <%~ it.blocks["trust-strip"]() %>
 
     <!-- The season in the header right now, chosen on the server from the
-         stored promos (admin: Site content > Seasonal promos): Halloween to
-         31 October, then Christmas to 20 December. Nothing outside a season. -->
+         stored promos (admin: Site content > Seasonal promos): Christmas to
+         20 December. Nothing outside a season. -->
     <%~ it.blocks["season-feature"]() %>
 
     <%~ it.blocks["testimonials"]({ "featured": "1" }) %>

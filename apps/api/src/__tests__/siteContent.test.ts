@@ -25,7 +25,7 @@ test('the defaults are today\'s values', () => {
   assert.equal(s.rates.afterMidnightUpliftPct, 25);
   assert.deepEqual(
     defaultRates().map((r: { key: string; amountPence: number }) => [r.key, r.amountPence]),
-    [['standard', 1900], ['premium', 2400], ['themed_hospitality', 2100], ['character_performer', 2600], ['makeup_artist', 3500]],
+    [['standard', 1900], ['premium', 2400], ['themed_hospitality', 2200], ['character_performer', 2600], ['santa_claus', 3500], ['makeup_artist', 3500], ['face_painting', 5500], ['event_chef', 2400]],
   );
   assert.equal(s.contact.phoneDisplay, SITE.phoneDisplay);
   for (const key of Object.keys(SETTING_SCHEMAS)) {
@@ -85,7 +85,7 @@ test('only active, public rates reach the tokens and the public API', () => {
     { ...base, key: 'grotto', label: 'Grotto build', amountPence: null, unit: 'quote', visibility: 'public' },
   ]);
   const keys = publicRateList().map((r: { key: string }) => r.key);
-  assert.deepEqual(keys, ['standard', 'premium', 'themed_hospitality', 'character_performer', 'makeup_artist', 'santa', 'reindeer']);
+  assert.deepEqual(keys, ['standard', 'premium', 'themed_hospitality', 'character_performer', 'santa_claus', 'makeup_artist', 'face_painting', 'event_chef', 'santa', 'reindeer']);
   const t = siteTokens();
   assert.equal(t.RATE_SANTA, '£45');
   assert.equal(t.RATE_SANTA_NUMBER, '45.00');
@@ -105,12 +105,13 @@ test('with the database down, a refresh keeps the site on its last good copy', a
 });
 
 test('season windows are London days', () => {
-  const [halloween, christmas] = defaultPromos(2026);
+  const [christmas] = defaultPromos(2026);
   // 1 September is BST, so midnight in London is 23:00 UTC the day before.
-  assert.equal(halloween.startsAt.toISOString(), '2026-08-31T23:00:00.000Z');
-  // 31 October 2026 is after the clocks go back: GMT.
-  assert.equal(halloween.endsAt.toISOString(), '2026-10-31T23:59:59.999Z');
-  assert.equal(christmas.navStartsAt.toISOString(), '2026-11-01T00:00:00.000Z');
+  assert.equal(christmas.startsAt.toISOString(), '2026-08-31T23:00:00.000Z');
+  // 20 December is after the clocks go back: GMT.
+  assert.equal(christmas.endsAt.toISOString(), '2026-12-20T23:59:59.999Z');
+  // The header item shows for the banner's dates.
+  assert.equal(christmas.navStartsAt, null);
 });
 
 test('the season decides the banner, the header item and the homepage section', () => {
@@ -121,9 +122,8 @@ test('the season decides the banner, the header item and the homepage section', 
     return { banner: s.banner.map((p: { key: string }) => p.key).join('+'), header: s.header ? s.header.key : '' };
   };
   assert.deepEqual(at('2026-08-31T22:59:59Z'), { banner: '', header: '' }); // 31 Aug, 11:59pm BST
-  assert.deepEqual(at('2026-08-31T23:00:00Z'), { banner: 'halloween+christmas', header: 'halloween' }); // 1 Sep
-  assert.deepEqual(at('2026-10-31T23:59:59Z'), { banner: 'halloween+christmas', header: 'halloween' }); // 31 Oct, last second
-  assert.deepEqual(at('2026-11-01T00:00:00Z'), { banner: 'christmas', header: 'christmas' });
+  assert.deepEqual(at('2026-08-31T23:00:00Z'), { banner: 'christmas', header: 'christmas' }); // 1 Sep
+  assert.deepEqual(at('2026-10-30T12:00:00Z'), { banner: 'christmas', header: 'christmas' });
   assert.deepEqual(at('2026-12-20T23:59:59Z'), { banner: 'christmas', header: 'christmas' });
   assert.deepEqual(at('2026-12-21T00:00:00Z'), { banner: '', header: '' });
 
@@ -183,8 +183,6 @@ test('event pages switch to next year once their season has passed, and stay up'
   const { eventSeason, renderView } = require('../site/view');
   const at = (key: string, iso: string) => eventSeason(key, key, new Date(iso));
 
-  assert.deepEqual(at('halloween', '2026-10-31T23:59:59Z'), { inSeason: true, year: 2026, label: 'Halloween', line: 'Now booking 23–24 and 30–31 October.' });
-  assert.deepEqual(at('halloween', '2026-11-01T00:00:00Z'), { inSeason: false, year: 2027, label: 'Halloween', line: 'Now booking Halloween 2027.' });
   // Christmas's page runs past its banner (20 December) to New Year's Eve.
   assert.equal(at('christmas', '2026-12-21T12:00:00Z').inSeason, true);
   assert.equal(at('christmas', '2026-12-31T23:59:59Z').inSeason, true);
@@ -199,22 +197,20 @@ test('event pages switch to next year once their season has passed, and stay up'
       static now() { return RealDate.parse(iso); }
     };
     try {
-      return renderView('special-events/halloween', { path: '/special-events/halloween' });
+      return renderView('special-events/christmas', { path: '/special-events/christmas' });
     } finally {
       (global as any).Date = RealDate;
     }
   };
-  const inSeason = render('2026-10-20T12:00:00Z');
-  assert.match(inSeason, /Now booking 23–24 and 30–31 October\./);
+  const inSeason = render('2026-12-01T12:00:00Z');
   assert.doesNotMatch(inSeason, /data-block="event-season"/);
 
-  const after = render('2026-11-02T12:00:00Z');
+  const after = render('2027-01-02T12:00:00Z');
   assert.match(after, /data-block="event-season"/);
-  assert.match(after, /<h2 id="season-heading">Now booking Halloween 2027<\/h2>/);
-  assert.doesNotMatch(after, /23–24 and 30–31 October/);
+  assert.match(after, /<h2 id="season-heading">Now booking Christmas 2027<\/h2>/);
   // Everything else stays, so the page keeps its rankings.
-  assert.match(after, /<h1>Halloween event staff and performers in London<\/h1>/);
-  assert.match(after, /id="halloweenForm"/);
+  assert.match(after, /<h1>Christmas Staff and Bookings<\/h1>/);
+  assert.match(after, /id="christmasForm"/);
 });
 
 test('a page the stored content breaks renders from the built-in content; the 500 page stands on its own', () => {

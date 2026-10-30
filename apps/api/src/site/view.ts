@@ -3,7 +3,7 @@ import path from 'node:path';
 import { Eta } from 'eta';
 import type { Response } from 'express';
 import { PRICING, SITE_TERMS, formatRate, headlineRateText } from '../config/pricing';
-import { SITE, siteTokens } from './content';
+import { SITE, seniorRolesLine, siteTokens } from './content';
 import { siteContent } from './store';
 import type { PhotoContent, PromoContent } from './defaults';
 
@@ -50,9 +50,40 @@ export function jsonLdString(data: unknown): string {
 
 /* ------------------------------------------------------------- shared data */
 
+/**
+ * The Hire staff dropdown: every role and occasion page, one click from any
+ * page. No /special-events links here; the season's page gets its own header
+ * item while it's selling (see the header partial).
+ */
+const HIRE_MENU = [
+  {
+    heading: 'By role',
+    links: [
+      { href: '/hire/waiting-staff', label: 'Waiting staff' },
+      { href: '/hire/bar-staff', label: 'Bar staff' },
+      { href: '/hire/front-of-house', label: 'Hosts and front of house' },
+      { href: '/hire/kitchen-porters', label: 'Kitchen porters' },
+      { href: '/hire/event-chefs', label: 'Event chefs' },
+      { href: '/hire/cleaners', label: 'Event cleaners' },
+      { href: '/hire/security', label: 'Event security' },
+    ],
+  },
+  {
+    heading: 'By occasion',
+    links: [
+      { href: '/hire/weddings', label: 'Weddings' },
+      { href: '/hire/private-parties', label: 'Private parties' },
+      { href: '/hire/corporate-events', label: 'Corporate and large events' },
+      { href: '/hire/production-catering', label: 'Film and TV catering' },
+      { href: '/birmingham', label: 'Event staff in Birmingham' },
+    ],
+  },
+];
+
 const NAV = [
-  { href: '/hire', label: 'Hire staff', match: (p: string) => p === '/hire' || (p.startsWith('/hire/') && p !== '/hire/quote') },
+  { href: '/hire', label: 'Hire staff', menu: HIRE_MENU, match: (p: string) => p === '/hire' || (p.startsWith('/hire/') && p !== '/hire/quote') },
   { href: '/book-an-event', label: 'Events', match: (p: string) => p === '/book-an-event' },
+  { href: '/special-events', label: 'Special events', match: (p: string) => p === '/special-events' || p.startsWith('/special-events/') },
   { href: '/about', label: 'About', match: (p: string) => p === '/about' },
   { href: '/work', label: 'Work for us', match: (p: string) => p === '/work' || p.startsWith('/work/') },
 ];
@@ -71,7 +102,7 @@ function rateTerms(): string[] {
     `${PRICING.overrunBlockMinutes}-min overrun blocks`,
     `+${Math.round((PRICING.afterMidnightMultiplier - 1) * 100)}% after midnight`,
     'No booking or uniform fees',
-    SITE_TERMS.seniorRolesQuoted,
+    seniorRolesLine(),
     SITE_TERMS.paymentTerms,
     `Cancellation: ${SITE_TERMS.cancellation}`,
   ];
@@ -162,7 +193,7 @@ export interface SeasonState {
 /**
  * Which seasonal offers are live, decided on the server from the stored
  * promo dates (Europe/London days, stored as instants). The soonest-ending
- * season goes first, so Halloween leads until 31 October, then Christmas.
+ * season goes first.
  */
 export function seasonState(now: Date = new Date()): SeasonState {
   const live = (from: Date, to: Date) => from.getTime() <= now.getTime() && now.getTime() <= to.getTime();
@@ -178,9 +209,9 @@ export interface EventSeason {
   inSeason: boolean;
   /** The season the page is selling: this one in season, next year's after. */
   year: number;
-  /** "Halloween", from the promo's header label. */
+  /** "Christmas", from the promo's header label. */
   label: string;
-  /** In season: the promo's dates line. Out of season: "Now booking Halloween 2027." */
+  /** In season: the promo's dates line. Out of season: "Now booking Christmas 2027." */
   line: string | null;
 }
 
@@ -207,8 +238,8 @@ export function eventSeason(key: string, fallbackLabel: string, now: Date = new 
 }
 
 /**
- * {{SEASON_LINE_HALLOWEEN}} and so on, one per promo: its event page's dates
- * line, or "Now booking Halloween 2027." once the season has passed. For FAQ
+ * {{SEASON_LINE_CHRISTMAS}} and so on, one per promo: its event page's dates
+ * line, or "Now booking Christmas 2027." once the season has passed. For FAQ
  * answers, which would otherwise keep last season's dates all year.
  */
 export function seasonLineTokens(now: Date = new Date()): Record<string, string> {
@@ -288,10 +319,18 @@ export function pageData(ctx: PageContext) {
     /** Published photos carrying a tag, in order. */
     photos: (tag: string) => content.photos.filter((ph) => ph.tags.includes(tag)),
     fillTokens: (text: string) => fillTokens(text, tokens),
-    nav: NAV.map((item) => ({ href: item.href, label: item.label, current: item.match(ctx.path) })),
+    nav: NAV.map((item) => ({
+      href: item.href,
+      label: item.label,
+      current: item.match(ctx.path),
+      menu: (item.menu || []).map((group) => ({
+        heading: group.heading,
+        links: group.links.map((l) => ({ ...l, current: l.href === ctx.path })),
+      })),
+    })),
     bannerAllowed: bannerAllowed(ctx.path),
     season: seasonState(),
-    /** An event page's season: it.eventSeason('halloween', 'Halloween'). */
+    /** An event page's season: it.eventSeason('christmas', 'Christmas'). */
     eventSeason: (key: string, label: string) => eventSeason(key, label),
     /** Open shifts for /work, formatted: "Sat 4 Oct", "£13.50/hr". */
     shifts: () =>
@@ -351,11 +390,14 @@ export const VIEW_ROUTES: ViewRoute[] = [
   { path: '/hire/corporate-events', view: 'hire/corporate-events' },
   { path: '/hire/cleaners', view: 'hire/cleaners' },
   { path: '/hire/security', view: 'hire/security' },
+  { path: '/hire/front-of-house', view: 'hire/front-of-house' },
+  { path: '/hire/event-chefs', view: 'hire/event-chefs' },
+  { path: '/hire/private-parties', view: 'hire/private-parties' },
+  { path: '/links', view: 'links' },
   { path: '/hire', view: 'hire' },
   { path: '/birmingham', view: 'birmingham' },
   { path: '/special-events', view: 'special-events' },
   { path: '/special-events/christmas', view: 'special-events/christmas' },
-  { path: '/special-events/halloween', view: 'special-events/halloween' },
   { path: '/book-an-event', view: 'book-an-event' },
   { path: '/', view: 'index' },
   { path: '/hire/quote', view: 'hire/quote' },

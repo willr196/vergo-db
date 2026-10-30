@@ -42,16 +42,16 @@ read, before you save.
 
 ## Banners and seasonal pages
 
-**Seasonal promos** tab. Each promo (Halloween, Christmas) sets:
+**Seasonal promos** tab. Each promo (Christmas) sets:
 
 - when the top banner and the homepage section show (London dates, both
   days included), and when the item in the header shows if that differs;
 - the banner text, the homepage heading, lines and button;
-- the **dates line** on the event page, e.g. "Now booking 23–24 and 30–31
-  October.";
+- the **dates line** on the event page, e.g. "Now booking 18–19
+  December.";
 - the day the **event page** stops selling this year. After that day the
   page stays up, so it keeps its place in Google, and says "Now booking
-  Halloween 2027" with the enquiry form. Christmas is set to run to 31
+  Christmas 2027" with the enquiry form. Christmas is set to run to 31
   December because the page also sells New Year's Eve.
 
 For next year, edit the promo's dates and dates line. The page switches back

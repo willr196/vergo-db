@@ -157,9 +157,9 @@ test('the length limits are enforced on the server', async () => {
   assert.equal(work.statusCode, 400);
 
   const promos = (await send('GET', '/')).body.promos;
-  const h = promos.find((p: any) => p.key === 'halloween');
-  const banner = await send('PUT', `/promos/${h.id}`, {
-    ...h,
+  const c = promos.find((p: any) => p.key === 'christmas');
+  const banner = await send('PUT', `/promos/${c.id}`, {
+    ...c,
     bannerText: 'one two three four five six seven eight nine ten eleven',
   });
   assert.equal(banner.statusCode, 400);
@@ -191,18 +191,18 @@ test('FAQs: add, edit, reorder and delete, each on the page straight away', asyn
 
 test('promo dates are London days, and the admin sees what is live', async () => {
   await imported();
-  const h = (await send('GET', '/')).body.promos.find((p: any) => p.key === 'halloween');
-  assert.equal(h.startsOn, '2026-09-01');
-  assert.equal(h.endsOn, '2026-10-31');
+  const c = (await send('GET', '/')).body.promos.find((p: any) => p.key === 'christmas');
+  assert.equal(c.startsOn, '2026-09-01');
+  assert.equal(c.endsOn, '2026-12-20');
 
-  const backwards = await send('PUT', `/promos/${h.id}`, { ...h, startsOn: '2026-10-31', endsOn: '2026-09-01' });
+  const backwards = await send('PUT', `/promos/${c.id}`, { ...c, startsOn: '2026-12-20', endsOn: '2026-09-01' });
   assert.equal(backwards.statusCode, 400);
 
-  const moved = await send('PUT', `/promos/${h.id}`, { ...h, endsOn: '2026-11-02' });
+  const moved = await send('PUT', `/promos/${c.id}`, { ...c, endsOn: '2026-12-22' });
   assert.equal(moved.statusCode, 200, JSON.stringify(moved.body));
-  const row = await prisma.seasonalPromo.findUniqueOrThrow({ where: { id: h.id } });
-  assert.equal(row.endsAt.toISOString(), '2026-11-02T23:59:59.999Z');
-  assert.equal(siteContent().promos.find((p) => p.key === 'halloween')?.endsAt.toISOString(), '2026-11-02T23:59:59.999Z');
+  const row = await prisma.seasonalPromo.findUniqueOrThrow({ where: { id: c.id } });
+  assert.equal(row.endsAt.toISOString(), '2026-12-22T23:59:59.999Z');
+  assert.equal(siteContent().promos.find((p) => p.key === 'christmas')?.endsAt.toISOString(), '2026-12-22T23:59:59.999Z');
 });
 
 test('a photo upload is re-encoded to WebP widths and served by tag', async () => {
@@ -315,16 +315,15 @@ test('history from before snapshots shows no Revert, and reverting it is refused
 
 test('a promo carries its event page line and in-season date', async () => {
   await imported();
-  const h = (await send('GET', '/')).body.promos.find((p: any) => p.key === 'halloween');
-  assert.equal(h.pageLine, 'Now booking 23–24 and 30–31 October.');
   const c = (await send('GET', '/')).body.promos.find((p: any) => p.key === 'christmas');
+  assert.equal(c.pageLine, null);
   assert.equal(c.pageUntilOn, '2026-12-31');
 
-  const res = await send('PUT', `/promos/${h.id}`, { ...h, pageLine: 'Now booking 30–31 October only.', pageUntilOn: '2030-11-01' });
+  const res = await send('PUT', `/promos/${c.id}`, { ...c, pageLine: 'Now booking 18–19 December only.', pageUntilOn: '2030-12-31' });
   assert.equal(res.statusCode, 200, JSON.stringify(res.body));
-  assert.equal(siteContent().promos.find((p) => p.key === 'halloween')?.pageUntil?.toISOString(), '2030-11-01T23:59:59.999Z');
-  // The FAQ that carries the token follows the promo's line.
-  assert.match(renderView('special-events/halloween', { path: '/special-events/halloween' }), /Now booking 30–31 October only\. Ask anyway/);
+  assert.equal(siteContent().promos.find((p) => p.key === 'christmas')?.pageUntil?.toISOString(), '2030-12-31T23:59:59.999Z');
+  // The page's closing call to action carries the promo's line.
+  assert.match(renderView('special-events/christmas', { path: '/special-events/christmas' }), /Now booking 18–19 December only\./);
 });
 
 test('a draft changes nothing live, shows in the admin preview, and goes live on publish', async () => {

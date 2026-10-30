@@ -12,6 +12,7 @@ import assert from 'node:assert/strict';
 import express from 'express';
 
 import { prisma, resetDatabase, disconnect, csrfHeaders, inject } from './helpers';
+import { londonInstant } from '../ops/time';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { ADMIN_TEST_SESSION_ID } = require('../testing/csrf');
@@ -164,9 +165,9 @@ test('a booking from first worker to paid invoice, with every check on the way',
   const awaiting = ok(await admin('GET', '/timesheets?filter=awaiting'));
   assert.deepEqual(awaiting.map((t: any) => t.id).sort(), [a1.assignmentId, catAssignmentId].sort());
 
-  // Ana: check-in 18:00, check-out 01:30 London (GMT/BST handled by ISO with offset).
-  const inAt = new Date(`${shiftDay}T17:00:00Z`).toISOString();
-  const outAt = new Date(new Date(`${shiftDay}T17:00:00Z`).getTime() + 7.5 * 3600000).toISOString();
+  // Ana: check-in 18:00, check-out 01:30 London, whichever of GMT or BST the day falls in.
+  const inAt = londonInstant(shiftDay, '18:00').toISOString();
+  const outAt = new Date(londonInstant(shiftDay, '18:00').getTime() + 7.5 * 3600000).toISOString();
   const noReason = await admin('PATCH', `/assignments/${a1.assignmentId}/timesheet`, { checkedInAt: inAt, checkedOutAt: outAt });
   assert.equal(noReason.statusCode, 400, 'a timesheet edit needs a reason');
   const edited = ok(await admin('PATCH', `/assignments/${a1.assignmentId}/timesheet`, { checkedInAt: inAt, checkedOutAt: outAt, reason: 'Paper sheet from the venue' }));

@@ -19,7 +19,7 @@ Everything else is generated from it with `node design/brand/build-mark.js`
 | `apps/api/public/images/vergo-mark.jpg` | og:image, structured data | 1200px JPEG, quality 88 |
 | `apps/api/public/images/vergo-mark-600.webp`, `-400.webp` | homepage hero | WebP, quality 85 |
 | `apps/api/public/images/vergo-mark-72.png` | the mark in the site header | 72px, 256-colour PNG |
-| `apps/api/public/images/og/*.jpg` | per-page share cards | 80px disc painted over the top-left mark; not Halloween's, which is a photo |
+| `apps/api/public/images/og/*.jpg` | per-page share cards | 80px disc painted over the top-left mark |
 | `apps/api/public/apple-touch-icon.png` | iOS home screen | 180px, 256-colour PNG |
 | `apps/api/public/favicon.ico` | browser tab | 16/32/48 PNGs in one .ico |
 | `apps/api/public/logo.png` | legacy URL, kept alive | 512px, 256-colour PNG |

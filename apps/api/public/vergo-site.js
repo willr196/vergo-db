@@ -1,6 +1,7 @@
 /**
  * Behaviour for the shared header on every public page:
  *   - the mobile menu button
+ *   - the Hire staff dropdown's caret
  *   - the seasonal banner's close button
  *
  * Which season shows, in the banner, the header and on the homepage, is
@@ -67,8 +68,49 @@
     });
   }
 
+  /** The caret beside Hire staff: opens its dropdown, or folds it open in the phone menu. */
+  function setupSubmenus() {
+    var items = document.querySelectorAll('[data-nav-menu]');
+    if (!items.length) return;
+
+    function setSubOpen(item, open) {
+      item.classList.toggle('is-sub-open', open);
+      var toggle = item.querySelector('.nav-sub-toggle');
+      if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    Array.prototype.forEach.call(items, function (item) {
+      var toggle = item.querySelector('.nav-sub-toggle');
+      if (!toggle) return;
+      toggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        setSubOpen(item, !item.classList.contains('is-sub-open'));
+      });
+    });
+
+    function closeAll(except) {
+      Array.prototype.forEach.call(items, function (item) {
+        if (item !== except && item.classList.contains('is-sub-open')) setSubOpen(item, false);
+      });
+    }
+
+    document.addEventListener('click', function (e) {
+      var inside = e.target.closest && e.target.closest('[data-nav-menu]');
+      closeAll(inside);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      var open = document.querySelector('[data-nav-menu].is-sub-open');
+      if (open) {
+        setSubOpen(open, false);
+        open.querySelector('.nav-sub-toggle').focus();
+      }
+    });
+  }
+
   function init() {
     setupMenu();
+    setupSubmenus();
     setupBannerDismiss();
   }
 

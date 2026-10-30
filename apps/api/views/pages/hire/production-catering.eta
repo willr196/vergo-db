@@ -39,7 +39,7 @@
       <ul class="check-list">
         <li>Kitchen porters for wash-up and waste</li>
         <li>Catering assistants for prep and the counter</li>
-        <li>Cooks and chefs, quoted individually</li>
+        <li>Cooks and chefs, from <%~ it.t.CHEF_FROM_RATE %>/hr</li>
       </ul>
       <p class="section-note">On a staff booking we supply people only: food, unit and kit stay with the caterer. For food and bar too, see <a href="/book-an-event">full events</a>.</p>
     </section>

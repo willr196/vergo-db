@@ -88,9 +88,8 @@ last good copy.
 - **Seasonal promos**: the dates the banner, header item and homepage section
   run, their text and links, the dates line on the event page, and the day the
   event page stops selling this year. After that day the page stays up and
-  says "Now booking Halloween 2027" (FAQ answers can say the same with
-  `{{SEASON_LINE_HALLOWEEN}}`). Next year's Halloween and Christmas are edited
-  here, not in code.
+  says "Now booking Christmas 2027" (FAQ answers can say the same with
+  `{{SEASON_LINE_CHRISTMAS}}`). Next year's dates are edited here, not in code.
 - **History**: who changed what, and when. **Revert** undoes a change; it's
   refused if the same thing has been changed again since (revert that first).
 

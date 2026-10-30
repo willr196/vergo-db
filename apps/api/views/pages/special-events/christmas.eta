@@ -7,7 +7,7 @@
     "canonical": "/special-events/christmas"
   },
   styles: ["/pages/css/special-events.css"],
-  scripts: ["/pages/js/halloween-team.js"],
+  scripts: ["/pages/js/special-events-brief.js"],
   bodyClass: "se-page se-theme-christmas",
   jsonLd: [
     {
@@ -60,11 +60,25 @@
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Santa, Mrs Claus and carollers"
+              "name": "Carollers"
             },
             "priceSpecification": {
               "@type": "UnitPriceSpecification",
               "price": Number(it.t.PERFORMER_RATE_NUMBER),
+              "priceCurrency": "GBP",
+              "unitCode": "HUR",
+              "unitText": "per hour, per singer"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Santa and Mrs Claus"
+            },
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": Number(it.t.SANTA_RATE_NUMBER),
               "priceCurrency": "GBP",
               "unitCode": "HUR",
               "unitText": "per hour, per person"
@@ -74,7 +88,21 @@
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Makeup and face painting"
+              "name": "Face painting"
+            },
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": Number(it.t.FACE_PAINTING_RATE_NUMBER),
+              "priceCurrency": "GBP",
+              "unitCode": "HUR",
+              "unitText": "per hour, per person"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Makeup"
             },
             "priceSpecification": {
               "@type": "UnitPriceSpecification",
@@ -199,18 +227,23 @@
       <h2 id="prices-heading" class="se-h2">Prices</h2>
       <ul class="check-list">
         <li>Bar and waiting staff: <%~ it.t.STANDARD_RATE_SHORT %>/hr</li>
+        <li>Kitchen porters: <%~ it.t.STANDARD_RATE_SHORT %>/hr</li>
         <li>Elves and festive hosts: <%~ it.t.THEMED_RATE %>/hr</li>
-        <li>Santa, Mrs Claus and carollers: <%~ it.t.PERFORMER_RATE %>/hr</li>
-        <li>Makeup and face painting: <%~ it.t.MAKEUP_RATE %>/hr</li>
+        <li>Carollers: <%~ it.t.PERFORMER_RATE %>/hr per singer (<%~ it.t.CAROLLER_MIN_HOURS_WORD %>-hour minimum)</li>
+        <li>Santa and Mrs Claus: <%~ it.t.SANTA_RATE %>/hr</li>
+        <li>Chefs: from <%~ it.t.CHEF_FROM_RATE %>/hr</li>
+        <li>Face painting: <%~ it.t.FACE_PAINTING_RATE %>/hr (<%~ it.t.FACE_PAINTING_MIN_HOURS_WORD %>-hour minimum)</li>
+        <li>Makeup: <%~ it.t.MAKEUP_RATE %>/hr</li>
         <li>Toy soldiers on the door: SIA-licensed security, in uniform. Quoted on the brief</li>
+        <li>Costume and styling: <%~ it.t.COSTUME_FEE %> per booking</li>
         <li>Or whatever you want, <a href="#plan">send us a message</a>.</li>
       </ul>
-      <p class="se-caveat">Per person, per hour. <%~ it.t.MIN_HOURS_WORD.charAt(0).toUpperCase() + it.t.MIN_HOURS_WORD.slice(1) %>-hour minimum. Outside London and Birmingham, travel and accommodation are quoted on the brief.</p>
+      <p class="se-caveat">Per person, per hour. <%~ it.t.MIN_HOURS_WORD.charAt(0).toUpperCase() + it.t.MIN_HOURS_WORD.slice(1) %>-hour minimum unless shown. Outside London and Birmingham, travel and accommodation are quoted on the brief.</p>
     </section>
 
     <section class="section shell" id="new-years-eve" aria-labelledby="nye-heading">
       <h2 id="nye-heading" class="se-h2">New Year's Eve</h2>
-      <p class="se-nye-line">Seeing the new year in? We staff New Year's Eve too. From <%~ it.t.NYE_FROM %>, hours are charged at <strong>+<%~ it.t.NYE_UPLIFT_PCT %>%</strong>.</p>
+      <p class="se-nye-line">Seeing the new year in? We staff New Year's Eve too. From <%~ it.t.NYE_FROM %> on New Year's Eve, all hours are charged at <strong>+<%~ it.t.NYE_UPLIFT_PCT %>%</strong>. This replaces the after-midnight uplift rather than adding to it.</p>
     </section>
 
     <section class="section shell" aria-labelledby="faq-heading">

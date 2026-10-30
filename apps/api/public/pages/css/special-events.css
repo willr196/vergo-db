@@ -6,8 +6,8 @@
  * change /hire, /work or the homepage.
  *
  * Seasonal themes are a second class on the same body element
- * (`se-page se-theme-halloween`). To add Christmas later, copy the
- * `.se-theme-halloween` token block and change the colour values — the
+ * (`se-page se-theme-christmas`). A new season copies the
+ * `.se-theme-christmas` token block and changes the colour values — the
  * component layer below reads from tokens, never from hex.
  *
  * IMAGE SLOTS. Every photographic area is a CSS custom property with a
@@ -21,79 +21,16 @@
  * Theme tokens
  * ------------------------------------------------------------------ */
 
-/* Light-on-dark hairlines, for the one dark page (Halloween). */
-body.se-theme-halloween {
-  --hairline: rgba(242, 239, 232, 0.10);
-  --hairline-soft: rgba(242, 239, 232, 0.07);
-  --hairline-strong: rgba(242, 239, 232, 0.14);
-  --panel-fill: rgba(242, 239, 232, 0.025);
-  --card-fill: linear-gradient(180deg, rgba(242, 239, 232, 0.05), rgba(242, 239, 232, 0.008));
-}
-
-/* Black, gold and orange — and each one has exactly one job, which is the only
- * thing stopping a three-colour scheme turning to mud:
- *
- *   BLACK   the ground. Everything sits on it.
- *   GOLD    the frame. Type and rules only — eyebrows, section labels, the
- *           headline accent, index numerals, hairlines. This is the VERGO
- *           signature and it is what carries over to Christmas and NYE.
- *   ORANGE  the action. Every control, every state: buttons, hovers, checked
- *           boxes, selected pills — plus the ember glow in the backdrop.
- *
- * Gold never becomes a button and orange never becomes a heading. Keep it that
- * way and the page stays premium rather than seasonal-aisle.
- */
-body.se-theme-halloween {
-  --bg: #09080a;
-  --footer-bg: #060507;
-  --header-bg: rgba(9, 8, 10, 0.9);
-
-  /* Light type. :root in vergo-site.css is the light theme, so every text,
-     surface and state token it sets has to be turned back round here, or the
-     page inherits near-black type on this black ground. */
-  --ink: #f7f7f7;
-  --muted: #9b9b9b;
-  --line: rgba(242, 239, 232, 0.10);
-  --text: var(--ink);
-  --text-secondary: #d6d6d6;
-  --text-muted: var(--muted);
-  --surface: rgba(242, 239, 232, 0.03);
-  --hover-fill: rgba(242, 239, 232, 0.08);
-  --accent-soft: rgba(237, 122, 51, 0.12);
-  --error: #ff8a80;
-  --error-soft: rgba(255, 138, 128, 0.12);
-  --success: #7fd1a8;
-  --success-soft: rgba(127, 209, 168, 0.12);
-  --focus: 3px solid #7fbfff;
-
-  /* Halloween ember. 6.6:1 against --accent-ink, so .btn-primary stays AA. */
-  --accent: #ed7a33;
-  --accent-hover: #f79355;
-  --accent-ink: #17110c;
-  --accent-rgb: 237, 122, 51;
-
-  /* VERGO gold — the same value as the brand mark in vergo-site.css.
-     9.4:1 on this background, so it is safe for small type. */
-  --se-gold: #c4a24e;
-  --se-gold-hover: #e5c45f;
-  --se-gold-rgb: 212, 175, 55;
-
-  background-image:
-    radial-gradient(90% 50% at 78% -8%, rgba(var(--se-gold-rgb), 0.10), rgba(var(--se-gold-rgb), 0) 62%),
-    radial-gradient(80% 45% at 8% 4%, rgba(var(--accent-rgb), 0.11), rgba(var(--accent-rgb), 0) 60%);
-  background-attachment: fixed;
-}
-
 /* Christmas and the special events hub run on the site's main (charcoal) theme: the
  * tokens come from :root in vergo-site.css. The "gold frame" role (eyebrows,
- * index numerals, rules) is taken by the green accent. Only Halloween keeps a
- * dark seasonal palette.
+ * index numerals, rules) is taken by the green accent. Only Christmas keeps a
+ * seasonal palette.
  */
 body.se-theme-light {
   --se-gold: var(--accent);
   --se-gold-hover: var(--accent-hover);
   --se-gold-rgb: var(--accent-rgb);
-  --se-pumpkin: none;
+  --se-motif: none;
 }
 body.se-theme-light .se-hero {
   --se-hero-img: none;
@@ -105,10 +42,9 @@ body.se-theme-light .se-form-section {
   border-bottom: 1px solid var(--hairline);
 }
 
-/* A VERGO Christmas: evergreen ground, falling snow, VERGO gold for the frame
- * and Christmas red for the action. The same roles as Halloween's black, gold
- * and orange, so the component layer below needs nothing of its own. The
- * VERGO tree (the brand V strung in lights) stands in for the pumpkin.
+/* A VERGO Christmas: evergreen ground, VERGO gold for the frame and
+ * Christmas red for the action, so the component layer below needs nothing of
+ * its own. The VERGO tree (the brand V strung in lights) sits in the hero.
  */
 body.se-theme-christmas {
   --hairline: rgba(242, 239, 232, 0.12);
@@ -119,7 +55,7 @@ body.se-theme-christmas {
 
   --bg: #0c1f17;
   --footer-bg: #08160f;
-  --header-bg: rgba(12, 31, 23, 0.92);
+  --header-bg: #0c1f17;
 
   --ink: #f7f5ef;
   --muted: #a9b8af;
@@ -145,52 +81,25 @@ body.se-theme-christmas {
   --se-gold: #d9b85c;
   --se-gold-hover: #ecd08a;
   --se-gold-rgb: 212, 175, 55;
-  --se-pumpkin: url('/images/special-events/vergo-christmas-tree.svg');
+  --se-motif: url('/images/special-events/vergo-christmas-tree.svg');
 
   background-image: none;
 }
-/* The glow and the snow are two fixed layers behind the page rather than the
-   body's own background. The snow falls by moving its layer (transform), which
-   the GPU does on its own; animating background-position instead repainted the
-   whole screen every frame and made the page crawl on phones. */
-body.se-theme-christmas::before,
-body.se-theme-christmas::after {
+/* The glow is a fixed layer behind the page rather than the body's own
+   background, so scrolling never repaints it. */
+body.se-theme-christmas::before {
   content: '';
   position: fixed;
-  left: 0;
-  right: 0;
+  inset: 0;
   z-index: -1;
   pointer-events: none;
-}
-body.se-theme-christmas::before {
-  top: 0;
-  bottom: 0;
   background:
     radial-gradient(90% 50% at 80% -8%, rgba(var(--se-gold-rgb), 0.12), rgba(var(--se-gold-rgb), 0) 62%),
     radial-gradient(80% 45% at 6% 4%, rgba(var(--accent-rgb), 0.16), rgba(var(--accent-rgb), 0) 60%);
 }
-/* Every flake tile is 280px tall, so moving the layer down 280px loops with no seam. */
-body.se-theme-christmas::after {
-  top: -280px;
-  bottom: 0;
-  background-image:
-    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.55) 1.2px, transparent 2px),
-    radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.4) 1.6px, transparent 2.4px),
-    radial-gradient(circle at 45% 85%, rgba(255, 255, 255, 0.3) 2px, transparent 3px);
-  background-size: 140px 140px, 210px 280px, 300px 280px;
-  will-change: transform;
-  animation: se-snow 16s linear infinite;
-}
-@keyframes se-snow {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(0, 280px, 0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  body.se-theme-christmas::after { animation: none; }
-}
 body.se-theme-christmas .se-hero { --se-hero-img: linear-gradient(transparent, transparent); }
 body.se-theme-christmas .se-concept-grid + .check-list { margin-top: 32px; }
-/* The tree is taller than the pumpkin, so on a phone it sits lower and smaller
+/* The tree is tall, so on a phone it sits lower and smaller
    to stay inside the band under the buttons. */
 @media (max-width: 640px) {
   body.se-theme-christmas .se-hero {
@@ -207,7 +116,12 @@ body.se-theme-christmas .brand-mark {
   color: transparent;
   font-size: 0;
 }
-body.se-theme-christmas .se-ornament span { background-image: url('/images/special-events/vergo-christmas-tree.svg'); }
+
+/* The Hire staff dropdown sits over the page, and these themes' --surface is
+   all but transparent: it takes the header's solid colour instead. */
+@media (min-width: 981px) {
+  body.se-theme-christmas .nav-sub { background: var(--header-bg); }
+}
 
 /* New Year's Eve: the one line under the heading, set large. */
 .se-nye-line {
@@ -222,20 +136,7 @@ body.se-theme-christmas .se-ornament span { background-image: url('/images/speci
 /* The "Other" role reveals a box to say what. */
 .se-other-field[hidden] { display: none; }
 
-/* The header mark becomes the pumpkin for the length of these pages. The V is
-   still the V — it is just carved now. Scoped to Halloween, so the logo is
-   untouched on the other seasonal pages and everywhere else on the site. */
-.se-theme-halloween .brand-mark {
-  background: transparent url('/images/special-events/vergo-pumpkin.svg') center / contain no-repeat;
-  border: none;
-  border-radius: 0;
-  width: 30px;
-  height: 30px;
-  color: transparent;
-  font-size: 0;
-}
-
-/* Divider ornament — the same motif, small, between two bands. */
+/* Divider ornament — the season's motif, small, between two bands. */
 .se-ornament {
   display: flex;
   align-items: center;
@@ -255,7 +156,7 @@ body.se-theme-christmas .se-ornament span { background-image: url('/images/speci
   width: 54px;
   height: 54px;
   flex: 0 0 auto;
-  background: url('/images/special-events/vergo-pumpkin.svg') center / contain no-repeat;
+  background: url('/images/special-events/vergo-christmas-tree.svg') center / contain no-repeat;
 }
 @media (max-width: 640px) {
   .se-ornament { padding: 4px 20px 0; gap: 14px; }
@@ -313,36 +214,27 @@ html:has(body.se-page) { scroll-behavior: smooth; }
   position: relative;
   /* Point this at a real photograph to replace the stand-in backdrop.
      Nothing else in the hero needs to change. */
-  --se-hero-img: url('/images/special-events/halloween-hero-cast.svg');
-  /* Layers paint top-down, so the pumpkin sits ABOVE the scrim and keeps its
-     glow, while the cast artwork underneath stays knocked back.
-     Keep the scrim light: the artwork carries its own left-side and vertical
-     scrims for headline legibility, so a heavy layer here double-darkens and
-     the cast disappears. */
+  --se-hero-img: none;
+  /* Layers paint top-down, so the season's motif (--se-motif) sits ABOVE
+     the scrim and keeps its glow. */
   background-image:
     radial-gradient(70% 55% at 20% 20%, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0) 62%),
     radial-gradient(55% 45% at 85% 6%, rgba(var(--se-gold-rgb), 0.09), rgba(var(--se-gold-rgb), 0) 60%),
-    var(--se-pumpkin),
+    var(--se-motif),
     linear-gradient(to top, var(--bg) 0%, rgba(9, 8, 10, 0.34) 30%, rgba(9, 8, 10, 0.1) 100%),
     var(--se-hero-img);
   background-size: cover, cover, 360px auto, cover, cover;
-  /* Bottom-anchored so the cast stands on the hero's edge instead of being
-     cropped through the middle. */
   /* Bottom offset clears the noun strip, which is inside the hero — at a
-     smaller offset the pumpkin gets its base clipped off. */
+     smaller offset the motif gets its base clipped off. */
   background-position: center, center, right 7% bottom 92px, center, center bottom;
   background-repeat: no-repeat;
   border-bottom: 1px solid var(--hairline-soft);
 }
 
-/* The VERGO pumpkin: a jack-o'-lantern carved with the brand V rather than a
-   face. One motif, used at size, instead of Halloween clip art everywhere. */
-body.se-theme-halloween { --se-pumpkin: url('/images/special-events/vergo-pumpkin.svg'); }
-
 @media (max-width: 900px) {
   .se-hero { background-size: cover, cover, 190px auto, cover, cover; }
 }
-/* On a phone there is no side room, so the pumpkin gets a band of its own
+/* On a phone there is no side room, so the motif gets a band of its own
    under the buttons rather than sitting on top of them. The space comes from
    .se-hero-inner's own padding rule below — setting padding-bottom here would
    be wiped by that later `padding:` shorthand. */
@@ -357,7 +249,7 @@ body.se-theme-halloween { --se-pumpkin: url('/images/special-events/vergo-pumpki
   padding: 96px 40px 80px;
 }
 @media (min-width: 900px) { .se-hero-inner { padding: 150px 40px 120px; } }
-/* The deep bottom padding is deliberate: it is the band the pumpkin sits in,
+/* The deep bottom padding is deliberate: it is the band the motif sits in,
    clear of the buttons above and the noun strip below. */
 @media (max-width: 640px) { .se-hero-inner { padding: 64px 20px 200px; } }
 
@@ -373,8 +265,8 @@ body.se-theme-halloween { --se-pumpkin: url('/images/special-events/vergo-pumpki
 
 /* The offer in one sentence, set large enough to be read before the paragraph
    under it. The headline says which night; this says what you get. Bone, not
-   gold and not orange — gold is already carrying the headline accent and
-   orange is reserved for controls. */
+   gold and not the accent — gold is already carrying the headline accent and
+   the accent is reserved for controls. */
 .se-hero-claim {
   max-width: 18ch;
   margin: 0 0 20px;
@@ -752,7 +644,7 @@ body.se-theme-halloween { --se-pumpkin: url('/images/special-events/vergo-pumpki
 .se-makeup-cta { margin-top: 32px; }
 
 /* ------------------------------------------------------------------ *
- * Build your Halloween team — the enquiry
+ * The enquiry brief
  * ------------------------------------------------------------------ */
 
 .se-form-section {
@@ -981,13 +873,12 @@ a.se-hub-card:hover, a.se-hub-card:focus-visible {
 .se-hub-card--soon p:last-child { margin-bottom: 0; }
 
 /* ============================================================================
-   RATES  (/special-events/halloween #rates)
+   RATES
 
    Three priced cards, then three quoted ones. The figure is the loudest thing
    in each card and it is gold, which keeps the block premium rather than
    reading as a SaaS plan chooser: no feature checklists, no "most popular"
-   card, no column of ticks. Orange stays on the one button, per the rule at
-   the top of this file.
+   card, no column of ticks. The accent stays on the one button.
    ============================================================================ */
 .se-rates-lede {
   max-width: 62ch;
@@ -1142,7 +1033,7 @@ a.se-hub-card:hover, a.se-hub-card:focus-visible {
   .se-rate-price { margin: 14px 0 18px; padding-bottom: 18px; }
 }
 
-/* Halloween photo pair: two landscape shots side by side, stacked on phones. */
+/* Photo pair: two landscape shots side by side, stacked on phones. */
 .se-photo-pair {
   display: grid;
   gap: 16px;
@@ -1151,8 +1042,6 @@ a.se-hub-card:hover, a.se-hub-card:focus-visible {
 }
 @media (min-width: 700px) { .se-photo-pair { grid-template-columns: 1fr 1fr; } }
 .se-photo-pair figure { margin: 0; }
-/* Halloween: the two photos at half size, side by side at every width. */
-.se-photo-pair--half { max-width: 600px; margin-inline: auto; grid-template-columns: 1fr 1fr; gap: 12px; }
 .se-photo-pair img {
   display: block;
   width: 100%;
@@ -1173,43 +1062,6 @@ a.se-hub-card:hover, a.se-hub-card:focus-visible {
 .se-makeup-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; max-width: 72ch; }
 .se-makeup-lines li { color: var(--text-secondary); }
 .se-makeup-lines strong { color: var(--text); }
-
-/* ------------------------------------------------------------------ *
- * Halloween: compact pass. Offers lead the page, so the hero headline,
- * pumpkin, tier numbers and concept cards give up their room to them.
- * ------------------------------------------------------------------ */
-body.se-theme-halloween .se-hero h1 {
-  font-size: clamp(32px, 5vw, 58px);
-  line-height: 1.02;
-  letter-spacing: -0.02em;
-  margin-bottom: 14px;
-}
-body.se-theme-halloween .se-hero-inner { padding: 64px 40px 56px; }
-@media (min-width: 900px) { body.se-theme-halloween .se-hero-inner { padding: 88px 40px 72px; } }
-@media (max-width: 640px) { body.se-theme-halloween .se-hero-inner { padding: 48px 20px 128px; } }
-body.se-theme-halloween .se-hero { background-size: cover, cover, 200px auto, cover, cover; background-position: center, center, right 7% bottom 36px, center, center bottom; }
-@media (max-width: 900px) { body.se-theme-halloween .se-hero { background-size: cover, cover, 130px auto, cover, cover; } }
-@media (max-width: 640px) { body.se-theme-halloween .se-hero { background-size: cover, cover, 96px auto, cover, cover; background-position: center, center, right 7% bottom 20px, center, center bottom; } }
-body.se-theme-halloween .se-hero .btn-row { margin-top: 24px; }
-
-body.se-theme-halloween .se-involve-grid { margin-top: 28px; gap: 14px; }
-body.se-theme-halloween .se-involve { padding: 22px 22px 18px; }
-body.se-theme-halloween .se-involve-num { font-size: 36px; margin-bottom: 0; }
-body.se-theme-halloween .se-involve h3 { font-size: 22px; margin: 8px 0 6px; }
-body.se-theme-halloween .se-involve-sub { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-
-/* Concepts: five small tiles in one row on desktop, no flagship banner. */
-body.se-theme-halloween .se-concept-grid { margin-top: 28px; gap: 12px; grid-template-columns: 1fr 1fr; }
-@media (min-width: 700px) { body.se-theme-halloween .se-concept-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 1000px) { body.se-theme-halloween .se-concept-grid { grid-template-columns: repeat(5, 1fr); } }
-body.se-theme-halloween .se-concept--feature { grid-column: auto; }
-body.se-theme-halloween .se-concept-media,
-body.se-theme-halloween .se-concept--feature .se-concept-media { aspect-ratio: 16 / 10; }
-body.se-theme-halloween .se-concept-title,
-body.se-theme-halloween .se-concept--feature .se-concept-title { font-size: 18px; line-height: 1.1; padding: 0 12px 10px; }
-body.se-theme-halloween .se-concept-body,
-body.se-theme-halloween .se-concept--feature .se-concept-body { padding: 10px 12px 12px; }
-body.se-theme-halloween .se-concept-chars { font-size: 13px; line-height: 1.4; }
 
 /* Christmas: three photos in a row from tablet up, one under another on a phone. */
 @media (min-width: 700px) { .se-photo-trio { grid-template-columns: repeat(3, 1fr); } }

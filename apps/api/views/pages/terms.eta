@@ -24,11 +24,13 @@
       <ul class="check-list">
         <li>Standard: <%~ it.t.STANDARD_RATE %> per hour, per person, for waiting staff, bar staff, kitchen porters, runners, and hosts and front of house</li>
         <li>Premium: <%~ it.t.PREMIUM_RATE %> per hour, per person. <%~ it.t.PREMIUM_DEFINITION %> The service level is agreed for the whole booking</li>
-        <li>Themed hospitality staff, character performers and makeup artists: <%~ it.t.THEMED_RATE %>, <%~ it.t.PERFORMER_RATE %> and <%~ it.t.MAKEUP_RATE %> per hour, per person, as published on our special events pages</li>
+        <li>Special events roles (elves and festive hosts, carollers, Santa and Mrs Claus, makeup and face painting): at the hourly rates and minimums published on our special events pages, with a costume and styling fee of <%~ it.t.COSTUME_FEE %> per booking where the team is in costume</li>
         <li><%~ it.t.MIN_HOURS %>-hour minimum charge per person, per booking</li>
         <li>Time beyond the confirmed end is billed in <%~ it.t.OVERRUN_MINUTES %>-minute blocks</li>
         <li>Hours worked after midnight are charged at +<%~ it.t.UPLIFT_PCT %>%</li>
-        <li>Chefs, cooks, managers, supervisors, cleaners and security are quoted and agreed individually before booking</li>
+        <li>From <%~ it.t.NYE_FROM %> on New Year's Eve, all hours are charged at +<%~ it.t.NYE_UPLIFT_PCT %>%. This replaces the after-midnight uplift rather than adding to it</li>
+        <li>Chefs and cooks: from <%~ it.t.CHEF_FROM_RATE %> per hour, per person, with the rate for the booking agreed before it's confirmed</li>
+        <li>Managers, supervisors, cleaners and security are quoted and agreed individually before booking</li>
         <li>Full events (food, bar and staff) are quoted individually, and the quote sets out what's included</li>
         <li>There are no booking fees or uniform charges</li>
       </ul>

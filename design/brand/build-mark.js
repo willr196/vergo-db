@@ -49,9 +49,8 @@ const pal = (img) => img.png({ palette: true, colours: 256, quality: 100, dither
 
   // OG cards: each has the mark in a 76px disc at the top left. Paint an 80px
   // disc over it (covering the old one's antialiased edge), cropped to 124% the
-  // way the site header does it so the V fills the circle. Halloween's card is
-  // a photo with no mark. Each run re-encodes the cards, so run it when the
-  // mark changes, not as a routine step.
+  // way the site header does it so the V fills the circle. Each run re-encodes
+  // the cards, so run it when the mark changes, not as a routine step.
   const W = (await sharp(master).metadata()).width;
   const D = 80, SS = 4, crop = Math.round(W / 1.24), c0 = Math.round((W - crop) / 2);
   const mask = Buffer.from(`<svg width="${D * SS}" height="${D * SS}"><circle cx="${D * SS / 2}" cy="${D * SS / 2}" r="${D * SS / 2}" fill="#fff"/></svg>`);
@@ -60,7 +59,6 @@ const pal = (img) => img.png({ palette: true, colours: 256, quality: 100, dither
   const disc = await sharp(big).resize(D, D, { kernel: 'lanczos3' }).png().toBuffer();
   const ogDir = P('apps/api/public/images/og');
   for (const f of fs.readdirSync(ogDir)) {
-    if (f === 'halloween.jpg') continue;
     const file = path.join(ogDir, f);
     const out = await sharp(fs.readFileSync(file)).composite([{ input: disc, left: 62, top: 53 }])
       .jpeg({ quality: 90, mozjpeg: true }).toBuffer();

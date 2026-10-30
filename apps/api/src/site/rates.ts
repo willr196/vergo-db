@@ -34,7 +34,7 @@ export const MIN_RATE_PENCE = 1271;
 export const MAX_HOURLY_PENCE = 10_000;
 export const MAX_DAILY_PENCE = 200_000;
 
-type CoreKey = 'standard' | 'premium' | 'themed_hospitality' | 'character_performer' | 'makeup_artist';
+type CoreKey = 'standard' | 'premium' | 'themed_hospitality' | 'character_performer' | 'santa_claus' | 'makeup_artist' | 'face_painting' | 'event_chef';
 
 /** Core rate key -> how it reads and writes PRICING (pounds). */
 const CORE: Record<CoreKey, { get: () => number; set: (pounds: number) => void }> = {
@@ -42,7 +42,10 @@ const CORE: Record<CoreKey, { get: () => number; set: (pounds: number) => void }
   premium: { get: () => PRICING.premiumRate, set: (v) => { PRICING.premiumRate = v; } },
   themed_hospitality: { get: () => PRICING.specialEvents.themedHospitality, set: (v) => { PRICING.specialEvents.themedHospitality = v; } },
   character_performer: { get: () => PRICING.specialEvents.characterPerformer, set: (v) => { PRICING.specialEvents.characterPerformer = v; } },
+  santa_claus: { get: () => PRICING.specialEvents.santa, set: (v) => { PRICING.specialEvents.santa = v; } },
   makeup_artist: { get: () => PRICING.specialEvents.makeupArtist, set: (v) => { PRICING.specialEvents.makeupArtist = v; } },
+  face_painting: { get: () => PRICING.specialEvents.facePainting, set: (v) => { PRICING.specialEvents.facePainting = v; } },
+  event_chef: { get: () => PRICING.chefFromRate, set: (v) => { PRICING.chefFromRate = v; } },
 };
 export const CORE_KEYS = Object.keys(CORE) as CoreKey[];
 
@@ -66,9 +69,12 @@ export function defaultRates(): RateContent[] {
   return [
     row('standard', 'Standard (waiting, bar, kitchen porters, runners, hosts)', 'standard', 0),
     row('premium', 'Premium (2+ years\' event experience)', 'standard', 1),
-    row('themed_hospitality', 'Themed hospitality staff', 'seasonal', 2),
-    row('character_performer', 'Character performers and scare actors', 'seasonal', 3),
-    row('makeup_artist', 'Makeup artists', 'specialist', 4),
+    row('themed_hospitality', 'Elves and festive hosts', 'seasonal', 2),
+    row('character_performer', 'Carollers (per singer)', 'seasonal', 3),
+    row('santa_claus', 'Santa and Mrs Claus', 'seasonal', 4),
+    row('makeup_artist', 'Makeup artists', 'specialist', 5),
+    row('face_painting', 'Face painting', 'specialist', 6),
+    row('event_chef', 'Event chefs (from)', 'specialist', 7),
   ];
 }
 

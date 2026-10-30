@@ -2,7 +2,7 @@
   'use strict';
 
   // Staff requests: every booking request and question sent from the public
-  // site (quote page, hire pages, Halloween/Christmas briefs, contact form).
+  // site (quote page, hire pages, special events briefs, contact form).
   // Stored as Contact rows; see saveWebsiteRequest in src/routes/quotes.ts.
 
   var esc   = AdminCore.escapeHtml;
@@ -104,6 +104,8 @@
         + '<td class="text-muted fs-sm">' + esc(fmtDate(r.createdAt)) + '</td>'
         + '<td><div class="as-row-actions">'
           + '<button type="button" class="btn btn-ghost btn-sm" data-action="open-detail" data-id="' + id + '">View</button>'
+          + '<button type="button" class="btn btn-secondary btn-sm" data-action="board-form" data-id="' + id + '">'
+            + (boardRefs(r).length ? 'On the board' : 'Add to board') + '</button>'
           + '<button type="button" class="btn btn-danger-quiet btn-sm" data-action="delete" data-id="' + id + '">Delete</button>'
         + '</div></td>'
         + '</tr>';
@@ -157,9 +159,388 @@
 
     document.getElementById('modal-footer').innerHTML =
       '<button type="button" class="btn btn-danger-quiet" data-action="delete" data-from-modal="true" data-id="' + esc(r.id) + '">Delete</button>'
-      + '<button type="button" class="btn btn-ghost" data-action="close-detail">Close</button>';
+      + '<button type="button" class="btn btn-ghost" data-action="close-detail">Close</button>'
+      + '<button type="button" class="btn btn-primary" data-action="board-form" data-id="' + esc(r.id) + '">'
+        + (boardRefs(r).length ? 'On the board · add again' : 'Add to board') + '</button>';
 
     AdminCore.openModal('detail-modal');
+  }
+
+  // ── Add to board ────────────────────────────────────────
+  // Turns a request into a job on the Scheduling board, through the board's
+  // own API (/api/v1/scheduling), so its rules apply and Admin > Jobs follows.
+  // The request has no columns for venue or shift times; saveWebsiteRequest
+  // writes them into the message as "Label: value" lines, read back here.
+
+  var SCHED = '/api/v1/scheduling';
+
+  function detailLine(message, label) {
+    var match = new RegExp('^' + label + ': (.+)$', 'm').exec(message || '');
+    return match ? match[1].trim() : '';
+  }
+
+  function shiftTimes(message) {
+    var match = /^Shift: (\d{1,2}:\d{2})? ?- ?(\d{1,2}:\d{2})?/m.exec(message || '');
+    function pad(t) { return t && t.length === 4 ? '0' + t : (t || ''); }
+    return match ? { start: pad(match[1]), end: pad(match[2]) } : { start: '', end: '' };
+  }
+
+  function isoDay(value) {
+    if (!value) return '';
+    var d = new Date(value);
+    return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+  }
+
+  /** "Bartender × 3" from the quote page; plain role names from the briefs. */
+  function firstRole(roles) {
+    return roles.length ? String(roles[0]).replace(/\s*×\s*\d+$/, '') : '';
+  }
+
+  function sameText(a, b) {
+    return !!a && !!b && a.trim().toLowerCase() === b.trim().toLowerCase();
+  }
+
+  /** "The Acme Events Ltd." and "acme events" are one client. */
+  function companyKey(name) {
+    return String(name || '').toLowerCase()
+      .replace(/&/g, ' and ')
+      .replace(/[^a-z0-9 ]+/g, ' ')
+      .replace(/\b(the|ltd|limited|llp|plc|inc|co|company|group|uk)\b/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function phoneKey(phone) {
+    var digits = String(phone || '').replace(/\D/g, '');
+    // 07700 900123 and +44 7700 900123 are the same number.
+    return digits.length >= 9 ? digits.slice(-10) : '';
+  }
+
+  /**
+   * The board client this request most likely belongs to: same email, same
+   * phone, or the same company name once "Ltd", "The" and punctuation are
+   * ignored. Returns the client and why, or null.
+   */
+  function matchClient(clients, r) {
+    var byEmail = clients.find(function (c) { return sameText(c.contactEmail, r.email); });
+    if (byEmail) return { client: byEmail, why: 'same email' };
+    var phone = phoneKey(r.phone);
+    var byPhone = phone && clients.find(function (c) { return phoneKey(c.contactPhone) === phone; });
+    if (byPhone) return { client: byPhone, why: 'same phone number' };
+    var key = companyKey(r.company || r.name);
+    var byName = key && clients.find(function (c) { return companyKey(c.name) === key; });
+    if (byName) return { client: byName, why: 'same name' };
+    return null;
+  }
+
+  /** The board references a request has already been added as, from its notes. */
+  function boardRefs(r) {
+    return (r.adminNotes || '').match(/Added to the board as VJ-\d+[^\n]*/g) || [];
+  }
+
+  function field(id, label, input, wide) {
+    return '<div class="form-group' + (wide ? ' full-width' : '') + '">'
+      + '<label class="as-label" for="' + id + '">' + esc(label) + '</label>' + input + '</div>';
+  }
+
+  function textInput(id, value, attrs) {
+    return '<input id="' + id + '" class="as-input" value="' + esc(value || '') + '" ' + (attrs || 'type="text"') + '>';
+  }
+
+  /**
+   * Crew for the new job: anyone already on the board, and someone new, who
+   * is added to the board's People first. The board's rule holds: no hourly
+   * rate, no job, so people without one can't be ticked.
+   */
+  function crewPicker(people) {
+    var rows = people.map(function (p) {
+      var name = p.firstName + ' ' + p.lastName;
+      return '<label class="as-check bj-person" data-name="' + esc(name.toLowerCase()) + '">'
+        + '<input type="checkbox" name="bj-crew" value="' + esc(p.id) + '"' + (p.hourlyRate ? '' : ' disabled') + '>'
+        + '<span>' + esc(name)
+          + ' <span class="text-muted fs-sm">' + (p.hourlyRate ? '£' + esc(Number(p.hourlyRate).toFixed(2)) + '/hr' : 'no hourly rate, add one on the board first') + '</span>'
+        + '</span></label>';
+    }).join('');
+    return '<div class="form-row"><div class="form-group full-width">'
+      + '<label class="as-label" for="bj-crew-search">Crew <span class="text-muted fs-sm">(optional)</span></label>'
+      + (people.length
+        ? textInput('bj-crew-search', '', 'type="search" placeholder="Find someone on the board"')
+          + '<div id="bj-crew-list" class="bj-crew-list">' + rows + '</div>'
+        : '<span class="text-muted fs-sm">Nobody on the board yet.</span>')
+      + '<div class="bj-new-person">'
+        + '<span class="text-muted fs-sm">Someone new (added to the board\'s People too):</span>'
+        + '<div class="form-row">'
+          + textInput('bj-new-first', '', 'type="text" maxlength="100" placeholder="First name" aria-label="New person first name"')
+          + textInput('bj-new-last', '', 'type="text" maxlength="100" placeholder="Last name" aria-label="New person last name"')
+          + textInput('bj-new-rate', '', 'type="number" min="0" step="0.01" placeholder="Hourly rate £" aria-label="New person hourly rate"')
+          + textInput('bj-new-email', '', 'type="email" maxlength="200" placeholder="Email (optional)" aria-label="New person email"')
+        + '</div>'
+      + '</div>'
+      + '</div></div>';
+  }
+
+  /** Puts the ticked people (and anyone new) on the job. Returns what didn't go to plan. */
+  async function addCrew(jobId) {
+    var ids = Array.prototype.map.call(
+      document.querySelectorAll('input[name="bj-crew"]:checked'),
+      function (el) { return el.value; }
+    );
+    var notes = [];
+    var first = val('bj-new-first');
+    var last = val('bj-new-last');
+    if (first || last) {
+      try {
+        var person = await get(SCHED + '/staff', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            firstName: first,
+            lastName: last,
+            hourlyRate: val('bj-new-rate') || null,
+            email: val('bj-new-email') || null
+          })
+        });
+        ids.push(person.id);
+      } catch (e) {
+        notes.push((first + ' ' + last).trim() + ' was not added: ' + e.message);
+      }
+    }
+    var added = 0;
+    for (var i = 0; i < ids.length; i++) {
+      try {
+        var a = await get(SCHED + '/jobs/' + encodeURIComponent(jobId) + '/crew', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ staffId: ids[i] })
+        });
+        added++;
+        if (a && a.clash) notes.push(a.clash);
+      } catch (e) {
+        notes.push(e.message);
+      }
+    }
+    return { added: added, notes: notes };
+  }
+
+  async function openBoardForm(id) {
+    var r = find(id);
+    if (!r) return;
+    var clients = [];
+    var roleNames = [];
+    var people = [];
+    try {
+      var loaded = await Promise.all([
+        get(SCHED + '/clients?archived=false'),
+        get(SCHED + '/jobs/roles').catch(function () { return []; }),
+        get(SCHED + '/staff?status=ACTIVE').catch(function () { return []; })
+      ]);
+      clients = loaded[0] || [];
+      roleNames = (loaded[1] || []).map(function (x) { return typeof x === 'string' ? x : (x && (x.role || x.name)) || ''; }).filter(Boolean);
+      people = loaded[2] || [];
+    } catch (e) {
+      toast('Could not load the board: ' + e.message, 'error');
+      return;
+    }
+
+    var clientName = r.company || r.name;
+    var found = matchClient(clients, r);
+    var match = found ? found.client : null;
+    var already = boardRefs(r);
+    var roles = parseRoles(r.roles);
+    var shift = shiftTimes(r.message);
+    var venue = [detailLine(r.message, 'Venue'), detailLine(r.message, 'Location'), detailLine(r.message, 'City')]
+      .filter(Boolean).join(', ');
+    var title = r.eventType ? r.eventType + (r.company ? ' - ' + r.company : '') : clientName;
+    var rate = match && match.defaultChargeRate ? String(match.defaultChargeRate) : '';
+
+    var clientOptions = '<option value="new"' + (match ? '' : ' selected') + '>New client: ' + esc(clientName) + '</option>'
+      + clients.map(function (c) {
+          return '<option value="' + esc(c.id) + '"' + (match && match.id === c.id ? ' selected' : '') + '>' + esc(c.name) + '</option>';
+        }).join('')
+      + '<option value="">No client</option>';
+
+    var notes = [
+      'From a website request, ' + fmtDate(r.createdAt) + '.',
+      'Contact: ' + [r.name, r.phone, r.email].filter(Boolean).join(', '),
+      r.guests ? 'Guests: ' + r.guests : '',
+      roles.length > 1 ? 'Roles asked for: ' + roles.join(', ') : '',
+      '',
+      r.message || ''
+    ].filter(function (line, i) { return line || i === 4; }).join('\n').trim();
+
+    document.getElementById('modal-title').textContent = 'Add to the board';
+    document.getElementById('modal-body').innerHTML =
+      (already.length
+        ? '<div class="alert alert-warning bj-note"><strong>This request is already on the board.</strong> '
+          + esc(already.join(' ')) + ' Only add it again if it is a second job.</div>'
+        : '')
+      + '<p class="text-muted fs-sm mb-2">Filled in from the request. Check it, change anything, then add it. It goes on the board as a job for that day.</p>'
+      + '<div class="form-row">' + field('bj-title', 'Job name *', textInput('bj-title', title, 'type="text" maxlength="200" required'), true) + '</div>'
+      + '<div class="form-row">'
+        + field('bj-client', 'Client', '<select id="bj-client" class="as-input">' + clientOptions + '</select>'
+            + '<span class="text-muted fs-sm">' + (found
+              ? 'Matched ' + esc(match.name) + ' on the board (' + esc(found.why) + '). Pick another if that is wrong.'
+              : 'No client on the board matches. Pick one if they are already there under another name.')
+            + '</span>')
+        + field('bj-contact', 'Who to contact', textInput('bj-contact', r.name, 'type="text" maxlength="200"'))
+      + '</div>'
+      + '<div class="form-row">'
+        + field('bj-phone', 'Phone', textInput('bj-phone', r.phone, 'type="tel" maxlength="50"'))
+        + field('bj-email', 'Email', textInput('bj-email', r.email, 'type="email" maxlength="200"'))
+      + '</div>'
+      + '<div class="form-row">'
+        + field('bj-date', 'Date *', textInput('bj-date', isoDay(r.eventDate), 'type="date" required'))
+        + field('bj-venue', 'Venue', textInput('bj-venue', venue, 'type="text" maxlength="200"'))
+      + '</div>'
+      + '<div class="form-row">'
+        + field('bj-start', 'Start *', textInput('bj-start', shift.start, 'type="time" required'))
+        + field('bj-end', 'Finish *', textInput('bj-end', shift.end, 'type="time" required'))
+      + '</div>'
+      + '<div class="form-row">'
+        + field('bj-staff', 'Staff needed', textInput('bj-staff', r.staffCount ? String(r.staffCount) : '', 'type="number" min="0" max="999"'))
+        + field('bj-role', 'Role', textInput('bj-role', firstRole(roles), 'type="text" maxlength="100" list="bj-roles"')
+            + '<datalist id="bj-roles">' + roleNames.map(function (n) { return '<option value="' + esc(n) + '">'; }).join('') + '</datalist>')
+      + '</div>'
+      + '<div class="form-row">'
+        + field('bj-rate', 'Charge rate (£/hr, ex VAT)', textInput('bj-rate', rate, 'type="number" min="0" step="0.01" placeholder="Leave blank if not agreed yet"'))
+        + field('bj-status', 'On the board as', '<select id="bj-status" class="as-input">'
+            + '<option value="DRAFT">Draft (not confirmed yet)</option>'
+            + '<option value="CONFIRMED">Confirmed</option></select>')
+      + '</div>'
+      + crewPicker(people)
+      + '<div class="form-row">' + field('bj-notes', 'Notes', '<textarea id="bj-notes" class="as-input" rows="6" maxlength="5000">' + esc(notes) + '</textarea>', true) + '</div>'
+      + '<div id="bj-error" class="alert alert-error d-none" role="alert"></div>';
+
+    document.getElementById('modal-footer').innerHTML =
+      '<button type="button" class="btn btn-ghost" data-action="open-detail" data-id="' + esc(r.id) + '">Back</button>'
+      + '<button type="button" class="btn btn-primary" data-action="board-add" data-id="' + esc(r.id) + '">'
+        + (already.length ? 'Add again' : 'Add to board') + '</button>';
+    // Opened straight from a row in the list, the modal isn't showing yet.
+    AdminCore.openModal('detail-modal');
+    document.getElementById('bj-title').focus();
+  }
+
+  function val(id) {
+    var el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  }
+
+  // Worth having before a job goes on the board, but it can go on without
+  // them. Name, date and times can't be skipped: the board needs them.
+  var KEY_DETAILS = [
+    ['bj-contact', 'Who to contact'],
+    ['bj-phone', 'Phone'],
+    ['bj-venue', 'Venue'],
+    ['bj-staff', 'Staff needed'],
+    ['bj-role', 'Role'],
+    ['bj-rate', 'Charge rate']
+  ];
+
+  async function addToBoard(id, button, anyway) {
+    var r = find(id);
+    if (!r) return;
+    var errorBox = document.getElementById('bj-error');
+    function fail(message) {
+      errorBox.className = 'alert alert-error';
+      errorBox.textContent = message;
+    }
+    errorBox.className = 'alert d-none';
+    document.querySelectorAll('#modal-body .bj-missing').forEach(function (el) { el.classList.remove('bj-missing'); });
+
+    var title = val('bj-title');
+    var date = val('bj-date');
+    var start = val('bj-start');
+    var end = val('bj-end');
+    if (!title) return fail('Give the job a name.');
+    if (!date) return fail('Pick the date of the job.');
+    if (!start || !end) return fail('Add a start and finish time. Guess if you need to; you can change it on the board.');
+    var newFirst = val('bj-new-first');
+    var newLast = val('bj-new-last');
+    if ((newFirst || newLast) && !(newFirst && newLast)) return fail('Give the new person a first and last name.');
+    if (newFirst && !val('bj-new-rate')) return fail('Give ' + newFirst + ' an hourly rate. The board won\'t put anyone on a job without one.');
+
+    var missing = KEY_DETAILS.filter(function (d) { return !val(d[0]); });
+    if (missing.length && !anyway) {
+      missing.forEach(function (d) { document.getElementById(d[0]).classList.add('bj-missing'); });
+      errorBox.className = 'alert alert-warning';
+      errorBox.innerHTML = '<strong>Missing from this job:</strong>'
+        + '<ul>' + missing.map(function (d) { return '<li>' + esc(d[1]) + '</li>'; }).join('') + '</ul>'
+        + '<div class="as-row-actions">'
+          + '<button type="button" class="btn btn-secondary btn-sm" data-action="board-fill">Fill them in</button>'
+          + '<button type="button" class="btn btn-ghost btn-sm" data-action="board-add-anyway" data-id="' + esc(id) + '">Add without them</button>'
+        + '</div>';
+      errorBox.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      return;
+    }
+
+    var rate = val('bj-rate');
+    var staff = val('bj-staff');
+    var contact = val('bj-contact');
+    var phone = val('bj-phone');
+    var email = val('bj-email');
+    var notes = val('bj-notes');
+    if (!rate) notes = 'Charge rate needed.\n' + notes;
+
+    button.disabled = true;
+    try {
+      var clientId = val('bj-client');
+      if (clientId === 'new') {
+        var client = await get(SCHED + '/clients', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: r.company || contact || r.name,
+            contactName: contact || null,
+            contactPhone: phone || null,
+            contactEmail: email || null,
+            defaultChargeRate: rate || null
+          })
+        });
+        clientId = client.id;
+      }
+
+      var job = await get(SCHED + '/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientId: clientId || null,
+          title: title,
+          venueName: val('bj-venue') || null,
+          date: date,
+          startTime: start,
+          endTime: end,
+          staffNeeded: staff ? Number(staff) : null,
+          roleNeeded: val('bj-role') || null,
+          chargeRate: rate || '0',
+          status: val('bj-status'),
+          notes: notes || null
+        })
+      });
+
+      // Note it on the request, so nobody adds it twice.
+      var stamp = 'Added to the board as ' + job.reference + ' (' + fmtDate(date) + ').';
+      var newNotes = r.adminNotes ? r.adminNotes + '\n' + stamp : stamp;
+      await get('/api/v1/contacts/' + encodeURIComponent(id) + '/notes', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: newNotes })
+      }).then(function () { r.adminNotes = newNotes; }).catch(function () {});
+      // The job exists now, so a crew problem is reported, not a reason to stop.
+      var crew = await addCrew(job.id);
+      if (val('bj-status') === 'CONFIRMED' && r.status !== 'BOOKED') await setStatus(id, 'BOOKED');
+
+      AdminCore.closeModal('detail-modal');
+      toast(job.reference + ' is on the board'
+        + (crew.added ? ' with ' + crew.added + (crew.added === 1 ? ' person' : ' people') : ''), 'success');
+      crew.notes.forEach(function (n) { toast(n, 'warning'); });
+      if (confirm(job.reference + ' is on the board. Open it now?')) {
+        window.location.href = '/scheduling/#/jobs/' + encodeURIComponent(job.id);
+      }
+    } catch (e) {
+      fail(e.message);
+    } finally {
+      button.disabled = false;
+    }
   }
 
   async function setStatus(id, status) {
@@ -221,7 +602,27 @@
     if (action === 'close-detail') return AdminCore.closeModal('detail-modal');
     if (action === 'open-detail')  return id && openDetail(id);
     if (action === 'save-notes')   return id && saveNotes(id);
+    if (action === 'board-form')   return id && openBoardForm(id);
+    if (action === 'board-add')    return id && addToBoard(id, el);
+    if (action === 'board-add-anyway') {
+      return id && addToBoard(id, document.querySelector('[data-action="board-add"]'), true);
+    }
+    if (action === 'board-fill') {
+      var first = document.querySelector('#modal-body .bj-missing');
+      return first && first.focus();
+    }
     if (action === 'delete')       return id && remove(id, el.dataset.fromModal === 'true');
+  });
+
+  document.addEventListener('input', function (e) {
+    if (e.target.id === 'bj-crew-search') {
+      var q = e.target.value.trim().toLowerCase();
+      document.querySelectorAll('#bj-crew-list .bj-person').forEach(function (row) {
+        row.style.display = !q || row.dataset.name.indexOf(q) !== -1 ? '' : 'none';
+      });
+      return;
+    }
+    if (e.target.classList && e.target.value.trim()) e.target.classList.remove('bj-missing');
   });
 
   document.addEventListener('change', function (e) {

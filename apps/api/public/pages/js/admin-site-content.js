@@ -211,7 +211,7 @@
         { name: 'file', label: 'Photo (JPEG, PNG, WebP, HEIC; up to 12MB)', type: 'file', newOnly: true, required: true },
         { name: 'alt', label: 'Alt text: what the photo shows, for people who can\'t see it', max: 300, required: true },
         { name: 'caption', label: 'Caption (optional)', max: 300 },
-        { name: 'tags', label: 'Tags, comma separated (e.g. home, hire, season-halloween)', type: 'tags' },
+        { name: 'tags', label: 'Tags, comma separated (e.g. home, hire, season-christmas)', type: 'tags' },
         { name: 'published', label: 'Published', type: 'checkbox', default: true },
       ],
     },
@@ -248,10 +248,10 @@
           '</p><p>' + esc(p.bannerText) + '</p><p class="sc-meta">' + esc(p.startsOn) + ' to ' + esc(p.endsOn) + nav + ' · ' + esc(p.href) + '</p>';
       },
       fields: [
-        { name: 'key', label: 'Key (lowercase, e.g. halloween)', max: 50, required: true },
+        { name: 'key', label: 'Key (lowercase, e.g. christmas)', max: 50, required: true },
         { name: 'navLabel', label: 'Header label', max: 40, required: true },
         { name: 'bannerText', label: 'Banner text', max: 120, required: true, limit: 'bannerWords' },
-        { name: 'href', label: 'Links to (e.g. /special-events/halloween)', max: 200, required: true },
+        { name: 'href', label: 'Links to (e.g. /special-events/christmas)', max: 200, required: true },
         { name: 'startsOn', label: 'Banner and homepage from', type: 'date', required: true },
         { name: 'endsOn', label: 'Banner and homepage until', type: 'date', required: true },
         { name: 'navStartsOn', label: 'Header item from (optional, if different)', type: 'date' },

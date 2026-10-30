@@ -51,7 +51,7 @@
       <div class="faq-list">
         <%~ include('/partials/faq', { items: it.faqs("hire/security"), name: "security-faq", esc: it.esc }) %>
       </div>
-      <p class="link-row">Also: <a href="/hire/cleaners">Event cleaners</a> · <a href="/hire/corporate-events">Corporate and large events</a> · <a href="/special-events/halloween">Halloween</a></p>
+      <p class="link-row">Also: <a href="/hire/cleaners">Event cleaners</a> · <a href="/hire/corporate-events">Corporate and large events</a></p>
     </section>
 
     <%~ it.blocks["cta"]({ "heading": "Need the door covered?" }) %>

@@ -119,7 +119,7 @@
               <input type="number" id="count-security" name="roleCount" data-role="Security" data-role-kind="senior" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
             </div>
             <div class="role-count-item">
-              <label for="count-chef">Chefs and cooks <span class="label-note">quoted separately</span></label>
+              <label for="count-chef">Chefs and cooks <span class="label-note">from <%~ it.t.CHEF_FROM_RATE %>/hr</span></label>
               <input type="number" id="count-chef" name="roleCount" data-role="Chefs and cooks" data-role-kind="senior" min="0" max="500" step="1" placeholder="0" inputmode="numeric">
             </div>
             <div class="role-count-item">

@@ -24,7 +24,7 @@ const { default: app } = require('../index');
 
 const ORIGIN = 'https://vergoltd.com';
 const SUFFIX = '| VERGO Staffing';
-const NOINDEX_PAGES = ['/hire/quote', '/work/apply'];
+const NOINDEX_PAGES = ['/hire/quote', '/work/apply', '/links'];
 
 function decode(value: string): string {
   return value.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');

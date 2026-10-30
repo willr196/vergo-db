@@ -140,7 +140,7 @@ test('pages link stylesheets and scripts by content hash, and those URLs cache f
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
   const { port } = server.address() as { port: number };
   try {
-    for (const page of ['/', '/hire', '/special-events/halloween']) {
+    for (const page of ['/', '/hire', '/special-events/christmas']) {
       const html = await (await fetch(`http://127.0.0.1:${port}${page}`)).text();
       const css = html.match(/href="(\/vergo-site\.css\?v=[0-9a-f]{10})"/);
       assert.ok(css, `${page} links a versioned vergo-site.css`);

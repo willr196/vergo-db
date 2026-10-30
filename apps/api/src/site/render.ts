@@ -56,6 +56,7 @@ export function siteConfigScript(): string {
       standardRate: PRICING.standardRate,
       premiumEnabled: PRICING.premiumEnabled,
       premiumRate: PRICING.premiumEnabled ? PRICING.premiumRate : null,
+      chefFromRate: PRICING.chefFromRate,
       premiumDefinition: SITE_TERMS.premiumDefinition,
       headlineRateText: headlineRateText(),
       minimumHours: PRICING.minimumChargeHours,
@@ -67,8 +68,13 @@ export function siteConfigScript(): string {
     specialEvents: {
       themedHospitality: PRICING.specialEvents.themedHospitality,
       characterPerformer: PRICING.specialEvents.characterPerformer,
+      santa: PRICING.specialEvents.santa,
       makeupArtist: PRICING.specialEvents.makeupArtist,
+      facePainting: PRICING.specialEvents.facePainting,
+      costumeFee: PRICING.specialEvents.costumeFee,
       minimumHours: PRICING.specialEvents.minimumChargeHours,
+      carollerMinimumHours: PRICING.specialEvents.carollerMinimumHours,
+      facePaintingMinimumHours: PRICING.specialEvents.facePaintingMinimumHours,
     },
     terms: {
       confirmationPromise: SITE_TERMS.confirmationPromise,

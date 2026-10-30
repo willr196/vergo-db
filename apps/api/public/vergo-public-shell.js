@@ -23,7 +23,7 @@
     home: ['/'],
     hire: ['/hire'],
     work: ['/work'],
-    specialEvents: ['/special-events', '/special-events/halloween'],
+    specialEvents: ['/special-events', '/special-events/christmas'],
   };
 
   const isCurrent = (group) => {

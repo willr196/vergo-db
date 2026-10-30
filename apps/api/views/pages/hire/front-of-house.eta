@@ -1,0 +1,74 @@
+<%/* /hire/front-of-house: hosts, greeters, cloakroom and runners, at the standard rate. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Front of House Staff Hire in London | VERGO Staffing",
+    "description": `Event hosts and front of house staff in London: greeters, guest lists, cloakroom and runners. ${it.t.HEADLINE_RATE} per person, names confirmed the same day.`,
+    "ogImage": "/images/og/hire.jpg",
+    "canonical": "/hire/front-of-house"
+  },
+  jsonLd: [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Event host and front of house staff hire",
+      "serviceType": "Event and hospitality staffing",
+      "url": "https://vergoltd.com/hire/front-of-house",
+      "description": "Hosts, greeters, guest-list and cloakroom staff and runners for events across London.",
+      "areaServed": {
+        "@type": "City",
+        "name": "London"
+      },
+      "provider": {
+        "@id": "https://vergoltd.com/#organization"
+      },
+      "offers": {
+        "@type": "Offer",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": Number(it.t.STANDARD_RATE_NUMBER),
+          "priceCurrency": "GBP",
+          "unitCode": "HUR",
+          "unitText": "per hour, per person",
+          "referenceQuantity": {
+            "@type": "QuantitativeValue",
+            "value": Number(it.t.MIN_HOURS),
+            "unitCode": "HUR"
+          }
+        }
+      }
+    },
+    it.faqJsonLd("hire/front-of-house")
+  ]
+}) %>
+    <section class="page-hero-plain shell">
+      <span class="eyebrow">Hosts and front of house</span>
+      <h1>Event hosts and front of house staff in London</h1>
+      <p class="lede">The first people your guests meet: on the door, at the cloakroom and showing the way.</p>
+      <div class="btn-row">
+        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+      </div>
+    </section>
+
+    <section class="section shell" aria-labelledby="whattheydo-heading">
+      <h2 id="whattheydo-heading" class="section-label">What they do</h2>
+      <ul class="check-list">
+        <li><strong>Arrivals:</strong> greeting, guest list and wristbands, coats taken</li>
+        <li><strong>During:</strong> guests shown to seats, questions answered, runners between rooms</li>
+        <li><strong>Leaving:</strong> cloakroom returned, taxis pointed out, a calm exit</li>
+      </ul>
+      <p class="section-note">Briefed on your guest list, timings and dress code before the doors open.</p>
+    </section>
+
+    <%~ it.blocks["rates"]() %>
+
+    <%~ it.blocks["guarantees"]() %>
+
+    <section class="section shell" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" class="section-label">Questions</h2>
+      <div class="faq-list">
+        <%~ include('/partials/faq', { items: it.faqs("hire/front-of-house"), name: "front-of-house-faq", esc: it.esc }) %>
+      </div>
+      <p class="link-row">Also: <a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/security">Event security</a> · <a href="/hire/corporate-events">Corporate and large events</a></p>
+    </section>
+
+    <%~ it.blocks["cta"]({ "heading": "Want a warm welcome at the door?" }) %>

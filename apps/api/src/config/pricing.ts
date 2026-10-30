@@ -16,6 +16,8 @@ export const PRICING = {
    */
   premiumEnabled: true,
   premiumRate: 24.00,
+  /** Chefs and cooks always start here; the menu, kitchen and hours set the rest. */
+  chefFromRate: 24.00,
   minimumChargeHours: 4,
   /** Time past the booked hours is billed in blocks of this many minutes. */
   overrunBlockMinutes: 30,
@@ -26,7 +28,7 @@ export const PRICING = {
    * the end of the shift. Replaces the after-midnight uplift on those hours
    * rather than stacking with it.
    */
-  newYearsEveMultiplier: 1.25,
+  newYearsEveMultiplier: 1.50,
   newYearsEveFromHour: 19,
   /** Internal only — never render this on any public page. */
   accountRate: 19.00,
@@ -35,22 +37,29 @@ export const PRICING = {
 
   /**
    * Special Events charge rates, in £/hour per person. These are separate roles
-   * rather than a premium on standardRate: a scare actor is cast for the booking,
+   * rather than a premium on standardRate: a character performer is cast for the booking,
    * not rostered onto it, and is paid against a different market. Everything
-   * beyond these three — specialist acts, decor, a whole experience — is quoted
+   * beyond these — specialist acts, decor, a whole experience — is quoted
    * per brief and deliberately has no figure here.
    *
-   * Rendered on /special-events/halloween via VERGO_CONFIG.specialEvents, which
-   * hydrates from /api/v1/rates. The page carries the same figures as static
-   * fallbacks so the rates are in the HTML for search engines and for anyone
-   * without JavaScript — change a rate here and change it there in the same commit.
+   * Rendered on /special-events/christmas from it.t (THEMED_RATE and so on).
    */
   specialEvents: {
-    themedHospitality: 21.00,
+    /** Elves and festive hosts. */
+    themedHospitality: 22.00,
+    /** Carollers, per singer. */
     characterPerformer: 26.00,
+    /** Santa and Mrs Claus. */
+    santa: 35.00,
     makeupArtist: 35.00,
-    /** Hourly special-events roles carry the site-wide four-hour minimum. */
+    facePainting: 55.00,
+    /** Costume and styling for the festive team, once per booking. */
+    costumeFee: 15.00,
+    /** Hourly special-events roles carry the site-wide four-hour minimum... */
     minimumChargeHours: 4,
+    /** ...except carollers and face painting, booked for a set or a session. */
+    carollerMinimumHours: 2,
+    facePaintingMinimumHours: 2,
   },
 };
 
@@ -85,7 +94,8 @@ export const ON_COSTS = {
  */
 export const SITE_TERMS = {
   premiumDefinition: "2+ years' event experience. Silver service, cocktails, weddings, high-end corporate.",
-  seniorRolesQuoted: 'Chefs, managers, cleaners and security quoted separately.',
+  /** Follows "Chefs from £24/hr;" wherever it shows (site/content.ts seniorRolesLine). */
+  seniorRolesQuoted: 'Managers, cleaners and security quoted separately.',
   paymentTerms: 'First booking paid upfront, then 14 days.',
   cancellation: 'Free 48h+ before. 10% within 48h, 25% within 24h.',
   confirmationPromise: 'Enquire by 6pm, get confirmed names the same day. After 6pm, by 10am.',

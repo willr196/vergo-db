@@ -1,0 +1,29 @@
+<%/* /links: the link in the Instagram bio. One tap to each place a visitor from social wants. noindex: it repeats links the site already has. The season's page leads while it's selling. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Links | VERGO Staffing",
+    "description": "Get a quote, message us on WhatsApp, book a full event or work for VERGO.",
+    "canonical": "/links",
+    "robots": "noindex, follow"
+  },
+  header: { focused: "true", back: "/", label: "Full site" }
+}) %>
+    <section class="links-page shell">
+      <span class="links-mark" aria-hidden="true"></span>
+      <h1>VERGO Staffing</h1>
+      <p class="links-slogan"><%= it.t.SLOGAN %></p>
+      <ul class="links-list">
+        <li><a class="btn btn-primary btn-block" href="/hire/quote">Get a quote</a></li>
+<% if (it.season.header) { %>
+        <li><a class="btn btn-secondary btn-block links-season" href="<%= it.season.header.href %>"><%= it.season.header.navLabel %></a></li>
+<% } %>
+        <li><a class="btn btn-secondary btn-block" href="<%= it.site.whatsappUrl %>" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a></li>
+        <li><a class="btn btn-secondary btn-block" href="/hire">Hire event staff</a></li>
+        <li><a class="btn btn-secondary btn-block" href="/book-an-event">Book a full event</a></li>
+        <li><a class="btn btn-secondary btn-block" href="/work">Work for us</a></li>
+<% if (it.site.googleReviewsUrl) { %>
+        <li><a class="btn btn-secondary btn-block" href="<%= it.site.googleReviewsUrl %>" target="_blank" rel="noopener">Our Google reviews</a></li>
+<% } %>
+      </ul>
+      <p class="links-call"><a href="tel:<%= it.site.phoneE164 %>">Call <%= it.site.phoneDisplay %></a></p>
+    </section>

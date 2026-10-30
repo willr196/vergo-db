@@ -56,6 +56,17 @@ function formatHour(hour: number): string {
   return `${h}${hour < 12 ? 'am' : 'pm'}`;
 }
 
+/** "Chefs from £24/hr; managers, cleaners and security quoted separately." One sentence. */
+export function seniorRolesLine(): string {
+  const rest = SITE_TERMS.seniorRolesQuoted;
+  return `Chefs from ${wholePounds(PRICING.chefFromRate)}/hr; ${rest.charAt(0).toLowerCase()}${rest.slice(1)}`;
+}
+
+/** "four", for prose; the figure past ten. */
+function hoursWord(hours: number): string {
+  return ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'][hours] ?? String(hours);
+}
+
 function wholePounds(value: number): string {
   return Number.isInteger(value) ? `£${value}` : formatRate(value);
 }
@@ -66,14 +77,17 @@ function wholePounds(value: number): string {
  * THEMED_MIN_CHARGE, PERFORMER_OVERRUN, MAKEUP_LATE_HOUR and so on.
  */
 export function specialEventCharges(): Record<string, string> {
-  const roles = {
-    THEMED: PRICING.specialEvents.themedHospitality,
-    PERFORMER: PRICING.specialEvents.characterPerformer,
-    MAKEUP: PRICING.specialEvents.makeupArtist,
+  const se = PRICING.specialEvents;
+  const roles: Record<string, [rate: number, minimumHours: number]> = {
+    THEMED: [se.themedHospitality, se.minimumChargeHours],
+    PERFORMER: [se.characterPerformer, se.carollerMinimumHours],
+    SANTA: [se.santa, se.minimumChargeHours],
+    MAKEUP: [se.makeupArtist, se.minimumChargeHours],
+    FACE_PAINTING: [se.facePainting, se.facePaintingMinimumHours],
   };
   const out: Record<string, string> = {};
-  for (const [key, rate] of Object.entries(roles)) {
-    out[`${key}_MIN_CHARGE`] = wholePounds(rate * PRICING.specialEvents.minimumChargeHours);
+  for (const [key, [rate, minimumHours]] of Object.entries(roles)) {
+    out[`${key}_MIN_CHARGE`] = wholePounds(rate * minimumHours);
     out[`${key}_OVERRUN`] = wholePounds((rate * PRICING.overrunBlockMinutes) / 60);
     out[`${key}_LATE_HOUR`] = wholePounds(rate * PRICING.afterMidnightMultiplier);
   }
@@ -99,12 +113,12 @@ export function siteTokens(): Record<string, string> {
     PREMIUM_DEFINITION: SITE_TERMS.premiumDefinition,
     MIN_HOURS: String(PRICING.minimumChargeHours),
     /** "four", for prose; the figure past ten. */
-    MIN_HOURS_WORD: ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'][PRICING.minimumChargeHours] ?? String(PRICING.minimumChargeHours),
+    MIN_HOURS_WORD: hoursWord(PRICING.minimumChargeHours),
     OVERRUN_MINUTES: String(PRICING.overrunBlockMinutes),
     UPLIFT_PCT: String(upliftPct),
     NYE_UPLIFT_PCT: String(Math.round((PRICING.newYearsEveMultiplier - 1) * 100)),
     NYE_FROM: formatHour(PRICING.newYearsEveFromHour),
-    SENIOR_ROLES: SITE_TERMS.seniorRolesQuoted,
+    SENIOR_ROLES: seniorRolesLine(),
     PAYMENT_TERMS: SITE_TERMS.paymentTerms,
     CANCELLATION: SITE_TERMS.cancellation,
     CONFIRMATION_PROMISE: SITE_TERMS.confirmationPromise,
@@ -120,6 +134,15 @@ export function siteTokens(): Record<string, string> {
     THEMED_RATE_NUMBER: PRICING.specialEvents.themedHospitality.toFixed(2),
     PERFORMER_RATE_NUMBER: PRICING.specialEvents.characterPerformer.toFixed(2),
     MAKEUP_RATE_NUMBER: PRICING.specialEvents.makeupArtist.toFixed(2),
+    SANTA_RATE: wholePounds(PRICING.specialEvents.santa),
+    SANTA_RATE_NUMBER: PRICING.specialEvents.santa.toFixed(2),
+    FACE_PAINTING_RATE: wholePounds(PRICING.specialEvents.facePainting),
+    FACE_PAINTING_RATE_NUMBER: PRICING.specialEvents.facePainting.toFixed(2),
+    CHEF_FROM_RATE: wholePounds(PRICING.chefFromRate),
+    CHEF_FROM_RATE_NUMBER: PRICING.chefFromRate.toFixed(2),
+    COSTUME_FEE: wholePounds(PRICING.specialEvents.costumeFee),
+    CAROLLER_MIN_HOURS_WORD: hoursWord(PRICING.specialEvents.carollerMinimumHours),
+    FACE_PAINTING_MIN_HOURS_WORD: hoursWord(PRICING.specialEvents.facePaintingMinimumHours),
     ...specialEventCharges(),
     /** RATE_SANTA, RATE_SANTA_NUMBER...: every public rate on the card, core ones included. */
     ...rateTokens(),

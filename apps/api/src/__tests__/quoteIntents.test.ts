@@ -214,50 +214,50 @@ test('the next-day flag is optional, and only a boolean will do', async () => {
   assert.equal(stringly.statusCode, 201);
 });
 
-// The Halloween brief (/special-events/halloween) posts here as an ENQUIRY via
-// pages/js/halloween-team.js. It always sends special_requirements, which the
+// The Christmas brief (/special-events/christmas) posts here as an ENQUIRY via
+// pages/js/special-events-brief.js. It always sends special_requirements, which the
 // route folds into the message body — so the composed message, not the typed
 // one, is what the schema checks.
-const HALLOWEEN_BRIEF = {
+const CHRISTMAS_BRIEF = {
   intent: 'ENQUIRY',
   name: 'Sam Host',
   email: 'sam@example.com',
   phone: '07700900000',
   company: 'Shoreditch Venue',
-  eventType: 'Halloween (Special Events)',
-  eventDate: '2026-10-31',
+  eventType: 'Christmas (Special Events)',
+  eventDate: '2026-12-18',
   location: 'Shoreditch, E1',
   guestCount: 150,
-  roles: ['Themed bartenders', 'Scare actors', 'Makeup artists'],
+  roles: ['Themed bartenders', 'Character performers', 'Makeup artists'],
   special_requirements:
-    'Halloween / special events brief · Atmosphere: Eerie · Interaction level: Fully interactive / immersive · Approx guests: 150',
+    'Christmas party brief · Service style: Drinks and canapés · Approx guests: 150',
   event_hours: 5,
   message: 'Basement bar, two rooms.',
   honeypot: '',
 };
 
-test('the Halloween brief is accepted with everything the form sends', async () => {
-  const response = await post(buildApp(), HALLOWEEN_BRIEF);
+test('the Christmas brief is accepted with everything the form sends', async () => {
+  const response = await post(buildApp(), CHRISTMAS_BRIEF);
   assert.equal(response.statusCode, 201);
   const body = JSON.parse(response.body);
   assert.equal(body.ok, true);
   assert.equal(body.intent, 'ENQUIRY');
 });
 
-test('a Halloween brief with a maxed-out message still reaches the inbox', async () => {
+test('a Christmas brief with a maxed-out message still reaches the inbox', async () => {
   // 2,000 characters is exactly what the page's textarea allows. Before the
   // message pieces were bounded, appending the requirements line pushed the
   // composed body past the schema cap and the enquiry came back as a 400.
   const response = await post(buildApp(), {
-    ...HALLOWEEN_BRIEF,
+    ...CHRISTMAS_BRIEF,
     message: 'x'.repeat(2000),
   });
   assert.equal(response.statusCode, 201);
   assert.equal(JSON.parse(response.body).ok, true);
 });
 
-test('the Halloween brief is accepted on a phone number alone', async () => {
-  const { email, ...withoutEmail } = HALLOWEEN_BRIEF;
+test('the Christmas brief is accepted on a phone number alone', async () => {
+  const { email, ...withoutEmail } = CHRISTMAS_BRIEF;
   const response = await post(buildApp(), withoutEmail);
   assert.equal(response.statusCode, 201);
 });

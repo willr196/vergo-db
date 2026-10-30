@@ -83,23 +83,9 @@ export function defaultRecentWork(): RecentWorkContent[] {
   return proof.recentWork.map((w) => ({ title: w.title, detail: w.detail }));
 }
 
-/**
- * The one photo the pages pick by tag: the Halloween bar on the homepage's
- * season section (tag "season-halloween"). Everything else arrives through
- * the admin.
- */
+/** Photos all arrive through the admin. */
 export function defaultPhotos(): PhotoContent[] {
-  return [
-    {
-      path: '/images/special-events/halloween-bar-{w}.webp',
-      variants: [800, 1200],
-      alt: 'Bartenders in hooded robes and ghost masks pouring cocktails at a candlelit Halloween bar',
-      caption: null,
-      tags: ['season-halloween'],
-      width: 1448,
-      height: 1086,
-    },
-  ];
+  return [];
 }
 
 /** Every page's FAQs, keyed by page ("hire/weddings"), copied from the pages. */
@@ -124,34 +110,12 @@ export function londonDayEnd(year: number, month: number, day: number): Date {
 }
 
 /**
- * The two seasons, with the windows vergo-site.js used: Halloween's banner and
- * header item 1 September to 31 October; Christmas's banner 1 September to 20
- * December and its header item from 1 November. Dated for 2026; next year's
- * dates are set in the admin.
+ * The season, with the windows vergo-site.js used: Christmas's banner 1
+ * September to 20 December, with its header item for the same dates. Dated for
+ * 2026; next year's dates are set in the admin.
  */
 export function defaultPromos(year = 2026): PromoContent[] {
   return [
-    {
-      key: 'halloween',
-      navLabel: 'Halloween',
-      bannerText: 'Halloween staff and performers: now booking',
-      href: '/special-events/halloween',
-      homeHeading: 'Halloween: themed staff, performers and makeup',
-      homeLines: [
-        { label: 'Themed hospitality staff', price: '{{THEMED_RATE}}/hr' },
-        { label: 'Scare actors and character performers', price: '{{PERFORMER_RATE}}/hr' },
-        { label: 'Makeup artists', price: '{{MAKEUP_RATE}}/hr' },
-        'The last week of October books up first.',
-      ],
-      homeCtaLabel: 'Build your Halloween team',
-      homeCtaHref: '/special-events/halloween#build',
-      startsAt: londonDay(year, 9, 1),
-      endsAt: londonDayEnd(year, 10, 31),
-      navStartsAt: null,
-      navEndsAt: null,
-      pageLine: 'Now booking 23–24 and 30–31 October.',
-      pageUntil: null,
-    },
     {
       key: 'christmas',
       navLabel: 'Christmas',
@@ -163,8 +127,8 @@ export function defaultPromos(year = 2026): PromoContent[] {
       homeCtaHref: '/special-events/christmas',
       startsAt: londonDay(year, 9, 1),
       endsAt: londonDayEnd(year, 12, 20),
-      navStartsAt: londonDay(year, 11, 1),
-      navEndsAt: londonDayEnd(year, 12, 20),
+      navStartsAt: null,
+      navEndsAt: null,
       pageLine: null,
       // The page sells New Year's Eve too.
       pageUntil: londonDayEnd(year, 12, 31),

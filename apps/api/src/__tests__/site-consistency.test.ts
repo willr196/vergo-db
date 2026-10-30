@@ -215,7 +215,7 @@ test('no page carries a placeholder, an old price or a retired line', () => {
 
 test('public scripts carry no placeholder or retired wording', () => {
   const dir = path.join(publicDir);
-  const files = ['vergo-site.js', 'vergo-whatsapp.js', 'vergo-consent.js', 'pages/js/quote.js', 'pages/js/quote-calc.js', 'pages/js/halloween-team.js', 'pages/js/work-apply.js'];
+  const files = ['vergo-site.js', 'vergo-whatsapp.js', 'vergo-consent.js', 'pages/js/quote.js', 'pages/js/quote-calc.js', 'pages/js/special-events-brief.js', 'pages/js/work-apply.js'];
   const problems: string[] = [];
   for (const f of files) {
     const src = fs.readFileSync(path.join(dir, f), 'utf8');
@@ -240,16 +240,22 @@ test('every public page has the shared header and footer, with Cookie settings',
   assert.deepEqual(problems, []);
 });
 
-test('the header never carries a permanent link to /special-events', () => {
+test('the header links the /special-events hub once, and no event page permanently', () => {
   const problems: string[] = [];
   for (const p of pages) {
     for (const header of all(p.root, (n) => n.tag === 'header' && 'data-shared-header' in n.attrs)) {
+      let hub = 0;
       for (const a of all(header, byTag('a'))) {
         // The seasonal item is allowed: the server only renders it while a
         // season's dates are live (site/view.ts seasonState).
         if ('data-season-item' in (a.parent?.attrs || {})) continue;
-        if ((a.attrs.href || '').startsWith('/special-events')) problems.push(`${p.rel}: header links ${a.attrs.href}`);
+        const href = a.attrs.href || '';
+        if (href === '/special-events') hub++;
+        else if (href.startsWith('/special-events/')) problems.push(`${p.rel}: header links ${href}`);
       }
+      // Focused pages (quote form, apply, links) carry a header with no nav.
+      const hasNav = all(header, (n) => n.tag === 'nav').length > 0;
+      if (hub !== (hasNav ? 1 : 0)) problems.push(`${p.rel}: header links /special-events ${hub} times`);
     }
   }
   assert.deepEqual(problems, []);
@@ -259,7 +265,7 @@ test('the header never carries a permanent link to /special-events', () => {
 
 const BUDGETS: Record<string, number> = {
   '/': 220,
-  '/hire': 240,
+  '/hire': 250,
   '/birmingham': 225,
   '/hire/waiting-staff': 160,
   '/hire/bar-staff': 160,
@@ -269,7 +275,10 @@ const BUDGETS: Record<string, number> = {
   '/hire/corporate-events': 215,
   '/hire/cleaners': 180,
   '/hire/security': 180,
-  '/special-events/halloween': 550,
+  '/hire/front-of-house': 180,
+  '/hire/event-chefs': 180,
+  '/hire/private-parties': 180,
+  '/links': 60,
   '/special-events': 120,
   '/book-an-event': 150,
   '/about': 150,
@@ -320,32 +329,9 @@ test('paragraphs run to two sentences at most, and FAQs to three', () => {
       if (sentences.length > 2) problems.push(`${p.rel}: ${sentences.length} sentences: "${t.slice(0, 70)}…"`);
     }
     const faqs = all(main, hasClass('faq')).length;
-    const cap = p.url === '/special-events/halloween' ? 4 : 3;
-    if (faqs > cap) problems.push(`${p.rel}: ${faqs} FAQs`);
+    if (faqs > 3) problems.push(`${p.rel}: ${faqs} FAQs`);
   }
   assert.deepEqual(problems, []);
-});
-
-/* ---------------------------------------------------------- Halloween */
-
-test('Halloween keeps every offering', () => {
-  const p = page('/special-events/halloween');
-  const t = text(p.root);
-  assert.equal(all(p.root, hasClass('se-service')).length, 0, 'no services grid');
-  assert.equal(all(p.root, hasClass('se-involve')).length, 3, 'three levels');
-  assert.equal(all(p.root, hasClass('se-concept')).length, 5, 'five concepts');
-  for (const theme of ['Classic Halloween', 'Ghouls, Ghosts & the Undead', 'The Gates of Hell', "Witches' Nightmare", 'Killer Clown Asylum', 'Skeleton After-Party']) {
-    assert.ok(t.includes(theme), `decor theme ${theme}`);
-  }
-  for (const gone of ['Deadly Games', 'The Trap Room', 'Gothic Whimsy', 'Monster House', 'Something else']) {
-    assert.ok(!t.includes(gone), `removed theme ${gone}`);
-  }
-  assert.ok(/id="hwThemeIdea"/.test(p.html), 'theme idea field');
-  assert.ok(/Makeup and SFX/.test(t), 'makeup section');
-  const rates = all(p.root, hasClass('se-rate-figure')).map((n) => text(n).trim());
-  assert.deepEqual(rates, [PRICING.specialEvents.themedHospitality, PRICING.specialEvents.characterPerformer, PRICING.specialEvents.makeupArtist].map((n) => `£${n}`));
-  assert.ok(/Specialist performers, venue design and full experiences/.test(t), 'bespoke items');
-  assert.ok(/<form[^>]*>/.test(p.html) && /id="build"/.test(p.html), 'the #build form');
 });
 
 /* ------------------------------------------------------- prices, terms */
@@ -358,6 +344,10 @@ test('every £ amount on a public page comes from config', () => {
     ...money(PRICING.specialEvents.themedHospitality),
     ...money(PRICING.specialEvents.characterPerformer),
     ...money(PRICING.specialEvents.makeupArtist),
+    ...money(PRICING.specialEvents.santa),
+    ...money(PRICING.specialEvents.facePainting),
+    ...money(PRICING.chefFromRate),
+    ...money(PRICING.specialEvents.costumeFee),
     ...(SITE_TERMS.workerPayLine.match(/£[\d.,]+/g) || []),
     // Worked from the special-events rates, so they move with them.
     ...Object.values(specialEventCharges()),
@@ -382,7 +372,7 @@ test('Premium is shown only while it is enabled', () => {
 });
 
 test('rate, guarantee and employment wording matches config exactly', () => {
-  const ratePages = ['/hire', '/birmingham', '/hire/waiting-staff', '/hire/bar-staff', '/hire/kitchen-porters', '/hire/weddings', '/hire/production-catering', '/hire/corporate-events'];
+  const ratePages = ['/hire', '/birmingham', '/hire/waiting-staff', '/hire/bar-staff', '/hire/kitchen-porters', '/hire/weddings', '/hire/production-catering', '/hire/corporate-events', '/hire/front-of-house', '/hire/private-parties'];
   for (const url of ratePages) {
     const p = page(url);
     const blocks = all(p.root, (n) => n.attrs['data-block'] === 'rates');

@@ -1,8 +1,6 @@
 /**
- * Special events brief forms — "Build your Halloween team" on
- * /special-events/halloween, "Plan your party" on /special-events/christmas
- * and the general brief on /special-events. (The file name predates the
- * other forms; all three pages load this script.)
+ * Special events brief forms — "Plan your party" on /special-events/christmas,
+ * the general brief on /special-events and the brief on /book-an-event.
  *
  * data-required lists fields a form insists on, comma-separated (Christmas
  * needs the location, since it books anywhere in the UK).
@@ -16,11 +14,10 @@
  * actually is: a conversation starter with no price attached and nothing
  * committed. That means the only hard requirement is a way of replying.
  *
- * Two fields on this page have no column of their own in the quote payload —
- * atmosphere and interaction level. They travel in `special_requirements`,
- * which the API already folds into the message body, so the notification email
- * carries them without a schema change. Approximate hours travels the same way
- * via `event_hours`.
+ * The concept, theme and service style have no column of their own in the
+ * quote payload. They travel in `special_requirements`, which the API already
+ * folds into the message body, so the notification email carries them without
+ * a schema change. Approximate hours travels the same way via `event_hours`.
  */
 (function () {
   'use strict';
@@ -185,8 +182,6 @@
      *  order someone reading the email would want them. */
     function buildRequirements() {
       var parts = [];
-      var atmosphere = checkedValue('atmosphere');
-      var interaction = checkedValue('interaction');
       var guests = wholeNumber('guestCount', 100000);
 
       parts.push(form.dataset.briefLabel || 'Special events brief');
@@ -196,8 +191,6 @@
       if (decor) parts.push('Decor theme: ' + decor);
       var themeIdea = value('themeIdea');
       if (themeIdea) parts.push('Theme idea: ' + themeIdea);
-      if (atmosphere) parts.push('Atmosphere: ' + atmosphere);
-      if (interaction) parts.push('Interaction level: ' + interaction);
       var serviceStyle = checkedValue('serviceStyle');
       if (serviceStyle) parts.push('Service style: ' + serviceStyle);
       if (guests) parts.push('Approx guests: ' + guests);

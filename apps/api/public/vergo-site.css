@@ -47,8 +47,8 @@
 /* Dark charcoal theme with a green accent (28 September 2026): dark, but not
    black. Every public page, including the blog, runs on these tokens. The
    Premium rate card (--premium-*) sits a shade deeper than the page, and the
-   Halloween page keeps its own near-black seasonal palette
-   (body.se-theme-halloween in pages/css/special-events.css). The admin panel
+   Christmas page keeps its own seasonal palette
+   (body.se-theme-christmas in pages/css/special-events.css). The admin panel
    and login page have their own stylesheets and are unaffected.
    Contrast on --bg: --ink 14.7:1, --muted 6.9:1, --accent 7.8:1;
    --accent-ink on --accent 8.2:1. */
@@ -61,7 +61,9 @@
 
   --bg: #1C1F22;
   --footer-bg: #16191B;
-  --header-bg: rgba(28, 31, 34, 0.92);
+  /* Solid, not translucent: a blur behind the sticky header was redone on
+     every scroll frame and at 0.92 opacity barely showed. */
+  --header-bg: #1C1F22;
   --text: var(--ink);
   --text-secondary: #D4D2CC;
   --text-muted: var(--muted);
@@ -233,7 +235,6 @@ p:last-child { margin-bottom: 0; }
   z-index: 100;
   background: var(--header-bg);
   border-bottom: 1px solid var(--hairline-soft);
-  backdrop-filter: blur(12px);
 }
 
 .site-header-inner {
@@ -300,6 +301,83 @@ p:last-child { margin-bottom: 0; }
 }
 .nav-link--season:hover, .nav-link--season:focus-visible { color: var(--accent); }
 
+/* The Hire staff dropdown. On a desktop it opens on hover, on keyboard focus
+   and from the caret; inside the phone menu the caret folds it open. */
+.nav-item--menu { position: relative; display: flex; align-items: center; }
+.nav-sub-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 36px;
+  margin-left: -8px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.nav-sub-toggle:hover { color: var(--text); }
+.nav-caret {
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.15s ease;
+}
+.nav-item--menu.is-sub-open .nav-caret { transform: translateY(2px) rotate(-135deg); }
+.nav-sub {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 110;
+  grid-template-columns: repeat(2, minmax(190px, auto));
+  gap: 8px 32px;
+  padding: 20px 24px 18px;
+  margin-top: 10px;
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+/* Keeps the panel open while the pointer crosses the gap above it. */
+.nav-sub::before { content: ""; position: absolute; left: 0; right: 0; top: -12px; height: 12px; }
+.nav-item--menu.is-sub-open .nav-sub { display: grid; }
+/* Tabbing into the open panel keeps it open after the pointer leaves. Its own
+   rule: a browser without :has() drops the whole rule it sits in. */
+.nav-sub:has(:focus-visible) { display: grid; }
+@media (hover: hover) and (min-width: 981px) {
+  .nav-item--menu:hover .nav-sub { display: grid; }
+}
+.nav-sub-heading {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.nav-sub ul { list-style: none; margin: 0; padding: 0; }
+.nav-sub li a {
+  display: block;
+  padding: 6px 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.nav-sub li a:hover, .nav-sub li a:focus-visible { color: var(--accent); }
+.nav-sub li a[aria-current="page"] { color: var(--text); font-weight: 600; }
+.nav-sub-all {
+  grid-column: 1 / -1;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline-soft);
+  font-size: 14px;
+  color: var(--accent);
+}
+.nav-sub-all::after { content: " \2192"; }
+
 .nav-actions { display: flex; align-items: center; gap: 16px; }
 .nav-call, .nav-whatsapp {
   font-size: 15px;
@@ -310,6 +388,18 @@ p:last-child { margin-bottom: 0; }
 .nav-call:hover, .nav-whatsapp:hover { color: var(--accent); }
 .nav-action-word { display: none; }
 .nav-quote { min-height: 42px; padding: 10px 20px; font-size: 15px; }
+/* Small laptops: with the season's item in, the labels used to break onto two
+   lines ("Hire / staff", "Get a / quote"). Tighter spacing keeps one row. */
+@media (min-width: 981px) {
+  .nav-link, .nav-quote { white-space: nowrap; }
+}
+@media (min-width: 981px) and (max-width: 1180px) {
+  .site-header-inner { padding-inline: 24px; gap: 16px; }
+  .site-nav { gap: 12px; }
+  .nav-link { padding-inline: 9px; }
+  .nav-actions { gap: 12px; }
+  .nav-quote { padding-inline: 16px; }
+}
 
 .menu-toggle {
   display: none;
@@ -363,6 +453,28 @@ p:last-child { margin-bottom: 0; }
   .nav-item--season { order: 1; border-bottom: 1px solid var(--hairline-soft); padding: 8px 0; }
   .nav-links > .nav-item:not(:first-child):not(.nav-item--season) { order: 2; }
   .nav-link--season { display: inline-block; padding: 8px 16px; border-radius: var(--radius-pill); }
+  .nav-item--menu { flex-wrap: wrap; }
+  .nav-item--menu > .nav-link { flex: 1; }
+  .nav-sub-toggle { width: 48px; height: 48px; margin: 0; border-left: 1px solid var(--hairline-soft); border-radius: 0; }
+  .nav-sub {
+    position: static;
+    flex-basis: 100%;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin: 0 0 12px;
+    padding: 4px 0 4px 14px;
+    background: transparent;
+    border: 0;
+    border-left: 2px solid var(--hairline-strong);
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .nav-sub::before { content: none; }
+  .nav-sub li a { padding: 9px 0; font-size: 16px; white-space: normal; }
+  .nav-sub-all { padding-top: 10px; }
+  /* Without JavaScript there's no caret to press, so the list shows. */
+  .site-header:not(.has-menu) .nav-sub { display: grid; }
+  .site-header:not(.has-menu) .nav-sub-toggle { display: none; }
   .nav-actions { flex-direction: column; align-items: stretch; gap: 10px; }
   .nav-call, .nav-whatsapp, .nav-quote {
     display: flex;
@@ -482,16 +594,15 @@ p:last-child { margin-bottom: 0; }
   position: relative;
   background: radial-gradient(110% 80% at 50% 0%, rgba(var(--accent-rgb), 0.14), rgba(var(--accent-rgb), 0) 70%);
 }
-/* The hero is a masthead: the V mark top left, the pumpkin top right, and
-   the heading, city switch and slogan centred between them. The equal outer
-   columns keep the middle on the page's centre line. On a phone the two
-   marks share the top row and the middle drops below. The pitch and buttons
-   follow the three cards. */
+/* The hero is a masthead: the V mark top left and the heading, city switch
+   and slogan centred. The equal outer columns keep the middle on the page's
+   centre line. On a phone the mark takes the top row and the middle drops
+   below. The pitch and buttons follow the three cards. */
 .home-hero { padding-block: 48px 32px; }
 .home-hero-head {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  grid-template-areas: "logo centre halloween";
+  grid-template-areas: "logo centre .";
   align-items: center;
   gap: clamp(16px, 3vw, 28px);
 }
@@ -500,7 +611,7 @@ p:last-child { margin-bottom: 0; }
 @media (max-width: 640px) {
   .home-hero-head {
     grid-template-columns: 1fr 1fr;
-    grid-template-areas: "logo halloween" "centre centre";
+    grid-template-areas: "logo ." "centre centre";
   }
 }
 /* The V mark is gold on black, so on the charcoal page it sits as a round
@@ -514,31 +625,9 @@ p:last-child { margin-bottom: 0; }
   border-radius: 50%;
   box-shadow: 0 0 0 1px var(--hairline-strong), 0 12px 32px rgba(0, 0, 0, 0.35);
 }
-/* Top right of the masthead: the carved pumpkin over "Halloween staff",
-   one link to the Halloween page. */
-.home-halloween {
-  grid-area: halloween;
-  justify-self: end;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  color: var(--ink);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 15px;
-  text-align: center;
-}
-.home-halloween img { display: block; width: clamp(64px, 9vw, 104px); height: auto; transition: transform 0.2s ease; }
-.home-halloween:hover img,
-.home-halloween:focus-visible img { transform: scale(1.06) rotate(-4deg); }
-.home-halloween:hover span,
-.home-halloween:focus-visible span { color: #ed7a33; }
 @media (max-width: 640px) {
   .home-hero { padding-block: 32px 24px; }
-  .home-halloween { font-size: 13px; }
 }
-@media (prefers-reduced-motion: reduce) { .home-halloween img { transition: none; } }
 
 /* Under the three cards: the pitch, the buttons and the same-day line. */
 .home-cta { text-align: center; padding-block: 8px 48px; }
@@ -1141,6 +1230,23 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 }
 @media (min-width: 640px) { .page-hero-plain { padding-block: 64px 8px; } }
 .page-hero-plain .btn-row { margin: 30px 0 34px; }
+
+/* /links, the Instagram bio page: one column of big buttons. */
+.links-page { max-width: 460px; padding-block: 48px 64px; text-align: center; }
+.links-mark {
+  display: block;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: transparent url('/images/vergo-mark-72.png') center / 124% no-repeat;
+}
+.links-page h1 { font-size: clamp(30px, 7vw, 40px); margin-bottom: 6px; }
+.links-slogan { color: var(--text-secondary); margin-bottom: 28px; }
+.links-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.links-list .btn { min-height: 54px; font-size: 16px; }
+.links-season { border-color: var(--accent); color: var(--accent); }
+.links-call { margin-top: 24px; font-family: var(--font-mono); font-size: 14px; }
 
 /* Legal pages */
 .legal-updated { margin: 12px 0 0; font-size: 14px; color: var(--text-muted); }

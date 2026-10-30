@@ -207,7 +207,7 @@ function computeShiftEnd(start: string | undefined, hoursValue: unknown) {
 
 /** The form fields with nowhere structured to sit are folded into the message
  *  body. Each piece is bounded here because the composed result is what the
- *  schema's message cap is checked against: the Halloween brief always appends
+ *  schema's message cap is checked against: a special events brief always appends
  *  a "Special requirements" line, so a message typed up to the textarea's own
  *  2,000-character limit would otherwise push the total over the cap and the
  *  whole enquiry would come back as a 400. */
@@ -438,7 +438,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
         const sent = await sendQuoteNotificationEmail({
           subject: isBooking
             ? `BOOKING REQUEST${data.city ? ` (${data.city})` : ""}: ${data.eventType} — ${data.staffNeeded} staff${data.eventDate ? ` on ${data.eventDate}` : ""}`
-            // The occasion is appended when the form supplied one, so a Halloween
+            // the occasion is appended when the form supplied one, so a Christmas
             // brief is identifiable in the inbox without opening it. Enquiries from
             // the plain quote page carry no event type and read as before.
             : `Message from ${data.name || data.email || "the quote page"}${data.eventType ? ` — ${data.eventType}` : ""}${data.city ? ` (${data.city})` : ""}`,
