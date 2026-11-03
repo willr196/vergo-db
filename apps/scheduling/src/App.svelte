@@ -60,6 +60,16 @@
     { name: 'clients', label: 'Clients' },
     { name: 'leads', label: 'Outreach' },
   ];
+
+  // The rest of the admin panel, one link per section (SECTIONS in
+  // public/js/admin-nav.js). Board is this app, so it links Jobs in the app.
+  const admin = [
+    { href: '/admin-requests', label: 'Inbox' },
+    { href: '/admin-jobs', label: 'Jobs in the app' },
+    { href: '/admin', label: 'People' },
+    { href: '/ops', label: 'Ops' },
+    { href: '/admin-site-content', label: 'Settings' },
+  ];
 </script>
 
 {#if checking}
@@ -80,11 +90,16 @@
         {/each}
       </nav>
 
+      <nav class="nav" aria-label="Admin panel">
+        <span class="nav-label">Admin panel</span>
+        {#each admin as item}
+          <a href={item.href}>{item.label}</a>
+        {/each}
+      </nav>
+
       <div class="sidebar-foot">
         <div>{username}</div>
         <a href="#/restore" class="foot-link" class:active={route.name === 'restore'}>Restore a desktop backup</a>
-        <a href="/admin-jobs" class="foot-link">Jobs in the app ↗</a>
-        <a href="/admin-requests" class="foot-link">← Admin panel</a>
         <button class="btn sm" style="margin-top:.5rem" onclick={signOut}>Sign out</button>
       </div>
     </aside>

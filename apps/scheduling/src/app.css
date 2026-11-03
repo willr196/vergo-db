@@ -71,6 +71,7 @@ a:hover { text-decoration: underline; }
 }
 .nav a:hover { background: var(--surface-2); color: var(--text); text-decoration: none; }
 .nav a.active { background: var(--surface-2); color: var(--gold); font-weight: 500; }
+.nav-label { padding: 0 0.65rem 0.35rem; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); }
 
 .sidebar-foot { margin-top: auto; padding: 0 0.5rem; font-size: 0.8rem; color: var(--text-faint); }
 .sidebar-foot .foot-link { display: block; margin-top: 0.4rem; color: var(--text-dim); text-decoration: none; }
