@@ -1,8 +1,8 @@
 <%/* /special-events/christmas: moved from public/special-events/christmas.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
 <% layout('/layouts/base', {
   meta: {
-    "title": "Christmas Party Staff Across the UK | VERGO Staffing",
-    "description": `Christmas party staff anywhere in the UK. Santa, elves, toy soldiers, bar and waiting staff. From ${it.t.STANDARD_RATE_SHORT}/hr, ${it.t.MIN_HOURS_WORD}-hour minimum, same-day confirmation.`,
+    "title": "Christmas Party Staff, London & Birmingham | VERGO Staffing",
+    "description": `Christmas party staff in London and Birmingham. Bar, waiting and kitchen staff from ${it.t.STANDARD_RATE_SHORT}/hr, plus festive extras on request.`,
     "ogImage": "/images/og/christmas.jpg",
     "canonical": "/special-events/christmas"
   },
@@ -16,11 +16,11 @@
       "name": "Christmas party staff",
       "serviceType": "Event and hospitality staffing",
       "url": "https://vergoltd.com/special-events/christmas",
-      "description": "Christmas and New Year's Eve party staff anywhere in the UK: Santa, Mrs Claus, elves, toy-soldier security, carollers, bar staff, waiting staff and kitchen teams.",
-      "areaServed": {
-        "@type": "Country",
-        "name": "United Kingdom"
-      },
+      "description": "Christmas party staff in London and Birmingham: bar staff, waiting staff, kitchen porters and chefs.",
+      "areaServed": [
+        { "@type": "City", "name": "London" },
+        { "@type": "City", "name": "Birmingham" }
+      ],
       "provider": {
         "@id": "https://vergoltd.com/#organization"
       },
@@ -46,11 +46,11 @@
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Elves and festive hosts"
+              "name": "Kitchen porters"
             },
             "priceSpecification": {
               "@type": "UnitPriceSpecification",
-              "price": Number(it.t.THEMED_RATE_NUMBER),
+              "price": Number(it.t.STANDARD_RATE_NUMBER),
               "priceCurrency": "GBP",
               "unitCode": "HUR",
               "unitText": "per hour, per person"
@@ -60,53 +60,11 @@
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Carollers"
+              "name": "Chefs"
             },
             "priceSpecification": {
               "@type": "UnitPriceSpecification",
-              "price": Number(it.t.PERFORMER_RATE_NUMBER),
-              "priceCurrency": "GBP",
-              "unitCode": "HUR",
-              "unitText": "per hour, per singer"
-            }
-          },
-          {
-            "@type": "Offer",
-            "itemOffered": {
-              "@type": "Service",
-              "name": "Santa and Mrs Claus"
-            },
-            "priceSpecification": {
-              "@type": "UnitPriceSpecification",
-              "price": Number(it.t.SANTA_RATE_NUMBER),
-              "priceCurrency": "GBP",
-              "unitCode": "HUR",
-              "unitText": "per hour, per person"
-            }
-          },
-          {
-            "@type": "Offer",
-            "itemOffered": {
-              "@type": "Service",
-              "name": "Face painting"
-            },
-            "priceSpecification": {
-              "@type": "UnitPriceSpecification",
-              "price": Number(it.t.FACE_PAINTING_RATE_NUMBER),
-              "priceCurrency": "GBP",
-              "unitCode": "HUR",
-              "unitText": "per hour, per person"
-            }
-          },
-          {
-            "@type": "Offer",
-            "itemOffered": {
-              "@type": "Service",
-              "name": "Makeup"
-            },
-            "priceSpecification": {
-              "@type": "UnitPriceSpecification",
-              "price": Number(it.t.MAKEUP_RATE_NUMBER),
+              "minPrice": Number(it.t.CHEF_FROM_RATE_NUMBER),
               "priceCurrency": "GBP",
               "unitCode": "HUR",
               "unitText": "per hour, per person"
@@ -153,36 +111,16 @@
       </div>
     </section>
 
-    <section class="section shell" id="staffing" aria-labelledby="staffing-heading">
-      <h2 id="staffing-heading" class="se-h2">Who's coming to your party</h2>
-      <ul class="se-audience">
-        <li>Santa</li>
-        <li>Mrs Claus</li>
-        <li>Elves</li>
-        <li>Toy soldiers</li>
-        <li>Nutcrackers</li>
-        <li>The Snow Queen</li>
-        <li>Carollers</li>
-        <li>Bar staff</li>
-        <li>Waiting staff</li>
-        <li>The kitchen team</li>
-        <li>Chefs</li>
-      </ul>
-    </section>
-
     <div class="se-band se-band--deep">
       <section class="section shell" id="festive" aria-labelledby="festive-heading">
         <h2 id="festive-heading" class="se-h2">Pick your Christmas</h2>
-        <p class="se-caveat">Four favourites to start from, or bring your own idea.</p>
+        <p class="se-caveat">Some ideas to start from.</p>
 
         <div class="se-concept-grid">
           <article class="se-concept se-concept--feature" style="--se-c1: #6b1620; --se-c2: #1a0709; --se-concept-img: url(&quot;/images/special-events/concept-santas-grotto.svg&quot;)">
             <div class="se-concept-inner">
               <div class="se-concept-media" role="presentation">
                 <h3 class="se-concept-title">Santa's Grotto</h3>
-              </div>
-              <div class="se-concept-body">
-                <p class="se-concept-chars">Santa, Mrs Claus, Elves, Grotto host</p>
               </div>
             </div>
           </article>
@@ -192,9 +130,6 @@
               <div class="se-concept-media" role="presentation">
                 <h3 class="se-concept-title">The Toy Factory</h3>
               </div>
-              <div class="se-concept-body">
-                <p class="se-concept-chars">Toy-soldier security, Nutcracker hosts, Elf waiters</p>
-              </div>
             </div>
           </article>
 
@@ -203,9 +138,6 @@
               <div class="se-concept-media" role="presentation">
                 <h3 class="se-concept-title">Winter Wonderland</h3>
               </div>
-              <div class="se-concept-body">
-                <p class="se-concept-chars">Snow Queen host, Frosted bartenders, Carollers</p>
-              </div>
             </div>
           </article>
 
@@ -213,9 +145,6 @@
             <div class="se-concept-inner">
               <div class="se-concept-media" role="presentation">
                 <h3 class="se-concept-title">A Victorian Christmas</h3>
-              </div>
-              <div class="se-concept-body">
-                <p class="se-concept-chars">Top-hatted hosts, Dickensian waiters, Mulled-wine bar</p>
               </div>
             </div>
           </article>
@@ -228,22 +157,18 @@
       <ul class="check-list">
         <li>Bar and waiting staff: <%~ it.t.STANDARD_RATE_SHORT %>/hr</li>
         <li>Kitchen porters: <%~ it.t.STANDARD_RATE_SHORT %>/hr</li>
-        <li>Elves and festive hosts: <%~ it.t.THEMED_RATE %>/hr</li>
-        <li>Carollers: <%~ it.t.PERFORMER_RATE %>/hr per singer (<%~ it.t.CAROLLER_MIN_HOURS_WORD %>-hour minimum)</li>
-        <li>Santa and Mrs Claus: <%~ it.t.SANTA_RATE %>/hr</li>
         <li>Chefs: from <%~ it.t.CHEF_FROM_RATE %>/hr</li>
-        <li>Face painting: <%~ it.t.FACE_PAINTING_RATE %>/hr (<%~ it.t.FACE_PAINTING_MIN_HOURS_WORD %>-hour minimum)</li>
-        <li>Makeup: <%~ it.t.MAKEUP_RATE %>/hr</li>
-        <li>Toy soldiers on the door: SIA-licensed security, in uniform. Quoted on the brief</li>
-        <li>Costume and styling: <%~ it.t.COSTUME_FEE %> per booking</li>
-        <li>Or whatever you want, <a href="#plan">send us a message</a>.</li>
       </ul>
-      <p class="se-caveat">Per person, per hour. <%~ it.t.MIN_HOURS_WORD.charAt(0).toUpperCase() + it.t.MIN_HOURS_WORD.slice(1) %>-hour minimum unless shown. Outside London and Birmingham, travel and accommodation are quoted on the brief.</p>
+      <p class="se-caveat">Per person, per hour. <%~ it.t.MIN_HOURS_WORD.charAt(0).toUpperCase() + it.t.MIN_HOURS_WORD.slice(1) %>-hour minimum. London and Birmingham only.</p>
     </section>
 
-    <section class="section shell" id="new-years-eve" aria-labelledby="nye-heading">
-      <h2 id="nye-heading" class="se-h2">New Year's Eve</h2>
-      <p class="se-nye-line">Seeing the new year in? We staff New Year's Eve too. From <%~ it.t.NYE_FROM %> on New Year's Eve, all hours are charged at <strong>+<%~ it.t.NYE_UPLIFT_PCT %>%</strong>. This replaces the after-midnight uplift rather than adding to it.</p>
+    <section class="section shell" id="festive-extras" aria-labelledby="festive-extras-heading">
+      <h2 id="festive-extras-heading" class="se-h2">Something more festive?</h2>
+      <p>Santa, elves, carollers, toy soldiers on the door, face painting. In London or Birmingham? <a href="#plan">Tell us your idea</a> and we'll see what we can put together. Quoted on request.</p>
+    </section>
+
+    <section class="section shell" id="new-years-eve" aria-label="New Year's Eve">
+      <p class="se-nye-line">New Year's Eve? Ask us. Availability is limited, so it's quoted on request.</p>
     </section>
 
     <section class="section shell" aria-labelledby="faq-heading">
@@ -283,7 +208,7 @@
               <div class="checkbox-item"><input type="checkbox" id="xm-carollers" name="need" value="Carollers"><label for="xm-carollers">Carollers</label></div>
               <div class="checkbox-item"><input type="checkbox" id="xm-bar" name="need" value="Bar staff"><label for="xm-bar">Bar staff</label></div>
               <div class="checkbox-item"><input type="checkbox" id="xm-waiting" name="need" value="Waiting staff"><label for="xm-waiting">Waiting staff</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="xm-kitchen" name="need" value="Kitchen team"><label for="xm-kitchen">The kitchen team</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="xm-kitchen" name="need" value="Kitchen porters"><label for="xm-kitchen">Kitchen porters</label></div>
               <div class="checkbox-item"><input type="checkbox" id="xm-chefs" name="need" value="Chefs"><label for="xm-chefs">Chefs</label></div>
               <div class="checkbox-item"><input type="checkbox" id="xm-other" name="need" value="Other" data-other-for="needOther"><label for="xm-other">Other (please specify)</label></div>
             </div>
@@ -347,7 +272,7 @@
               </div>
               <div class="form-field">
                 <label for="xmLocation">Location <span class="label-note">required</span></label>
-                <input type="text" id="xmLocation" name="location" autocomplete="address-level2" placeholder="e.g. Manchester, M1" required>
+                <input type="text" id="xmLocation" name="location" autocomplete="address-level2" placeholder="e.g. Birmingham, B1" required>
               </div>
             </div>
 

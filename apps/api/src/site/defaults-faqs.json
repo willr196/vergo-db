@@ -170,15 +170,15 @@
   "special-events/christmas": [
     {
       "question": "Can Santa come to our office party?",
-      "answer": "Yes. Santa, Mrs Claus and elves for office parties, grottos and family events. Santas booked for children's events are DBS-checked."
+      "answer": "We can often arrange Santa, Mrs Claus and elves. Send us the date and we'll let you know."
     },
     {
       "question": "Do you supply the costumes?",
-      "answer": "Yes. The festive team arrives in costume, or we can style yours. Costume and styling is {{COSTUME_FEE}} per booking."
+      "answer": "If we're arranging characters, we'll sort the costumes too."
     },
     {
       "question": "Do you staff New Year's Eve?",
-      "answer": "Yes. From {{NYE_FROM}} on New Year's Eve, hours are charged at +{{NYE_UPLIFT_PCT}}%. It's the busiest night of the year, so send the date early."
+      "answer": "Sometimes. It's the busiest night of the year, so send us the date and we'll tell you what we can do."
     },
     {
       "question": "How late can we book?",
@@ -186,7 +186,7 @@
     },
     {
       "question": "What if someone doesn't turn up?",
-      "answer": "In London and Birmingham, we have a replacement on site within the hour. If we can't, that shift isn't charged. Elsewhere, we agree the backup plan in the quote."
+      "answer": "We'll have a replacement on site within the hour. If we can't, that shift isn't charged."
     }
   ]
 }
