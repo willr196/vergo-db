@@ -240,22 +240,30 @@ test('every public page has the shared header and footer, with Cookie settings',
   assert.deepEqual(problems, []);
 });
 
-test('the header links the /special-events hub once, and no event page permanently', () => {
+test('the header has one Seasonal item, and the season pages only inside it', () => {
   const problems: string[] = [];
   for (const p of pages) {
     for (const header of all(p.root, (n) => n.tag === 'header' && 'data-shared-header' in n.attrs)) {
-      let hub = 0;
+      // The Seasonal dropdown: the nav item whose own link is the hub.
+      const seasonal = all(header, (n) => 'data-nav-menu' in n.attrs).filter(
+        (li) => all(li, byTag('a'))[0]?.attrs.href === '/special-events',
+      );
+      const inside = new Set(seasonal.flatMap((li) => all(li, byTag('a'))));
       for (const a of all(header, byTag('a'))) {
-        // The seasonal item is allowed: the server only renders it while a
-        // season's dates are live (site/view.ts seasonState).
-        if ('data-season-item' in (a.parent?.attrs || {})) continue;
         const href = a.attrs.href || '';
-        if (href === '/special-events') hub++;
-        else if (href.startsWith('/special-events/')) problems.push(`${p.rel}: header links ${href}`);
+        if ((href === '/special-events' || href.startsWith('/special-events/')) && !inside.has(a)) {
+          problems.push(`${p.rel}: header links ${href} outside Seasonal`);
+        }
       }
       // Focused pages (quote form, apply, links) carry a header with no nav.
       const hasNav = all(header, (n) => n.tag === 'nav').length > 0;
-      if (hub !== (hasNav ? 1 : 0)) problems.push(`${p.rel}: header links /special-events ${hub} times`);
+      if (seasonal.length !== (hasNav ? 1 : 0)) problems.push(`${p.rel}: ${seasonal.length} Seasonal items`);
+      for (const li of seasonal) {
+        const hrefs = all(li, byTag('a')).map((a) => a.attrs.href);
+        for (const want of ['/special-events/christmas', '/special-events/new-years-eve']) {
+          if (!hrefs.includes(want)) problems.push(`${p.rel}: Seasonal is missing ${want}`);
+        }
+      }
     }
   }
   assert.deepEqual(problems, []);

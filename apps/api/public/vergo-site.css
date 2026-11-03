@@ -300,6 +300,8 @@ p:last-child { margin-bottom: 0; }
   font-weight: 600;
 }
 .nav-link--season:hover, .nav-link--season:focus-visible { color: var(--accent); }
+/* Seasonal, while a season is live: the caret sits clear of the outline. */
+.nav-link--season + .nav-sub-toggle { margin-left: 0; }
 
 /* The Hire staff dropdown. On a desktop it opens on hover, on keyboard focus
    and from the caret; inside the phone menu the caret folds it open. */
@@ -377,6 +379,8 @@ p:last-child { margin-bottom: 0; }
   color: var(--accent);
 }
 .nav-sub-all::after { content: " \2192"; }
+/* One group (Seasonal): one column. */
+.nav-sub--single { grid-template-columns: minmax(200px, auto); }
 
 .nav-actions { display: flex; align-items: center; gap: 16px; }
 .nav-call, .nav-whatsapp {
@@ -453,6 +457,7 @@ p:last-child { margin-bottom: 0; }
   .nav-item--season { order: 1; border-bottom: 1px solid var(--hairline-soft); padding: 8px 0; }
   .nav-links > .nav-item:not(:first-child):not(.nav-item--season) { order: 2; }
   .nav-link--season { display: inline-block; padding: 8px 16px; border-radius: var(--radius-pill); }
+  .nav-item--menu > .nav-link--season { flex: 0 1 auto; margin-right: auto; }
   .nav-item--menu { flex-wrap: wrap; }
   .nav-item--menu > .nav-link { flex: 1; }
   .nav-sub-toggle { width: 48px; height: 48px; margin: 0; border-left: 1px solid var(--hairline-soft); border-radius: 0; }

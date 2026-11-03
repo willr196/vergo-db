@@ -4,7 +4,7 @@
         <ul class="footer-links">
           <li><a href="/hire">Hire staff</a></li>
           <li><a href="/book-an-event">Events</a></li>
-          <li><a href="/special-events">Special events</a></li>
+          <li><a href="/special-events">Seasonal</a></li>
           <li><a href="/birmingham">Birmingham</a></li>
           <li><a href="/about">About</a></li>
           <li><a href="/blog">Blog</a></li>
@@ -25,6 +25,7 @@
           <li><a href="/hire/corporate-events">Corporate and large events</a></li>
           <li><a href="/hire/production-catering">Film and TV catering</a></li>
           <li><a href="/special-events/christmas">Christmas parties</a></li>
+          <li><a href="/special-events/new-years-eve">New Year's Eve</a></li>
         </ul>
       </nav>
       <nav class="footer-col" aria-label="Legal">

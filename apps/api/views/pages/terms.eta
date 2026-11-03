@@ -32,6 +32,7 @@
         <li>Managers, supervisors, cleaners and security are quoted and agreed individually before booking</li>
         <li>Full events (food, bar and staff) are quoted individually, and the quote sets out what's included</li>
         <li>There are no booking fees or uniform charges</li>
+        <li>Themed staff: <%~ it.t.THEMED_RATE %> per hour, per person at Christmas; on New Year's Eve they are quoted individually. Themed accessories are <%~ it.t.COSTUME_FEE %> per person, per booking; full costumes are hired in, quoted and agreed before the booking is confirmed</li>
       </ul>
 
       <h2>3. Payment</h2>

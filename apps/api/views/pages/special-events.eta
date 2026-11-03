@@ -1,8 +1,8 @@
-<%/* /special-events: moved from public/special-events.html. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
+<%/* /special-events, "Seasonal" in the header: one banner per season, then the general brief. Shared blocks, prices and contact details come from it.blocks and it.t. */%>
 <% layout('/layouts/base', {
   meta: {
-    "title": "Special Events & Themed Staffing London | VERGO Staffing",
-    "description": "Themed bartenders and waiting staff for Christmas, New Year's Eve and themed events across London.",
+    "title": "Christmas & New Year's Eve Staff | VERGO Staffing",
+    "description": "Christmas party and New Year's Eve staff in London and Birmingham: bar, waiting and kitchen teams for the season.",
     "ogImage": "/images/og/special-events.jpg",
     "canonical": "/special-events"
   },
@@ -23,7 +23,7 @@
         {
           "@type": "ListItem",
           "position": 2,
-          "name": "Special events",
+          "name": "Seasonal",
           "item": "https://vergoltd.com/special-events"
         }
       ]
@@ -31,38 +31,53 @@
     {
       "@context": "https://schema.org",
       "@type": "ItemList",
-      "name": "Special event staffing",
+      "name": "Seasonal event staffing",
       "itemListElement": [
         {
           "@type": "ListItem",
           "position": 1,
           "name": "Christmas party staffing",
           "url": "https://vergoltd.com/special-events/christmas"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "New Year's Eve staffing",
+          "url": "https://vergoltd.com/special-events/new-years-eve"
         }
       ]
     }
   ]
 }) %>
+<% const tag = function (s) { return s.inSeason ? 'Now booking' : 'Now booking ' + s.label + ' ' + s.year; }; %>
+<% const xmas = it.eventSeason('christmas', 'Christmas'); const nye = it.eventSeason('new-years-eve', 'New Year’s Eve'); %>
 
     <section class="page-hero-plain shell">
-      <span class="eyebrow">Special events</span>
-      <h1>Themed and seasonal events</h1>
-      <p class="lede">Themed and seasonal staff for London events.</p>
+      <span class="eyebrow">Seasonal</span>
+      <h1>Christmas and New Year&rsquo;s Eve</h1>
+      <p class="lede">Staff for the busiest weeks of the year, in London and Birmingham.</p>
     </section>
 
-    <section class="section shell" aria-labelledby="seasons-heading">
-      <h2 id="seasons-heading" class="section-label">Seasons and concepts</h2>
-      <div class="se-hub-grid">
-        <a class="se-hub-card se-hub-card--live" href="/special-events/christmas">
-          <span class="se-hub-status">Taking enquiries</span>
-          <h3>Christmas</h3>
-          <p>Party staff for December, straight or themed.</p>
+    <section class="section shell" aria-label="This season">
+      <div class="se-season-banners">
+        <a class="se-season-banner" href="/special-events/christmas">
+          <div>
+            <span class="se-season-banner-tag"><%= tag(xmas) %></span>
+            <h3>Christmas</h3>
+            <p>Bar, waiting and kitchen staff for your Christmas party, straight or themed.</p>
+            <span class="se-season-banner-cta">Plan your party &rarr;</span>
+          </div>
+          <span class="se-season-banner-art" aria-hidden="true"></span>
         </a>
-        <div class="se-hub-card se-hub-card--soon">
-          <span class="se-hub-status">On request</span>
-          <h3>New Year&rsquo;s Eve</h3>
-          <p>Late-night teams with a themed element. <a href="#brief" data-concept="New Year&#39;s Eve">Send us the brief</a>.</p>
-        </div>
+        <a class="se-season-banner se-season-banner--nye" href="/special-events/new-years-eve">
+          <div>
+            <span class="se-season-banner-tag"><%= tag(nye) %></span>
+            <h3>New Year&rsquo;s Eve</h3>
+            <p>Teams to see the year out, from black tie to masquerade.</p>
+            <span class="se-season-banner-cta">Plan your night &rarr;</span>
+          </div>
+          <span class="se-season-banner-art" aria-hidden="true"></span>
+        </a>
       </div>
     </section>
 
@@ -79,17 +94,18 @@
           <p>Nothing here is binding. We come back with a suggested team.</p>
         </div>
 
-        <form id="specialEventsForm" novalidate data-se-brief data-event-type="Special Events" data-brief-label="Special events brief">
+        <form id="specialEventsForm" novalidate data-se-brief data-event-type="Seasonal (Special Events)" data-brief-label="Seasonal brief">
           <div class="hp-field" aria-hidden="true">
             <label for="sebWebsite">Website</label>
             <input type="text" id="sebWebsite" name="website" tabindex="-1" autocomplete="off">
           </div>
 
           <fieldset class="se-fieldset">
-            <legend>Which concept?</legend>
+            <legend>Which season?</legend>
             <div class="se-pillset">
               <label class="se-pill"><input type="radio" name="concept" value="Christmas"><span>Christmas</span></label>
               <label class="se-pill"><input type="radio" name="concept" value="New Year&#39;s Eve"><span>New Year&rsquo;s Eve</span></label>
+              <label class="se-pill"><input type="radio" name="concept" value="Something else"><span>Something else</span></label>
             </div>
           </fieldset>
 

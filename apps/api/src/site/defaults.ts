@@ -111,8 +111,9 @@ export function londonDayEnd(year: number, month: number, day: number): Date {
 
 /**
  * The season, with the windows vergo-site.js used: Christmas's banner 1
- * September to 20 December, with its header item for the same dates. Dated for
- * 2026; next year's dates are set in the admin.
+ * September to 20 December, with its header item for the same dates; New
+ * Year's Eve's banner 1 November to 31 December, beside it. Dated for 2026;
+ * next year's dates are set in the admin.
  */
 export function defaultPromos(year = 2026): PromoContent[] {
   return [
@@ -130,8 +131,24 @@ export function defaultPromos(year = 2026): PromoContent[] {
       navStartsAt: null,
       navEndsAt: null,
       pageLine: null,
-      // The page sells New Year's Eve too.
+      // The page stays in season through the holidays, for parties booked late.
       pageUntil: londonDayEnd(year, 12, 31),
+    },
+    {
+      key: 'new-years-eve',
+      navLabel: 'New Year’s Eve',
+      bannerText: 'New Year’s Eve staff: now booking',
+      href: '/special-events/new-years-eve',
+      homeHeading: 'New Year’s Eve: teams for the biggest night of the year',
+      homeLines: [],
+      homeCtaLabel: 'New Year’s Eve staff',
+      homeCtaHref: '/special-events/new-years-eve',
+      startsAt: londonDay(year, 11, 1),
+      endsAt: londonDayEnd(year, 12, 31),
+      navStartsAt: null,
+      navEndsAt: null,
+      pageLine: null,
+      pageUntil: null,
     },
   ];
 }

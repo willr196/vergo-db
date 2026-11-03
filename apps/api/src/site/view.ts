@@ -52,8 +52,7 @@ export function jsonLdString(data: unknown): string {
 
 /**
  * The Hire staff dropdown: every role and occasion page, one click from any
- * page. No /special-events links here; the season's page gets its own header
- * item while it's selling (see the header partial).
+ * page. No /special-events links here; those live under Seasonal.
  */
 const HIRE_MENU = [
   {
@@ -80,10 +79,36 @@ const HIRE_MENU = [
   },
 ];
 
-const NAV = [
-  { href: '/hire', label: 'Hire staff', menu: HIRE_MENU, match: (p: string) => p === '/hire' || (p.startsWith('/hire/') && p !== '/hire/quote') },
+/**
+ * The Seasonal dropdown: one page per season, then the hub (/special-events).
+ * The pages stay up all year (out of season they book next year's), so the
+ * menu is permanent; the item takes the accent while a season's promo is live.
+ */
+const SEASONAL_MENU = [
+  {
+    heading: 'This season',
+    links: [
+      { href: '/special-events/christmas', label: 'Christmas' },
+      { href: '/special-events/new-years-eve', label: 'New Year’s Eve' },
+    ],
+  },
+];
+
+interface NavItem {
+  href: string;
+  label: string;
+  match: (p: string) => boolean;
+  menu?: typeof HIRE_MENU;
+  /** The menu's last link, to the item's own page. */
+  allLabel?: string;
+  /** Takes the accent outline while a seasonal promo is live. */
+  seasonal?: boolean;
+}
+
+const NAV: NavItem[] = [
+  { href: '/hire', label: 'Hire staff', menu: HIRE_MENU, allLabel: 'All event staff and rates', match: (p: string) => p === '/hire' || (p.startsWith('/hire/') && p !== '/hire/quote') },
   { href: '/book-an-event', label: 'Events', match: (p: string) => p === '/book-an-event' },
-  { href: '/special-events', label: 'Special events', match: (p: string) => p === '/special-events' || p.startsWith('/special-events/') },
+  { href: '/special-events', label: 'Seasonal', menu: SEASONAL_MENU, allLabel: 'All seasonal events', seasonal: true, match: (p: string) => p === '/special-events' || p.startsWith('/special-events/') },
   { href: '/about', label: 'About', match: (p: string) => p === '/about' },
   { href: '/work', label: 'Work for us', match: (p: string) => p === '/work' || p.startsWith('/work/') },
 ];
@@ -142,7 +167,7 @@ const ORIGIN = 'https://vergoltd.com';
 /** What a parent section is called in a breadcrumb trail. */
 const SECTION_NAMES: Record<string, string> = {
   '/hire': 'Hire event staff',
-  '/special-events': 'Special events',
+  '/special-events': 'Seasonal',
   '/work': 'Work for us',
   '/blog': 'Blog',
 };
@@ -322,6 +347,8 @@ export function pageData(ctx: PageContext) {
     nav: NAV.map((item) => ({
       href: item.href,
       label: item.label,
+      allLabel: item.allLabel || item.label,
+      seasonal: Boolean(item.seasonal),
       current: item.match(ctx.path),
       menu: (item.menu || []).map((group) => ({
         heading: group.heading,
@@ -398,6 +425,7 @@ export const VIEW_ROUTES: ViewRoute[] = [
   { path: '/birmingham', view: 'birmingham' },
   { path: '/special-events', view: 'special-events' },
   { path: '/special-events/christmas', view: 'special-events/christmas' },
+  { path: '/special-events/new-years-eve', view: 'special-events/new-years-eve' },
   { path: '/book-an-event', view: 'book-an-event' },
   { path: '/', view: 'index' },
   { path: '/hire/quote', view: 'hire/quote' },

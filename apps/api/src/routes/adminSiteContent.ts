@@ -43,6 +43,7 @@ const FAQ_PAGES = [
   'hire/private-parties',
   'work',
   'special-events/christmas',
+  'special-events/new-years-eve',
 ];
 
 class ContentError extends Error {

@@ -1,0 +1,254 @@
+<%/* /special-events/new-years-eve: under Seasonal in the header. Quoted on request, so no prices here; contact details and shared blocks come from it.t and it.blocks. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "New Year's Eve Staff, London & Birmingham | VERGO Staffing",
+    "description": "New Year's Eve bar, waiting and kitchen staff in London and Birmingham. Quoted on request: send us the date.",
+    "ogImage": "/images/og/special-events.jpg",
+    "canonical": "/special-events/new-years-eve"
+  },
+  styles: ["/pages/css/special-events.css"],
+  scripts: ["/pages/js/special-events-brief.js"],
+  bodyClass: "se-page se-theme-nye",
+  jsonLd: [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "New Year's Eve event staff",
+      "serviceType": "Event and hospitality staffing",
+      "url": "https://vergoltd.com/special-events/new-years-eve",
+      "description": "New Year's Eve staff in London and Birmingham: bar staff, waiting staff, kitchen porters and chefs.",
+      "areaServed": [
+        { "@type": "City", "name": "London" },
+        { "@type": "City", "name": "Birmingham" }
+      ],
+      "provider": {
+        "@id": "https://vergoltd.com/#organization"
+      }
+    },
+    it.faqJsonLd("special-events/new-years-eve")
+  ]
+}) %>
+    <section class="se-hero">
+      <div class="se-hero-inner">
+        <span class="eyebrow">A VERGO New Year</span>
+        <h1>New Year&rsquo;s Eve Staff</h1>
+        <p class="lede">Bar, waiting and kitchen teams to see the year out, straight or themed.</p>
+        <div class="btn-row">
+          <a href="#plan" class="btn btn-primary">Plan your night</a>
+          <a href="<%~ it.t.WHATSAPP_URL %>" class="btn btn-secondary" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>
+        </div>
+      </div>
+    </section>
+<% const season = it.eventSeason('new-years-eve', 'New Year’s Eve') %>
+    <%~ include('/partials/event-season', { season, href: '#plan', button: 'Plan your night' }) %>
+
+    <div class="se-band se-band--deep">
+      <section class="section shell" id="nights" aria-labelledby="nights-heading">
+        <h2 id="nights-heading" class="se-h2">Pick your night</h2>
+        <p class="se-caveat">Some ideas to start from.</p>
+
+        <div class="se-concept-grid">
+          <article class="se-concept se-concept--feature" style="--se-c1: #2a2350; --se-c2: #090b18">
+            <div class="se-concept-inner">
+              <div class="se-concept-media" role="presentation">
+                <h3 class="se-concept-title">The Black Tie Countdown</h3>
+              </div>
+            </div>
+          </article>
+
+          <article class="se-concept" style="--se-c1: #4a1f3a; --se-c2: #12070f">
+            <div class="se-concept-inner">
+              <div class="se-concept-media" role="presentation">
+                <h3 class="se-concept-title">The Masquerade</h3>
+              </div>
+            </div>
+          </article>
+
+          <article class="se-concept" style="--se-c1: #3d3216; --se-c2: #0f0c05">
+            <div class="se-concept-inner">
+              <div class="se-concept-media" role="presentation">
+                <h3 class="se-concept-title">The Roaring Twenties</h3>
+              </div>
+            </div>
+          </article>
+
+          <article class="se-concept" style="--se-c1: #173040; --se-c2: #060c12">
+            <div class="se-concept-inner">
+              <div class="se-concept-media" role="presentation">
+                <h3 class="se-concept-title">Champagne at Midnight</h3>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <section class="section shell" id="themed" aria-labelledby="themed-heading">
+      <h2 id="themed-heading" class="se-h2">Themed staff</h2>
+      <p class="se-caveat">Your bar and floor team, dressed for the night. Pick a look, or send us your theme.</p>
+      <div class="se-decor-grid se-decor-grid--four">
+        <div class="se-decor"><h3>Black tie</h3><p>Dinner jackets and bow ties, first drink to last.</p></div>
+        <div class="se-decor"><h3>Masquerade</h3><p>Masks for the whole team, to match your guests.</p></div>
+        <div class="se-decor"><h3>Roaring Twenties</h3><p>Braces, bow ties and a little Gatsby.</p></div>
+        <div class="se-decor"><h3>Gold and sequins</h3><p>A bit of sparkle for the countdown.</p></div>
+      </div>
+      <p class="se-caveat">Themed staff are quoted on request. Themed accessories are <%~ it.t.COSTUME_FEE %> per person, per booking; full costumes are hired in and quoted with the look.</p>
+    </section>
+
+    <section class="section shell" id="team" aria-labelledby="team-heading">
+      <h2 id="team-heading" class="se-h2">The team</h2>
+      <ul class="check-list">
+        <li>Bar staff</li>
+        <li>Waiting staff</li>
+        <li>Hosts and front of house</li>
+        <li>Kitchen porters and chefs</li>
+        <li>Themed staff, in any of the looks above</li>
+      </ul>
+    </section>
+
+    <section class="section shell" id="prices" aria-label="Prices">
+      <p class="se-nye-line">Quoted on request. It&rsquo;s the busiest night of the year, so <strong>send the date early</strong>.</p>
+      <p class="se-caveat">London and Birmingham only.</p>
+    </section>
+
+    <section class="section shell" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" class="se-h2">Questions</h2>
+      <div class="faq-list">
+        <%~ include('/partials/faq', { items: it.faqs("special-events/new-years-eve"), name: "nye-faq", esc: it.esc }) %>
+      </div>
+    </section>
+
+    <%~ it.blocks["trust-strip"]() %>
+
+    <%~ it.blocks["testimonials"]({ "featured": "1" }) %>
+
+    <div class="se-band se-band--deep">
+      <section class="section se-form-shell" id="plan" aria-labelledby="plan-heading">
+        <div class="se-form-head">
+          <p class="section-label">Enquiry</p>
+          <h2 id="plan-heading">Plan your night</h2>
+          <p>Nothing here is binding. Tell us where it is and how to reach you; the rest helps if you know it.</p>
+        </div>
+
+        <form id="nyeForm" novalidate data-se-brief data-required="location" data-event-type="New Year's Eve (Special Events)" data-brief-label="New Year's Eve brief">
+          <div class="hp-field" aria-hidden="true">
+            <label for="nyWebsite">Website</label>
+            <input type="text" id="nyWebsite" name="website" tabindex="-1" autocomplete="off">
+          </div>
+
+          <fieldset class="se-fieldset">
+            <legend>Who's coming</legend>
+            <div class="se-need-grid checkbox-grid">
+              <div class="checkbox-item"><input type="checkbox" id="ny-bar" name="need" value="Bar staff"><label for="ny-bar">Bar staff</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="ny-waiting" name="need" value="Waiting staff"><label for="ny-waiting">Waiting staff</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="ny-hosts" name="need" value="Hosts and front of house"><label for="ny-hosts">Hosts and front of house</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="ny-kitchen" name="need" value="Kitchen porters"><label for="ny-kitchen">Kitchen porters</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="ny-chefs" name="need" value="Chefs"><label for="ny-chefs">Chefs</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="ny-themed" name="need" value="Themed staff"><label for="ny-themed">Themed staff</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="ny-other" name="need" value="Other" data-other-for="needOther"><label for="ny-other">Other (please specify)</label></div>
+            </div>
+            <div class="form-field se-theme-idea se-other-field" hidden>
+              <label for="nyOther">Who else?</label>
+              <input type="text" id="nyOther" name="needOther" maxlength="200" placeholder="e.g. a cloakroom team, runners">
+            </div>
+          </fieldset>
+
+          <fieldset class="se-fieldset">
+            <legend>Theme</legend>
+            <div class="se-pillset">
+              <label class="se-pill"><input type="radio" name="concept" value="The Black Tie Countdown"><span>The Black Tie Countdown</span></label>
+              <label class="se-pill"><input type="radio" name="concept" value="The Masquerade"><span>The Masquerade</span></label>
+              <label class="se-pill"><input type="radio" name="concept" value="The Roaring Twenties"><span>The Roaring Twenties</span></label>
+              <label class="se-pill"><input type="radio" name="concept" value="Champagne at Midnight"><span>Champagne at Midnight</span></label>
+              <label class="se-pill"><input type="radio" name="concept" value="Something else"><span>Something else</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="se-fieldset">
+            <legend>Costumes</legend>
+            <p class="form-hint">For themed staff. Accessories are <%~ it.t.COSTUME_FEE %> per person; full costumes are quoted.</p>
+            <div class="se-pillset">
+              <label class="se-pill"><input type="radio" name="costumes" value="Accessories only"><span>Accessories only</span></label>
+              <label class="se-pill"><input type="radio" name="costumes" value="Full costume"><span>Full costume</span></label>
+              <label class="se-pill"><input type="radio" name="costumes" value="Not sure"><span>Not sure</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="se-fieldset">
+            <legend>Service style</legend>
+            <div class="se-pillset">
+              <label class="se-pill"><input type="radio" name="serviceStyle" value="Drinks and canapés"><span>Drinks and canapés</span></label>
+              <label class="se-pill"><input type="radio" name="serviceStyle" value="Seated dinner"><span>Seated dinner</span></label>
+              <label class="se-pill"><input type="radio" name="serviceStyle" value="Buffet"><span>Buffet</span></label>
+              <label class="se-pill"><input type="radio" name="serviceStyle" value="Bar only"><span>Bar only</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="se-fieldset">
+            <legend>Your night</legend>
+            <p class="form-hint">We need the location and an email or phone number. Everything else is optional.</p>
+
+            <div class="form-row form-row-2">
+              <div class="form-field">
+                <label for="nyName">Name</label>
+                <input type="text" id="nyName" name="name" autocomplete="name">
+              </div>
+              <div class="form-field">
+                <label for="nyCompany">Company <span class="label-note">optional</span></label>
+                <input type="text" id="nyCompany" name="company" autocomplete="organization">
+              </div>
+            </div>
+
+            <div class="form-row form-row-2">
+              <div class="form-field">
+                <label for="nyEmail">Email</label>
+                <input type="email" id="nyEmail" name="email" autocomplete="email">
+              </div>
+              <div class="form-field">
+                <label for="nyPhone">Phone</label>
+                <input type="tel" id="nyPhone" name="phone" autocomplete="tel">
+              </div>
+            </div>
+
+            <div class="form-row form-row-2">
+              <div class="form-field">
+                <label for="nyLocation">Location <span class="label-note">required</span></label>
+                <input type="text" id="nyLocation" name="location" autocomplete="address-level2" placeholder="e.g. Mayfair, W1" required>
+              </div>
+              <div class="form-field">
+                <label for="nyGuests">Guest numbers</label>
+                <input type="number" id="nyGuests" name="guestCount" min="1" max="100000" step="1" inputmode="numeric" placeholder="e.g. 200">
+              </div>
+            </div>
+
+            <div class="form-row form-row-2">
+              <div class="form-field">
+                <label for="nyStart">Start time</label>
+                <input type="time" id="nyStart" name="shiftStart">
+              </div>
+              <div class="form-field">
+                <label for="nyEnd">Finish time</label>
+                <input type="time" id="nyEnd" name="shiftEnd">
+              </div>
+            </div>
+
+            <input type="hidden" name="eventDate" value="<%= season.year %>-12-31">
+
+            <div class="form-field">
+              <label for="nyMessage">Notes</label>
+              <textarea id="nyMessage" name="message" maxlength="2000" placeholder="Venue, timings, anything you're unsure about."></textarea>
+            </div>
+          </fieldset>
+
+          <div class="se-form-actions">
+            <button type="submit" class="btn btn-primary btn-block" id="nySubmit">Plan my night</button>
+          </div>
+
+          <div class="form-status" id="nyStatus" role="status" hidden></div>
+        </form>
+      </section>
+    </div>
+
+    <div class="se-ornament" aria-hidden="true"><span></span></div>
+
+    <%~ it.blocks["cta"]({ "heading": "Let's see the year out", "line": season.line || "", "button": "Plan your night", "href": "#plan" }) %>

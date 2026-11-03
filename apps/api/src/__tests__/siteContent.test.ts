@@ -25,7 +25,7 @@ test('the defaults are today\'s values', () => {
   assert.equal(s.rates.afterMidnightUpliftPct, 25);
   assert.deepEqual(
     defaultRates().map((r: { key: string; amountPence: number }) => [r.key, r.amountPence]),
-    [['standard', 1900], ['premium', 2400], ['themed_hospitality', 2200], ['character_performer', 2600], ['santa_claus', 3500], ['makeup_artist', 3500], ['face_painting', 5500], ['event_chef', 2400]],
+    [['standard', 1900], ['premium', 2400], ['themed_hospitality', 2500], ['character_performer', 2600], ['santa_claus', 3500], ['makeup_artist', 3500], ['face_painting', 5500], ['event_chef', 2400]],
   );
   assert.equal(s.contact.phoneDisplay, SITE.phoneDisplay);
   for (const key of Object.keys(SETTING_SCHEMAS)) {
@@ -124,20 +124,29 @@ test('the season decides the banner, the header item and the homepage section', 
   assert.deepEqual(at('2026-08-31T22:59:59Z'), { banner: '', header: '' }); // 31 Aug, 11:59pm BST
   assert.deepEqual(at('2026-08-31T23:00:00Z'), { banner: 'christmas', header: 'christmas' }); // 1 Sep
   assert.deepEqual(at('2026-10-30T12:00:00Z'), { banner: 'christmas', header: 'christmas' });
-  assert.deepEqual(at('2026-12-20T23:59:59Z'), { banner: 'christmas', header: 'christmas' });
-  assert.deepEqual(at('2026-12-21T00:00:00Z'), { banner: '', header: '' });
+  // New Year's Eve joins the banner on 1 November (GMT by then); Christmas,
+  // ending first, keeps the homepage section until its banner ends.
+  assert.deepEqual(at('2026-10-31T23:59:59Z'), { banner: 'christmas', header: 'christmas' });
+  assert.deepEqual(at('2026-11-01T00:00:00Z'), { banner: 'christmas+new-years-eve', header: 'christmas' });
+  assert.deepEqual(at('2026-12-20T23:59:59Z'), { banner: 'christmas+new-years-eve', header: 'christmas' });
+  assert.deepEqual(at('2026-12-21T00:00:00Z'), { banner: 'new-years-eve', header: 'new-years-eve' });
+  assert.deepEqual(at('2026-12-31T23:59:59Z'), { banner: 'new-years-eve', header: 'new-years-eve' });
+  assert.deepEqual(at('2027-01-01T00:00:00Z'), { banner: '', header: '' });
 
   // Outside a season the blocks render nothing, rather than an empty shell.
   const realNow = Date.now;
-  Date.now = () => Date.parse('2026-12-25T12:00:00Z');
+  Date.now = () => Date.parse('2027-01-02T12:00:00Z');
   const RealDate = Date;
   // seasonState() defaults to new Date(); pin it for the block renders.
   (global as any).Date = class extends RealDate {
-    constructor(...args: any[]) { super(...(args.length ? args : [RealDate.parse('2026-12-25T12:00:00Z')]) as []); }
+    constructor(...args: any[]) { super(...(args.length ? args : [RealDate.parse('2027-01-02T12:00:00Z')]) as []); }
   };
   try {
     assert.equal(renderBlock('season-feature', {}, { path: '/' }), '');
-    assert.doesNotMatch(renderBlock('header', {}, { path: '/' }), /season-banner|data-season-item/);
+    const header = renderBlock('header', {}, { path: '/' });
+    assert.doesNotMatch(header, /season-banner|nav-link--season/);
+    // The Seasonal menu itself stays all year.
+    assert.match(header, />Seasonal</);
   } finally {
     (global as any).Date = RealDate;
     Date.now = realNow;
@@ -187,6 +196,8 @@ test('event pages switch to next year once their season has passed, and stay up'
   assert.equal(at('christmas', '2026-12-21T12:00:00Z').inSeason, true);
   assert.equal(at('christmas', '2026-12-31T23:59:59Z').inSeason, true);
   assert.deepEqual(at('christmas', '2027-01-01T00:00:00Z'), { inSeason: false, year: 2027, label: 'Christmas', line: 'Now booking Christmas 2027.' });
+  assert.equal(at('new-years-eve', '2026-12-31T23:59:59Z').inSeason, true);
+  assert.equal(at('new-years-eve', '2027-01-01T00:00:00Z').line, 'Now booking New Year’s Eve 2027.');
   // No promo: the page shows as it is, with no dates line.
   assert.deepEqual(at('festival', '2026-11-01T00:00:00Z'), { inSeason: true, year: 2026, label: 'festival', line: null });
 
@@ -211,6 +222,21 @@ test('event pages switch to next year once their season has passed, and stay up'
   // Everything else stays, so the page keeps its rankings.
   assert.match(after, /<h1>Christmas Staff and Bookings<\/h1>/);
   assert.match(after, /id="christmasForm"/);
+
+  (global as any).Date = class extends RealDate {
+    constructor(...args: any[]) { super(...(args.length ? args : [RealDate.parse('2027-01-02T12:00:00Z')]) as []); }
+    static now() { return RealDate.parse('2027-01-02T12:00:00Z'); }
+  };
+  let nye: string;
+  try {
+    nye = renderView('special-events/new-years-eve', { path: '/special-events/new-years-eve' });
+  } finally {
+    (global as any).Date = RealDate;
+  }
+  assert.match(nye, /<h2 id="season-heading">Now booking New Year’s Eve 2027<\/h2>/);
+  assert.match(nye, /id="nyeForm"/);
+  // The form dates the brief to next year's 31 December.
+  assert.match(nye, /name="eventDate" value="2027-12-31"/);
 });
 
 test('a page the stored content breaks renders from the built-in content; the 500 page stands on its own', () => {

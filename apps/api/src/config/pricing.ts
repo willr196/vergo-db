@@ -45,15 +45,19 @@ export const PRICING = {
    * Rendered on /special-events/christmas from it.t (THEMED_RATE and so on).
    */
   specialEvents: {
-    /** Elves and festive hosts. */
-    themedHospitality: 22.00,
+    /** Christmas themed staff: the bar and floor team, dressed to the theme. New Year's Eve themed staff are quoted. */
+    themedHospitality: 25.00,
     /** Carollers, per singer. */
     characterPerformer: 26.00,
     /** Santa and Mrs Claus. */
     santa: 35.00,
     makeupArtist: 35.00,
     facePainting: 55.00,
-    /** Costume and styling for the festive team, once per booking. */
+    /**
+     * Themed accessories (bow ties, masks, jumpers...) for seasonal themed
+     * staff, per person, per booking. Full costumes are hired in and quoted.
+     * Set in Admin > Site content > Settings.
+     */
     costumeFee: 15.00,
     /** Hourly special-events roles carry the site-wide four-hour minimum... */
     minimumChargeHours: 4,

@@ -69,7 +69,7 @@ export function defaultRates(): RateContent[] {
   return [
     row('standard', 'Standard (waiting, bar, kitchen porters, runners, hosts)', 'standard', 0),
     row('premium', 'Premium (2+ years\' event experience)', 'standard', 1),
-    row('themed_hospitality', 'Elves and festive hosts', 'seasonal', 2),
+    row('themed_hospitality', 'Themed staff (Christmas)', 'seasonal', 2),
     row('character_performer', 'Carollers (per singer)', 'seasonal', 3),
     row('santa_claus', 'Santa and Mrs Claus', 'seasonal', 4),
     row('makeup_artist', 'Makeup artists', 'specialist', 5),

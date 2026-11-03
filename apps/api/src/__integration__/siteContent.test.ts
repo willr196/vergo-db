@@ -45,7 +45,7 @@ test('the seed copies the site in, once, and the store then reads the database',
   seed();
   seed(); // a second run must not duplicate anything
   assert.equal(await prisma.faq.count({ where: { pageKey: 'special-events/christmas' } }), 3);
-  assert.equal(await prisma.seasonalPromo.count(), 1);
+  assert.equal(await prisma.seasonalPromo.count(), 2); // Christmas and New Year's Eve
   const testimonials = await prisma.testimonial.count();
 
   await refreshContent();

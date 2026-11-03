@@ -170,7 +170,7 @@
   "special-events/christmas": [
     {
       "question": "Do you staff New Year's Eve?",
-      "answer": "Sometimes. It's the busiest night of the year, so send us the date and we'll tell you what we can do."
+      "answer": "Sometimes. It's the busiest night of the year, so <a href=\"/special-events/new-years-eve\">send us the date</a> and we'll tell you what we can do."
     },
     {
       "question": "How late can we book?",
@@ -179,6 +179,20 @@
     {
       "question": "What if someone doesn't turn up?",
       "answer": "We'll have a replacement on site within the hour. If we can't, that shift isn't charged."
+    }
+  ],
+  "special-events/new-years-eve": [
+    {
+      "question": "Why is New Year's Eve quoted rather than priced?",
+      "answer": "It's the busiest night of the year for event staff. We quote on the date, the hours and the team you need."
+    },
+    {
+      "question": "How early should we book?",
+      "answer": "As early as you can. Send the date now, even without numbers, and we'll hold what we can."
+    },
+    {
+      "question": "Can the team stay past midnight?",
+      "answer": "Yes. Tell us the finish time and we'll staff the night through to close and clear-down."
     }
   ]
 }

@@ -17,11 +17,11 @@
       <nav class="site-nav" id="site-menu" aria-label="Main">
         <ul class="nav-links">
 <% it.nav.forEach(function (item) { %>
-<% if (item.menu.length) { const subId = 'nav-sub' + item.href.replace(/\//g, '-'); %>
-          <li class="nav-item nav-item--menu" data-nav-menu>
-            <a class="nav-link" href="<%= item.href %>"<%~ item.current ? ' aria-current="page"' : '' %>><%= item.label %></a>
+<% if (item.menu.length) { const subId = 'nav-sub' + item.href.replace(/\//g, '-'); const live = item.seasonal && it.season.banner.length > 0; %>
+          <li class="nav-item nav-item--menu<%= live ? ' nav-item--season' : '' %>" data-nav-menu>
+            <a class="nav-link<%= live ? ' nav-link--season' : '' %>" href="<%= item.href %>"<%~ item.current ? ' aria-current="page"' : '' %>><%= item.label %></a>
             <button class="nav-sub-toggle" type="button" aria-expanded="false" aria-controls="<%= subId %>" aria-label="<%= item.label %> pages"><span class="nav-caret" aria-hidden="true"></span></button>
-            <div class="nav-sub" id="<%= subId %>">
+            <div class="nav-sub<%= item.menu.length === 1 ? ' nav-sub--single' : '' %>" id="<%= subId %>">
 <% item.menu.forEach(function (group) { %>
               <div class="nav-sub-group">
                 <p class="nav-sub-heading"><%= group.heading %></p>
@@ -32,14 +32,11 @@
                 </ul>
               </div>
 <% }) %>
-              <a class="nav-sub-all" href="<%= item.href %>">All event staff and rates</a>
+              <a class="nav-sub-all" href="<%= item.href %>"><%= item.allLabel %></a>
             </div>
           </li>
 <% } else { %>
           <li class="nav-item"><a class="nav-link" href="<%= item.href %>"<%~ item.current ? ' aria-current="page"' : '' %>><%= item.label %></a></li>
-<% } %>
-<% if (item.href === '/book-an-event' && it.season.header) { %>
-          <li class="nav-item nav-item--season" data-season-item><a class="nav-link nav-link--season" href="<%= it.season.header.href %>"<%~ it.path === it.season.header.href ? ' aria-current="page"' : '' %>><%= it.season.header.navLabel %></a></li>
 <% } %>
 <% }) %>
         </ul>

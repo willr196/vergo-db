@@ -80,7 +80,7 @@
       <div class="se-hero-inner">
         <span class="eyebrow">A VERGO Christmas</span>
         <h1>Christmas Staff and Bookings</h1>
-        <p class="lede">Bar, waiting and kitchen staff for your Christmas party.</p>
+        <p class="lede">Bar, waiting and kitchen staff for your Christmas party, straight or themed.</p>
         <div class="btn-row">
           <a href="#plan" class="btn btn-primary">Plan your party</a>
           <a href="<%~ it.t.WHATSAPP_URL %>" class="btn btn-secondary" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>
@@ -152,18 +152,31 @@
       </section>
     </div>
 
+    <section class="section shell" id="themed" aria-labelledby="themed-heading">
+      <h2 id="themed-heading" class="se-h2">Themed staff</h2>
+      <p class="se-caveat">Your bar and floor team, dressed for the party. Pick a look, or send us your theme.</p>
+      <div class="se-decor-grid se-decor-grid--four">
+        <div class="se-decor"><h3>Christmas jumpers</h3><p>Relaxed and festive, for the office party.</p></div>
+        <div class="se-decor"><h3>Black tie, red accents</h3><p>Red bow ties and pocket squares for a smarter night.</p></div>
+        <div class="se-decor"><h3>Victorian</h3><p>Waistcoats, bow ties and pocket watches.</p></div>
+        <div class="se-decor"><h3>Winter whites</h3><p>White and silver, for a Winter Wonderland.</p></div>
+      </div>
+      <p class="se-caveat">Themed staff are <%~ it.t.THEMED_RATE %>/hr. Themed accessories are <%~ it.t.COSTUME_FEE %> per person, per booking; full costumes are hired in and quoted with the look.</p>
+    </section>
+
     <section class="section shell" id="prices" aria-labelledby="prices-heading">
       <h2 id="prices-heading" class="se-h2">Prices</h2>
       <ul class="check-list">
         <li>Bar and waiting staff: <%~ it.t.STANDARD_RATE_SHORT %>/hr</li>
         <li>Kitchen porters: <%~ it.t.STANDARD_RATE_SHORT %>/hr</li>
         <li>Chefs: from <%~ it.t.CHEF_FROM_RATE %>/hr</li>
+        <li>Themed staff: <%~ it.t.THEMED_RATE %>/hr, plus accessories or costume</li>
       </ul>
       <p class="se-caveat">Per person, per hour. <%~ it.t.MIN_HOURS_WORD.charAt(0).toUpperCase() + it.t.MIN_HOURS_WORD.slice(1) %>-hour minimum. London and Birmingham only.</p>
     </section>
 
     <section class="section shell" id="new-years-eve" aria-label="New Year's Eve">
-      <p class="se-nye-line">New Year's Eve? Ask us. Availability is limited, so it's quoted on request.</p>
+      <p class="se-nye-line">New Year's Eve? <a href="/special-events/new-years-eve">See our New Year's Eve page</a>. Availability is limited, so it's quoted on request.</p>
     </section>
 
     <section class="section shell" aria-labelledby="faq-heading">
@@ -198,6 +211,7 @@
               <div class="checkbox-item"><input type="checkbox" id="xm-waiting" name="need" value="Waiting staff"><label for="xm-waiting">Waiting staff</label></div>
               <div class="checkbox-item"><input type="checkbox" id="xm-kitchen" name="need" value="Kitchen porters"><label for="xm-kitchen">Kitchen porters</label></div>
               <div class="checkbox-item"><input type="checkbox" id="xm-chefs" name="need" value="Chefs"><label for="xm-chefs">Chefs</label></div>
+              <div class="checkbox-item"><input type="checkbox" id="xm-themed" name="need" value="Themed staff"><label for="xm-themed">Themed staff</label></div>
               <div class="checkbox-item"><input type="checkbox" id="xm-other" name="need" value="Other" data-other-for="needOther"><label for="xm-other">Other (please specify)</label></div>
             </div>
             <div class="form-field se-theme-idea se-other-field" hidden>
@@ -214,6 +228,16 @@
               <label class="se-pill"><input type="radio" name="concept" value="Winter Wonderland"><span>Winter Wonderland</span></label>
               <label class="se-pill"><input type="radio" name="concept" value="A Victorian Christmas"><span>A Victorian Christmas</span></label>
               <label class="se-pill"><input type="radio" name="concept" value="Something else"><span>Something else</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="se-fieldset">
+            <legend>Costumes</legend>
+            <p class="form-hint">For themed staff. Accessories are <%~ it.t.COSTUME_FEE %> per person; full costumes are quoted.</p>
+            <div class="se-pillset">
+              <label class="se-pill"><input type="radio" name="costumes" value="Accessories only"><span>Accessories only</span></label>
+              <label class="se-pill"><input type="radio" name="costumes" value="Full costume"><span>Full costume</span></label>
+              <label class="se-pill"><input type="radio" name="costumes" value="Not sure"><span>Not sure</span></label>
             </div>
           </fieldset>
 
