@@ -161,7 +161,7 @@
         <div class="se-decor"><h3>Victorian</h3><p>Waistcoats, bow ties and pocket watches.</p></div>
         <div class="se-decor"><h3>Winter whites</h3><p>White and silver, for a Winter Wonderland.</p></div>
       </div>
-      <p class="se-caveat">Themed staff are <%~ it.t.THEMED_RATE %>/hr. Themed accessories are <%~ it.t.COSTUME_FEE %> per person, per booking; full costumes are hired in and quoted with the look.</p>
+      <p class="se-caveat">Themed staff are <%~ it.t.THEMED_RATE %>/hr. Themed accessories are <%~ it.t.COSTUME_FEE %> per person, per booking.</p>
     </section>
 
     <section class="section shell" id="prices" aria-labelledby="prices-heading">
@@ -232,11 +232,11 @@
           </fieldset>
 
           <fieldset class="se-fieldset">
-            <legend>Costumes</legend>
-            <p class="form-hint">For themed staff. Accessories are <%~ it.t.COSTUME_FEE %> per person; full costumes are quoted.</p>
+            <legend>Themed accessories</legend>
+            <p class="form-hint">For themed staff, <%~ it.t.COSTUME_FEE %> per person.</p>
             <div class="se-pillset">
-              <label class="se-pill"><input type="radio" name="costumes" value="Accessories only"><span>Accessories only</span></label>
-              <label class="se-pill"><input type="radio" name="costumes" value="Full costume"><span>Full costume</span></label>
+              <label class="se-pill"><input type="radio" name="costumes" value="Yes please"><span>Yes please</span></label>
+              <label class="se-pill"><input type="radio" name="costumes" value="No thanks"><span>No thanks</span></label>
               <label class="se-pill"><input type="radio" name="costumes" value="Not sure"><span>Not sure</span></label>
             </div>
           </fieldset>

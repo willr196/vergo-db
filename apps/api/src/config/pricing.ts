@@ -55,7 +55,7 @@ export const PRICING = {
     facePainting: 55.00,
     /**
      * Themed accessories (bow ties, masks, jumpers...) for seasonal themed
-     * staff, per person, per booking. Full costumes are hired in and quoted.
+     * staff, per person, per booking.
      * Set in Admin > Site content > Settings.
      */
     costumeFee: 15.00,

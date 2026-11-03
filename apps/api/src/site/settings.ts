@@ -26,7 +26,7 @@ export const SETTING_SCHEMAS = {
     afterMidnightUpliftPct: z.number().min(0).max(100),
     /** The New Year's Eve surcharge, as a percentage. Defaulted so rows saved before it existed still parse. */
     newYearsEveUpliftPct: z.number().min(0).max(100).default(Math.round((PRICING.newYearsEveMultiplier - 1) * 100)),
-    /** Themed accessories for seasonal staff, £ per person per booking. Full costumes are quoted. Defaulted for older rows. */
+    /** Themed accessories for seasonal staff, £ per person per booking. Defaulted for older rows. */
     costumeAccessoriesFee: z.number().min(0).max(100).multipleOf(0.01).default(PRICING.specialEvents.costumeFee),
   }),
   promises: z.object({
