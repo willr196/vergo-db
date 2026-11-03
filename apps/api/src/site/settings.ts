@@ -26,8 +26,6 @@ export const SETTING_SCHEMAS = {
     afterMidnightUpliftPct: z.number().min(0).max(100),
     /** The New Year's Eve surcharge, as a percentage. Defaulted so rows saved before it existed still parse. */
     newYearsEveUpliftPct: z.number().min(0).max(100).default(Math.round((PRICING.newYearsEveMultiplier - 1) * 100)),
-    /** Themed accessories for seasonal staff, £ per person per booking. Defaulted for older rows. */
-    costumeAccessoriesFee: z.number().min(0).max(100).multipleOf(0.01).default(PRICING.specialEvents.costumeFee),
   }),
   promises: z.object({
     confirmationPromise: line(200).min(1),
@@ -85,7 +83,6 @@ export function defaultSettings(): SiteSettings {
       premiumEnabled: DEFAULT_PRICING.premiumEnabled,
       afterMidnightUpliftPct: Math.round((DEFAULT_PRICING.afterMidnightMultiplier - 1) * 100),
       newYearsEveUpliftPct: Math.round((DEFAULT_PRICING.newYearsEveMultiplier - 1) * 100),
-      costumeAccessoriesFee: DEFAULT_PRICING.specialEvents.costumeFee,
     },
     promises: {
       confirmationPromise: DEFAULT_TERMS.confirmationPromise,
@@ -144,7 +141,6 @@ export function applySettings(s: SiteSettings): void {
   PRICING.premiumEnabled = s.rates.premiumEnabled;
   PRICING.afterMidnightMultiplier = 1 + s.rates.afterMidnightUpliftPct / 100;
   PRICING.newYearsEveMultiplier = 1 + s.rates.newYearsEveUpliftPct / 100;
-  PRICING.specialEvents.costumeFee = s.rates.costumeAccessoriesFee;
 
   PRICING.minimumChargeHours = s.terms.minimumChargeHours;
   // Hourly special-events roles carry the site-wide minimum.

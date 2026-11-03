@@ -193,8 +193,6 @@
       if (themeIdea) parts.push('Theme idea: ' + themeIdea);
       var serviceStyle = checkedValue('serviceStyle');
       if (serviceStyle) parts.push('Service style: ' + serviceStyle);
-      var costumes = checkedValue('costumes');
-      if (costumes) parts.push('Themed accessories: ' + costumes);
       if (guests) parts.push('Approx guests: ' + guests);
       return parts.join(' · ');
     }

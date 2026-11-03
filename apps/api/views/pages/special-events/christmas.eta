@@ -161,7 +161,7 @@
         <div class="se-decor"><h3>Victorian</h3><p>Waistcoats, bow ties and pocket watches.</p></div>
         <div class="se-decor"><h3>Winter whites</h3><p>White and silver, for a Winter Wonderland.</p></div>
       </div>
-      <p class="se-caveat">Themed staff are <%~ it.t.THEMED_RATE %>/hr. Themed accessories are <%~ it.t.COSTUME_FEE %> per person, per booking.</p>
+      <p class="se-caveat">Themed staff are <%~ it.t.THEMED_RATE %>/hr, costume included.</p>
     </section>
 
     <section class="section shell" id="prices" aria-labelledby="prices-heading">
@@ -170,7 +170,7 @@
         <li>Bar and waiting staff: <%~ it.t.STANDARD_RATE_SHORT %>/hr</li>
         <li>Kitchen porters: <%~ it.t.STANDARD_RATE_SHORT %>/hr</li>
         <li>Chefs: from <%~ it.t.CHEF_FROM_RATE %>/hr</li>
-        <li>Themed staff: <%~ it.t.THEMED_RATE %>/hr, plus accessories or costume</li>
+        <li>Themed staff: <%~ it.t.THEMED_RATE %>/hr, costume included</li>
       </ul>
       <p class="se-caveat">Per person, per hour. <%~ it.t.MIN_HOURS_WORD.charAt(0).toUpperCase() + it.t.MIN_HOURS_WORD.slice(1) %>-hour minimum. London and Birmingham only.</p>
     </section>
@@ -228,16 +228,6 @@
               <label class="se-pill"><input type="radio" name="concept" value="Winter Wonderland"><span>Winter Wonderland</span></label>
               <label class="se-pill"><input type="radio" name="concept" value="A Victorian Christmas"><span>A Victorian Christmas</span></label>
               <label class="se-pill"><input type="radio" name="concept" value="Something else"><span>Something else</span></label>
-            </div>
-          </fieldset>
-
-          <fieldset class="se-fieldset">
-            <legend>Themed accessories</legend>
-            <p class="form-hint">For themed staff, <%~ it.t.COSTUME_FEE %> per person.</p>
-            <div class="se-pillset">
-              <label class="se-pill"><input type="radio" name="costumes" value="Yes please"><span>Yes please</span></label>
-              <label class="se-pill"><input type="radio" name="costumes" value="No thanks"><span>No thanks</span></label>
-              <label class="se-pill"><input type="radio" name="costumes" value="Not sure"><span>Not sure</span></label>
             </div>
           </fieldset>
 

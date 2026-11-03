@@ -92,7 +92,7 @@
         <div class="se-decor"><h3>Roaring Twenties</h3><p>Braces, bow ties and a little Gatsby.</p></div>
         <div class="se-decor"><h3>Gold and sequins</h3><p>A bit of sparkle for the countdown.</p></div>
       </div>
-      <p class="se-caveat">Themed staff are quoted on request. Themed accessories are <%~ it.t.COSTUME_FEE %> per person, per booking.</p>
+      <p class="se-caveat">Themed staff are quoted on request, costume included.</p>
     </section>
 
     <section class="section shell" id="team" aria-labelledby="team-heading">
@@ -161,16 +161,6 @@
               <label class="se-pill"><input type="radio" name="concept" value="The Roaring Twenties"><span>The Roaring Twenties</span></label>
               <label class="se-pill"><input type="radio" name="concept" value="Champagne at Midnight"><span>Champagne at Midnight</span></label>
               <label class="se-pill"><input type="radio" name="concept" value="Something else"><span>Something else</span></label>
-            </div>
-          </fieldset>
-
-          <fieldset class="se-fieldset">
-            <legend>Themed accessories</legend>
-            <p class="form-hint">For themed staff, <%~ it.t.COSTUME_FEE %> per person.</p>
-            <div class="se-pillset">
-              <label class="se-pill"><input type="radio" name="costumes" value="Yes please"><span>Yes please</span></label>
-              <label class="se-pill"><input type="radio" name="costumes" value="No thanks"><span>No thanks</span></label>
-              <label class="se-pill"><input type="radio" name="costumes" value="Not sure"><span>Not sure</span></label>
             </div>
           </fieldset>
 

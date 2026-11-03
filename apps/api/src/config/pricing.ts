@@ -53,11 +53,7 @@ export const PRICING = {
     santa: 35.00,
     makeupArtist: 35.00,
     facePainting: 55.00,
-    /**
-     * Themed accessories (bow ties, masks, jumpers...) for seasonal themed
-     * staff, per person, per booking.
-     * Set in Admin > Site content > Settings.
-     */
+    /** Not charged: themed staff's costume is in their rate. Kept for the {{COSTUME_FEE}} token only; no page shows it. */
     costumeFee: 15.00,
     /** Hourly special-events roles carry the site-wide four-hour minimum... */
     minimumChargeHours: 4,
