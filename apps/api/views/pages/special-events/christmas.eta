@@ -80,7 +80,7 @@
       <div class="se-hero-inner">
         <span class="eyebrow">A VERGO Christmas</span>
         <h1>Christmas Staff and Bookings</h1>
-        <p class="lede">Santa in the grotto, elves on the floor, toy soldiers on the door and mulled wine all night.</p>
+        <p class="lede">Bar, waiting and kitchen staff for your Christmas party.</p>
         <div class="btn-row">
           <a href="#plan" class="btn btn-primary">Plan your party</a>
           <a href="<%~ it.t.WHATSAPP_URL %>" class="btn btn-secondary" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>

@@ -2,7 +2,7 @@
 <% layout('/layouts/base', {
   meta: {
     "title": "Special Events & Themed Staffing London | VERGO Staffing",
-    "description": "Themed bartenders and waiting staff, character performers and makeup artists for Christmas, New Year's Eve and themed events across London.",
+    "description": "Themed bartenders and waiting staff for Christmas, New Year's Eve and themed events across London.",
     "ogImage": "/images/og/special-events.jpg",
     "canonical": "/special-events"
   },
@@ -47,7 +47,7 @@
     <section class="page-hero-plain shell">
       <span class="eyebrow">Special events</span>
       <h1>Themed and seasonal events</h1>
-      <p class="lede">Themed staff, performers and makeup artists for London events.</p>
+      <p class="lede">Themed and seasonal staff for London events.</p>
     </section>
 
     <section class="section shell" aria-labelledby="seasons-heading">
