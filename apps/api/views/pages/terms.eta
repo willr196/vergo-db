@@ -24,7 +24,6 @@
       <ul class="check-list">
         <li>Standard: <%~ it.t.STANDARD_RATE %> per hour, per person, for waiting staff, bar staff, kitchen porters, runners, and hosts and front of house</li>
         <li>Premium: <%~ it.t.PREMIUM_RATE %> per hour, per person. <%~ it.t.PREMIUM_DEFINITION %> The service level is agreed for the whole booking</li>
-        <li>Festive characters and performers (Santa, elves, carollers, face painting and the like): quoted on request</li>
         <li><%~ it.t.MIN_HOURS %>-hour minimum charge per person, per booking</li>
         <li>Time beyond the confirmed end is billed in <%~ it.t.OVERRUN_MINUTES %>-minute blocks</li>
         <li>Hours worked after midnight are charged at +<%~ it.t.UPLIFT_PCT %>%</li>

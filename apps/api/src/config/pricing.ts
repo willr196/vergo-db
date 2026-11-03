@@ -110,7 +110,7 @@ export const SITE_TERMS = {
   /** Marketing pages. */
   employmentShort: 'Hospitality staff employed by us on PAYE.',
   /** Terms §6 and the blog FAQ only. */
-  employmentLine: 'Our hospitality staff are employed by us on PAYE, with payslips, holiday pay and a pension where it applies. Some specialist roles (chefs, cooks, performers and makeup artists) may be self-employed, and we confirm this in writing when you book.',
+  employmentLine: 'Our hospitality staff are employed by us on PAYE, with payslips, holiday pay and a pension where it applies. Some specialist roles (chefs and cooks) may be self-employed, and we confirm this in writing when you book.',
   workerPayLine: 'From £12.71/hr plus 12.07% holiday pay. More with experience.',
 };
 

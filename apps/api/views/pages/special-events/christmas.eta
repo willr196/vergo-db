@@ -2,7 +2,7 @@
 <% layout('/layouts/base', {
   meta: {
     "title": "Christmas Party Staff, London & Birmingham | VERGO Staffing",
-    "description": `Christmas party staff in London and Birmingham. Bar, waiting and kitchen staff from ${it.t.STANDARD_RATE_SHORT}/hr, plus festive extras on request.`,
+    "description": `Christmas party staff in London and Birmingham. Bar, waiting and kitchen staff from ${it.t.STANDARD_RATE_SHORT}/hr.`,
     "ogImage": "/images/og/christmas.jpg",
     "canonical": "/special-events/christmas"
   },
@@ -162,11 +162,6 @@
       <p class="se-caveat">Per person, per hour. <%~ it.t.MIN_HOURS_WORD.charAt(0).toUpperCase() + it.t.MIN_HOURS_WORD.slice(1) %>-hour minimum. London and Birmingham only.</p>
     </section>
 
-    <section class="section shell" id="festive-extras" aria-labelledby="festive-extras-heading">
-      <h2 id="festive-extras-heading" class="se-h2">Something more festive?</h2>
-      <p>Santa, elves, carollers, toy soldiers on the door, face painting. In London or Birmingham? <a href="#plan">Tell us your idea</a> and we'll see what we can put together. Quoted on request.</p>
-    </section>
-
     <section class="section shell" id="new-years-eve" aria-label="New Year's Eve">
       <p class="se-nye-line">New Year's Eve? Ask us. Availability is limited, so it's quoted on request.</p>
     </section>
@@ -199,13 +194,6 @@
           <fieldset class="se-fieldset">
             <legend>Who's coming</legend>
             <div class="se-need-grid checkbox-grid">
-              <div class="checkbox-item"><input type="checkbox" id="xm-santa" name="need" value="Santa"><label for="xm-santa">Santa</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="xm-mrs" name="need" value="Mrs Claus"><label for="xm-mrs">Mrs Claus</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="xm-elves" name="need" value="Elves"><label for="xm-elves">Elves</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="xm-soldiers" name="need" value="Toy soldiers (security)"><label for="xm-soldiers">Toy soldiers</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="xm-nutcrackers" name="need" value="Nutcrackers"><label for="xm-nutcrackers">Nutcrackers</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="xm-snowqueen" name="need" value="The Snow Queen"><label for="xm-snowqueen">The Snow Queen</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="xm-carollers" name="need" value="Carollers"><label for="xm-carollers">Carollers</label></div>
               <div class="checkbox-item"><input type="checkbox" id="xm-bar" name="need" value="Bar staff"><label for="xm-bar">Bar staff</label></div>
               <div class="checkbox-item"><input type="checkbox" id="xm-waiting" name="need" value="Waiting staff"><label for="xm-waiting">Waiting staff</label></div>
               <div class="checkbox-item"><input type="checkbox" id="xm-kitchen" name="need" value="Kitchen porters"><label for="xm-kitchen">Kitchen porters</label></div>
@@ -214,7 +202,7 @@
             </div>
             <div class="form-field se-theme-idea se-other-field" hidden>
               <label for="xmOther">Who else?</label>
-              <input type="text" id="xmOther" name="needOther" maxlength="200" placeholder="e.g. a magician, a harpist, reindeer">
+              <input type="text" id="xmOther" name="needOther" maxlength="200" placeholder="e.g. runners, a cloakroom team">
             </div>
           </fieldset>
 

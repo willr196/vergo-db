@@ -169,14 +169,6 @@
   ],
   "special-events/christmas": [
     {
-      "question": "Can Santa come to our office party?",
-      "answer": "We can often arrange Santa, Mrs Claus and elves. Send us the date and we'll let you know."
-    },
-    {
-      "question": "Do you supply the costumes?",
-      "answer": "If we're arranging characters, we'll sort the costumes too."
-    },
-    {
       "question": "Do you staff New Year's Eve?",
       "answer": "Sometimes. It's the busiest night of the year, so send us the date and we'll tell you what we can do."
     },
