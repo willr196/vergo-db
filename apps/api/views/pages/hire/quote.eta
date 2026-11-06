@@ -43,6 +43,20 @@
           </div>
         </div>
 
+        <!-- A run of days at the same times with the same staff: a three-day
+             conference, a festival weekend. Days that differ go in the message. -->
+        <div class="form-field shift-day-field">
+          <label class="checkbox-line" for="multiDay">
+            <input type="checkbox" id="multiDay" name="multiDay" aria-controls="eventEndDateField">
+            <span>More than one day</span>
+          </label>
+        </div>
+        <div class="form-field" id="eventEndDateField" hidden>
+          <label for="eventEndDate">Last day <span class="label-note">needed to book</span></label>
+          <input type="date" id="eventEndDate" name="eventEndDate" aria-describedby="multiDayHint">
+          <p class="form-hint" id="multiDayHint">We price it as the same times and staff every day. If some days are different, or not back to back, say so under "Anything else?".</p>
+        </div>
+
         <div class="form-row form-row-2">
           <div class="form-field">
             <label for="shiftStart">Start time <span class="label-note">optional</span></label>
@@ -135,7 +149,7 @@
         <div class="estimate-panel" id="estimatePanel" data-state="empty">
           <p class="estimate-label">Your estimate</p>
           <p class="estimate-total" id="estimateTotal">&mdash;</p>
-          <p class="estimate-total-caption">Total for the shift, all priced staff</p>
+          <p class="estimate-total-caption" id="estimateCaption">Total for the shift, all priced staff</p>
           <ul class="estimate-breakdown" id="estimateBreakdown" hidden>
             <li><span id="estimateBaseLabel">People × hours × rate</span><span id="estimateBase">&mdash;</span></li>
             <li id="estimateUpliftRow" hidden><span id="estimateUpliftLabel">After-midnight uplift</span><span id="estimateUplift">&mdash;</span></li>

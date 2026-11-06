@@ -542,10 +542,11 @@ export async function jobRoutes(app: FastifyInstance) {
 
     // One transaction: a run that half-created would leave days nobody asked
     // for and a reference sequence with holes in it.
-    await prisma.$transaction(
+    const created = await prisma.$transaction(
       days.map((day, i) =>
         prisma.schedJob.create({
           data: { ...jobFields, ...shape, date: day, reference: formatReference(startNumber + i) },
+          select: { id: true },
         })
       )
     );
@@ -556,7 +557,9 @@ export async function jobRoutes(app: FastifyInstance) {
     });
     return reply.code(201).send({
       ...first,
-      run: { seriesId, created: days.length, from: isoDate(firstDay), to: isoDate(lastDay) },
+      // Every day's id, in date order, so a caller can put the same crew on
+      // the whole run (Inbox > Requests does, for a multi-day booking).
+      run: { seriesId, created: days.length, from: isoDate(firstDay), to: isoDate(lastDay), jobIds: created.map((j) => j.id) },
     });
   });
 

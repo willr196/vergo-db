@@ -48,7 +48,7 @@ export const userVerificationEmail = (data: EmailTemplateData): string => {
 };
 
 export const userPasswordResetEmail = (data: EmailTemplateData): string => {
-  const resetUrl = data.resetUrl || `${env.webOrigin}/reset-password?token=${encodeURIComponent(data.token || '')}`;
+  const resetUrl = data.resetUrl || `${env.webOrigin}/staff/set-password?token=${encodeURIComponent(data.token || '')}`;
 
   return composeEmail({
     body: emailBody(`
@@ -526,8 +526,29 @@ export const rosterApprovalEmail = (data: EmailTemplateData): string => {
         'Reply to accept, and we confirm you on it',
         'We send the venue, timings and uniform before the day',
       ])}
+      ${data.resetUrl ? `
+        ${paragraph('You also have a staff login on our website, where you keep your details up to date. Choose your password to get in:')}
+        ${primaryButton('Set my password', data.resetUrl)}
+        ${linkDisplay(data.resetUrl, 'Or copy this link into your browser:')}
+        ${infoBox(`<p style="margin: 0; font-size: 14px;">Sign in with ${safe(data.email || 'this email address')}. The link works for 7 days and only once; after that, use "Forgot password" on the login page.</p>`, 'info')}
+      ` : ''}
       ${paragraph('If your availability changes, or there are venues or types of work you would rather we put you forward for, just reply to this email and let us know.')}
       <p>Welcome aboard!<br><strong>The VERGO Team</strong></p>
+    `),
+  });
+};
+
+/** From Ops: a worker's invitation to set up their staff login. */
+export const staffLoginInviteEmail = (data: { recipientName: string; email: string; url: string; expiresOn: string }): string => {
+  return composeEmail({
+    body: emailBody(`
+      ${sectionHeading('Your VERGO staff login')}
+      <p>Hi ${safe(data.recipientName)},</p>
+      ${paragraph('We have set up a staff login for you on the VERGO website. Choose a password, and from then on you can sign in to keep your details up to date: your phone number, the work you want, and who to call in an emergency.')}
+      ${primaryButton('Set my password', data.url)}
+      ${linkDisplay(data.url, 'Or copy this link into your browser:')}
+      ${infoBox(`<p style="margin: 0; font-size: 14px;">You sign in with ${safe(data.email)}. This link is personal to you and works once, until ${safe(data.expiresOn)}. After that, use "Forgot password" on the login page, or reply and we will send a new one.</p>`, 'info')}
+      <p>Thanks,<br><strong>The VERGO Team</strong></p>
     `),
   });
 };

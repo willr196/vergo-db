@@ -11,6 +11,7 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { env } from '../env';
 import { sendApplicationNotificationEmail, sendApplicationConfirmationToApplicant, sendRosterApprovalEmail, sendApplicantMessageEmail } from '../services/email';
+import { issueSetPasswordLink } from '../services/staffLogin';
 import { summariseChecks } from '../services/rightToWork';
 import { authLogger } from '../services/logger';
 import { groupRoleCounts, roleNamesForLabel } from '../services/roleGroups';
@@ -1589,7 +1590,8 @@ r.post('/:id/roster-approval-email', adminAuth, async (req, res, next) => {
               }
             }
           }
-        }
+        },
+        roles: { select: { role: { select: { name: true } } } }
       }
     });
 
@@ -1658,11 +1660,29 @@ r.post('/:id/roster-approval-email', adminAuth, async (req, res, next) => {
           select: { id: true, emailVerified: true, mustChangePassword: true, lastLoginAt: true }
         });
 
+    // Hired and given a login means on the staff list: a WorkerProfile is what
+    // puts them in Ops > Workers and gives the staff pages their roles and
+    // emergency contact. Started with the roles they applied for; an existing
+    // record is left exactly as it is.
+    await prisma.workerProfile.upsert({
+      where: { userId: user.id },
+      create: {
+        userId: user.id,
+        roles: app.roles.map((r) => r.role.name),
+        availabilityNotes: app.applicant.availability || null,
+      },
+      update: {}
+    });
+
+    // The temporary password is never sent anywhere; the worker picks their
+    // own through this link, which also clears mustChangePassword.
+    const link = await issueSetPasswordLink(user.id);
     const emailResult = await sendRosterApprovalEmail({
       to: app.applicant.email,
       name: app.applicant.firstName,
       email: app.applicant.email,
-      tempPassword
+      tempPassword,
+      setPasswordUrl: link.url
     });
 
     const account = shapeRosterAccount(user);

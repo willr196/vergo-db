@@ -2,10 +2,10 @@ import { Router } from 'express';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../prisma';
-import { requireUserJwt } from '../middleware/jwtAuth';
+import { requireUserJwtOrSession } from '../middleware/jwtAuth';
 import { sendPushToClient } from '../services/notifications';
 import { PRICING } from '../config/pricing';
-import { writeAudit, workerAppActor } from '../ops/audit';
+import { writeAudit, workerAppActor, workerChannel } from '../ops/audit';
 import { syncStaffingStatus } from './ops/bookings';
 
 const r = Router();
@@ -180,25 +180,28 @@ function shapeShift(booking: ShiftRow) {
 }
 
 /**
- * When a worker accepts or declines a VERGO Ops offer in the app, Ops hears
+ * When a worker accepts or declines a VERGO Ops offer (in the app or on the
+ * website's staff pages), Ops hears
  * about it the way it would from the office: an audit row, and the booking
  * moves between Confirmed / Staffing / Fully staffed.
  */
-async function tellOps(shift: { id: string; opsBookingId: string | null }, userId: string, to: 'CONFIRMED' | 'REJECTED', reason?: string | null) {
+async function tellOps(shift: { id: string; opsBookingId: string | null }, userId: string, to: 'CONFIRMED' | 'REJECTED', reason: string | null | undefined, via: 'app' | 'website') {
   if (!shift.opsBookingId) return;
-  const actor = await workerAppActor(userId);
+  const actor = await workerAppActor(userId, via);
+  const where = via === 'website' ? 'on the website' : 'in the app';
   await writeAudit(actor, {
     action: 'ASSIGNMENT_CHANGED', entityType: 'OpsBooking', entityId: shift.opsBookingId,
     oldValue: { assignmentId: shift.id, status: 'PENDING' },
     newValue: { assignmentId: shift.id, status: to },
     reason: to === 'CONFIRMED'
-      ? 'Accepted by the worker in the app'
-      : reason ? `Declined by the worker in the app: ${reason}` : 'Declined by the worker in the app',
+      ? `Accepted by the worker ${where}`
+      : reason ? `Declined by the worker ${where}: ${reason}` : `Declined by the worker ${where}`,
   });
   await syncStaffingStatus(shift.opsBookingId, actor);
 }
 
-r.use(requireUserJwt);
+// The app sends a bearer token; the website's /staff/shifts page sends its session.
+r.use(requireUserJwtOrSession);
 
 // GET /api/v1/mobile/shifts
 r.get('/', async (req, res, next) => {
@@ -321,7 +324,7 @@ r.post('/:id/confirm', async (req, res, next) => {
       include: bookingInclude,
     });
 
-    await tellOps(existing, req.auth!.userId, 'CONFIRMED');
+    await tellOps(existing, req.auth!.userId, 'CONFIRMED', null, workerChannel(req));
 
     sendPushToClient(
       existing.clientId,
@@ -362,7 +365,7 @@ r.post('/:id/decline', async (req, res, next) => {
       include: bookingInclude,
     });
 
-    await tellOps(existing, req.auth!.userId, 'REJECTED', reason);
+    await tellOps(existing, req.auth!.userId, 'REJECTED', reason, workerChannel(req));
 
     sendPushToClient(
       existing.clientId,

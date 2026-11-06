@@ -912,6 +912,7 @@ details.faq p { margin: -6px 0 20px; color: var(--text-secondary); max-width: 60
 .form-field input[type="text"],
 .form-field input[type="email"],
 .form-field input[type="tel"],
+.form-field input[type="password"],
 .form-field input[type="date"],
 .form-field input[type="time"],
 .form-field input[type="number"],
@@ -1494,3 +1495,50 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 @media (max-width: 480px) { .season-feature-row img { width: 88px; height: 88px; } .season-feature-row { gap: 14px; padding: 12px; } }
 
 .beyond-line { margin: 0 0 8px; font-size: 16px; }
+
+/* Staff account (/staff): choices in two columns from tablet width, and room
+   between the profile, password and log-out blocks. */
+.staff-choices { display: grid; gap: 12px; margin-top: 8px; }
+@media (min-width: 600px) { .staff-choices { grid-template-columns: 1fr 1fr; } }
+.staff-section { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--hairline); }
+
+/* Staff area tabs and lists (/staff/*). */
+.staff-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-top: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--hairline); }
+.staff-tabs ul { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; flex: 1 1 auto; }
+.staff-tabs a { display: inline-block; padding: 8px 12px; border-radius: var(--radius); color: var(--text-muted); text-decoration: none; font-size: 0.92rem; }
+.staff-tabs a:hover, .staff-tabs a:focus-visible { color: var(--text); background: var(--surface); }
+.staff-tabs a[aria-current="page"] { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.staff-logout { background: none; border: 0; color: var(--text-muted); font: inherit; font-size: 0.88rem; cursor: pointer; padding: 8px 4px; text-decoration: underline; }
+.staff-logout:hover, .staff-logout:focus-visible { color: var(--text); }
+.staff-list { display: grid; gap: 12px; margin: 16px 0 0; padding: 0; list-style: none; }
+.staff-item { background: var(--panel-fill); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 16px 18px; }
+.staff-item h3 { margin: 0 0 4px; font-size: 1.05rem; }
+.staff-item p { margin: 4px 0 0; color: var(--text-muted); font-size: 0.92rem; }
+.staff-item .btn-row { margin-top: 12px; }
+.staff-status { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; vertical-align: middle; background: var(--surface); color: var(--text-muted); border: 1px solid var(--hairline-strong); }
+.staff-status[data-tone="good"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.staff-status[data-tone="bad"] { color: var(--error); border-color: var(--error); background: transparent; }
+.staff-empty { color: var(--text-muted); margin-top: 16px; }
+.staff-photo { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.staff-photo img, .staff-photo .staff-photo-blank { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; background: var(--surface); border: 1px solid var(--hairline-strong); }
+.staff-photo .staff-photo-blank { display: grid; place-items: center; color: var(--text-muted); font-size: 0.8rem; text-align: center; }
+.staff-subhead { margin-top: 40px; }
+.staff-card-title { margin-top: 0; }
+.staff-card-text { margin: 0; }
+.staff-terms { margin: 12px 0 0; }
+.staff-checklist { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+.staff-checklist li { display: flex; gap: 10px; align-items: flex-start; font-size: 0.95rem; }
+.staff-checklist li[data-state="done"] { color: var(--text-muted); }
+.staff-check-mark { flex: 0 0 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 0.8rem; font-weight: 700; border: 1px solid var(--hairline-strong); color: var(--text-muted); }
+.staff-checklist li[data-state="done"] .staff-check-mark { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.staff-checklist li[data-state="todo"] .staff-check-mark { color: var(--error); border-color: var(--error); }
+.staff-check-hint { display: block; color: var(--text-muted); font-size: 0.85rem; margin-top: 2px; }
+#readiness[data-ready="yes"] { border-color: var(--accent); }
+.staff-brief { margin-top: 10px; }
+.staff-brief summary { cursor: pointer; color: var(--accent); font-size: 0.92rem; }
+.staff-brief dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 10px 0 0; font-size: 0.9rem; }
+.staff-brief dt { color: var(--text-muted); }
+.staff-brief dd { margin: 0; color: var(--text); overflow-wrap: anywhere; }
+.staff-doc-body { white-space: normal; background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 16px 18px; margin-top: 12px; max-height: 60vh; overflow: auto; font-size: 0.92rem; }
+.staff-doc-body h3, .staff-doc-body h4 { margin: 14px 0 6px; }
+@media (max-width: 480px) { .staff-brief dl { grid-template-columns: 1fr; gap: 2px; } .staff-brief dd { margin-bottom: 8px; } }

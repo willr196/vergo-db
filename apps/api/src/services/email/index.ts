@@ -503,11 +503,14 @@ export async function sendRosterApprovalEmail(data: {
   name: string;
   email: string;
   tempPassword?: string;
+  /** The worker's link to choose their own password, from issueSetPasswordLink. */
+  setPasswordUrl?: string;
 }): Promise<EmailResult> {
   const html = templates.rosterApprovalEmail({
     recipientName: data.name,
     email: data.email,
     tempPassword: data.tempPassword,
+    resetUrl: data.setPasswordUrl,
   });
 
   return sendEmailSilent({
@@ -697,6 +700,31 @@ export async function sendBookingReviewRequestEmail(data: {
 // ============================================
 // DOCUMENTS (VERGO Ops)
 // ============================================
+
+/** Sends a worker their link to set up a staff login. Never throws; check `success`. */
+export async function sendStaffLoginInviteEmail(data: {
+  to: string;
+  name: string;
+  url: string;
+  expiresAt: Date;
+  userId?: string;
+}): Promise<EmailResult> {
+  const html = templates.staffLoginInviteEmail({
+    recipientName: data.name,
+    email: data.to,
+    url: data.url,
+    expiresOn: data.expiresAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' }),
+  });
+  const result = await sendEmailSilent({
+    to: data.to,
+    subject: 'VERGO: set up your staff login',
+    html,
+    emailType: 'staff-login-invite',
+    userId: data.userId,
+    tags: [{ name: 'category', value: 'staff-login-invite' }, { name: 'source', value: 'ops' }],
+  });
+  return result ?? { id: '', success: false, error: 'Email not sent' };
+}
 
 /** Sends the secure document link. Never throws; check `success`. */
 export async function sendDocumentLinkEmail(data: {

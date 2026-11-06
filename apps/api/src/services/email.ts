@@ -40,4 +40,5 @@ export {
   sendBookingReviewRequestEmail,
   // VERGO Ops documents
   sendDocumentLinkEmail,
+  sendStaffLoginInviteEmail,
 } from './email/index';

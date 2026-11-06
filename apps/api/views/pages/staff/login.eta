@@ -1,0 +1,37 @@
+<%/* /staff/login: staff sign-in. Session auth (vergo.sid) through /api/v1/user/login. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Staff Login | VERGO Staffing",
+    "description": "Sign in to your VERGO staff account.",
+    "ogImage": "/images/og/work.jpg",
+    "robots": "noindex",
+    "canonical": "/staff/login"
+  },
+  scripts: ["/pages/js/staff-auth.js"],
+  header: {"focused":"1","back":"/work","label":"← Back to work with us"}
+}) %>
+    <section class="page-hero-plain shell-form">
+      <span class="eyebrow">Staff</span>
+      <h1>Staff login</h1>
+      <p class="lede">For people on the VERGO team. If you are not with us yet, <a href="/work/apply">apply to join</a>.</p>
+    </section>
+
+    <section class="section-tight shell-form">
+      <form id="staffLogin" data-staff-form="login" novalidate>
+        <div class="form-field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" autocomplete="username" required>
+        </div>
+        <div class="form-field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" autocomplete="current-password" required>
+        </div>
+
+        <div class="form-status" id="staffStatus" role="status" hidden></div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-block">Log in</button>
+        </div>
+        <p class="form-hint form-hint-block"><a href="/staff/forgot-password">Forgot your password?</a> First time here? Use the link in the email we sent you.</p>
+      </form>
+    </section>

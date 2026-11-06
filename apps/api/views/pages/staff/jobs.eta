@@ -1,0 +1,25 @@
+<%/* /staff/jobs: the job board for signed-in staff, with Apply. Jobs come
+     from /api/v1/jobs. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Job Board | VERGO Staffing",
+    "description": "Open jobs for VERGO staff.",
+    "ogImage": "/images/og/work.jpg",
+    "robots": "noindex",
+    "canonical": "/staff/jobs"
+  },
+  scripts: ["/pages/js/staff-common.js", "/pages/js/staff-jobs.js"],
+  header: {"focused":"1","back":"/work","label":"← Back to work with us"}
+}) %>
+    <%~ include('/partials/staff-nav', { current: 'jobs' }) %>
+    <section class="page-hero-plain shell-form">
+      <span class="eyebrow">Staff</span>
+      <h1>Job board</h1>
+      <p class="lede">Open jobs. Apply and we confirm with you before you are booked.</p>
+    </section>
+
+    <section class="section-tight shell-form">
+      <div class="form-status" id="jobsStatus" role="status" hidden></div>
+      <ul class="staff-list" id="jobList" aria-live="polite"></ul>
+      <p class="staff-empty" id="jobsEmpty" hidden>No open jobs right now. We will email you when something comes up.</p>
+    </section>

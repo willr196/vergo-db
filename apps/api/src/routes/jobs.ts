@@ -1,6 +1,7 @@
 import { Router, type NextFunction, type Request, type Response } from "express";
 import rateLimit from "express-rate-limit";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../prisma";
 import { adminAuth } from "../middleware/adminAuth";
 import { optionalUser } from "../middleware/userAuth";
@@ -306,12 +307,32 @@ async function listAdminJobs(req: Request, res: Response, next: NextFunction) {
     if (query.type) where.type = query.type;
     if (query.roleId) where.roleId = query.roleId;
     
-    const [jobs, total] = await Promise.all([
+    // Closest date first, the way the office works through them: jobs still to
+    // come (or running now, through their last day) soonest first, then jobs
+    // with no date yet, then past jobs, most recent first. Ordered in SQL so
+    // each page is the right slice of that order, not a re-sort of one page.
+    const startOfToday = new Date(`${toDayKey(new Date())}T00:00:00.000Z`);
+    const filters = [Prisma.sql`TRUE`];
+    if (query.status) filters.push(Prisma.sql`"status" = ${query.status}::"JobStatus"`);
+    if (query.type) filters.push(Prisma.sql`"type" = ${query.type}::"JobType"`);
+    if (query.roleId) filters.push(Prisma.sql`"roleId" = ${query.roleId}`);
+    const ordered = await prisma.$queryRaw<{ id: string }[]>`
+      SELECT "id" FROM "Job"
+      WHERE ${Prisma.join(filters, " AND ")}
+      ORDER BY
+        CASE WHEN COALESCE("eventEndDate", "eventDate") >= ${startOfToday} THEN 0
+             WHEN "eventDate" IS NULL THEN 1
+             ELSE 2 END,
+        CASE WHEN COALESCE("eventEndDate", "eventDate") >= ${startOfToday} THEN "eventDate" END ASC,
+        CASE WHEN COALESCE("eventEndDate", "eventDate") < ${startOfToday} THEN "eventDate" END DESC,
+        "createdAt" DESC,
+        "id"
+      OFFSET ${skip} LIMIT ${query.limit}`;
+    const position = new Map(ordered.map((row, i) => [row.id, i]));
+
+    const [unordered, total] = await Promise.all([
       prisma.job.findMany({
-        where,
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: query.limit,
+        where: { id: { in: ordered.map((row) => row.id) } },
         include: {
           role: {
             select: { id: true, name: true }
@@ -332,6 +353,7 @@ async function listAdminJobs(req: Request, res: Response, next: NextFunction) {
       }),
       prisma.job.count({ where })
     ]);
+    const jobs = unordered.sort((a, b) => (position.get(a.id) ?? 0) - (position.get(b.id) ?? 0));
 
     // The list only needs the shape of the roster, not the names on it: how
     // many day-slots exist and how many are filled, so the table can show

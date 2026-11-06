@@ -1,5 +1,6 @@
 /**
- * A worker's own VERGO Ops documents, in the app.
+ * A worker's own VERGO Ops documents, in the app and on the website's
+ * /staff/documents page (the same router, either sign-in).
  *
  *   GET  /api/v1/mobile/documents                         what is waiting and what is done
  *   GET  /api/v1/mobile/documents/:id                     one document, with its text
@@ -17,16 +18,17 @@ import { Router, type Request, type Response, type NextFunction } from 'express'
 import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import { prisma } from '../prisma';
-import { requireUserJwt } from '../middleware/jwtAuth';
+import { requireUserJwtOrSession } from '../middleware/jwtAuth';
 import { acknowledgeKid, acceptAgreement, type AcceptanceEvidence } from '../ops/documentService';
 import { AGREEMENT_STATEMENT, KID_ACKNOWLEDGEMENT } from '../ops/documents';
 import { workerPackState } from './documentLinks';
-import { workerAppActor } from '../ops/audit';
+import { workerAppActor, workerChannel } from '../ops/audit';
 import { dateKey } from '../ops/time';
 
 const r = Router();
 
-r.use(requireUserJwt);
+// The app sends a bearer token; the website's /staff/documents page sends its session.
+r.use(requireUserJwtOrSession);
 r.use(rateLimit({ windowMs: 10 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false }));
 
 const WORKER_TYPES = ['KEY_INFORMATION_DOCUMENT', 'ZERO_HOURS_AGREEMENT', 'ASSIGNMENT_CONFIRMATION'] as const;
@@ -108,7 +110,7 @@ r.get('/:id', handle(async (req, res) => {
 
 r.post('/kid/:id/acknowledge', handle(async (req, res) => {
   z.object({ acknowledged: z.literal(true, { errorMap: () => ({ message: 'Tick the box to confirm you have received it.' }) }) }).parse(req.body ?? {});
-  await acknowledgeKid(req.auth!.userId, req.params.id, evidence(req, 'Acknowledged in the VERGO app'), await workerAppActor(req.auth!.userId));
+  await acknowledgeKid(req.auth!.userId, req.params.id, evidence(req, workerChannel(req) === 'app' ? 'Acknowledged in the VERGO app' : 'Acknowledged on the VERGO website (signed in)'), await workerAppActor(req.auth!.userId, workerChannel(req)));
   res.json({ ok: true });
 }));
 
@@ -117,7 +119,7 @@ r.post('/agreement/:id/accept', handle(async (req, res) => {
     agree: z.literal(true, { errorMap: () => ({ message: 'Tick the box to confirm you have read and agree to the agreement.' }) }),
     typedName: z.string({ required_error: 'Type your full name.' }).trim().min(2, 'Type your full name.').max(200),
   }).parse(req.body ?? {});
-  await acceptAgreement(req.auth!.userId, req.params.id, body.typedName, evidence(req, 'Electronic agreement in the VERGO app (signed in)'), await workerAppActor(req.auth!.userId));
+  await acceptAgreement(req.auth!.userId, req.params.id, body.typedName, evidence(req, workerChannel(req) === 'app' ? 'Electronic agreement in the VERGO app (signed in)' : 'Electronic agreement on the VERGO website (signed in)'), await workerAppActor(req.auth!.userId, workerChannel(req)));
   res.json({ ok: true });
 }));
 

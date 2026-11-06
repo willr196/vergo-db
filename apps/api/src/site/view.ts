@@ -94,6 +94,20 @@ const SEASONAL_MENU = [
   },
 ];
 
+/**
+ * The Work for us dropdown. Staff login lives here rather than in the header
+ * bar, so a client booking staff doesn't have it in front of them.
+ */
+const WORK_MENU = [
+  {
+    heading: 'Work with VERGO',
+    links: [
+      { href: '/work/apply', label: 'Apply to join' },
+      { href: '/staff/login', label: 'Staff login' },
+    ],
+  },
+];
+
 interface NavItem {
   href: string;
   label: string;
@@ -110,7 +124,7 @@ const NAV: NavItem[] = [
   { href: '/book-an-event', label: 'Events', match: (p: string) => p === '/book-an-event' },
   { href: '/special-events', label: 'Seasonal', menu: SEASONAL_MENU, allLabel: 'All seasonal events', seasonal: true, match: (p: string) => p === '/special-events' || p.startsWith('/special-events/') },
   { href: '/about', label: 'About', match: (p: string) => p === '/about' },
-  { href: '/work', label: 'Work for us', match: (p: string) => p === '/work' || p.startsWith('/work/') },
+  { href: '/work', label: 'Work for us', menu: WORK_MENU, allLabel: 'Shifts and pay', match: (p: string) => p === '/work' || p.startsWith('/work/') || p === '/staff' || p.startsWith('/staff/') },
 ];
 
 /** Pages that don't sell a booking, so the seasonal banner stays off them. */
@@ -430,6 +444,17 @@ export const VIEW_ROUTES: ViewRoute[] = [
   { path: '/', view: 'index' },
   { path: '/hire/quote', view: 'hire/quote' },
   { path: '/work/apply', view: 'work/apply' },
+  // Staff logins (session auth through /api/v1/user). noindex, not in the sitemap.
+  { path: '/staff', view: 'staff/index' },
+  { path: '/staff/jobs', view: 'staff/jobs' },
+  { path: '/staff/shifts', view: 'staff/shifts' },
+  { path: '/staff/applications', view: 'staff/applications' },
+  { path: '/staff/availability', view: 'staff/availability' },
+  { path: '/staff/documents', view: 'staff/documents' },
+  { path: '/staff/profile', view: 'staff/profile' },
+  { path: '/staff/login', view: 'staff/login' },
+  { path: '/staff/forgot-password', view: 'staff/forgot-password' },
+  { path: '/staff/set-password', view: 'staff/set-password' },
 ];
 
 export function viewRouteFor(pagePath: string): ViewRoute | undefined {

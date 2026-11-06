@@ -1,0 +1,33 @@
+<%/* /staff/shifts: shifts offered to and worked by the signed-in worker, from
+     /api/v1/user/shifts (the app's shifts API on the website session). */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "My Shifts | VERGO Staffing",
+    "description": "Your VERGO shifts.",
+    "ogImage": "/images/og/work.jpg",
+    "robots": "noindex",
+    "canonical": "/staff/shifts"
+  },
+  scripts: ["/pages/js/staff-common.js", "/pages/js/staff-shifts.js"],
+  header: {"focused":"1","back":"/work","label":"← Back to work with us"}
+}) %>
+    <%~ include('/partials/staff-nav', { current: 'shifts' }) %>
+    <section class="page-hero-plain shell-form">
+      <span class="eyebrow">Staff</span>
+      <h1>My shifts</h1>
+      <p class="lede">Shifts we have offered you, and the jobs you have worked.</p>
+    </section>
+
+    <section class="section-tight shell-form">
+      <div class="card">
+        <p class="staff-card-text">If you can't make a confirmed shift, call us on <a href="tel:<%= it.site.phoneE164 %>"><%= it.site.phoneDisplay %></a> as soon as you know so we can cover it. Late cancellations and no-shows affect the work we can offer you.</p>
+      </div>
+      <div class="form-status" id="shiftsStatus" role="status" hidden></div>
+      <h2>Coming up</h2>
+      <ul class="staff-list" id="upcomingList"></ul>
+      <p class="staff-empty" id="upcomingEmpty" hidden>Nothing booked yet. Apply on the <a href="/staff/jobs">job board</a>.</p>
+
+      <h2 class="staff-subhead">Jobs worked</h2>
+      <ul class="staff-list" id="historyList"></ul>
+      <p class="staff-empty" id="historyEmpty" hidden>Your finished shifts will show here.</p>
+    </section>

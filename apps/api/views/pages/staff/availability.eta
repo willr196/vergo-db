@@ -1,0 +1,66 @@
+<%/* /staff/availability: whether the worker is taking work, and the dates they
+     can work. The status is the app's switch (User.availabilityStatus); the
+     dates are the app's availability windows, which Ops shows on the worker. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "My Availability | VERGO Staffing",
+    "description": "Tell VERGO when you can work.",
+    "ogImage": "/images/og/work.jpg",
+    "robots": "noindex",
+    "canonical": "/staff/availability"
+  },
+  scripts: ["/pages/js/staff-common.js", "/pages/js/staff-availability.js"],
+  header: {"focused":"1","back":"/work","label":"← Back to work with us"}
+}) %>
+    <%~ include('/partials/staff-nav', { current: 'availability' }) %>
+    <section class="page-hero-plain shell-form">
+      <span class="eyebrow">Staff</span>
+      <h1>My availability</h1>
+      <p class="lede">Keep this up to date and we offer you work when you can do it.</p>
+    </section>
+
+    <section class="section-tight shell-form">
+      <form id="statusForm" novalidate>
+        <fieldset class="form-field">
+          <legend>Right now I am</legend>
+          <div class="staff-choices">
+            <label class="checkbox-line" for="statusAvailable"><input type="radio" id="statusAvailable" name="status" value="AVAILABLE"><span>Taking work</span></label>
+            <label class="checkbox-line" for="statusLimited"><input type="radio" id="statusLimited" name="status" value="LIMITED"><span>Taking some work</span></label>
+            <label class="checkbox-line" for="statusUnavailable"><input type="radio" id="statusUnavailable" name="status" value="UNAVAILABLE"><span>Not taking work</span></label>
+          </div>
+        </fieldset>
+        <div class="form-field">
+          <label for="availabilityNote">When you can usually work <span class="label-note">optional</span></label>
+          <input type="text" id="availabilityNote" name="availability" maxlength="1000" placeholder="e.g. weekends and weekday evenings">
+        </div>
+        <div class="form-status" id="statusStatus" role="status" hidden></div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-block">Save</button>
+        </div>
+      </form>
+
+      <form id="windowForm" class="staff-section" novalidate>
+        <h2>Dates you can work</h2>
+        <p class="form-hint form-hint-block">Add a run of days you are free, such as a holiday from your main job or the Christmas season.</p>
+        <div class="form-row form-row-2">
+          <div class="form-field">
+            <label for="dateFrom">From</label>
+            <input type="date" id="dateFrom" name="dateFrom" required>
+          </div>
+          <div class="form-field">
+            <label for="dateTo">To</label>
+            <input type="date" id="dateTo" name="dateTo" required>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="windowNote">Note <span class="label-note">optional</span></label>
+          <input type="text" id="windowNote" name="notes" maxlength="200" placeholder="e.g. evenings only">
+        </div>
+        <div class="form-status" id="windowStatus" role="status" hidden></div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-secondary btn-block">Add these dates</button>
+        </div>
+      </form>
+      <ul class="staff-list" id="windowList"></ul>
+      <p class="staff-empty" id="windowsEmpty" hidden>No dates added.</p>
+    </section>

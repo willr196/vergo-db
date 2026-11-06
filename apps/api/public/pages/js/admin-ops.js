@@ -457,7 +457,9 @@
     main.innerHTML =
       '<div class="ops-head"><div><a href="#/workers" class="text-muted fs-sm">← Workers</a><h2>' + esc(w.name) + ' ' + readyChip(r) + '</h2>' +
       '<div class="ops-lede">' + esc(w.email) + (w.phone ? ' · ' + esc(w.phone) : '') + ' · first shift ' + day(w.firstAssignmentDate) + ' · last shift ' + day(w.lastAssignmentDate) + '</div></div>' +
-      '<div class="ops-actions"><a class="btn btn-ghost btn-sm" href="' + API + '/workers/' + esc(w.id) + '/export">Export all records (JSON)</a></div></div>' +
+      '<div class="ops-actions">' +
+        '<button class="btn btn-ghost btn-sm" id="login-invite" title="' + (w.usesApp ? 'Has signed in before' : 'Has not signed in yet') + '">' + (w.usesApp ? 'Send new login link' : 'Send login invite') + '</button>' +
+        '<a class="btn btn-ghost btn-sm" href="' + API + '/workers/' + esc(w.id) + '/export">Export all records (JSON)</a></div></div>' +
 
       '<div class="ops-card"><h3 style="margin-top:0">Ready for Work</h3>' +
         (r.computedReady ? '<p>All requirements are met.</p>' : '<p>Not ready. Missing:</p><ul class="ops-missing">' + r.missing.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>') +
@@ -581,6 +583,30 @@
         label: 'Block', kind: 'btn-danger', onClick: async function (b) {
           await api('/workers/' + id + '/rtw-block', { method: 'POST', body: { blocked: true, reason: readForm(b).reason } }); reload();
         } }]);
+    });
+    main.querySelector('#login-invite').addEventListener('click', async function (e) {
+      var question = w.usesApp
+        ? w.name + ' has signed in before. Email them a link to choose a new password? Their current password keeps working until they use it.'
+        : 'Email ' + w.name + ' (' + w.email + ') a link to set up their staff login? It works once, for 7 days.';
+      if (!(await confirmDialog(question, 'Send'))) return;
+      try {
+        var sent = await AdminCore.withLoading(e.target, function () { return api('/workers/' + id + '/login-invite', { method: 'POST' }); });
+        if (sent.emailSent) {
+          toast('Login link sent to ' + sent.sentTo);
+        } else {
+          var url = location.origin + sent.path;
+          openModal('Login link: ' + w.name, alertBox('warning', 'Email not sent: ' + (sent.emailError || 'unknown error') + '. Copy the link and send it to them yourself.') +
+            '<p class="fs-sm mb-2">It lets ' + esc(w.name) + ' choose their password, works once, and expires ' + day(sent.expiresAt) + '. It is shown only now.</p>' +
+            '<div class="ops-form"><div class="wide"><input class="as-input" id="invite-url" readonly value="' + esc(url) + '"></div></div>', [{
+            label: 'Copy link', onClick: async function (b) {
+              b.querySelector('#invite-url').select();
+              try { await navigator.clipboard.writeText(url); } catch (_e) { document.execCommand('copy'); }
+              toast('Link copied');
+              return false;
+            },
+          }]);
+        }
+      } catch (err) { fail(err); }
     });
     main.querySelector('#issue-pack').addEventListener('click', function () { issuePackFor(id, w.name, reload); });
     main.querySelector('#send-link').addEventListener('click', function () {

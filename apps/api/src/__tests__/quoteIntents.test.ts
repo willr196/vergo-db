@@ -293,3 +293,30 @@ test('a city we do not cover is dropped rather than failing the booking', async 
   const response = await post(buildApp(), { ...FULL_BOOKING, city: 'Manchester' });
   assert.equal(response.statusCode, 201);
 });
+
+test('a booking can run over several days, up to thirty', async () => {
+  const run = await post(buildApp(), { ...FULL_BOOKING, eventDate: '2026-12-11', eventEndDate: '2026-12-13' });
+  assert.equal(run.statusCode, 201);
+
+  const month = await post(buildApp(), { ...FULL_BOOKING, eventDate: '2026-12-01', eventEndDate: '2026-12-30' });
+  assert.equal(month.statusCode, 201);
+
+  // The same day twice is just a one-day booking.
+  const sameDay = await post(buildApp(), { ...FULL_BOOKING, eventDate: '2026-12-11', eventEndDate: '2026-12-11' });
+  assert.equal(sameDay.statusCode, 201);
+});
+
+test('a last day that cannot be right is rejected', async () => {
+  const backwards = await post(buildApp(), { ...FULL_BOOKING, eventDate: '2026-12-13', eventEndDate: '2026-12-11' });
+  assert.equal(backwards.statusCode, 400);
+
+  const tooLong = await post(buildApp(), { ...FULL_BOOKING, eventDate: '2026-12-01', eventEndDate: '2026-12-31' });
+  assert.equal(tooLong.statusCode, 400);
+
+  const { eventDate, ...noFirstDay } = FULL_BOOKING;
+  const lastOnly = await post(buildApp(), { ...noFirstDay, eventEndDate: '2026-12-13' });
+  assert.equal(lastOnly.statusCode, 400);
+
+  const notADate = await post(buildApp(), { ...FULL_BOOKING, eventEndDate: 'next Friday' });
+  assert.equal(notADate.statusCode, 400);
+});

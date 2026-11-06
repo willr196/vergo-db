@@ -126,7 +126,14 @@ test('the old /apply URL goes to the worker application form', async () => {
 test('legacy redirects keep the query string', async () => {
   const res = await inject(app, { method: 'GET', url: '/user-login?verified=true' });
   assert.equal(res.statusCode, 301);
-  assert.equal(res.headers.location, '/work?verified=true');
+  assert.equal(res.headers.location, '/staff/login?verified=true');
+});
+
+test('a reset link from an older email reaches the set-password page with its token', async () => {
+  const token = 'a'.repeat(64);
+  const res = await inject(app, { method: 'GET', url: `/reset-password?token=${token}` });
+  assert.equal(res.statusCode, 301);
+  assert.equal(res.headers.location, `/staff/set-password?token=${token}`);
 });
 
 test('job links from old alert emails land on /work', async () => {

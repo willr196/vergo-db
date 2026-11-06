@@ -1,0 +1,36 @@
+<%/* /staff/documents: the worker's Key Information Document and employment
+     agreement, to read, confirm and agree, plus assignment confirmations.
+     The same API as the app (/api/v1/user/documents), recorded as done on
+     the website. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "My Documents | VERGO Staffing",
+    "description": "Your VERGO employment documents.",
+    "ogImage": "/images/og/work.jpg",
+    "robots": "noindex",
+    "canonical": "/staff/documents"
+  },
+  scripts: ["/pages/js/staff-common.js", "/pages/js/staff-documents.js"],
+  header: {"focused":"1","back":"/work","label":"← Back to work with us"}
+}) %>
+    <%~ include('/partials/staff-nav', { current: 'documents' }) %>
+    <section class="page-hero-plain shell-form">
+      <span class="eyebrow">Staff</span>
+      <h1>My documents</h1>
+      <p class="lede">Read your Key Information Document first, then your employment agreement. We need both before your first shift.</p>
+    </section>
+
+    <section class="section-tight shell-form">
+      <div class="form-status" id="docsStatus" role="status" hidden></div>
+      <ul class="staff-list" id="docList"></ul>
+      <p class="staff-empty" id="docsEmpty" hidden>Nothing to sign yet. We send your documents once you are on the team.</p>
+
+      <div id="reader" class="staff-section" hidden>
+        <h2 id="readerTitle">Document</h2>
+        <div class="staff-doc-body" id="readerBody" tabindex="0"></div>
+        <form id="readerForm" novalidate></form>
+      </div>
+
+      <h2 class="staff-subhead" id="confirmationsHeading" hidden>Shift confirmations</h2>
+      <ul class="staff-list" id="confirmationList"></ul>
+    </section>

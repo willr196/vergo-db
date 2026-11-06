@@ -82,6 +82,9 @@ export function CreateQuoteScreen({ navigation }: Props) {
   const info = useClientInfo();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventDate, setEventDate] = useState<Date>(tomorrow);
+  // A run of days at the same times and staff: a conference, a festival weekend.
+  const [multiDay, setMultiDay] = useState(false);
+  const [eventEndDate, setEventEndDate] = useState<Date>(tomorrow);
   const [formData, setFormData] = useState<CreateQuoteRequest>({
     eventType: '',
     eventDate: '',
@@ -139,6 +142,9 @@ export function CreateQuoteScreen({ navigation }: Props) {
     if (errors.location) return 'Please enter a location';
     if (formData.staffCount < 1) return 'Please enter the number of staff needed';
     if (errors.roles) return 'Please select at least one role';
+    if (multiDay && toDateOnly(eventEndDate) <= toDateOnly(eventDate)) {
+      return 'The last day needs to be after the first. For one day, pick "One day".';
+    }
     for (const t of [formData.shiftStart, formData.shiftEnd]) {
       if (t && !TIME_PATTERN.test(t.trim())) return 'Enter times as 24-hour HH:MM, e.g. 18:00';
     }
@@ -166,6 +172,7 @@ export function CreateQuoteScreen({ navigation }: Props) {
       await clientApi.createQuote({
         ...formData,
         eventDate: toDateOnly(eventDate),
+        eventEndDate: multiDay ? toDateOnly(eventEndDate) : undefined,
         shiftStart: formData.shiftStart?.trim() || undefined,
         shiftEnd: formData.shiftEnd?.trim() || undefined,
         roles: selectedRoles.join(', '),
@@ -265,13 +272,56 @@ export function CreateQuoteScreen({ navigation }: Props) {
 
           {/* Event Date */}
           <View style={styles.section}>
+            <View style={styles.dayCountRow}>
+              {[false, true].map((multi) => (
+                <TouchableOpacity
+                  key={multi ? 'multi' : 'one'}
+                  style={[styles.roleChip, multiDay === multi && styles.roleChipActive]}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: multiDay === multi }}
+                  onPress={() => {
+                    setMultiDay(multi);
+                    // Start the last day off the day after the first, so the
+                    // range is valid before they touch it.
+                    if (multi && toDateOnly(eventEndDate) <= toDateOnly(eventDate)) {
+                      const next = new Date(eventDate);
+                      next.setDate(next.getDate() + 1);
+                      setEventEndDate(next);
+                    }
+                  }}
+                >
+                  <Text style={[styles.roleChipText, multiDay === multi && styles.roleChipTextActive]}>
+                    {multi ? 'More than one day' : 'One day'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
             <DateTimePickerInput
-              label="Date *"
+              label={multiDay ? 'First day *' : 'Date *'}
               value={eventDate}
               mode="date"
-              onChange={setEventDate}
+              onChange={(date) => {
+                setEventDate(date);
+                // Moving the first day past the last drags the last day along.
+                if (multiDay && toDateOnly(eventEndDate) <= toDateOnly(date)) {
+                  const next = new Date(date);
+                  next.setDate(next.getDate() + 1);
+                  setEventEndDate(next);
+                }
+              }}
               minimumDate={new Date()}
             />
+            {multiDay && (
+              <DateTimePickerInput
+                label="Last day *"
+                value={eventEndDate}
+                mode="date"
+                onChange={setEventEndDate}
+                minimumDate={eventDate}
+                hint="Same times and staff each day. If a day is different, say so in the details below."
+                containerStyle={styles.lastDay}
+              />
+            )}
           </View>
 
           {/* City */}
@@ -615,6 +665,14 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     borderWidth: 1,
     borderColor: 'transparent',
+  },
+  dayCountRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  lastDay: {
+    marginTop: spacing.md,
   },
   rolesGridError: {
     borderColor: colors.error,

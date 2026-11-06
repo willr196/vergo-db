@@ -116,8 +116,15 @@ test('admin jobs list returns pending external submissions for the admin UI', as
   const prismaAny = prisma as any;
   const originalFindMany = prismaAny.job.findMany;
   const originalCount = prismaAny.job.count;
+  const originalQueryRaw = prismaAny.$queryRaw;
   let receivedWhere: any = null;
+  let orderingSql = '';
 
+  // The date ordering and the filters run in one SQL query that returns ids.
+  prismaAny.$queryRaw = async (strings: TemplateStringsArray, ...values: any[]) => {
+    orderingSql = strings.join('?') + ' ' + JSON.stringify(values);
+    return [{ id: 'job-external' }];
+  };
   prismaAny.job.findMany = async ({ where }: any) => {
     receivedWhere = where;
     return [
@@ -138,12 +145,14 @@ test('admin jobs list returns pending external submissions for the admin UI', as
     assert.equal(response.statusCode, 200);
     const body = JSON.parse(response.body || '{}') as any;
     assert.equal(body.ok, true);
-    assert.equal(receivedWhere.status, 'PENDING');
+    assert.match(orderingSql, /PENDING/, 'the status filter reaches the ordering query');
+    assert.deepEqual(receivedWhere.id.in, ['job-external']);
     assert.equal(body.data.jobs[0].status, 'PENDING');
     assert.equal(body.data.pagination.total, 1);
   } finally {
     prismaAny.job.findMany = originalFindMany;
     prismaAny.job.count = originalCount;
+    prismaAny.$queryRaw = originalQueryRaw;
   }
 });
 

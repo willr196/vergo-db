@@ -122,6 +122,10 @@ test('runs and picked dates are one job per day', async () => {
   const run = ok(await call('POST', '/jobs', { title: 'Weekday lunches', date: inDays(1), endDate: inDays(14), repeatDays: [1, 2, 3, 4, 5], startTime: '11:00', endTime: '15:00', chargeRate: 17 }), 201);
   assert.ok(run.run.created >= 9 && run.run.created <= 10);
   const days = ok(await call('GET', `/jobs?from=${inDays(1)}&to=${inDays(14)}`));
+  // Every day's id comes back, first day first, so a caller can crew the whole run.
+  assert.equal(run.run.jobIds.length, run.run.created);
+  assert.equal(run.run.jobIds[0], run.id);
+  assert.deepEqual(new Set(run.run.jobIds), new Set(days.map((j: any) => j.id)));
   assert.ok(days.every((j: any) => ![0, 6].includes(new Date(j.date).getUTCDay())), 'weekdays only');
   ok(await call('PATCH', `/jobs/${run.id}?applyToRun=true`, { startTime: '11:30' }));
   assert.ok(ok(await call('GET', `/jobs?from=${inDays(1)}&to=${inDays(14)}`)).every((j: any) => j.startTime === '11:30'));

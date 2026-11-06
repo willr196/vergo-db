@@ -1,0 +1,25 @@
+<%/* /staff/applications: the jobs the signed-in worker applied for, from
+     /api/v1/job-applications/mine, with Withdraw while still undecided. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "My Applications | VERGO Staffing",
+    "description": "Jobs you have applied for at VERGO.",
+    "ogImage": "/images/og/work.jpg",
+    "robots": "noindex",
+    "canonical": "/staff/applications"
+  },
+  scripts: ["/pages/js/staff-common.js", "/pages/js/staff-applications.js"],
+  header: {"focused":"1","back":"/work","label":"← Back to work with us"}
+}) %>
+    <%~ include('/partials/staff-nav', { current: 'applications' }) %>
+    <section class="page-hero-plain shell-form">
+      <span class="eyebrow">Staff</span>
+      <h1>Applications</h1>
+      <p class="lede">The jobs you have applied for and where each one stands.</p>
+    </section>
+
+    <section class="section-tight shell-form">
+      <div class="form-status" id="applicationsStatus" role="status" hidden></div>
+      <ul class="staff-list" id="applicationList"></ul>
+      <p class="staff-empty" id="applicationsEmpty" hidden>No applications yet. Find work on the <a href="/staff/jobs">job board</a>.</p>
+    </section>

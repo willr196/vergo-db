@@ -10,7 +10,7 @@ import {
   getTokenExpiresAt,
   hashToken,
 } from '../utils/jwt';
-import { requireUserJwt, requireClientJwt } from '../middleware/jwtAuth';
+import { requireUserJwt, requireUserJwtOrSession, requireClientJwt } from '../middleware/jwtAuth';
 
 const r = Router();
 
@@ -48,7 +48,11 @@ const createClientBriefSchema = z.object({
   shiftEnd: z.string().max(10).trim().optional(),
   description: z.string().max(2000).trim().optional(),
   budget: z.string().max(100).trim().optional(),
-});
+}).refine(
+  // A multi-day brief: the last day needs a first, and can't come before it.
+  (d) => !d.eventEndDate || (!!d.eventDate && Date.parse(d.eventEndDate) >= Date.parse(d.eventDate)),
+  { path: ['eventEndDate'], message: "The last day can't be before the first" }
+);
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -751,7 +755,7 @@ function toDateOnly(dateStr: string): Date {
 }
 
 // GET /api/v1/web/worker/availability
-r.get('/worker/availability', requireUserJwt, async (req, res, next) => {
+r.get('/worker/availability', requireUserJwtOrSession, async (req, res, next) => {
   try {
     const windows = await prisma.availability.findMany({
       where: { userId: req.auth!.userId },
@@ -763,7 +767,7 @@ r.get('/worker/availability', requireUserJwt, async (req, res, next) => {
 });
 
 // POST /api/v1/web/worker/availability
-r.post('/worker/availability', requireUserJwt, async (req, res, next) => {
+r.post('/worker/availability', requireUserJwtOrSession, async (req, res, next) => {
   try {
     const parsed = availabilityBody.safeParse(req.body);
     if (!parsed.success) {
@@ -795,7 +799,7 @@ r.post('/worker/availability', requireUserJwt, async (req, res, next) => {
 });
 
 // DELETE /api/v1/web/worker/availability/:id
-r.delete('/worker/availability/:id', requireUserJwt, async (req, res, next) => {
+r.delete('/worker/availability/:id', requireUserJwtOrSession, async (req, res, next) => {
   try {
     const existing = await prisma.availability.findUnique({
       where: { id: req.params.id },

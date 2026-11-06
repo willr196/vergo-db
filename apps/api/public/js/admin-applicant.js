@@ -894,7 +894,7 @@
   async function sendRosterLoginEmail(appId) {
     var app = findApplication(appId);
     var applicantName = app ? (app.firstName + ' ' + app.lastName).trim() : 'this applicant';
-    if (!confirm('Send a login email with a new temporary password to ' + applicantName + '?')) return;
+    if (!confirm('Send ' + applicantName + ' their login email? It has a link to set their own password (valid for 7 days), and adds them to Ops > Workers.')) return;
 
     try {
       var result = await fetch_('/api/v1/applications/' + appId + '/roster-approval-email', {

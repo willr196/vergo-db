@@ -34,6 +34,7 @@ import bookings from './routes/bookings';
 import mobileJobs from './routes/mobileJobs';
 import mobileJobApplications from './routes/mobileJobApplications';
 import mobileShifts from './routes/mobileShifts';
+import staffReadiness from './routes/staffReadiness';
 import mobileDocuments from './routes/mobileDocuments';
 import mobileClient from './routes/mobileClient';
 import mobileMarketplace from './routes/mobileMarketplace';
@@ -593,6 +594,10 @@ app.use('/api/v1/document-links', documentLinkApi);
 // Admin pages that were removed: a bookmark lands on the Inbox.
 app.get(['/admin-analytics', '/admin-marketplace'], (_req, res) => res.redirect(302, '/admin-requests'));
 
+// The website's staff pages read shifts on their session; same router as the app.
+app.use('/api/v1/user/shifts', mobileShifts);
+app.use('/api/v1/user/documents', mobileDocuments);
+app.use('/api/v1/user/readiness', staffReadiness);
 app.use('/api/v1/user', userAuth);
 
 // Applications API
@@ -721,10 +726,12 @@ export const LEGACY_REDIRECTS: Record<string, string> = {
   '/apply': '/work/apply',
   '/jobs': '/work',
   '/job-detail': '/work',
-  '/user-login': '/work',
+  '/user-login': '/staff/login',
   '/user-register': '/work',
-  '/user-dashboard': '/work',
-  '/dashboard-worker': '/work',
+  '/user-dashboard': '/staff',
+  '/dashboard-worker': '/staff',
+  // Password reset links in emails sent before the staff pages existed.
+  '/reset-password': '/staff/set-password',
   '/onboarding': '/work',
 
   // Client portal, removed with the web portal.

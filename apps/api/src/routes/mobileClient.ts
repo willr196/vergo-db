@@ -34,7 +34,11 @@ const createQuoteSchema = z.object({
   shiftEnd: z.string().max(10).optional(),
   description: z.string().max(2000).optional(),
   budget: z.string().max(100).optional()
-});
+}).refine(
+  // A multi-day request: the last day needs a first, and can't come before it.
+  (d) => !d.eventEndDate || (!!d.eventDate && Date.parse(d.eventEndDate) >= Date.parse(d.eventDate)),
+  { path: ['eventEndDate'], message: "The last day can't be before the first" }
+);
 
 const escapeHtml = (value: unknown) =>
   String(value ?? '')

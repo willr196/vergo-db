@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthSubjectType, verifyAccessToken } from '../utils/jwt';
+import { requireUser } from './userAuth';
 
 type AuthInfo = {
   userId: string;
@@ -54,6 +55,19 @@ function requireJwt(req: Request, res: Response, next: NextFunction, expectedTyp
 
 export function requireUserJwt(req: Request, res: Response, next: NextFunction) {
   return requireJwt(req, res, next, 'user');
+}
+
+/**
+ * A worker from either door: the app's bearer token, or the website's staff
+ * session (vergo.sid, SameSite=Strict). A request carrying a token is judged
+ * on the token alone. Either way the route reads req.auth.userId.
+ */
+export function requireUserJwtOrSession(req: Request, res: Response, next: NextFunction) {
+  if (req.headers.authorization) return requireJwt(req, res, next, 'user');
+  return requireUser(req, res, () => {
+    req.auth = { userId: req.session.userId!, type: 'user', email: req.session.userEmail };
+    next();
+  });
 }
 
 export function requireClientJwt(req: Request, res: Response, next: NextFunction) {

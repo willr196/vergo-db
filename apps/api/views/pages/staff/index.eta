@@ -1,0 +1,40 @@
+<%/* /staff: the signed-in worker's overview. A static shell (cacheable like
+     every other page); staff-overview.js checks the session and fills it, or
+     sends them to /staff/login. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Your Account | VERGO Staffing",
+    "description": "Your VERGO staff account.",
+    "ogImage": "/images/og/work.jpg",
+    "robots": "noindex",
+    "canonical": "/staff"
+  },
+  scripts: ["/pages/js/staff-common.js", "/pages/js/staff-overview.js"],
+  header: {"focused":"1","back":"/work","label":"← Back to work with us"}
+}) %>
+    <%~ include('/partials/staff-nav', { current: 'home' }) %>
+    <section class="page-hero-plain shell-form">
+      <span class="eyebrow">Staff</span>
+      <h1 id="overviewHeading">Your account</h1>
+      <p class="lede" id="overviewLede">Loading…</p>
+    </section>
+
+    <section class="section-tight shell-form" id="overviewBody" hidden>
+      <div class="card" id="readiness" hidden>
+        <h2 class="staff-card-title" id="readinessTitle">Ready to work</h2>
+        <p class="staff-card-text" id="readinessLede"></p>
+        <ul class="staff-checklist" id="readinessSteps"></ul>
+      </div>
+
+      <h2 class="staff-subhead">Waiting for your answer</h2>
+      <div id="offers"></div>
+
+      <h2 class="staff-subhead">Your next shift</h2>
+      <div id="nextShift"></div>
+
+      <h2 class="staff-subhead">Your applications</h2>
+      <div id="applicationsSummary"></div>
+
+      <h2 class="staff-subhead">New on the job board</h2>
+      <div id="newJobs"></div>
+    </section>

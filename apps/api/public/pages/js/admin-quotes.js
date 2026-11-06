@@ -86,7 +86,7 @@
     }
     tbody.innerHTML = rows.map(function (q) {
       var client = q.client || {};
-      var eventDate = q.eventDate ? fmtD(q.eventDate) : '-';
+      var eventDate = q.eventDate ? fmtD(q.eventDate) + (q.eventEndDate ? ' to ' + fmtD(q.eventEndDate) : '') : '-';
       var amount = q.quotedAmount ? '£' + Number(q.quotedAmount).toLocaleString('en-GB') : '-';
       return '<tr>'
         + '<td><strong>' + esc(client.companyName || '-') + '</strong>'
@@ -145,7 +145,7 @@
         + '<div class="detail-grid mb-2">'
         + '<div class="detail-row"><span class="detail-label">Event Type</span><span class="detail-value">' + esc(q.eventType || '-') + '</span></div>'
         + '<div class="detail-row"><span class="detail-label">Requested Lane</span><span class="detail-value">' + esc(q.requestedLane || '-') + '</span></div>'
-        + '<div class="detail-row"><span class="detail-label">Event Date</span><span class="detail-value">' + (q.eventDate ? fmtD(q.eventDate) : '-') + '</span></div>'
+        + '<div class="detail-row"><span class="detail-label">' + (q.eventEndDate ? 'Event Dates' : 'Event Date') + '</span><span class="detail-value">' + (q.eventDate ? fmtD(q.eventDate) + (q.eventEndDate ? ' to ' + fmtD(q.eventEndDate) : '') : '-') + '</span></div>'
         + '<div class="detail-row"><span class="detail-label">City</span><span class="detail-value">' + esc(q.city || '-') + '</span></div>'
         + '<div class="detail-row"><span class="detail-label">Location</span><span class="detail-value">' + esc(q.location || '-') + '</span></div>'
         + '<div class="detail-row"><span class="detail-label">Venue</span><span class="detail-value">' + esc(q.venue || '-') + '</span></div>'
@@ -242,6 +242,7 @@
           Email: q.client ? q.client.email : '',
           EventType: q.eventType,
           EventDate: q.eventDate ? fmtD(q.eventDate) : '',
+          LastDay: q.eventEndDate ? fmtD(q.eventEndDate) : '',
           City: q.city || '',
           Location: q.location,
           StaffCount: q.staffCount,

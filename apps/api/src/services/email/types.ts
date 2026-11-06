@@ -59,7 +59,8 @@ export type EmailType =
   | 'job-invite'
   | 'booking-review-request'
   // VERGO Ops documents
-  | 'document-link';
+  | 'document-link'
+  | 'staff-login-invite';
 
 export interface EmailTemplateData {
   // Common fields

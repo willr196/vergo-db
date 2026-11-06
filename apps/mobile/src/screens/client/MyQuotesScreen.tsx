@@ -129,7 +129,10 @@ export function MyQuotesScreen({ navigation }: Props) {
 
           <View style={styles.detailRow}>
             <Text style={styles.detailIcon}>📅</Text>
-            <Text style={styles.detailText}>{formatDate(item.eventDate)}</Text>
+            <Text style={styles.detailText}>
+              {formatDate(item.eventDate)}
+              {item.eventDate && item.eventEndDate ? ` to ${formatDate(item.eventEndDate)}` : ''}
+            </Text>
           </View>
 
           <View style={styles.detailRow}>

@@ -69,6 +69,19 @@ const preferredJobTypeValues = [
 
 const preferredJobTypeSchema = z.enum(preferredJobTypeValues);
 
+/** The roles a worker can pick on /staff: the same names as the apply form
+ *  (views/pages/work/apply.eta), so what they applied with ticks the boxes. */
+export const STAFF_ROLE_OPTIONS = [
+  "Waiting staff",
+  "Bar staff",
+  "Kitchen porters",
+  "Runners",
+  "Hosts and front of house",
+  "Chefs and cooks",
+  "Cleaners",
+  "Security",
+] as const;
+
 const webProfileSchema = z.object({
   firstName: z.string().min(1).max(100).trim().optional(),
   lastName: z.string().min(1).max(100).trim().optional(),
@@ -82,6 +95,14 @@ const webProfileSchema = z.object({
   preferredJobTypes: z.array(preferredJobTypeSchema).max(preferredJobTypeValues.length).optional(),
   experienceSummary: z.string().max(500).optional(),
   staffAvailable: z.boolean().optional(),
+  // Staff only: kept on WorkerProfile, which Ops reads.
+  emergencyContactName: z.string().max(120).trim().optional(),
+  emergencyContactPhone: z.string().max(40).trim().optional(),
+  roles: z.array(z.enum(STAFF_ROLE_OPTIONS)).max(STAFF_ROLE_OPTIONS.length).optional(),
+  // Staff only: WorkerProfile.availabilityNotes, the "Availability notes" in Ops.
+  availability: z.string().max(1000).trim().optional(),
+  // Taking work, limited, or not taking work right now. The app's switch.
+  availabilityStatus: z.enum(["AVAILABLE", "LIMITED", "UNAVAILABLE"]).optional(),
 });
 
 const changePasswordSchema = z.object({
@@ -198,6 +219,10 @@ async function getWebProfileRecord(
       staffAvatar: true,
       staffBio: true,
       staffAvailable: true,
+      availabilityStatus: true,
+      workerProfile: {
+        select: { emergencyContactName: true, emergencyContactPhone: true, roles: true, availabilityNotes: true },
+      },
       applicant: {
         select: {
           id: true,
@@ -208,11 +233,15 @@ async function getWebProfileRecord(
           postcode: true,
           preferredJobTypes: true,
           bio: true,
+          availability: true,
           yearsExperience: true,
           applications: {
+            // Newest first, so the experience they gave most recently wins.
+            orderBy: { createdAt: "desc" },
             select: {
               roles: {
                 select: {
+                  experienceLevel: true,
                   role: {
                     select: {
                       name: true,
@@ -250,6 +279,25 @@ function shapeWebUserProfile(user: NonNullable<Awaited<ReturnType<typeof getWebP
     yearsExperience: user.applicant?.yearsExperience ?? null,
     staffAvailable: user.staffAvailable ?? false,
     registeredRoles,
+    /** True for someone on the VERGO staff list (they have an Ops record). */
+    isStaff: !!user.workerProfile,
+    emergencyContactName: user.workerProfile?.emergencyContactName || "",
+    emergencyContactPhone: user.workerProfile?.emergencyContactPhone || "",
+    /** What they work as: their staff record's roles once set, until then the
+     *  roles they applied with. Same rule Ops uses for the Roles column. */
+    roles: user.workerProfile?.roles?.length ? user.workerProfile.roles : registeredRoles,
+    roleOptions: [...STAFF_ROLE_OPTIONS],
+    /** The experience they gave for each role when they applied ("1-2 years"). */
+    roleExperience: (user.applicant?.applications || []).reduce<Record<string, string>>((acc, application) => {
+      application.roles.forEach((r) => {
+        if (r.experienceLevel && !acc[r.role.name]) acc[r.role.name] = r.experienceLevel;
+      });
+      return acc;
+    }, {}),
+    /** When they can work: their staff record's note once set, until then what
+     *  they wrote on the application. */
+    availability: user.workerProfile?.availabilityNotes || user.applicant?.availability || "",
+    availabilityStatus: user.availabilityStatus,
   };
 }
 
@@ -1368,11 +1416,41 @@ r.put("/profile", requireUser, async (req, res) => {
       if (input.staffAvailable !== undefined) {
         userUpdateData.staffAvailable = input.staffAvailable;
       }
+      if (input.availabilityStatus !== undefined) {
+        // staffAvailable mirrors it, as in the app: matching still reads the boolean.
+        userUpdateData.availabilityStatus = input.availabilityStatus;
+        userUpdateData.staffAvailable = input.availabilityStatus === "AVAILABLE";
+      }
 
       if (Object.keys(userUpdateData).length > 0) {
         await tx.user.update({
           where: { id: userId },
           data: userUpdateData,
+        });
+      }
+
+      // Roles from the website replace only the options the page offers; any
+      // other role Ops gave them ("Supervisor", say) stays on their record.
+      if (input.roles !== undefined) {
+        const staffRecord = await tx.workerProfile.findUnique({ where: { userId }, select: { roles: true } });
+        if (staffRecord) {
+          const offered = new Set<string>(STAFF_ROLE_OPTIONS);
+          const kept = staffRecord.roles.filter((role) => !offered.has(role));
+          const picked = STAFF_ROLE_OPTIONS.filter((role) => input.roles!.includes(role));
+          await tx.workerProfile.update({ where: { userId }, data: { roles: [...picked, ...kept] } });
+        }
+      }
+
+      // Only ever updates an existing staff record: creating a WorkerProfile
+      // here would put anyone with an app login onto the Ops staff list.
+      if (input.emergencyContactName !== undefined || input.emergencyContactPhone !== undefined || input.availability !== undefined) {
+        await tx.workerProfile.updateMany({
+          where: { userId },
+          data: {
+            ...(input.emergencyContactName !== undefined && { emergencyContactName: input.emergencyContactName || null }),
+            ...(input.emergencyContactPhone !== undefined && { emergencyContactPhone: input.emergencyContactPhone || null }),
+            ...(input.availability !== undefined && { availabilityNotes: input.availability || null }),
+          },
         });
       }
 
@@ -1767,6 +1845,11 @@ r.post("/reset-password", resetPasswordLimiter, async (req, res) => {
         resetToken: null,
         resetTokenExp: null,
         mustChangePassword: false,
+        // The link came to their inbox, so the address is proven. Staff added
+        // in Ops are never sent the separate verification email.
+        emailVerified: true,
+        verifyToken: null,
+        verifyTokenExp: null,
         failedAttempts: 0,
         lockedUntil: null
       }

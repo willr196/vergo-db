@@ -39,6 +39,10 @@
   var updateBtn = document.getElementById('estimateUpdate');
   var nextDayEl = document.getElementById('shiftEndsNextDay');
   var shiftSummaryEl = document.getElementById('shiftSummary');
+  var multiDayEl = document.getElementById('multiDay');
+  var endDateField = document.getElementById('eventEndDateField');
+  var captionEl = document.getElementById('estimateCaption');
+  var MAX_DAYS = 30;
 
   // What has to be there before we will take a booking. Order matters — it
   // decides which field we scroll to when something is missing. Headcount is not
@@ -126,6 +130,53 @@
     return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
   }
 
+  function isoDate(value) {
+    return /^\d{4}-\d{2}-\d{2}$/.test(value || '') ? value : null;
+  }
+
+  function addDaysIso(iso, n) {
+    var parts = iso.split('-').map(Number);
+    var d = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2] + n));
+    return d.toISOString().slice(0, 10);
+  }
+
+  function multiDay() {
+    return !!(multiDayEl && multiDayEl.checked);
+  }
+
+  /** First to last day counting both, or null when the range is not usable yet
+   *  (no first day, no last day, or the last day before the first). */
+  function rangeDays() {
+    if (!multiDay()) return null;
+    var start = isoDate(form.elements.eventDate.value);
+    var end = isoDate(form.elements.eventEndDate.value);
+    if (!start || !end) return null;
+    var days = Math.round((Date.parse(end) - Date.parse(start)) / 86400000) + 1;
+    return days >= 1 ? days : null;
+  }
+
+  /** Every date the staff are wanted on. One entry (possibly blank) for a
+   *  single day, so a missing date still prices as one shift. Capped, so a
+   *  mistyped year can't loop the page through a decade of days. */
+  function eventDates() {
+    var first = form.elements.eventDate.value;
+    var days = rangeDays();
+    if (!days || days < 2) return [first];
+    var dates = [];
+    for (var i = 0; i < Math.min(days, MAX_DAYS); i++) dates.push(addDaysIso(first, i));
+    return dates;
+  }
+
+  /** Shows the last-day field only once they say it runs over more than one
+   *  day, and stops the picker offering days before the first. */
+  function syncMultiDay() {
+    if (!endDateField) return;
+    endDateField.hidden = !multiDay();
+    var first = isoDate(form.elements.eventDate.value);
+    if (first) form.elements.eventEndDate.min = first;
+    else form.elements.eventEndDate.removeAttribute('min');
+  }
+
   /** Spells the shift back out, so an overnight reads as two dates rather than a
    *  pair of times the client has to work out for themselves. */
   function renderShiftSummary() {
@@ -158,9 +209,15 @@
       text = start + ' → ' + end + (nextDay ? ' the next day' : '');
     }
 
+    var days = rangeDays();
+    if (days > 1) {
+      text = start + ' → ' + end + (nextDay ? ' the next day' : '') + ', every day from ' +
+        formatDay(form.elements.eventDate.value, 0) + ' to ' + formatDay(form.elements.eventEndDate.value, 0);
+    }
+
     shiftSummaryEl.hidden = false;
     shiftSummaryEl.dataset.state = nextDay ? 'overnight' : 'ok';
-    shiftSummaryEl.textContent = text + ' · ' + formatHours(hours) + ' on shift';
+    shiftSummaryEl.textContent = text + ' · ' + formatHours(hours) + ' on shift' + (days > 1 ? ' a day' : '');
   }
 
   /** Ticks the next-day box the first time the times imply it. Once the client
@@ -221,23 +278,66 @@
     };
     if (!rates) { base.unavailable = true; base.complete = false; return base; }
 
-    var quote = window.VergoQuoteCalc.quoteShift({
-      start: form.elements.shiftStart.value,
-      end: form.elements.shiftEnd.value,
-      finishesNextDay: nextDay,
-      date: form.elements.eventDate.value,
-      level: base.level,
-      staff: counts.map(function (entry) {
-        return { role: entry.role, count: entry.count, senior: entry.kind === 'senior' };
-      })
-    }, rates);
+    // One shift per day, each priced on its own date: New Year's Eve carries
+    // its own uplift, so the days of a run are not always the same price.
+    var staff = counts.map(function (entry) {
+      return { role: entry.role, count: entry.count, senior: entry.kind === 'senior' };
+    });
+    var shifts = eventDates().map(function (date) {
+      return window.VergoQuoteCalc.quoteShift({
+        start: form.elements.shiftStart.value,
+        end: form.elements.shiftEnd.value,
+        finishesNextDay: nextDay,
+        date: date,
+        level: base.level,
+        staff: staff
+      }, rates);
+    });
+    var quote = shifts[0] ? sumShifts(shifts) : null;
+    base.days = shifts.length;
 
     base.rates = rates;
     base.quote = quote;
-    base.complete = Boolean(quote) && staffCount > 0;
+    // Ticked for more than one day but no usable last day yet: a one-day figure
+    // here would read as the price of the whole run, so hold it back.
+    base.complete = Boolean(quote) && staffCount > 0 && !(multiDay() && !rangeDays());
     base.billableCount = quote ? quote.pricedPeople : 0;
     base.total = base.complete ? quote.total : 0;
     return base;
+  }
+
+  /** Adds up the day-by-day quotes. Per-shift figures (rate, minutes billed a
+   *  day, headcount) come from the first day; money and uplift minutes are totals. */
+  function sumShifts(shifts) {
+    var first = shifts[0];
+    var out = {
+      rate: first.rate,
+      workedMinutes: first.workedMinutes,
+      billedMinutes: first.billedMinutes,
+      pricedPeople: first.pricedPeople,
+      seniorPeople: first.seniorPeople,
+      afterMidnightMinutes: 0,
+      newYearsEveMinutes: 0,
+      base: 0,
+      uplift: 0,
+      total: 0
+    };
+    shifts.forEach(function (q) {
+      out.afterMidnightMinutes += q.afterMidnightMinutes;
+      out.newYearsEveMinutes += q.newYearsEveMinutes;
+      out.base += q.base;
+      out.uplift += q.uplift;
+      out.total += q.total;
+    });
+    ['base', 'uplift', 'total'].forEach(function (k) { out[k] = Math.round(out[k] * 100) / 100; });
+    return out;
+  }
+
+  function setCaption(days) {
+    if (!captionEl) return;
+    captionEl.textContent = days > 1
+      ? 'Total for all ' + days + ' days, all priced staff'
+      : 'Total for the shift, all priced staff';
   }
 
   function note(text) {
@@ -249,6 +349,7 @@
   function showPrompt(text) {
     panel.dataset.state = 'empty';
     totalEl.textContent = '—';
+    setCaption(Math.min(rangeDays() || 1, MAX_DAYS));
     breakdownEl.hidden = true;
     notesEl.textContent = '';
     notesEl.appendChild(note(text));
@@ -259,6 +360,7 @@
    *  repeating the same sentence whatever is missing. */
   function missingForEstimate() {
     var gaps = [];
+    if (multiDay() && !rangeDays()) gaps.push('the last day');
     if (!form.elements.shiftStart.value) gaps.push('a start time');
     if (!form.elements.shiftEnd.value) gaps.push('an end time');
     if (!roleCounts().length) gaps.push('how many of each role you need');
@@ -299,10 +401,17 @@
     panel.dataset.state = 'ready';
     totalEl.textContent = money(q.total);
     breakdownEl.hidden = false;
-    baseLabelEl.textContent = plural(q.pricedPeople, 'person', 'people') + ' × ' + formatHours(billedHours) + ' × ' + money(q.rate);
+    var days = result.days;
+    setCaption(days);
+    baseLabelEl.textContent = plural(q.pricedPeople, 'person', 'people') + ' × ' + formatHours(billedHours) + ' × ' + money(q.rate) +
+      (days > 1 ? ' × ' + days + ' days' : '');
     baseEl.textContent = money(q.base);
     upliftRowEl.hidden = !q.afterMidnightMinutes && !q.newYearsEveMinutes;
-    if (q.newYearsEveMinutes) {
+    if (q.newYearsEveMinutes && q.afterMidnightMinutes) {
+      // A run that takes in New Year's Eve and other late nights carries both.
+      upliftLabelEl.textContent = 'New Year\'s Eve and after-midnight uplifts';
+      upliftEl.textContent = money(q.uplift);
+    } else if (q.newYearsEveMinutes) {
       upliftLabelEl.textContent = '+' + Math.round((rates.newYearsEveMultiplier - 1) * 100) + '% on ' +
         formatHours(q.newYearsEveMinutes / 60) + ' of New Year\'s Eve';
       upliftEl.textContent = money(q.uplift);
@@ -329,6 +438,9 @@
     }
     if (result.hasOther) {
       notesEl.appendChild(note('"Something else" is estimated at this rate until we confirm the role.'));
+    }
+    if (days > 1) {
+      notesEl.appendChild(note('Priced as the same times and staff every day. Tell us below if any day is different.'));
     }
     notesEl.appendChild(note('An estimate, not an invoice. We confirm the figure before anything is charged.'));
   }
@@ -408,6 +520,10 @@
           missing.push(field.label);
         }
       });
+      if (multiDay() && !form.elements.eventEndDate.value) {
+        markInvalid('eventEndDate', 'Needed to book, or untick "More than one day".');
+        missing.push('the last day');
+      }
       if (!roleCounts().length) {
         markRolesInvalid('Put a number next to at least one role.');
         missing.push('how many staff you need, by role');
@@ -415,6 +531,8 @@
       if (missing.length) {
         return 'To book we still need ' + missing.join(', ') + '.';
       }
+      var rangeProblem = checkRange();
+      if (rangeProblem) return rangeProblem;
       if (!looksLikeEmail(email)) {
         markInvalid('email', 'Check this email address.');
         return 'That email address does not look right.';
@@ -430,6 +548,26 @@
     if (email && !looksLikeEmail(email)) {
       markInvalid('email', 'Check this email address.');
       return 'That email address does not look right.';
+    }
+    return checkRange();
+  }
+
+  /** A last day that can't be right, whichever button was pressed. Nothing to
+   *  check when the box is unticked or the last day is still blank. */
+  function checkRange() {
+    if (!multiDay() || !form.elements.eventEndDate.value) return null;
+    if (!form.elements.eventDate.value) {
+      markInvalid('eventDate', 'Add the first day too.');
+      return 'Add the first day as well as the last.';
+    }
+    var days = rangeDays();
+    if (!days) {
+      markInvalid('eventEndDate', 'This is before the first day.');
+      return 'The last day is before the first.';
+    }
+    if (days > MAX_DAYS) {
+      markInvalid('eventEndDate', 'Up to ' + MAX_DAYS + ' days at a time.');
+      return 'That is ' + days + ' days. Book up to ' + MAX_DAYS + ' at a time, or send us a message about a longer run.';
     }
     return null;
   }
@@ -452,6 +590,8 @@
       company: form.elements.company.value.trim() || undefined,
       eventType: form.elements.eventType.value || undefined,
       eventDate: form.elements.eventDate.value || undefined,
+      // Only sent for a real run: the box ticked and a last day after the first.
+      eventEndDate: rangeDays() > 1 ? form.elements.eventEndDate.value : undefined,
       city: form.elements.city.value || undefined,
       location: form.elements.venuePostcode.value.trim() || undefined,
       shiftStart: form.elements.shiftStart.value || undefined,
@@ -542,6 +682,7 @@
   function refresh() {
     try {
       syncNextDay();
+      syncMultiDay();
       renderEstimate();
     } catch (err) {
       if (window.console && console.error) console.error('[quote] estimate redraw failed', err);
@@ -571,7 +712,7 @@
         return;
       }
       if (result.complete && result.billableCount) {
-        showStatus('Estimate updated: ' + money(result.total) + ' for the shift.', 'success');
+        showStatus('Estimate updated: ' + money(result.total) + (result.days > 1 ? ' for all ' + result.days + ' days.' : ' for the shift.'), 'success');
       } else {
         var gaps = missingForEstimate();
         showStatus(

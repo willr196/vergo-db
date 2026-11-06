@@ -14,6 +14,8 @@ import {
 import { identityNumberIn } from '../../ops/compliance';
 import { dateKey, londonDateKey } from '../../ops/time';
 import { handle, fail, ymd, optionalText, dateOnly, money } from './common';
+import { issueSetPasswordLink } from '../../services/staffLogin';
+import { sendStaffLoginInviteEmail } from '../../services/email';
 
 const r = Router();
 
@@ -294,6 +296,39 @@ r.patch('/workers/:id', handle(async (req, res) => {
   });
 
   res.json({ ok: true, data: await loadWorker(user.id) });
+}));
+
+// ── Staff login ───────────────────────────────────────────────────────────
+
+/**
+ * Emails the worker a one-time link to choose their own password for the
+ * staff pages on the website. Safe to send again: a new link replaces the old
+ * one, and a worker who already signs in just gets to pick a new password.
+ */
+r.post('/workers/:id/login-invite', handle(async (req, res) => {
+  const actor = actorOf(req);
+  const worker = await loadWorker(req.params.id);
+  if (!worker) fail(404, 'Worker not found');
+  const user = await prisma.user.findUnique({ where: { id: worker.id }, select: { email: true, firstName: true } });
+  if (!user?.email || !/@/.test(user.email)) fail(400, 'This worker has no email address to send a login to. Add one first.');
+
+  const link = await issueSetPasswordLink(worker.id);
+  const sent = await sendStaffLoginInviteEmail({ to: user.email, name: user.firstName, url: link.url, expiresAt: link.expiresAt, userId: worker.id });
+  await writeAudit(actor, {
+    action: 'STAFF_LOGIN_INVITE_SENT', entityType: 'Worker', entityId: worker.id,
+    newValue: { emailSent: sent.success, expiresAt: link.expiresAt.toISOString() },
+  });
+  // The link is live either way. If the email failed, hand it to the admin to
+  // pass on (WhatsApp, text); otherwise it stays in the worker's inbox only.
+  res.json({
+    ok: true,
+    data: {
+      emailSent: sent.success,
+      sentTo: user.email,
+      expiresAt: link.expiresAt.toISOString(),
+      ...(sent.success ? {} : { emailError: sent.error || 'unknown error', path: link.path }),
+    },
+  });
 }));
 
 const overrideBody = z.object({ active: z.boolean(), reason: optionalText(500) });

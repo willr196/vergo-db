@@ -1,0 +1,18 @@
+<%/* The staff area's own tabs. include('/partials/staff-nav', { current: 'jobs' }) */%>
+<% const tabs = [
+  { key: 'home', href: '/staff', label: 'Overview' },
+  { key: 'jobs', href: '/staff/jobs', label: 'Job board' },
+  { key: 'shifts', href: '/staff/shifts', label: 'My shifts' },
+  { key: 'availability', href: '/staff/availability', label: 'Availability' },
+  { key: 'documents', href: '/staff/documents', label: 'Documents' },
+  { key: 'applications', href: '/staff/applications', label: 'Applications' },
+  { key: 'profile', href: '/staff/profile', label: 'Profile' },
+]; %>
+<nav class="staff-tabs shell" aria-label="Your staff account">
+  <ul>
+<% tabs.forEach(function (t) { %>
+    <li><a href="<%= t.href %>"<%~ t.key === it.current ? ' aria-current="page"' : '' %>><%= t.label %></a></li>
+<% }) %>
+  </ul>
+  <button type="button" class="staff-logout" data-staff-logout>Log out</button>
+</nav>

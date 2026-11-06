@@ -47,6 +47,9 @@ const baseQuoteShape = {
   // Event details
   eventType: z.string().min(2).max(100).trim().optional(),
   eventDate: z.string().optional(), // ISO date string
+  // The last day of a multi-day booking, yyyy-mm-dd. Same times and staff each
+  // day; anything that differs day to day goes in the message.
+  eventEndDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Last day must be a date").optional(),
   duration: z.number().int().min(1).max(30).optional(), // Days
   location: z.string().max(200).optional(),
   // Which of the cities we cover the event is in. The quote form asks; the
@@ -110,9 +113,45 @@ const enquirySchema = z.object({
 // The one thing an enquiry can't leave out is a way of replying to it. Checked on
 // the union rather than inside enquirySchema so both branches stay plain objects,
 // which is what z.discriminatedUnion accepts.
+/** Days from the first to the last, counting both: 12th to 14th is 3. Null when
+ *  either end is missing or not a yyyy-mm-dd date. */
+const MAX_DAYS = 30;
+function daysInRange(start: string | undefined, end: string | undefined): number | null {
+  if (!start || !end || !/^\d{4}-\d{2}-\d{2}/.test(start)) return null;
+  const a = Date.parse(`${start.slice(0, 10)}T00:00:00Z`);
+  const b = Date.parse(`${end}T00:00:00Z`);
+  if (Number.isNaN(a) || Number.isNaN(b)) return null;
+  return Math.round((b - a) / 86400000) + 1;
+}
+
+/** "Sat 12 Dec 2026" from a yyyy-mm-dd value; anything else comes back as given. */
+function dayLabel(value: string) {
+  const parsed = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T00:00:00Z`) : null;
+  if (!parsed || Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+}
+
+/** The date or dates asked for, as the emails show them. */
+function datesLabel(data: { eventDate?: string; eventEndDate?: string }) {
+  if (!data.eventDate) return undefined;
+  if (!data.eventEndDate) return data.eventDate;
+  const days = daysInRange(data.eventDate, data.eventEndDate);
+  return `${dayLabel(data.eventDate)} to ${dayLabel(data.eventEndDate)}${days ? ` (${days} days)` : ""}`;
+}
+
 const quoteRequestSchema = z
   .discriminatedUnion("intent", [bookingSchema, enquirySchema])
   .superRefine((data, ctx) => {
+    if (data.eventEndDate) {
+      const days = daysInRange(data.eventDate, data.eventEndDate);
+      if (days === null) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["eventEndDate"], message: "Give the first day as well as the last" });
+      } else if (days < 1) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["eventEndDate"], message: "The last day can't be before the first" });
+      } else if (days > MAX_DAYS) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["eventEndDate"], message: `Book up to ${MAX_DAYS} days at a time` });
+      }
+    }
     if (data.intent === "ENQUIRY" && !data.email && !data.phone) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -268,6 +307,13 @@ function normaliseQuotePayload(body: unknown) {
         : typeof raw.event_date === "string"
           ? raw.event_date
           : undefined,
+    // The same day twice is a one-day booking, so it is dropped rather than
+    // shown back to anyone as a "range".
+    eventEndDate: (() => {
+      const end = firstString(raw.eventEndDate, raw.event_end_date);
+      const start = firstString(raw.eventDate, raw.event_date);
+      return end && end !== start ? end : undefined;
+    })(),
     duration: parseNumber(raw.duration),
     location:
       typeof raw.location === "string"
@@ -328,7 +374,9 @@ async function saveWebsiteRequest(data: z.infer<typeof quoteRequestSchema>): Pro
     ["Shift", data.shiftStart || data.shiftEnd
       ? `${data.shiftStart || "?"} - ${data.shiftEnd || "?"}${data.shiftEndsNextDay ? " (next day)" : ""}`
       : undefined],
-    ["Days", data.duration],
+    // Read back by Inbox > Requests when the request goes on the board.
+    ["Last day", data.eventEndDate],
+    ["Days", data.eventEndDate ? daysInRange(data.eventDate, data.eventEndDate) ?? undefined : data.duration],
     ["Dress code", data.dressCode],
     ["Service level", data.serviceLevel === "PREMIUM" ? "Premium" : data.serviceLevel === "STANDARD" ? "Standard" : undefined],
     ["Lane", data.requestedLane],
@@ -397,8 +445,10 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       phone: data.phone || "Not provided",
       company: data.company || "Not provided",
       eventType: data.eventType,
-      eventDate: data.eventDate || "Flexible",
-      duration: data.duration ? `${data.duration} day(s)` : "Not specified",
+      eventDate: datesLabel(data) || "Flexible",
+      duration: data.eventEndDate
+        ? `${daysInRange(data.eventDate, data.eventEndDate)} days, same times each day`
+        : data.duration ? `${data.duration} day(s)` : "Not specified",
       location: data.location || "TBC",
       city: data.city || "Not specified",
       venue: data.venue || "Not provided",
@@ -437,7 +487,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       try {
         const sent = await sendQuoteNotificationEmail({
           subject: isBooking
-            ? `BOOKING REQUEST${data.city ? ` (${data.city})` : ""}: ${data.eventType} — ${data.staffNeeded} staff${data.eventDate ? ` on ${data.eventDate}` : ""}`
+            ? `BOOKING REQUEST${data.city ? ` (${data.city})` : ""}: ${data.eventType} — ${data.staffNeeded} staff${data.eventDate ? ` on ${datesLabel(data)}` : ""}`
             // the occasion is appended when the form supplied one, so a Christmas
             // brief is identifiable in the inbox without opening it. Enquiries from
             // the plain quote page carry no event type and read as before.
@@ -516,11 +566,11 @@ r.post("/", quoteLimiter, async (req, res, next) => {
                   <h3 style="margin-top: 0; color: #2c3e2f;">What you asked for</h3>
                   <p><strong>Occasion Type:</strong> ${safe(data.eventType)}</p>
                   <p><strong>Staff Needed:</strong> ${safe(quoteDetails.staffByRole || data.staffNeeded)}</p>
-                  ${data.eventDate ? `<p><strong>Date:</strong> ${safe(data.eventDate)}</p>` : ''}
+                  ${data.eventDate ? `<p><strong>${data.eventEndDate ? 'Dates' : 'Date'}:</strong> ${safe(datesLabel(data))}</p>` : ''}
                   ${data.city ? `<p><strong>City:</strong> ${safe(data.city)}</p>` : ''}
                   ${data.location ? `<p><strong>Location:</strong> ${safe(data.location)}</p>` : ''}
                   ${data.dressCode ? `<p><strong>Dress code:</strong> ${safe(data.dressCode)}</p>` : ''}
-                  ${data.shiftStart && data.shiftEnd ? `<p><strong>Times:</strong> ${safe(data.shiftStart)} - ${safe(data.shiftEnd)}${data.shiftEndsNextDay ? ' (next day)' : ''}</p>` : ''}
+                  ${data.shiftStart && data.shiftEnd ? `<p><strong>Times:</strong> ${safe(data.shiftStart)} - ${safe(data.shiftEnd)}${data.shiftEndsNextDay ? ' (next day)' : ''}${data.eventEndDate ? ', each day' : ''}</p>` : ''}
                   ${data.estimatedTotal ? `<p><strong>Estimate shown on the page:</strong> £${safe(data.estimatedTotal.toLocaleString())}</p><p style="color: #666; font-size: 12px; margin: 4px 0 0;">An estimate, not a final invoice. We confirm the figure before anything is charged.</p>` : ''}
                   ${savedQuoteId ? `<p style="color: #666; font-size: 12px;"><strong>Reference:</strong> ${safe(savedQuoteId)}</p>` : ''}
                 </div>` : ''}

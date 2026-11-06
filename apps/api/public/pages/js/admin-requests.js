@@ -99,7 +99,7 @@
           + '<span class="as-stack-title">' + esc(TYPE_LABEL[r.type] || r.type) + '</span>'
           + '<span class="text-muted fs-sm">' + esc(summary(r)) + '</span>'
         + '</div></td>'
-        + '<td class="fs-sm">' + (r.eventDate ? esc(fmtDate(r.eventDate)) : '<span class="text-muted">-</span>') + '</td>'
+        + '<td class="fs-sm">' + (r.eventDate ? esc(eventDates(r)) : '<span class="text-muted">-</span>') + '</td>'
         + '<td>' + statusBadge(r.status) + '</td>'
         + '<td class="text-muted fs-sm">' + esc(fmtDate(r.createdAt)) + '</td>'
         + '<td><div class="as-row-actions">'
@@ -135,7 +135,7 @@
         + row('Email', r.email ? '<a class="detail-link" href="mailto:' + esc(r.email) + '">' + esc(r.email) + '</a>' : '<span class="text-muted">Not given</span>')
         + row('Phone', r.phone ? '<a class="detail-link" href="tel:' + esc(r.phone) + '">' + esc(r.phone) + '</a>' : '<span class="text-muted">Not given</span>')
         + row('Event', r.eventType ? esc(r.eventType) : '<span class="text-muted">-</span>')
-        + row('Event date', r.eventDate ? esc(fmtDate(r.eventDate)) : '<span class="text-muted">-</span>')
+        + row(lastDay(r) ? 'Event dates' : 'Event date', r.eventDate ? esc(eventDates(r)) : '<span class="text-muted">-</span>')
         + row('Staff', r.staffCount ? esc(String(r.staffCount)) : '<span class="text-muted">-</span>')
         + row('Guests', r.guests ? esc(String(r.guests)) : '<span class="text-muted">-</span>')
         + row('Roles', roles.length ? esc(roles.join(', ')) : '<span class="text-muted">-</span>')
@@ -183,6 +183,20 @@
     var match = /^Shift: (\d{1,2}:\d{2})? ?- ?(\d{1,2}:\d{2})?/m.exec(message || '');
     function pad(t) { return t && t.length === 4 ? '0' + t : (t || ''); }
     return match ? { start: pad(match[1]), end: pad(match[2]) } : { start: '', end: '' };
+  }
+
+  /** The last day of a multi-day request, yyyy-mm-dd, from the "Last day:" line
+   *  the quote page writes into the message. Blank for a one-day request. */
+  function lastDay(r) {
+    var v = detailLine(r.message, 'Last day');
+    return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '';
+  }
+
+  /** "12 Dec 2026" or "12 Dec 2026 to 14 Dec 2026" for a run of days. */
+  function eventDates(r) {
+    if (!r.eventDate) return '';
+    var last = lastDay(r);
+    return fmtDate(r.eventDate) + (last ? ' to ' + fmtDate(last) : '');
   }
 
   function isoDay(value) {
@@ -280,7 +294,7 @@
   }
 
   /** Puts the ticked people (and anyone new) on the job. Returns what didn't go to plan. */
-  async function addCrew(jobId) {
+  async function addCrew(jobIds) {
     var ids = Array.prototype.map.call(
       document.querySelectorAll('input[name="bj-crew"]:checked'),
       function (el) { return el.value; }
@@ -305,21 +319,28 @@
         notes.push((first + ' ' + last).trim() + ' was not added: ' + e.message);
       }
     }
+    // Everyone ticked goes on every day of a multi-day run. "added" counts
+    // people who made it onto at least one day, not person-days.
     var added = 0;
     for (var i = 0; i < ids.length; i++) {
-      try {
-        var a = await get(SCHED + '/jobs/' + encodeURIComponent(jobId) + '/crew', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ staffId: ids[i] })
-        });
-        added++;
-        if (a && a.clash) notes.push(a.clash);
-      } catch (e) {
-        notes.push(e.message);
+      var onAny = false;
+      for (var d = 0; d < jobIds.length; d++) {
+        try {
+          var a = await get(SCHED + '/jobs/' + encodeURIComponent(jobIds[d]) + '/crew', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ staffId: ids[i] })
+          });
+          onAny = true;
+          if (a && a.clash) notes.push(a.clash);
+        } catch (e) {
+          notes.push(e.message);
+        }
       }
+      if (onAny) added++;
     }
-    return { added: added, notes: notes };
+    // A rate problem fails the same way on every day; say it once.
+    return { added: added, notes: notes.filter(function (n, k) { return notes.indexOf(n) === k; }) };
   }
 
   async function openBoardForm(id) {
@@ -389,9 +410,11 @@
         + field('bj-email', 'Email', textInput('bj-email', r.email, 'type="email" maxlength="200"'))
       + '</div>'
       + '<div class="form-row">'
-        + field('bj-date', 'Date *', textInput('bj-date', isoDay(r.eventDate), 'type="date" required'))
-        + field('bj-venue', 'Venue', textInput('bj-venue', venue, 'type="text" maxlength="200"'))
+        + field('bj-date', lastDay(r) ? 'First day *' : 'Date *', textInput('bj-date', isoDay(r.eventDate), 'type="date" required'))
+        + field('bj-last', 'Last day', textInput('bj-last', lastDay(r), 'type="date"')
+            + '<span class="text-muted fs-sm">For more than one day. Each day goes on the board as its own job.</span>')
       + '</div>'
+      + '<div class="form-row">' + field('bj-venue', 'Venue', textInput('bj-venue', venue, 'type="text" maxlength="200"'), true) + '</div>'
       + '<div class="form-row">'
         + field('bj-start', 'Start *', textInput('bj-start', shift.start, 'type="time" required'))
         + field('bj-end', 'Finish *', textInput('bj-end', shift.end, 'type="time" required'))
@@ -453,6 +476,11 @@
     var end = val('bj-end');
     if (!title) return fail('Give the job a name.');
     if (!date) return fail('Pick the date of the job.');
+    var last = val('bj-last');
+    if (last === date) last = '';
+    if (last && last < date) return fail('The last day is before the first.');
+    var runDays = last ? Math.round((Date.parse(last) - Date.parse(date)) / 86400000) + 1 : 1;
+    if (runDays > 60) return fail('That is ' + runDays + ' days. Check the last day.');
     if (!start || !end) return fail('Add a start and finish time. Guess if you need to; you can change it on the board.');
     var newFirst = val('bj-new-first');
     var newLast = val('bj-new-last');
@@ -507,6 +535,7 @@
           title: title,
           venueName: val('bj-venue') || null,
           date: date,
+          endDate: last || null,
           startTime: start,
           endTime: end,
           staffNeeded: staff ? Number(staff) : null,
@@ -518,7 +547,9 @@
       });
 
       // Note it on the request, so nobody adds it twice.
-      var stamp = 'Added to the board as ' + job.reference + ' (' + fmtDate(date) + ').';
+      var run = job.run;
+      var stamp = 'Added to the board as ' + job.reference
+        + (run ? ' and the next ' + (run.created - 1) + ' days (' + fmtDate(run.from) + ' to ' + fmtDate(run.to) + ').' : ' (' + fmtDate(date) + ').');
       var newNotes = r.adminNotes ? r.adminNotes + '\n' + stamp : stamp;
       await get('/api/v1/contacts/' + encodeURIComponent(id) + '/notes', {
         method: 'PATCH',
@@ -526,11 +557,11 @@
         body: JSON.stringify({ notes: newNotes })
       }).then(function () { r.adminNotes = newNotes; }).catch(function () {});
       // The job exists now, so a crew problem is reported, not a reason to stop.
-      var crew = await addCrew(job.id);
+      var crew = await addCrew(run && run.jobIds ? run.jobIds : [job.id]);
       if (val('bj-status') === 'CONFIRMED' && r.status !== 'BOOKED') await setStatus(id, 'BOOKED');
 
       AdminCore.closeModal('detail-modal');
-      toast(job.reference + ' is on the board'
+      toast(job.reference + (run ? ' and ' + (run.created - 1) + ' more days are' : ' is') + ' on the board'
         + (crew.added ? ' with ' + crew.added + (crew.added === 1 ? ' person' : ' people') : ''), 'success');
       crew.notes.forEach(function (n) { toast(n, 'warning'); });
       if (confirm(job.reference + ' is on the board. Open it now?')) {

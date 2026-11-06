@@ -18,10 +18,16 @@ export function actorOf(req: Request): string {
 }
 
 /** A worker acting for themselves in the app, by name so the audit log reads plainly. */
-export async function workerAppActor(userId: string): Promise<string> {
+export async function workerAppActor(userId: string, via: 'app' | 'website' = 'app'): Promise<string> {
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { firstName: true, lastName: true } });
   const name = user ? `${user.firstName} ${user.lastName}`.trim() : `worker ${userId}`;
-  return `${name.slice(0, 70)} (worker, in the app)`;
+  return `${name.slice(0, 70)} (worker, ${via === 'website' ? 'on the website' : 'in the app'})`;
+}
+
+/** Which door a signed-in worker came through: the app sends a bearer token,
+ *  the website's staff pages send their session cookie. */
+export function workerChannel(req: { headers: { authorization?: string } }): 'app' | 'website' {
+  return req.headers.authorization ? 'app' : 'website';
 }
 
 /** Dates to ISO strings and Decimals to numbers, so the JSON reads cleanly. */
