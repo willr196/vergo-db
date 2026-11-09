@@ -59,6 +59,58 @@ test('nothing answers without an admin session', async () => {
   assert.equal(ok(await call('GET', '/me')).username, 'will');
 });
 
+test('Add to job: someone typed in is saved and booked in one go', async () => {
+  const job = ok(await call('POST', '/jobs', {
+    title: 'Gala', date: inDays(3), startTime: '09:00', endTime: '17:30', breakMinutes: 30, chargeRate: '18.00',
+  }), 201);
+  const other = ok(await call('POST', '/jobs', {
+    title: 'Lunch', date: inDays(3), startTime: '09:00', endTime: '12:00', chargeRate: '18.00',
+  }), 201);
+
+  // No rate, no assignment, and no record left behind to be made twice.
+  const noRate = await call('POST', `/jobs/${job.id}/crew/new`, { firstName: 'Cal', lastName: 'Byrne' });
+  assert.equal(noRate.statusCode, 400);
+  assert.match(noRate.body.error, /hourly rate/);
+  assert.equal((await call('POST', `/jobs/${job.id}/crew/new`, { firstName: 'Cal', lastName: 'Byrne', hourlyRate: '0' })).statusCode, 400);
+  assert.equal(await prisma.schedStaff.count(), 0);
+
+  const cal = ok(await call('POST', `/jobs/${job.id}/crew/new`, {
+    firstName: ' Cal ', lastName: 'Byrne', email: 'cal@example.com', phone: '07700 900000', hourlyRate: 14,
+  }), 201);
+  assert.equal(cal.name, 'Cal Byrne');
+  assert.equal(cal.matchedExisting, false);
+  assert.equal(cal.hours, '8', 'the job length less the break');
+
+  // On the job, costed, and on People for next time.
+  const detail = ok(await call('GET', `/jobs/${job.id}`));
+  assert.equal(detail.crew.length, 1);
+  assert.equal(detail.crew[0].basePay, '112.00');
+  const saved = ok(await call('GET', '/staff?status=ACTIVE'));
+  assert.equal(saved.length, 1);
+  assert.equal(saved[0].phone, '07700 900000');
+
+  // The same email is the same person, whatever is typed alongside it.
+  const again = await call('POST', `/jobs/${job.id}/crew/new`, { firstName: 'Calum', lastName: 'B', email: 'CAL@example.com', hourlyRate: 20 });
+  assert.equal(again.statusCode, 409);
+  assert.match(again.body.error, /Cal Byrne/);
+
+  const matched = ok(await call('POST', `/jobs/${other.id}/crew/new`, { firstName: 'Calum', lastName: 'B', email: 'CAL@example.com', hourlyRate: 20 }), 201);
+  assert.equal(matched.matchedExisting, true);
+  assert.equal(matched.name, 'Cal Byrne');
+  assert.equal(matched.rate, '14', 'their record keeps its rate');
+  assert.match(matched.clash, /Gala/);
+  assert.equal(await prisma.schedStaff.count(), 1);
+
+  // An inactive person with no rate comes back, and the typed rate fills the gap.
+  const old = ok(await call('POST', '/staff', { firstName: 'Dee', lastName: 'Marsh', email: 'dee@example.com', status: 'INACTIVE' }), 201);
+  const back = ok(await call('POST', `/jobs/${job.id}/crew/new`, { firstName: 'Dee', lastName: 'Marsh', email: 'dee@example.com', hourlyRate: '15.50' }), 201);
+  assert.equal(back.staffId, old.id);
+  assert.equal(back.rate, '15.5');
+  assert.equal((await prisma.schedStaff.findUnique({ where: { id: old.id } }))?.status, 'ACTIVE');
+
+  assert.equal((await call('POST', '/jobs/nope/crew/new', { firstName: 'A', lastName: 'B', hourlyRate: 12 })).statusCode, 404);
+});
+
 test('the desktop day: client, people, a job, crew, margin, rota and dashboard', async () => {
   const client = ok(await call('POST', '/clients', { name: 'Popcorn Catering', defaultChargeRate: 18 }), 201);
   assert.equal(client.defaultChargeRate, '18', 'money comes back as a string, as the desktop screens expect');

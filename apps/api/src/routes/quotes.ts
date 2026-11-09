@@ -11,7 +11,9 @@ const r = Router();
 
 const quoteLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
+  // Per address, and a refused request is saved nowhere, so this sits high enough
+  // that people sharing an office or venue network don't lose a real enquiry.
+  max: 20,
   message: { error: "Too many quote submissions. Please try again later." }
 });
 

@@ -15,6 +15,19 @@
   var STATUS_LABEL = { NEW: 'New', CONTACTED: 'Contacted', QUOTED: 'Quoted', BOOKED: 'Booked', LOST: 'Lost' };
   var TYPE_LABEL = { STAFF_REQUEST: 'Booking request', GENERAL: 'Question' };
 
+  // The event forms send a brief, not a question, and say so in the event type.
+  // Read here rather than when saving, so briefs already in the Inbox read right too.
+  function requestLabel(r) {
+    if (r.type === 'GENERAL') {
+      var kind = String(r.eventType || '');
+      var season = kind.match(/(Christmas|New Year's Eve|Seasonal) \(Special Events\)/);
+      if (season) return season[1] + ' brief';
+      if (/Full event/.test(kind)) return 'Full event brief';
+      if (/Special Events/.test(kind)) return 'Special events brief';
+    }
+    return TYPE_LABEL[r.type] || r.type || 'Request';
+  }
+
   function statusBadge(status) {
     return '<span class="badge badge-' + esc(status) + '">' + esc(STATUS_LABEL[status] || status) + '</span>';
   }
@@ -96,7 +109,7 @@
           + contact
         + '</div></td>'
         + '<td><div class="as-stack">'
-          + '<span class="as-stack-title">' + esc(TYPE_LABEL[r.type] || r.type) + '</span>'
+          + '<span class="as-stack-title">' + esc(requestLabel(r)) + '</span>'
           + '<span class="text-muted fs-sm">' + esc(summary(r)) + '</span>'
         + '</div></td>'
         + '<td class="fs-sm">' + (r.eventDate ? esc(eventDates(r)) : '<span class="text-muted">-</span>') + '</td>'
@@ -127,7 +140,7 @@
     if (!r) return;
     var roles = parseRoles(r.roles);
 
-    document.getElementById('modal-title').textContent = (TYPE_LABEL[r.type] || 'Request') + ' from ' + r.name;
+    document.getElementById('modal-title').textContent = requestLabel(r) + ' from ' + r.name;
     document.getElementById('modal-body').innerHTML =
       '<div class="detail-grid mb-2">'
         + row('Name', esc(r.name))

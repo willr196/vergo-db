@@ -896,6 +896,93 @@ export async function jobRoutes(app: FastifyInstance) {
     });
   });
 
+  const newPersonBody = z.object({
+    firstName: z.string().trim().min(1, 'First name is required').max(100),
+    lastName: z.string().trim().min(1, 'Last name is required').max(100),
+    email: z.string().trim().email('Not a valid email').max(200).nullish().or(z.literal('')),
+    phone: z.string().trim().max(50).nullish(),
+    // Required here, unlike on a plain staff record: this person is going
+    // straight onto a job, and the rule is no rate, no assignment.
+    hourlyRate: z
+      .union([z.number(), z.string()])
+      .nullish()
+      .transform((v) => (v === null || v === undefined ? '' : String(v).trim()))
+      .refine((v) => /^\d{1,8}(\.\d{1,2})?$/.test(v) && Number(v) > 0, 'Give them an hourly rate'),
+  });
+
+  /**
+   * Type someone's details in and put them on the job in one go.
+   *
+   * One transaction, so a failure cannot leave a new record behind to be made a
+   * second time on the retry. An email already on the system means that person,
+   * not a second copy of them: email is what links a record to a worker account.
+   */
+  app.post('/api/jobs/:id/crew/new', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const parsed = newPersonBody.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.code(400).send({ error: parsed.error.issues[0]?.message ?? 'Invalid details' });
+    }
+    const { email: rawEmail, phone, hourlyRate, firstName, lastName } = parsed.data;
+    const email = rawEmail || null;
+
+    const job = await prisma.schedJob.findUnique({ where: { id } });
+    if (!job) return reply.code(404).send({ error: 'Job not found' });
+
+    const hours = hoursBetween(job.startTime, job.endTime, job.breakMinutes).toFixed(2);
+
+    const outcome = await prisma.$transaction(async (tx) => {
+      const existing = email
+        ? await tx.schedStaff.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } })
+        : null;
+
+      if (existing) {
+        const already = await tx.schedAssignment.findUnique({
+          where: { jobId_staffId: { jobId: id, staffId: existing.id } },
+          select: { id: true },
+        });
+        if (already) return { alreadyOn: `${existing.firstName} ${existing.lastName}` };
+      }
+
+      const staff = existing
+        ? await tx.schedStaff.update({
+            where: { id: existing.id },
+            // Their record's rate stands. The typed one only fills a gap.
+            data: { status: 'ACTIVE', hourlyRate: existing.hourlyRate ?? hourlyRate },
+          })
+        : await tx.schedStaff.create({
+            data: { firstName, lastName, email, phone: phone || null, hourlyRate },
+          });
+
+      const clash = existing
+        ? await tx.schedAssignment.findFirst({
+            where: { staffId: staff.id, job: { date: job.date, id: { not: job.id } } },
+            include: { job: { select: { reference: true, title: true, startTime: true, endTime: true } } },
+          })
+        : null;
+
+      const assignment = await tx.schedAssignment.create({ data: { jobId: id, staffId: staff.id, hours } });
+
+      return { assignment, staff, matchedExisting: Boolean(existing), clash };
+    });
+
+    if ('alreadyOn' in outcome) {
+      return reply.code(409).send({ error: `That email belongs to ${outcome.alreadyOn}, who is already on this job` });
+    }
+
+    const { assignment, staff, matchedExisting, clash } = outcome;
+    return reply.code(201).send({
+      ...assignment,
+      name: `${staff.firstName} ${staff.lastName}`,
+      rate: staff.hourlyRate?.toString() ?? null,
+      matchedExisting,
+      warning: null,
+      clash: clash
+        ? `Also on ${clash.job.reference} (${clash.job.title}) the same day, ${clash.job.startTime}–${clash.job.endTime}`
+        : null,
+    });
+  });
+
   app.patch('/api/crew/:assignmentId', async (request, reply) => {
     const { assignmentId } = request.params as { assignmentId: string };
     const parsed = assignBody.partial().omit({ staffId: true }).safeParse(request.body);
