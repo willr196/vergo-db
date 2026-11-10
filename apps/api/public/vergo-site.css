@@ -1522,6 +1522,8 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 .staff-photo { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .staff-photo img, .staff-photo .staff-photo-blank { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; background: var(--surface); border: 1px solid var(--hairline-strong); }
 .staff-photo .staff-photo-blank { display: grid; place-items: center; color: var(--text-muted); font-size: 0.8rem; text-align: center; }
+/* The display above would otherwise beat [hidden], leaving "No photo yet" beside a new photo. */
+.staff-photo [hidden] { display: none; }
 .staff-subhead { margin-top: 40px; }
 .staff-card-title { margin-top: 0; }
 .staff-card-text { margin: 0; }

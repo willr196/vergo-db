@@ -267,6 +267,9 @@
         if (r.status === 200 && r.body.ok) {
           showPhoto(r.body.data.profileImage);
           show('photoStatus', 'Photo saved.', 'success');
+          // A "your photo is still missing" from an earlier save is now wrong.
+          var saveStatus = document.getElementById('profileStatus');
+          if (saveStatus.dataset.state === 'error' && /photo/i.test(saveStatus.textContent)) saveStatus.hidden = true;
         } else {
           showPhoto(profile && profile.profileImage);
           show('photoStatus', r.body.error || 'That photo did not save. Try another.', 'error');
