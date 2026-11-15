@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "../prisma";
 import { adminAuth } from "../middleware/adminAuth";
 import { generateCsrfToken } from "../middleware/csrf";
+import { failedLoginUpdate, loginAddressLimiter, LOCK_AFTER_FAILURES } from "../lib/loginSecurity";
 
 const r = Router();
 
@@ -74,17 +75,10 @@ async function verifyCredentials(username: string, password: string) {
   return { user, passwordMatches };
 }
 
-// A lock that has run out starts the count again; otherwise the count stays
-// at 5 and the next single typo locks the account for another 30 minutes.
-function priorFailedAttempts(user: { failedAttempts: number; lockedUntil: Date | null }) {
-  if (user.lockedUntil && user.lockedUntil <= new Date()) return 0;
-  return user.failedAttempts || 0;
-}
-
 // ============================================
 // POST /api/v1/auth/login
 // ============================================
-r.post("/login", loginLimiter, async (req, res) => {
+r.post("/login", loginAddressLimiter, loginLimiter, async (req, res) => {
   try {
     const parsed = loginSchema.safeParse(req.body);
     
@@ -110,25 +104,18 @@ r.post("/login", loginLimiter, async (req, res) => {
     // Handle invalid credentials
     if (!user || !passwordMatches) {
       if (user) {
-        const newFailedAttempts = priorFailedAttempts(user) + 1;
-        const shouldLock = newFailedAttempts >= 5;
-        
+        const { failedAttempts, lockedUntil, locked } = failedLoginUpdate(user);
         await prisma.adminUser.update({
           where: { id: user.id },
-          data: {
-            failedAttempts: newFailedAttempts,
-            lockedUntil: shouldLock 
-              ? new Date(Date.now() + 30 * 60 * 1000)
-              : null
-          }
+          data: { failedAttempts, lockedUntil }
         });
-        
-        console.warn(`[SECURITY] Failed login: ${username} (${newFailedAttempts}/5)`);
-        
-        if (shouldLock) {
+
+        console.warn(`[SECURITY] Failed login: ${username} (${failedAttempts}/${LOCK_AFTER_FAILURES})`);
+
+        if (locked) {
           console.warn(`[SECURITY] Account locked: ${username}`);
-          return res.status(423).json({ 
-            error: "Too many failed attempts. Account locked for 30 minutes." 
+          return res.status(423).json({
+            error: "Too many failed attempts. Account locked for 15 minutes."
           });
         }
       }
@@ -188,7 +175,7 @@ r.post("/login", loginLimiter, async (req, res) => {
 // POST /api/v1/auth/force-change-password
 // (unauthenticated — for the mustChangePassword first-login flow)
 // ============================================
-r.post("/force-change-password", loginLimiter, async (req, res) => {
+r.post("/force-change-password", loginAddressLimiter, loginLimiter, async (req, res) => {
   try {
     const parsed = forceChangePasswordSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -212,14 +199,10 @@ r.post("/force-change-password", loginLimiter, async (req, res) => {
 
     if (!user || !passwordMatches) {
       if (user) {
-        const newFailedAttempts = priorFailedAttempts(user) + 1;
-        const shouldLock = newFailedAttempts >= 5;
+        const { failedAttempts, lockedUntil } = failedLoginUpdate(user);
         await prisma.adminUser.update({
           where: { id: user.id },
-          data: {
-            failedAttempts: newFailedAttempts,
-            lockedUntil: shouldLock ? new Date(Date.now() + 30 * 60 * 1000) : null
-          }
+          data: { failedAttempts, lockedUntil }
         });
       }
       return res.status(401).json({ error: "Invalid credentials" });

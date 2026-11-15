@@ -17,7 +17,7 @@
     </section>
 
     <section class="section-tight shell-form">
-      <form id="staffLogin" data-staff-form="login" novalidate>
+      <form id="staffLogin" data-staff-form="login" method="post" novalidate>
         <div class="form-field">
           <label for="email">Email address</label>
           <input type="email" id="email" name="email" autocomplete="username" required>

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Response } from 'express';
-import sharp from 'sharp';
+import sharp, { type Metadata as SharpMetadata } from 'sharp';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { env } from '../env';
 import { getS3Client, uploadBuffer } from '../services/s3';
@@ -49,7 +49,7 @@ export async function storePhoto(input: Buffer): Promise<StoredPhoto> {
   if (input.byteLength > MAX_PHOTO_BYTES) throw Object.assign(new Error('That photo is over 12MB.'), { status: 400 });
 
   const notAPhoto = () => Object.assign(new Error('That file is not a photo we can use (JPEG, PNG, WebP, HEIC or AVIF).'), { status: 400 });
-  let meta: sharp.Metadata;
+  let meta: SharpMetadata;
   try {
     meta = await sharp(input, { failOn: 'error' }).metadata();
   } catch {

@@ -605,7 +605,8 @@ test('user profile update links applicant data and returns web profile payload',
     assert.equal(body.data.postcode, 'E1 6AN');
     assert.equal(body.data.dateOfBirth, '1994-03-20');
     assert.deepEqual(body.data.preferredJobTypes, ['Corporate Events', 'Film & TV']);
-    assert.deepEqual(body.data.registeredRoles, ['Bartender', 'Event Host']);
+    // Old role names come back under the apply form's wording, so the profile's boxes tick.
+    assert.deepEqual(body.data.registeredRoles, ['Bar staff', 'Event Host']);
     assert.equal(applicantUpsertCalled, true);
     assert.equal(userUpdateCalls.length, 2);
     assert.equal(userUpdateCalls[1].data.applicantId, 'applicant-1');
@@ -629,6 +630,13 @@ test('client change-password verifies the current password before updating the h
   const prismaAny = prisma as any;
   const originalFindUnique = prismaAny.client.findUnique;
   const originalUpdate = prismaAny.client.update;
+  const originalRevoke = prismaAny.refreshToken.updateMany;
+  const originalExecuteRaw = prismaAny.$executeRaw;
+  let revokedFor: any = null;
+  let sessionsEnded: any[] | null = null;
+  prismaAny.refreshToken.updateMany = async (args: any) => { revokedFor = args.where; return { count: 1 }; };
+  // No session store on this bare app, so the other sessions go by query.
+  prismaAny.$executeRaw = async (_strings: TemplateStringsArray, ...values: any[]) => { sessionsEnded = values; return 1; };
 
   const currentPassword = 'CurrentPass123';
   const nextPassword = 'NewSecurePass456';
@@ -685,8 +693,15 @@ test('client change-password verifies the current password before updating the h
     assert.ok(updatedHash.length > 0);
     assert.notEqual(updatedHash, currentHash);
     assert.equal(await bcrypt.compare(nextPassword, updatedHash), true);
+    // The app is signed out and other web sessions are ended.
+    assert.equal(revokedFor.clientId, 'client-password-1');
+    assert.equal(revokedFor.revokedAt, null);
+    assert.deepEqual(sessionsEnded!.slice(0, 2), ['isClient', 'clientId']);
+    assert.equal(sessionsEnded![2], 'client-password-1');
   } finally {
     prismaAny.client.findUnique = originalFindUnique;
     prismaAny.client.update = originalUpdate;
+    prismaAny.refreshToken.updateMany = originalRevoke;
+    prismaAny.$executeRaw = originalExecuteRaw;
   }
 });

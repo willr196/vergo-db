@@ -20,6 +20,7 @@ import { afterMidnightHours, dateKey, londonClock, londonDateKey, addDays } from
 import { loadOpsSettings, type OpsSettings } from './settings';
 import type { OpsDocType } from './documents';
 import { versionInfo, ensureDefaultTemplates } from './documentService';
+import { staffPhotoUrl } from '../services/staffPhoto';
 
 export { ensureDefaultTemplates };
 
@@ -172,6 +173,8 @@ export function shapeWorker(user: WorkerRow, ctx: WorkerContext) {
     availabilityStatus: user.availabilityStatus,
     /** The app's availability switch means something only once the worker has logged in. */
     usesApp: user.lastLoginAt != null,
+    /** Their profile photo from /staff/profile, as an image URL; null until they add one. */
+    photoUrl: user.staffAvatar ? staffPhotoUrl(user.id, user.updatedAt) : null,
     hasProfile: Boolean(profile),
     applicantId: user.applicant?.id ?? null,
     activeStatus,

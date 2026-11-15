@@ -136,3 +136,26 @@ export async function parseMobileImageUpload(
     dataUrl: `data:${mimeType};base64,${fileBuffer.toString("base64")}`,
   };
 }
+
+/** What a browser can show as an <img>: the website's photo uploads are held to these. */
+const WEB_IMAGE_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+/**
+ * A photo sent from the website as a data: URL. The bytes must decode and be a
+ * real JPEG, PNG or WebP, whatever the URL claims; anything else (SVG, text, a
+ * crafted string) is refused. Returns the URL rebuilt from the decoded bytes,
+ * so what is stored is always a clean `data:<type>;base64,...`.
+ */
+export async function parseImageDataUrl(value: unknown, maxBytes = 1024 * 1024) {
+  if (typeof value !== "string") throw new Error("A photo is required");
+  const match = /^data:([a-z0-9.+/-]+);base64,([A-Za-z0-9+/]+={0,2})$/i.exec(value.trim());
+  if (!match) throw new Error("That is not a photo we can use. Choose a JPEG, PNG or WebP.");
+  const buffer = Buffer.from(match[2], "base64");
+  if (buffer.length === 0) throw new Error("That photo was empty. Try another.");
+  if (buffer.length > maxBytes) throw new Error("Image is too large. Please choose a smaller photo.");
+  const mimeType = normalizeDetectedMimeType((await getFileType(buffer))?.mime);
+  if (!mimeType || !WEB_IMAGE_MIME_TYPES.has(mimeType)) {
+    throw new Error("That is not a photo we can use. Choose a JPEG, PNG or WebP.");
+  }
+  return { mimeType, dataUrl: `data:${mimeType};base64,${buffer.toString("base64")}` };
+}

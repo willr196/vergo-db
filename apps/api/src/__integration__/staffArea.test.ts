@@ -102,7 +102,8 @@ test('staff apply for jobs on the board; the photo is asked for once, at profile
   const cookie = await login('photo.worker@example.com');
 
   // Profile setup: the photo goes on first, as the staff pages require.
-  const photo = 'data:image/jpeg;base64,' + Buffer.from('a tiny stand-in for a photo').toString('base64');
+  // A real 1x1 PNG: the avatar route decodes the bytes and refuses anything else.
+  const photo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
   const uploaded = await call('POST', '/api/v1/user/profile/avatar', { dataUrl: photo }, { cookie });
   assert.equal(uploaded.statusCode, 200, uploaded.raw);
   const profile = await call('GET', '/api/v1/user/profile', undefined, { cookie });

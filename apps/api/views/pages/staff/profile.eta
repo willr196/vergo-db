@@ -34,7 +34,7 @@
         <div class="form-status" id="photoStatus" role="status" hidden></div>
       </div>
 
-      <form id="profileForm" class="staff-section" novalidate>
+      <form id="profileForm" class="staff-section" method="post" novalidate>
         <h2>Your details</h2>
         <div class="form-row form-row-2">
           <div class="form-field">
@@ -54,7 +54,7 @@
           </div>
           <div class="form-field">
             <label for="phone">Phone</label>
-            <input type="tel" id="phone" name="phone" autocomplete="tel" maxlength="20">
+            <input type="tel" id="phone" name="phone" autocomplete="tel" maxlength="40">
           </div>
         </div>
         <div class="form-field">
@@ -97,7 +97,7 @@
         </div>
       </form>
 
-      <form id="passwordForm" class="staff-section" novalidate>
+      <form id="passwordForm" class="staff-section" method="post" novalidate>
         <h2>Password</h2>
         <input type="text" name="username" id="passwordUsername" autocomplete="username" hidden>
         <div class="form-field">

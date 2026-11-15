@@ -273,7 +273,8 @@ test('a worker gets ready to work on the website: checklist, documents agreed an
   assert.equal(before.body.data.ready, false);
   assert.deepEqual(state(before.body), { photo: 'todo', phone: 'done', emergency: 'done', kid: 'todo', agreement: 'todo', rtw: 'done', payroll: 'done' });
 
-  const photo = 'data:image/jpeg;base64,' + Buffer.from('stand-in photo').toString('base64');
+  // A real 1x1 PNG: the avatar route decodes the bytes and refuses anything else.
+  const photo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
   assert.equal((await asWorker('POST', '/api/v1/user/profile/avatar', { dataUrl: photo }, cookie)).statusCode, 200);
 
   const docs = await asWorker('GET', '/api/v1/user/documents', undefined, cookie);

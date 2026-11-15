@@ -195,6 +195,11 @@
         : AdminApplicant.renderHireEmailButton(app.applicantId, fullName);
       return '<tr>'
         + '<td>'
+          + '<div class="as-person">'
+          // Their profile photo from /staff/profile, once they have signed in and added it.
+          + (app.photoUrl
+            ? '<img class="as-thumb" src="' + esc(app.photoUrl) + '" alt="" loading="lazy">'
+            : '<span class="as-thumb as-thumb-none" title="No photo yet">' + esc(((app.firstName || '').charAt(0) + (app.lastName || '').charAt(0)).toUpperCase() || '?') + '</span>')
           + '<div class="as-stack">'
             + '<span class="as-name-line">'
               + '<button type="button" class="applicant-link as-stack-title" data-action="open-drawer" data-app-id="' + esc(app.id) + '">' + name + '</button>'
@@ -203,6 +208,7 @@
             + '<span class="text-muted fs-sm">' + esc(app.email || '') + '</span>'
             + (app.phone ? '<span class="text-muted fs-sm">' + esc(app.phone) + '</span>' : '')
             + AdminGroups.pills(app.groups)
+          + '</div>'
           + '</div>'
         + '</td>'
         + '<td>' + AdminApplicant.renderRolePills(app.roles || []) + '</td>'

@@ -375,7 +375,11 @@
 
     document.getElementById('drawer-name').textContent = applicant.fullName || ((applicant.firstName || '') + ' ' + (applicant.lastName || '')).trim() || 'Applicant';
     document.getElementById('drawer-body').innerHTML =
-      '<div class="detail-grid mb-2">'
+      // The photo they added at /staff/profile; only staff with a login have one.
+      (detail.photoUrl
+        ? '<a class="as-photo-link mb-2" href="' + esc(detail.photoUrl) + '" target="_blank" rel="noopener" title="Open full size"><img class="as-photo" src="' + esc(detail.photoUrl) + '" alt="Profile photo"></a>'
+        : '')
+      + '<div class="detail-grid mb-2">'
       + '<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a class="detail-link" href="mailto:' + esc(applicant.email || '') + '">' + esc(applicant.email || '-') + '</a></span></div>'
       + '<div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">' + esc(applicant.phone || '-') + '</span></div>'
       // DOB is no longer collected on the public form; show it only when onboarding has recorded one.

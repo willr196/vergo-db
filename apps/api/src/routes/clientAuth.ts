@@ -12,6 +12,7 @@ import {
 import { requireClientJwt } from "../middleware/jwtAuth";
 import { signAccessToken, signRefreshToken, verifyRefreshToken, getTokenExpiresAt, hashToken } from "../utils/jwt";
 import { parseMobileImageUpload } from "../utils/mobileMediaUpload";
+import { failedLoginUpdate, loginAddressLimiter, endAccountSessions } from "../lib/loginSecurity";
 
 const r = Router();
 
@@ -418,7 +419,7 @@ r.post("/resend-verification", forgotPasswordLimiter, async (req, res) => {
 // ============================================
 // POST /api/v1/clients/login
 // ============================================
-r.post("/login", loginLimiter, async (req, res) => {
+r.post("/login", loginAddressLimiter, loginLimiter, async (req, res) => {
   try {
     const parsed = loginSchema.safeParse(req.body);
     
@@ -460,15 +461,10 @@ r.post("/login", loginLimiter, async (req, res) => {
     // Handle invalid credentials
     if (!client || !passwordMatches) {
       if (client) {
-        const newFailedAttempts = (client.failedAttempts || 0) + 1;
-        const shouldLock = newFailedAttempts >= 8;
-        
+        const { failedAttempts, lockedUntil } = failedLoginUpdate(client);
         await prisma.client.update({
           where: { id: client.id },
-          data: {
-            failedAttempts: newFailedAttempts,
-            lockedUntil: shouldLock ? new Date(Date.now() + 30 * 60 * 1000) : null
-          }
+          data: { failedAttempts, lockedUntil }
         });
       }
       return res.status(401).json({ error: "Invalid email or password" });
@@ -575,7 +571,7 @@ r.post("/logout", (req, res) => {
 // ============================================
 // POST /api/v1/client/mobile/login
 // ============================================
-r.post("/mobile/login", loginLimiter, async (req, res) => {
+r.post("/mobile/login", loginAddressLimiter, loginLimiter, async (req, res) => {
   try {
     const parsed = loginSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -620,15 +616,10 @@ r.post("/mobile/login", loginLimiter, async (req, res) => {
 
     if (!client || !passwordMatches) {
       if (client) {
-        const newFailedAttempts = (client.failedAttempts || 0) + 1;
-        const shouldLock = newFailedAttempts >= 8;
-
+        const { failedAttempts, lockedUntil } = failedLoginUpdate(client);
         await prisma.client.update({
           where: { id: client.id },
-          data: {
-            failedAttempts: newFailedAttempts,
-            lockedUntil: shouldLock ? new Date(Date.now() + 30 * 60 * 1000) : null
-          }
+          data: { failedAttempts, lockedUntil }
         });
       }
       return res.status(401).json({ ok: false, error: "Invalid email or password" });
@@ -1120,6 +1111,9 @@ r.post("/reset-password", resetPasswordLimiter, async (req, res) => {
       }
     });
     
+    // Whoever held a session or app login before the reset loses it.
+    await endAccountSessions(req.sessionStore, "client", client.id);
+
     console.log(`[CLIENT] Password reset complete: ${redactEmail(client.email)}`);
     
     res.json({ ok: true, message: "Password reset successful. You can now log in." });
@@ -1278,6 +1272,9 @@ r.put("/change-password", requireClientSession, async (req, res) => {
         resetTokenExp: null,
       },
     });
+
+    // Signed out everywhere else, and the app has to sign in again.
+    await endAccountSessions(req.sessionStore, "client", client.id, req.sessionID);
 
     console.log(`[CLIENT] Password changed: ${client.companyName} (${redactEmail(client.email)})`);
     res.json({ ok: true, message: "Password updated successfully." });

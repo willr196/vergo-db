@@ -342,6 +342,13 @@
 
   var PENSION = ['NOT_ASSESSED', 'NOT_ELIGIBLE_CURRENTLY', 'ELIGIBLE', 'ENROLLED', 'OPTED_IN', 'OPTED_OUT', 'ENTITLED_WORKER', 'POSTPONED', 'REVIEW_REQUIRED'];
 
+  /** A worker's profile photo as a small circle, or their initials until they add one. */
+  function photoThumb(w) {
+    if (w.photoUrl) return '<img class="ops-thumb" src="' + esc(w.photoUrl) + '" alt="" loading="lazy">';
+    var initials = ((w.firstName || '').charAt(0) + (w.lastName || '').charAt(0)).toUpperCase() || '?';
+    return '<span class="ops-thumb ops-thumb-none" title="No photo yet">' + esc(initials) + '</span>';
+  }
+
   async function viewWorkers(query) {
     var params = new URLSearchParams(query).toString();
     var workers = await api('/workers' + (params ? '?' + params : ''));
@@ -365,7 +372,7 @@
       '</form>' +
       '<div class="as-table-wrap"><div class="as-table-toolbar"><span class="text-muted fs-sm">' + workers.length + ' worker(s)</span></div>' +
       table(['Name', 'Roles', 'Ready', 'Right to work', 'Contract', 'KID', 'Payroll', 'Pension', 'Last shift', '>Rating'], workers.map(function (w) {
-        return '<tr class="clickable" data-href="#/worker/' + esc(w.id) + '"><td><strong>' + esc(w.name) + '</strong>' + (w.activeStatus !== 'ACTIVE' ? ' ' + chip(words(w.activeStatus), 'muted') : '') + '<div class="text-muted fs-sm">' + esc(w.email) + '</div></td>' +
+        return '<tr class="clickable" data-href="#/worker/' + esc(w.id) + '"><td><div class="ops-person">' + photoThumb(w) + '<div><strong>' + esc(w.name) + '</strong>' + (w.activeStatus !== 'ACTIVE' ? ' ' + chip(words(w.activeStatus), 'muted') : '') + '<div class="text-muted fs-sm">' + esc(w.email) + '</div></div></div></td>' +
           '<td>' + esc(w.roles.join(', ') || '—') + '</td>' +
           '<td>' + readyChip(w.readiness) + (w.readiness.missing.length && !w.readiness.computedReady ? '<div class="text-muted fs-sm">' + w.readiness.missing.length + ' missing</div>' : '') + '</td>' +
           '<td>' + chip(words(w.rtw.status), CHIPS.rtw[w.rtw.status]) + (w.rtw.expiresAt ? '<div class="text-muted fs-sm">until ' + day(w.rtw.expiresAt) + '</div>' : '') + '</td>' +
@@ -455,8 +462,13 @@
     var ACCEPTABLE = { ZERO_HOURS_AGREEMENT: true, ASSIGNMENT_CONFIRMATION: true };
 
     main.innerHTML =
-      '<div class="ops-head"><div><a href="#/workers" class="text-muted fs-sm">← Workers</a><h2>' + esc(w.name) + ' ' + readyChip(r) + '</h2>' +
-      '<div class="ops-lede">' + esc(w.email) + (w.phone ? ' · ' + esc(w.phone) : '') + ' · first shift ' + day(w.firstAssignmentDate) + ' · last shift ' + day(w.lastAssignmentDate) + '</div></div>' +
+      '<div class="ops-head"><div class="ops-person">' +
+        (w.photoUrl
+          ? '<div class="ops-photo-block"><a href="' + esc(w.photoUrl) + '" target="_blank" rel="noopener" title="Open full size"><img class="ops-photo" src="' + esc(w.photoUrl) + '" alt="Photo of ' + esc(w.name) + '"></a>' +
+            '<button class="btn btn-sm btn-ghost" id="remove-photo" title="Take it off; they are asked for a new one when they next sign in">Remove photo</button></div>'
+          : '<div class="ops-photo ops-photo-none" title="Asked for when they first sign in at /staff">No photo yet</div>') +
+      '<div><a href="#/workers" class="text-muted fs-sm">← Workers</a><h2>' + esc(w.name) + ' ' + readyChip(r) + '</h2>' +
+      '<div class="ops-lede">' + esc(w.email) + (w.phone ? ' · ' + esc(w.phone) : '') + ' · first shift ' + day(w.firstAssignmentDate) + ' · last shift ' + day(w.lastAssignmentDate) + '</div></div></div>' +
       '<div class="ops-actions">' +
         '<button class="btn btn-ghost btn-sm" id="login-invite" title="' + (w.usesApp ? 'Has signed in before' : 'Has not signed in yet') + '">' + (w.usesApp ? 'Send new login link' : 'Send login invite') + '</button>' +
         '<a class="btn btn-ghost btn-sm" href="' + API + '/workers/' + esc(w.id) + '/export">Export all records (JSON)</a></div></div>' +
@@ -565,6 +577,11 @@
           await api('/workers/' + id + '/ready-override', { method: 'POST', body: { active: true, reason: readForm(b).reason } });
           toast('Override recorded'); reload();
         } }]);
+    });
+    var removePhoto = main.querySelector('#remove-photo');
+    if (removePhoto) removePhoto.addEventListener('click', async function () {
+      if (!(await confirmDialog('Remove ' + w.name + "'s photo? They will be asked for a new one the next time they sign in.", 'Remove photo'))) return;
+      try { await api('/workers/' + id + '/photo', { method: 'DELETE' }); toast('Photo removed'); reload(); } catch (err) { fail(err); }
     });
     var clearO = main.querySelector('#clear-override');
     if (clearO) clearO.addEventListener('click', async function () {

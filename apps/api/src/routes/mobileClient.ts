@@ -498,11 +498,10 @@ r.delete('/quotes/:id', async (req, res) => {
 type AuthenticatedClient = {
   id: string;
   companyName: string;
-  canUseLegacyCompanyOwnership: boolean;
 };
 
 // ============================================
-// HELPER: look up the authenticated client and legacy ownership fallback
+// HELPER: look up the authenticated client
 // ============================================
 async function getAuthenticatedClient(clientId: string): Promise<AuthenticatedClient | null> {
   const client = await prisma.client.findUnique({
@@ -514,29 +513,16 @@ async function getAuthenticatedClient(clientId: string): Promise<AuthenticatedCl
     return null;
   }
 
-  const matchingClients = await prisma.client.count({
-    where: { companyName: client.companyName }
-  });
-
-  return {
-    id: client.id,
-    companyName: client.companyName,
-    // Temporary fallback for legacy jobs created before Job.clientId existed.
-    canUseLegacyCompanyOwnership: matchingClients === 1
-  };
+  return { id: client.id, companyName: client.companyName };
 }
 
+/**
+ * A client owns a job only through Job.clientId. Jobs from before that column
+ * existed used to be matched on company name, which let anyone who registered
+ * under the same name (and was approved) see those jobs' applicants and claim
+ * them. Those jobs now stay with admin.
+ */
 function buildOwnedJobWhere(baseWhere: Record<string, unknown>, client: AuthenticatedClient) {
-  if (client.canUseLegacyCompanyOwnership) {
-    return {
-      ...baseWhere,
-      OR: [
-        { clientId: client.id },
-        { clientId: null, companyName: client.companyName }
-      ]
-    };
-  }
-
   return {
     ...baseWhere,
     clientId: client.id

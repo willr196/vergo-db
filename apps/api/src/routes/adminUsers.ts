@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import { prisma } from '../prisma';
 import { adminAuth } from '../middleware/adminAuth';
 import { authLogger } from '../services/logger';
+import { endAccountSessions } from '../lib/loginSecurity';
 
 const r = Router();
 
@@ -84,6 +85,8 @@ r.delete('/:id', async (req, res, next) => {
     }
 
     await prisma.adminUser.delete({ where: { id: target.id } });
+    // A removed admin's open sessions would otherwise keep working for up to 8 hours.
+    await endAccountSessions(req.sessionStore, 'admin', target.id);
     authLogger.info({ action: 'admin_user_deleted', admin: adminUsername(req), removedUsername: target.username }, 'Admin user deleted');
     res.json({ ok: true });
   } catch (e) { next(e); }
@@ -115,6 +118,8 @@ r.post('/change-password', async (req, res, next) => {
       where: { id: user.id },
       data: { password: hash, failedAttempts: 0, lockedUntil: null }
     });
+    // Signed in anywhere else (a stolen session included): signed out there.
+    await endAccountSessions(req.sessionStore, 'admin', user.id, req.sessionID);
 
     authLogger.info({ action: 'admin_password_changed', admin: user.username }, 'Admin changed their own password');
     res.json({ ok: true });

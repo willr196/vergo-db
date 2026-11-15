@@ -15,6 +15,7 @@ import { identityNumberIn } from '../../ops/compliance';
 import { dateKey, londonDateKey } from '../../ops/time';
 import { handle, fail, ymd, optionalText, dateOnly, money } from './common';
 import { issueSetPasswordLink } from '../../services/staffLogin';
+import { decodeStoredPhoto } from '../../services/staffPhoto';
 import { sendStaffLoginInviteEmail } from '../../services/email';
 
 const r = Router();
@@ -127,6 +128,31 @@ r.post('/workers', handle(async (req, res) => {
 }));
 
 // ── One worker ────────────────────────────────────────────────────────────
+
+// ── Profile photo ─────────────────────────────────────────────────────────
+// The photo a worker added at /staff/profile, as an image. Any worker login
+// (JOB_SEEKER), so People > Staff can show hired applicants not yet in Ops.
+
+r.get('/workers/:id/photo', handle(async (req, res) => {
+  const user = await prisma.user.findFirst({ where: { id: req.params.id, userType: 'JOB_SEEKER' }, select: { staffAvatar: true } });
+  const photo = decodeStoredPhoto(user?.staffAvatar);
+  if (!photo) fail(404, 'No photo');
+  // Private: never in a shared cache. The URL carries ?v=, so the browser may keep it a day.
+  res.setHeader('Cache-Control', 'private, max-age=86400');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.type(photo!.mimeType).send(photo!.buffer);
+}));
+
+/** Takes a photo off (wrong person, not a face). The staff pages ask them for a new one. */
+r.delete('/workers/:id/photo', handle(async (req, res) => {
+  const user = await prisma.user.findFirst({ where: { id: req.params.id, userType: 'JOB_SEEKER' }, select: { id: true, staffAvatar: true } });
+  if (!user) fail(404, 'Worker not found');
+  if (user!.staffAvatar) {
+    await prisma.user.update({ where: { id: user!.id }, data: { staffAvatar: null } });
+    await writeAudit(actorOf(req), { action: 'WORKER_PHOTO_REMOVED', entityType: 'Worker', entityId: user!.id });
+  }
+  res.json({ ok: true });
+}));
 
 r.get('/workers/:id', handle(async (req, res) => {
   const worker = await loadWorker(req.params.id);

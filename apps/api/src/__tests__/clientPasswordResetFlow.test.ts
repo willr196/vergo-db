@@ -133,6 +133,13 @@ test('client reset-password route clears reset tokens and returns success', asyn
   const originalFindFirst = prismaAny.client.findFirst;
   const originalUpdateClient = prismaAny.client.update;
 
+  const originalRevoke = prismaAny.refreshToken.updateMany;
+  let revokedFor: any = null;
+  prismaAny.refreshToken.updateMany = async (args: any) => { revokedFor = args.where; return { count: 1 }; };
+  const originalExecuteRaw = prismaAny.$executeRaw;
+  let sessionsEnded: any[] | null = null;
+  prismaAny.$executeRaw = async (_strings: TemplateStringsArray, ...values: any[]) => { sessionsEnded = values; return 1; };
+
   let updatePayload: any = null;
   prismaAny.client.findFirst = async () => ({
     id: 'client-1',
@@ -164,8 +171,14 @@ test('client reset-password route clears reset tokens and returns success', asyn
     assert.equal(updatePayload.data.lockedUntil, null);
     assert.equal(typeof updatePayload.data.passwordHash, 'string');
     assert.notEqual(updatePayload.data.passwordHash, 'new-super-secure-password');
+    // Whoever was signed in to the app before the reset is signed out.
+    assert.equal(revokedFor.clientId, 'client-1');
+    assert.equal(revokedFor.revokedAt, null);
+    assert.deepEqual(sessionsEnded!.slice(0, 3), ['isClient', 'clientId', 'client-1']);
   } finally {
+    prismaAny.$executeRaw = originalExecuteRaw;
     prismaAny.client.findFirst = originalFindFirst;
     prismaAny.client.update = originalUpdateClient;
+    prismaAny.refreshToken.updateMany = originalRevoke;
   }
 });

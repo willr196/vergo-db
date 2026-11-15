@@ -147,6 +147,16 @@ test('the desktop day: client, people, a job, crew, margin, rota and dashboard',
   const rota = ok(await call('GET', `/rota?weekStart=${monday}`));
   assert.equal(rota.jobs.length, 1);
   assert.equal(rota.staff.find((s: any) => s.id === ana.id).weeklyHours, '8.00');
+  // What the interactive rota needs: who is on it (with the assignment, to take
+  // them off), the headcount and role, and who can't be booked for want of a rate.
+  const rotaJob = rota.jobs[0];
+  assert.deepEqual(rotaJob.crew.map((c: any) => c.staffId), [ana.id]);
+  assert.ok(rotaJob.crew[0].assignmentId, 'each crew member carries their assignment id');
+  assert.equal(rotaJob.crew[0].name, 'Ana Smith');
+  assert.equal(rotaJob.roleNeeded, 'Kitchen porter');
+  assert.equal(rotaJob.staffNeeded, 2);
+  assert.equal(rota.staff.find((s: any) => s.id === ana.id).hasRate, true);
+  assert.equal(rota.staff.find((s: any) => s.name === 'Ben Jones').hasRate, false);
   const dash = ok(await call('GET', '/dashboard'));
   assert.equal(dash.jobsThisWeek, 1);
   assert.equal(dash.committedWageCost, '121.04');

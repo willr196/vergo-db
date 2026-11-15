@@ -2,7 +2,7 @@
 <% layout('/layouts/base', {
   meta: {
     "title": "Christmas Party Staff, London & Birmingham | VERGO Staffing",
-    "description": `Christmas party staff in London and Birmingham. Bar, waiting and kitchen staff from ${it.t.STANDARD_RATE_SHORT}/hr.`,
+    "description": `Christmas party staff in London and Birmingham: bar staff, waiting staff, kitchen porters and themed staff from ${it.t.STANDARD_RATE_SHORT}/hr, ${it.t.MIN_HOURS}-hour minimum.`,
     "ogImage": "/images/og/christmas.jpg",
     "canonical": "/special-events/christmas"
   },

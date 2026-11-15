@@ -34,15 +34,18 @@ export async function toolRoutes(app: FastifyInstance) {
       prisma.schedJob.findMany({
         where: { date: { gte: start, lte: end }, status: { not: 'CANCELLED' } },
         include: {
-          client: { select: { name: true } },
-          assignments: { include: { staff: { select: { id: true } } } },
+          client: { select: { id: true, name: true } },
+          assignments: {
+            include: { staff: { select: { id: true, firstName: true, lastName: true } } },
+            orderBy: { createdAt: 'asc' },
+          },
         },
         orderBy: [{ date: 'asc' }, { startTime: 'asc' }],
       }),
       prisma.schedStaff.findMany({
         where: { status: 'ACTIVE' },
         orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
-        select: { id: true, firstName: true, lastName: true },
+        select: { id: true, firstName: true, lastName: true, hourlyRate: true },
       }),
     ]);
 
@@ -63,9 +66,11 @@ export async function toolRoutes(app: FastifyInstance) {
     return {
       weekStart: days[0],
       days,
-      staff: staff.map((s) => ({
+      staff: staff.map(({ hourlyRate, ...s }) => ({
         ...s,
         name: `${s.firstName} ${s.lastName}`,
+        // No rate, no assignment (the crew route refuses): the rota greys them out.
+        hasRate: hourlyRate != null,
         weeklyHours: (weeklyHours.get(s.id) ?? 0).toFixed(2),
         overWorkingTimeLimit: (weeklyHours.get(s.id) ?? 0) > 48,
       })),
@@ -73,11 +78,23 @@ export async function toolRoutes(app: FastifyInstance) {
         id: job.id,
         reference: job.reference,
         title: job.title,
+        clientId: job.client?.id ?? null,
         clientName: job.client?.name ?? null,
+        venueName: job.venueName,
+        roleNeeded: job.roleNeeded,
+        staffNeeded: job.staffNeeded,
+        status: job.status,
         date: job.date.toISOString().slice(0, 10),
         startTime: job.startTime,
         endTime: job.endTime,
         staffIds: job.assignments.map((a) => a.staff.id),
+        // With the assignment id, so the rota can take someone off.
+        crew: job.assignments.map((a) => ({
+          assignmentId: a.id,
+          staffId: a.staff.id,
+          name: `${a.staff.firstName} ${a.staff.lastName}`,
+          hours: Number(a.hours).toFixed(2),
+        })),
         crewCount: job.assignments.length,
         hours: hoursBetween(job.startTime, job.endTime, job.breakMinutes).toFixed(2),
       })),

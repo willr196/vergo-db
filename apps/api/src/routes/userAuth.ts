@@ -9,8 +9,10 @@ import { sendUserVerificationEmail, sendPasswordResetEmail } from "../services/e
 import { requireUserJwt } from "../middleware/jwtAuth";
 import { requireUser } from "../middleware/userAuth";
 import { signAccessToken, signRefreshToken, verifyRefreshToken, getTokenExpiresAt, hashToken } from "../utils/jwt";
-import { parseMobileImageUpload } from "../utils/mobileMediaUpload";
+import { parseMobileImageUpload, parseImageDataUrl } from "../utils/mobileMediaUpload";
+import { roleGroupLabel } from "../services/roleGroups";
 import { env } from "../env";
+import { failedLoginUpdate, loginAddressLimiter, endAccountSessions } from "../lib/loginSecurity";
 
 const r = Router();
 
@@ -83,24 +85,27 @@ export const STAFF_ROLE_OPTIONS = [
 ] as const;
 
 const webProfileSchema = z.object({
-  firstName: z.string().min(1).max(100).trim().optional(),
-  lastName: z.string().min(1).max(100).trim().optional(),
-  phone: z.string().max(20).trim().optional(),
-  postcode: z.string().max(24).trim().optional(),
+  // Messages name the field: the staff profile page shows the first one as is.
+  // trim() first, so a name of spaces counts as no name.
+  firstName: z.string().trim().min(1, "Add your first name.").max(100, "Your first name is too long (100 characters at most).").optional(),
+  lastName: z.string().trim().min(1, "Add your last name.").max(100, "Your last name is too long (100 characters at most).").optional(),
+  // 40, as Ops and the Board allow: a number Ops typed in must save back unchanged.
+  phone: z.string().trim().max(40, "That phone number is too long (40 characters at most).").optional(),
+  postcode: z.string().trim().max(24, "That postcode is too long.").optional(),
   dateOfBirth: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .optional()
     .or(z.literal("")),
   preferredJobTypes: z.array(preferredJobTypeSchema).max(preferredJobTypeValues.length).optional(),
-  experienceSummary: z.string().max(500).optional(),
+  experienceSummary: z.string().max(500, "Your experience is too long (500 characters at most).").optional(),
   staffAvailable: z.boolean().optional(),
   // Staff only: kept on WorkerProfile, which Ops reads.
-  emergencyContactName: z.string().max(120).trim().optional(),
-  emergencyContactPhone: z.string().max(40).trim().optional(),
+  emergencyContactName: z.string().trim().max(120, "Your emergency contact's name is too long.").optional(),
+  emergencyContactPhone: z.string().trim().max(40, "Your emergency contact's phone is too long (40 characters at most).").optional(),
   roles: z.array(z.enum(STAFF_ROLE_OPTIONS)).max(STAFF_ROLE_OPTIONS.length).optional(),
   // Staff only: WorkerProfile.availabilityNotes, the "Availability notes" in Ops.
-  availability: z.string().max(1000).trim().optional(),
+  availability: z.string().trim().max(1000, "When you can work is too long (1000 characters at most).").optional(),
   // Taking work, limited, or not taking work right now. The app's switch.
   availabilityStatus: z.enum(["AVAILABLE", "LIMITED", "UNAVAILABLE"]).optional(),
 });
@@ -258,11 +263,14 @@ async function getWebProfileRecord(
 }
 
 function shapeWebUserProfile(user: NonNullable<Awaited<ReturnType<typeof getWebProfileRecord>>>) {
+  // Role names come from several eras ("Bartender", "Waiter"); each is shown
+  // under the apply form's wording, so it ticks the matching box.
   const registeredRoles = uniqueStrings(
     (user.applicant?.applications || []).flatMap((application) =>
-      application.roles.map((role) => role.role.name)
+      application.roles.map((role) => roleGroupLabel(role.role.name))
     )
   );
+  const staffRoles = uniqueStrings((user.workerProfile?.roles || []).map(roleGroupLabel));
 
   return {
     id: user.id,
@@ -285,12 +293,13 @@ function shapeWebUserProfile(user: NonNullable<Awaited<ReturnType<typeof getWebP
     emergencyContactPhone: user.workerProfile?.emergencyContactPhone || "",
     /** What they work as: their staff record's roles once set, until then the
      *  roles they applied with. Same rule Ops uses for the Roles column. */
-    roles: user.workerProfile?.roles?.length ? user.workerProfile.roles : registeredRoles,
+    roles: staffRoles.length ? staffRoles : registeredRoles,
     roleOptions: [...STAFF_ROLE_OPTIONS],
     /** The experience they gave for each role when they applied ("1-2 years"). */
     roleExperience: (user.applicant?.applications || []).reduce<Record<string, string>>((acc, application) => {
       application.roles.forEach((r) => {
-        if (r.experienceLevel && !acc[r.role.name]) acc[r.role.name] = r.experienceLevel;
+        const label = roleGroupLabel(r.role.name);
+        if (r.experienceLevel && !acc[label]) acc[label] = r.experienceLevel;
       });
       return acc;
     }, {}),
@@ -597,7 +606,7 @@ r.get("/verify-email", async (req, res) => {
 // ============================================
 // POST /api/v1/user/login
 // ============================================
-r.post("/login", loginLimiter, async (req, res) => {
+r.post("/login", loginAddressLimiter, loginLimiter, async (req, res) => {
   try {
     const parsed = loginSchema.safeParse(req.body);
     
@@ -639,20 +648,15 @@ r.post("/login", loginLimiter, async (req, res) => {
     // Invalid credentials
     if (!user || !passwordMatches) {
       if (user) {
-        const newFailedAttempts = (user.failedAttempts || 0) + 1;
-        const shouldLock = newFailedAttempts >= 8;
-        
+        const { failedAttempts, lockedUntil, locked } = failedLoginUpdate(user);
         await prisma.user.update({
           where: { id: user.id },
-          data: {
-            failedAttempts: newFailedAttempts,
-            lockedUntil: shouldLock ? new Date(Date.now() + 30 * 60 * 1000) : null
-          }
+          data: { failedAttempts, lockedUntil }
         });
-        
-        if (shouldLock) {
-          return res.status(423).json({ 
-            error: "Too many failed attempts. Account locked for 30 minutes."
+
+        if (locked) {
+          return res.status(423).json({
+            error: "Too many failed attempts. Account locked for 15 minutes."
           });
         }
       }
@@ -745,7 +749,7 @@ r.post("/login", loginLimiter, async (req, res) => {
 // ============================================
 // POST /api/v1/user/mobile/login
 // ============================================
-r.post("/mobile/login", loginLimiter, async (req, res) => {
+r.post("/mobile/login", loginAddressLimiter, loginLimiter, async (req, res) => {
   try {
     const parsed = loginSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -795,15 +799,10 @@ r.post("/mobile/login", loginLimiter, async (req, res) => {
 
     if (!user || !passwordMatches) {
       if (user) {
-        const newFailedAttempts = (user.failedAttempts || 0) + 1;
-        const shouldLock = newFailedAttempts >= 8;
-
+        const { failedAttempts, lockedUntil } = failedLoginUpdate(user);
         await prisma.user.update({
           where: { id: user.id },
-          data: {
-            failedAttempts: newFailedAttempts,
-            lockedUntil: shouldLock ? new Date(Date.now() + 30 * 60 * 1000) : null
-          }
+          data: { failedAttempts, lockedUntil }
         });
       }
       return res.status(401).json({ ok: false, error: "Invalid email or password" });
@@ -1434,8 +1433,10 @@ r.put("/profile", requireUser, async (req, res) => {
       if (input.roles !== undefined) {
         const staffRecord = await tx.workerProfile.findUnique({ where: { userId }, select: { roles: true } });
         if (staffRecord) {
+          // An old name for an offered role ("Bartender" for "Bar staff") is the
+          // page's to replace too, or unticking it could never take it away.
           const offered = new Set<string>(STAFF_ROLE_OPTIONS);
-          const kept = staffRecord.roles.filter((role) => !offered.has(role));
+          const kept = uniqueStrings(staffRecord.roles.filter((role) => !offered.has(roleGroupLabel(role))));
           const picked = STAFF_ROLE_OPTIONS.filter((role) => input.roles!.includes(role));
           await tx.workerProfile.update({ where: { userId }, data: { roles: [...picked, ...kept] } });
         }
@@ -1535,12 +1536,14 @@ r.post("/profile/avatar", requireUser, async (req, res) => {
       return res.status(401).json({ error: "Not authenticated" });
     }
 
-    const { dataUrl } = req.body;
-    if (!dataUrl || typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/")) {
-      return res.status(400).json({ error: "A valid image data URL is required" });
-    }
-    if (dataUrl.length > 1400000) {
-      return res.status(413).json({ error: "Image is too large. Please choose a smaller photo." });
+    // Decoded and sniffed: only a real JPEG, PNG or WebP is kept, whatever the
+    // URL claims. The page sends a 640px JPEG, far under the 1MB allowed.
+    let dataUrl: string;
+    try {
+      ({ dataUrl } = await parseImageDataUrl(req.body?.dataUrl));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "That photo did not upload.";
+      return res.status(/too large/i.test(message) ? 413 : 400).json({ error: message });
     }
 
     await prisma.user.update({
@@ -1565,7 +1568,7 @@ const forceChangePasswordSchema = z.object({
   newPassword: z.string().min(8).max(72),
 });
 
-r.post(["/force-change-password", "/mobile/force-change-password"], loginLimiter, async (req, res) => {
+r.post(["/force-change-password", "/mobile/force-change-password"], loginAddressLimiter, loginLimiter, async (req, res) => {
   try {
     const parsed = forceChangePasswordSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -1629,6 +1632,7 @@ r.post(["/force-change-password", "/mobile/force-change-password"], loginLimiter
     });
 
     console.log(`[USER] Force password change completed: ${redactEmail(user.email)}`);
+    await endAccountSessions(req.sessionStore, "user", user.id);
 
     // Determine if this is a mobile or web request
     const isMobile = req.path.includes("/mobile/");
@@ -1743,6 +1747,9 @@ r.put("/change-password", requireUser, async (req, res) => {
       },
     });
 
+    // Signed out everywhere else, and the app has to sign in again.
+    await endAccountSessions(req.sessionStore, "user", user.id, req.sessionID);
+
     console.log(`[USER] Password changed: ${redactEmail(user.email)}`);
     res.json({ ok: true, message: "Password updated successfully." });
   } catch (error) {
@@ -1854,6 +1861,9 @@ r.post("/reset-password", resetPasswordLimiter, async (req, res) => {
         lockedUntil: null
       }
     });
+
+    // Whoever held a session or app login before the reset loses it.
+    await endAccountSessions(req.sessionStore, "user", user.id);
 
     console.log(`[USER] Password reset complete: ${redactEmail(user.email)}`);
     

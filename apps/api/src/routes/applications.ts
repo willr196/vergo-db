@@ -12,9 +12,10 @@ import crypto from 'crypto';
 import { env } from '../env';
 import { sendApplicationNotificationEmail, sendApplicationConfirmationToApplicant, sendRosterApprovalEmail, sendApplicantMessageEmail } from '../services/email';
 import { issueSetPasswordLink } from '../services/staffLogin';
+import { staffPhotoUrls } from '../services/staffPhoto';
 import { summariseChecks } from '../services/rightToWork';
 import { authLogger } from '../services/logger';
-import { groupRoleCounts, roleNamesForLabel } from '../services/roleGroups';
+import { groupRoleCounts, roleGroupLabel, roleNamesForLabel } from '../services/roleGroups';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -984,6 +985,12 @@ function distanceInMiles(from: PostcodePoint, to: PostcodePoint) {
 }
 
 // When each row's applicant was last sent a pipeline email, from the delivery log.
+/** Adds photoUrl: the worker's profile photo, for rows whose applicant has a login with one. */
+async function withPhotos<T extends { account: { userId?: string } }>(rows: T[]): Promise<Array<T & { photoUrl: string | null }>> {
+  const urls = await staffPhotoUrls(rows.map((row) => row.account.userId));
+  return rows.map((row) => ({ ...row, photoUrl: (row.account.userId && urls.get(row.account.userId)) || null }));
+}
+
 async function withLastEmailed<T extends { email: string }>(rows: T[]): Promise<Array<T & { lastEmailedAt: Date | null }>> {
   const emails = [...new Set(rows.map((row) => row.email).filter(Boolean))];
   const sent = emails.length
@@ -1132,7 +1139,7 @@ r.get('/', adminAuth, async (req, res, next) => {
         ...shapeApplicationListItem(app),
         distanceMiles: distanceMiles === null ? null : Math.round(distanceMiles * 10) / 10
       }));
-      const payload = { applications: await withLastEmailed(shaped), pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
+      const payload = { applications: await withPhotos(await withLastEmailed(shaped)), pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
       return res.json({ ok: true, ...payload, data: payload });
     }
 
@@ -1174,7 +1181,7 @@ r.get('/', adminAuth, async (req, res, next) => {
     const shaped = apps.map(shapeApplicationListItem);
 
     const payload = {
-      applications: await withLastEmailed(shaped),
+      applications: await withPhotos(await withLastEmailed(shaped)),
       pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) }
     };
 
@@ -1337,7 +1344,7 @@ r.get('/:id', adminAuth, async (req, res, next) => {
       return res.status(404).json({ error: 'Application not found' });
     }
 
-    const payload = await shapeApplicationDetail(app);
+    const [payload] = await withPhotos([await shapeApplicationDetail(app)]);
     res.json({ ok: true, application: payload, data: payload });
   } catch (e) { next(e); }
 });
@@ -1410,6 +1417,7 @@ function shapeRosterAccount(user: {
 
   return {
     exists: true,
+    userId: user.id,
     status: user.mustChangePassword ? 'PENDING_FIRST_LOGIN' : 'ACTIVE',
     label: user.mustChangePassword ? 'Login email sent' : 'Account active',
     emailVerified: user.emailVerified,
@@ -1668,7 +1676,9 @@ r.post('/:id/roster-approval-email', adminAuth, async (req, res, next) => {
       where: { userId: user.id },
       create: {
         userId: user.id,
-        roles: app.roles.map((r) => r.role.name),
+        // Under the apply form's wording ("Bartender" becomes "Bar staff"), so
+        // the staff profile ticks them and Ops filters find them.
+        roles: [...new Set(app.roles.map((r) => roleGroupLabel(r.role.name)))],
         availabilityNotes: app.applicant.availability || null,
       },
       update: {}

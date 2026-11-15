@@ -134,6 +134,9 @@
     var firstName = f.firstName.value.trim();
     var lastName = f.lastName.value.trim();
     if (!firstName || !lastName) return show('profileStatus', 'Your first and last name are both needed.', 'error');
+    if (uploading) {
+      return show('profileStatus', 'Your photo is still uploading. Save again in a moment.', 'error');
+    }
     if (setup && !hasPhoto) {
       show('photoStatus', 'Add your photo to finish setting up.', 'error');
       show('profileStatus', 'Your photo is still missing. Add it at the top of the page.', 'error');
@@ -218,6 +221,7 @@
   var photoButton = document.getElementById('photoButton');
 
   var hasPhoto = false;
+  var uploading = false;
 
   function showPhoto(src) {
     hasPhoto = !!src;
@@ -242,7 +246,11 @@
           var canvas = document.createElement('canvas');
           canvas.width = Math.round(img.naturalWidth * scale);
           canvas.height = Math.round(img.naturalHeight * scale);
-          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          var ctx = canvas.getContext('2d');
+          // JPEG has no transparency: a see-through PNG would turn black.
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           resolve(canvas.toDataURL('image/jpeg', 0.85));
         };
         img.onerror = function () { reject(new Error('unreadable')); };
@@ -255,16 +263,21 @@
   photoInput.addEventListener('change', function () {
     var file = photoInput.files && photoInput.files[0];
     if (!file) return;
-    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
-      show('photoStatus', 'Use a JPEG, PNG or WebP photo.', 'error');
+    // Some phones give no type, or HEIC: let the browser try to read it (it is
+    // sent on as a JPEG either way), and only refuse what is plainly not a photo.
+    if (file.type && !/^image\//.test(file.type)) {
+      show('photoStatus', 'That is not a photo. Use a JPEG, PNG or WebP.', 'error');
       return;
     }
     document.getElementById('photoStatus').hidden = true;
     photoButton.textContent = 'Uploading…';
+    uploading = true;
     shrink(file)
       .then(function (dataUrl) { return request('POST', '/api/v1/user/profile/avatar', { dataUrl: dataUrl }); })
       .then(function (r) {
         if (r.status === 200 && r.body.ok) {
+          // Remembered, so a later photo that fails puts this one back, not none.
+          if (profile) profile.profileImage = r.body.data.profileImage;
           showPhoto(r.body.data.profileImage);
           show('photoStatus', 'Photo saved.', 'success');
           // A "your photo is still missing" from an earlier save is now wrong.
@@ -278,8 +291,8 @@
       .catch(function (err) {
         if (err && err.message === 'signed-out') return;
         showPhoto(profile && profile.profileImage);
-        show('photoStatus', err && err.message === 'unreadable' ? 'We could not read that file. Try another photo.' : 'Could not reach VERGO. Try again.', 'error');
+        show('photoStatus', err && err.message === 'unreadable' ? 'We could not read that photo. Try a JPEG or PNG, or take a new one.' : 'Could not reach VERGO. Try again.', 'error');
       })
-      .finally(function () { photoInput.value = ''; });
+      .finally(function () { uploading = false; photoInput.value = ''; });
   });
 })();
