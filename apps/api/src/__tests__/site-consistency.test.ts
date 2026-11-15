@@ -360,13 +360,18 @@ test('every £ amount on a public page comes from config', () => {
     // Worked from the special-events rates, so they move with them.
     ...Object.values(specialEventCharges()),
   ]);
+  // The cost of employing someone at the 2026/27 statutory floor, worked in the
+  // blog posts (which carry the "correct for 2026/27" caveat the lint requires).
+  // Not VERGO prices, so allowed in posts only; revisit every April.
+  const statutoryArithmetic = new Set(['£1.53', '£14.24', '£0.43', '£2.14', '£14.67', '£16.81']);
   const problems: string[] = [];
   for (const p of pages) {
     // The blog post's cost table is worked arithmetic, not a price list.
     if (p.url === '/blog/paye-vs-self-employed-event-staff') continue;
+    const isPost = p.url.startsWith('/blog/');
     const visible = text(p.root) + ' ' + [...p.html.matchAll(/content="([^"]*)"/g)].map((m) => m[1]).join(' ');
     for (const amount of decode(visible).match(/£\d+(?:,\d{3})*(?:\.\d+)?/g) || []) {
-      if (!allowed.has(amount)) problems.push(`${p.rel}: ${amount}`);
+      if (!allowed.has(amount) && !(isPost && statutoryArithmetic.has(amount))) problems.push(`${p.rel}: ${amount}`);
     }
   }
   assert.deepEqual(problems, []);

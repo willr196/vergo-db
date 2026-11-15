@@ -6,7 +6,7 @@ metaDescription: Comparing event staffing quotes? The legal cost floor for an ho
 published: 2026-11-15
 updated: 2026-11-15
 summary: The questions that explain why three staffing quotes differ, and the hourly floor below which a quote can't be paying staff properly.
-draft: true
+draft: false
 ---
 
 ## In short
