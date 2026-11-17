@@ -43,9 +43,9 @@
       <p><%~ it.t.CANCELLATION %> The percentage is of the confirmed booking charge, and the time is counted back from when the booking starts.</p>
       <p>These tiers apply to the booking as a whole. If you need to reduce staff numbers rather than cancel entirely, tell us as early as possible and we'll agree a fair adjustment.</p>
 
-      <h2>5. Our guarantees</h2>
-      <p><strong>Names the same day.</strong> <%~ it.t.CONFIRMATION_PROMISE %></p>
-      <p><strong>Replacement within the hour.</strong> <%~ it.t.NO_SHOW_PROMISE %></p>
+      <h2>5. Staff selection and replacements</h2>
+      <p><strong>Selected for your booking.</strong> <%~ it.t.CONFIRMATION_PROMISE %></p>
+      <p><strong>If someone drops out.</strong> <%~ it.t.NO_SHOW_PROMISE %></p>
 
       <h2>6. Employment status, right to work and insurance</h2>
       <ul class="check-list">

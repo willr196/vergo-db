@@ -153,7 +153,7 @@ test('the length limits are enforced on the server', async () => {
   assert.equal(faq.statusCode, 400);
   assert.match(faq.body.error, /3 sentences; the limit is 2/);
 
-  const work = await send('POST', '/recent-work', { title: 'Wedding', detail: 'one two three four five six seven eight nine ten eleven twelve' });
+  const work = await send('POST', '/recent-work', { title: 'Wedding', detail: Array.from({ length: 60 }, (_, i) => `w${i}`).join(' ') });
   assert.equal(work.statusCode, 400);
 
   const promos = (await send('GET', '/')).body.promos;

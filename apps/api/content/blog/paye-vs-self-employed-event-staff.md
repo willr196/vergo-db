@@ -4,7 +4,7 @@ title: PAYE or self-employed event staff, and what changes for you
 metaTitle: PAYE vs self-employed event staff | VERGO Staffing
 metaDescription: What actually changes for a caterer or production when event staff are on PAYE rather than self-employed, with the hourly arithmetic set out in full.
 published: 2026-09-05
-updated: 2026-09-26
+updated: 2026-11-15
 summary: Who carries the payroll, the holiday pay and the status risk when you book event staff, and what an hour really costs.
 draft: false
 ---
@@ -94,7 +94,7 @@ A supplier who cannot answer those quickly is telling you something.
 
 ## What this means if you are booking staff
 
-If you book hospitality staff through us, the answer to all five is the same. They are PAYE on zero-hours employment contracts, holiday pay is inside the rate at 12.07 per cent, we hold both insurances, we check right to work for everyone, and if somebody does not arrive we put a replacement on site within an hour, and with no replacement there is no charge for that shift.
+If you book hospitality staff through us, the answer to all five is the same. They are PAYE on zero-hours employment contracts, holiday pay is inside the rate at 12.07 per cent, we hold both insurances, we check right to work for everyone, and if somebody cannot make a shift we tell you and arrange a suitable replacement wherever we can. You only pay for hours actually worked.
 
 If you engage people directly, none of that is automatic. It is still perfectly possible to do it properly, and for some jobs hiring direct is the cheaper answer. It is just work somebody has to do, and it is worth knowing who that somebody is before the event rather than after it.
 
@@ -120,4 +120,4 @@ The person, their holiday pay, employer National Insurance, pension where it app
 
 ### What happens if somebody does not turn up?
 
-We put a replacement on site within an hour. With no replacement, there is no charge for that shift. That is the whole remedy and it is written down rather than informal. It is also one of the things that is genuinely harder to promise when you engage people directly.
+We tell you straight away and arrange a suitable replacement wherever we can. You only pay for hours actually worked, so time nobody worked is never charged. That is written into our terms rather than left informal.

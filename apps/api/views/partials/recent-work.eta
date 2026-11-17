@@ -1,10 +1,14 @@
+<%/* Work we've supported, from Admin > Site content > Recent work (60 words an entry, title included). Text only: no photographs of past bookings, no figures that aren't verified. */%>
 <% if (it.proof.recentWork.length) { %>
-<section class="section shell" aria-labelledby="recentwork-heading">
+<section class="section shell" id="recent-work" aria-labelledby="recentwork-heading">
       <h2 id="recentwork-heading" class="section-label">Recent work</h2>
-      <ul class="fact-list">
+      <div class="guarantees">
 <% it.proof.recentWork.forEach(function (w) { %>
-        <li><strong><%= w.title %></strong>: <%= w.detail %></li>
+        <div class="guarantee-card">
+          <h3><%= w.title %></h3>
+          <p><%= w.detail %></p>
+        </div>
 <% }) %>
-      </ul>
+      </div>
     </section>
 <% } %>

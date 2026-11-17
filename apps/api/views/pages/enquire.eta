@@ -1,0 +1,74 @@
+<%/* /enquire: the short way in. A name, a way to reply and a sentence about the event, posted to /api/v1/quotes as an ENQUIRY with source QUICK, so it lands in Inbox > Requests like every other request. The calculator at /hire/quote stays for people who want a price. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Tell Us What You Need | VERGO Staffing",
+    "description": "Send VERGO a quick enquiry about event staff. Your name, an email or phone number and a line about the event is enough to get started.",
+    "ogImage": "/images/og/hire.jpg",
+    "robots": "noindex",
+    "canonical": "/enquire"
+  },
+  scripts: ["/pages/js/enquire.js"],
+  header: {"focused":"1","back":"/hire","label":"← Back to staff and rates"}
+}) %>
+    <section class="page-hero-plain shell-form">
+      <span class="eyebrow">Quick enquiry</span>
+      <h1>Tell us what you need</h1>
+      <p class="lede">A few details are enough to get started. We'll help with the rest.</p>
+    </section>
+
+    <section class="section-tight shell-form">
+      <form id="enquiryForm" novalidate>
+        <div class="hp-field" aria-hidden="true">
+          <label for="enquiryWebsite">Website</label>
+          <input type="text" id="enquiryWebsite" name="website" tabindex="-1" autocomplete="off">
+        </div>
+        <input type="hidden" name="context" id="enquiryContext">
+        <p class="form-hint form-hint-block" id="enquiryContextNote" hidden></p>
+
+        <div class="form-field">
+          <label for="enquiryName">Your name</label>
+          <input type="text" id="enquiryName" name="name" autocomplete="name" maxlength="100" required>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-field">
+            <label for="enquiryEmail">Email <span class="label-note">or phone</span></label>
+            <input type="email" id="enquiryEmail" name="email" autocomplete="email" maxlength="255" aria-describedby="contactHint">
+          </div>
+          <div class="form-field">
+            <label for="enquiryPhone">Phone <span class="label-note">or email</span></label>
+            <input type="tel" id="enquiryPhone" name="phone" autocomplete="tel" maxlength="20" aria-describedby="contactHint">
+          </div>
+        </div>
+        <p class="form-hint form-hint-block" id="contactHint">One of the two is enough. We'll reply the way you choose.</p>
+
+        <div class="form-row form-row-2">
+          <div class="form-field">
+            <label for="enquiryDate">Event date <span class="label-note">optional</span></label>
+            <input type="date" id="enquiryDate" name="eventDate">
+          </div>
+          <div class="form-field">
+            <label for="enquiryLocation">Where <span class="label-note">optional</span></label>
+            <input type="text" id="enquiryLocation" name="location" maxlength="200" placeholder="e.g. Fulham, or the venue name">
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="enquiryMessage">What do you need?</label>
+          <textarea id="enquiryMessage" name="message" maxlength="2000" required placeholder="e.g. Two bartenders for a private party in Fulham, 6pm–11pm."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-block" id="enquirySend">Send enquiry</button>
+          <p class="action-hint">This is an enquiry, not a booking. Nothing is booked or charged until we confirm in writing.</p>
+        </div>
+
+        <div class="form-status" id="enquiryStatus" role="status" aria-live="polite" hidden></div>
+      </form>
+    </section>
+
+    <section class="section-tight shell-form" aria-labelledby="enquire-alt-heading">
+      <h2 id="enquire-alt-heading" class="section-label">Want to calculate the price yourself?</h2>
+      <p><a href="/hire/quote">Calculate an estimated price</a> with the rates, minimum hours and late-night rules built in.</p>
+      <p>Rather talk it through? <a href="<%~ it.t.PHONE_TEL %>">Call <%~ it.t.PHONE %></a> or <a href="<%~ it.t.WHATSAPP_URL %>" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>.</p>
+    </section>

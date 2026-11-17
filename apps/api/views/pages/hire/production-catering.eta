@@ -30,7 +30,7 @@
       <h1>Catering staff for film and TV productions</h1>
       <p class="lede">Kitchen teams for production caterers and studio kitchens, back again tomorrow.</p>
       <div class="btn-row">
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        <a href="/enquire?for=production-catering" class="btn btn-primary">Tell us what you need</a>
       </div>
     </section>
 
@@ -70,4 +70,4 @@
       <p class="link-row">Also: <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/cleaners">Event cleaners</a> · <a href="/hire">All roles</a></p>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Got a shoot booked?" }) %>
+    <%~ it.blocks["cta"]({ "heading": "Got a shoot booked?", "for": "production-catering" }) %>

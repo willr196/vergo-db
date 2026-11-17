@@ -2,7 +2,7 @@
 <% layout('/layouts/base', {
   meta: {
     "title": "Event Chefs for Hire in London | VERGO Staffing",
-    "description": `Event chefs and cooks in London for prep, service and the pass, cooking your menu or your caterer's. From ${it.t.CHEF_FROM_RATE}/hr, names confirmed the same day.`,
+    "description": `Event chefs and cooks in London for prep, service and the pass, cooking your menu or your caterer's. From ${it.t.CHEF_FROM_RATE}/hr, staff briefed before they arrive.`,
     "ogImage": "/images/og/kitchen-porters.jpg",
     "canonical": "/hire/event-chefs"
   },
@@ -40,7 +40,7 @@
       <h1>Event chefs for hire in London</h1>
       <p class="lede">Chefs and cooks for the prep, the service and the pass, cooking your menu or your caterer's. From <%~ it.t.CHEF_FROM_RATE %>/hr.</p>
       <div class="btn-row">
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        <a href="/enquire?for=event-chefs" class="btn btn-primary">Tell us what you need</a>
       </div>
     </section>
 
@@ -64,4 +64,4 @@
       <p class="link-row">Also: <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/production-catering">Film and TV catering</a> · <a href="/hire/waiting-staff">Waiting staff</a></p>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Need hands in the kitchen?" }) %>
+    <%~ it.blocks["cta"]({ "heading": "Need hands in the kitchen?", "for": "event-chefs" }) %>

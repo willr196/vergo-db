@@ -202,3 +202,29 @@ test('quoteShift: senior roles stay out of the total', () => {
   assert.equal(q.seniorPeople, 1);
   assert.equal(q.total, r2(2 * 4 * S));
 });
+
+test('quoteShift: several standard staff on a four-hour shift', () => {
+  const q = bothQuotes({ start: '18:00', end: '22:00', staff: [{ role: 'Waiting staff', count: 3 }] });
+  assert.equal(q.pricedPeople, 3);
+  assert.equal(q.total, r2(3 * 4 * S));
+});
+
+test('quoteShift: a time that is not a time is not priced', () => {
+  assert.equal(quoteShift({ start: '25:00', end: '22:00', staff: one }), null);
+  assert.equal(browserCalc.quoteShift({ start: '25:00', end: '22:00', staff: one }, browserRates), null);
+});
+
+test('quoteShift: no staff, or a count of zero, prices at nothing', () => {
+  assert.equal(bothQuotes({ start: '18:00', end: '22:00', staff: [] }).total, 0);
+  assert.equal(bothQuotes({ start: '18:00', end: '22:00', staff: [{ role: 'Waiting staff', count: 0 }] }).total, 0);
+});
+
+// OWNER DECISION NEEDED. The published rule is +25% on hours worked after
+// midnight. A shift that *starts* after midnight (00:30 to 04:30, same date) is
+// all after-midnight hours, but the calculator only uplifts time past 24:00 on
+// a shift that crosses midnight, so it prices this at the plain rate. Left as a
+// todo rather than changed: billing rules don't move without the owner.
+test('quoteShift: a shift that starts after midnight carries the uplift on every hour', { todo: 'owner to confirm the after-midnight rule for shifts starting after 00:00' }, () => {
+  const q = bothQuotes({ start: '00:30', end: '04:30', staff: one });
+  assert.equal(q.total, r2(4 * S * (1 + U)));
+});

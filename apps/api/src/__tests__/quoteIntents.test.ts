@@ -22,6 +22,19 @@ setRequiredEnv();
 const express = require('express');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const quotes = require('../routes/quotes').default;
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { prisma } = require('../prisma');
+
+// Every request is saved to Admin > Requests. There is no database here, so the
+// save is stubbed and records what it was given; a request that is neither saved
+// nor emailed is refused (see the last tests), so without this every case fails.
+const saved: any[] = [];
+let saveFails = false;
+(prisma as any).contact.create = async (args: any) => {
+  if (saveFails) throw new Error('database unavailable');
+  saved.push(args.data);
+  return { id: `contact-${saved.length}` };
+};
 
 class MockSocket extends Duplex {
   public chunks: Buffer[] = [];
@@ -319,4 +332,73 @@ test('a last day that cannot be right is rejected', async () => {
 
   const notADate = await post(buildApp(), { ...FULL_BOOKING, eventEndDate: 'next Friday' });
   assert.equal(notADate.statusCode, 400);
+});
+
+// ── The quick enquiry (/enquire) ───────────────────────────────────────────
+// The short form posts here as an enquiry marked source QUICK: a name, a message
+// and a way of replying, nothing else.
+
+const QUICK = {
+  intent: 'ENQUIRY',
+  source: 'QUICK',
+  name: 'Alex Host',
+  message: 'Two bartenders for a private party in Fulham, 6pm to 11pm.',
+};
+
+test('a quick enquiry with email only is accepted and saved as a quick enquiry', async () => {
+  const response = await post(buildApp(), { ...QUICK, email: 'alex@example.com', context: 'Bar staff' });
+  assert.equal(response.statusCode, 201);
+  const row = saved[saved.length - 1];
+  assert.equal(row.type, 'GENERAL');
+  assert.equal(row.subject, 'Quick enquiry');
+  assert.equal(row.email, 'alex@example.com');
+  assert.match(row.message, /Two bartenders/);
+  assert.match(row.message, /Asked about: Bar staff/);
+});
+
+test('a quick enquiry with a phone only, or both, is accepted', async () => {
+  assert.equal((await post(buildApp(), { ...QUICK, phone: '07700 900123' })).statusCode, 201);
+  assert.equal((await post(buildApp(), { ...QUICK, phone: '+44 7700 900123', email: 'alex@example.com' })).statusCode, 201);
+});
+
+test('a quick enquiry keeps its optional date and location', async () => {
+  const response = await post(buildApp(), { ...QUICK, email: 'alex@example.com', eventDate: '2026-12-12', location: 'Fulham' });
+  assert.equal(response.statusCode, 201);
+  const row = saved[saved.length - 1];
+  assert.equal(row.eventDate.toISOString().slice(0, 10), '2026-12-12');
+  assert.match(row.message, /Location: Fulham/);
+});
+
+test('a quick enquiry needs a name, a message and a way of replying', async () => {
+  const { name, ...noName } = QUICK;
+  const { message, ...noMessage } = QUICK;
+  assert.equal((await post(buildApp(), { ...noName, email: 'alex@example.com' })).statusCode, 400);
+  assert.equal((await post(buildApp(), { ...noMessage, email: 'alex@example.com' })).statusCode, 400);
+  assert.equal((await post(buildApp(), QUICK)).statusCode, 400);
+});
+
+test('a quick enquiry refuses a malformed email or phone', async () => {
+  assert.equal((await post(buildApp(), { ...QUICK, email: 'not-an-email' })).statusCode, 400);
+  assert.equal((await post(buildApp(), { ...QUICK, phone: 'call me maybe' })).statusCode, 400);
+});
+
+test('a filled honeypot is dropped quietly and never saved', async () => {
+  const before = saved.length;
+  const response = await post(buildApp(), { ...QUICK, email: 'bot@example.com', honeypot: 'http://spam' });
+  // The schema caps the honeypot at zero characters, so a bot gets a 400 rather than a save.
+  assert.notEqual(response.statusCode, 500);
+  assert.equal(saved.length, before);
+});
+
+test('a request that is neither saved nor emailed is refused, not reported as received', async () => {
+  saveFails = true;
+  try {
+    const response = await post(buildApp(), { ...QUICK, email: 'alex@example.com' });
+    assert.equal(response.statusCode, 503);
+    const body = JSON.parse(response.body);
+    assert.equal(body.ok, false);
+    assert.match(body.error, /call|WhatsApp/i);
+  } finally {
+    saveFails = false;
+  }
 });

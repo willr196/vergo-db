@@ -1,12 +1,13 @@
+<%/* How a booking is looked after. No response or replacement deadlines (owner's decision, November 2026); the two promises come from Admin > Site content. */%>
 <section class="section shell" data-block="guarantees" aria-labelledby="guarantees-heading">
-      <h2 id="guarantees-heading" class="section-label">Our guarantees</h2>
+      <h2 id="guarantees-heading" class="section-label">Selected and briefed for you.</h2>
       <div class="guarantees">
         <div class="guarantee-card">
-          <h3>Names the same day.</h3>
+          <h3>Confirmed in writing.</h3>
           <p><%= it.terms.confirmationPromise %></p>
         </div>
         <div class="guarantee-card">
-          <h3>Replacement within the hour.</h3>
+          <h3>If someone drops out.</h3>
           <p><%= it.terms.noShowPromise + it.terms.noShowExtra %></p>
         </div>
       </div>

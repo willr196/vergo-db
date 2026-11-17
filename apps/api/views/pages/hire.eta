@@ -2,7 +2,7 @@
 <% layout('/layouts/base', {
   meta: {
     "title": "Hire Event Staff in London | VERGO Staffing",
-    "description": `Waiting, bar, kitchen, cleaning and security staff across London. ${it.t.HEADLINE_RATE} per person, names the same day, a replacement within the hour.`,
+    "description": `Waiting, bar, kitchen, cleaning and security staff across London. ${it.t.HEADLINE_RATE} per person, four-hour minimum, staff selected and briefed for you.`,
     "ogImage": "/images/og/hire.jpg",
     "canonical": "/hire"
   },
@@ -13,7 +13,7 @@
       "name": "Event and hospitality staffing",
       "serviceType": "Event and hospitality staffing",
       "url": "https://vergoltd.com/hire",
-      "description": "Waiting staff, bar staff, kitchen porters, runners, hosts and front of house, cleaners and security for events across London, with a replacement within the hour on a no-show.",
+      "description": "Waiting staff, bar staff, kitchen porters, runners, hosts and front of house, cleaners and security for events across London.",
       "areaServed": {
         "@type": "City",
         "name": "London"
@@ -46,11 +46,12 @@
       <h1>Event staff for hire in London</h1>
       <p class="home-slogan"><%~ it.t.SLOGAN %></p>
       <p class="lede"><a href="/hire/waiting-staff">Waiting</a>, <a href="/hire/bar-staff">bar</a>, <a href="/hire/kitchen-porters">kitchen porters</a>, runners, <a href="/hire/front-of-house">hosts</a>, <a href="/hire/event-chefs">chefs</a>, <a href="/hire/cleaners">cleaners</a> and <a href="/hire/security">security</a>, in London and <a href="/birmingham">Birmingham</a>. Food and bar too: see <a href="/book-an-event">full events</a>.</p>
-      <p class="lede"><%= it.t.ROSTER_LINE %></p>
+      
       <div class="btn-row">
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        <a href="/enquire" class="btn btn-primary">Tell us what you need</a>
+        <a href="/hire/quote" class="btn btn-secondary">Calculate a price</a>
       </div>
-    </section>
+      </section>
 
     <%~ it.blocks["guarantees"]() %>
 
@@ -61,18 +62,18 @@
       <div class="step-grid step-grid--3">
         <div class="step">
           <div class="step-number">01</div>
-          <h3>Send details</h3>
-          <p>Date, times, roles.</p>
+          <h3>Tell us about your event</h3>
+          <p>Date, place, staff needed.</p>
         </div>
         <div class="step">
           <div class="step-number">02</div>
-          <h3>Get names</h3>
-          <p>Names, not numbers.</p>
+          <h3>We arrange the team</h3>
+          <p>We check availability and confirm in writing.</p>
         </div>
         <div class="step">
           <div class="step-number">03</div>
-          <h3>They arrive briefed</h3>
-          <p>Venue and running order.</p>
+          <h3>Staff arrive briefed</h3>
+          <p>Venue, timings, dress code.</p>
         </div>
       </div>
     </section>

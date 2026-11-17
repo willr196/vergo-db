@@ -131,6 +131,14 @@ test('public quote submissions ignore spoofed client identifiers and do not crea
     createCalled = true;
     return { id: 'quote-1' };
   };
+  // A public request is saved as a Contact for Admin > Requests, never as a
+  // client-linked QuoteRequest. Stubbed so the save succeeds without a database.
+  const originalContactCreate = prismaAny.contact.create;
+  let savedContact: any = null;
+  prismaAny.contact.create = async (args: any) => {
+    savedContact = args.data;
+    return { id: 'contact-1' };
+  };
 
   const app = express();
   app.use(express.json());
@@ -153,10 +161,12 @@ test('public quote submissions ignore spoofed client identifiers and do not crea
     assert.equal(response.statusCode, 201);
     const body = JSON.parse(response.body || '{}') as any;
     assert.equal(body.ok, true);
-    assert.equal(body.quoteId, null);
+    assert.equal(body.quoteId, 'contact-1');
     assert.equal(createCalled, false);
+    assert.equal('clientId' in savedContact, false);
   } finally {
     prismaAny.quoteRequest.create = originalCreate;
+    prismaAny.contact.create = originalContactCreate;
   }
 });
 

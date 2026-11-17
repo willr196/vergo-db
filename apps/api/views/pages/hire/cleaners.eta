@@ -2,7 +2,7 @@
 <% layout('/layouts/base', {
   meta: {
     "title": "Event Cleaners for Hire in London | VERGO Staffing",
-    "description": "Event cleaners in London for set-up, during service and the clean-down after. Quoted on the brief, names confirmed the same day.",
+    "description": "Event cleaners in London for set-up, during service and the clean-down after. Quoted on the brief, staff briefed before they arrive.",
     "ogImage": "/images/og/hire.jpg",
     "canonical": "/hire/cleaners"
   },
@@ -30,7 +30,7 @@
       <h1>Event cleaners for hire in London</h1>
       <p class="lede">Before the doors open, through the night, and after the last guest leaves.</p>
       <div class="btn-row">
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        <a href="/enquire?for=cleaners" class="btn btn-primary">Tell us what you need</a>
       </div>
     </section>
 
@@ -41,7 +41,7 @@
         <li><strong>During:</strong> toilets checked and stocked, spills, bins and floors kept on top of</li>
         <li><strong>After:</strong> full clean-down, rubbish and recycling out, venue handed back</li>
       </ul>
-      <p class="section-note"><%= it.t.ROSTER_LINE %> Priced on the brief.</p>
+      <p class="section-note">Cleaning kit and products agreed with you up front. Priced on the brief.</p>
     </section>
 
     <%~ it.blocks["guarantees"]() %>
@@ -54,4 +54,4 @@
       <p class="link-row">Also: <a href="/hire/security">Event security</a> · <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/corporate-events">Corporate and large events</a></p>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Need the venue spotless?" }) %>
+    <%~ it.blocks["cta"]({ "heading": "Need the venue spotless?", "for": "cleaners" }) %>

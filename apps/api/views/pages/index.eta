@@ -1,4 +1,4 @@
-<%/* /: moved from public/index.html. Shared blocks and contact details come from it.blocks and it.t. No prices on this page. */%>
+<%/* /: moved from public/index.html. Shared blocks and contact details come from it.blocks and it.t. The one price line uses the rate tokens, never a typed figure. */%>
 <% layout('/layouts/base', {
   meta: {
     "title": "Event Staff Hire in London & Birmingham | VERGO Staffing",
@@ -50,7 +50,7 @@
       <div class="home-hero-head">
         <img class="home-logo" src="/images/vergo-mark-400.webp" width="600" height="600" alt="" fetchpriority="high">
         <div class="home-hero-centre">
-          <h1>Event Staff</h1>
+          <h1>Event Staff Hire</h1>
           <%~ include('/partials/city-switch', { current: "london" }) %>
           <p class="home-slogan"><%~ it.t.SLOGAN %></p>
         </div>
@@ -82,13 +82,14 @@
     </nav>
 
     <section class="home-cta shell">
-      <p class="lede">Vetted, briefed staff for events across London and Birmingham.</p>
+      <p class="lede">Waiting staff, bartenders, kitchen porters and event teams, selected and briefed for your booking.</p>
       <div class="btn-row">
-        <a href="/hire" class="btn btn-primary">Hire staff</a>
-        <a href="/hire/quote" class="btn btn-secondary">Get a quote</a>
+        <a href="/enquire?for=home" class="btn btn-primary">Tell us what you need</a>
+        <a href="/hire" class="btn btn-secondary">View staff &amp; rates</a>
       </div>
-      <p class="home-today">Need someone today? <a href="<%~ it.t.PHONE_TEL %>">Call <%~ it.t.PHONE %></a> or <a href="<%~ it.t.WHATSAPP_URL %>" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>.</p>
-      <p class="home-roles"><a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/cleaners">Cleaners</a> · <a href="/hire/security">Security</a></p>
+      <p class="home-today">Rather talk it through? <a href="<%~ it.t.PHONE_TEL %>">Call <%~ it.t.PHONE %></a> or <a href="<%~ it.t.WHATSAPP_URL %>" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a>.</p>
+      <p class="home-roles"><a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/front-of-house">Hosts and front of house</a> · <a href="/hire">Chefs, cleaners, security and more</a></p>
+      <p class="home-today">Standard staff from <%~ it.t.STANDARD_RATE_SHORT %>/hr per person, <%~ it.t.MIN_HOURS_WORD %>-hour minimum; premium and specialist roles cost more. <a href="/hire#rates-heading">Full rates</a> · <a href="/hire#recent-work">Recent work</a></p>
     </section>
 
     <%~ it.blocks["trust-strip"]() %>
@@ -99,3 +100,5 @@
     <%~ it.blocks["season-feature"]() %>
 
     <%~ it.blocks["testimonials"]({ "featured": "1" }) %>
+
+    <%~ it.blocks["cta"]({ "for": "home" }) %>

@@ -273,7 +273,8 @@ test('the header has one Seasonal item, and the season pages only inside it', ()
 
 const BUDGETS: Record<string, number> = {
   '/': 220,
-  '/hire': 250,
+  // 250 plus the three Recent work entries the owner asked for on /hire (Nov 2026).
+  '/hire': 315,
   '/birmingham': 225,
   '/hire/waiting-staff': 160,
   '/hire/bar-staff': 160,

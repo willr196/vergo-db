@@ -9,7 +9,9 @@ export const LIMITS = {
   reviewWords: 60,
   faqAnswerWords: 45,
   faqAnswerSentences: 2,
-  recentWorkWords: 12,
+  // Title and detail together. 60 so an entry can say what was supplied and the
+  // context (owner's brief, Nov 2026: recent-work entries of about 40 to 80 words).
+  recentWorkWords: 60,
   bannerWords: 10,
 } as const;
 

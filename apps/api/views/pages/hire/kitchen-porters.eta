@@ -2,7 +2,7 @@
 <% layout('/layouts/base', {
   meta: {
     "title": "Kitchen Porter Hire in London | VERGO Staffing",
-    "description": `Kitchen porter hire in London for events, caterers and production kitchens. ${it.t.HEADLINE_RATE} per person, four-hour minimum, names confirmed the same day.`,
+    "description": `Kitchen porter hire in London for events, caterers and production kitchens. ${it.t.HEADLINE_RATE} per person, four-hour minimum, staff briefed before they arrive.`,
     "ogImage": "/images/og/kitchen-porters.jpg",
     "canonical": "/hire/kitchen-porters"
   },
@@ -45,7 +45,7 @@
       <h1>Kitchen porter hire in London</h1>
       <p class="lede">Wash-up, waste and clear down for events, caterers, venues and production kitchens.</p>
       <div class="btn-row">
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        <a href="/enquire?for=kitchen-porters" class="btn btn-primary">Tell us what you need</a>
       </div>
     </section>
 
@@ -71,4 +71,4 @@
       <p class="link-row">Also: <a href="/hire/production-catering">Film and TV catering</a> · <a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a></p>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Got a date in the diary?" }) %>
+    <%~ it.blocks["cta"]({ "heading": "Got a date in the diary?", "for": "kitchen-porters" }) %>

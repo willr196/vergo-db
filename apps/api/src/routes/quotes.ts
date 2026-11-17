@@ -5,6 +5,7 @@ import { TO_EMAIL, sendQuoteNotificationEmail, sendQuoteConfirmationEmail } from
 import { emailSendingSuppressed } from "../services/email/suppression";
 import { logger, maskEmail } from "../services/logger";
 import { SITE_TERMS } from "../config/pricing";
+import { SITE } from "../site/content";
 import { prisma } from "../prisma";
 
 const r = Router();
@@ -96,6 +97,13 @@ const baseQuoteShape = {
   
   // For spam prevention
   honeypot: z.string().max(0).optional(), // Should be empty
+
+  // "QUICK" for the short form at /enquire. It holds the request to a name and a
+  // message on top of the usual email-or-phone, since that is all it asks for.
+  source: z.literal("QUICK").optional(),
+  // What the visitor was looking at when they asked ("Bar staff", "Christmas"),
+  // from the page that sent them. A label, never personal data.
+  context: z.string().max(60).trim().optional(),
 };
 
 const bookingSchema = z.object({
@@ -152,6 +160,17 @@ const quoteRequestSchema = z
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["eventEndDate"], message: "The last day can't be before the first" });
       } else if (days > MAX_DAYS) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["eventEndDate"], message: `Book up to ${MAX_DAYS} days at a time` });
+      }
+    }
+    if (data.source === "QUICK") {
+      if (!data.name || data.name.length < 2) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["name"], message: "Tell us your name" });
+      }
+      if (!data.message || data.message.trim().length < 5) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["message"], message: "Tell us a little about what you need" });
+      }
+      if (data.phone && !/^[0-9+()\-\s]{7,20}$/.test(data.phone)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["phone"], message: "That phone number doesn't look right" });
       }
     }
     if (data.intent === "ENQUIRY" && !data.email && !data.phone) {
@@ -355,6 +374,8 @@ function normaliseQuotePayload(body: unknown) {
     message,
     estimatedTotal: parseNumber(raw.estimatedTotal),
     honeypot: typeof raw.honeypot === "string" ? raw.honeypot : undefined,
+    source: raw.source === "QUICK" ? ("QUICK" as const) : undefined,
+    context: firstString(raw.context)?.slice(0, 60),
   };
 }
 
@@ -382,6 +403,7 @@ async function saveWebsiteRequest(data: z.infer<typeof quoteRequestSchema>): Pro
     ["Dress code", data.dressCode],
     ["Service level", data.serviceLevel === "PREMIUM" ? "Premium" : data.serviceLevel === "STANDARD" ? "Standard" : undefined],
     ["Lane", data.requestedLane],
+    ["Asked about", data.context],
   ];
   const detailText = details
     .filter(([, value]) => value !== undefined && value !== "")
@@ -396,7 +418,7 @@ async function saveWebsiteRequest(data: z.infer<typeof quoteRequestSchema>): Pro
       phone: data.phone || null,
       company: data.company || null,
       type: isBooking ? "STAFF_REQUEST" : "GENERAL",
-      subject: isBooking ? "Booking request" : "Question from the quote page",
+      subject: isBooking ? "Booking request" : data.source === "QUICK" ? "Quick enquiry" : "Question from the quote page",
       eventType: data.eventType || null,
       eventDate,
       guests: data.guestCount ?? null,
@@ -484,18 +506,26 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       'Quote request received'
     );
     
+    const isQuick = data.source === "QUICK";
+    // Whether the team heard about it by email. With the save above, this decides
+    // whether the visitor may be told it arrived (see the end of the handler).
+    let notified = false;
+
     // Send notification email to VERGO team
     if (emailEnabled) {
       try {
         const sent = await sendQuoteNotificationEmail({
           subject: isBooking
             ? `BOOKING REQUEST${data.city ? ` (${data.city})` : ""}: ${data.eventType} — ${data.staffNeeded} staff${data.eventDate ? ` on ${datesLabel(data)}` : ""}`
+            : isQuick
+              ? `Quick enquiry from ${data.name}${data.context ? ` — ${data.context}` : ""}`
             // the occasion is appended when the form supplied one, so a Christmas
             // brief is identifiable in the inbox without opening it. Enquiries from
             // the plain quote page carry no event type and read as before.
             : `Message from ${data.name || data.email || "the quote page"}${data.eventType ? ` — ${data.eventType}` : ""}${data.city ? ` (${data.city})` : ""}`,
           html: `
-            <h2 style="margin-bottom: 4px;">${isBooking ? "Booking request" : "Message from the quote page"}</h2>
+            <h2 style="margin-bottom: 4px;">${isBooking ? "Booking request" : isQuick ? "Quick enquiry from the website" : "Message from the quote page"}</h2>
+            ${isQuick && data.context ? `<p style="margin-top: 0;"><strong>Asked about:</strong> ${safe(data.context)}</p>` : ""}
             <p style="margin-top: 0; padding: 10px 14px; border-radius: 6px; font-weight: bold; background: ${isBooking ? "#e6f6ea" : "#f2f0ea"}; color: #1a1410;">
               ${isBooking
                 ? "They asked to book. Confirm availability and come back with a confirmation."
@@ -536,6 +566,7 @@ r.post("/", quoteLimiter, async (req, res, next) => {
             'Quote notification was not sent'
           );
         } else {
+          notified = true;
           console.log(`[EMAIL] Quote notification sent to ${TO_EMAIL} (${sent.id})`);
         }
       } catch (emailErr) {
@@ -561,8 +592,8 @@ r.post("/", quoteLimiter, async (req, res, next) => {
                 <h2 style="color: #2c3e2f; margin-top: 0;">${isBooking ? "We've got your booking request" : "We've got your message"}</h2>
                 <p>Hi ${safe(data.name || 'there')},</p>
                 ${isBooking
-                  ? `<p>You've asked us to book staff${data.eventType ? ` for your <strong>${safe(data.eventType)}</strong>` : ''}. Nothing is confirmed until we come back to you with names.${data.city === "Birmingham" ? "" : ` ${safe(SITE_TERMS.confirmationPromise)}`}</p>`
-                  : `<p>Thanks for getting in touch. This was sent as a question rather than a booking, so nothing has been booked or charged. We'll reply as soon as we can, usually the same day.</p>`}
+                  ? `<p>You've asked us to book staff${data.eventType ? ` for your <strong>${safe(data.eventType)}</strong>` : ''}. Nothing is confirmed until we come back to you with names. ${safe(SITE_TERMS.confirmationPromise)}</p>`
+                  : `<p>Thanks for getting in touch. This was sent as a question rather than a booking, so nothing has been booked or charged. We'll reply as soon as we can.</p>`}
                 
                 ${isBooking ? `<div style="background: #fff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #D4AF37;">
                   <h3 style="margin-top: 0; color: #2c3e2f;">What you asked for</h3>
@@ -601,6 +632,16 @@ r.post("/", quoteLimiter, async (req, res, next) => {
       }
     }
     
+    // Neither saved nor emailed: nobody at VERGO will ever see it, so the visitor
+    // must not be told it arrived. They get the phone and WhatsApp instead.
+    if (!savedQuoteId && !notified) {
+      logger.error({ event: 'quote_lost', intent: data.intent }, 'Request was neither saved nor emailed; visitor told to call');
+      return res.status(503).json({
+        ok: false,
+        error: `We couldn't send that just now. Please call ${SITE.phoneDisplay} or WhatsApp us, and we'll pick it up from there.`,
+      });
+    }
+
     res.status(201).json({
       ok: true,
       intent: data.intent,

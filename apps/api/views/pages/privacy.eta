@@ -20,7 +20,7 @@
       <p>Contact us about privacy at <a href="mailto:<%~ it.t.EMAIL %>"><%~ it.t.EMAIL %></a>.</p>
 
       <h2>2. What we collect through this website, and why</h2>
-      <h3>The quote form (/hire/quote) and event enquiry forms</h3>
+      <h3>The quote form (/hire/quote), the quick enquiry (/enquire) and event enquiry forms</h3>
       <p>If you ask us to book staff, we collect your name, email, phone, company (if given), event type, date, times, venue postcode, staff numbers, roles needed, service level, and anything you add in the message field. The event and special events enquiry forms collect the same kind of detail about your event.</p>
       <p>If you send us a message rather than a booking, every field is optional apart from an email address or phone number so that we can reply.</p>
       <p><strong>Why:</strong> to respond to your enquiry and, if you go ahead, to plan and deliver your booking. <strong>Lawful basis:</strong> taking steps at your request before entering a contract, and our legitimate interest in responding to enquiries sent to us.</p>

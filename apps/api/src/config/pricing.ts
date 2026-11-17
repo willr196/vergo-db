@@ -98,14 +98,16 @@ export const SITE_TERMS = {
   seniorRolesQuoted: 'Managers, cleaners and security quoted separately.',
   paymentTerms: 'First booking paid upfront, then 14 days.',
   cancellation: 'Free 48h+ before. 10% within 48h, 25% within 24h.',
-  confirmationPromise: 'Enquire by 6pm, get confirmed names the same day. After 6pm, by 10am.',
-  noShowPromise: 'Replacement on site within an hour. You never pay for time nobody worked. No replacement, no charge for that shift.',
+  // No response deadline (owner's decision, November 2026): we confirm in writing, not by a clock.
+  confirmationPromise: 'We check availability and confirm the team in writing before anything is booked.',
+  // No replacement deadline either. What stays is the money: hours nobody worked are never charged.
+  noShowPromise: "If someone can't make their shift, we tell you and arrange a suitable replacement wherever we can. You only pay for hours actually worked.",
   /** Appended to noShowPromise, e.g. " Plus 10% off the booking." Empty for none. */
   noShowExtra: '',
   /** A line under the guarantee block. Empty for none. */
   guaranteeFootnote: '',
   /** The roster claim, wherever a page talks about how many people we can send. Names no figure. */
-  rosterLine: 'A massive roster of vetted staff, so big teams and late changes get filled.',
+  rosterLine: 'Staff selected for your booking and briefed before they arrive.',
   favouritesPromise: "Ask for staff you liked by name. Anyone who wasn't right won't be sent again.",
   /** Marketing pages. */
   employmentShort: 'Hospitality staff employed by us on PAYE.',

@@ -1,14 +1,18 @@
-<%/* The one call to action a page ends on. attrs: heading, button, href, line (optional). */%>
+<%/* The one call to action a page ends on. attrs: heading, button, href, line (optional), for (optional: the page, passed to /enquire as ?for= so the enquiry arrives labelled). With no href it is the quick enquiry, with the calculator one link away. */%>
+<% const own = Boolean(it.attrs.href); const href = own ? it.attrs.href : '/enquire' + (it.attrs.for ? '?for=' + encodeURIComponent(it.attrs.for) : ''); %>
 <section class="section-band" data-block="cta" aria-labelledby="cta-heading">
       <div class="cta-band shell">
         <div>
-          <h2 id="cta-heading"><%= it.attrs.heading || 'Got a date in the diary?' %></h2>
+          <h2 id="cta-heading"><%= it.attrs.heading || 'Got an event coming up?' %></h2>
 <% if (it.attrs.line) { %>
           <p><%= it.attrs.line %></p>
 <% } %>
         </div>
         <div class="cta-actions">
-          <a href="<%= it.attrs.href || '/hire/quote' %>" class="btn btn-primary"><%= it.attrs.button || 'Get a quote' %></a>
+          <a href="<%= href %>" class="btn btn-primary"><%= it.attrs.button || 'Send an enquiry' %></a>
+<% if (!own) { %>
+          <p class="cta-contact"><a href="/hire/quote">Calculate a price</a></p>
+<% } %>
           <p class="cta-contact"><a href="tel:<%= it.site.phoneE164 %>">Call <%= it.site.phoneDisplay %></a> · <a href="<%= it.site.whatsappUrl %>" data-whatsapp target="_blank" rel="noopener">WhatsApp us</a></p>
         </div>
       </div>

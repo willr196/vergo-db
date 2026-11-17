@@ -2,7 +2,7 @@
 <% layout('/layouts/base', {
   meta: {
     "title": "Event Security Staff for Hire in London | VERGO Staffing",
-    "description": "SIA-licensed event security in London: door supervisors, bag checks, crowd and guest-list control. Quoted on the brief, names confirmed the same day.",
+    "description": "SIA-licensed event security in London: door supervisors, bag checks, crowd and guest-list control. Quoted on the brief, staff briefed before they arrive.",
     "ogImage": "/images/og/hire.jpg",
     "canonical": "/hire/security"
   },
@@ -30,7 +30,7 @@
       <h1>Event security staff for hire in London</h1>
       <p class="lede">SIA-licensed door supervisors and event security, booked with the rest of your team.</p>
       <div class="btn-row">
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        <a href="/enquire?for=security" class="btn btn-primary">Tell us what you need</a>
       </div>
     </section>
 
@@ -54,4 +54,4 @@
       <p class="link-row">Also: <a href="/hire/cleaners">Event cleaners</a> · <a href="/hire/corporate-events">Corporate and large events</a></p>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Need the door covered?" }) %>
+    <%~ it.blocks["cta"]({ "heading": "Need the door covered?", "for": "security" }) %>

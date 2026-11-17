@@ -30,7 +30,7 @@
       <h1>Corporate and large event staff in London</h1>
       <p class="lede">Conferences, awards dinners, launches, exhibitions and festivals. One team, one point of contact.</p>
       <div class="btn-row">
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        <a href="/enquire?for=corporate-events" class="btn btn-primary">Tell us what you need</a>
       </div>
     </section>
 
@@ -54,7 +54,7 @@
       <div class="faq-list">
         <%~ include('/partials/faq', { items: it.faqs("hire/corporate-events"), name: "corporate-faq", esc: it.esc }) %>
       </div>
-      <p class="link-row">Also: <a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a> · <a href="/special-events/christmas">Christmas parties</a></p>
+      <p class="link-row">Also: <a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/front-of-house">Hosts</a> · <a href="/special-events/christmas">Christmas parties</a></p>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Got an event coming up?" }) %>
+    <%~ it.blocks["cta"]({ "heading": "Got an event coming up?", "for": "corporate-events" }) %>

@@ -269,7 +269,7 @@
           form.reset();
           clearErrors();
           showStatus(
-            'Got it. Nothing is booked. We will read the brief and come back with a suggested team as soon as we can, usually the same day.',
+            'Got it. Nothing is booked. We will read the brief and come back with a suggested team as soon as we can.',
             'success'
           );
           if (statusBox.scrollIntoView) statusBox.scrollIntoView({ block: 'center', behavior: 'smooth' });

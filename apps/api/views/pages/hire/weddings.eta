@@ -30,7 +30,7 @@
       <h1>Wedding staff hire in London</h1>
       <p class="lede">For couples, planners and dry-hire venues, briefed on your running order.</p>
       <div class="btn-row">
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        <a href="/enquire?for=weddings" class="btn btn-primary">Tell us what you need</a>
       </div>
     </section>
 
@@ -56,4 +56,4 @@
       <p class="link-row">Also: <a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/cleaners">Event cleaners</a> · <a href="/hire/security">Event security</a></p>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Got a date and a venue?" }) %>
+    <%~ it.blocks["cta"]({ "heading": "Got a date and a venue?", "for": "weddings" }) %>

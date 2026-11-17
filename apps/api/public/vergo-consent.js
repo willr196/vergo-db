@@ -194,6 +194,18 @@
     }
   }
 
+  // Call and WhatsApp taps, counted only once analytics consent has loaded gtag.
+  // The method and the page path only: never the number, a name or a message.
+  document.addEventListener('click', function (event) {
+    if (typeof window.gtag !== 'function' || !event.target || !event.target.closest) return;
+    var link = event.target.closest('a[href^="tel:"], a[data-whatsapp]');
+    if (!link) return;
+    window.gtag('event', 'contact_click', {
+      method: link.hasAttribute('data-whatsapp') ? 'whatsapp' : 'phone',
+      page_path: window.location.pathname
+    });
+  });
+
   window.vergoConsent = {
     status: function () { var s = read(); return s ? s.status : null; },
     show: showBanner,

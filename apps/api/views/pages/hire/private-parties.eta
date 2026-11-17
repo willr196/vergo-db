@@ -30,7 +30,7 @@
       <h1>Private party staff hire in London</h1>
       <p class="lede">Birthdays, anniversaries, house and garden parties. You host, we look after the drinks and the clear-up.</p>
       <div class="btn-row">
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        <a href="/enquire?for=private-parties" class="btn btn-primary">Tell us what you need</a>
       </div>
     </section>
 
@@ -56,4 +56,4 @@
       <p class="link-row">Also: <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/weddings">Weddings</a> · <a href="/special-events/christmas">Christmas parties</a></p>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Got a party coming up?" }) %>
+    <%~ it.blocks["cta"]({ "heading": "Planning a party?", "for": "private-parties" }) %>

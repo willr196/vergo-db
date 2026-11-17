@@ -159,6 +159,7 @@
             <p>Add your times and how many of each role you need, and the price appears here.</p>
           </div>
           <button type="button" class="btn btn-quiet estimate-update" id="estimateUpdate">Update estimate</button>
+          <p class="estimate-total-caption">An estimate, not a booking. The price is fixed when we confirm your booking in writing.</p>
         </div>
 
         <h2>Your details</h2>

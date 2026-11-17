@@ -642,8 +642,8 @@
     statusBox.hidden = true;
 
     var payload = buildPayload(intent);
-    // The same-day names promise is London's for now; Birmingham has no local team yet.
-    var promise = payload.city === 'Birmingham' ? '' : ((window.VERGO_CONFIG && window.VERGO_CONFIG.terms.confirmationPromise) || '');
+    // Confirmation in writing, with no deadline, so it reads the same for every city.
+    var promise = (window.VERGO_CONFIG && window.VERGO_CONFIG.terms.confirmationPromise) || '';
 
     fetch((window.VERGO_CONFIG && window.VERGO_CONFIG.forms.quoteEndpoint) || '/api/v1/quotes', {
       method: 'POST',
@@ -659,6 +659,10 @@
         clearErrors();
         nextDayTouched = false;
         refresh();
+        // Counted once the server has accepted it, and only with analytics consent.
+        if (typeof window.gtag === 'function') {
+          window.gtag('event', 'generate_lead', { form_name: intent === 'BOOKING' ? 'quote_booking' : 'quote_enquiry' });
+        }
         showStatus(
           intent === 'BOOKING'
             ? 'Booking request sent. Nothing is confirmed until we come back with names. ' + promise

@@ -443,6 +443,8 @@ export const VIEW_ROUTES: ViewRoute[] = [
   { path: '/book-an-event', view: 'book-an-event' },
   { path: '/', view: 'index' },
   { path: '/hire/quote', view: 'hire/quote' },
+  // The quick enquiry: noindex like the quote form, not in the sitemap.
+  { path: '/enquire', view: 'enquire' },
   { path: '/work/apply', view: 'work/apply' },
   // Staff logins (session auth through /api/v1/user). noindex, not in the sitemap.
   { path: '/staff', view: 'staff/index' },

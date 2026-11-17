@@ -184,6 +184,7 @@
       <div class="faq-list">
         <%~ include('/partials/faq', { items: it.faqs("special-events/christmas"), name: "christmas-faq", esc: it.esc }) %>
       </div>
+      <p class="link-row">Staff for the party: <a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/kitchen-porters">Kitchen porters</a> · <a href="/hire/event-chefs">Event chefs</a> · <a href="/hire/corporate-events">Corporate events</a></p>
     </section>
 
     <%~ it.blocks["trust-strip"]() %>

@@ -74,4 +74,4 @@
       </ul>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Got a date in the diary?", "line": `${it.t.CONFIRMATION_PROMISE}` }) %>
+    <%~ it.blocks["cta"]({ "heading": "Got a date in the diary?", "line": `${it.t.CONFIRMATION_PROMISE}`, "for": "about" }) %>

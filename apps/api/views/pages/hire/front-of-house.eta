@@ -2,7 +2,7 @@
 <% layout('/layouts/base', {
   meta: {
     "title": "Front of House Staff Hire in London | VERGO Staffing",
-    "description": `Event hosts and front of house staff in London: greeters, guest lists, cloakroom and runners. ${it.t.HEADLINE_RATE} per person, names confirmed the same day.`,
+    "description": `Event hosts and front of house staff in London: greeters, guest lists, cloakroom and runners. ${it.t.HEADLINE_RATE} per person, staff briefed before they arrive.`,
     "ogImage": "/images/og/hire.jpg",
     "canonical": "/hire/front-of-house"
   },
@@ -45,7 +45,7 @@
       <h1>Event hosts and front of house staff in London</h1>
       <p class="lede">The first people your guests meet: on the door, at the cloakroom and showing the way.</p>
       <div class="btn-row">
-        <a href="/hire/quote" class="btn btn-primary">Get a quote</a>
+        <a href="/enquire?for=front-of-house" class="btn btn-primary">Tell us what you need</a>
       </div>
     </section>
 
@@ -71,4 +71,4 @@
       <p class="link-row">Also: <a href="/hire/waiting-staff">Waiting staff</a> · <a href="/hire/bar-staff">Bar staff</a> · <a href="/hire/security">Event security</a> · <a href="/hire/corporate-events">Corporate and large events</a></p>
     </section>
 
-    <%~ it.blocks["cta"]({ "heading": "Want a warm welcome at the door?" }) %>
+    <%~ it.blocks["cta"]({ "heading": "Want a warm welcome at the door?", "for": "front-of-house" }) %>

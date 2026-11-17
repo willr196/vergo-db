@@ -43,7 +43,7 @@
         <div class="nav-actions">
           <a class="nav-call" href="tel:<%= it.site.phoneE164 %>"><span class="nav-action-word">Call </span><%= it.site.phoneDisplay %></a>
           <a class="nav-whatsapp" href="<%= it.site.whatsappUrl %>" data-whatsapp target="_blank" rel="noopener">WhatsApp</a>
-          <a class="btn btn-primary nav-quote" href="/hire/quote">Get a quote</a>
+          <a class="btn btn-primary nav-quote" href="/enquire">Enquire</a>
         </div>
       </nav>
     </div>
