@@ -443,7 +443,7 @@
         field('Status', 'status', 'PENDING', 'select', { options: [['PENDING', 'Offered'], ['CONFIRMED', 'Accepted (confirmed)']] }) +
         field('Holiday pay', 'holidayPayMethod', 'ROLLED_UP', 'select', { options: [['ROLLED_UP', 'Rolled up'], ['ACCRUED', 'Accrued']] }) +
         field('Planned start', 'plannedStart', s.startTime, 'time') + field('Planned finish', 'plannedFinish', s.expectedFinish, 'time') +
-        field('Pay rate (£/h)', 'payRate', w.defaultPayRate != null ? w.defaultPayRate : s.workerPayRate, 'number') +
+        field('Pay rate (£/h, all in)', 'payRate', w.defaultPayRate != null ? w.defaultPayRate : s.workerPayRate, 'number', { hint: 'Holiday pay is included in this rate.' }) +
         field('Client charge rate (£/h)', 'clientChargeRate', s.clientChargeRate, 'number') + '</div>',
         [{ label: 'Book', onClick: async function (b) {
           var data = compact(readForm(b));
@@ -485,7 +485,7 @@
           field('Phone', 'phone', w.phone) + field('Date of birth', 'dateOfBirth', w.dateOfBirth, 'date') +
           field('Status', 'activeStatus', w.activeStatus, 'select', { options: ['ACTIVE', 'INACTIVE', 'LEFT'] }) +
           field('Internal rating (1–5)', 'internalRating', w.rating, 'select', { options: ['1', '2', '3', '4', '5'], blank: 'None' }) +
-          field('Usual pay rate (£/h)', 'defaultPayRate', w.defaultPayRate, 'number', { hint: 'Filled in when they are booked onto a shift.' }) +
+          field('Usual pay rate (£/h, all in)', 'defaultPayRate', w.defaultPayRate, 'number', { hint: 'Holiday pay included. Filled in when they are booked onto a shift.' }) +
           field('Roles', 'roles', w.roles, 'list', { wide: true, hint: 'Comma separated, e.g. Waiting staff, Bar staff' }) +
           field('Qualifications', 'qualifications', w.qualifications, 'list', { wide: true, hint: 'Comma separated, e.g. Personal Licence, Food Hygiene L2' }) +
           field('Availability notes', 'availabilityNotes', w.availabilityNotes, 'textarea', { wide: true }) +
@@ -872,7 +872,7 @@
       field('Role', 'req_role', '', 'text', { hint: 'e.g. Waiting staff, Bar staff' }) +
       field('Staff needed', 'req_quantity', 1, 'number') +
       field('Charge rate (£/h)', 'req_clientChargeRate', '', 'number', { hint: 'The client\'s usual rate fills in.' }) +
-      field('Pay rate (£/h)', 'req_workerPayRate', '', 'number') +
+      field('Pay rate (£/h, all in)', 'req_workerPayRate', '', 'number') +
       field('Unpaid break (minutes)', 'req_breakMins', 0, 'number') +
       '<div class="wide"><h3 class="ops-modal-h">More dates</h3></div>' + datesPicker('Also on') + '</div>',
       [{ label: 'Create booking', onClick: async function (b) {
@@ -1029,7 +1029,7 @@
     return field('Role', 'role', r.role, 'text', { required: true }) +
       field('Quantity', 'quantity', r.quantity || 1, 'number', { required: true }) +
       field('Client charge rate (£/h)', 'clientChargeRate', r.clientChargeRate, 'number', { required: true }) +
-      field('Worker pay rate (£/h)', 'workerPayRate', r.workerPayRate, 'number', { required: true }) +
+      field('Worker pay rate (£/h, all in)', 'workerPayRate', r.workerPayRate, 'number', { required: true, hint: 'Holiday pay is included in this rate.' }) +
       field('Minimum hours', 'minimumHours', r.minimumHours, 'number', { hint: 'Empty uses the standard minimum.' }) +
       field('After-midnight multiplier', 'afterMidnightMultiplier', r.afterMidnightMultiplier, 'number', { hint: 'e.g. 1.25' }) +
       field('Overtime charge rate (£/h)', 'overtimeChargeRate', r.overtimeChargeRate, 'number') +
@@ -1369,7 +1369,7 @@
       field('Status', 'status', 'PENDING', 'select', { options: [['PENDING', 'Offered'], ['CONFIRMED', 'Accepted (confirmed)']] }) +
       field('Holiday pay', 'holidayPayMethod', 'ROLLED_UP', 'select', { options: [['ROLLED_UP', 'Rolled up'], ['ACCRUED', 'Accrued']] }) +
       field('Planned start', 'plannedStart', b.startTime, 'time') + field('Planned finish', 'plannedFinish', b.expectedFinish, 'time') +
-      field('Pay rate (£/h)', 'payRate', r.workerPayRate, 'number') + field('Client charge rate (£/h)', 'clientChargeRate', r.clientChargeRate, 'number') +
+      field('Pay rate (£/h, all in)', 'payRate', r.workerPayRate, 'number') + field('Client charge rate (£/h)', 'clientChargeRate', r.clientChargeRate, 'number') +
       '<div class="wide" id="assign-warnings"></div></div>',
       [{ label: 'Assign', onClick: async function (bd) {
         var data = compact(readForm(bd));

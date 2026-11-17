@@ -12,7 +12,7 @@
  * employer-cost figures, which then replace the estimate line by line.
  */
 
-import { ON_COSTS, PRICING } from '../config/pricing';
+import { ON_COSTS, PRICING, splitAllInPay } from '../config/pricing';
 
 export interface ProfitAssignment {
   status: string;
@@ -101,8 +101,8 @@ export function bookingProfit(
     const multiplier = a.afterMidnightMultiplier ?? PRICING.afterMidnightMultiplier;
     afterMidnightPence += round(a.clientRatePence * Math.min(a.afterMidnightHours, billable) * (multiplier - 1));
 
-    const wage = round(a.payRatePence * billable);
-    const hol = round(wage * ON_COSTS.holidayAccrualRate);
+    // The pay rate is all in: holiday is part of it, not on top.
+    const { wagePence: wage, holidayPence: hol } = splitAllInPay(round(a.payRatePence * billable));
     wages += wage;
     holiday += hol;
     if (a.niLiable) ni += round((wage + hol) * ON_COSTS.employerNiRate);

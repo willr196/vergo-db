@@ -13,7 +13,7 @@ import { hoursBetween } from '../costingService';
 
 const utcDate = (iso: string) => new Date(`${iso}T00:00:00.000Z`);
 
-/** Base pay plus holiday. Employer NI is not in it - see JobMargin. */
+/** Hours times the all-in rate, holiday included. Employer NI is not in it - see JobMargin. */
 const COST_LABEL = 'Staff cost including holiday pay, excluding employer NI';
 
 export async function toolRoutes(app: FastifyInstance) {

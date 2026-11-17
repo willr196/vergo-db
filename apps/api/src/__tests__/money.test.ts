@@ -27,7 +27,8 @@ test('shiftHours throws when the break is longer than the shift', () => {
 });
 
 test('a casual assignment (no NI/pension liability) produces holiday-only on-costs', () => {
-  // Mirrors the brief's own worked example: 6h @ £19 charge / £15.50 pay, casual.
+  // 6h @ £19 charge / £15.50 pay, casual. The pay rate is all in: £93 for the
+  // shift is £82.98 basic plus £10.02 holiday, not £93 plus holiday on top.
   const result = bookingMoney({
     hours: 6,
     hourlyRateChargedPence: 1900,
@@ -38,15 +39,16 @@ test('a casual assignment (no NI/pension liability) produces holiday-only on-cos
   });
 
   assert.equal(result.revenuePence, 11400);
-  assert.equal(result.wagePence, 9300);
+  assert.equal(result.wagePence, 8298);
+  assert.equal(result.onCostBreakdown.holidayPence, 1002);
   assert.equal(result.onCostBreakdown.employerNiPence, 0);
   assert.equal(result.onCostBreakdown.pensionPence, 0);
   assert.equal(result.onCostsPence, result.onCostBreakdown.holidayPence);
-  assert.equal(result.netMarginPence, 977);
+  assert.equal(result.netMarginPence, 11400 - 9300);
 });
 
 test('a second casual example matches the brief\'s worked figures', () => {
-  // 10h @ £19 charge / £13.50 pay, casual.
+  // 10h @ £19 charge / £13.50 all-in pay, casual: £190 in, £135 out.
   const result = bookingMoney({
     hours: 10,
     hourlyRateChargedPence: 1900,
@@ -56,7 +58,7 @@ test('a second casual example matches the brief\'s worked figures', () => {
     provisional: false,
   });
 
-  assert.equal(result.netMarginPence, 3871);
+  assert.equal(result.netMarginPence, 19000 - 13500);
 });
 
 test('a flagged assignment (NI liable + pension enrolled) charges all three on-costs', () => {
@@ -168,7 +170,9 @@ test('bookingMoney floors a short shift at the four-hour minimum on both sides',
   assert.equal(result.hours, 2.5);
   assert.equal(result.billableHours, 4);
   assert.equal(result.revenuePence, 7600);
-  assert.equal(result.wagePence, 5200);
+  // 4h at £13 all in = £52, of which £46.40 basic and £5.60 holiday.
+  assert.equal(result.wagePence + result.onCostBreakdown.holidayPence, 5200);
+  assert.equal(result.wagePence, 4640);
 });
 
 test('bookingMoney leaves a shift over the minimum alone', () => {
@@ -183,7 +187,8 @@ test('bookingMoney leaves a shift over the minimum alone', () => {
 
   assert.equal(result.billableHours, 8);
   assert.equal(result.revenuePence, 15200);
-  assert.equal(result.wagePence, 10400);
+  assert.equal(result.wagePence + result.onCostBreakdown.holidayPence, 10400);
+  assert.equal(result.wagePence, 9280);
 });
 
 test('the minimum applies to on-costs too, since they are computed off the floored wage', () => {
@@ -196,7 +201,7 @@ test('the minimum applies to on-costs too, since they are computed off the floor
     provisional: false,
   });
 
-  // Wage is 4h at 13.00 = 52.00, holiday 12.07% of that = 6.28.
-  assert.equal(result.wagePence, 5200);
-  assert.equal(result.onCostBreakdown.holidayPence, 628);
+  // 4h at £13 all in = £52.00: £46.40 basic and £5.60 holiday inside it.
+  assert.equal(result.wagePence, 4640);
+  assert.equal(result.onCostBreakdown.holidayPence, 560);
 });

@@ -14,28 +14,28 @@ describe('holiday accrual', () => {
     expect(HOLIDAY_ACCRUAL_PCT.toString()).toBe('0.1207');
   });
 
-  it('is added on top of the rate, never rolled into it', () => {
-    const { holidayHourly, allInHourly } = allInRate(dec('12.71'));
-    expect(holidayHourly.toFixed(2)).toBe('1.53');
-    expect(allInHourly.toFixed(2)).toBe('14.24');
+  it('is already inside the rate, never added on top', () => {
+    const { baseHourly, holidayHourly, allInHourly } = allInRate(dec('15.00'));
+    expect(baseHourly.toFixed(2)).toBe('13.38');
+    expect(holidayHourly.toFixed(2)).toBe('1.62');
+    expect(allInHourly.toFixed(2)).toBe('15.00');
   });
 });
 
 describe('costFor', () => {
   it('costs a normal shift', () => {
     const line = costFor(dec('7.5'), dec('15.00'));
-    expect(line.basePay.toFixed(2)).toBe('112.50');
-    expect(line.holidayPay.toFixed(2)).toBe('13.58');
-    expect(line.totalCost.toFixed(2)).toBe('126.08');
+    // 7.5h at £15 all in costs £112.50, holiday included.
+    expect(line.basePay.toFixed(2)).toBe('100.38');
+    expect(line.holidayPay.toFixed(2)).toBe('12.12');
+    expect(line.totalCost.toFixed(2)).toBe('112.50');
   });
 
-  it('rounds base and holiday from hours rather than from an all-in rate', () => {
-    // Rounding the hourly rate first and multiplying would drift over a long
-    // timesheet and make base + holiday disagree with the total.
+  it('splits base and holiday from the shift total, so they always add up to it', () => {
     const line = costFor(dec('37.5'), dec('13.33'));
-    expect(line.basePay.toFixed(2)).toBe('499.88');
-    expect(line.holidayPay.toFixed(2)).toBe('60.33');
-    expect(line.totalCost.toFixed(2)).toBe('560.21');
+    expect(line.totalCost.toFixed(2)).toBe('499.88');
+    expect(line.basePay.toFixed(2)).toBe('446.04');
+    expect(line.holidayPay.toFixed(2)).toBe('53.84');
     expect(line.basePay.plus(line.holidayPay).toFixed(2)).toBe(line.totalCost.toFixed(2));
   });
 

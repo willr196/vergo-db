@@ -8,7 +8,7 @@
  * money in between.
  */
 
-import { ON_COSTS, PRICING } from '../config/pricing';
+import { ON_COSTS, PRICING, splitAllInPay } from '../config/pricing';
 
 const CLOCK_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
@@ -92,7 +92,8 @@ export interface BookingMoney {
 
 /**
  * On-costs are computed per assigned person, not as a flat percentage of
- * wage. Holiday accrual applies to every booking, always. Employer NI and
+ * wage. The staff pay rate is all in, so holiday pay is split out of it,
+ * never added on top. Employer NI and
  * pension only bite once a person's earnings cross a threshold in the pay
  * period — casual staff doing one shift a month are nowhere near either —
  * so both are gated on that person's niLiable/pensionEnrolled flags rather
@@ -105,11 +106,10 @@ export function bookingMoney(input: BookingMoneyInput): BookingMoney {
   // drives revenue and wage.
   const billableHours = Math.max(input.hours, PRICING.minimumChargeHours);
   const revenuePence = roundPence(input.hourlyRateChargedPence * billableHours);
-  const wagePence = input.staffPayRatePence != null
+  const { wagePence, holidayPence } = splitAllInPay(input.staffPayRatePence != null
     ? roundPence(input.staffPayRatePence * billableHours)
-    : 0;
+    : 0);
 
-  const holidayPence = roundPence(wagePence * ON_COSTS.holidayAccrualRate);
   const niAndPensionBasePence = wagePence + holidayPence;
   const employerNiPence = input.niLiable
     ? roundPence(niAndPensionBasePence * ON_COSTS.employerNiRate)

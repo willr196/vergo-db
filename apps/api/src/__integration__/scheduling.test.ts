@@ -84,7 +84,7 @@ test('Add to job: someone typed in is saved and booked in one go', async () => {
   // On the job, costed, and on People for next time.
   const detail = ok(await call('GET', `/jobs/${job.id}`));
   assert.equal(detail.crew.length, 1);
-  assert.equal(detail.crew[0].basePay, '112.00');
+  assert.equal(detail.crew[0].totalCost, '112.00', '8h at £14 all in');
   const saved = ok(await call('GET', '/staff?status=ACTIVE'));
   assert.equal(saved.length, 1);
   assert.equal(saved[0].phone, '07700 900000');
@@ -133,11 +133,12 @@ test('the desktop day: client, people, a job, crew, margin, rota and dashboard',
   assert.equal((await call('POST', `/jobs/${job.id}/crew`, { staffId: ana.id })).statusCode, 409);
 
   const detail = ok(await call('GET', `/jobs/${job.id}`));
-  assert.equal(detail.crew[0].basePay, '108.00');
-  assert.equal(detail.crew[0].holidayPay, '13.04');
+  // 8h at £13.50 all in: £108, of which £96.37 basic and £11.63 holiday.
+  assert.equal(detail.crew[0].basePay, '96.37');
+  assert.equal(detail.crew[0].holidayPay, '11.63');
   assert.equal(detail.margin.charged, '144.00');
-  assert.equal(detail.margin.staffCost, '121.04');
-  assert.equal(detail.margin.margin, '22.96');
+  assert.equal(detail.margin.staffCost, '108.00');
+  assert.equal(detail.margin.margin, '36.00');
   assert.equal(detail.margin.thin, false);
 
   // Short-staffed filter, roles, rota, dashboard.
@@ -159,7 +160,7 @@ test('the desktop day: client, people, a job, crew, margin, rota and dashboard',
   assert.equal(rota.staff.find((s: any) => s.name === 'Ben Jones').hasRate, false);
   const dash = ok(await call('GET', '/dashboard'));
   assert.equal(dash.jobsThisWeek, 1);
-  assert.equal(dash.committedWageCost, '121.04');
+  assert.equal(dash.committedWageCost, '108.00');
   assert.deepEqual(dash.staffWithoutRate.map((s: any) => s.name), ['Ben Jones']);
 
   // A clash on the same day is a warning, not a block.

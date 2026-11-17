@@ -77,13 +77,13 @@
     }
   }
 
-  // The two figures that always belong together: what you type, and what it
-  // actually costs once holiday pay goes on top.
+  // The rate typed is all in. Show what part of it is basic pay and what part
+  // is holiday, so the basic can be checked against minimum wage.
   const preview = $derived.by(() => {
     const rate = Number(form.hourlyRate);
     if (!rate || Number.isNaN(rate)) return null;
-    const holiday = rate * 0.1207;
-    return { base: rate.toFixed(2), holiday: holiday.toFixed(2), allIn: (rate + holiday).toFixed(2) };
+    const base = Math.round((rate / 1.1207) * 100) / 100;
+    return { base: base.toFixed(2), holiday: (rate - base).toFixed(2), allIn: rate.toFixed(2) };
   });
 
   async function save(event: Event) {
@@ -152,10 +152,10 @@
         <input id="hr" type="number" step="0.01" min="0" bind:value={form.hourlyRate} />
         {#if preview}
           <div class="hint gold">
-            £{preview.base} + £{preview.holiday} holiday = <strong>£{preview.allIn}/hr</strong> all in
+            <strong>£{preview.allIn}/hr</strong> all in = £{preview.base} basic + £{preview.holiday} holiday
           </div>
         {:else}
-          <div class="hint">Holiday pay is added on top.</div>
+          <div class="hint">All in: holiday pay is already included.</div>
         {/if}
       </div>
       <div class="field">
@@ -195,13 +195,13 @@
       {#if person.rate}
         <div class="grid cols-2" style="gap:.5rem">
           <div class="stat">
-            <div class="label">Base rate</div>
-            <div class="value">£{person.rate.base}</div>
-          </div>
-          <div class="stat">
-            <div class="label">All-in cost</div>
+            <div class="label">Rate (all in)</div>
             <div class="value gold">£{person.rate.allIn}</div>
             <div class="hint">incl. £{person.rate.holiday} holiday</div>
+          </div>
+          <div class="stat">
+            <div class="label">Basic part</div>
+            <div class="value">£{person.rate.base}</div>
           </div>
         </div>
       {:else}

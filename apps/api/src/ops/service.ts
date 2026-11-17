@@ -10,7 +10,7 @@ import { randomBytes } from 'crypto';
 import bcrypt from 'bcrypt';
 import { prisma } from '../prisma';
 import { summariseChecks, isCheckCurrent } from '../services/rightToWork';
-import { PRICING, ON_COSTS } from '../config/pricing';
+import { PRICING } from '../config/pricing';
 import {
   opsRtwStatus, rtwExpiryBucket, contractPosition, kidPosition, computeReadiness, docPackStatus, type IssuedDoc, type VersionInfo,
 } from './compliance';
@@ -72,7 +72,7 @@ interface WorkerContext {
   periodEarnings: Map<string, number>;
 }
 
-/** Highest estimated pay (wages + holiday) in any of the last three pay periods, per worker. */
+/** Highest estimated pay (all-in rate, so wages + holiday) in any of the last three pay periods, per worker. */
 async function recentPeriodEarnings(userIds: string[], frequency: PayFrequency, today: string) {
   const days = { weekly: 7, fortnightly: 14, four_weekly: 28, monthly: 31 }[frequency];
   const from = addDays(today, -days * 3);
@@ -87,7 +87,7 @@ async function recentPeriodEarnings(userIds: string[], frequency: PayFrequency, 
     const hours = Math.max(Number(row.hoursEstimated ?? 0), PRICING.minimumChargeHours);
     const wage = toPence(row.staffPayRate) * hours;
     const list = byWorker.get(row.staffId) ?? [0, 0, 0];
-    list[period] += Math.round(wage * (1 + ON_COSTS.holidayAccrualRate));
+    list[period] += Math.round(wage);
     byWorker.set(row.staffId, list);
   }
   return new Map([...byWorker].map(([id, list]) => [id, Math.max(...list)]));

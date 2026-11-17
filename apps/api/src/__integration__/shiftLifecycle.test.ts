@@ -213,9 +213,9 @@ test('a short shift is invoiced at the four-hour minimum', async () => {
   assert.ok(shaped, 'the completed booking must appear in the dashboard');
   assert.equal(shaped.money.billableHours, 4);
   assert.equal(shaped.money.revenuePence, 7600);
-  assert.equal(shaped.money.wagePence, 5200, '4h at 13.00, not 2.5h');
-  // Holiday accrual is 12.07% of the floored wage, not of 2.5 hours' pay.
-  assert.equal(shaped.money.onCostBreakdown.holidayPence, 628);
+  // 4h at £13 all in, not 2.5h: £52 split into £46.40 basic and £5.60 holiday.
+  assert.equal(shaped.money.wagePence, 4640, '4h at 13.00, not 2.5h');
+  assert.equal(shaped.money.onCostBreakdown.holidayPence, 560);
 });
 
 test('the office can correct a forgotten check-out without completing the booking', async () => {

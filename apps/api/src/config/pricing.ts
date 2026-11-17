@@ -64,11 +64,23 @@ export const PRICING = {
 };
 
 /**
+ * Splits pay worked out at an all-in rate (holiday included) into its basic
+ * wage and holiday parts. The two always add back to the amount given.
+ */
+export function splitAllInPay(allInPence: number): { wagePence: number; holidayPence: number } {
+  const wagePence = Math.round(allInPence / (1 + ON_COSTS.holidayAccrualRate));
+  return { wagePence, holidayPence: allInPence - wagePence };
+}
+
+/**
  * Employer on-costs used by src/lib/money.ts booking margin calculations.
  * All staff are PAYE — there is no self-employed engagement type.
  */
 export const ON_COSTS = {
-  /** Statutory holiday accrual — exact, applies to every booking's wage. */
+  /**
+   * Statutory holiday accrual. Staff pay rates entered in Admin are all in:
+   * this share is already inside them, never added on top (see splitAllInPay).
+   */
   holidayAccrualRate: 0.1207,
   /**
    * Employer NI rate above the secondary threshold, gated per-person via

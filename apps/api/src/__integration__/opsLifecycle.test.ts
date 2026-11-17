@@ -201,8 +201,9 @@ test('a booking from first worker to paid invoice, with every check on the way',
   assert.equal(p.revenue.hoursPence, 22000);
   assert.equal(p.revenue.afterMidnightPence, Math.round(2000 * 1.5 * 0.25) + Math.round(2000 * 1 * 0.25));
   assert.equal(p.revenue.chargesPence, 2500);
-  assert.equal(p.workerWagesPence, 1300 * 7 + 1300 * 4);
-  assert.equal(p.holidayPayPence, Math.round(1300 * 7 * 0.1207) + Math.round(1300 * 4 * 0.1207));
+  // £13 is all in: wages and holiday together come to 11 hours at £13.
+  assert.equal(p.workerWagesPence + p.holidayPayPence, 1300 * 7 + 1300 * 4);
+  assert.equal(p.holidayPayPence, (1300 * 7 - Math.round(1300 * 7 / 1.1207)) + (1300 * 4 - Math.round(1300 * 4 / 1.1207)));
   assert.equal(p.workerTravelExpensesPence, 1000);
   assert.equal(p.otherDirectCostsPence, 1000);
   assert.equal(p.isEstimate, true);

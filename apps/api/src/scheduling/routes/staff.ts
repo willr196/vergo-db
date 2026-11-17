@@ -50,11 +50,11 @@ export async function staffRoutes(app: FastifyInstance) {
       orderBy: [{ status: 'asc' }, { firstName: 'asc' }, { lastName: 'asc' }],
     });
 
-    // The all-in rate is what a job actually costs, so it is worth showing
-    // next to the base rate rather than leaving people to add 12.07% mentally.
+    // The rate entered is all in, holiday included. The basic part is shown
+    // beside it so it can be checked against minimum wage.
     return rows.map((s) => ({
       ...s,
-      allInRate: s.hourlyRate ? allInRate(dec(s.hourlyRate.toString())).allInHourly.toFixed(2) : null,
+      baseRate: s.hourlyRate ? allInRate(dec(s.hourlyRate.toString())).baseHourly.toFixed(2) : null,
     }));
   });
 
@@ -105,10 +105,9 @@ export async function staffRoutes(app: FastifyInstance) {
       ...staff,
       rate: staff.hourlyRate
         ? {
-            base: dec(staff.hourlyRate.toString()).toFixed(2),
             ...(() => {
               const r = allInRate(dec(staff.hourlyRate.toString()));
-              return { holiday: r.holidayHourly.toFixed(2), allIn: r.allInHourly.toFixed(2) };
+              return { base: r.baseHourly.toFixed(2), holiday: r.holidayHourly.toFixed(2), allIn: r.allInHourly.toFixed(2) };
             })(),
           }
         : null,

@@ -1544,3 +1544,50 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 .staff-doc-body { white-space: normal; background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 16px 18px; margin-top: 12px; max-height: 60vh; overflow: auto; font-size: 0.92rem; }
 .staff-doc-body h3, .staff-doc-body h4 { margin: 14px 0 6px; }
 @media (max-width: 480px) { .staff-brief dl { grid-template-columns: 1fr; gap: 2px; } .staff-brief dd { margin-bottom: 8px; } }
+
+/* /hire/quote: the full form with a quick price card beside it. On a phone the
+   card comes first, so a price shows before the long form. */
+.quote-layout { max-width: var(--form-width); margin: 0 auto; padding: 0 20px; display: grid; gap: 28px; }
+.quick-price {
+  background: var(--card-fill);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+  padding: 20px;
+  align-self: start;
+}
+.quick-price .estimate-label { font-size: 0.76rem; margin: 0 0 14px; }
+.quick-price-form { display: grid; gap: 12px; margin: 0; }
+.quick-price-row { display: grid; grid-template-columns: 1fr 76px; gap: 12px; align-items: center; }
+.quick-price-row label { font-weight: 600; font-size: 0.92rem; color: var(--text); }
+.quick-price-row .label-note { margin-left: 4px; }
+.quick-price-sub { display: block; color: var(--text-muted); font-weight: 400; font-size: 0.78rem; margin-top: 2px; }
+.quick-price-row input {
+  width: 100%;
+  min-height: 44px;
+  background: var(--panel-fill);
+  border: 1px solid var(--hairline-strong);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 1rem;
+  font-family: var(--font-sans);
+  text-align: right;
+}
+.quick-price-row input:focus-visible { outline: var(--focus); outline-offset: 1px; border-color: var(--accent); }
+.quick-price-total {
+  font-family: var(--font-serif);
+  font-size: 40px;
+  line-height: 1;
+  color: var(--accent);
+  margin: 18px 0 8px;
+  font-variant-numeric: tabular-nums;
+}
+.quick-price-note { color: var(--text-muted); font-size: 0.82rem; line-height: 1.5; margin: 0 0 16px; min-height: 2.5em; }
+@media (min-width: 1024px) {
+  .quote-layout { max-width: calc(var(--form-width) + 340px); grid-template-columns: minmax(0, 1fr) 300px; }
+  .quote-layout > #quoteForm { grid-column: 1; grid-row: 1; }
+  .quick-price { grid-column: 2; grid-row: 1; position: sticky; top: 96px; }
+}
+@media (min-width: 1024px) {
+  .page-hero-plain.shell-form:has(+ .quote-layout) { max-width: calc(var(--form-width) + 340px); }
+}

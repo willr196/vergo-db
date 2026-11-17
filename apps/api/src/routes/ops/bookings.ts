@@ -17,7 +17,7 @@ import {
 import { assignmentWarnings, canProceed, findOverlaps, type ExistingShift } from '../../ops/assignments';
 import { shiftInterval, dateKey, londonDateKey } from '../../ops/time';
 import { shiftHours } from '../../lib/money';
-import { PRICING, ON_COSTS } from '../../config/pricing';
+import { PRICING, ON_COSTS, splitAllInPay } from '../../config/pricing';
 import { STATUS_TRANSITIONS } from '../adminBookings';
 import { needsWording, sha256 } from '../../ops/documents';
 import { renderFrom, clientTermsPositionOf, clientTermsPositions } from '../../ops/documentService';
@@ -918,7 +918,14 @@ r.post('/assignments/:id/confirmation', handle(async (req, res) => {
     'assignment.dressCode': req2?.dressCode,
     'assignment.equipment': req2?.equipment,
     'assignment.breaks': req2?.breakInfo ?? (a.breakMins ? `${a.breakMins} minutes unpaid` : 'None scheduled'),
-    'assignment.payRate': gbp(toNum(a.staffPayRate)) ? `${gbp(toNum(a.staffPayRate))} per hour` : null,
+    // The pay rate in Admin is all in. Spell out the basic and holiday parts so
+    // the worker can see holiday pay is inside it, not added again.
+    'assignment.payRate': (() => {
+      const rate = toNum(a.staffPayRate);
+      if (rate == null || !gbp(rate)) return null;
+      const { wagePence, holidayPence } = splitAllInPay(Math.round(rate * 100));
+      return `${gbp(rate)} per hour, including holiday pay (${gbp(wagePence / 100)} basic plus ${gbp(holidayPence / 100)} holiday)`;
+    })(),
     'assignment.holidayMethod': a.holidayPayMethod === 'ACCRUED'
       ? 'Accrued and paid when holiday is taken'
       : `Rolled up: ${(ON_COSTS.holidayAccrualRate * 100).toFixed(2)}% of pay, paid with your wages`,

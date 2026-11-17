@@ -7,8 +7,8 @@
     firstName: string;
     lastName: string;
     hourlyRate: string | null;
-    /** Base rate plus holiday. What the person actually costs on a job. */
-    allInRate: string | null;
+    /** The basic part of the all-in rate, before holiday pay. */
+    baseRate: string | null;
     status: string;
     email: string | null;
     phone: string | null;
@@ -105,7 +105,7 @@
       <div class="field">
         <label for="hr">Hourly rate £</label>
         <input id="hr" type="number" step="0.01" min="0" bind:value={form.hourlyRate} />
-        <div class="hint">Used to cost a job. Holiday pay is added on top.</div>
+        <div class="hint">All in: holiday pay is already included.</div>
       </div>
     </div>
 
@@ -160,7 +160,7 @@
       <thead>
         <tr>
           <th>Name</th>
-          <th class="num">Rate</th><th class="num">All-in</th><th>Contact</th><th>Status</th>
+          <th class="num">Rate (all in)</th><th class="num">Basic</th><th>Contact</th><th>Status</th>
         </tr>
       </thead>
       <tbody>
@@ -177,7 +177,7 @@
               {/if}
             </td>
             <td class="num">
-              {#if person.allInRate}{gbp(person.allInRate)}{:else}—{/if}
+              {#if person.baseRate}{gbp(person.baseRate)}{:else}—{/if}
             </td>
             <td style="color:var(--text-dim);font-size:.85rem">{person.email ?? person.phone ?? '—'}</td>
             <td><span class="badge" class:green={person.status === 'ACTIVE'}>{person.status}</span></td>

@@ -168,11 +168,13 @@ const shift = (over: Partial<ProfitAssignment> = {}): ProfitAssignment => ({
 test('profit: revenue, wages, holiday pay and contribution for a simple shift', () => {
   const p = bookingProfit([shift()], []);
   assert.equal(p.revenuePence, 11100); // 6 × £18.50
-  assert.equal(p.workerWagesPence, 7626); // 6 × £12.71
-  assert.equal(p.holidayPayPence, 920); // 12.07%
+  // 6 × £12.71 = £76.26 all in: holiday is inside the pay rate, not on top.
+  assert.equal(p.workerWagesPence, 6805);
+  assert.equal(p.holidayPayPence, 821);
+  assert.equal(p.workerWagesPence + p.holidayPayPence, 7626);
   assert.equal(p.employerCostsPence, 0);
-  assert.equal(p.grossContributionPence, 11100 - 7626 - 920);
-  assert.ok(Math.abs((p.grossMargin ?? 0) - (11100 - 7626 - 920) / 11100) < 1e-9);
+  assert.equal(p.grossContributionPence, 11100 - 7626);
+  assert.ok(Math.abs((p.grossMargin ?? 0) - (11100 - 7626) / 11100) < 1e-9);
   assert.equal(p.isEstimate, true, 'estimate until actual payroll is entered');
 });
 
@@ -181,7 +183,7 @@ test('profit: the minimum applies to charge and pay, and uplift applies after mi
   assert.equal(p.billableHours, 4);
   assert.equal(p.revenue.hoursPence, 7400);
   assert.equal(p.revenue.afterMidnightPence, Math.round(1850 * 1 * 0.25));
-  assert.equal(p.workerWagesPence, 5084);
+  assert.equal(p.workerWagesPence + p.holidayPayPence, 5084); // 4 × £12.71, all in
 });
 
 test('profit: declined, cancelled and no-show shifts are not counted', () => {
@@ -194,7 +196,7 @@ test('profit: employer NI and pension only for flagged workers; costs and charge
     [shift({ niLiable: true, pensionEnrolled: true, travelPence: 500, expensesPence: 200 })],
     [{ kind: 'CHARGE', category: 'charge', amountPence: 5000 }, { kind: 'COST', category: 'equipment', amountPence: 1200 }, { kind: 'COST', category: 'worker_other', amountPence: 300 }],
   );
-  const base = 7626 + 920;
+  const base = 7626; // wages plus holiday, which is the all-in pay
   assert.equal(p.employerCosts.niPence, Math.round(base * 0.138));
   assert.equal(p.employerCosts.pensionPence, Math.round(base * 0.03));
   assert.equal(p.revenuePence, 11100 + 5000);
@@ -380,7 +382,7 @@ test('profit: a multi-worker booking adds each shift, with minimum hours and upl
   assert.equal(p.billableHours, 15);
   assert.equal(p.revenue.hoursPence, 1850 * 15);
   assert.equal(p.revenue.afterMidnightPence, Math.round(1850 * 2 * 0.25));
-  assert.equal(p.workerWagesPence, 1271 * 6 + 1271 * 4 + 1271 * 5);
+  assert.equal(p.workerWagesPence + p.holidayPayPence, 1271 * 6 + 1271 * 4 + 1271 * 5);
   assert.equal(p.grossContributionPence, p.revenuePence - p.workerWagesPence - p.holidayPayPence);
 });
 
