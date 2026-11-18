@@ -89,6 +89,7 @@ const browserRates = {
   minimumHours: PRICING.minimumChargeHours,
   overrunBlockMinutes: PRICING.overrunBlockMinutes,
   afterMidnightMultiplier: PRICING.afterMidnightMultiplier,
+  afterMidnightUntilHour: PRICING.afterMidnightUntilHour,
   newYearsEveMultiplier: PRICING.newYearsEveMultiplier,
   newYearsEveFromHour: PRICING.newYearsEveFromHour,
 };
@@ -224,7 +225,14 @@ test('quoteShift: no staff, or a count of zero, prices at nothing', () => {
 // all after-midnight hours, but the calculator only uplifts time past 24:00 on
 // a shift that crosses midnight, so it prices this at the plain rate. Left as a
 // todo rather than changed: billing rules don't move without the owner.
-test('quoteShift: a shift that starts after midnight carries the uplift on every hour', { todo: 'owner to confirm the after-midnight rule for shifts starting after 00:00' }, () => {
+test('quoteShift: a shift that starts after midnight carries the uplift on every hour', () => {
   const q = bothQuotes({ start: '00:30', end: '04:30', staff: one });
   assert.equal(q.total, r2(4 * S * (1 + U)));
+});
+
+test('quoteShift: an early start carries the uplift only on its hours before 6am', () => {
+  const q = bothQuotes({ start: '05:00', end: '09:00', staff: one });
+  assert.equal(q.total, r2(4 * S + 1 * S * U));
+  const day = bothQuotes({ start: '06:00', end: '10:00', staff: one });
+  assert.equal(day.total, r2(4 * S), 'a 6am start is a day shift');
 });

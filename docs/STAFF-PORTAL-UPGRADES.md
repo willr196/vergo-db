@@ -43,7 +43,7 @@ For review. Tick what to build, cross out what to skip, and add notes. Nothing h
 - ✅ Ask to swap a confirmed shift, optionally naming someone; the office arranges it, and they stay booked until then
 
 **Decided 18 Nov 2026 (no build needed)**
-- Premium is the owner's call (experience and the job; cocktail and silver service usually), so no "progress to Premium" bar
+- Premium is about the job (cocktail and silver service usually) and the owner decides who fits, so no "progress to Premium" bar
 - Staff rules are common sense, so no handbook or training pages for now
 
 **Key**

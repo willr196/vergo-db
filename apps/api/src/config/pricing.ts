@@ -24,6 +24,12 @@ export const PRICING = {
   /** Applies to the hours worked after midnight, not to the whole shift. */
   afterMidnightMultiplier: 1.25,
   /**
+   * A shift that starts after midnight (an early start, not one running over
+   * from the evening) carries the uplift on its hours before this hour too:
+   * 00:30 to 04:30 is all night work, 05:00 to 09:00 has one uplifted hour.
+   */
+  afterMidnightUntilHour: 6,
+  /**
    * New Year's Eve: hours worked from newYearsEveFromHour on 31 December to
    * the end of the shift. Replaces the after-midnight uplift on those hours
    * rather than stacking with it.
@@ -206,7 +212,8 @@ export function quoteShift(input: ShiftQuoteInput): ShiftQuote | null {
   const billedMinutes = Math.max(PRICING.minimumChargeHours * 60, roundUp(workedMinutes));
   const nyeFrom = isNewYearsEve(input.date) ? Math.max(start, PRICING.newYearsEveFromHour * 60) : null;
   const newYearsEveMinutes = nyeFrom === null ? 0 : Math.min(billedMinutes, roundUp(Math.max(0, end - nyeFrom)));
-  const afterMidnightMinutes = newYearsEveMinutes ? 0 : Math.min(billedMinutes, roundUp(Math.max(0, end - 24 * 60)));
+  const earlyNightMinutes = start < PRICING.afterMidnightUntilHour * 60 ? Math.max(0, Math.min(end, PRICING.afterMidnightUntilHour * 60) - start) : 0;
+  const afterMidnightMinutes = newYearsEveMinutes ? 0 : Math.min(billedMinutes, roundUp(Math.max(0, end - 24 * 60) + earlyNightMinutes));
 
   const level = PRICING.premiumEnabled && input.level === 'premium' ? 'premium' : 'standard';
   const rate = level === 'premium' ? PRICING.premiumRate : PRICING.standardRate;

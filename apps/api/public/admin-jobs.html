@@ -26,6 +26,20 @@
     .add-person-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 8px; }
     #add-person-manual summary { cursor: pointer; font-size: 13px; opacity: .8; }
     .no-account { font-size: 11px; opacity: .6; }
+    /* Who sees it */
+    .aud-mode { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 12px; }
+    .aud-mode label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+    .aud-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-bottom: 8px; }
+    .aud-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+    .aud-list { max-height: 46vh; overflow: auto; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; padding: 4px; }
+    .aud-row { display: flex; gap: 10px; align-items: flex-start; padding: 8px; border-radius: 6px; cursor: pointer; }
+    .aud-row:hover { background: rgba(255,255,255,.04); }
+    .aud-row input { margin-top: 4px; }
+    .aud-row small { display: block; color: #9a9a9a; margin-top: 2px; }
+    .aud-tag { font-size: 11px; margin-left: 6px; padding: 1px 6px; border-radius: 999px; border: 1px solid rgba(212,175,55,.5); color: #D4AF37; }
+    .aud-disabled .aud-filters, .aud-disabled .aud-tools, .aud-disabled .aud-list { opacity: .45; }
+    .aud-send { display: grid; gap: 6px; margin-top: 12px; }
+    .job-scope { display: inline-block; margin-top: 4px; font-size: 12px; color: #D4AF37; }
   </style>
 </head>
 <body class="as-panel">
@@ -273,6 +287,56 @@
   <script src="/js/admin-core.js"></script>
   <script src="/js/admin-nav.js"></script>
   <script src="/pages/js/admin-jobs-staffing.js"></script>
+  <div id="audience-modal" class="modal-backdrop d-none">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 id="audience-title">Who sees this job</h2>
+        <button class="modal-close" type="button" data-action="close-audience">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <div id="audience-alert"></div>
+        <div class="aud-mode" role="radiogroup" aria-label="Who sees this job">
+          <label><input type="radio" name="aud-mode" id="aud-mode-all" value="all"> Everyone on the job board</label>
+          <label><input type="radio" name="aud-mode" id="aud-mode-picked" value="picked"> Only staff I pick</label>
+        </div>
+        <div id="aud-picker">
+          <div class="aud-filters">
+            <input class="as-input" id="aud-search" placeholder="Name or email" aria-label="Search staff">
+            <select class="as-input" id="aud-role" aria-label="Role"><option value="">Any role</option></select>
+            <input class="as-input" id="aud-area" placeholder="Postcode, e.g. SW" maxlength="10" aria-label="Postcode area">
+            <select class="as-input" id="aud-status" aria-label="Taking work">
+              <option value="">Any status</option>
+              <option value="AVAILABLE">Taking work</option>
+              <option value="LIMITED">Taking some work</option>
+              <option value="UNAVAILABLE">Not taking work</option>
+            </select>
+            <select class="as-input" id="aud-rating" aria-label="Your rating">
+              <option value="">Any rating</option>
+              <option value="3">★ 3 and up</option>
+              <option value="4">★ 4 and up</option>
+              <option value="5">★ 5 only</option>
+            </select>
+            <label id="aud-free-label" class="fs-sm" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="aud-free"> Free on the job's date</label>
+          </div>
+          <div class="aud-tools">
+            <button type="button" class="btn btn-small btn-ghost" id="aud-pick-all">Pick everyone shown</button>
+            <button type="button" class="btn btn-small btn-ghost" id="aud-pick-none">Unpick everyone shown</button>
+            <span class="text-muted fs-sm" id="aud-count"></span>
+          </div>
+          <div class="aud-list" id="aud-list"></div>
+          <div class="aud-send">
+            <label class="fs-sm" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="aud-notify" checked> Email anyone newly picked about this job</label>
+            <input class="as-input" id="aud-note" maxlength="500" placeholder="A line for the email (optional)" aria-label="Note for the email">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" data-action="close-audience">Close</button>
+        <button type="button" class="btn btn-primary" id="aud-save">Save</button>
+      </div>
+    </div>
+  </div>
+  <script src="/pages/js/admin-jobs-audience.js"></script>
   <script src="/pages/js/admin-jobs.js"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 /**
  * The staff-area upgrades of November 2026, against a real database: login by
  * email link, "keep me logged in", signing out other devices, running late,
- * can't make it, the calendar file, earnings, and the day-before reminder.
+ * the calendar file, earnings, and the day-before reminder.
  */
 
 import test from 'node:test';
@@ -23,6 +23,8 @@ function createUserApp() {
   app.use(session({ name: 'vergo.sid', secret: 'staff-upgrades-test', resave: false, saveUninitialized: false, cookie: { httpOnly: true, sameSite: 'strict' } }));
   app.use('/api/v1/user/shifts', require('../routes/mobileShifts').default);
   app.use('/api/v1/user', require('../routes/userAuth').default);
+  // As index.ts does: an address with no route is a 404, not a hang.
+  app.use((_req: any, res: any) => res.status(404).json({ ok: false, error: 'Not found' }));
   app.use(onError);
   return app;
 }
@@ -132,22 +134,17 @@ test('running late, can\'t make it, calendar and earnings on a worker\'s shifts'
   assert.equal(ics.statusCode, 200);
   assert.match(String(ics.headers['content-type']), /text\/calendar/);
 
+  // A confirmed shift is never given up online: they text or call the office.
   const cant = await call('POST', `/api/v1/user/shifts/${later.id}/cant-make-it`, { reason: 'Family emergency' }, cookie);
-  assert.equal(cant.statusCode, 200);
-  const after = await prisma.booking.findUniqueOrThrow({ where: { id: later.id } });
-  assert.equal(after.status, 'CANCELLED');
-  assert.match(String(after.rejectionReason), /Family emergency/);
-
-  const someoneElse = await verifiedWorker();
-  const theirs = await createBooking({ clientId: client.id, staffId: someoneElse.id, eventDate: day(2), status: 'CONFIRMED' });
-  assert.equal((await call('POST', `/api/v1/user/shifts/${theirs.id}/cant-make-it`, { reason: 'Not mine' }, cookie)).statusCode, 404, 'only your own shifts');
+  assert.equal(cant.statusCode, 404);
+  assert.equal((await prisma.booking.findUniqueOrThrow({ where: { id: later.id } })).status, 'CONFIRMED');
 
   const earn = await call('GET', '/api/v1/user/shifts/earnings', undefined, cookie);
   assert.equal(earn.statusCode, 200);
   const d = earn.body.data;
   assert.equal(d.taxYear.shifts, 1);
   assert.equal(d.taxYear.basicPence + d.taxYear.holidayPence, d.taxYear.payPence);
-  assert.equal(d.upcoming.shifts, 1, "today's confirmed shift is still ahead; the given-up one is gone");
+  assert.equal(d.upcoming.shifts, 2, "today's and next week's confirmed shifts are both ahead");
 });
 
 test('day-before reminder: claimed once, never twice', async () => {
@@ -217,4 +214,64 @@ test('early pay and swap requests reach the office and change nothing', async ()
   const swap = await call('POST', `/api/v1/user/shifts/${shift.id}/swap-request`, { reason: 'Exam that day', colleague: 'Jo' }, cookie);
   assert.equal(swap.statusCode, 200);
   assert.equal((await prisma.booking.findUniqueOrThrow({ where: { id: shift.id } })).status, 'CONFIRMED', 'still booked until the office agrees');
+});
+
+test('selected staff only: the office picks who sees a job; nobody else can see, open or apply', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { ADMIN_TEST_SESSION_ID } = require('../testing/csrf');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { csrfHeaders } = require('./helpers');
+  const adminApp = express();
+  adminApp.use(express.json());
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  adminApp.use(require('cookie-parser')());
+  adminApp.use((req: any, _res: any, next: any) => { req.session = { id: ADMIN_TEST_SESSION_ID, username: 'will', isAdmin: true, adminLastActivity: Date.now(), adminLoginTime: Date.now() }; next(); });
+  adminApp.use('/api/v1/admin/matching', require('../routes/adminMatching').default);
+  adminApp.use(onError);
+  const admin = (method: string, url: string, body?: unknown) => inject(adminApp, { method, url: `/api/v1/admin/matching${url}`, headers: { ...csrfHeaders() }, body });
+
+  const role = await prisma.role.create({ data: { name: `Bar ${Date.now()}` } });
+  const job = await prisma.job.create({ data: { title: 'Gala bar', description: 'x', location: 'London', roleId: role.id, status: 'OPEN', eventDate: day(5) } });
+  const picked = await verifiedWorker();
+  const other = await verifiedWorker();
+  await prisma.workerProfile.create({ data: { userId: picked.id, roles: ['Bartender'] } });
+  await prisma.workerProfile.create({ data: { userId: other.id, roles: ['Chef'] } });
+
+  const list = await admin('GET', `/${job.id}/audience?role=Bartender`);
+  assert.equal(list.statusCode, 200, JSON.stringify(list.body));
+  assert.deepEqual(list.body.data.staff.map((s: any) => s.id), [picked.id], 'the role filter narrows the list');
+
+  const set = await admin('PUT', `/${job.id}/audience`, { inviteOnly: true, userIds: [picked.id], notify: false });
+  assert.equal(set.statusCode, 200, JSON.stringify(set.body));
+  assert.equal(set.body.data.added, 1);
+
+  // The website job board, on each worker's session.
+  const boardApp = express();
+  boardApp.use(express.json());
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const session = require('express-session');
+  const store = new session.MemoryStore();
+  boardApp.use(session({ name: 'vergo.sid', secret: 'staff-upgrades-test', resave: false, saveUninitialized: false, store }));
+  boardApp.use('/api/v1/jobs', require('../routes/jobs').default);
+  boardApp.use('/api/v1/job-applications', require('../routes/jobApplications').default);
+  boardApp.use('/api/v1/user', require('../routes/userAuth').default);
+  boardApp.use(onError);
+  const asBoard = async (w: any) => {
+    const c = cookieOf(await inject(boardApp, { method: 'POST', url: '/api/v1/user/login', body: { email: w.email, password: 'CorrectHorse9!' } })).pair;
+    return (method: string, url: string, body?: unknown) => inject(boardApp, { method, url, headers: { cookie: c }, body });
+  };
+  const mine = await asBoard(picked);
+  const theirs = await asBoard(other);
+  const ids = (r: any) => ((r.body.data && r.body.data.jobs) || r.body.jobs || []).map((j: any) => j.id);
+
+  assert.ok(ids(await mine('GET', '/api/v1/jobs?limit=50')).includes(job.id), 'the picked worker sees it');
+  assert.ok(!ids(await theirs('GET', '/api/v1/jobs?limit=50')).includes(job.id), 'nobody else does');
+  assert.ok(!ids(await inject(boardApp, { method: 'GET', url: '/api/v1/jobs?limit=50' })).includes(job.id), 'nor the public');
+  assert.equal((await theirs('GET', `/api/v1/jobs/${job.id}`)).statusCode, 404, 'nor can they open it');
+  assert.equal((await theirs('POST', '/api/v1/job-applications', { jobId: job.id })).statusCode, 404, 'nor apply');
+
+  // Back to everyone.
+  const open = await admin('PUT', `/${job.id}/audience`, { inviteOnly: false, userIds: [picked.id] });
+  assert.equal(open.statusCode, 200);
+  assert.ok(ids(await theirs('GET', '/api/v1/jobs?limit=50')).includes(job.id), 'now everyone sees it');
 });

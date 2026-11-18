@@ -352,6 +352,155 @@ r.post('/:jobId/invites', async (req, res, next) => {
 });
 
 // ============================================
+// Who can see a job: everyone, or only the staff the office picks.
+// GET /api/v1/admin/matching/:jobId/audience  -> the job, the setting, and the staff to pick from
+// PUT /api/v1/admin/matching/:jobId/audience  -> { inviteOnly, userIds, notify }
+// Picking staff creates a PENDING invite for each (the app shows it under
+// invites); unpicking removes a PENDING invite. Answered invites are kept.
+// ============================================
+const audienceQuery = z.object({
+  search: z.string().trim().max(100).optional(),
+  role: z.string().trim().max(100).optional(),
+  area: z.string().trim().max(10).optional(),
+  status: z.enum(['AVAILABLE', 'LIMITED', 'UNAVAILABLE', 'ANY']).optional(),
+  freeOnDay: z.enum(['1', 'true']).optional(),
+  minRating: z.coerce.number().int().min(1).max(5).optional(),
+});
+const audienceBody = z.object({
+  inviteOnly: z.boolean(),
+  userIds: z.array(z.string().min(1).max(50)).max(500),
+  notify: z.boolean().optional(),
+  note: z.string().trim().max(500).optional(),
+});
+
+r.get('/:jobId/audience', async (req, res, next) => {
+  try {
+    const job = await prisma.job.findUnique({
+      where: { id: req.params.jobId },
+      select: { id: true, title: true, inviteOnly: true, eventDate: true, status: true, role: { select: { name: true } }, invites: { select: { userId: true, status: true } } },
+    });
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+    const q = audienceQuery.parse(req.query);
+
+    const where: any = { workerProfile: { activeStatus: 'ACTIVE' } };
+    const and: any[] = [];
+    if (q.search) {
+      and.push({ OR: [
+        { firstName: { contains: q.search, mode: 'insensitive' } },
+        { lastName: { contains: q.search, mode: 'insensitive' } },
+        { email: { contains: q.search, mode: 'insensitive' } },
+      ] });
+    }
+    if (q.role) and.push({ workerProfile: { roles: { has: q.role } } });
+    if (q.area) and.push({ applicant: { postcode: { startsWith: q.area.toUpperCase().replace(/\s+/g, ''), mode: 'insensitive' } } });
+    if (q.status && q.status !== 'ANY') and.push({ availabilityStatus: q.status });
+    if (q.minRating) and.push({ workerProfile: { internalRating: { gte: q.minRating } } });
+    if (q.freeOnDay && job.eventDate) and.push({ availability: { some: { dateFrom: { lte: job.eventDate }, dateTo: { gte: job.eventDate } } } });
+    if (and.length) where.AND = and;
+
+    const [people, roleRows] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        select: {
+          id: true, firstName: true, lastName: true, email: true, availabilityStatus: true,
+          applicant: { select: { postcode: true } },
+          workerProfile: { select: { roles: true, internalRating: true } },
+          ...(job.eventDate ? { availability: { where: { dateFrom: { lte: job.eventDate }, dateTo: { gte: job.eventDate } }, select: { id: true }, take: 1 } } : {}),
+        },
+        orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
+        take: 300,
+      }),
+      prisma.workerProfile.findMany({ where: { activeStatus: 'ACTIVE' }, select: { roles: true } }),
+    ]);
+    const invited = new Map(job.invites.map((i) => [i.userId, i.status]));
+    const roles = [...new Set(roleRows.flatMap((w) => w.roles))].sort();
+
+    res.json({
+      ok: true,
+      data: {
+        job: { id: job.id, title: job.title, inviteOnly: job.inviteOnly, eventDate: job.eventDate, status: job.status, role: job.role.name, invitedCount: job.invites.length },
+        roles,
+        staff: people.map((p: any) => ({
+          id: p.id,
+          name: `${p.firstName} ${p.lastName}`.trim(),
+          email: p.email,
+          roles: p.workerProfile?.roles ?? [],
+          postcode: p.applicant?.postcode ?? null,
+          availabilityStatus: p.availabilityStatus,
+          rating: p.workerProfile?.internalRating ?? null,
+          freeOnDay: job.eventDate ? (p.availability?.length ?? 0) > 0 : null,
+          invite: invited.get(p.id) ?? null,
+        })),
+        // Invited people the filters hid, so the count of who can see it is honest.
+        invitedIds: [...invited.keys()],
+      },
+    });
+  } catch (e) {
+    if (e instanceof z.ZodError) return res.status(400).json({ error: 'Invalid filters' });
+    next(e);
+  }
+});
+
+r.put('/:jobId/audience', async (req, res, next) => {
+  try {
+    const body = audienceBody.parse(req.body);
+    const job = await prisma.job.findUnique({
+      where: { id: req.params.jobId },
+      select: { id: true, title: true, status: true, eventDate: true, location: true, shiftStart: true, shiftEnd: true, role: { select: { name: true } }, invites: { select: { id: true, userId: true, status: true } } },
+    });
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+    if (body.inviteOnly && !body.userIds.length) return res.status(400).json({ error: 'Pick at least one person, or show the job to everyone.' });
+
+    const wanted = new Set(body.userIds);
+    const have = new Set(job.invites.map((i) => i.userId));
+    const toAdd = [...wanted].filter((id) => !have.has(id));
+    // Unpicked and still unanswered: take the invite back. Answered ones stay as a record.
+    const toRemove = job.invites.filter((i) => !wanted.has(i.userId) && i.status === 'PENDING').map((i) => i.id);
+
+    const workers = toAdd.length
+      ? await prisma.user.findMany({ where: { id: { in: toAdd }, workerProfile: { activeStatus: 'ACTIVE' } }, select: { id: true, email: true, firstName: true } })
+      : [];
+
+    const created = await prisma.$transaction(async (tx) => {
+      await tx.job.update({ where: { id: job.id }, data: { inviteOnly: body.inviteOnly } });
+      if (toRemove.length) await tx.jobInvite.deleteMany({ where: { id: { in: toRemove } } });
+      const out: Array<{ id: string; userId: string }> = [];
+      for (const w of workers) {
+        out.push(await tx.jobInvite.create({ data: { jobId: job.id, userId: w.id, status: 'PENDING', adminNote: body.note ?? null }, select: { id: true, userId: true } }));
+      }
+      return out;
+    });
+
+    let emailed = 0;
+    if (body.notify && ['OPEN', 'PENDING'].includes(job.status)) {
+      for (const inv of created) {
+        const w = workers.find((x) => x.id === inv.userId);
+        if (!w?.email) continue;
+        try {
+          await sendJobInviteEmail({
+            to: w.email, workerName: w.firstName, jobTitle: job.title, roleName: job.role.name, eventDate: job.eventDate,
+            location: job.location, shiftStart: job.shiftStart ?? undefined, shiftEnd: job.shiftEnd ?? undefined,
+            adminNote: body.note, inviteId: inv.id,
+          });
+          emailed += 1;
+        } catch (err) {
+          authLogger.warn({ err, inviteId: inv.id }, 'Failed to send job invite email');
+        }
+      }
+    }
+
+    authLogger.info(
+      { action: 'job_audience_set', admin: (req.session as any)?.username || 'admin', jobId: job.id, inviteOnly: body.inviteOnly, added: created.length, removed: toRemove.length, emailed },
+      'Admin set who can see a job'
+    );
+    res.json({ ok: true, data: { inviteOnly: body.inviteOnly, added: created.length, removed: toRemove.length, emailed, invited: wanted.size } });
+  } catch (e) {
+    if (e instanceof z.ZodError) return res.status(400).json({ error: 'Invalid choice of staff' });
+    next(e);
+  }
+});
+
+// ============================================
 // GET /api/v1/admin/matching/:jobId/invites
 // List all invites for a job
 // ============================================

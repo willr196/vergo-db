@@ -580,6 +580,8 @@ model Job {
   staffNeeded    Int              @default(1)
   type           JobType          @default(INTERNAL)
   venue          String?
+  /// Selected staff only: shown just to the staff invited to it (JobInvite), not on the open job board.
+  inviteOnly     Boolean          @default(false)
   clientId       String?
   posterEmail    String?
   client         Client?          @relation(fields: [clientId], references: [id])

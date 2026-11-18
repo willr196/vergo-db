@@ -49,7 +49,7 @@ r.post('/', async (req, res, next) => {
       include: { role: true }
     });
 
-    if (!job) {
+    if (!job || (job.inviteOnly && !(await prisma.jobInvite.count({ where: { jobId: job.id, userId } })))) {
       return res.status(404).json({ ok: false, error: 'Job not found' });
     }
 

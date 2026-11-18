@@ -53,7 +53,7 @@ r.get('/', async (req, res, next) => {
     const query = listJobsQuerySchema.parse(req.query);
     const skip = (query.page - 1) * query.limit;
 
-    const where: any = { status: 'OPEN' };
+    const where: any = { status: 'OPEN', inviteOnly: false };
 
     if (query.role) {
       where.role = { name: { equals: query.role, mode: 'insensitive' } };
@@ -138,7 +138,7 @@ r.get('/', async (req, res, next) => {
 r.get('/cities', async (_req, res, next) => {
   try {
     const rows = await prisma.job.findMany({
-      where: { status: 'OPEN' },
+      where: { status: 'OPEN', inviteOnly: false },
       distinct: ['location'],
       orderBy: { location: 'asc' },
       select: { location: true }
@@ -156,7 +156,7 @@ async function listLatestJobs(req: any, res: any, next: any) {
     const limit = Math.min(Math.max(Number(req.query.limit) || 5, 1), 20);
 
     const jobs = await prisma.job.findMany({
-      where: { status: 'OPEN' },
+      where: { status: 'OPEN', inviteOnly: false },
       orderBy: [
         { eventDate: 'asc' },
         { createdAt: 'desc' }

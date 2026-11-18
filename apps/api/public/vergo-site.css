@@ -1724,3 +1724,7 @@ fieldset { border: none; padding: 0; margin: 0 0 18px; }
 }
 .staff-payday { display: grid; gap: 8px; }
 .staff-payday .staff-card-text strong { color: var(--text); }
+
+.staff-cant { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--hairline-strong); border-radius: var(--radius); background: var(--surface); }
+.staff-cant p { margin: 0 !important; color: var(--text) !important; font-size: 0.9rem !important; }
+.staff-cant .btn-row { margin-top: 0 !important; }

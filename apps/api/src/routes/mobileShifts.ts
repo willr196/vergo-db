@@ -640,7 +640,7 @@ r.post('/:id/check-out', async (req, res, next) => {
   }
 });
 
-// ── Calendar, running late, can't make it ─────────────────────────────
+// ── Calendar and running late ─────────────────────────────
 
 /** "18:30" to [18, 30], or null for anything else. shiftStart is free text. */
 function clock(value: string | null | undefined): [number, number] | null {
@@ -713,9 +713,6 @@ const lateSchema = z.object({
   minutes: z.number().int().min(5).max(240),
   note: z.string().trim().max(300).optional(),
 });
-const cantMakeSchema = z.object({
-  reason: z.string().trim().min(3).max(500),
-});
 
 function escHtml(value: unknown): string {
   return String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
@@ -770,36 +767,8 @@ r.post('/:id/running-late', async (req, res, next) => {
   }
 });
 
-r.post('/:id/cant-make-it', async (req, res, next) => {
-  try {
-    const body = cantMakeSchema.parse(req.body ?? {});
-    const b = await prisma.booking.findFirst({ where: { id: req.params.id, staffId: req.auth!.userId }, select: alertSelect });
-    if (!b) return res.status(404).json({ ok: false, error: 'Shift not found' });
-    if (b.status !== 'CONFIRMED') return res.status(409).json({ ok: false, error: 'Only a confirmed shift can be given up here' });
-    const startOfToday = new Date();
-    startOfToday.setUTCHours(0, 0, 0, 0);
-    if (b.eventDate < startOfToday) return res.status(409).json({ ok: false, error: 'This shift has already happened' });
-
-    await prisma.booking.update({
-      where: { id: b.id },
-      data: { status: 'CANCELLED', rejectionReason: `Worker can't make it: ${body.reason}`.slice(0, 500) },
-    });
-    if (b.opsBookingId) {
-      const actor = await workerAppActor(req.auth!.userId, workerChannel(req));
-      await writeAuditBestEffort(actor, {
-        action: 'ASSIGNMENT_CHANGED', entityType: 'OpsBooking', entityId: b.opsBookingId,
-        oldValue: { assignmentId: b.id, status: 'CONFIRMED' }, newValue: { assignmentId: b.id, status: 'CANCELLED' },
-        reason: `The worker can't make it: ${body.reason}`,
-      });
-      await syncStaffingStatus(b.opsBookingId, actor);
-    }
-    const emailed = await alertOffice(req.auth!.userId, b, "Can't make the shift", `Reason: ${body.reason}. The shift needs cover.`);
-    res.json({ ok: true, data: { emailed } });
-  } catch (error) {
-    if (error instanceof z.ZodError) return res.status(400).json({ ok: false, error: 'Tell us briefly why, so we can find cover' });
-    next(error);
-  }
-});
+// No "can't make it" here on purpose: a worker who can't do a confirmed
+// shift texts or calls the office, so a person hears it and cover starts.
 
 // ── Timesheet: the worker agrees the hours, or says what is wrong ──────
 const timesheetSchema = z.union([

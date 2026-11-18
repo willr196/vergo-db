@@ -115,12 +115,14 @@ let jobs = [];
           const live = job.status === 'OPEN' || job.status === 'FILLED';
           actionButtons = `
             <button type="button" class="btn btn-small btn-primary" data-action="open-staffing" data-job-id="${job.id}">Staffing</button>
+            <button type="button" class="btn btn-small btn-ghost" data-action="open-audience" data-job-id="${job.id}">Who sees it</button>
             <button type="button" class="btn btn-small ${live ? 'btn-ghost' : 'btn-approve'}" data-action="${live ? 'unpublish-job' : 'publish-job'}" data-job-id="${job.id}">${live ? 'Unpublish' : 'Publish'}</button>
             <button type="button" class="btn btn-small btn-edit" data-action="edit-job" data-job-id="${job.id}">Edit</button>
           `;
         } else {
           actionButtons = `
             <button type="button" class="btn btn-small btn-primary" data-action="open-staffing" data-job-id="${job.id}">Staffing</button>
+            <button type="button" class="btn btn-small btn-ghost" data-action="open-audience" data-job-id="${job.id}">Who sees it</button>
             <button type="button" class="btn btn-small btn-edit" data-action="edit-job" data-job-id="${job.id}">Edit</button>
             <button type="button" class="btn btn-small btn-delete" data-action="delete-job" data-job-id="${job.id}">Delete</button>
           `;
@@ -137,6 +139,7 @@ let jobs = [];
             <td class="job-title-cell">
               <strong><button type="button" class="applicant-link" data-action="open-staffing" data-job-id="${job.id}" title="Open staffing for this job">${escapeHtml(job.title)}</button></strong>
               <span>${escapeHtml(roleName)}</span>
+              ${job.inviteOnly ? '<span class="job-scope" title="Only the staff picked under Who sees it">🔒 Selected staff only</span>' : ''}
               ${schedTag}
             </td>
             <td>
@@ -417,11 +420,13 @@ let jobs = [];
       if (action === 'delete-job') return jobId && deleteJob(jobId);
       if (action === 'publish-job') return jobId && setPublished(jobId, true);
       if (action === 'unpublish-job') return jobId && setPublished(jobId, false);
+      if (action === 'open-audience') return jobId && window.openAudienceModal && window.openAudienceModal(jobId);
     });
 
     // The staffing modal changes headcounts and rosters, so the Staffed column
     // is stale by the time it closes.
     window.onStaffingClosed = loadJobs;
+    window.onAudienceSaved = loadJobs;
 
     document.getElementById('filter-status')?.addEventListener('change', loadJobs);
     document.getElementById('filter-type')?.addEventListener('change', loadJobs);

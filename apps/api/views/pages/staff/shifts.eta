@@ -20,7 +20,7 @@
 
     <section class="section-tight shell-form">
       <div class="card">
-        <p class="staff-card-text">If you're running late or can't make a shift, use the buttons on it or call <a href="tel:<%= it.site.phoneE164 %>"><%= it.site.phoneDisplay %></a>, as early as you can. Late cancellations and no-shows affect the work we can offer you.</p>
+        <p class="staff-card-text">Running late: use the button on the shift; can't make it: text or call <a href="tel:<%= it.site.phoneE164 %>"><%= it.site.phoneDisplay %></a> straight away. Late cancellations and no-shows affect the work we can offer you.</p>
       </div>
       <div class="form-status" id="shiftsStatus" role="status" hidden></div>
       <h2>Coming up</h2>

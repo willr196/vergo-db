@@ -95,7 +95,8 @@ export interface OpsSettings {
 export const DEFAULT_SETTINGS: OpsSettings = {
   pensionDutiesStartDate: null,
   payFrequency: 'monthly',
-  payDayOfMonth: null,
+  // The 29th; February pays on the 28th (owner, 18 Nov 2026).
+  payDayOfMonth: 29,
   statePensionAge: 66,
   pensionThresholds: {
     '2025-26': { lowerQualifyingAnnual: 6240, earningsTriggerAnnual: 10000, upperQualifyingAnnual: 50270, verified: false },
@@ -123,7 +124,9 @@ export const DEFAULT_SETTINGS: OpsSettings = {
 
 /** YYYY-MM-DD of the pay day in a given month, the day clamped to that month's length. */
 function payDayIn(year: number, month0: number, day: number): string {
-  const last = new Date(Date.UTC(year, month0 + 1, 0)).getUTCDate();
+  // February always pays by the 28th, leap year or not.
+  const monthEnd = new Date(Date.UTC(year, month0 + 1, 0)).getUTCDate();
+  const last = ((month0 % 12) + 12) % 12 === 1 ? Math.min(monthEnd, 28) : monthEnd;
   return new Date(Date.UTC(year, month0, Math.min(day, last))).toISOString().slice(0, 10);
 }
 

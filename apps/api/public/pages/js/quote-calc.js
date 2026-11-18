@@ -53,7 +53,10 @@
     var billedMinutes = Math.max(rates.minimumHours * 60, roundUp(workedMinutes));
     var nyeFrom = isNewYearsEve(input.date) ? Math.max(start, rates.newYearsEveFromHour * 60) : null;
     var newYearsEveMinutes = nyeFrom === null ? 0 : Math.min(billedMinutes, roundUp(Math.max(0, end - nyeFrom)));
-    var afterMidnightMinutes = newYearsEveMinutes ? 0 : Math.min(billedMinutes, roundUp(Math.max(0, end - DAY)));
+    // A shift that starts after midnight is night work until afterMidnightUntilHour.
+    var until = (rates.afterMidnightUntilHour || 0) * 60;
+    var earlyNightMinutes = start < until ? Math.max(0, Math.min(end, until) - start) : 0;
+    var afterMidnightMinutes = newYearsEveMinutes ? 0 : Math.min(billedMinutes, roundUp(Math.max(0, end - DAY) + earlyNightMinutes));
 
     var premium = rates.premiumEnabled && input.level === 'premium';
     var rate = premium ? rates.premiumRate : rates.standardRate;

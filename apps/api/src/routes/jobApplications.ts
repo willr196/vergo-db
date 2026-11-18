@@ -111,6 +111,7 @@ r.post("/", requireUser, async (req, res, next) => {
     });
     
     if (!job) return res.status(404).json({ error: "Job not found" });
+    if (job.inviteOnly && !(await prisma.jobInvite.count({ where: { jobId: job.id, userId } }))) return res.status(404).json({ error: "Job not found" });
     if (job.status !== "OPEN") return res.status(400).json({ error: "Job no longer accepting applications" });
     
     const existing = await prisma.jobApplication.findUnique({

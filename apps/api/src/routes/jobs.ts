@@ -1,4 +1,5 @@
 import { Router, type NextFunction, type Request, type Response } from "express";
+import { jobsVisibleTo } from "../lib/jobVisibility";
 import rateLimit from "express-rate-limit";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
@@ -148,8 +149,8 @@ r.get("/", optionalUser, async (req, res, next) => {
     const query = listJobsQuerySchema.parse(req.query);
     const skip = (query.page - 1) * query.limit;
     
-    // Public can only see OPEN jobs
-    const where: any = { status: "OPEN" };
+    // Public can only see OPEN jobs, and a selected-staff job only its invited staff.
+    const where: any = { status: "OPEN", AND: [jobsVisibleTo(req.session?.isUser ? req.session.userId : null)] };
     
     if (query.type) where.type = query.type;
     if (query.roleId) where.roleId = query.roleId;
@@ -251,7 +252,9 @@ r.get("/:id", optionalUser, async (req, res, next) => {
       }
     });
     
-    if (!job) {
+    // A selected-staff job: only its invited staff (and the office) may open it.
+    const viewer = req.session?.isUser ? req.session.userId : null;
+    if (!job || (job.inviteOnly && !(req.session as any)?.isAdmin && !(viewer && await prisma.jobInvite.count({ where: { jobId: job.id, userId: viewer } })))) {
       return res.status(404).json({ error: "Job not found" });
     }
     

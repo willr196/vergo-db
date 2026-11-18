@@ -47,3 +47,9 @@ test('pay days: the last on or before today and the next, clamped to short month
   assert.deepEqual(payDaysAround('2026-12-31', 31), { last: '2026-12-31', next: '2027-01-31' });
   assert.deepEqual(payDaysAround('2027-01-05', 15), { last: '2026-12-15', next: '2027-01-15' });
 });
+
+test('pay day on the 29th: the 28th in February, leap year or not', () => {
+  assert.deepEqual(payDaysAround('2027-02-10', 29), { last: '2027-01-29', next: '2027-02-28' });
+  assert.deepEqual(payDaysAround('2028-02-10', 29), { last: '2028-01-29', next: '2028-02-28' });
+  assert.deepEqual(payDaysAround('2027-03-01', 29), { last: '2027-02-28', next: '2027-03-29' });
+});

@@ -187,7 +187,8 @@
 
   // ── Shift actions, shared by the overview and My shifts ─────────────
   // Offers: accept (with the terms tick) or decline. Confirmed shifts: add to
-  // calendar, running late (on the day), can't make it. Each page sets
+  // calendar, running late (on the day), ask to swap, and how to reach the
+  // office if they can't make it (by text or call, never online). Each page sets
   // VergoStaff.onShiftChange to reload its lists after one of these.
   var SHIFTS_API = '/api/v1/user/shifts';
 
@@ -246,6 +247,24 @@
 
   var LATE_CHOICES = [10, 15, 20, 30, 45, 60, 90, 120];
 
+  /**
+   * Can't make a confirmed shift: there is no giving it up here. They text or
+   * call the office straight away, so cover can start. The number comes from
+   * /vergo-site-config.js (src/config, src/site/content.ts).
+   */
+  function cantMakeIt() {
+    var c = (window.VERGO_CONFIG && window.VERGO_CONFIG.contact) || {};
+    if (!c.phone) return '<p class="staff-cant"><strong>Can&#39;t make it?</strong> Call the office straight away.</p>';
+    var tel = esc(String(c.phone).replace(/\s+/g, ''));
+    return '<div class="staff-cant">' +
+      '<p><strong>Can&#39;t make it?</strong> Text or call ' + esc(c.phoneDisplay || c.phone) + ' straight away, so we can find cover. You can&#39;t cancel a confirmed shift here.</p>' +
+      '<div class="btn-row">' +
+        '<a class="btn btn-secondary" href="sms:' + tel + '">Text</a>' +
+        '<a class="btn btn-secondary" href="tel:' + tel + '">Call</a>' +
+        (c.whatsappUrl ? '<a class="btn btn-secondary" href="' + esc(c.whatsappUrl) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') +
+      '</div></div>';
+  }
+
   /** The buttons under a shift, by status. */
   function shiftActions(s) {
     var id = esc(s.id);
@@ -279,11 +298,7 @@
         '<label for="swap-who-' + id + '">Someone who could take it? <span class="label-note">optional</span></label>' +
         '<input type="text" id="swap-who-' + id + '" data-swap-colleague maxlength="120" placeholder="Their name">' +
         '<button type="button" class="btn btn-secondary" data-swap="' + id + '">Ask the office</button></div></details>' +
-      '<details class="staff-action" data-cant-box="' + id + '"><summary>Can&#39;t make it</summary>' +
-        '<div class="staff-action-body"><p>We will need to find cover, so tell us as early as you can.</p>' +
-        '<label for="cant-' + id + '">Why can&#39;t you make it?</label>' +
-        '<textarea id="cant-' + id + '" data-cant-reason maxlength="500" rows="3"></textarea>' +
-        '<button type="button" class="btn btn-secondary" data-cant="' + id + '">Give up this shift</button></div></details>' +
+      cantMakeIt() +
       '</div>';
   }
 
@@ -367,7 +382,6 @@
     var accept = t.closest('[data-accept]');
     var decline = t.closest('[data-decline]');
     var late = t.closest('[data-late]');
-    var cant = t.closest('[data-cant]');
     if (accept) {
       var id = accept.getAttribute('data-accept');
       var terms = document.querySelector('[data-terms="' + id + '"]');
@@ -384,14 +398,6 @@
       var note = box.querySelector('[data-late-note]').value.trim();
       return runAction(late, request('POST', shiftUrl(late.getAttribute('data-late'), 'running-late'), note ? { minutes: minutes, note: note } : { minutes: minutes }), function (d) {
         return d.emailed ? 'Thanks. The office knows you are running about ' + minutes + ' minutes late.' : 'We could not email the office just now. Please call us to say you are running late.';
-      });
-    }
-    if (cant) {
-      var cbox = cant.closest('[data-cant-box]');
-      var reason = cbox.querySelector('[data-cant-reason]').value.trim();
-      if (reason.length < 3) return show(actionStatusId(), 'Tell us briefly why, so we can find cover.', 'error');
-      return runAction(cant, request('POST', shiftUrl(cant.getAttribute('data-cant'), 'cant-make-it'), { reason: reason }), function (d) {
-        return d.emailed ? 'Thanks for telling us. The shift is given up and the office is finding cover.' : 'The shift is given up, but the office email did not go. Please call us as well.';
       });
     }
   });

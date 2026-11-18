@@ -49,7 +49,7 @@ export function reminderEmail(s: ReminderShift, siteUrl: string): string {
         ${row('🙋', s.contact ? `On the day, ask for: ${s.contact}` : null)}
       `)}
       ${primaryButton('See the full briefing', `${siteUrl}/staff/shifts`)}
-      ${infoBox('<p style="margin: 0;"><strong>Running late or can&#39;t make it?</strong> Use the buttons on the shift in your account, or call us, as early as you can.</p>', 'warning')}
+      ${infoBox('<p style="margin: 0;"><strong>Running late?</strong> Use the button on the shift in your account. <strong>Can&#39;t make it?</strong> Text or call us straight away.</p>', 'warning')}
       <p>See you there,<br><strong>The VERGO Team</strong></p>
     `),
   });
