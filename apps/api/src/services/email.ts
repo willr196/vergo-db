@@ -7,6 +7,7 @@ export {
   // User emails
   sendUserVerificationEmail,
   sendPasswordResetEmail,
+  sendLoginLinkEmail,
   // Client emails
   sendClientVerificationEmail,
   sendClientPasswordResetEmail,
@@ -35,6 +36,7 @@ export {
   sendGeneralEnquiryEmail,
   sendQuoteNotificationEmail,
   sendQuoteConfirmationEmail,
+  sendStaffShiftAlertEmail,
   // Matching / invites
   sendJobInviteEmail,
   sendBookingReviewRequestEmail,

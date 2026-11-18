@@ -20,6 +20,15 @@
     </section>
 
     <section class="section-tight shell-form" id="overviewBody" hidden>
+      <div class="form-status" id="overviewStatus" role="status" hidden></div>
+
+      <div class="staff-stats" id="monthStats" hidden>
+        <div class="staff-stat"><span class="staff-stat-label">Shifts this month</span><span class="staff-stat-value" id="statShifts">0</span></div>
+        <div class="staff-stat"><span class="staff-stat-label">Hours</span><span class="staff-stat-value" id="statHours">0</span></div>
+        <div class="staff-stat"><span class="staff-stat-label">Estimated pay</span><span class="staff-stat-value" id="statPay">—</span></div>
+        <a class="staff-stat-link" href="/staff/earnings">See earnings</a>
+      </div>
+
       <div class="card" id="readiness" hidden>
         <h2 class="staff-card-title" id="readinessTitle">Ready to work</h2>
         <p class="staff-card-text" id="readinessLede"></p>

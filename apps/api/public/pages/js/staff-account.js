@@ -185,6 +185,24 @@
       .finally(function () { button.disabled = false; });
   });
 
+  // Sign out every other device (and the app), keeping this browser signed in.
+  var signOutOthers = document.getElementById('signOutOthers');
+  if (signOutOthers) signOutOthers.addEventListener('click', function () {
+    signOutOthers.disabled = true;
+    request('POST', '/api/v1/user/sessions/sign-out-others', {}).then(function (r) {
+      if (r.status === 200) {
+        window.VergoStaff.show('devicesStatus', 'Done. You are signed out everywhere except this browser.', 'success');
+      } else {
+        window.VergoStaff.show('devicesStatus', (r.body && r.body.error) || 'That did not work. Try again.', 'error');
+        signOutOthers.disabled = false;
+      }
+    }).catch(function (err) {
+      if (err && err.message === 'signed-out') return;
+      window.VergoStaff.show('devicesStatus', 'Could not reach VERGO. Try again.', 'error');
+      signOutOthers.disabled = false;
+    });
+  });
+
   passwordForm.addEventListener('submit', function (event) {
     event.preventDefault();
     var f = passwordForm.elements;

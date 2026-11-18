@@ -4,9 +4,12 @@ import { z } from 'zod';
 import { prisma } from '../prisma';
 import { requireUserJwtOrSession } from '../middleware/jwtAuth';
 import { sendPushToClient } from '../services/notifications';
-import { PRICING } from '../config/pricing';
-import { writeAudit, workerAppActor, workerChannel } from '../ops/audit';
+import { PRICING, ON_COSTS, splitAllInPay } from '../config/pricing';
+import { sendStaffShiftAlertEmail } from '../services/email';
+import { writeAudit, writeAuditBestEffort, workerAppActor, workerChannel } from '../ops/audit';
 import { syncStaffingStatus } from './ops/bookings';
+import { loadOpsSettings, payDaysAround } from '../ops/settings';
+import { londonDateKey } from '../ops/time';
 
 const r = Router();
 
@@ -168,6 +171,8 @@ function shapeShift(booking: ShiftRow) {
     checkedOutAt: booking.checkedOutAt?.toISOString() ?? null,
     hoursWorked: numberOrNull(booking.hoursWorked),
     workerShiftNotes: booking.workerShiftNotes,
+    timesheetConfirmedAt: booking.timesheetConfirmedAt?.toISOString() ?? null,
+    timesheetQuery: booking.timesheetQuery,
     createdAt: booking.createdAt.toISOString(),
     updatedAt: booking.updatedAt.toISOString(),
     client: {
@@ -262,6 +267,145 @@ r.get('/', async (req, res, next) => {
 });
 
 // GET /api/v1/mobile/shifts/:id
+/**
+ * The worker's own pay, estimated from their shifts: by month, this tax year,
+ * and what is booked ahead. Pay rates are all in (holiday pay inside them), so
+ * each amount is split into basic and holiday the way Ops does. Each shift is
+ * paid for at least the minimum hours, the same as the client is charged.
+ * Estimates only: payroll decides what is actually paid.
+ */
+export function shiftPay(hours: number, ratePounds: number) {
+  const billed = Math.max(hours, PRICING.minimumChargeHours);
+  const totalPence = Math.round(billed * ratePounds * 100);
+  const { wagePence, holidayPence } = splitAllInPay(totalPence);
+  return { hours: billed, payPence: totalPence, basicPence: wagePence, holidayPence };
+}
+
+/** 6 April of the current tax year, as YYYY-MM-DD. */
+export function taxYearStart(now: Date): string {
+  const y = now.getUTCFullYear();
+  return `${now.getTime() >= Date.UTC(y, 3, 6) ? y : y - 1}-04-06`;
+}
+
+r.get('/earnings', async (req, res, next) => {
+  try {
+    const now = new Date();
+    const from = new Date(Date.UTC(now.getUTCFullYear() - 1, now.getUTCMonth(), 1));
+    const rows = await prisma.booking.findMany({
+      where: { staffId: req.auth!.userId, status: { in: ['COMPLETED', 'CONFIRMED'] }, eventDate: { gte: from } },
+      select: { id: true, status: true, eventDate: true, eventName: true, role: true, venue: true, location: true, hoursWorked: true, hoursEstimated: true, staffPayRate: true },
+      orderBy: { eventDate: 'desc' },
+    });
+    const startOfToday = new Date(now);
+    startOfToday.setUTCHours(0, 0, 0, 0);
+    const taxFrom = taxYearStart(now);
+    const ops = await loadOpsSettings();
+    const payDays = ops.payFrequency === 'monthly' && ops.payDayOfMonth ? payDaysAround(londonDateKey(now), ops.payDayOfMonth) : null;
+
+    type Sum = { shifts: number; hours: number; payPence: number; basicPence: number; holidayPence: number };
+    const empty = (): Sum => ({ shifts: 0, hours: 0, payPence: 0, basicPence: 0, holidayPence: 0 });
+    const add = (s: Sum, p: ReturnType<typeof shiftPay>) => {
+      s.shifts += 1; s.hours += p.hours; s.payPence += p.payPence; s.basicPence += p.basicPence; s.holidayPence += p.holidayPence;
+    };
+
+    const months = new Map<string, Sum>();
+    const taxYear = empty();
+    const upcoming = empty();
+    const sinceLastPay = empty();
+    let noRate = 0;
+    const worked: Array<Record<string, unknown>> = [];
+
+    for (const b of rows) {
+      const rate = b.staffPayRate == null ? null : Number(b.staffPayRate);
+      const hours = Number(b.hoursWorked ?? b.hoursEstimated ?? 0);
+      const isPast = b.status === 'COMPLETED' || b.eventDate < startOfToday;
+      if (rate == null || !hours) { if (isPast) noRate += 1; continue; }
+      const pay = shiftPay(hours, rate);
+      if (!isPast) { add(upcoming, pay); continue; }
+      const month = b.eventDate.toISOString().slice(0, 7);
+      if (!months.has(month)) months.set(month, empty());
+      add(months.get(month)!, pay);
+      if (b.eventDate.toISOString().slice(0, 10) >= taxFrom) add(taxYear, pay);
+      if (payDays && b.eventDate.toISOString().slice(0, 10) > payDays.last) add(sinceLastPay, pay);
+      if (worked.length < 60) worked.push({
+        id: b.id, eventDate: b.eventDate.toISOString(), title: b.role || b.eventName || 'Shift',
+        where: [b.venue, b.location].filter(Boolean).join(', '), hours: pay.hours, rate,
+        payPence: pay.payPence, basicPence: pay.basicPence, holidayPence: pay.holidayPence,
+        hoursAreActual: b.hoursWorked != null,
+      });
+    }
+
+    res.json({
+      ok: true,
+      data: {
+        payFrequency: ops.payFrequency,
+        lastPayDay: payDays?.last ?? null,
+        nextPayDay: payDays?.next ?? null,
+        sinceLastPay: payDays ? sinceLastPay : null,
+        holidayPercent: Math.round(ON_COSTS.holidayAccrualRate * 10000) / 100,
+        minimumHours: PRICING.minimumChargeHours,
+        taxYearFrom: taxFrom,
+        taxYear,
+        upcoming,
+        shiftsWithoutRate: noRate,
+        months: [...months.entries()].map(([month, s]) => ({ month, ...s })),
+        shifts: worked,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * What needs the worker's attention, for the bell on the staff pages: offers
+ * to answer, a shift today or tomorrow, hours to confirm, documents to agree.
+ * Worked out fresh from their records each time, so nothing is stored and
+ * nothing goes stale.
+ */
+export const TIMESHEET_DAYS = 14;
+
+r.get('/attention', async (req, res, next) => {
+  try {
+    const userId = req.auth!.userId;
+    const now = new Date();
+    const startOfToday = new Date(now); startOfToday.setUTCHours(0, 0, 0, 0);
+    const dayAfterTomorrow = new Date(startOfToday.getTime() + 2 * 86400000);
+    const since = new Date(startOfToday.getTime() - TIMESHEET_DAYS * 86400000);
+
+    const [offers, soon, toConfirm, docs] = await Promise.all([
+      prisma.booking.count({ where: { staffId: userId, status: 'PENDING', eventDate: { gte: startOfToday } } }),
+      prisma.booking.findMany({
+        where: { staffId: userId, status: 'CONFIRMED', eventDate: { gte: startOfToday, lt: dayAfterTomorrow } },
+        select: { id: true, eventDate: true, shiftStart: true, role: true, eventName: true, venue: true },
+        orderBy: [{ eventDate: 'asc' }, { shiftStart: 'asc' }],
+        take: 3,
+      }),
+      prisma.booking.count({
+        where: {
+          staffId: userId, timesheetConfirmedAt: null, timesheetQuery: null,
+          eventDate: { gte: since, lt: startOfToday },
+          OR: [{ status: 'COMPLETED' }, { status: 'CONFIRMED' }],
+        },
+      }),
+      prisma.workerDocument.count({ where: { userId, status: 'ISSUED' } }),
+    ]);
+
+    const items: Array<{ kind: string; text: string; href: string }> = [];
+    if (offers) items.push({ kind: 'offer', text: offers === 1 ? 'A shift offer is waiting for your answer' : `${offers} shift offers are waiting for your answer`, href: '/staff/shifts' });
+    for (const s of soon) {
+      const isToday = s.eventDate.getTime() < startOfToday.getTime() + 86400000;
+      items.push({ kind: 'soon', text: `${isToday ? 'Today' : 'Tomorrow'}: ${s.role || s.eventName || 'your shift'}${s.shiftStart ? ` at ${s.shiftStart}` : ''}${s.venue ? `, ${s.venue}` : ''}`, href: '/staff/shifts' });
+    }
+    if (toConfirm) items.push({ kind: 'timesheet', text: toConfirm === 1 ? 'Check the hours for a shift you worked' : `Check the hours for ${toConfirm} shifts you worked`, href: '/staff/shifts#worked' });
+    if (docs) items.push({ kind: 'document', text: docs === 1 ? 'A document is waiting for you to read and agree' : `${docs} documents are waiting for you to read and agree`, href: '/staff/documents' });
+
+    res.json({ ok: true, data: { count: items.length, items } });
+  } catch (error) {
+    next(error);
+  }
+});
+
 r.get('/:id', async (req, res, next) => {
   try {
     const booking = await prisma.booking.findFirst({
@@ -492,6 +636,296 @@ r.post('/:id/check-out', async (req, res, next) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ ok: false, error: 'Invalid check-out notes' });
     }
+    next(error);
+  }
+});
+
+// ── Calendar, running late, can't make it ─────────────────────────────
+
+/** "18:30" to [18, 30], or null for anything else. shiftStart is free text. */
+function clock(value: string | null | undefined): [number, number] | null {
+  const m = /^(\d{1,2}):(\d{2})/.exec(String(value ?? '').trim());
+  if (!m) return null;
+  const h = Number(m[1]);
+  const min = Number(m[2]);
+  return h < 24 && min < 60 ? [h, min] : null;
+}
+
+function icsText(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+}
+
+/** One shift as an .ics file, in London time. Times missing: an all-day entry. */
+export function shiftCalendar(
+  s: { id: string; eventDate: Date; shiftStart: string | null; shiftEnd: string | null; title: string; where: string; details: string },
+  now = new Date()
+): string {
+  const ymd = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, '');
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const day = ymd(s.eventDate);
+  const start = clock(s.shiftStart);
+  const end = clock(s.shiftEnd);
+  const lines = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//VERGO//Staff shifts//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
+    `UID:shift-${s.id}@vergoltd.com`,
+    `DTSTAMP:${now.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}`,
+  ];
+  if (start) {
+    lines.push(`DTSTART;TZID=Europe/London:${day}T${pad(start[0])}${pad(start[1])}00`);
+    if (end) {
+      const overnight = end[0] * 60 + end[1] <= start[0] * 60 + start[1];
+      const endDay = ymd(new Date(s.eventDate.getTime() + (overnight ? 86400000 : 0)));
+      lines.push(`DTEND;TZID=Europe/London:${endDay}T${pad(end[0])}${pad(end[1])}00`);
+    }
+  } else {
+    lines.push(`DTSTART;VALUE=DATE:${day}`, `DTEND;VALUE=DATE:${ymd(new Date(s.eventDate.getTime() + 86400000))}`);
+  }
+  lines.push(`SUMMARY:${icsText(`VERGO: ${s.title}`)}`);
+  if (s.where) lines.push(`LOCATION:${icsText(s.where)}`);
+  if (s.details) lines.push(`DESCRIPTION:${icsText(s.details)}`);
+  lines.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:VERGO shift', 'TRIGGER:-PT3H', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR');
+  return lines.join('\r\n') + '\r\n';
+}
+
+r.get('/:id/calendar.ics', async (req, res, next) => {
+  try {
+    const b = await prisma.booking.findFirst({
+      where: { id: req.params.id, staffId: req.auth!.userId, status: { in: ['CONFIRMED', 'PENDING'] } },
+      include: bookingInclude,
+    });
+    if (!b) return res.status(404).json({ ok: false, error: 'Shift not found' });
+    const s = shapeShift(b);
+    const where = [s.venue, s.ops?.address || s.location].filter(Boolean).join(', ');
+    const details = [
+      s.ops?.dressCode ? `Dress code: ${s.ops.dressCode}` : '',
+      s.ops?.onSiteContact ? `On the day: ${[s.ops.onSiteContact.name, s.ops.onSiteContact.phone].filter(Boolean).join(', ')}` : '',
+      'Full briefing in your VERGO account, under My shifts.',
+    ].filter(Boolean).join('\n');
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="vergo-shift-${s.eventDate.slice(0, 10)}.ics"`);
+    res.send(shiftCalendar({ id: b.id, eventDate: b.eventDate, shiftStart: b.shiftStart, shiftEnd: b.shiftEnd, title: s.role || s.eventName || 'Shift', where, details }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+const lateSchema = z.object({
+  minutes: z.number().int().min(5).max(240),
+  note: z.string().trim().max(300).optional(),
+});
+const cantMakeSchema = z.object({
+  reason: z.string().trim().min(3).max(500),
+});
+
+function escHtml(value: unknown): string {
+  return String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+}
+
+const alertSelect = {
+  id: true, status: true, eventDate: true, shiftStart: true, shiftEnd: true,
+  venue: true, location: true, eventName: true, role: true, opsBookingId: true,
+} as const;
+type AlertShift = Prisma.BookingGetPayload<{ select: typeof alertSelect }>;
+
+/** The office email for a shift alert: who, which shift, what happened. True if it went. */
+async function alertOffice(userId: string, b: AlertShift, headline: string, detail: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { firstName: true, lastName: true, phone: true, email: true } });
+  const name = user ? `${user.firstName} ${user.lastName}`.trim() : 'A worker';
+  const when = `${b.eventDate.toISOString().slice(0, 10)}${b.shiftStart ? ` ${b.shiftStart}${b.shiftEnd ? `–${b.shiftEnd}` : ''}` : ''}`;
+  const where = [b.venue, b.location].filter(Boolean).join(', ');
+  const sent = await sendStaffShiftAlertEmail({
+    subject: `${headline}: ${name}, ${when}${where ? ` at ${where}` : ''}`,
+    replyTo: user?.email,
+    html: `<h2 style="margin-bottom:4px">${escHtml(headline)}</h2>
+      <p><strong>${escHtml(name)}</strong>${user?.phone ? ` · <a href="tel:${escHtml(user.phone.replace(/\s+/g, ''))}">${escHtml(user.phone)}</a>` : ''}</p>
+      <p>${escHtml(b.role || b.eventName || 'Shift')}, ${escHtml(when)}${where ? `, ${escHtml(where)}` : ''}</p>
+      <p>${escHtml(detail)}</p>
+      <p style="color:#666;font-size:12px">Sent from the staff pages. Shift ${escHtml(b.id)}.</p>`,
+  });
+  return Boolean(sent?.success);
+}
+
+r.post('/:id/running-late', async (req, res, next) => {
+  try {
+    const body = lateSchema.parse(req.body ?? {});
+    const b = await prisma.booking.findFirst({ where: { id: req.params.id, staffId: req.auth!.userId }, select: alertSelect });
+    if (!b) return res.status(404).json({ ok: false, error: 'Shift not found' });
+    if (b.status !== 'CONFIRMED') return res.status(409).json({ ok: false, error: 'Only a confirmed shift can be marked as running late' });
+    if (!isWithinCheckInWindow(b.eventDate, new Date())) {
+      return res.status(409).json({ ok: false, error: 'You can only say you are running late on the day of the shift' });
+    }
+    const detail = `Running about ${body.minutes} minutes late.${body.note ? ` "${body.note}"` : ''}`;
+    if (b.opsBookingId) {
+      const actor = await workerAppActor(req.auth!.userId, workerChannel(req));
+      await writeAuditBestEffort(actor, {
+        action: 'ASSIGNMENT_CHANGED', entityType: 'OpsBooking', entityId: b.opsBookingId,
+        newValue: { assignmentId: b.id, runningLateMinutes: body.minutes }, reason: detail,
+      });
+    }
+    const emailed = await alertOffice(req.auth!.userId, b, 'Running late', detail);
+    res.json({ ok: true, data: { emailed } });
+  } catch (error) {
+    if (error instanceof z.ZodError) return res.status(400).json({ ok: false, error: 'Say roughly how many minutes late, between 5 and 240' });
+    next(error);
+  }
+});
+
+r.post('/:id/cant-make-it', async (req, res, next) => {
+  try {
+    const body = cantMakeSchema.parse(req.body ?? {});
+    const b = await prisma.booking.findFirst({ where: { id: req.params.id, staffId: req.auth!.userId }, select: alertSelect });
+    if (!b) return res.status(404).json({ ok: false, error: 'Shift not found' });
+    if (b.status !== 'CONFIRMED') return res.status(409).json({ ok: false, error: 'Only a confirmed shift can be given up here' });
+    const startOfToday = new Date();
+    startOfToday.setUTCHours(0, 0, 0, 0);
+    if (b.eventDate < startOfToday) return res.status(409).json({ ok: false, error: 'This shift has already happened' });
+
+    await prisma.booking.update({
+      where: { id: b.id },
+      data: { status: 'CANCELLED', rejectionReason: `Worker can't make it: ${body.reason}`.slice(0, 500) },
+    });
+    if (b.opsBookingId) {
+      const actor = await workerAppActor(req.auth!.userId, workerChannel(req));
+      await writeAuditBestEffort(actor, {
+        action: 'ASSIGNMENT_CHANGED', entityType: 'OpsBooking', entityId: b.opsBookingId,
+        oldValue: { assignmentId: b.id, status: 'CONFIRMED' }, newValue: { assignmentId: b.id, status: 'CANCELLED' },
+        reason: `The worker can't make it: ${body.reason}`,
+      });
+      await syncStaffingStatus(b.opsBookingId, actor);
+    }
+    const emailed = await alertOffice(req.auth!.userId, b, "Can't make the shift", `Reason: ${body.reason}. The shift needs cover.`);
+    res.json({ ok: true, data: { emailed } });
+  } catch (error) {
+    if (error instanceof z.ZodError) return res.status(400).json({ ok: false, error: 'Tell us briefly why, so we can find cover' });
+    next(error);
+  }
+});
+
+// ── Timesheet: the worker agrees the hours, or says what is wrong ──────
+const timesheetSchema = z.union([
+  z.object({ agree: z.literal(true) }),
+  z.object({ agree: z.literal(false), note: z.string().trim().min(3).max(500) }),
+]);
+
+r.post('/:id/timesheet', async (req, res, next) => {
+  try {
+    const body = timesheetSchema.parse(req.body ?? {});
+    const b = await prisma.booking.findFirst({
+      where: { id: req.params.id, staffId: req.auth!.userId },
+      select: { ...alertSelect, hoursWorked: true, hoursEstimated: true, checkedInAt: true, checkedOutAt: true, timesheetConfirmedAt: true, timesheetQuery: true },
+    });
+    if (!b) return res.status(404).json({ ok: false, error: 'Shift not found' });
+    const startOfToday = new Date(); startOfToday.setUTCHours(0, 0, 0, 0);
+    const worked = b.status === 'COMPLETED' || (b.status === 'CONFIRMED' && b.eventDate < startOfToday);
+    if (!worked) return res.status(409).json({ ok: false, error: 'You can check the hours once the shift has happened' });
+    if (b.timesheetConfirmedAt || b.timesheetQuery) return res.status(409).json({ ok: false, error: 'You have already answered for this shift' });
+
+    const hours = b.hoursWorked ?? b.hoursEstimated;
+    const recorded = `${hours != null ? `${Number(hours)} hours` : 'hours not recorded'}${b.checkedInAt && b.checkedOutAt ? ` (checked in ${b.checkedInAt.toISOString().slice(11, 16)}, out ${b.checkedOutAt.toISOString().slice(11, 16)} UTC)` : ''}`;
+
+    if (body.agree) {
+      await prisma.booking.update({ where: { id: b.id }, data: { timesheetConfirmedAt: new Date() } });
+      return res.json({ ok: true, data: { agreed: true } });
+    }
+
+    await prisma.booking.update({ where: { id: b.id }, data: { timesheetQuery: body.note } });
+    if (b.opsBookingId) {
+      const actor = await workerAppActor(req.auth!.userId, workerChannel(req));
+      await writeAuditBestEffort(actor, {
+        action: 'ASSIGNMENT_CHANGED', entityType: 'OpsBooking', entityId: b.opsBookingId,
+        newValue: { assignmentId: b.id, timesheetQuery: body.note }, reason: `The worker queried the hours (${recorded}): ${body.note}`,
+      });
+    }
+    const emailed = await alertOffice(req.auth!.userId, b, 'Hours queried', `Recorded: ${recorded}. The worker says: "${body.note}"`);
+    res.json({ ok: true, data: { agreed: false, emailed } });
+  } catch (error) {
+    if (error instanceof z.ZodError) return res.status(400).json({ ok: false, error: 'Tell us what is wrong with the hours' });
+    next(error);
+  }
+});
+
+// ── Early pay and shift swaps: requests the office decides on ──────────
+// Neither changes anything by itself: the office gets an email (and Ops an
+// audit line) and does the rest. One early pay request every 3 days at most.
+const EARLY_PAY_GAP_DAYS = 3;
+const earlyPaySchema = z.object({ note: z.string().trim().max(500).optional() });
+const swapSchema = z.object({
+  reason: z.string().trim().min(3).max(500),
+  colleague: z.string().trim().max(120).optional(),
+});
+
+r.post('/early-pay', async (req, res, next) => {
+  try {
+    const body = earlyPaySchema.parse(req.body ?? {});
+    const userId = req.auth!.userId;
+    const recent = await prisma.auditLog.findFirst({
+      where: { action: 'EARLY_PAY_REQUESTED', entityType: 'Worker', entityId: userId, at: { gte: new Date(Date.now() - EARLY_PAY_GAP_DAYS * 86400000) } },
+      select: { id: true },
+    });
+    if (recent) return res.status(409).json({ ok: false, error: 'You asked recently. The office will come back to you; ring us if it is urgent.' });
+
+    const now = new Date();
+    const ops = await loadOpsSettings();
+    const payDays = ops.payFrequency === 'monthly' && ops.payDayOfMonth ? payDaysAround(londonDateKey(now), ops.payDayOfMonth) : null;
+    const startOfToday = new Date(now); startOfToday.setUTCHours(0, 0, 0, 0);
+    const from = payDays ? new Date(`${payDays.last}T23:59:59Z`) : new Date(startOfToday.getTime() - 31 * 86400000);
+    const rows = await prisma.booking.findMany({
+      where: { staffId: userId, eventDate: { gt: from, lt: startOfToday }, OR: [{ status: 'COMPLETED' }, { status: 'CONFIRMED' }] },
+      select: { eventDate: true, role: true, eventName: true, venue: true, hoursWorked: true, hoursEstimated: true, staffPayRate: true },
+      orderBy: { eventDate: 'asc' },
+    });
+    let total = 0;
+    const lines = rows.map((b) => {
+      const hours = Number(b.hoursWorked ?? b.hoursEstimated ?? 0);
+      const rate = b.staffPayRate == null ? null : Number(b.staffPayRate);
+      const p = rate != null && hours ? shiftPay(hours, rate) : null;
+      if (p) total += p.payPence;
+      return `${b.eventDate.toISOString().slice(0, 10)} · ${b.role || b.eventName || 'Shift'}${b.venue ? `, ${b.venue}` : ''} · ${p ? `${p.hours}h, £${(p.payPence / 100).toFixed(2)}` : 'rate or hours missing'}`;
+    });
+    if (!rows.length) return res.status(409).json({ ok: false, error: 'There are no shifts worked since the last pay day to pay early.' });
+
+    const actor = await workerAppActor(userId, workerChannel(req));
+    await writeAuditBestEffort(actor, { action: 'EARLY_PAY_REQUESTED', entityType: 'Worker', entityId: userId, newValue: { shifts: rows.length, estimatePence: total }, reason: body.note || 'Early pay requested' });
+
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { firstName: true, lastName: true, email: true, phone: true } });
+    const name = user ? `${user.firstName} ${user.lastName}`.trim() : 'A worker';
+    const emailed = await sendStaffShiftAlertEmail({
+      subject: `Early pay request: ${name}, about £${(total / 100).toFixed(2)}`,
+      replyTo: user?.email,
+      html: `<h2 style="margin-bottom:4px">Early pay request</h2>
+        <p><strong>${escHtml(name)}</strong>${user?.phone ? ` · ${escHtml(user.phone)}` : ''} asks to be paid early for shifts worked${payDays ? ` since the last pay day (${escHtml(payDays.last)})` : ''}.</p>
+        <ul>${lines.map((l) => `<li>${escHtml(l)}</li>`).join('')}</ul>
+        <p><strong>Estimated total: £${(total / 100).toFixed(2)}</strong> (all-in rates, holiday included, before tax and NI). Payroll decides the actual figure.</p>
+        ${body.note ? `<p>They say: "${escHtml(body.note)}"</p>` : ''}
+        <p style="color:#666;font-size:12px">Nothing has been paid or changed. Reply to them to agree or decline.</p>`,
+    }).then((r) => Boolean(r?.success));
+    res.json({ ok: true, data: { emailed, shifts: rows.length, estimatePence: total } });
+  } catch (error) {
+    if (error instanceof z.ZodError) return res.status(400).json({ ok: false, error: 'That note is too long' });
+    next(error);
+  }
+});
+
+r.post('/:id/swap-request', async (req, res, next) => {
+  try {
+    const body = swapSchema.parse(req.body ?? {});
+    const b = await prisma.booking.findFirst({ where: { id: req.params.id, staffId: req.auth!.userId }, select: alertSelect });
+    if (!b) return res.status(404).json({ ok: false, error: 'Shift not found' });
+    if (b.status !== 'CONFIRMED') return res.status(409).json({ ok: false, error: 'Only a confirmed shift can be swapped' });
+    const startOfToday = new Date(); startOfToday.setUTCHours(0, 0, 0, 0);
+    if (b.eventDate < startOfToday) return res.status(409).json({ ok: false, error: 'This shift has already happened' });
+    const detail = `Asks to swap this shift. Reason: ${body.reason}.${body.colleague ? ` Suggests: ${body.colleague}.` : ' No one suggested.'} They stay booked until the office agrees a swap.`;
+    if (b.opsBookingId) {
+      const actor = await workerAppActor(req.auth!.userId, workerChannel(req));
+      await writeAuditBestEffort(actor, {
+        action: 'ASSIGNMENT_CHANGED', entityType: 'OpsBooking', entityId: b.opsBookingId,
+        newValue: { assignmentId: b.id, swapRequested: true, suggested: body.colleague ?? null }, reason: detail,
+      });
+    }
+    const emailed = await alertOffice(req.auth!.userId, b, 'Swap request', detail);
+    res.json({ ok: true, data: { emailed } });
+  } catch (error) {
+    if (error instanceof z.ZodError) return res.status(400).json({ ok: false, error: 'Tell us briefly why you want to swap' });
     next(error);
   }
 });

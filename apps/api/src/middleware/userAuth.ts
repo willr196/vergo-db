@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 
 const USER_IDLE_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours
 const USER_MAX_SESSION_AGE = 24 * 60 * 60 * 1000; // 24 hours
+/** "Keep me logged in": ticked at login, the session lasts 30 days on that device. */
+export const USER_REMEMBER_AGE = 30 * 24 * 60 * 60 * 1000;
 
 function setNoStoreHeaders(res: Response) {
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
@@ -17,6 +19,8 @@ declare module 'express-session' {
     userEmail?: string;
     userLoginTime?: number;
     userLastActivity?: number;
+    /** Ticked "Keep me logged in": 30 days, no 2-hour idle limit. */
+    userRemember?: boolean;
   }
 }
 
@@ -31,9 +35,12 @@ export function requireUser(req: Request, res: Response, next: NextFunction) {
   const now = Date.now();
   const loginTime = req.session.userLoginTime || 0;
   const lastActivity = req.session.userLastActivity || 0;
+  const remember = req.session.userRemember === true;
+  const maxAge = remember ? USER_REMEMBER_AGE : USER_MAX_SESSION_AGE;
+  const idleLimit = remember ? USER_REMEMBER_AGE : USER_IDLE_TIMEOUT;
   
-  // Check absolute session age (24 hours max)
-  if (loginTime && (now - loginTime > USER_MAX_SESSION_AGE)) {
+  // Check absolute session age (24 hours, or 30 days if they chose to stay logged in)
+  if (loginTime && (now - loginTime > maxAge)) {
     console.warn(`[SECURITY] User session expired (age): userId=${req.session.userId || 'unknown'}`);
     req.session.destroy(() => {});
     res.clearCookie('vergo.sid');
@@ -43,8 +50,8 @@ export function requireUser(req: Request, res: Response, next: NextFunction) {
     });
   }
   
-  // Check idle timeout (2 hours)
-  if (lastActivity && (now - lastActivity > USER_IDLE_TIMEOUT)) {
+  // Check idle timeout (2 hours, unless they chose to stay logged in)
+  if (lastActivity && (now - lastActivity > idleLimit)) {
     console.warn(`[SECURITY] User session expired (idle): userId=${req.session.userId || 'unknown'}`);
     req.session.destroy(() => {});
     res.clearCookie('vergo.sid');

@@ -45,18 +45,45 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
+  /** Where to go after logging in: the staff page they were sent away from, or /staff. */
+  function nextPage() {
+    var next = new URLSearchParams(window.location.search).get('next') || '';
+    return /^\/staff(\/[a-z-]+)?(\?[\w=&%-]*)?$/.test(next) && !/^\/staff\/(login|forgot-password|set-password)/.test(next) ? next : '/staff';
+  }
+
   // ── Log in ────────────────────────────────────────────────────────────
   if (kind === 'login') {
     // Already signed in: straight to the account.
     fetch('/api/v1/user/session', { credentials: 'same-origin' })
       .then(function (res) { return res.json(); })
-      .then(function (body) { if (body && body.authenticated) window.location.replace('/staff'); })
+      .then(function (body) { if (body && body.authenticated) window.location.replace(nextPage()); })
       .catch(function () {});
 
     var params = new URLSearchParams(window.location.search);
     if (params.get('set') === '1') show('Password saved. Log in with it now.', 'success');
     if (params.get('verified') === 'true') show('Email address confirmed. You can log in.', 'success');
     if (params.get('expired') === '1') show('You were logged out. Log in again to carry on.', 'info');
+
+    // No password needed: a one-tap link by email.
+    var linkButton = document.getElementById('emailLinkButton');
+    if (linkButton) linkButton.addEventListener('click', function () {
+      var email = form.elements.email.value.trim();
+      if (!looksLikeEmail(email)) { form.elements.email.focus(); return show('Enter your email address first, then tap this again.', 'error'); }
+      var linkLabel = linkButton.textContent;
+      linkButton.disabled = true;
+      linkButton.textContent = 'Sending…';
+      statusBox.hidden = true;
+      post('/api/v1/user/login-link', { email: email }).then(function (r) {
+        if (r.status === 429) { show(r.body.error || 'Too many links asked for. Wait a while, or use your password.', 'error'); linkButton.disabled = false; linkButton.textContent = linkLabel; return; }
+        show(r.body.message || 'If that address has a VERGO login, a link is on its way. Check your junk folder too.', 'success');
+        linkButton.textContent = 'Send another link';
+        linkButton.disabled = false;
+      }).catch(function () {
+        show('Could not reach VERGO. Check your connection and try again.', 'error');
+        linkButton.disabled = false;
+        linkButton.textContent = linkLabel;
+      });
+    });
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
@@ -67,10 +94,10 @@
 
       var label = button.textContent;
       busy(true, 'Logging in…');
-      post('/api/v1/user/login', { email: email, password: password })
+      post('/api/v1/user/login', { email: email, password: password, remember: !!(form.elements.remember && form.elements.remember.checked) })
         .then(function (r) {
           if (r.status === 200 && r.body.ok) {
-            window.location.assign('/staff');
+            window.location.assign(nextPage());
             return;
           }
           var code = r.body.code;
@@ -89,6 +116,34 @@
             show('Something went wrong. Try again in a moment.', 'error');
           }
           busy(false, label);
+        })
+        .catch(function () {
+          show('Could not reach VERGO. Check your connection and try again.', 'error');
+          busy(false, label);
+        });
+    });
+    return;
+  }
+
+  // ── Login link (from the email) ─────────────────────────────────────
+  if (kind === 'login-link') {
+    var linkToken = new URLSearchParams(window.location.search).get('token') || '';
+    // The token is a key to the account: keep it out of the address bar and history.
+    if (linkToken && window.history && window.history.replaceState) window.history.replaceState(null, '', window.location.pathname);
+    if (!/^[a-f0-9]{64}$/i.test(linkToken)) {
+      busy(true);
+      show('This link is missing its code or has been cut short. Open it straight from the email, or ask for a new one on the login page.', 'error');
+      return;
+    }
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var label = button.textContent;
+      busy(true, 'Logging in…');
+      post('/api/v1/user/login-link/verify', { token: linkToken, remember: !!(form.elements.remember && form.elements.remember.checked) })
+        .then(function (r) {
+          if (r.status === 200 && r.body.ok) { window.location.assign('/staff'); return; }
+          show(r.status === 429 ? 'Too many tries. Wait a few minutes and try again.' : (r.body.error || 'That link did not work. Ask for a new one on the login page.'), 'error');
+          busy(r.status !== 429, r.status === 429 ? label : undefined);
         })
         .catch(function () {
           show('Could not reach VERGO. Check your connection and try again.', 'error');

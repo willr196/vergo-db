@@ -1,0 +1,59 @@
+<%/* /staff/earnings: estimated pay from the worker's own shifts, by month and
+     tax year, split into basic and holiday pay. A static shell; staff-earnings.js
+     fills it from /api/v1/user/shifts/earnings. */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Your Earnings | VERGO Staffing",
+    "description": "Your VERGO shifts, hours and estimated pay.",
+    "ogImage": "/images/og/work.jpg",
+    "robots": "noindex",
+    "canonical": "/staff/earnings"
+  },
+  scripts: ["/pages/js/staff-common.js", "/pages/js/staff-earnings.js"],
+  header: {"focused":"1","back":"/work","label":"← Back to work with us"}
+}) %>
+    <%~ include('/partials/staff-nav', { current: 'earnings' }) %>
+    <section class="page-hero-plain shell-form">
+      <span class="eyebrow">Staff</span>
+      <h1>Earnings</h1>
+      <p class="lede">Your shifts, hours and estimated pay. Your payslip shows what is actually paid.</p>
+    </section>
+
+    <section class="section-tight shell-form">
+      <div class="form-status" id="earningsStatus" role="status" hidden></div>
+
+      <div class="staff-stats" id="earningsTotals" hidden>
+        <div class="staff-stat"><span class="staff-stat-label">This tax year</span><span class="staff-stat-value" id="taxPay">—</span><span class="staff-stat-sub" id="taxSub"></span></div>
+        <div class="staff-stat"><span class="staff-stat-label">Booked ahead</span><span class="staff-stat-value" id="aheadPay">—</span><span class="staff-stat-sub" id="aheadSub"></span></div>
+      </div>
+
+      <div class="card staff-payday" id="payCard" hidden>
+        <p class="staff-card-text" id="payLine"></p>
+        <details class="staff-action" id="earlyPay">
+          <summary>Ask to be paid early</summary>
+          <div class="staff-action-body">
+            <p id="earlyPayIntro">We can pay shifts you have already worked before pay day. The office decides and comes back to you.</p>
+            <label for="earlyPayNote">Anything to add? <span class="label-note">optional</span></label>
+            <textarea id="earlyPayNote" maxlength="500" rows="2"></textarea>
+            <button type="button" class="btn btn-primary" id="earlyPaySend">Send the request</button>
+          </div>
+        </details>
+      </div>
+
+      <div class="card staff-note">
+        <p class="staff-card-text" id="holidayNote">Your hourly rate includes holiday pay. We show the basic and holiday parts separately below.</p>
+      </div>
+
+      <h2 class="staff-subhead">By month</h2>
+      <div class="staff-table-wrap">
+        <table class="staff-table" id="monthTable" hidden>
+          <thead><tr><th>Month</th><th class="num">Shifts</th><th class="num">Hours</th><th class="num">Basic</th><th class="num">Holiday</th><th class="num">Total</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="staff-empty" id="monthEmpty" hidden>No shifts worked in the last year yet. Your pay shows here after your first shift.</p>
+
+      <h2 class="staff-subhead">Shifts worked</h2>
+      <ul class="staff-list" id="earnShifts"></ul>
+      <p class="form-hint" id="noRateNote" hidden></p>
+    </section>

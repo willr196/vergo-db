@@ -330,6 +330,12 @@ model Booking {
   /// minimum the client is charged for.
   checkedInAt                DateTime?
   checkedOutAt               DateTime?
+  /// When the day-before reminder email was claimed for this shift (src/ops/shiftReminders.ts).
+  reminderSentAt             DateTime?
+  /// The worker agreed the hours recorded for this shift (staff website).
+  timesheetConfirmedAt       DateTime?
+  /// The worker said the hours are wrong, in their words. Cleared by the office once sorted.
+  timesheetQuery             String?
   hoursWorked                Decimal?          @db.Decimal(5, 2)
   /// Anything the worker needs to flag at check-out: overrun, a problem on
   /// site, a task that took longer than briefed.
@@ -463,6 +469,9 @@ model User {
   verifyToken        String?
   resetToken         String?
   resetTokenExp      DateTime?
+  /// Login by email link: a hash of the one-time token, and when it stops working.
+  loginLinkHash      String?
+  loginLinkExp       DateTime?
   firstName          String
   lastName           String
   phone              String?

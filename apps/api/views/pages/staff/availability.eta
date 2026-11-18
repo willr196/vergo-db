@@ -39,9 +39,24 @@
         </div>
       </form>
 
+      <div class="staff-section" id="calendarSection">
+        <h2>Tap the days you can work</h2>
+        <p class="form-hint form-hint-block">Tap a day to mark it free, and tap it again to take it off. Days with a shift are marked.</p>
+        <div class="avail-cal" id="availCal">
+          <div class="avail-cal-head">
+            <button type="button" class="avail-cal-nav" id="calPrev" aria-label="Previous month">‹</button>
+            <h3 class="avail-cal-title" id="calTitle" aria-live="polite"></h3>
+            <button type="button" class="avail-cal-nav" id="calNext" aria-label="Next month">›</button>
+          </div>
+          <div class="avail-cal-grid" id="calGrid" role="grid" aria-labelledby="calTitle"></div>
+          <p class="avail-cal-key"><span class="avail-key avail-key-free"></span> Free <span class="avail-key avail-key-shift"></span> Shift booked</p>
+        </div>
+        <div class="form-status" id="calStatus" role="status" hidden></div>
+      </div>
+
       <form id="windowForm" class="staff-section" novalidate>
-        <h2>Dates you can work</h2>
-        <p class="form-hint form-hint-block">Add a run of days you are free, such as a holiday from your main job or the Christmas season.</p>
+        <h2>Or add a run of days</h2>
+        <p class="form-hint form-hint-block">Free for a stretch, such as a holiday from your main job or the Christmas season? Add it in one go.</p>
         <div class="form-row form-row-2">
           <div class="form-field">
             <label for="dateFrom">From</label>

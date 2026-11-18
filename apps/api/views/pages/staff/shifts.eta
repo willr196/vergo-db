@@ -20,14 +20,14 @@
 
     <section class="section-tight shell-form">
       <div class="card">
-        <p class="staff-card-text">If you can't make a confirmed shift, call us on <a href="tel:<%= it.site.phoneE164 %>"><%= it.site.phoneDisplay %></a> as soon as you know so we can cover it. Late cancellations and no-shows affect the work we can offer you.</p>
+        <p class="staff-card-text">If you're running late or can't make a shift, use the buttons on it or call <a href="tel:<%= it.site.phoneE164 %>"><%= it.site.phoneDisplay %></a>, as early as you can. Late cancellations and no-shows affect the work we can offer you.</p>
       </div>
       <div class="form-status" id="shiftsStatus" role="status" hidden></div>
       <h2>Coming up</h2>
       <ul class="staff-list" id="upcomingList"></ul>
       <p class="staff-empty" id="upcomingEmpty" hidden>Nothing booked yet. Apply on the <a href="/staff/jobs">job board</a>.</p>
 
-      <h2 class="staff-subhead">Jobs worked</h2>
+      <h2 class="staff-subhead" id="worked">Jobs worked</h2>
       <ul class="staff-list" id="historyList"></ul>
       <p class="staff-empty" id="historyEmpty" hidden>Your finished shifts will show here.</p>
     </section>

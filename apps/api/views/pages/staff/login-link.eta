@@ -1,0 +1,35 @@
+<%/* /staff/login-link: opened from the login link email. The button posts the
+     token (a GET of the link alone signs nobody in, so email scanners that
+     open links can't use it up). staff-auth.js, data-staff-form="login-link". */%>
+<% layout('/layouts/base', {
+  meta: {
+    "title": "Log In | VERGO Staffing",
+    "description": "Log in to your VERGO staff account.",
+    "ogImage": "/images/og/work.jpg",
+    "robots": "noindex",
+    "canonical": "/staff/login-link"
+  },
+  scripts: ["/pages/js/staff-auth.js"],
+  header: {"focused":"1","back":"/work","label":"← Back to work with us"}
+}) %>
+    <section class="page-hero-plain shell-form">
+      <span class="eyebrow">Staff</span>
+      <h1>Log in to VERGO</h1>
+      <p class="lede">One tap and you're in.</p>
+    </section>
+
+    <section class="section-tight shell-form">
+      <form id="staffLoginLink" data-staff-form="login-link" method="post" novalidate>
+        <div class="form-field">
+          <label class="checkbox-line" for="remember">
+            <input type="checkbox" id="remember" name="remember" checked>
+            <span>Keep me logged in on this device for 30 days</span>
+          </label>
+        </div>
+        <div class="form-status" id="staffStatus" role="status" hidden></div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-block">Log me in</button>
+        </div>
+        <p class="form-hint form-hint-block"><a href="/staff/login">Log in with your password instead</a></p>
+      </form>
+    </section>

@@ -7,7 +7,7 @@
     "robots": "noindex",
     "canonical": "/staff/login"
   },
-  scripts: ["/pages/js/staff-auth.js"],
+  scripts: ["/pages/js/password-field.js", "/pages/js/staff-auth.js"],
   header: {"focused":"1","back":"/work","label":"← Back to work with us"}
 }) %>
     <section class="page-hero-plain shell-form">
@@ -20,17 +20,25 @@
       <form id="staffLogin" data-staff-form="login" method="post" novalidate>
         <div class="form-field">
           <label for="email">Email address</label>
-          <input type="email" id="email" name="email" autocomplete="username" required>
+          <input type="email" id="email" name="email" autocomplete="username" required autofocus>
         </div>
         <div class="form-field">
           <label for="password">Password</label>
           <input type="password" id="password" name="password" autocomplete="current-password" required>
+        </div>
+        <div class="form-field">
+          <label class="checkbox-line" for="remember">
+            <input type="checkbox" id="remember" name="remember" checked>
+            <span>Keep me logged in on this device for 30 days</span>
+          </label>
+          <p class="form-hint">Untick this on a shared or public computer.</p>
         </div>
 
         <div class="form-status" id="staffStatus" role="status" hidden></div>
 
         <div class="form-actions">
           <button type="submit" class="btn btn-primary btn-block">Log in</button>
+          <button type="button" class="btn btn-quiet btn-block" id="emailLinkButton">Email me a login link instead</button>
         </div>
         <p class="form-hint form-hint-block"><a href="/staff/forgot-password">Forgot your password?</a> First time here? Use the link in the email we sent you.</p>
       </form>

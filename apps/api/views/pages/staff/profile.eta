@@ -9,7 +9,7 @@
     "robots": "noindex",
     "canonical": "/staff/profile"
   },
-  scripts: ["/pages/js/staff-common.js", "/pages/js/staff-account.js"],
+  scripts: ["/pages/js/staff-common.js", "/pages/js/password-field.js", "/pages/js/staff-account.js"],
   header: {"focused":"1","back":"/work","label":"← Back to work with us"}
 }) %>
     <%~ include('/partials/staff-nav', { current: 'profile' }) %>
@@ -119,4 +119,13 @@
           <button type="submit" class="btn btn-secondary btn-block">Change password</button>
         </div>
       </form>
+
+      <div class="staff-section" id="devicesSection">
+        <h2>Signed in elsewhere?</h2>
+        <p>Lost a phone, or logged in on someone else's computer? Sign out everywhere except here, including the VERGO app.</p>
+        <div class="form-status" id="devicesStatus" role="status" hidden></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary btn-block" id="signOutOthers">Sign out my other devices</button>
+        </div>
+      </div>
     </section>

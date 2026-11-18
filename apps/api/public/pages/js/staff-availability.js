@@ -39,7 +39,90 @@
       .finally(function () { button.disabled = false; });
   });
 
+  // ── Month calendar: tap a day to mark it free, tap again to clear ───
+  var windowsCache = [];
+  var shiftDays = {};
+  var monthOffset = 0;
+  var MONTH_LIMIT = 6;
+
+  function iso(d) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function windowFor(day) {
+    for (var i = 0; i < windowsCache.length; i++) {
+      var w = windowsCache[i];
+      if (String(w.dateFrom).slice(0, 10) <= day && String(w.dateTo).slice(0, 10) >= day) return w;
+    }
+    return null;
+  }
+
+  function renderCalendar() {
+    var grid = document.getElementById('calGrid');
+    if (!grid) return;
+    var now = new Date();
+    var first = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+    var today = todayIso();
+    document.getElementById('calTitle').textContent = first.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+    document.getElementById('calPrev').disabled = monthOffset <= 0;
+    document.getElementById('calNext').disabled = monthOffset >= MONTH_LIMIT;
+    var html = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(function (d) {
+      return '<span class="avail-cal-dow" role="columnheader" aria-label="' + d + '">' + d.charAt(0) + '</span>';
+    }).join('');
+    var lead = (first.getDay() + 6) % 7;
+    for (var i = 0; i < lead; i++) html += '<span class="avail-cal-blank" aria-hidden="true"></span>';
+    var daysInMonth = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+    for (var n = 1; n <= daysInMonth; n++) {
+      var date = new Date(first.getFullYear(), first.getMonth(), n);
+      var key = iso(date);
+      var w = windowFor(key);
+      var past = key < today;
+      var label = date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) +
+        (w ? ', free' : '') + (shiftDays[key] ? ', shift booked' : '');
+      html += '<button type="button" class="avail-day" data-day="' + key + '"' +
+        (w ? ' data-free="1"' : '') + (shiftDays[key] ? ' data-shift="1"' : '') + (key === today ? ' data-today="1"' : '') +
+        (past ? ' disabled' : '') + ' aria-pressed="' + (w ? 'true' : 'false') + '" aria-label="' + S.esc(label) + '">' + n + '</button>';
+    }
+    grid.innerHTML = html;
+  }
+
+  document.getElementById('calPrev').addEventListener('click', function () { if (monthOffset > 0) { monthOffset--; renderCalendar(); } });
+  document.getElementById('calNext').addEventListener('click', function () { if (monthOffset < MONTH_LIMIT) { monthOffset++; renderCalendar(); } });
+
+  document.getElementById('calGrid').addEventListener('click', function (event) {
+    var b = event.target.closest('[data-day]');
+    if (!b || b.disabled) return;
+    var day = b.getAttribute('data-day');
+    var w = windowFor(day);
+    document.getElementById('calStatus').hidden = true;
+    if (w) {
+      var from = String(w.dateFrom).slice(0, 10), to = String(w.dateTo).slice(0, 10);
+      if (from !== to) {
+        return S.show('calStatus', 'That day is part of ' + S.day(from) + ' to ' + S.day(to) + '. Remove the whole run in the list below.', 'info');
+      }
+      b.disabled = true;
+      return S.request('DELETE', WINDOWS + '/' + encodeURIComponent(w.id)).then(loadWindows).catch(function () { b.disabled = false; });
+    }
+    b.disabled = true;
+    S.request('POST', WINDOWS, { dateFrom: day, dateTo: day }).then(function (r) {
+      if (r.status !== 201) S.show('calStatus', r.body.error || 'That day did not save. Try again.', 'error');
+      return loadWindows();
+    }).catch(function (err) {
+      if (err && err.message !== 'signed-out') S.show('calStatus', 'Could not reach VERGO. Try again.', 'error');
+      b.disabled = false;
+    });
+  });
+
+  // Shifts already booked show on the calendar.
+  S.request('GET', '/api/v1/user/shifts?view=upcoming&limit=50').then(function (r) {
+    ((r.body.data && r.body.data.shifts) || []).forEach(function (s) {
+      if (s.status === 'CONFIRMED' || s.status === 'PENDING') shiftDays[String(s.eventDate).slice(0, 10)] = true;
+    });
+    renderCalendar();
+  }).catch(function () {});
+
   function renderWindows(windows) {
+    windowsCache = windows;
+    renderCalendar();
     var today = todayIso();
     var upcoming = windows.filter(function (w) { return String(w.dateTo).slice(0, 10) >= today; });
     document.getElementById('windowList').innerHTML = upcoming.map(function (w) {

@@ -5,9 +5,9 @@ import crypto from "crypto";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "../prisma";
-import { sendUserVerificationEmail, sendPasswordResetEmail } from "../services/email";
+import { sendUserVerificationEmail, sendPasswordResetEmail, sendLoginLinkEmail } from "../services/email";
 import { requireUserJwt } from "../middleware/jwtAuth";
-import { requireUser } from "../middleware/userAuth";
+import { requireUser, USER_REMEMBER_AGE } from "../middleware/userAuth";
 import { signAccessToken, signRefreshToken, verifyRefreshToken, getTokenExpiresAt, hashToken } from "../utils/jwt";
 import { parseMobileImageUpload, parseImageDataUrl } from "../utils/mobileMediaUpload";
 import { roleGroupLabel } from "../services/roleGroups";
@@ -40,7 +40,9 @@ const registerSchema = z.object({
 
 const loginSchema = z.object({
   email: z.string().email().max(255).toLowerCase().trim(),
-  password: z.string().min(8).max(72)
+  password: z.string().min(8).max(72),
+  /** "Keep me logged in" on the staff login page. */
+  remember: z.boolean().optional()
 });
 
 const forgotPasswordSchema = z.object({
@@ -718,6 +720,10 @@ r.post("/login", loginAddressLimiter, loginLimiter, async (req, res) => {
       req.session.isUser = true;
       req.session.userLoginTime = Date.now();
       req.session.userLastActivity = Date.now();
+      if (parsed.data.remember) {
+        req.session.userRemember = true;
+        req.session.cookie.maxAge = USER_REMEMBER_AGE;
+      }
       
       req.session.save((err) => {
         if (err) {
@@ -1932,6 +1938,124 @@ r.post("/resend-verification", forgotPasswordLimiter, async (req, res) => {
   } catch (error) {
     console.error("[ERROR] Resend verification failed:", error);
     res.status(500).json({ error: "Request failed" });
+  }
+});
+
+// ============================================
+// Login by email link (staff website)
+// POST /api/v1/user/login-link          { email }        -> emails a one-tap link
+// POST /api/v1/user/login-link/verify   { token, remember } -> signs them in
+//
+// The link lasts 15 minutes and works once: only a hash is stored, and the
+// verify step clears it in the same update that matches it. Verifying is a
+// POST from the page's button, not the GET of the link itself, so an email
+// scanner that opens links cannot use it up or sign anyone in.
+// ============================================
+const LOGIN_LINK_MINUTES = 15;
+
+const loginLinkLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  keyGenerator: (req) => `${req.ip}-${String(req.body?.email ?? '').toLowerCase().trim()}`,
+  message: { error: "Too many login links asked for. Wait a while, or log in with your password." }
+});
+
+const loginLinkVerifyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { error: "Too many tries. Wait a few minutes and try again." }
+});
+
+const loginLinkSchema = z.object({ email: z.string().email().max(255).toLowerCase().trim() });
+const loginLinkVerifySchema = z.object({ token: z.string().regex(/^[a-f0-9]{64}$/i), remember: z.boolean().optional() });
+
+r.post("/login-link", loginLinkLimiter, async (req, res) => {
+  const parsed = loginLinkSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ ok: false, error: "Enter the email address you sign in with." });
+  // The same answer whether or not there is an account.
+  const answer = { ok: true, message: `If that address has a VERGO login, a link is on its way. It works once, for ${LOGIN_LINK_MINUTES} minutes.` };
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: parsed.data.email },
+      select: { id: true, firstName: true, email: true, emailVerified: true, mustChangePassword: true, lockedUntil: true },
+    });
+    if (!user || !user.emailVerified || user.mustChangePassword || (user.lockedUntil && user.lockedUntil > new Date())) {
+      return res.json(answer);
+    }
+    const token = generateToken();
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { loginLinkHash: hashDbToken(token), loginLinkExp: new Date(Date.now() + LOGIN_LINK_MINUTES * 60 * 1000) },
+    });
+    sendLoginLinkEmail({ to: user.email, name: user.firstName, token, minutes: LOGIN_LINK_MINUTES, userId: user.id })
+      .catch((err) => console.error("[EMAIL] Failed to send login link:", err));
+    console.log(`[USER] Login link requested: ${redactEmail(user.email)}`);
+    res.json(answer);
+  } catch (error) {
+    console.error("[ERROR] Login link request failed:", error);
+    res.status(500).json({ ok: false, error: "Something went wrong. Try again in a moment." });
+  }
+});
+
+r.post("/login-link/verify", loginLinkVerifyLimiter, async (req, res) => {
+  const parsed = loginLinkVerifySchema.safeParse(req.body);
+  const expired = { ok: false, code: "LINK_EXPIRED", error: "This link has expired or has already been used. Ask for a new one, or log in with your password." };
+  if (!parsed.success) return res.status(400).json(expired);
+  try {
+    const hash = hashDbToken(parsed.data.token);
+    const user = await prisma.user.findFirst({
+      where: { loginLinkHash: hash, loginLinkExp: { gt: new Date() } },
+      select: { id: true, email: true, firstName: true, lastName: true, seqId: true, emailVerified: true, mustChangePassword: true, lockedUntil: true },
+    });
+    if (!user) return res.status(400).json(expired);
+    // Use it up: only the request that clears it may sign in.
+    const used = await prisma.user.updateMany({
+      where: { id: user.id, loginLinkHash: hash },
+      data: { loginLinkHash: null, loginLinkExp: null, lastLoginAt: new Date(), failedAttempts: 0, lockedUntil: null },
+    });
+    if (used.count !== 1 || !user.emailVerified || user.mustChangePassword) return res.status(400).json(expired);
+
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error("[ERROR] Session regeneration failed:", err);
+        return res.status(500).json({ ok: false, error: "Login failed" });
+      }
+      req.session.userId = user.id;
+      req.session.userEmail = user.email;
+      req.session.isUser = true;
+      req.session.userLoginTime = Date.now();
+      req.session.userLastActivity = Date.now();
+      if (parsed.data.remember) {
+        req.session.userRemember = true;
+        req.session.cookie.maxAge = USER_REMEMBER_AGE;
+      }
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error("[ERROR] Session save failed:", saveErr);
+          return res.status(500).json({ ok: false, error: "Login failed" });
+        }
+        console.log(`[USER] Login by email link: ${redactEmail(user.email)}`);
+        res.json({ ok: true, user: { id: user.id, seqId: user.seqId, email: user.email, firstName: user.firstName, lastName: user.lastName } });
+      });
+    });
+  } catch (error) {
+    console.error("[ERROR] Login link verify failed:", error);
+    res.status(500).json({ ok: false, error: "Something went wrong. Try again in a moment." });
+  }
+});
+
+// ============================================
+// POST /api/v1/user/sessions/sign-out-others
+// "Sign out everywhere else": every other browser session ends and the app
+// has to sign in again. This browser stays signed in.
+// ============================================
+r.post("/sessions/sign-out-others", requireUser, async (req, res) => {
+  try {
+    await endAccountSessions(req.sessionStore, "user", req.session.userId!, req.sessionID);
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("[ERROR] Sign out other sessions failed:", error);
+    res.status(500).json({ ok: false, error: "Could not sign out your other devices. Try again." });
   }
 });
 

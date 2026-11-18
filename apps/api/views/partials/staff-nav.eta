@@ -3,6 +3,7 @@
   { key: 'home', href: '/staff', label: 'Overview' },
   { key: 'jobs', href: '/staff/jobs', label: 'Job board' },
   { key: 'shifts', href: '/staff/shifts', label: 'My shifts' },
+  { key: 'earnings', href: '/staff/earnings', label: 'Earnings' },
   { key: 'availability', href: '/staff/availability', label: 'Availability' },
   { key: 'documents', href: '/staff/documents', label: 'Documents' },
   { key: 'applications', href: '/staff/applications', label: 'Applications' },
@@ -14,5 +15,12 @@
     <li><a href="<%= t.href %>"<%~ t.key === it.current ? ' aria-current="page"' : '' %>><%= t.label %></a></li>
 <% }) %>
   </ul>
+  <details class="staff-bell" id="staffBell">
+    <summary aria-label="What needs your attention"><span class="staff-bell-icon" aria-hidden="true">🔔</span><span class="staff-bell-count" hidden>0</span></summary>
+    <div class="staff-bell-panel">
+      <p class="staff-bell-title">Needs your attention</p>
+      <ul class="staff-bell-list"><li class="staff-bell-empty">Checking…</li></ul>
+    </div>
+  </details>
   <button type="button" class="staff-logout" data-staff-logout>Log out</button>
 </nav>

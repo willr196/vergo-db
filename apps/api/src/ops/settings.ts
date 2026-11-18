@@ -61,6 +61,8 @@ export const settingsSchemas = {
   /** VERGO's workplace pension duties start (staging) date, YYYY-MM-DD. */
   pensionDutiesStartDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
   payFrequency: z.enum(['weekly', 'fortnightly', 'four_weekly', 'monthly']),
+  /** Monthly pay: the date of the month staff are paid (29 to 31 fall back to the month's last day). Null until set. */
+  payDayOfMonth: z.number().int().min(1).max(31).nullable(),
   statePensionAge: z.number().int().min(60).max(70),
   pensionThresholds: thresholdsSchema,
   kidPayExample: kidPayExampleSchema,
@@ -74,6 +76,7 @@ export type CommercialTerms = z.infer<typeof commercialTermsSchema>;
 export interface OpsSettings {
   pensionDutiesStartDate: string | null;
   payFrequency: PayFrequency;
+  payDayOfMonth: number | null;
   statePensionAge: number;
   pensionThresholds: Record<string, PensionThresholds>;
   kidPayExample: KidPayExample;
@@ -92,6 +95,7 @@ export interface OpsSettings {
 export const DEFAULT_SETTINGS: OpsSettings = {
   pensionDutiesStartDate: null,
   payFrequency: 'monthly',
+  payDayOfMonth: null,
   statePensionAge: 66,
   pensionThresholds: {
     '2025-26': { lowerQualifyingAnnual: 6240, earningsTriggerAnnual: 10000, upperQualifyingAnnual: 50270, verified: false },
@@ -116,6 +120,23 @@ export const DEFAULT_SETTINGS: OpsSettings = {
     extendedHireWeeks: 8,
   },
 };
+
+/** YYYY-MM-DD of the pay day in a given month, the day clamped to that month's length. */
+function payDayIn(year: number, month0: number, day: number): string {
+  const last = new Date(Date.UTC(year, month0 + 1, 0)).getUTCDate();
+  return new Date(Date.UTC(year, month0, Math.min(day, last))).toISOString().slice(0, 10);
+}
+
+/**
+ * The last pay day on or before `today` and the next one after it, for monthly
+ * pay on a fixed date. Both YYYY-MM-DD; `today` is a London date key.
+ */
+export function payDaysAround(today: string, day: number): { last: string; next: string } {
+  const [y, m] = today.split('-').map(Number);
+  const thisMonth = payDayIn(y, m - 1, day);
+  if (thisMonth > today) return { last: payDayIn(y, m - 2, day), next: thisMonth };
+  return { last: thisMonth, next: payDayIn(y, m, day) };
+}
 
 export async function loadOpsSettings(): Promise<OpsSettings> {
   const rows = await prisma.opsSetting.findMany();

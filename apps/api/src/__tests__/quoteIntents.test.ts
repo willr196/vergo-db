@@ -319,6 +319,16 @@ test('a booking can run over several days, up to thirty', async () => {
   assert.equal(sameDay.statusCode, 201);
 });
 
+test('an events brief can run over several days, and the last day is saved with it', async () => {
+  saved.length = 0;
+  const run = await post(buildApp(), { ...CHRISTMAS_BRIEF, eventDate: '2026-12-18', eventEndDate: '2026-12-20' });
+  assert.equal(run.statusCode, 201);
+  assert.match(JSON.stringify(saved[saved.length - 1]), /2026-12-20/);
+
+  const backwards = await post(buildApp(), { ...CHRISTMAS_BRIEF, eventDate: '2026-12-18', eventEndDate: '2026-12-17' });
+  assert.equal(backwards.statusCode, 400);
+});
+
 test('a last day that cannot be right is rejected', async () => {
   const backwards = await post(buildApp(), { ...FULL_BOOKING, eventDate: '2026-12-13', eventEndDate: '2026-12-11' });
   assert.equal(backwards.statusCode, 400);

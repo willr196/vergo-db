@@ -325,6 +325,20 @@ const formatPay = (data: EmailTemplateData): string => {
   return `£${Number(data.payRate).toFixed(2)}${suffix}`;
 };
 
+export const userLoginLinkEmail = (data: { recipientName?: string; token: string; minutes: number }): string => {
+  const url = `${env.webOrigin}/staff/login-link?token=${encodeURIComponent(data.token)}`;
+  return composeEmail({
+    body: emailBody(`
+      ${sectionHeading('Your login link')}
+      <p>Hi ${safe(data.recipientName || 'there')},</p>
+      ${paragraph(`Tap the button to log in to your VERGO account. It works once, for ${data.minutes} minutes.`)}
+      ${primaryButton('Log me in', url)}
+      ${paragraph("Didn't ask for this? You can ignore it. Nobody can log in without this email.")}
+      <p>The VERGO Team</p>
+    `),
+  });
+};
+
 export const shiftConfirmedEmail = (data: EmailTemplateData): string => {
   const shiftStr = data.shiftStart && data.shiftEnd ? `${data.shiftStart} – ${data.shiftEnd}` : 'TBC';
   const pay = formatPay(data);

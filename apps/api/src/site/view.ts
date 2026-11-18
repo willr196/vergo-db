@@ -450,11 +450,13 @@ export const VIEW_ROUTES: ViewRoute[] = [
   { path: '/staff', view: 'staff/index' },
   { path: '/staff/jobs', view: 'staff/jobs' },
   { path: '/staff/shifts', view: 'staff/shifts' },
+  { path: '/staff/earnings', view: 'staff/earnings' },
   { path: '/staff/applications', view: 'staff/applications' },
   { path: '/staff/availability', view: 'staff/availability' },
   { path: '/staff/documents', view: 'staff/documents' },
   { path: '/staff/profile', view: 'staff/profile' },
   { path: '/staff/login', view: 'staff/login' },
+  { path: '/staff/login-link', view: 'staff/login-link' },
   { path: '/staff/forgot-password', view: 'staff/forgot-password' },
   { path: '/staff/set-password', view: 'staff/set-password' },
 ];

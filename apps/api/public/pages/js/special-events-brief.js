@@ -130,6 +130,55 @@
       );
     }
 
+    // ── More than one day ──────────────────────────────────────────────
+    // Added under any date the client picks (a fixed-date form, like New Year's
+    // Eve, has a hidden date and gets none). Ticked, it asks for the last day;
+    // the API takes it as eventEndDate, up to MAX_DAYS days.
+    var MAX_DAYS = 30;
+    var dateInput = form.querySelector('input[type="date"][name="eventDate"]');
+    var multiBox = null;
+    var endWrap = null;
+    if (dateInput) {
+      var prefix = form.id || 'brief';
+      var anchor = dateInput.closest('.form-row') || dateInput.closest('.form-field');
+      var holder = document.createElement('div');
+      holder.innerHTML =
+        '<div class="form-field se-multiday">' +
+          '<label class="checkbox-line" for="' + prefix + '-multiDay">' +
+            '<input type="checkbox" id="' + prefix + '-multiDay" name="multiDay" aria-controls="' + prefix + '-endField">' +
+            '<span>More than one day</span>' +
+          '</label>' +
+        '</div>' +
+        '<div class="form-field" id="' + prefix + '-endField" hidden>' +
+          '<label for="' + prefix + '-endDate">Last day</label>' +
+          '<input type="date" id="' + prefix + '-endDate" name="eventEndDate" aria-describedby="' + prefix + '-endHint">' +
+          '<p class="form-hint" id="' + prefix + '-endHint">Different times or staff on some days, or days that are not back to back? Say so in the message.</p>' +
+        '</div>';
+      var frag = document.createDocumentFragment();
+      while (holder.firstChild) frag.appendChild(holder.firstChild);
+      anchor.parentNode.insertBefore(frag, anchor.nextSibling);
+      multiBox = form.elements.multiDay;
+      endWrap = document.getElementById(prefix + '-endField');
+      var endInput = form.elements.eventEndDate;
+      var syncEnd = function () {
+        endWrap.hidden = !multiBox.checked;
+        if (dateInput.value) endInput.min = dateInput.value;
+        if (multiBox.checked && !endInput.value && dateInput.value) endInput.value = dateInput.value;
+      };
+      multiBox.addEventListener('change', syncEnd);
+      dateInput.addEventListener('change', syncEnd);
+    }
+
+    function multiDayOn() {
+      return !!(multiBox && multiBox.checked);
+    }
+
+    function daysBetween(from, to) {
+      var a = Date.parse(from + 'T12:00:00Z');
+      var b = Date.parse(to + 'T12:00:00Z');
+      return isNaN(a) || isNaN(b) ? null : Math.round((b - a) / 86400000) + 1;
+    }
+
     function checkedValue(name) {
       var picked = checkedValues(name);
       return picked.length ? picked[0] : '';
@@ -174,6 +223,15 @@
       if (email && !looksLikeEmail(email)) {
         markInvalid('email', 'Check this email address.');
         return 'That email address does not look right.';
+      }
+      if (multiDayOn()) {
+        var first = value('eventDate');
+        var last = value('eventEndDate');
+        if (!first) { markInvalid('eventDate', 'Pick the first day.'); return 'Pick the first day of the event.'; }
+        if (!last) { markInvalid('eventEndDate', 'Pick the last day.'); return 'Pick the last day, or untick "More than one day".'; }
+        var days = daysBetween(first, last);
+        if (days === null || days < 1) { markInvalid('eventEndDate', 'The last day is before the first.'); return 'The last day is before the first.'; }
+        if (days > MAX_DAYS) { markInvalid('eventEndDate', 'Up to ' + MAX_DAYS + ' days at a time.'); return 'For more than ' + MAX_DAYS + ' days, send the first stretch and tell us about the rest.'; }
       }
       return null;
     }
@@ -223,6 +281,7 @@
         // special events brief is never mistaken for a standard staffing request.
         eventType: eventType(),
         eventDate: value('eventDate') || undefined,
+        eventEndDate: multiDayOn() && value('eventEndDate') && value('eventEndDate') !== value('eventDate') ? value('eventEndDate') : undefined,
         location: value('location') || undefined,
         guestCount: wholeNumber('guestCount', 100000),
         shiftStart: start || undefined,

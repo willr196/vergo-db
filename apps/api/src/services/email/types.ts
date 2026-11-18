@@ -48,6 +48,9 @@ export type EmailType =
   | 'staff-request'
   | 'general-enquiry'
   | 'quote-notification'            // To admin: someone priced up a job
+  | 'staff-shift-alert'             // To admin: running late, or can't make a shift
+  | 'shift-reminder'                // To a worker: your shift is tomorrow
+  | 'user-login-link'               // To a worker: one-tap login link
   | 'quote-confirmation'            // To the person who asked
   // Roster
   | 'roster-approval'

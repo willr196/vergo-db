@@ -35,6 +35,23 @@
     box.hidden = false;
   }
 
+  // After accepting, declining or giving up a shift, show the message, then
+  // reload so every card on the page agrees.
+  S.onShiftChange = function () { window.setTimeout(function () { window.location.reload(); }, 1800); };
+
+  /** This month so far: shifts worked, hours, estimated pay. Hidden until there is one. */
+  S.request('GET', '/api/v1/user/shifts/earnings').then(function (r) {
+    var d = r.status === 200 && r.body.data;
+    if (!d) return;
+    var month = new Date().toISOString().slice(0, 7);
+    var m = (d.months || []).filter(function (x) { return x.month === month; })[0];
+    if (!m || !m.shifts) return;
+    document.getElementById('statShifts').textContent = m.shifts;
+    document.getElementById('statHours').textContent = Math.round(m.hours * 10) / 10;
+    document.getElementById('statPay').textContent = '£' + (m.payPence / 100).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('monthStats').hidden = false;
+  }).catch(function () {});
+
   S.request('GET', '/api/v1/user/readiness')
     .then(function (r) { if (r.status === 200) renderReadiness(r.body.data); })
     .catch(function () {});
@@ -59,12 +76,14 @@
 
     var offers = shifts.filter(function (s) { return s.status === 'PENDING'; });
     document.getElementById('offers').innerHTML = offers.length
-      ? '<ul class="staff-list">' + offers.map(function (s) { return S.shiftItem(s); }).join('') + '</ul>' + link('/staff/shifts', 'Answer on My shifts')
+      ? '<ul class="staff-list">' + offers.map(function (s) { return S.shiftItem(s, S.shiftActions(s)); }).join('') + '</ul>'
       : '<p class="staff-empty">Nothing waiting. Offers we send you show here.</p>';
 
     var next = shifts.filter(function (s) { return s.status === 'CONFIRMED'; })[0];
+    var soon = next ? S.countdown(next) : '';
     document.getElementById('nextShift').innerHTML = next
-      ? '<ul class="staff-list">' + S.shiftItem(next) + '</ul>' + link('/staff/shifts', 'All my shifts')
+      ? (soon ? '<p class="staff-countdown">Starts ' + S.esc(soon) + '</p>' : '') +
+        '<ul class="staff-list">' + S.shiftItem(next, S.shiftActions(next)) + '</ul>' + link('/staff/shifts', 'All my shifts')
       : '<p class="staff-empty">No confirmed shift yet. Apply on the <a href="/staff/jobs">job board</a>.</p>';
 
     var open = apps.filter(function (a) { return a.status === 'PENDING' || a.status === 'REVIEWED' || a.status === 'SHORTLISTED'; });

@@ -8,8 +8,13 @@
 (function () {
   'use strict';
 
+  /** To the login page, which brings them back here once they are in. */
   function toLogin(expired) {
-    window.location.replace('/staff/login' + (expired ? '?expired=1' : ''));
+    var here = window.location.pathname + window.location.search;
+    var q = [];
+    if (expired) q.push('expired=1');
+    if (here !== '/staff' && /^\/staff\//.test(here)) q.push('next=' + encodeURIComponent(here));
+    window.location.replace('/staff/login' + (q.length ? '?' + q.join('&') : ''));
   }
 
   /** JSON in and out; resolves { status, body }. A 401 leaves the page. */
@@ -77,6 +82,29 @@
       window.location.replace('/staff/profile');
     }
   }, function () {});
+
+  // ── The bell: what needs their attention, worked out by the server ──
+  function loadBell() {
+    var bell = document.getElementById('staffBell');
+    if (!bell) return;
+    request('GET', '/api/v1/user/shifts/attention').then(function (r) {
+      var d = r.status === 200 && r.body.data;
+      if (!d) return;
+      var badge = bell.querySelector('.staff-bell-count');
+      badge.textContent = d.count;
+      badge.hidden = !d.count;
+      bell.querySelector('summary').setAttribute('aria-label', d.count ? d.count + (d.count === 1 ? ' thing needs' : ' things need') + ' your attention' : 'Nothing needs your attention');
+      bell.querySelector('.staff-bell-list').innerHTML = d.items.length
+        ? d.items.map(function (i) { return '<li><a href="' + esc(i.href) + '" data-kind="' + esc(i.kind) + '">' + esc(i.text) + '</a></li>'; }).join('')
+        : '<li class="staff-bell-empty">You are all caught up.</li>';
+    }).catch(function () {});
+  }
+  profile.then(function (p) { if (p) loadBell(); }, function () {});
+  // Close the bell when tapping elsewhere.
+  document.addEventListener('click', function (event) {
+    var bell = document.getElementById('staffBell');
+    if (bell && bell.open && !bell.contains(event.target)) bell.open = false;
+  });
 
   document.addEventListener('click', function (event) {
     if (!event.target.closest('[data-staff-logout]')) return;
@@ -156,5 +184,217 @@
     WITHDRAWN: ['You withdrew', 'bad']
   };
 
-  window.VergoStaff = { APP_STATUS: APP_STATUS, request: request, show: show, esc: esc, day: day, money: money, statusTag: statusTag, profile: profile, shiftItem: shiftItem, jobSummary: jobSummary };
+
+  // ── Shift actions, shared by the overview and My shifts ─────────────
+  // Offers: accept (with the terms tick) or decline. Confirmed shifts: add to
+  // calendar, running late (on the day), can't make it. Each page sets
+  // VergoStaff.onShiftChange to reload its lists after one of these.
+  var SHIFTS_API = '/api/v1/user/shifts';
+
+  /** The shift's start as a Date on the browser's clock, or null without a date. */
+  function shiftStartDate(s) {
+    var d = String(s.eventDate || '').slice(0, 10);
+    var m = /^(\d{1,2}):(\d{2})/.exec(String(s.shiftStart || ''));
+    if (!d) return null;
+    return new Date(d + 'T' + (m ? (m[1].length === 1 ? '0' : '') + m[1] + ':' + m[2] : '12:00') + ':00');
+  }
+
+  /** "in 2 days, 4 hours", "in 3 hours 10 min", or "" once started. */
+  function countdown(s) {
+    var start = shiftStartDate(s);
+    if (!start) return '';
+    var mins = Math.round((start.getTime() - Date.now()) / 60000);
+    if (mins <= 0) return '';
+    var days = Math.floor(mins / 1440), hours = Math.floor((mins % 1440) / 60), m = mins % 60;
+    if (days >= 1) return 'in ' + days + (days === 1 ? ' day' : ' days') + (hours ? ', ' + hours + (hours === 1 ? ' hour' : ' hours') : '');
+    if (hours >= 1) return 'in ' + hours + (hours === 1 ? ' hour' : ' hours') + (m ? ' ' + m + ' min' : '');
+    return 'in ' + m + ' min';
+  }
+
+  /** The day of the shift, or the morning after one that ran late: the server's window. */
+  function isShiftDay(s) {
+    var d = String(s.eventDate || '').slice(0, 10);
+    if (!d) return false;
+    var day = new Date(d + 'T00:00:00Z').getTime();
+    var now = Date.now();
+    return now >= day - 4 * 3600000 && now <= day + 36 * 3600000;
+  }
+
+  function ymdPlus(iso, days) {
+    var d = new Date(String(iso).slice(0, 10) + 'T12:00:00Z');
+    d.setUTCDate(d.getUTCDate() + days);
+    return d.toISOString().slice(0, 10).replace(/-/g, '');
+  }
+
+  function googleCalendarUrl(s) {
+    var d = ymdPlus(s.eventDate, 0);
+    var a = /^(\d{1,2}):(\d{2})/.exec(String(s.shiftStart || ''));
+    var b = /^(\d{1,2}):(\d{2})/.exec(String(s.shiftEnd || ''));
+    var pad = function (n) { return (Number(n) < 10 ? '0' : '') + Number(n); };
+    var dates;
+    if (a) {
+      var start = d + 'T' + pad(a[1]) + a[2] + '00';
+      var overnight = b && Number(b[1]) * 60 + Number(b[2]) <= Number(a[1]) * 60 + Number(a[2]);
+      dates = start + '/' + (b ? (overnight ? ymdPlus(s.eventDate, 1) : d) + 'T' + pad(b[1]) + b[2] + '00' : start);
+    } else {
+      dates = d + '/' + ymdPlus(s.eventDate, 1);
+    }
+    var where = [s.venue, (s.ops && s.ops.address) || s.location].filter(Boolean).join(', ');
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent('VERGO: ' + (s.role || s.eventName || 'Shift')) +
+      '&dates=' + dates + '&ctz=Europe/London' + (where ? '&location=' + encodeURIComponent(where) : '');
+  }
+
+  var LATE_CHOICES = [10, 15, 20, 30, 45, 60, 90, 120];
+
+  /** The buttons under a shift, by status. */
+  function shiftActions(s) {
+    var id = esc(s.id);
+    if (s.status === 'PENDING') {
+      return '<div class="form-field staff-terms">' +
+        '<label class="checkbox-line"><input type="checkbox" data-terms="' + id + '"><span>I can work this shift and accept the shift terms</span></label></div>' +
+        '<div class="btn-row"><button type="button" class="btn btn-primary" data-accept="' + id + '">Accept</button>' +
+        '<button type="button" class="btn btn-secondary" data-decline="' + id + '">Decline</button></div>';
+    }
+    if (s.status !== 'CONFIRMED') return '';
+    var late = '';
+    if (isShiftDay(s)) {
+      late = '<details class="staff-action" data-late-box="' + id + '"><summary>Running late</summary>' +
+        '<div class="staff-action-body"><label for="late-' + id + '">About how late?</label>' +
+        '<select id="late-' + id + '" data-late-minutes>' + LATE_CHOICES.map(function (n) {
+          return '<option value="' + n + '">' + (n < 60 ? n + ' minutes' : n === 60 ? '1 hour' : (n / 60) + ' hours') + '</option>';
+        }).join('') + '</select>' +
+        '<label for="late-note-' + id + '">Anything to add? <span class="label-note">optional</span></label>' +
+        '<input type="text" id="late-note-' + id + '" data-late-note maxlength="300" placeholder="e.g. train delayed">' +
+        '<button type="button" class="btn btn-primary" data-late="' + id + '">Tell VERGO</button></div></details>';
+    }
+    return '<div class="staff-actions">' +
+      '<div class="btn-row staff-cal">' +
+        '<a class="btn btn-quiet" href="' + SHIFTS_API + '/' + id + '/calendar.ics" download>Add to calendar</a>' +
+        '<a class="btn btn-quiet" href="' + esc(googleCalendarUrl(s)) + '" target="_blank" rel="noopener">Google Calendar</a>' +
+      '</div>' + late +
+      '<details class="staff-action" data-swap-box="' + id + '"><summary>Ask to swap</summary>' +
+        '<div class="staff-action-body"><p>The office arranges every swap. You stay booked until they agree one.</p>' +
+        '<label for="swap-' + id + '">Why do you want to swap?</label>' +
+        '<textarea id="swap-' + id + '" data-swap-reason maxlength="500" rows="2"></textarea>' +
+        '<label for="swap-who-' + id + '">Someone who could take it? <span class="label-note">optional</span></label>' +
+        '<input type="text" id="swap-who-' + id + '" data-swap-colleague maxlength="120" placeholder="Their name">' +
+        '<button type="button" class="btn btn-secondary" data-swap="' + id + '">Ask the office</button></div></details>' +
+      '<details class="staff-action" data-cant-box="' + id + '"><summary>Can&#39;t make it</summary>' +
+        '<div class="staff-action-body"><p>We will need to find cover, so tell us as early as you can.</p>' +
+        '<label for="cant-' + id + '">Why can&#39;t you make it?</label>' +
+        '<textarea id="cant-' + id + '" data-cant-reason maxlength="500" rows="3"></textarea>' +
+        '<button type="button" class="btn btn-secondary" data-cant="' + id + '">Give up this shift</button></div></details>' +
+      '</div>';
+  }
+
+  function actionStatusId() {
+    return document.getElementById('shiftsStatus') ? 'shiftsStatus' : 'overviewStatus';
+  }
+
+  function runAction(button, call, done) {
+    button.disabled = true;
+    call.then(function (r) {
+      if (r.status === 200) {
+        show(actionStatusId(), done(r.body.data || {}), 'success');
+        if (typeof window.VergoStaff.onShiftChange === 'function') window.VergoStaff.onShiftChange();
+        loadBell();
+        return;
+      }
+      show(actionStatusId(), r.body.error || 'That did not work. Try again.', 'error');
+      button.disabled = false;
+    }).catch(function (err) {
+      if (err && err.message === 'signed-out') return;
+      show(actionStatusId(), 'Could not reach VERGO. Try again, or call us.', 'error');
+      button.disabled = false;
+    });
+  }
+
+  function shiftUrl(id, action) {
+    return SHIFTS_API + '/' + encodeURIComponent(id) + '/' + action;
+  }
+
+  // ── Timesheet: agree the hours on a worked shift, or say what is wrong ──
+  var TIMESHEET_DAYS = 14;
+  function timesheetActions(s) {
+    if (s.timesheetConfirmedAt) return '<p class="staff-ts-done">' + statusTag('Hours agreed', 'good') + '</p>';
+    if (s.timesheetQuery) return '<p class="staff-ts-done">' + statusTag('Hours queried', '') + ' <span class="staff-split">You said: ' + esc(s.timesheetQuery) + '</span></p>';
+    var worked = s.status === 'COMPLETED' || s.status === 'CONFIRMED';
+    var age = (Date.now() - new Date(String(s.eventDate).slice(0, 10) + 'T12:00:00Z').getTime()) / 86400000;
+    if (!worked || age < 0 || age > TIMESHEET_DAYS) return '';
+    var hours = s.hoursWorked != null ? s.hoursWorked : s.hoursEstimated;
+    var id = esc(s.id);
+    return '<div class="staff-ts" data-ts-box="' + id + '">' +
+      '<p class="staff-ts-q"><strong>Are these hours right?</strong> ' + (hours != null ? esc(hours) + ' hours' : 'No hours recorded yet') +
+        (s.checkedInAt && s.checkedOutAt ? ' (' + esc(clockOf(s.checkedInAt)) + ' to ' + esc(clockOf(s.checkedOutAt)) + ')' : '') + '</p>' +
+      '<div class="btn-row"><button type="button" class="btn btn-primary" data-ts-yes="' + id + '">Yes, that\'s right</button></div>' +
+      '<details class="staff-action"><summary>Something\'s wrong</summary><div class="staff-action-body">' +
+        '<label for="ts-' + id + '">What should they be?</label>' +
+        '<textarea id="ts-' + id + '" data-ts-note maxlength="500" rows="3" placeholder="e.g. I finished at 00:30, not 23:30"></textarea>' +
+        '<button type="button" class="btn btn-secondary" data-ts-no="' + id + '">Send to the office</button></div></details>' +
+      '</div>';
+  }
+  /** "18:05" in London time, from an ISO timestamp. */
+  function clockOf(iso) {
+    var d = new Date(iso);
+    return isNaN(d.getTime()) ? '' : d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London' });
+  }
+
+  document.addEventListener('click', function (event) {
+    var t = event.target;
+    if (!t.closest) return;
+    var swap = t.closest('[data-swap]');
+    if (swap) {
+      var sbox = swap.closest('[data-swap-box]');
+      var why = sbox.querySelector('[data-swap-reason]').value.trim();
+      var who = sbox.querySelector('[data-swap-colleague]').value.trim();
+      if (why.length < 3) return show(actionStatusId(), 'Tell us briefly why you want to swap.', 'error');
+      return runAction(swap, request('POST', shiftUrl(swap.getAttribute('data-swap'), 'swap-request'), who ? { reason: why, colleague: who } : { reason: why }), function (d) {
+        return d.emailed ? 'Sent. The office will arrange it and let you know. You are still booked until then.' : 'The office email did not go. Please call us about the swap.';
+      });
+    }
+    var tsYes = t.closest('[data-ts-yes]');
+    var tsNo = t.closest('[data-ts-no]');
+    if (tsYes) {
+      return runAction(tsYes, request('POST', shiftUrl(tsYes.getAttribute('data-ts-yes'), 'timesheet'), { agree: true }), function () { return 'Thanks. Hours agreed.'; });
+    }
+    if (tsNo) {
+      var tsNote = tsNo.closest('[data-ts-box]').querySelector('[data-ts-note]').value.trim();
+      if (tsNote.length < 3) return show(actionStatusId(), 'Tell us what the hours should be.', 'error');
+      return runAction(tsNo, request('POST', shiftUrl(tsNo.getAttribute('data-ts-no'), 'timesheet'), { agree: false, note: tsNote }), function (d) {
+        return d.emailed ? 'Sent. The office will check the hours and come back to you.' : 'Saved, but the office email did not go. Please call us about it too.';
+      });
+    }
+    var accept = t.closest('[data-accept]');
+    var decline = t.closest('[data-decline]');
+    var late = t.closest('[data-late]');
+    var cant = t.closest('[data-cant]');
+    if (accept) {
+      var id = accept.getAttribute('data-accept');
+      var terms = document.querySelector('[data-terms="' + id + '"]');
+      if (!terms || !terms.checked) return show(actionStatusId(), 'Tick the box to say you can work it and accept the shift terms.', 'error');
+      return runAction(accept, request('POST', shiftUrl(id, 'confirm'), { acceptedTerms: true }), function () { return 'Shift accepted. See you there.'; });
+    }
+    if (decline) {
+      if (!window.confirm('Decline this shift? We will offer it to someone else.')) return;
+      return runAction(decline, request('POST', shiftUrl(decline.getAttribute('data-decline'), 'decline'), {}), function () { return 'Shift declined.'; });
+    }
+    if (late) {
+      var box = late.closest('[data-late-box]');
+      var minutes = Number(box.querySelector('[data-late-minutes]').value);
+      var note = box.querySelector('[data-late-note]').value.trim();
+      return runAction(late, request('POST', shiftUrl(late.getAttribute('data-late'), 'running-late'), note ? { minutes: minutes, note: note } : { minutes: minutes }), function (d) {
+        return d.emailed ? 'Thanks. The office knows you are running about ' + minutes + ' minutes late.' : 'We could not email the office just now. Please call us to say you are running late.';
+      });
+    }
+    if (cant) {
+      var cbox = cant.closest('[data-cant-box]');
+      var reason = cbox.querySelector('[data-cant-reason]').value.trim();
+      if (reason.length < 3) return show(actionStatusId(), 'Tell us briefly why, so we can find cover.', 'error');
+      return runAction(cant, request('POST', shiftUrl(cant.getAttribute('data-cant'), 'cant-make-it'), { reason: reason }), function (d) {
+        return d.emailed ? 'Thanks for telling us. The shift is given up and the office is finding cover.' : 'The shift is given up, but the office email did not go. Please call us as well.';
+      });
+    }
+  });
+
+  window.VergoStaff = { APP_STATUS: APP_STATUS, request: request, show: show, esc: esc, day: day, money: money, statusTag: statusTag, profile: profile, shiftItem: shiftItem, shiftActions: shiftActions, timesheetActions: timesheetActions, countdown: countdown, jobSummary: jobSummary, onShiftChange: null };
 })();

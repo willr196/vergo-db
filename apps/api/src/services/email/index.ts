@@ -544,6 +544,29 @@ export async function sendRosterApprovalEmail(data: {
  * a lost notification is a lost lead, but the person filling the form in has
  * already done their part and gets their 201 either way.
  */
+/** A one-tap login link for the staff website. Lasts `minutes`, works once. */
+export async function sendLoginLinkEmail(data: {
+  to: string;
+  name: string;
+  token: string;
+  minutes: number;
+  userId?: string;
+}): Promise<EmailResult> {
+  const html = templates.userLoginLinkEmail({
+    recipientName: data.name,
+    token: data.token,
+    minutes: data.minutes,
+  });
+  return sendEmailOrThrow({
+    to: data.to,
+    subject: 'Your VERGO login link',
+    html,
+    emailType: 'user-login-link',
+    userId: data.userId,
+    tags: [{ name: 'category', value: 'login-link' }, { name: 'source', value: 'website' }],
+  });
+}
+
 export async function sendQuoteNotificationEmail(data: {
   subject: string;
   html: string;
@@ -557,6 +580,22 @@ export async function sendQuoteNotificationEmail(data: {
       { name: 'category', value: 'quote' },
       { name: 'source', value: 'website' },
     ],
+  });
+}
+
+/** To the office: a worker is running late or can't make a confirmed shift. */
+export async function sendStaffShiftAlertEmail(data: {
+  subject: string;
+  html: string;
+  replyTo?: string;
+}): Promise<EmailResult | null> {
+  return sendEmailSilent({
+    to: TO_EMAIL,
+    subject: data.subject,
+    html: data.html,
+    replyTo: data.replyTo,
+    emailType: 'staff-shift-alert',
+    tags: [{ name: 'category', value: 'staff-alert' }],
   });
 }
 

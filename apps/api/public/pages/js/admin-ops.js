@@ -1828,6 +1828,7 @@
       '<div class="ops-card"><h3 style="margin-top:0">Workplace pension</h3><div class="ops-form" id="pension-settings">' +
         field('Pension duties start date', 'pensionDutiesStartDate', s.pensionDutiesStartDate, 'date', { hint: "VERGO's duties start (staging) date from The Pensions Regulator." }) +
         field('Pay frequency', 'payFrequency', s.payFrequency, 'select', { options: ['weekly', 'fortnightly', 'four_weekly', 'monthly'] }) +
+        field('Pay day (date of the month)', 'payDayOfMonth', s.payDayOfMonth, 'number', { hint: 'Monthly pay only. Shown to staff on their Earnings page. 29 to 31 mean the last day in shorter months.', attrs: ' min="1" max="31" step="1"' }) +
         field('State Pension age', 'statePensionAge', s.statePensionAge, 'number') +
         '<div class="wide"><button class="btn btn-sm btn-primary" id="save-pension">Save</button></div></div></div>' +
       '<div class="ops-card"><h3 style="margin-top:0">Pension thresholds by tax year</h3><p class="text-muted fs-sm mb-2">Annual figures in pounds. Tick verified once checked against The Pensions Regulator.</p><div id="thresholds">' +
@@ -1888,6 +1889,7 @@
       try {
         await api('/settings/pensionDutiesStartDate', { method: 'PUT', body: { value: f.pensionDutiesStartDate } });
         await api('/settings/payFrequency', { method: 'PUT', body: { value: f.payFrequency } });
+        await api('/settings/payDayOfMonth', { method: 'PUT', body: { value: f.payDayOfMonth == null ? null : Math.round(f.payDayOfMonth) } });
         await api('/settings/statePensionAge', { method: 'PUT', body: { value: f.statePensionAge } });
         toast('Saved'); viewSettings();
       } catch (err) { fail(err); }

@@ -20,6 +20,40 @@
 
     <section class="section-tight shell-form">
       <div class="form-status" id="jobsStatus" role="status" hidden></div>
+      <form class="staff-filters" id="jobFilters" role="search" novalidate>
+        <div class="staff-filter staff-filter-wide">
+          <label for="jobSearch">Search</label>
+          <input type="search" id="jobSearch" placeholder="Venue, area or job" autocomplete="off">
+        </div>
+        <div class="staff-filter">
+          <label for="jobRole">Role</label>
+          <select id="jobRole"><option value="">Any role</option></select>
+        </div>
+        <div class="staff-filter">
+          <label for="jobWhen">When</label>
+          <select id="jobWhen">
+            <option value="">Any time</option>
+            <option value="week">Next 7 days</option>
+            <option value="month">Next 30 days</option>
+            <option value="weekend">Fridays to Sundays</option>
+          </select>
+        </div>
+        <div class="staff-filter">
+          <label for="jobSort">Sort</label>
+          <select id="jobSort">
+            <option value="soon">Soonest first</option>
+            <option value="pay">Best paid first</option>
+            <option value="new">Newest first</option>
+          </select>
+        </div>
+        <label class="checkbox-line staff-filter-check" for="jobHideApplied">
+          <input type="checkbox" id="jobHideApplied"><span>Hide jobs I've applied for</span>
+        </label>
+        <label class="checkbox-line staff-filter-check" for="jobSavedOnly">
+          <input type="checkbox" id="jobSavedOnly"><span>Only jobs I've saved</span>
+        </label>
+      </form>
+      <p class="staff-count" id="jobCount" aria-live="polite"></p>
       <ul class="staff-list" id="jobList" aria-live="polite"></ul>
       <p class="staff-empty" id="jobsEmpty" hidden>No open jobs right now. We will email you when something comes up.</p>
     </section>
